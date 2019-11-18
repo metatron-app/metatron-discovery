@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-import { Book } from '../workspace/book';
-import { Dataconnection } from '../dataconnection/dataconnection';
+import {Book} from '../workspace/book';
+import {Dataconnection} from '../dataconnection/dataconnection';
+
 /**
  * Created by LDL on 2017. 7. 10..
  */
@@ -28,6 +29,8 @@ export class Workbench extends Book{
   public name: string = '';
   public id: string = '';
   public folderId: string;
+
+  public valid: boolean;
 
   // for UI
   public selectDataconnection: Dataconnection;

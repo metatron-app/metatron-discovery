@@ -293,7 +293,7 @@ export class ScrollLoadingGridModel {
     if ('' !== this._searchText) {
       return data.filter(item => {
         return -1 < Object.keys(item).findIndex(key => {
-          return 'string' === typeof item[key] && -1 < item[key].indexOf(this._searchText);
+          return -1 < String(item[key]).toLocaleUpperCase().indexOf(this._searchText.toLocaleUpperCase());
         });
       });
     } else {

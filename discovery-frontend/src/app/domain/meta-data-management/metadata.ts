@@ -15,46 +15,49 @@
 import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 import {MetadataSource} from './metadata-source';
 import {MetadataColumn} from './metadata-column';
+import * as _ from 'lodash';
 
 export class Metadata extends AbstractHistoryEntity {
+
   public id: string;
   public description: string;
   public name: string;
   public sourceType: SourceType;
   public source: MetadataSource;
+  public favorite: boolean;
   public catalogs: any;
   public tags: any;
   public popularity: number;
-  // 컬럼 목록
   public columns: MetadataColumn[];
+
+  public static isSourceTypeIsEngine(sourceType: SourceType) {
+    return _.negate(_.isNil)(sourceType)
+      && sourceType === SourceType.ENGINE;
+  }
+
+  public static isSourceTypeIsStaging(sourceType: SourceType) {
+    return _.negate(_.isNil)(sourceType)
+      && sourceType === SourceType.STAGING;
+  }
+
+  public static isSourceTypeIsJdbc(sourceType: SourceType) {
+    return _.negate(_.isNil)(sourceType)
+      && sourceType === SourceType.JDBC;
+  }
+
+  public static isDisableMetadataNameCharacter(name: string) {
+    return (/^[!@#$%^*+=()~`\{\}\[\]\-\_\;\:\'\"\,\.\/\?\<\>\|\&\\]+$/gi).test(name);
+  }
+
+  public static isEmptyTags(metadata: Metadata): boolean {
+    return _.isNil(metadata.tags) || metadata.tags.length === 0;
+  }
 }
 
 export enum SourceType {
   ENGINE = <any>'ENGINE',
   STAGING = <any>'STAGEDB',
-  JDBC = <any>'JDBC'
-}
-
-export class MetadataSourceType {
-
-  constructor(private value: SourceType) {
-  }
-
-  public toString() {
-    return this.value;
-  }
-
-  private static readonly engine = new MetadataSourceType(SourceType.ENGINE);
-  private static readonly staging = new MetadataSourceType(SourceType.STAGING);
-  private static readonly jdbc = new MetadataSourceType(SourceType.JDBC);
-
-  public isEngine() {
-    return this.value === MetadataSourceType.engine.toString();
-  }
-  public isStaging() {
-    return this.value === MetadataSourceType.staging.toString();
-  }
-  public isJdbc() {
-    return this.value === MetadataSourceType.jdbc.toString();
-  }
+  STAGEDB = <any>'STAGEDB',
+  JDBC = <any>'JDBC',
+  ETC = <any>'ETC'
 }

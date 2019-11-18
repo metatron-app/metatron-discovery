@@ -12,18 +12,17 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonConstant } from '../constant/common.constant';
+import {Injectable, Injector} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {CommonConstant} from '../constant/common.constant';
 import 'rxjs/add/operator/toPromise';
-import { User } from '../../domain/user/user';
-import { CookieService } from 'ng2-cookies';
-import { CookieConstant } from '../constant/cookie.constant';
-import { NavigationExtras, Router } from '@angular/router';
-import { saveAs } from 'file-saver';
+import {User} from '../../domain/user/user';
+import {CookieService} from 'ng2-cookies';
+import {CookieConstant} from '../constant/cookie.constant';
+import {NavigationExtras, Router} from '@angular/router';
 import 'rxjs/add/operator/timeout';
-import { CommonUtil } from '../util/common.util';
-import { Observable } from 'rxjs';
+import {CommonUtil} from '../util/common.util';
+import {Observable} from 'rxjs';
 import {map} from "rxjs/operators";
 import {catchError} from "rxjs/internal/operators";
 
@@ -228,6 +227,32 @@ export class AbstractService {
     try {
       // 호출
       return this.http.post(url, JSON.stringify(data), { headers })
+        .toPromise()
+        .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
+    } catch (err) {
+      console.error( err );
+      return Promise.reject(err);
+    }
+
+  }
+
+  // Post Form 방식
+  protected postWithForm(url: string, data: any): Promise<any> {
+
+    // this
+    const scope: any = this;
+
+    // 헤더
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+
+    });
+
+    try {
+      // 호출
+      return this.http.post(url, data, { headers })
         .toPromise()
         .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
     } catch (err) {

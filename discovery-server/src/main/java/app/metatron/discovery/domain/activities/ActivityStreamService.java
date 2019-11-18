@@ -75,4 +75,9 @@ public class ActivityStreamService {
     return activityStreamRepository.findWorkspaceViewStat(workspaceId, timeUnit, from, to);
   }
 
+  public ActivityStream getLastAccessActivity(String username){
+    ActivityStream userLastActivity = activityStreamRepository.findTop1ByActorOrderByPublishedTimeDesc(username);
+    return userLastActivity;
+  }
+
 }

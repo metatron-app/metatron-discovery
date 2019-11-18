@@ -44,27 +44,29 @@
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.columns.slice(i, i+1)[0]">
-              <!-- timestamp type -->
-              <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
-              <!-- //timestamp type -->
-              <!-- aggregation type -->
-              <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias)  && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
-              <!-- //aggregation type -->
-              <!-- geo-point type -->
-              <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-point type -->
-              <!-- geo-line type -->
-              <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-line type -->
-              <!-- geo-polygon type -->
-              <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-polygon type -->
-              <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
-              <div class="ddp-ui-icons">
-                <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
-                <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
-                <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                <span class="ddp-icon-close" (click)="removeField($event, 'COLUMNS', pivot.columns, i)"><em></em></span>
+              <div class="ddp-data-txt">
+                <!-- timestamp type -->
+                <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
+                <!-- //timestamp type -->
+                <!-- aggregation type -->
+                <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias)  && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
+                <!-- //aggregation type -->
+                <!-- geo-point type -->
+                <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-point type -->
+                <!-- geo-line type -->
+                <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-line type -->
+                <!-- geo-polygon type -->
+                <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-polygon type -->
+                <div class="ddp-ui-icons">
+                  <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
+                  <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
+                  <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
+                  <span class="ddp-icon-close" (click)="removeField($event, 'COLUMNS', pivot.columns, i)"><em></em></span>
+                </div>
+                <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
             </a>
           </div>
@@ -113,27 +115,29 @@
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.rows.slice(i, i+1)[0]">
-              <!-- timestamp type -->
-              <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
-              <!-- //timestamp type -->
-              <!-- aggregation type -->
-              <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
-              <!-- //aggregation type -->
-              <!-- geo-point type -->
-              <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-point type -->
-              <!-- geo-line type -->
-              <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-line type -->
-              <!-- geo-polygon type -->
-              <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-polygon type -->
-              <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
-              <div class="ddp-ui-icons">
-                <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
-                <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
-                <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                <span class="ddp-icon-close" (click)="removeField($event, 'ROWS', pivot.rows, i)"><em></em></span>
+              <div class="ddp-data-txt">
+                <!-- timestamp type -->
+                <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
+                <!-- //timestamp type -->
+                <!-- aggregation type -->
+                <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
+                <!-- //aggregation type -->
+                <!-- geo-point type -->
+                <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-point type -->
+                <!-- geo-line type -->
+                <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-line type -->
+                <!-- geo-polygon type -->
+                <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-polygon type -->
+                <div class="ddp-ui-icons">
+                  <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
+                  <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
+                  <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
+                  <span class="ddp-icon-close" (click)="removeField($event, 'ROWS', pivot.rows, i)"><em></em></span>
+                </div>
+                <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
             </a>
           </div>
@@ -180,30 +184,31 @@
             <a *ngIf="field" href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
-               (mousedown)="dragField = pivot.aggregations.slice(i, i+1)[0]"
-            >
-              <!-- timestamp type -->
-              <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
-              <!-- //timestamp type -->
-              <!-- aggregation type -->
-              <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
-              <!--<span class="ddp-type-value" *ngIf="field.aggregationType && field.alias == field.name">{{field.aggregationType}}</span>-->
-              <!-- //aggregation type -->
-              <!-- geo-point type -->
-              <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-point type -->
-              <!-- geo-line type -->
-              <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-line type -->
-              <!-- geo-polygon type -->
-              <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType?.toString()"></em>
-              <!-- //geo-polygon type -->
-              <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
-              <div class="ddp-ui-icons">
-                <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
-                <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
-                <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                <span class="ddp-icon-close" (click)="removeField($event, 'AGGREGATIONS', pivot.aggregations, i)"><em></em></span>
+               (mousedown)="dragField = pivot.aggregations.slice(i, i+1)[0]">
+              <div class="ddp-data-txt">
+                <!-- timestamp type -->
+                <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
+                <!-- //timestamp type -->
+                <!-- aggregation type -->
+                <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
+                <!--<span class="ddp-type-value" *ngIf="field.aggregationType && field.alias == field.name">{{field.aggregationType}}</span>-->
+                <!-- //aggregation type -->
+                <!-- geo-point type -->
+                <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-point type -->
+                <!-- geo-line type -->
+                <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-line type -->
+                <!-- geo-polygon type -->
+                <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType?.toString()"></em>
+                <!-- //geo-polygon type -->
+                <div class="ddp-ui-icons">
+                  <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
+                  <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
+                  <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
+                  <span class="ddp-icon-close" (click)="removeField($event, 'AGGREGATIONS', pivot.aggregations, i)"><em></em></span>
+                </div>
+                <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
             </a>
           </div>

@@ -155,9 +155,9 @@ public class WorkbenchDataSource {
     return primaryConnection;
   }
 
-  public Connection getSecondaryConnection() {
+  public Connection getSecondaryConnection(String username, String password) {
     if(secondaryConnection == null){
-      secondaryConnection = createSecondaryConnection();
+      secondaryConnection = createSecondaryConnection(username, password);
     }
     return secondaryConnection;
   }
@@ -200,14 +200,14 @@ public class WorkbenchDataSource {
     return getCloseSuppressingConnectionProxy(originalPrimaryConnection);
   }
 
-  private Connection createSecondaryConnection(){
+  private Connection createSecondaryConnection(String username, String password){
     JdbcDialect jdbcDialect = DataConnectionHelper.lookupDialect(connectionInfo);
 
-    Map<String, String> propMap = connectionInfo.getPropertiesMap();
-    String hiveAdminUserName = propMap.get(HiveDialect.PROPERTY_KEY_ADMIN_NAME);
-    String hiveAdminUserPassword = propMap.get(HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD);
+//    Map<String, String> propMap = connectionInfo.getPropertiesMap();
+//    String hiveAdminUserName = propMap.get(HiveDialect.PROPERTY_KEY_ADMIN_NAME);
+//    String hiveAdminUserPassword = propMap.get(HiveDialect.PROPERTY_KEY_ADMIN_PASSWORD);
 
-    originalSecondaryConnection = jdbcConnector.getConnection(connectionInfo, jdbcDialect, connectionInfo.getDatabase(), true, hiveAdminUserName, hiveAdminUserPassword);
+    originalSecondaryConnection = jdbcConnector.getConnection(connectionInfo, jdbcDialect, connectionInfo.getDatabase(), true, username, password);
     return getCloseSuppressingConnectionProxy(originalSecondaryConnection);
   }
 

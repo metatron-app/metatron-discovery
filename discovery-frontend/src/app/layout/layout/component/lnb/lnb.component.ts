@@ -12,23 +12,33 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { NavigationEnd } from '@angular/router';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { WorkspaceService } from '../../../../workspace/service/workspace.service';
-import { Workspace } from '../../../../domain/workspace/workspace';
-import { CreateWorkspaceComponent } from '../../../../workspace/component/management/create-workspace.component';
-import { WorkspaceListComponent } from '../../../../workspace/component/management/workspace-list.component';
-import { Book } from '../../../../domain/workspace/book';
-import { CookieConstant } from '../../../../common/constant/cookie.constant';
-import { EventBroadcaster } from '../../../../common/event/event.broadcaster';
-import { SYSTEM_PERMISSION } from '../../../../common/permission/permission';
-import { CommonUtil } from '../../../../common/util/common.util';
-import { Modal } from '../../../../common/domain/modal';
-import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
-import { BuildInfo } from "../../../../../environments/build.env";
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
+import {NavigationEnd, NavigationExtras} from '@angular/router';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {WorkspaceService} from '../../../../workspace/service/workspace.service';
+import {Workspace} from '../../../../domain/workspace/workspace';
+import {CreateWorkspaceComponent} from '../../../../workspace/component/management/create-workspace.component';
+import {WorkspaceListComponent} from '../../../../workspace/component/management/workspace-list.component';
+import {Book} from '../../../../domain/workspace/book';
+import {CookieConstant} from '../../../../common/constant/cookie.constant';
+import {EventBroadcaster} from '../../../../common/event/event.broadcaster';
+import {SYSTEM_PERMISSION} from '../../../../common/permission/permission';
+import {CommonUtil} from '../../../../common/util/common.util';
+import {Modal} from '../../../../common/domain/modal';
+import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
+import {BuildInfo} from "../../../../../environments/build.env";
 import {CommonService} from "../../../../common/service/common.service";
 import {Extension} from "../../../../common/domain/extension";
+import {Engine} from '../../../../domain/engine-monitoring/engine';
+import {StringUtil} from "../../../../common/util/string.util";
 
 @Component({
   selector: 'app-lnb',
@@ -39,6 +49,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public readonly ENGINE_OVERVIEW_MONITORING_STATUS = Engine.MonitoringStatus;
 
   // 즐겨찾기 플래그
   private isFavorFl: boolean = false;
@@ -67,13 +79,19 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   // 메뉴 권한
   public permission = {
-    myWorkspace:false,
+    myWorkspace: false,
     workspace: false,
+    exploreData: false,
+    exploreDataView: true,
+    exploreFavorite: false,
     management: false,
     managementDatasource: false,
     managementMetadata: false,
+    // TODO: 추후에 엔진 모니터링 메뉴에 대한 권한이 있는지 검사하는 로직 추가 필요 ( 임시 작업 )
+    managementEngineMonitoring: false,
     userAdmin: false,
-    workspaceAdmin: false
+    workspaceAdmin: false,
+    lineage: false
   };
 
   // lnb 플래그
@@ -93,32 +111,35 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   // menu 관리
   public lnbManager = {
     // 워크스페이스
-    workspace: { fold: false },
+    workspace: {fold: false},
+    // 데이터 탐색
+    exploreData: {
+      fold: true,
+      data: {fold : true},
+      favorite: { fold : true }
+    },
     // 매니지먼트
     management: {
       fold: true,
-      metadata: { fold:true },
-      dataStorage: { fold: true },
-      dataPreparation: { fold: true },
-      dataMonitoring: { fold: true },
-      modelManager: { fold: true }
+      metadata: {fold: true},
+      dataStorage: {fold: true},
+      dataPreparation: {fold: true},
+      dataMonitoring: {fold: true},
+      modelManager: {fold: true},
+      engineMonitoring: { fold: true }
     },
     // 어드민
     administration: {
       fold: true,
-      users: { fold: true },
-      workspaces: { fold: true }
+      users: {fold: true},
+      workspaces: {fold: true}
     }
   };
 
   // Metatron App. 빌드 정보
-  public  buildInfo = {
+  public buildInfo = {
     appVersion: BuildInfo.METATRON_APP_VERSION
   };
-
-  public get getManagementExtensions():Extension[] {
-    return CommonService.extensions.filter( item => 'management' === item.parent );
-  } // get - getManagementExtensions
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Component
@@ -180,6 +201,12 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
             this.depth1Menu1ClickListener('MANAGEMENT');
             this.mgmtMenuClickListener('DATAMONITORING');
             break;
+          case '/management/engine-monitoring/overview' :
+          case '/management/engine-monitoring/ingestion' :
+          case '/management/engine-monitoring/query' :
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            this.mgmtMenuClickListener('ENGINE_MONITORING');
+            break;
           case '/admin/user/members' :
           case '/admin/user/groups' :
           case '/admin/workspaces/shared':
@@ -198,11 +225,11 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     super.ngOnInit();
     let cookiePermission: string = CommonUtil.getCurrentPermissionString();
     if (cookiePermission && '' !== cookiePermission) {
-      this.permission.myWorkspace = ( -1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_PRIVATE_WORKSPACE.toString()) );
-      this.permission.workspace = ( -1 < cookiePermission.indexOf(SYSTEM_PERMISSION.VIEW_WORKSPACE.toString()) );
-      this.permission.managementDatasource = ( -1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()) );
-      this.permission.managementMetadata = ( -1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_METADATA.toString()) );
-      this.permission.management = ( this.permission.managementDatasource || this.permission.managementMetadata );
+      this.permission.myWorkspace = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_PRIVATE_WORKSPACE.toString()));
+      this.permission.workspace = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.VIEW_WORKSPACE.toString()));
+      this.permission.managementDatasource = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+      this.permission.managementMetadata = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_METADATA.toString()));
+      this.permission.management = (this.permission.managementDatasource || this.permission.managementMetadata);
       this.permission.userAdmin = (
         -1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_USER.toString())
         && -1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_SYSTEM.toString())
@@ -213,7 +240,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       );
     }
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
-    (cookieWs) && ( this.cookieInfo = JSON.parse(cookieWs) );
+    (cookieWs) && (this.cookieInfo = JSON.parse(cookieWs));
 
     // 선택 필터 설정
     this.subscriptions.push(
@@ -223,12 +250,24 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     );
 
     // extensions 설정
-    this.commonService.getExtensions('lnb').then( items => {
-      if( items && 0 < items.length ) {
-        const exts:Extension[] = items;
-        exts.forEach( ext => {
-          ( this.lnbManager[ext.parent] ) || ( this.lnbManager[ext.parent] = {} );
-          this.lnbManager[ext.parent][ext.name] = { fold : true };
+    this.commonService.getExtensions('lnb').then(items => {
+      if (items && 0 < items.length) {
+        const exts: Extension[] = items;
+        exts.forEach(ext => {
+
+          if( 'Explore Data' === ext.name ) {
+            this.permission.exploreData = true;
+          } else if('Lineage' === ext.name) {
+            this.permission.lineage = true;
+          } else if('Engine Monitoring' === ext.name) {
+            //this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+            this.permission.managementEngineMonitoring = this.extensionPermission(ext);
+          } else {
+            if (ext.parent != 'ROOT') {
+              (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
+              this.lnbManager[ext.parent][ext.name] = {fold: true};
+            }
+          }
         });
       }
     });
@@ -273,26 +312,53 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * @param {string} menuName
    */
   public depth1Menu1ClickListener(menuName: string) {
+    this.lnbManager.workspace.fold = true;
+    this.lnbManager.exploreData.fold = true;
+    this.lnbManager.management.fold = true;
+    this.lnbManager.administration.fold = true;
+    this.getExtensions('ROOT').forEach(item => {
+      this.lnbManager[item.name]['fold'] = true;
+    });
     switch (menuName) {
       case 'WORKSPACE' :
         this.lnbManager.workspace.fold = false;
-        this.lnbManager.management.fold = true;
-        this.lnbManager.administration.fold = true;
+        break;
+      case 'EXPLOREDATA' :
+        this.lnbManager.exploreData.fold = false;
+        this.exploreDataMenuClickListener('EXPLOREDATA_VIEW');
         break;
       case 'MANAGEMENT' :
-        this.lnbManager.workspace.fold = true;
         this.lnbManager.management.fold = false;
-        this.lnbManager.administration.fold = true;
         this.mgmtMenuClickListener('DATASTORAGE');
         break;
       case 'ADMINISTRATION' :
-        this.lnbManager.workspace.fold = true;
-        this.lnbManager.management.fold = true;
         this.lnbManager.administration.fold = false;
         this.adminMenuClickListener('USER');
         break;
+      default :
+        if (this.lnbManager[menuName]) {
+          this.lnbManager[menuName]['fold'] = false;
+          this.rootExtensionMenuClickListener(menuName);
+        }
     }
   } // function - menuDepth1ClickListener
+
+  /**
+   * Explore Data 하위 메뉴 클릭 이벤트 리스너
+   * @param menuName
+   */
+  public exploreDataMenuClickListener(menuName:string) {
+    this.lnbManager.exploreData.data.fold = true;
+    this.lnbManager.exploreData.favorite.fold = true;
+    switch (menuName) {
+      case 'EXPLOREDATA_DATA' :
+        this.lnbManager.exploreData.data.fold = false;
+        break;
+      case 'EXPLOREDATA_FAVORITE' :
+        this.lnbManager.exploreData.favorite.fold = false;
+        break;
+    }
+  } // function - exploreDataMenuClickListener
 
   /**
    * Management 하위 메뉴 클릭 이벤트 리스너
@@ -304,8 +370,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     this.lnbManager.management.dataPreparation.fold = true;
     this.lnbManager.management.dataMonitoring.fold = true;
     this.lnbManager.management.modelManager.fold = true;
-    this.getManagementExtensions.forEach( item => {
-      this.lnbManager.management[item.name]['fold']  = true;
+    this.lnbManager.management.engineMonitoring.fold = true;
+    this.getExtensions('management').forEach(item => {
+      this.lnbManager.management[item.name]['fold'] = true;
     });
 
     switch (menuName) {
@@ -324,8 +391,11 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       case 'MODELMANAGER' :
         this.lnbManager.management.modelManager.fold = false;
         break;
+      case 'ENGINE_MONITORING' :
+        this.lnbManager.management.engineMonitoring.fold = false;
+        break;
       default :
-        if( this.lnbManager.management[menuName] ) {
+        if (this.lnbManager.management[menuName]) {
           this.lnbManager.management[menuName]['fold'] = false;
         }
     }
@@ -335,9 +405,12 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * Administration 하위 메뉴 클릭 이벤트 리스너
    * @param {string} menuName
    */
-  public adminMenuClickListener(menuName:string) {
+  public adminMenuClickListener(menuName: string) {
     this.lnbManager.administration.users.fold = true;
     this.lnbManager.administration.workspaces.fold = true;
+    this.getExtensions('administration').forEach(item => {
+      this.lnbManager.administration[item.name]['fold'] = true;
+    });
     switch (menuName) {
       case 'USER' :
         this.lnbManager.administration.users.fold = false;
@@ -345,8 +418,25 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       case 'WORKSPACE' :
         this.lnbManager.administration.workspaces.fold = false;
         break;
+      default :
+        if (this.lnbManager.administration[menuName]) {
+          this.lnbManager.administration[menuName]['fold'] = false;
+        }
     }
   } // function - adminMenuClickListener
+
+  public rootExtensionMenuClickListener(parent:string, menuName?:string) {
+    if (menuName == undefined && this.getExtensions(parent).length > 0) {
+      menuName = this.getExtensions(parent)[0].name;
+    }
+    this.getExtensions(parent).forEach(item => {
+      this.lnbManager[parent][item.name]['fold'] = true;
+    });
+
+    if (this.lnbManager[parent][menuName]) {
+      this.lnbManager[parent][menuName]['fold'] = false;
+    }
+  } // function - exploreDataMenuClickListener
 
   /**
    * 워크스페이스 리스트 페이지 오픈
@@ -376,6 +466,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
     // lnb 상태 변경
     this.isShow = !this.isShow;
+    (this.isShow) || (this.isShowFolderNavi = false);
   } // function - lnbEvent
 
   /**
@@ -396,7 +487,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       };
       this._confirmModalComp.init(modal);
     } else {
-      const workspaceId: string = ( workspace ) ? workspace.id : 'my';
+      const workspaceId: string = (workspace) ? workspace.id : 'my';
       let navigateInfo: string[] = [];
       if (workspaceId) {
         navigateInfo = ['/workspace', workspaceId];
@@ -441,13 +532,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     let cookieData = {
       viewType: this.cookieInfo.viewType ? this.cookieInfo.viewType : 'CARD',
       workspaceId: this._selectedWorkspace.id,
-      folderId: ( 'folder' === objParent.type ) ? objParent.id : null,
-      folderHierarchies: ( 'folder' === objParent.type ) ? objParent.hierarchies : null
+      folderId: ('folder' === objParent.type) ? objParent.id : null,
+      folderHierarchies: ('folder' === objParent.type) ? objParent.hierarchies : null
     };
     switch (naviItem.type) {
       case 'folder' :
-        (objParent.hierarchies) || ( objParent.hierarchies = [] );
-        objParent.hierarchies.push({ id: naviItem.id, name: naviItem.name });
+        (objParent.hierarchies) || (objParent.hierarchies = []);
+        objParent.hierarchies.push({id: naviItem.id, name: naviItem.name});
         cookieData['folderId'] = naviItem.id;
         cookieData['folderHierarchies'] = objParent.hierarchies;
         this.cookieService.set(CookieConstant.KEY.CURRENT_WORKSPACE, JSON.stringify(cookieData), 0, '/');
@@ -485,7 +576,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
 
     // 데이터 초기화
-    this.isShowFolderNavi = ( this._selectedWorkspace && this._selectedWorkspace.id === wsId ) ? !this.isShowFolderNavi : true;
+    this.isShowFolderNavi = (this._selectedWorkspace && this._selectedWorkspace.id === wsId) ? !this.isShowFolderNavi : true;
     if (wsInfo) {
       this._selectedWorkspace = wsInfo;
     } else {
@@ -536,23 +627,57 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   /**
    * 해당 메뉴로 이동
-   * @param {string} menu
    */
-  public move(menu: string) {
-    if( this.router.url !== '/' + menu ) {
-      // window.location.href = environment.baseHref + menu;
+  public move(menu: string, extras?: NavigationExtras) {
+    if (this.router.url !== '/' + menu) {
       this.loadingShow();
-      this.router.navigate([menu]).then();
+
+      if (extras) {
+        this.router.navigate([menu], extras).then();
+      } else {
+        this.router.navigate([menu]).then();
+      }
+
       this._closeLNB();
     }
   } // function - move
+
+  public moveExtension(ext: Extension, subKey) {
+    if (ext.subContents[subKey].startsWith('http')) {
+      this.move('external/' + ext.parent + '_' + ext.name + '_' + subKey);
+    } else {
+      this.move(ext.subContents[subKey]);
+    }
+  }
+
+  public extensionPermission(ext: Extension): boolean {
+    if (ext.permissions && ext.permissions.length > 0) {
+      let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+      return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
+    } else {
+      return true;
+    }
+  }
+
+  public getExtensions(parent:string): Extension[] {
+    const extensions = CommonService.extensions.filter(item => parent === item.parent);
+    if (parent === 'ROOT') {
+      return extensions.filter(rootExtension => CommonService.extensions.filter(item => rootExtension.name === item.parent).length > 0);
+    } else {
+      return extensions;
+    }
+  }
+
+  public isExtensionSelected(parent:string, name:string): boolean {
+    return this.lnbManager[parent][name] != undefined && this.lnbManager[parent][name]['fold'] == false;
+  }
 
   /**
    * 메뉴얼 다운로드
    */
   public downloadManual() {
-    const browserLang:string = this.translateService.getBrowserLang();
-    const lang:string = browserLang.match(/en/) ? 'en' : 'ko';
+    const browserLang: string = this.translateService.getBrowserLang();
+    const lang: string = browserLang.match(/en/) ? 'en' : 'ko';
     this.commonService.downloadManual(lang);
   } // function - downloadManual
 
@@ -579,19 +704,27 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * @private
    */
   private _getPrivateWorkspace() {
-    // 개인 워크스페이스 조회
-    this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
-      // 개인 워크스페이스 초기화
-      this.privateWorkspace = null;
+    const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
+    if (StringUtil.isEmpty(workspace)) {
+      // 개인 워크스페이스 조회
+      this.workspaceService.getMyWorkspace().then((workspace) => {
+        // 개인 워크스페이스 초기화
+        this.privateWorkspace = null;
 
-      if (workspace) {
-        // 데이터 저장
-        this.privateWorkspace = workspace;
+        if (workspace) {
+          this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(workspace), 0, '/');
+          // 데이터 저장
+          this.privateWorkspace = workspace;
 
-        // 공유 워크스페이스 조회 호출
-        this._getSharedWorkspace();
-      }
-    });
+          // 공유 워크스페이스 조회 호출
+          this._getSharedWorkspace();
+        }
+      });
+    } else {
+      this.privateWorkspace = JSON.parse(workspace);
+      this._getSharedWorkspace();
+    }
+
   } // function - _getPrivateWorkspace
 
   /**
@@ -643,7 +776,17 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * @private
    */
   private _closeLNB() {
-    this.isShow=false;
-    this.isShowFolderNavi=false;
+    this.isShow = false;
+    this.isShowFolderNavi = false;
   } // function - _closeLNB
+
+
+  public popupManual() {
+    const browserLang:string = this.translateService.getBrowserLang();
+    if (browserLang.match(/ko/)) {
+      window.open("https://metatron-app.github.io/metatron-doc-discovery/", "_blank");
+    } else {
+      window.open("https://metatron-app.github.io/metatron-doc-discovery/en", "_blank");
+    }
+  }
 }

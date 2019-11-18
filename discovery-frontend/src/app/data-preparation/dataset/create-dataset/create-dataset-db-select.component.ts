@@ -12,17 +12,13 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnInit, Input, ViewChild} from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import {
-  PrDatasetJdbc,
-  DsType,
-  ImportType, QueryInfo, TableInfo,
-} from '../../../domain/data-preparation/pr-dataset';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { isNullOrUndefined } from 'util';
-import {ConnectionComponent} from "../../../data-storage/component/connection/connection.component";
+import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {PopupService} from '../../../common/service/popup.service';
+import {DsType, ImportType, PrDatasetJdbc, QueryInfo, TableInfo,} from '../../../domain/data-preparation/pr-dataset';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {isNullOrUndefined} from 'util';
+import {ConnectionComponent, ConnectionValid} from "../../../data-storage/component/connection/connection.component";
 import {PageResult} from "../../../domain/common/page";
 import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
 
@@ -83,7 +79,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       // 이미 커넥션 리스트가 있음
       this.connectionList = this.datasetJdbc.connectionList;
       this._connectionComponent.init(this.datasetJdbc.dataconnection.connection);
-      this._connectionComponent.isValidConnection = true;
+      this._connectionComponent.connectionValidation = ConnectionValid.ENABLE_CONNECTION;
     }
   }
 
@@ -101,9 +97,10 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    * When next button is clicked
    */
   public next() {
-
-    this._connectionComponent.isConnectionCheckRequire = true;
-
+    // set click flag
+    if (this._connectionComponent.isEmptyConnectionValidation()) {
+      this._connectionComponent.setRequireCheckConnection();
+    }
     if (this.isEnableNext()) {
       this.datasetJdbc.dataconnection = this._connectionComponent.getConnectionParams();
       this.datasetJdbc.connectionList = this.connectionList;
@@ -165,7 +162,14 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    * @returns {boolean}
    */
   public isEnableNext(): boolean {
-    return this._connectionComponent.isValidConnection;
+    // check valid connection
+    if (!this._connectionComponent.isEnableConnection()) {
+      // #1990 scroll into invalid input
+      this._connectionComponent.scrollIntoConnectionInvalidInput();
+      return false;
+    } else {
+      return true;
+    }
   }
 
 

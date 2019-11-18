@@ -14,16 +14,38 @@
 
 <!-- 상단 영역 -->
 <div class="ddp-ui-divide">
-  <div class="ddp-ui-down-title2" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'"
-        [ngStyle]="!isDashboardMode ? { cursor : 'default' } : {}">
+  <div class="ddp-ui-down-title2 ddp-flex" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'"
+       [class.ddp-selected]="isNewFilter"
+       [ngStyle]="!isDashboardMode ? { cursor : 'default' } : {}">
+
+    <!-- 필드 이름 표시 영역 -->
+    <div *ngIf="filter" class="ddp-itemtype-title">
+      <div class="ddp-data-itemtype ddp-type">
+        <span class="ddp-icon-box">
+          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
+          <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
+        </span>
+        <span class="ddp-txt-itemtype">
+          <span class="ddp-data-name">{{filter.field}}</span>
+          <span class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
+              {{ 'msg.board.ui.filter.used-this-chart' | translate }}
+          </span>
+        </span>
+      </div>
+    </div>
+    <!-- // 필드 이름 표시 영역 -->
     <!-- 필터 속성 표시 영역 -->
-    <div *ngIf="filter" class="ddp-ui-buttons">
+    <div *ngIf="filter" class="ddp-flex-button">
+
       <em class="ddp-icon-global-s" *ngIf="isBoardFilter"></em>
+
       <!-- 추천/필수 필터 경우 -->
       <div *ngIf="filter.ui.filteringSeq > 0" class="ddp-wrap-datarecommend">
         {{filter.ui.filteringSeq}} <em class="ddp-icon-recommend-s2"></em>
       </div>
       <!-- // 추천/필수 필터 경우 -->
+
       <!-- 더보기 버튼 영역 -->
       <div class="ddp-wrap-morebutton ddp-hover-tooltip"
            [class.ddp-selected]="isShowDetailMenu"
@@ -69,49 +91,111 @@
             </li>
           </ul>
           <!-- // 기능 버튼 목록 -->
+          <div class="ddp-wrap-layer">
+            <!-- toggle -->
+            <div class="ddp-area-toggle">
+              <ul class="ddp-list-buttons ddp-clear">
+                <li (click)="setAbsolute()" [class.ddp-selected]="!isRelativeType" class="ddp-col-6" >
+                  Absolute
+                </li>
+                <li (click)="setRelative()" [class.ddp-selected]="isRelativeType" class="ddp-col-6" >
+                  Relative
+                </li>
+              </ul>
+            </div>
+            <!-- //toggle -->
+            <ul class="ddp-list-layer-option type-option type-sub-down">
+              <li *ngIf="!isRelativeType">
+                <a href="javascript:">
+                  <div class="ddp-data-result ddp-type">
+                    {{filter.timeUnit.toString()}} <em class="ddp-icon-view"></em>
+                  </div>
+                  <span class="ddp-txt-data" title="Unit">
+                    <em class="ddp-icon-drop-unit"></em>Unit
+                  </span>
+                </a>
+                <div class="ddp-ui-layer-sub">
+                  <span class="ddp-label ddp-padt0">Continuous type</span>
+                  <ul class="ddp-list-popup">
+                    <li *ngFor="let unit of dpContinuousList"
+                        (click)="selectTimeUnit( false, unit.toUpperCase() )"
+                        [class.ddp-selected]="isSelectedContinuous(unit)">
+                      <a href="javascript:">
+                        {{unit}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                  <div class="ddp-wrap-layer">
+                    <span class="ddp-label">Discontinuous type</span>
+                    <ul class="ddp-list-popup">
+                      <li *ngFor="let byUnit of dpDiscontinuousList"
+                          (click)="selectTimeUnit( true, byUnit['unit'], byUnit['byUnit'] )"
+                          [class.ddp-selected]="isSelectedDiscontinuous(byUnit)">
+                        <a href="javascript:">
+                          {{ byUnit['name'] }} <em class="ddp-icon-check"></em>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+              <li *ngIf="!isRelativeType">
+                <a href="javascript:">
+                  <div class="ddp-data-result ddp-type">
+                    {{ isListType ? 'List' : 'Range' }} <em class="ddp-icon-view "></em>
+                  </div>
+                  <span class="ddp-txt-data" title="Selection"><em class="ddp-icon-drop-select"></em>Selection</span>
+                </a>
+                <div class="ddp-ui-layer-sub">
+                  <ul class="ddp-list-popup">
+                    <li (click)="setTimeListFilter()" [class.ddp-selected]="isListType">
+                      <a href="javascript:"> List <em class="ddp-icon-check"></em> </a>
+                    </li>
+                    <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">
+                      <a href="javascript:"> Range <em class="ddp-icon-check"></em> </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li *ngIf="isListType">
+                <a href="javascript:">
+                  <div class="ddp-data-result ddp-type">
+                    {{ isFrequencyAsc ? ('msg.comm.ui.soring.frequency.asc' | translate) : ('msg.comm.ui.soring.alphnumeric.asc' | translate) }}
+                    <em class="ddp-icon-view"></em>
+                  </div>
+                  <span class="ddp-txt-data" title="Selection"><em class="ddp-icon-drop-sort"></em>Sort by</span>
+                </a>
+                <div class="ddp-ui-layer-sub">
+                  <ul class="ddp-list-popup">
+                    <li (click)="sortList('FREQUENCY','ASC');" [class.ddp-selected]="isFrequencyAsc">
+                      <a href="javascript:">
+                        {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li (click)="sortList('ALPHNUMERIC','ASC');" [class.ddp-selected]="isAlphnumericAsc">
+                      <a href="javascript:">
+                        {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
         <!-- // 더보기 팝업 -->
       </div>
       <!-- // 더보기 버튼 영역 -->
     </div>
     <!-- // 필터 속성 표시 영역 -->
-    <!-- 필드 이름 표시 영역 -->
-    <div *ngIf="filter" class="ddp-itemtype-title">
-      <div class="ddp-data-itemtype ddp-type">
-        <span class="ddp-icon-box">
-          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
-          <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
-        </span>
-        <span class="ddp-txt-itemtype">
-          <span class="ddp-data-name">{{filter.field}}</span>
-          <span class="ddp-data-sub">{{dataSource?.name}}</span>
-          <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
-              {{ 'msg.board.ui.filter.used-this-chart' | translate }}
-          </span>
-        </span>
-      </div>
-    </div>
-    <!-- // 필드 이름 표시 영역 -->
   </div>
-  <timeUnit-select *ngIf="filter"
-                      [mode]="'PANEL'" [filter]="filter"
-                      (change)="changeTimeUnit($event)"></timeUnit-select>
 </div>
 <!-- // 상단 영역 -->
 
 <!-- 내용 영역 -->
-<div *ngIf="isShowFilter" class="ddp-contents-divide">
+<div *ngIf="isShowFilter" class="ddp-contents-divide" >
   <!-- 연속 형식 - None Granularity -->
   <div *ngIf="!isDiscontinuousFilter && isContinuousByAll" class="ddp-ui-divide">
-    <!-- 탭 영역 -->
-    <div class="ddp-toggle">
-      <ul class="ddp-list-buttons ddp-tab3" >
-        <li (click)="setTimeAllFilter()" [class.ddp-selected]="isAllType">All time</li>
-        <li (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType">Relative</li>
-        <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
-      </ul>
-    </div>
-    <!-- // 탭 영역 -->
     <!-- 탭별 내용 영역 -->
     <div class="ddp-wrap-toggle-contents">
       <!-- 전체 기간 선택 탭 영역 -->
@@ -141,14 +225,6 @@
   <!-- // 연속 형식 - None Granularity -->
   <!-- 연속 형식 - Granularity -->
   <div *ngIf="!isDiscontinuousFilter && !isContinuousByAll" class="ddp-ui-divide" >
-    <!-- 탭 영역 -->
-    <div class="ddp-toggle">
-      <ul class="ddp-list-buttons ddp-part2">
-        <li (click)="setTimeListFilter()" [class.ddp-selected]="isListType">All time lists</li>
-        <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
-      </ul>
-    </div>
-    <!-- // 탭 영역 -->
     <!-- 탭별 내용 영역 -->
     <div class="ddp-wrap-toggle-contents">
       <!-- 전체 기간 선택 탭 영역 -->

@@ -83,12 +83,14 @@
                 <tbody>
                 <tr [class.ddp-selected]="selectedCodeTable && table.id === selectedCodeTable.id"
                     (click)="onSelectCodeTable(table)"
-                    *ngFor="let table of codeTableList">
+                    *ngFor="let table of codeTableList; let idx = index">
                   <td>
-                    <a href="javascript:" class="ddp-link-detail ddp-type" (click)="onClickTableName(table.id)">
-                      {{table.name}}
-                      <em class="ddp-icon-window"></em>
-                    </a>
+                    <div class="ddp-txt-long">
+                      <a href="javascript:" class="ddp-link-detail ddp-type" (click)="onClickTableName(table.id)">
+                        {{table.name}}
+                        <em class="ddp-icon-window"></em>
+                      </a>
+                    </div>
                   </td>
                   <td>
                     <div class=" ddp-txt-long">
@@ -97,14 +99,14 @@
                   </td>
                   <td>
                     <div class="ddp-box-select" [class.ddp-selected]="table['previewShowFl']">
-                      <a href="javascript:" (click)="onClickCodeTablePreview(table)">{{'msg.metadata.ui.codetable.choose.code.table.preview' | translate}}</a>
+                      <a href="javascript:" (click)="onClickCodeTablePreview(idx)">{{'msg.metadata.ui.codetable.choose.code.table.preview' | translate}}</a>
                       <!-- popup -->
                       <div class="ddp-box-layout4" style="">
-                        <a href="javascript:" class="ddp-btn-close" (click)="$event.stopImmediatePropagation(); table['previewShowFl'] = false"></a>
-                        <div class="ddp-data-title">
+                        <a href="javascript:" class="ddp-btn-close" (click)="onClickPreviewPopupClose(table)"></a>
+                        <div class="ddp-data-title" (click)="$event.stopImmediatePropagation();">
                           {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
                         </div>
-                        <div class="ddp-data-code">
+                        <div class="ddp-data-code" (click)="$event.stopImmediatePropagation();">
                           <table class="ddp-table-code ddp-inherit">
                             <colgroup>
                               <col width="90px">

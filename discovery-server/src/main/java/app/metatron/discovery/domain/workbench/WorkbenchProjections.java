@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 import app.metatron.discovery.common.BaseProjections;
+import app.metatron.discovery.domain.dataconnection.DataConnectionProjections;
 import app.metatron.discovery.domain.user.UserProfile;
 import app.metatron.discovery.domain.workspace.WorkspaceProjections;
 
@@ -72,15 +73,18 @@ public class WorkbenchProjections extends BaseProjections{
 
     String getGlobalVar();
 
+    @Value("#{T(app.metatron.discovery.util.HibernateUtils).unproxy(target.workspace)}")
     WorkspaceProjections.HeaderViewProjection getWorkspace();
 
-    @Value("#{target.dataConnection.getDataConnectionProjection(@projectionFactory, T(app.metatron.discovery.domain.dataconnection.DataConnectionProjections$defaultProjection))}")
-    Object getDataConnection();
-    //DataConnectionProjections.defaultProjection getDataConnection();
+    @Value("#{T(app.metatron.discovery.util.HibernateUtils).unproxy(target.dataConnection)}")
+    DataConnectionProjections.defaultProjection getDataConnection();
 
     Set<QueryEditor> getQueryEditors();
 
     String getDatabaseName();
+
+    @Value("#{target.dataConnection.workspaces.contains(target.workspace) || target.dataConnection.published}")
+    Boolean getValid();
 
     @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
     UserProfile getCreatedBy();

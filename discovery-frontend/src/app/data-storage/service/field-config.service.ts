@@ -47,28 +47,32 @@ export class FieldConfigService extends AbstractService {
     }, []);
   }
 
-  public changeTimeFormatType(fieldFormat: FieldFormat, targetType: FieldFormatType, format?: string): void {
-    // if format type is DATE_TIME
+  public changeTimeFormatOrUnixType(fieldFormat: FieldFormat, format?: string): void {
+    // change to UNIX (only require type, unit)
     if (fieldFormat.type === FieldFormatType.DATE_TIME) {
+      fieldFormat.type = FieldFormatType.UNIX_TIME;
+      fieldFormat.unitInitialize();
+      // set time format valid TRUE
+      fieldFormat.isValidFormat = true;
+      // remove format valid message property
+      delete fieldFormat.formatValidMessage;
+      // remove format
       delete fieldFormat.format;
+      // remove timezone
       delete fieldFormat.timeZone;
       delete fieldFormat.locale;
-    } else if (fieldFormat.type === FieldFormatType.UNIX_TIME) { // if format type is UNIX_TIME
-      delete fieldFormat.unit;
-    }
-    // target type
-    if (targetType === FieldFormatType.DATE_TIME) {
+    } else if (fieldFormat.type === FieldFormatType.UNIX_TIME) { // change to TIME (only require type, format, timezone, locale)
+      fieldFormat.type = FieldFormatType.DATE_TIME;
+      // set validation message
+      fieldFormat.formatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.check');
       if (format) {
         fieldFormat.format = format;
-        fieldFormat.isValidFormat = true;
-      } else {
-
       }
-    } else if (targetType === FieldFormatType.UNIX_TIME) {
-      fieldFormat.unitInitialize();
-      fieldFormat.isValidFormat = true;
+      // remove format unit property
+      delete fieldFormat.unit;
+      // remove format valid property
+      delete fieldFormat.isValidFormat;
     }
-    fieldFormat.type = targetType;
   }
 
   /**
@@ -83,8 +87,9 @@ export class FieldConfigService extends AbstractService {
       // if not exist srs name
       if (isNullOrUndefined(fieldFormat.originalSrsName)) {
         fieldFormat.geoCoordinateInitialize();
-        fieldFormat.type = this._getSrsName(targetType);
       }
+      // change GEO format type
+      fieldFormat.type = this._getSrsName(targetType);
       // if not exist data list
       if (isNullOrUndefined(dataList) || dataList.length < 1) {
         // set type valid FALSE
@@ -135,7 +140,8 @@ export class FieldConfigService extends AbstractService {
         fieldFormat.isValidFormat = false;
         // set time fieldFormat valid message
         fieldFormat.formatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.no.data');
-        resolve(fieldFormat);
+        reject(fieldFormat);
+        return;
       } else {  // if exist fieldFormat data list
         const params: {samples: string[], format?: string} = {
           samples: dateList.slice(0,19)
@@ -148,7 +154,8 @@ export class FieldConfigService extends AbstractService {
             fieldFormat.isValidFormat = false;
             // set time fieldFormat valid message
             fieldFormat.formatValidMessage = this._translateSvc.instant('msg.common.ui.required');
-            resolve(fieldFormat);
+            reject(fieldFormat);
+            return;
           } else {  // if not empty fieldFormat
             // set fieldFormat in params
             (params.format = fieldFormat.format);

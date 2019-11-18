@@ -21,7 +21,9 @@
   <h1 class="ddp-h1-logo">
     <a (click)="goMain()" href="javascript:" >
       <!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-      <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 203.2 13.4" style="enable-background:new 0 0 203.2 13.4;" xml:space="preserve">
+      <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+           viewBox="0 0 203.2 13.4" style="enable-background:new 0 0 203.2 13.4;"
+           xml:space="preserve">
         <g>
           <g>
             <path class="st10" d="M0,0.2h4.5l2.3,9.4L9,0.2h4.5v12.9h-2.6v-10h-0.3l-2.5,9.4H5.4L2.9,3.2H2.6v10H0V0.2z"></path>
@@ -108,6 +110,47 @@
       </div>
     </li>
     <!-- //WORKSPACE -->
+
+    <!-- EXPLOREDATA -->
+    <li *ngIf="permission.exploreData" [ngClass]="{'ddp-selected': lnbManager.exploreData.fold == false}" >
+      <div class="ddp-wrap-listmenu">
+        <a href="javascript:" (click)="depth1Menu1ClickListener( 'EXPLOREDATA' )">
+          <span class="ddp-txt-lnbmenu">{{'msg.comm.menu.title.explore-data' | translate}}
+            <span class="ddp-tag-beta">Beta</span>
+          </span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <!-- submenu -->
+          <ul class="ddp-list-sublnb">
+            <li [ngClass]="{'ddp-selected': lnbManager.exploreData.data.fold == false}" *ngIf="permission.exploreDataView">
+              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_DATA'); move('exploredata/view')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.favorite.data' | translate}}
+              </a>
+            </li>
+            <li *ngIf="permission.exploreFavorite" [ngClass]="{'ddp-selected': lnbManager.exploreData.favorite.fold == false}">
+              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_FAVORITE')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.explore-data.favorite' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('exploredata/favorite/data')">{{'msg.comm.menu.explore-data.favorite.data' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('exploredata/favorite/creator')">{{'msg.comm.menu.explore-data.favorite.creator' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <!-- //submenu -->
+        </div>
+        <!-- //sub -->
+      </div>
+    </li>
+    <!-- // EXPLOREDATA -->
+
     <!-- MANAGEMENT -->
     <li *ngIf="permission.management" [ngClass]="{'ddp-selected': lnbManager.management.fold == false}" >
       <div class="ddp-wrap-listmenu">
@@ -138,6 +181,11 @@
                 <li>
                   <a href="javascript:" (click)="move('management/metadata/code-table')">
                     {{'msg.comm.menu.manage.metadata.code-table' | translate}}
+                  </a>
+                </li>
+                <li *ngIf="permission.lineage">
+                  <a href="javascript:" (click)="move('management/metadata/lineage')">
+                    {{'msg.comm.menu.manage.metadata.lineage' | translate}}
                   </a>
                 </li>
                 <li>
@@ -206,15 +254,32 @@
                 </li>
               </ul>
             </li>
-            <ng-container *ngIf="permission.managementDatasource">
-              <li *ngFor="let item of getManagementExtensions"
-                  [ngClass]="{'ddp-selected': lnbManager.management[item.name]['fold'] == false}">
+            <li *ngIf="permission.managementEngineMonitoring" [ngClass]="{'ddp-selected': lnbManager.management.engineMonitoring.fold == false}">
+              <a href="javascript:" (click)="mgmtMenuClickListener('ENGINE_MONITORING')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.manage.engine.monitoring' | translate}}
+                <span class="ddp-tag-beta">Beta</span>
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/overview', { queryParams: { keyword: '', status: ENGINE_OVERVIEW_MONITORING_STATUS.ALL } })">{{'msg.comm.menu.manage.engine.monitoring.overview' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/ingestion')">{{'msg.comm.menu.manage.engine.monitoring.ingestion' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/query')">{{'msg.comm.menu.manage.engine.monitoring.query' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+            <ng-container *ngFor="let item of getExtensions('management')">
+              <li [ngClass]="{'ddp-selected': isExtensionSelected('management', item.name)}" *ngIf="extensionPermission(item)">
                 <a href="javascript:" (click)="mgmtMenuClickListener(item.name)">
                   <em class="ddp-icon-dot"></em> {{item.name}}
                 </a>
                 <ul class="ddp-list-sublnb-2depth">
                   <li *ngFor="let subKey of ObjectKeys(item.subContents)">
-                    <a href="javascript:" (click)="move('external/' + item.parent + '_' + item.name + '_' + subKey)">{{subKey}}</a>
+                    <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
                   </li>
                 </ul>
               </li>
@@ -269,6 +334,20 @@
                 </li>
               </ul>
             </li>
+
+            <ng-container *ngFor="let item of getExtensions('administration')">
+              <li [ngClass]="{'ddp-selected': isExtensionSelected('administration', item.name)}" *ngIf="extensionPermission(item)">
+                <a href="javascript:" (click)="adminMenuClickListener(item.name)">
+                  <em class="ddp-icon-dot"></em> {{item.name}}
+                </a>
+                <ul class="ddp-list-sublnb-2depth">
+                  <li *ngFor="let subKey of ObjectKeys(item.subContents)">
+                    <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
+                  </li>
+                </ul>
+              </li>
+            </ng-container>
+
           </ul>
           <!-- //submenu -->
         </div>
@@ -276,31 +355,60 @@
       </div>
     </li>
     <!-- //ADMINSTRATION -->
+    <ng-container *ngFor="let item of getExtensions('ROOT')">
+      <li [ngClass]="{'ddp-selected': lnbManager[item.name]['fold'] == false}" *ngIf="extensionPermission(item)">
+        <div class="ddp-wrap-listmenu">
+          <a href="javascript:" (click)="depth1Menu1ClickListener(item.name)">
+            <span class="ddp-txt-lnbmenu">{{item.name}}</span>
+            <em class="ddp-icon-menuview"></em>
+          </a>
+          <!-- sub -->
+          <div class="ddp-list-sub">
+            <!-- submenu -->
+            <ul class="ddp-list-sublnb">
+              <ng-container *ngFor="let secondDepth of getExtensions(item.name)">
+                <li [ngClass]="{'ddp-selected': isExtensionSelected(item.name, secondDepth.name)}" *ngIf="extensionPermission(secondDepth)">
+                  <a href="javascript:" (click)="rootExtensionMenuClickListener(item.name, secondDepth.name)">
+                    <em class="ddp-icon-dot"></em> {{secondDepth.name}}
+                  </a>
+                  <ul class="ddp-list-sublnb-2depth">
+                    <li *ngFor="let subKey of ObjectKeys(secondDepth.subContents)">
+                      <a href="javascript:" (click)="moveExtension(secondDepth, subKey)">{{subKey}}</a>
+                    </li>
+                  </ul>
+                </li>
+              </ng-container>
+
+            </ul>
+            <!-- //submenu -->
+          </div>
+          <!-- //sub -->
+        </div>
+      </li>
+    </ng-container>
   </ul>
 
   <!-- help -->
   <div class="ddp-ui-help">
-    <span class="ddp-label-type">
-      {{'msg.lnb.label.help' | translate }}
-        <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
-          <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.manual' | translate}}
-        </a>
-        <a target="_blank" rel="noopener noreferrer" href="https://metatron.app/index.php/documents/" class="ddp-btn-box">
-          <em class="ddp-icon-global"></em>{{'msg.lnb.btn.manual.web' | translate}}
-        </a>
-    </span>
-    <span class="ddp-label-type" style="margin-top: 10px">
-      {{'msg.lnb.label.contact' | translate }}
+    <span class="ddp-label-type ddp-clear">
+      <span class="ddp-txt-label"> {{'msg.lnb.label.help' | translate }} </span>
+      <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
+        <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.manual' | translate}}
+      </a>
+      <a (click)="popupManual();" href="javascript:" class="ddp-btn-box">
+        <em class="ddp-icon-global"></em>{{'msg.lnb.btn.manual.web' | translate}}
+      </a>
     </span>
     <div class="ddp-data-help">
+      <span class="ddp-label-type">{{'msg.lnb.label.contact' | translate }}</span>
       <dl>
         <dt>{{ 'msg.lnb.label.admin' | translate }}</dt>
         <dd><a href="mailto:metatron@sk.com">metatron@sk.com</a></dd>
       </dl>
     </div>
-    <span *ngIf="buildInfo.appVersion !== 'STABLE'" class="ddp-label-type" style="margin-bottom: 10px">
+    <div *ngIf="buildInfo.appVersion !== 'STABLE'" class="ddp-data-version">
       {{ 'msg.cluster.ui.create.version' | translate }}   {{buildInfo.appVersion}}
-    </span>
+    </div>
   </div>
   <!-- //help -->
 
@@ -308,7 +416,7 @@
 <!-- //lnb -->
 
 <!-- Navigation Folder -->
-<div class="ddp-wrap-folder-nav" *ngIf="isShowFolderNavi">
+<div class="ddp-wrap-folder-nav" *ngIf="isShow && isShowFolderNavi">
   <em class="ddp-bg-shadow" style="display: none;"></em>
   <!-- title nav -->
   <div class="ddp-ui-title-nav" style="min-width: 840px;">

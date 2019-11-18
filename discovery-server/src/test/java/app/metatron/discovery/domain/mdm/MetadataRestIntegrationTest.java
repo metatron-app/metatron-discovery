@@ -22,6 +22,7 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 
 import org.apache.http.HttpStatus;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +68,7 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
     Map<String, Object> engineSourceMap = Maps.newHashMap();
     engineSourceMap.put("type","ENGINE");
     engineSourceMap.put("name","test_engine_datasource");
-    engineSourceMap.put("sourceId", "ds-37");
+    engineSourceMap.put("sourceId", "ds-gis-37");
 
     reqMedataMap.put("sourceType", "ENGINE");
     reqMedataMap.put("source", engineSourceMap);
@@ -155,6 +157,100 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
+  @Sql({"/sql/test_dataconnection.sql"})
+  public void bulkPostTest() {
+
+    TestUtils.printTestTitle("1. Metadata list post");
+
+    List<Object> reqList = Lists.newArrayList();
+
+    Map<String, Object> jdbcSourceMap1 = Maps.newHashMap();
+    jdbcSourceMap1.put("type","JDBC");
+    jdbcSourceMap1.put("name","Hive-localhost-10000");
+    jdbcSourceMap1.put("sourceId", "hive-local");
+    jdbcSourceMap1.put("schema", "default");
+    jdbcSourceMap1.put("table", "sales");
+
+    Map<String, Object> reqMedataMap1 = Maps.newHashMap();
+    reqMedataMap1.put("name", "sales");
+    reqMedataMap1.put("description", "Medata Description1");
+    reqMedataMap1.put("sourceType", "JDBC");
+    reqMedataMap1.put("source", jdbcSourceMap1);
+
+    Map<String, Object> jdbcSourceMap2 = Maps.newHashMap();
+    jdbcSourceMap2.put("type","JDBC");
+    jdbcSourceMap2.put("name","Hive-localhost-10000");
+    jdbcSourceMap2.put("sourceId", "hive-local");
+    jdbcSourceMap2.put("schema", "default");
+    jdbcSourceMap2.put("table", "lineage2");
+
+    Map<String, Object> reqMedataMap2 = Maps.newHashMap();
+    reqMedataMap2.put("name", "lineage");
+    reqMedataMap2.put("description", "Medata Description2");
+    reqMedataMap2.put("sourceType", "JDBC");
+    reqMedataMap2.put("source", jdbcSourceMap2);
+
+    reqList.add(reqMedataMap1);
+    reqList.add(reqMedataMap2);
+
+    // @formatter:off
+    Response createRes =
+      given()
+        .auth().oauth2(oauth_token)
+        .body(reqList)
+        .contentType(ContentType.JSON)
+        .log().all()
+      .when()
+        .post("/api/metadatas/batch");
+
+    createRes.then()
+        .statusCode(HttpStatus.SC_CREATED)
+      .log().all();
+    // @formatter:on
+
+    TestUtils.printTestTitle("2. check added Metadata list");
+
+    // @formatter:off
+    Response listResp = given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .param("projection", "forListView")
+    .when()
+      .get("/api/metadatas")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all()
+      .extract().response();
+    // @formatter:on
+
+
+    List<HashMap> metadataList = from(listResp.asString()).getList("_embedded.metadatas");
+    Assert.assertTrue(metadataList.size() == 2);
+
+    TestUtils.printTestTitle("3. check Metadata column list");
+
+    for(HashMap metaMap : metadataList){
+      String metadataId = metaMap.get("id").toString();
+      // @formatter:off
+      Response metaResp = given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+      .when()
+        .get("/api/metadatas/{id}/columns", metadataId)
+      .then()
+        .statusCode(HttpStatus.SC_OK)
+        .log().all()
+        .extract().response();
+      // @formatter:on
+
+      List<HashMap> columnList = from(metaResp.asString()).getList("");
+      Assert.assertTrue(columnList.size() > 0);
+    }
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
   @Sql({"/sql/test_mdm_popularity.sql"})
   public void findNullMetadataList(){
     given()
@@ -234,6 +330,75 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
       .body("duplicated", is(true))
       .log().all();
     // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
+  @Sql({"/sql/test_mdm.sql"})
+  public void checkDuplicatedNames() {
+
+    String nonDuplicatedName = "Test metadata 0";
+    String duplicatedName1 = "Test metadata 1";
+    String duplicatedName2 = "Test metadata 2";
+    List<String> duplicatedNameList = Lists.newArrayList(nonDuplicatedName, duplicatedName1, duplicatedName2);
+    List<String> emptyNameList = Lists.newArrayList();
+    List<String> noneDuplicatedNameList = Lists.newArrayList(nonDuplicatedName);
+
+    // @formatter:off
+    Response resp = given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(duplicatedNameList)
+      .log().all()
+    .when()
+      .post("/api/metadatas/name/duplicated")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all()
+      .extract().response();
+    // @formatter:on
+
+    List<String> dupNameList = from(resp.asString()).getList("");
+
+    Assert.assertTrue(dupNameList.size() == 2);
+    Assert.assertTrue(duplicatedNameList.contains(duplicatedName1));
+    Assert.assertTrue(duplicatedNameList.contains(duplicatedName2));
+
+    // @formatter:off
+    resp = given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(emptyNameList)
+      .log().all()
+    .when()
+      .post("/api/metadatas/name/duplicated")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all()
+      .extract().response();
+    // @formatter:on
+
+    dupNameList = from(resp.asString()).getList("");
+
+    Assert.assertTrue(dupNameList.size() == 0);
+
+    // @formatter:off
+    resp = given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(noneDuplicatedNameList)
+      .log().all()
+    .when()
+      .post("/api/metadatas/name/duplicated")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all()
+      .extract().response();
+    // @formatter:on
+
+    dupNameList = from(resp.asString()).getList("");
+
+    Assert.assertTrue(dupNameList.size() == 0);
   }
 
   @Test
@@ -587,4 +752,36 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
     // @formatter:on
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
+  public void createLegacyMetadataTest() {
+
+    TestUtils.printTestTitle("Legacy metadata 생성");
+
+    Map<String, Object> reqMedataMap = Maps.newHashMap();
+    reqMedataMap.put("name", "Legacy metadata");
+    reqMedataMap.put("description", "Legacy Description");
+
+    Map<String, Object> engineSourceMap = Maps.newHashMap();
+    engineSourceMap.put("type","ETC");
+    engineSourceMap.put("name","LEGACY_TABLE");
+
+    reqMedataMap.put("sourceType", "ETC");
+    reqMedataMap.put("source", engineSourceMap);
+
+    // @formatter:off
+    Response createRes =
+      given()
+        .auth().oauth2(oauth_token)
+        .body(reqMedataMap)
+        .contentType(ContentType.JSON)
+        .log().all()
+      .when()
+        .post("/api/metadatas");
+
+    createRes.then()
+        .statusCode(HttpStatus.SC_CREATED)
+      .log().all();
+    // @formatter:on
+  }
 }

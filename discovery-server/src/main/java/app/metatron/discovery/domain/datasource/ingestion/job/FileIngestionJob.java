@@ -53,6 +53,7 @@ import app.metatron.discovery.spec.druid.ingestion.BatchIndex;
 import app.metatron.discovery.spec.druid.ingestion.Index;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
+import app.metatron.discovery.util.CommonsCsvProcessor;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_FILE_EXCEL_CONVERSION_ERROR;
@@ -84,6 +85,11 @@ public class FileIngestionJob extends AbstractIngestionJob implements IngestionJ
     } else {
       srcFilePath = this.ingestionInfo.getPath();
       this.ingestionInfo.setOriginalFileName(FilenameUtils.getName(srcFilePath));
+    }
+
+    if (!CommonsCsvProcessor.isSupportedCharset(this.ingestionInfo.getCharset())) {
+      srcFilePath = CommonsCsvProcessor.writeUTF8File(srcFilePath, this.ingestionInfo.getCharset());
+      this.ingestionInfo.setCharset("UTF-8");
     }
 
     loadFileName = createDestFileName(dataSource.getEngineName(), this.ingestionInfo.getFormat());

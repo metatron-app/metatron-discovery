@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.mdm;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.DateTimePath;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -38,11 +39,20 @@ public class ColumnDictionaryPredicate {
     BooleanBuilder builder = new BooleanBuilder();
     QColumnDictionary dictionary = QColumnDictionary.columnDictionary;
 
-    if(from != null && to != null) {
-      if(StringUtils.isNotEmpty(searchDateBy) && "CREATED".equalsIgnoreCase(searchDateBy)) {
-        builder = builder.and(dictionary.createdTime.between(from, to));
+    if(StringUtils.isNotEmpty(searchDateBy)) {
+      DateTimePath searchDateTimePath;
+      if("UPDATED".equalsIgnoreCase(searchDateBy)){
+        searchDateTimePath = dictionary.modifiedTime;
       } else {
-        builder = builder.and(dictionary.modifiedTime.between(from, to));
+        searchDateTimePath = dictionary.createdTime;
+      }
+
+      if (from != null && to != null) {
+        builder = builder.and(searchDateTimePath.between(from, to));
+      } else if (from != null) {
+        builder = builder.and(searchDateTimePath.goe(from));
+      } else if (to != null) {
+        builder = builder.and(searchDateTimePath.loe(to));
       }
     }
 
@@ -80,6 +90,22 @@ public class ColumnDictionaryPredicate {
     QColumnDictionary dictionary = QColumnDictionary.columnDictionary;
 
     builder = builder.and(dictionary.name.eq(name));
+
+    return builder;
+  }
+
+  /**
+   * ColumnDictionary Logical 명 중복 조회 조건
+   *
+   * @param logicalName
+   * @return
+   */
+  public static Predicate searchDuplicatedLogicalName(String logicalName) {
+
+    BooleanBuilder builder = new BooleanBuilder();
+    QColumnDictionary dictionary = QColumnDictionary.columnDictionary;
+
+    builder = builder.and(dictionary.logicalName.eq(logicalName));
 
     return builder;
   }

@@ -14,14 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.csv;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -33,12 +27,28 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestExecutionListeners;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepFileUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+
+import static org.junit.Assert.assertNull;
+
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ApacheCommonsCsvIntegrationTest.class);
 
   @Autowired(required = false)
@@ -66,44 +76,31 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
     String strHdfsUri = String.format("%s/test_output/%s", prepProperties.getStagingBaseDir(true), localRelPath);
     FSDataOutputStream hos;
     FileSystem hdfsFs;
-    URI uri;
-    File file;
-    FileInputStream fis;
-    InputStreamReader reader;
+    Reader reader;
+
+    PrepParseResult result = new PrepParseResult();
+    reader = PrepFileUtil.getReader(strLocalUri, null, false, result);
 
     try {
-      uri = new URI(strLocalUri);
-      file = new File(uri);
-      fis = new FileInputStream(file);
-      reader = PrepCsvUtil.getReaderAfterDetectingCharset(fis, strLocalUri);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, strLocalUri);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strHdfsUri);
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strHdfsUri);
-    }
-
-    try {
-      uri = new URI(strHdfsUri);
+      URI uri = new URI(strHdfsUri);
       Path path = new Path(uri);
       hdfsFs = FileSystem.get(getHadoopConf());
       hos = hdfsFs.create(path);
 
       org.apache.commons.io.IOUtils.copy(reader, hos);
 
-      fis.close();
       hos.close();
       reader.close();
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strHdfsUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX,
+                      strHdfsUri);
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strHdfsUri);
+      throw PrepException
+              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH,
+                      strHdfsUri);
     }
 
     return strHdfsUri;
@@ -111,10 +108,9 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs() throws JsonProcessingException {
-    PrepCsvParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf());
+    PrepParseResult result = PrepCsvUtil.DEFAULT.withHadoopConf(getHadoopConf()).parse(strHdfsUriCrime);
 
-    LOGGER.debug("colNames={}", result.colNames);
-    LOGGER.debug("maxColCnt={}", result.maxColCnt);
+    assertNull(result.colNames);
 
     DataFrame df = new DataFrame();
     df.setByGrid(result.grid, result.colNames);
@@ -123,10 +119,12 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
 
   @Test
   public void test_hdfs_header() throws JsonProcessingException {
-    PrepCsvParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf(), true);
-
+    PrepParseResult result = PrepCsvUtil.DEFAULT
+            .withHeader(true)
+            .withHadoopConf(getHadoopConf())
+            .parse(strHdfsUriCrime);
     LOGGER.debug("colNames={}", result.colNames);
-    LOGGER.debug("maxColCnt={}", result.maxColCnt);
+    LOGGER.debug("colCnt={}", result.colNames.size());
 
     DataFrame df = new DataFrame();
     df.setByGrid(result);

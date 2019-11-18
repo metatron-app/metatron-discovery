@@ -16,12 +16,12 @@ package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 public class PrepTransformResponse implements Serializable {
+
   String wrangledDsId;
   int ruleCurIdx;
   List<PrTransformRule> transformRules;
@@ -32,7 +32,8 @@ public class PrepTransformResponse implements Serializable {
   // for debugging
   Map<String, Object> cacheInfo;
 
-  public PrepTransformResponse() { }
+  public PrepTransformResponse() {
+  }
 
   public PrepTransformResponse(String wrangledDsId) {
     this.wrangledDsId = wrangledDsId;
@@ -40,7 +41,7 @@ public class PrepTransformResponse implements Serializable {
 
   public PrepTransformResponse(int ruleCurIdx, DataFrame gridResponse) {
     this.ruleCurIdx = ruleCurIdx;
-    this.setGridResponse( gridResponse );
+    this.setGridResponse(gridResponse);
   }
 
   public PrepTransformResponse(DataFrame gridResponse) {
@@ -83,7 +84,7 @@ public class PrepTransformResponse implements Serializable {
   }
 
   public DataFrame getGridResponse() {
-    if(null==gridResponse) {
+    if (null == gridResponse) {
       gridResponse = new DataFrame();
     }
     return gridResponse;
@@ -91,7 +92,7 @@ public class PrepTransformResponse implements Serializable {
 
   public void setGridResponse(DataFrame gridResponse) {
     this.gridResponse = gridResponse;
-    if(gridResponse==null || null==gridResponse.rows) {
+    if (gridResponse == null || null == gridResponse.rows) {
       this.setTotalRowCnt(0);
     } else {
       this.setTotalRowCnt(gridResponse.rows.size());
@@ -100,20 +101,25 @@ public class PrepTransformResponse implements Serializable {
 
   Long sampledRows;
   Long fullBytes;
+
   public Long getSampledRows() {
     return sampledRows;
   }
+
   public Long getFullBytes() {
     return fullBytes;
   }
+
   public void setSampledRows(Long sampledRows) {
     this.sampledRows = sampledRows;
   }
+
   public void setFullBytes(Long fullBytes) {
     this.fullBytes = fullBytes;
   }
 
   Integer totalRowCnt;
+
   public Integer getTotalRowCnt() {
     return totalRowCnt;
   }

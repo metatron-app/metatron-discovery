@@ -14,9 +14,16 @@
 
 package app.metatron.discovery.domain.tag;
 
+import com.google.common.collect.Lists;
+
+import com.querydsl.core.types.Predicate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import app.metatron.discovery.common.entity.DomainType;
+import app.metatron.discovery.domain.mdm.MetadataRepository;
 import app.metatron.discovery.domain.user.UserController;
 import app.metatron.discovery.util.ProjectionUtils;
 
@@ -37,6 +45,9 @@ public class TagService {
   public TagRepository tagRepository;
 
   @Autowired
+  MetadataRepository metadataRepository;
+
+  @Autowired
   public ProjectionFactory projectionFactory;
 
   TagProjections tagProjections = new TagProjections();
@@ -46,8 +57,9 @@ public class TagService {
     return ProjectionUtils.toListResource(projectionFactory, tagProjections.getProjectionByName(projection), tags);
   }
 
-  public List<Tag> findByTagsWithDomain(Tag.Scope scope, DomainType domainType, String nameContains) {
-    return tagRepository.findByTagsNameAndDomain(scope, domainType, nameContains);
+  public List<Tag> findByTagsWithDomain(Tag.Scope scope, DomainType domainType, String nameContains, Sort sort) {
+    Predicate predicate = TagPredicate.searchList(scope, domainType, nameContains);
+    return Lists.newArrayList(tagRepository.findAll(predicate, sort));
   }
 
   @Transactional
@@ -92,5 +104,17 @@ public class TagService {
         LOGGER.debug("Successfully delete tags : {} ({}, {})", tagName, scope, domainType);
       }
     }
+  }
+
+  public List<TagCountDTO> getTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains,
+                                            boolean includeEmpty, Sort sort) {
+    List<TagCountDTO> tagCountDTOS = tagRepository.findTagsWithCount(scope, domainType, nameContains, includeEmpty, sort);
+    return tagCountDTOS;
+  }
+
+  public Page<TagCountDTO> getTagsWithCount(Tag.Scope scope, DomainType domainType, String nameContains,
+                                            boolean includeEmpty, Pageable pageable) {
+    Page<TagCountDTO> tagCountDTOS = tagRepository.findTagsWithCount(scope, domainType, nameContains, includeEmpty, pageable);
+    return tagCountDTOS;
   }
 }

@@ -36,6 +36,8 @@ import {ChartType} from '../../common/component/chart/option/define/common';
 import {CommonConstant} from "../../common/constant/common.constant";
 import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
 import {FilterUtil} from "./filter.util";
+import {MapLayerType} from "../../common/component/chart/option/define/map/map-common";
+import {ElementRef} from "@angular/core";
 
 export class DashboardUtil {
 
@@ -178,6 +180,21 @@ export class DashboardUtil {
   } // function - setDataSourceAndRelations
 
   /**
+   * 이미지 경로 설정
+   * @param {ElementRef} elmRef
+   * @param {string} imageUrl
+   */
+  public getBoardImage(elmRef: ElementRef, imageUrl: string) {
+    if (imageUrl) {
+      const date = Date.now();
+      elmRef.nativeElement.src = '/api/images/load/url?url=' + imageUrl + '/thumbnail?' + date;
+    } else {
+      elmRef.nativeElement.src = '/assets/images/img_board_default2.png';
+      elmRef.nativeElement.style = 'position: relative;top: 50%;left: 50%;width: 34px;height: 28px;margin: -14px 0 0 -17px;';
+    }
+  } // function - getBoardImage
+
+  /**
    * 대시보드 데이터소스 스펙을 서버 스펙으로 변경함
    * @param {BoardDataSource} dataSource
    * @return {BoardDataSource}
@@ -221,10 +238,19 @@ export class DashboardUtil {
     }
 
     // 필터 설정
-    if( configuration.filters ) {
+    if (configuration.filters) {
       for (let filter of configuration.filters) {
         filter = FilterUtil.convertToServerSpecForDashboard(filter);
       }
+    }
+
+    // cluster를 map-option 에서 type으로 분리를 해서 CLUSTER 로 이용하고 api request 할 때는 symbol로 변경
+    if (_.eq(chart.type, ChartType.MAP)) {
+      chart.layers.forEach((layer) => {
+        if (layer.clustering && layer.type == MapLayerType.CLUSTER) {
+          layer.type = MapLayerType.SYMBOL;
+        }
+      });
     }
 
     return configuration;
@@ -428,7 +454,7 @@ export class DashboardUtil {
    * Current Date Time 인지 확인
    * @param field
    */
-  public static isCurrentDateTime(field:Field) {
+  public static isCurrentDateTime(field: Field) {
     return CommonConstant.COL_NAME_CURRENT_DATETIME === field.name
       && field.role === FieldRole.TIMESTAMP && field.format && field.format.type === FieldFormatType.TEMPORARY_TIME;
   } // function - isCurrentDateTime
@@ -441,8 +467,8 @@ export class DashboardUtil {
    */
   public static getFieldsForMainDataSource(boardConf: BoardConfiguration, engineName: string) {
     return (boardConf.fields) ? boardConf.fields.filter(item => {
-      if( item.dataSource === engineName ) {
-        return !DashboardUtil.isCurrentDateTime( item );
+      if (item.dataSource === engineName) {
+        return !DashboardUtil.isCurrentDateTime(item);
       } else {
         return false;
       }
@@ -490,7 +516,7 @@ export class DashboardUtil {
    */
   public static getLayoutWidgetInfos(board: Dashboard): LayoutWidgetInfo[] {
     if (board.configuration.widgets) {
-      return board.configuration.widgets.filter(item => board.widgets.some(widget => widget.id === item.ref));
+      return board.configuration.widgets.filter(item => item.isInLayout && board.widgets.some(widget => widget.id === item.ref));
     } else {
       return [];
     }
@@ -571,7 +597,9 @@ export class DashboardUtil {
     if (field) {
       return field;
     } else {
-      idx = _.findIndex(customFields, (obj) => { return obj.name === fieldName});
+      idx = _.findIndex(customFields, (obj) => {
+        return obj.name === fieldName
+      });
       return customFields[idx];
     }
   } // function - getFieldByName
@@ -664,15 +692,26 @@ export class DashboardUtil {
   } // function - addBoardFilter
 
   /**
+   * 신규 필터 여부
+   * @param board
+   * @param filter
+   */
+  public static isNewFilter(board: Dashboard, filter: Filter):boolean {
+    return -1 === board.configuration.filters.findIndex(item => item.dataSource === filter.dataSource && item.field === filter.field);
+  } // function - isNewFilter
+
+  /**
    * 글로벌 필터 갱신
    * @param {Dashboard} board
    * @param {Filter} filter
    * @param {boolean} isOverwrite
-   * @returns {Dashboard}
+   * @returns {[Dashboard, boolean]}
    */
-  public static updateBoardFilter(board: Dashboard, filter: Filter, isOverwrite: boolean = false): Dashboard {
+  public static updateBoardFilter(board: Dashboard, filter: Filter, isOverwrite: boolean = false): [Dashboard, boolean] {
     const idx: number = board.configuration.filters.findIndex(item => item.dataSource === filter.dataSource && item.field === filter.field);
+    let isNewFilter: boolean = false;
     if (-1 === idx) {
+      isNewFilter = true;
       this.addBoardFilter(board, filter);
     } else {
       if (isOverwrite) {
@@ -683,11 +722,11 @@ export class DashboardUtil {
     }
 
     // for presentation mode
-    const targetWidget:FilterWidget
-      = <FilterWidget>board.widgets.find( item => this.isSameFilterAndWidget( board, filter, item ) );
-    ( targetWidget ) && ( targetWidget.configuration.filter = filter );
+    const targetWidget: FilterWidget
+      = <FilterWidget>board.widgets.find(item => this.isSameFilterAndWidget(board, filter, item));
+    (targetWidget) && (targetWidget.configuration.filter = filter);
 
-    return board;
+    return [board, isNewFilter];
   } // function - updateBoardFilter
 
   /**
@@ -1007,26 +1046,27 @@ export class DashboardUtil {
    * @param data
    */
   public static getChartLimitInfo(widgetId: string, type: ChartType, data: { rows: any[], info: any, columns: any[] }): ChartLimitInfo {
-    let limitInfo:ChartLimitInfo = {
+    let limitInfo: ChartLimitInfo = {
       id: widgetId,
       isShow: false,
       currentCnt: 0,
       maxCnt: 0
     };
-    if( ChartUtil.isUsingLimitOption(type) && data.info ) {
+    if (ChartUtil.isUsingLimitOption(type) && data.info) {
       limitInfo.maxCnt = data.info.totalCategory;
-      if( ChartType.PIE === type || ChartType.LABEL === type || ChartType.WORDCLOUD === type ) {
-        if( data.columns && 0 < data.columns.length ) {
+      if (ChartType.PIE === type || ChartType.LABEL === type || ChartType.WORDCLOUD === type) {
+        if (data.columns && 0 < data.columns.length) {
           limitInfo.currentCnt = data.columns[0].value.length;
         }
-      } if( ChartType.GRID === type || ChartType.HEATMAP === type ) {
-        if( data.rows && 0 < data.rows.length ) {
+      }
+      if (ChartType.GRID === type || ChartType.HEATMAP === type) {
+        if (data.rows && 0 < data.rows.length) {
           limitInfo.currentCnt = data.rows.length;
         } else {
           limitInfo.currentCnt = data.columns.length;
         }
       } else {
-        if( data.rows && 0 < data.rows.length ) {
+        if (data.rows && 0 < data.rows.length) {
           limitInfo.currentCnt = data.rows.length;
         }
       }
@@ -1035,6 +1075,37 @@ export class DashboardUtil {
     return limitInfo;
   } // function - getChartLimitInfo
 
+
+  /**
+   * Returns icon class for field
+   * @param name
+   */
+  public static getFieldIconClass(name: string): string {
+
+    const fieldIconClasses = [
+      {name: 'STRING', class: 'ddp-icon-type-ab'},
+      {name: 'TIMESTAMP', class: 'ddp-icon-type-calen'},
+      {name: 'LONG', class: 'ddp-icon-type-sharp'},
+      {name: 'LNG', class: 'ddp-icon-type-longitude'},
+      {name: 'LNT', class: 'ddp-icon-type-latitude'},
+      {name: 'GEO_POINT', class: 'ddp-icon-type-point'},
+      {name: 'GEO_LINE', class: 'ddp-icon-type-line'},
+      {name: 'GEO_POLYGON', class: 'ddp-icon-type-polygon'},
+    ];
+
+    if (_.isNil(name)) { // is it necessary?
+      return 'ddp-icon-type-ab'
+    }
+
+    // find index using name
+    const idx = fieldIconClasses.findIndex((item) => {
+      return item.name === name
+    });
+
+    // return string class if name doesn't exist in list
+    return idx !== -1 ? fieldIconClasses[idx].class : 'ddp-icon-type-ab'
+
+  }
 } // class - DashboardUtil
 
 export class ChartLimitInfo {

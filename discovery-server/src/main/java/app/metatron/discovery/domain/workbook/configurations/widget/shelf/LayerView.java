@@ -82,21 +82,15 @@ public interface LayerView extends Serializable {
       }
     }
 
-    public String toHashExpression(String fieldName, boolean isGeom) {
+    public String toHashExpression(String fieldName) {
 
       List<String> pointKeyList = LogicalType.GEO_POINT.getGeoPointKeys();
 
       StringBuilder builder = new StringBuilder();
-      if (isGeom) {
-        builder.append("geom_to_").append(method).append("(");
-        builder.append(fieldName).append(",");
-        builder.append(precision).append(")");
-      } else {
-        builder.append("to_").append(method).append("(");
-        builder.append(fieldName).append(".").append(pointKeyList.get(0)).append(",");
-        builder.append(fieldName).append(".").append(pointKeyList.get(1)).append(",");
-        builder.append(precision).append(")");
-      }
+      builder.append("to_").append(method).append("(");
+      builder.append(fieldName).append(".").append(pointKeyList.get(0)).append(",");
+      builder.append(fieldName).append(".").append(pointKeyList.get(1)).append(",");
+      builder.append(precision).append(")");
 
       return builder.toString();
     }
@@ -109,51 +103,6 @@ public interface LayerView extends Serializable {
       builder.append(hashColumnName).append(")");
 
       return builder.toString();
-    }
-
-    @Override
-    public boolean needAggregation() {
-      return true;
-    }
-
-    public String getMethod() {
-      return method;
-    }
-
-    public Integer getPrecision() {
-      return precision;
-    }
-  }
-
-
-  class AbbreviatedView extends ClusteringLayerView implements LayerView {
-
-    RelayAggregation.Relaytype relayType;
-
-    @JsonCreator
-    public AbbreviatedView(@JsonProperty("method") String method,
-                           @JsonProperty("precision") Integer precision,
-                           @JsonProperty("relayType") String relayType) {
-      super(method, precision);
-      this.relayType = EnumUtils.getUpperCaseEnum(RelayAggregation.Relaytype.class, relayType);
-    }
-
-    public RelayAggregation.Relaytype getRelayType() {
-      return relayType;
-    }
-  }
-
-  class ClusteringLayerView extends HashLayerView implements LayerView {
-    String method;
-    Integer precision;
-
-    public ClusteringLayerView() {
-    }
-
-    @JsonCreator
-    public ClusteringLayerView(@JsonProperty("method") String method,
-                               @JsonProperty("precision") Integer precision) {
-      super(method, precision);
     }
 
     @JsonIgnore
@@ -176,6 +125,51 @@ public interface LayerView extends Serializable {
 
       return Lists.newArrayList(new ExprPostAggregator(expr));
 
+    }
+
+    @Override
+    public boolean needAggregation() {
+      return true;
+    }
+
+    public String getMethod() {
+      return method;
+    }
+
+    public Integer getPrecision() {
+      return precision;
+    }
+  }
+
+
+  class AbbreviatedView extends HashLayerView implements LayerView {
+
+    RelayAggregation.RelayType relayType;
+
+    @JsonCreator
+    public AbbreviatedView(@JsonProperty("method") String method,
+                           @JsonProperty("precision") Integer precision,
+                           @JsonProperty("relayType") String relayType) {
+      super(method, precision);
+      this.relayType = EnumUtils.getUpperCaseEnum(RelayAggregation.RelayType.class, relayType);
+    }
+
+    public RelayAggregation.RelayType getRelayType() {
+      return relayType;
+    }
+  }
+
+  class ClusteringLayerView extends HashLayerView implements LayerView {
+    String method;
+    Integer precision;
+
+    public ClusteringLayerView() {
+    }
+
+    @JsonCreator
+    public ClusteringLayerView(@JsonProperty("method") String method,
+                               @JsonProperty("precision") Integer precision) {
+      super(method, precision);
     }
 
   }

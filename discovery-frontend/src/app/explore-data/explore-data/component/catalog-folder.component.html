@@ -1,0 +1,22 @@
+<li [class.ddp-open]="catalog.isOpened" *ngIf="!isEmptyCatalog" [class.ddp-selected]="isSelectedCatalog()">
+  <a href="javascript:" class="ddp-depth" (click)="onClickCatalog(catalog)">
+    <em class="ddp-view" (click)="onChangeFolderOpen(catalog.id)" *ngIf="isEmptySearchKeyword() && catalog.countOfChild !== 0"></em>
+    <div class="ddp-txt-link">
+      <em class="ddp-icon-folder"></em>
+      <span [innerHTML]="getCatalogName()"></span>
+    </div>
+  </a>
+  <!-- sub catalog -->
+  <ul>
+    <component-catalog-folder   *ngFor="let subCatalog of catalog.child" [catalog]="subCatalog" [selectedCatalog]="selectedCatalog" [searchKeyword]="searchKeyword" (clickedCatalog)="onClickCatalog($event)"></component-catalog-folder>
+  </ul>
+  <!-- //sub catalog -->
+</li>
+<li class="ddp-unclass" [class.ddp-selected]="selectedCatalog !== undefined && selectedCatalog.name ==='undefined'" *ngIf="isEmptyCatalog">
+  <a (click)="onClickCatalog(undefined)" href="javascript:">
+    <div class="ddp-txt-link">
+      <em class="ddp-icon-question"></em>
+      Unclassified
+    </div>
+  </a>
+</li>

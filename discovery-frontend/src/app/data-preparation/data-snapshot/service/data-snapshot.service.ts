@@ -20,6 +20,8 @@ import { CommonUtil } from '../../../common/util/common.util';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { Observable } from 'rxjs';
 import {LogicalType} from "../../../domain/datasource/datasource";
+import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
 
 @Injectable()
 export class DataSnapshotService extends AbstractService {
@@ -28,7 +30,48 @@ export class DataSnapshotService extends AbstractService {
     super(injector);
   }
 
-  private _baseUrl: string = this.API_URL + '/preparationsnapshots/';
+  private _baseUrl: string = this.API_URL + 'preparationsnapshots/';
+
+
+  /**
+   * Returns appropriate status for parameter
+   * @param status
+   * @private
+   */
+  private _getSnapshotStatus(status: string) {
+
+    const statuses = [
+      {name : 'all', status : 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING'},
+      {name : 'success', status : 'SUCCEEDED'},
+      {name : 'fail', status : 'FAILED'},
+      {name : 'preparing', status : 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING'},
+    ];
+
+    const idx = statuses.findIndex((item) => {
+      return item.name === status;
+    });
+
+    return statuses[idx].status
+
+  }
+
+
+  /**
+   * Returns appropriate type for parameter
+   * @param ssType
+   * @private
+   */
+  private _getSnapshotType(ssType: SsType): string {
+
+    let type;
+    if (!isNullOrUndefined(ssType)) {
+      type = ssType.toString();
+    } else {
+      type = `${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
+    }
+    return type;
+
+  }
 
   /**
    * Get snapshot list
@@ -61,6 +104,27 @@ export class DataSnapshotService extends AbstractService {
     delete param.page.column;
 
     url += '&' + CommonUtil.objectToUrlString(param.page);
+    return this.get(url);
+  }
+
+  /**x
+   * Fetch snapshot list
+   * @param param
+   */
+  public getSnapshots(param): Promise<PrDataSnapshot[]> {
+
+    const status = this._getSnapshotStatus(param.status);
+    const type = this._getSnapshotType(param.type);
+
+    let url = `${this._baseUrl}search/findBySsNameContainingAndStatusInAndSsTypeIn?ssName=${encodeURIComponent(param.ssName)}&statuses=${status}&ssTypes=${type}`;
+
+    let clonedParam = _.cloneDeep(param);
+
+    delete clonedParam.type;
+    delete clonedParam.status;
+    delete clonedParam.ssName;
+
+    url += '&' + CommonUtil.objectToUrlString(clonedParam);
     return this.get(url);
   }
 
@@ -106,6 +170,8 @@ export class DataSnapshotService extends AbstractService {
       mineType = 'application/csv';
     } else if (fileFormat === 'json'){
       mineType = 'application/json';
+    } else if (fileFormat === 'sql'){
+      mineType = 'text/plain';
     }
 
     let headers = new HttpHeaders({
@@ -121,7 +187,7 @@ export class DataSnapshotService extends AbstractService {
 
     return this.http.get(`${this._baseUrl}${ssId}/download?fileType=`+fileFormat, option)
       .map((res) => {
-        return new Blob([res], { type: 'application/csv' })
+        return new Blob([res], { type: mineType })
       });
   }
 

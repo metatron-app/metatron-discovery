@@ -693,10 +693,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     // For postgre dbName is database not databaseName!
     if (jdbc.rsType === RsType.QUERY) {
       jdbc.queryStmt = jdbc.sqlInfo.queryStmt;
-      jdbc.dbName = jdbc.dataconnection.connection.implementor === 'POSTGRESQL'? jdbc.dataconnection.connection.database : jdbc.sqlInfo.databaseName;
+      jdbc.dbName = jdbc.sqlInfo.databaseName;
     } else {
       jdbc.tblName = jdbc.tableInfo.tableName;
-      jdbc.dbName = jdbc.dataconnection.connection.implementor === 'POSTGRESQL'? jdbc.dataconnection.connection.database : jdbc.tableInfo.databaseName;
+      jdbc.dbName = jdbc.tableInfo.databaseName;
     }
     return jdbc
   }
@@ -713,6 +713,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       params.delimiter = ',';
     } else {
       params.delimiter = file.delimiter;
+    }
+
+    if (file.fileFormat === FileFormat.CSV || file.fileFormat === FileFormat.TXT ){
+      params.quoteChar = file.quoteChar;
     }
 
     params.dsName = file.dsName;
@@ -770,7 +774,17 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     // Error when creating dataflow with dataset with no querystmt
     if (type.rsType === RsType.TABLE) {
-      params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName}`;
+      var databaseName = tableInfo.databaseName;
+      var tableName = tableInfo.tableName;
+      if(type.dataconnection.connection.implementor==="POSTGRESQL") {
+        if( /^[a-z0-9]+$/.test(databaseName) === false ) {
+          databaseName = `"${databaseName}"`;
+        }
+        if( /^[a-z0-9]+$/.test(tableName) === false ) {
+          tableName = `"${tableName}"`;
+        }
+      }
+      params['queryStmt'] = `select * from ${databaseName}.${tableName}`;
     }
 
     this.loadingShow();

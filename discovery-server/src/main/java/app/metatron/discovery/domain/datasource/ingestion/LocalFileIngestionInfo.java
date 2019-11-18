@@ -51,6 +51,8 @@ public class LocalFileIngestionInfo implements IngestionInfo {
    */
   Map<String, Object> tuningOptions;
 
+  String charset;
+
   public LocalFileIngestionInfo() {
   }
 
@@ -120,4 +122,14 @@ public class LocalFileIngestionInfo implements IngestionInfo {
   public void setTuningOptions(Map<String, Object> tuningOptions) {
     this.tuningOptions = tuningOptions;
   }
+
+  public String getCharset() {
+    if (charset == null) {
+      return "UTF-8";
+    }
+
+    return charset;
+  }
+
+  public void setCharset(String charset) { this.charset = charset; }
 }

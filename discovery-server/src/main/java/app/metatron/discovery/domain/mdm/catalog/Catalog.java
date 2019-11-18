@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -27,15 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 import app.metatron.discovery.domain.AbstractHistoryEntity;
@@ -45,6 +39,7 @@ import app.metatron.discovery.domain.mdm.Metadata;
  * Catalog of metadata
  */
 @Entity
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Table(name="mdm_catalog")
 public class Catalog extends AbstractHistoryEntity {
 
@@ -78,6 +73,9 @@ public class Catalog extends AbstractHistoryEntity {
   @BatchSize(size = 50)
   @RestResource(path = "metadatas")
   private List<Metadata> metadatas;
+
+  @Transient
+  boolean favorite;
 
   public Catalog() {
   }
@@ -142,6 +140,14 @@ public class Catalog extends AbstractHistoryEntity {
 
   public void setMetadatas(List<Metadata> metadatas) {
     this.metadatas = metadatas;
+  }
+
+  public boolean isFavorite() {
+    return favorite;
+  }
+
+  public void setFavorite(boolean favorite) {
+    this.favorite = favorite;
   }
 
   @Override

@@ -47,7 +47,7 @@ public class MetadataSourceProjections extends BaseProjections {
 
     //String getSourceId();
 
-    @Value("#{@metaSourceService.getSourcesBySourceId(target.type, target.sourceId)}")
+    @Value("#{@metaSourceService.getSourcesBySourceIdWithProjection(target.type, target.sourceId)}")
     Object getSource();
 
     String getSchema();
@@ -63,6 +63,9 @@ public class MetadataSourceProjections extends BaseProjections {
     DateTime getCreatedTime();
 
     DateTime getModifiedTime();
+
+    @Value("#{target.getSourceInfoObject()}")
+    Object getSourceInfo();
   }
 
 }

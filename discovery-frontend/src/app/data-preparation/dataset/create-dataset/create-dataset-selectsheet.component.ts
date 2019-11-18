@@ -25,6 +25,7 @@ import { isNull, isNullOrUndefined } from 'util';
 import * as pixelWidth from 'string-pixel-width';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import {CommonUtil} from "../../../common/util/common.util";
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'app-create-dataset-selectsheet',
@@ -68,10 +69,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public isColumnCountRequired : boolean = false;
 
   public currDelimiter : string = '';
+  public currQuote: string = '';
   public currSheetIndex : number = 0;
   public currDSIndex: number = 0;
   public currDetail : {fileFormat: FileFormat, detailName: string, columns: number} ;
   public currColumnCount: number;
+  public prevColumnCount: number;
 
   public previewErrorMsg : string = '';
 
@@ -114,6 +117,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         if(index === 0) {
           this.currDelimiter = (this.isCSV ? ',' : '');
+          this.currQuote = (this.isCSV ? '\"' : '');
         }
 
         // FIXME : UI에서 각자 따로 오는 response를 어떻게 처리할지
@@ -132,9 +136,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
       // JSON이 아닌경우 delimiter 설정
       this.currDelimiter = !this.isJSON ? this.datasetFiles[this.currDSIndex].delimiter : '';
+      this.currQuote = this.isCSV ? this.datasetFiles[this.currDSIndex].quoteChar : '\"';
 
       // 컬럼 카운트 설정
       this.currColumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
+      this.prevColumnCount = this.currColumnCount;
 
       // Error message 있으면 보여준다.
       this.previewErrorMsg = (this.datasetFiles[this.currDSIndex].error? this.translateService.instant(this.datasetFiles[this.currDSIndex].error.message) : '');
@@ -225,10 +231,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   public changeDelimiter() {
 
-    if (this.clearGrid) {
-      return;
-    }
-
     this.isDelimiterRequired = ('' === this.currDelimiter && this.isCSV);
 
     // No change in grid when delimiter is empty
@@ -245,17 +247,36 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
 
   /**
+   * When quoteChar is changed(only CSV)
+   */
+  public changeQuote() {
+
+    if (isNullOrUndefined(this.currQuote) || this.isJSON || this.isEXCEL) {
+      return;
+    }
+
+    if( this.datasetFiles[this.currDSIndex].quoteChar !==  this.currQuote ){
+      this.datasetFiles[this.currDSIndex].quoteChar =  this.currQuote;
+      this.loadingShow();
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
+    }
+  }
+
+
+  /**
    * When columnCount is changed(CSV, EXCEL)
    */
   public changeColumnCount(){
 
-    if (this.clearGrid) {
-      return;
-    }
-
     this.isColumnCountRequired = ( (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
 
     if (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
+      return;
+    }
+
+    if( this.currColumnCount>9999 ) {
+      Alert.error(`max count must be less than 10000`);
+      this.currColumnCount = this.prevColumnCount;
       return;
     }
 
@@ -349,6 +370,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this._setDetailInformation(dsIdx, 0);
 
       this.currDelimiter = this.datasetFiles[dsIdx].delimiter;
+      this.currQuote = this.datasetFiles[dsIdx].quoteChar;
 
       this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
 
@@ -386,6 +408,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.previewErrorMsg = '';
     this.isDelimiterRequired = false;
     this.currDelimiter = '';
+    this.currQuote = '\"';
 
     this.isColumnCountRequired = false;
     this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
@@ -437,6 +460,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.changeDelimiter();
       }
 
+      // Quote character
+      if ('quoteChar' === type) {
+        this.changeQuote();
+      }
+
     } else {
 
 
@@ -445,6 +473,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         // Column count input
         if ('colCnt' === type) {
+          var value = event.target.value;
+          var maxLength = 4;
+          if(value && value.length<=maxLength) {
+            this.prevColumnCount = value;
+          }
           this.isColumnCountRequired = true;
         }
 
@@ -499,6 +532,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       storedUri : datasetFile.storedUri,
     };
     if (datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.TXT) result['delimiter'] = datasetFile.delimiter;
+    if (datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.TXT) result['quoteChar'] = datasetFile.quoteChar;
     if (manualColumnCount && manualColumnCount > 0) result['manualColumnCount'] = manualColumnCount;
 
     return result;
@@ -520,6 +554,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         if( option && option === 'draw') this.clearGrid = false;
 
+        this.datasetFiles[idx].error = null;
+        this.previewErrorMsg = '';
+
         this._setSheetInformation(idx, result.gridResponses, result.sheetNames);
 
         // 첫번째 시트로 그리드를 그린다.
@@ -538,6 +575,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         // no result from server
         if( option && option === 'draw') this.clearGrid = true;
+
+        this.datasetFiles[idx].error = result;
+        this.previewErrorMsg = (this.datasetFiles[idx].error? this.translateService.instant(this.datasetFiles[idx].error.message) : '');
 
       }
 

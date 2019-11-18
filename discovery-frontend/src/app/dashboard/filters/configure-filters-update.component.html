@@ -57,14 +57,11 @@
         <!-- 제목 영역 -->
         <div class="ddp-txt-name ddp-type">
           <span class="ddp-txt-data"> {{ targetField.name }} </span>
-          <span class="ddp-txt-sub" (mouseover)="isShowDsTooltip = true" (mouseout)="isShowDsTooltip = false"> {{ dataSource.name }} </span>
+          <span #ddpTxtSub class="ddp-txt-sub"> {{ dataSource.name }} </span>
         </div>
         <!-- // 제목 영역 -->
       </div>
-      <!-- // 제목 및 아이콘 영역 -->
-      <div *ngIf="isShowDsTooltip" class="ddp-ui-tooltip-info" style="display: block;">
-        <em class="ddp-icon-view-top"></em> {{ dataSource.name }}
-      </div>
+
     </div>
     <!-- // 상단 영역 -->
     <!-- 상세 영역 -->

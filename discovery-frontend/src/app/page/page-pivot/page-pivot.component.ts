@@ -701,13 +701,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    */
   public onChangeFilter($event): void {
 
-    // 필수필터이면 제거 불가능
-    if (this.editingField.field.role === FieldRole.TIMESTAMP && this.editingField.field.type === 'TIMESTAMP') {
-      $event.target ? $event.target.checked = true : $event.currentTarget.checked = true;
-      Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
-      return;
-    }
-
     if (this.editingField.field.filtering) {
       $event.target ? $event.target.checked = true : $event.currentTarget.checked = true;
       Alert.warning(this.translateService.instant('msg.board.alert.recomm-filter.del.error'));
@@ -1847,7 +1840,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // timestamp 타입 리스트 설정
     this.timestampTypeList = [
       // 초단위 제거 요청으로 주석처리
-      // { label: 'Second', id: GranularityType.SECOND, discontinuous: false },
+      {label: 'Second', id: GranularityType.SECOND, discontinuous: false},
       {label: 'Minute', id: GranularityType.MINUTE, discontinuous: false},
       {label: 'Hour', id: GranularityType.HOUR, discontinuous: false},
       {label: 'Day', id: GranularityType.DAY, discontinuous: false},
@@ -2695,9 +2688,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       let score: number = 0;
       switch (granularity) {
         // 초단위 제거 요청으로 주석처리
-        // case String(GranularityType.SECOND):
-        //   score = 1;
-        //   break;
+        case String(GranularityType.SECOND):
+          score = 1;
+          break;
         case String(GranularityType.MINUTE):
           score = 2;
           break;

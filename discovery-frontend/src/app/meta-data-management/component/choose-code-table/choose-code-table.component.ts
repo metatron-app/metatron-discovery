@@ -22,6 +22,9 @@ import {ColumnDictionaryService} from '../../column-dictionary/service/column-di
 import * as _ from 'lodash';
 import {Alert} from '../../../common/util/alert.util';
 import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
+import {TranslateService} from "@ngx-translate/core";
+import {Modal} from "../../../common/domain/modal";
+import {CommonUtil} from "../../../common/util/common.util";
 
 @Component({
   selector: 'app-choose-code-table',
@@ -38,11 +41,15 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
 
   // mode
   private _mode: string;
+
   // origin selected code table
   private _originSelectedCodeTable: CodeTable;
 
   // 코드 테이블의 조직 상세정보
   private _codeTableDetailList: CodeTable[];
+
+  // index of the preview popup now showing
+  private _previewPopupNowShowing: number = -1;
 
   // 코드 테이블 생성 컴포넌트
   @ViewChild(CreateCodeTableComponent)
@@ -78,6 +85,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   constructor(
     private _columnDictionaryService: ColumnDictionaryService,
     private _codeTableService: CodeTableService,
+    private _translateService: TranslateService,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -256,20 +264,31 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   }
 
   /**
-   * preview 클릭 이벤트
-   * @param {CodeTable} codeTable
+   * preview button click event
+   * @param {number} idx
    */
-  public onClickCodeTablePreview(codeTable: CodeTable): void {
-    // 이벤트 버블링 stop
+  public onClickCodeTablePreview(idx: number): void {
+    this.selectedCodeTable = this.codeTableList[idx];
+    // if any popup is shown now
+    if (this._previewPopupNowShowing !== -1) {
+      // hide popup
+      this.codeTableList[this._previewPopupNowShowing]['previewShowFl'] = false;
+    }
+    // save the index of popup which will appear
+    this._previewPopupNowShowing = idx;
+
+    // stop event bubbling
     event.stopImmediatePropagation();
 
     const index = _.findIndex(this._codeTableDetailList, (item) => {
-      return codeTable.id === item.id;
+      return this.codeTableList[idx].id === item.id;
     });
+
     // 해당 코드 정보가 존재하지 않는다면 조회
-    index === -1 && this._getDetailCodeTable(codeTable.id);
+    index === -1 && this._getDetailCodeTable(this.codeTableList[idx].id);
+
     // show flag
-    codeTable['previewShowFl'] = true;
+    this.codeTableList[idx]['previewShowFl'] = true;
   }
 
   /**
@@ -277,8 +296,33 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    * @param {CodeTable} codeTable
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
-    // 해당 코드 테이블 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTable.id]);
+    event.stopImmediatePropagation();
+
+    // notice i navigate from column dictionary page
+    this._codeTableService.fromColumnDictionary = true;
+
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+    modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+    modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
+    modal.isShowCancel = true;
+    modal.data = { id: codeTable.id };
+    modal.afterConfirm = () => {
+      this.router.navigate(['management/metadata/code-table', this.selectedCodeTable['id']]);
+      this.selectedCodeTable = null;
+    };
+    CommonUtil.confirm(modal);
+  }
+
+  /**
+   * 코드 Preview Popup close 버튼 클릭 이벤트
+   * @param {CodeTable} codeTable
+   */
+  public onClickPreviewPopupClose(codeTable: CodeTable) {
+    event.stopImmediatePropagation();
+    codeTable['previewShowFl'] = false;
+    this._previewPopupNowShowing = -1;
+    this.selectedCodeTable = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -330,16 +374,14 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 현재 컬럼사전에 선택한 코드 테이블 연결
-    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id).
-      then((result) => {
-        // 로딩 hide
-        this.loadingHide();
-        // alert
-        Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
-        // close
-        this._emitCodeTable();
-      }).
-      catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id).then((result) => {
+      // 로딩 hide
+      this.loadingHide();
+      // alert
+      Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
+      // close
+      this._emitCodeTable();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**

@@ -168,6 +168,26 @@ public class WorkspaceService {
     workspaceFavoriteRepository.deleteByUsername(username);
   }
 
+  /**
+   * 사용자 삭제시 Workspace 삭제
+   */
+  @Transactional
+  public void deleteWorkspaceAndMember(String username) {
+    // PRIVATE workspace 삭제
+    Workspace workspace = workspaceRepository.findPrivateWorkspaceByOwnerId(username);
+    if(workspace == null) {
+      LOGGER.warn("Fail to find private workspace : {}", username);
+    } else {
+      workspaceRepository.delete(workspace);
+    }
+
+    // Workspace Member 로 포함된 경우 삭제
+    workspaceMemberRepository.deleteByMemberIds(Lists.newArrayList(username));
+
+    // Workspace Favorite 삭제
+    workspaceFavoriteRepository.deleteByUsername(username);
+  }
+
   public Integer countAvailableWorkspaces(String workspaceId) {
 
     BooleanBuilder builder = new BooleanBuilder();
@@ -601,6 +621,32 @@ public class WorkspaceService {
     return publicWorkspaces;
   }
 
+  public Map<String, Long> countOfBookByType(Workspace workspace) {
+    Map<String, Long> countOfBook = workspaceRepository.countByBookType(workspace);
+
+    Map<String, Long> result = Maps.newHashMap();
+    result.put("folder", countOfBook.get("folder") == null ? 0L : countOfBook.get("folder"));
+    result.put("workBook", countOfBook.get("workbook") == null ? 0L : countOfBook.get("workbook"));
+    result.put("workBench", countOfBook.get("workbench") == null ? 0L : countOfBook.get("workbench"));
+    result.put("notebook", countOfBook.get("notebook") == null ? 0L : countOfBook.get("notebook"));
+
+    return result;
+  }
+
+  public Map<String, Long> countByMemberType(Workspace workspace, boolean includePublished) {
+    Map<WorkspaceMember.MemberType, Long> countOfMember = Maps.newHashMap();
+
+    if (Workspace.PublicType.SHARED.equals(workspace.getPublicType()) && (includePublished || !workspace.getPublished())) {
+      countOfMember = workspaceRepository.countByMemberType(workspace);
+    }
+
+    Map<String, Long> result = Maps.newHashMap();
+    result.put("group", countOfMember.get(WorkspaceMember.MemberType.GROUP) == null ? 0L : countOfMember.get(WorkspaceMember.MemberType.GROUP));
+    result.put("user", countOfMember.get(WorkspaceMember.MemberType.USER) == null ? 0L : countOfMember.get(WorkspaceMember.MemberType.USER));
+
+    return result;
+  }
+
   private Predicate getPublicWorkspacePredicate(Boolean onlyFavorite,
                                                 Boolean myWorkspace,
                                                 Boolean published,
@@ -626,6 +672,35 @@ public class WorkspaceService {
               : builder.andAnyOf(workspace.published.isNull(), workspace.published.isFalse());
     }
 
+    BooleanExpression memberIn = workspace.id
+        .in(JPAExpressions.select(workspace.id)
+                          .from(workspace)
+                          .innerJoin(workspace.members)
+                          .where(workspace.members.any().memberId.in(targets)));
+    if (myWorkspace != null) {
+      if(published == null) {
+        if(myWorkspace) {
+          builder.and(pOwnerEq);
+        } else {
+          builder.andAnyOf(memberIn, workspace.published.isTrue());
+        }
+      } else {
+        builder.and(pOwnerEq);
+        builder.and(pPublished);
+
+        if(!myWorkspace) {
+          builder.and(memberIn);
+        }
+      }
+    } else {
+      if (published == null) {
+        builder.andAnyOf(memberIn, workspace.ownerId.eq(username), workspace.published.isTrue());
+      } else {
+        builder.and(pPublished);
+      }
+
+    }
+
     if (onlyFavorite) {
       BooleanExpression favorite = workspace.id
               .in(JPAExpressions.select(workspace.id)
@@ -639,36 +714,6 @@ public class WorkspaceService {
 
       if (published != null) {
         builder.and(pPublished);
-      }
-    } else {
-
-      BooleanExpression memberIn = workspace.id
-              .in(JPAExpressions.select(workspace.id)
-                      .from(workspace)
-                      .innerJoin(workspace.members)
-                      .where(workspace.members.any().memberId.in(targets)));
-      if (myWorkspace != null) {
-        if(published == null) {
-          if(myWorkspace) {
-            builder.and(pOwnerEq);
-          } else {
-            builder.andAnyOf(memberIn, workspace.published.isTrue());
-          }
-        } else {
-          builder.and(pOwnerEq);
-          builder.and(pPublished);
-
-          if(!myWorkspace) {
-            builder.and(memberIn);
-          }
-        }
-      } else {
-        if (published == null) {
-          builder.andAnyOf(memberIn, workspace.ownerId.eq(username), workspace.published.isTrue());
-        } else {
-          builder.and(pPublished);
-        }
-
       }
     }
 

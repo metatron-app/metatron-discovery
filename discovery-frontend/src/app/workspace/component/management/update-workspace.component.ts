@@ -12,11 +12,23 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { WorkspaceService } from '../../service/workspace.service';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Alert} from '../../../common/util/alert.util';
+import {CommonUtil} from '../../../common/util/common.util';
+import {WorkspaceService} from '../../service/workspace.service';
+import {Workspace} from "../../../domain/workspace/workspace";
+import * as _ from 'lodash';
+import {CookieConstant} from "../../../common/constant/cookie.constant";
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'app-update-workspace',
@@ -51,6 +63,9 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
     description : ''
   };
 
+  // sharedWorkSpaceList
+  public sharedWorkspaceList: Workspace[];
+
   // 유효성 관련 - 이름
   public isInvalidName: boolean = false;
   public errMsgName: string = '';
@@ -58,6 +73,13 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   // 유효성 관련 - 설명
   public isInvalidDesc: boolean = false;
   public errMsgDesc: string = '';
+
+  // params for query
+  public params = {
+    size: this.page.size,
+    page: this.page.page,
+    sort: { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true }
+  };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
@@ -106,6 +128,15 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
       // 수정
       this.workspaceService.updateWorkspace(this.workspaceId, this.data)
         .then((result) => {
+          const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
+          if (StringUtil.isNotEmpty(workspace)) {
+            const wsInfo = JSON.parse(workspace);
+            if (wsInfo['id'] === this.workspaceId) {
+              wsInfo['name'] = this.data.name;
+              wsInfo['description'] = this.data.description;
+              this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(wsInfo), 0, '/');
+            }
+          }
           // 로딩 hide
           this.loadingHide();
           // 수정 알림
@@ -119,6 +150,8 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
           // 수정 알림
           Alert.error(this.translateService.instant('msg.space.alert.edit.workspace.fail'));
         });
+    } else {
+      Alert.error(this.translateService.instant('msg.space.alert.edit.workspace.fail'));
     }
   }
 
@@ -135,8 +168,41 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
 
   // 닫기
   public close(completeFl?:boolean) {
+    this.sharedWorkspaceList = undefined;
+    this.isInvalidName = undefined;
     this.isShow = false;
     this.updateComplete.emit(completeFl);
+  }
+
+  /**
+   * Check if name is in use
+   * @param {string} newWorkspaceName
+   */
+  public async nameChange(newWorkspaceName) {
+    this.data.name = newWorkspaceName;
+    this.params.size = 100;
+
+    this.loadingShow();
+
+    if (_.isNil(this.sharedWorkspaceList)) {
+      // get workspaces which contains keyword(newWorkspaceName)
+      this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
+        if (workspaces['_embedded']) {
+          this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+          this._checkDuplicateName(newWorkspaceName);
+        } else {
+          this.sharedWorkspaceList = [];
+        }
+
+      }).catch((error) => {
+        Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
+        this.loadingHide();
+      });
+    } else if (this.sharedWorkspaceList.length > 0) {
+      this._checkDuplicateName(newWorkspaceName);
+    }
+
+    this.loadingHide();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -150,8 +216,12 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   // validation
   private validation() {
     this.data.name = this.data.name ? this.data.name.trim() : '';
-    if (this.data.name == null || this.data.name.length === 0) {
-      this.isInvalidName = true;
+    if (this.isInvalidName) {
+      this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
+      return false;
+    }
+
+    if (this.data.name == null || this.data.name.length === 0 || this.isInvalidName) {
       this.errMsgName = this.translateService.instant('msg.alert.edit.name.empty');
       return false;
     }
@@ -173,4 +243,15 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
 
     return true;
   }
+
+  private _checkDuplicateName(newWorkspaceName: string) {
+    // check if name is in use and set isInvalidName flag according to the condition
+    this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
+      if (workspace.name === newWorkspaceName) {
+        this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
+        return true;
+      }
+    });
+  }
+
 }

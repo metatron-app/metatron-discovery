@@ -12,18 +12,23 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { GranularityType } from '../workbook/configurations/field/timestamp-field';
-import { Dataconnection } from '../dataconnection/dataconnection';
-import { MetadataColumn } from '../meta-data-management/metadata-column';
-import { CodeTable } from '../meta-data-management/code-table';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {GranularityType} from '../workbook/configurations/field/timestamp-field';
+import {Dataconnection} from '../dataconnection/dataconnection';
+import {MetadataColumn} from '../meta-data-management/metadata-column';
 import {
   CreateConnectionData,
   CreateSnapShotData,
   CreateSourceCompleteData,
-  CreateSourceConfigureData
+  CreateSourceConfigureData,
+  KafkaData
 } from "../../data-storage/service/data-source-create.service";
 import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
+import {isNullOrUndefined} from "util";
+import {TimezoneService} from "../../data-storage/service/timezone.service";
+import {AggregationType} from "../workbook/configurations/field/measure-field";
+import {Type} from "../../shared/datasource-metadata/domain/type";
+import {StringUtil} from "../../common/util/string.util";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -41,7 +46,7 @@ export class Datasource extends AbstractHistoryEntity {
   status: Status;
   published: boolean;         // 전체 공개 여부 true일 경우 전체 공개
   linkedWorkspaces: number;   // 연결된 workspaces 개수
-  ingestion: any;             // 데이터 소스 적재 정보
+  ingestion;             // 데이터 소스 적재 정보
   fields: Field[];            // 데이터 소스 필드 정보
   snapshot?: PrDataSnapshot;
   // workspaces
@@ -54,10 +59,24 @@ export class Datasource extends AbstractHistoryEntity {
   owner: any[];
   countOfDataSources: number;
 
+  valid: boolean;
+
   // for UI
   num?: number;
   temporary?: TemporaryDatasource;
   uiMetaData?: { name: string, id: string, description: string, columns: MetadataColumn[] };
+
+  public static getConnection(datasource: Datasource) {
+    return datasource.connection || datasource.ingestion.connection;
+  }
+
+  public static isLinkedDatasource(datasource: Datasource): boolean {
+    return datasource.connType === ConnectionType.LINK;
+  }
+
+  public static isEngineDatasource(datasource: Datasource): boolean {
+    return datasource.connType === ConnectionType.ENGINE;
+  }
 }
 
 export class DataSourceSummary {
@@ -118,6 +137,7 @@ export class Field {
   id: string;
   // Field 명
   name: string;
+  originalName?: string;
   // logical name
   logicalName?: string;
   // description
@@ -139,12 +159,14 @@ export class Field {
   // 필수 필터링 순서 지정
   filteringSeq: number;
   // 필터링 옵션
-  filteringOptions: any;
+  filteringOptions;
 
-  // is create field (optional)
-  derived?: boolean;
+  aggrType?: AggregationType;
   // Whether to exclude what to load to engine
   unloaded?: boolean;
+  seq: number;
+  // is create field (optional)
+  derived?: boolean;
   // derivationRule
   derivationRule?: DerivationRule;
   // IngestionRule
@@ -155,14 +177,12 @@ export class Field {
 
   // format
   // TODO 추후 FieldFormat으로 변환
-  // format: FieldFormat;
-  format: any;
+  format: any | FieldFormat;
 
   // Field 별칭
   alias: string;
 
   // for UI
-  seq: number;
   useFilter: boolean = false;
   useChartFilter: boolean = false;
   useChart: boolean = false;
@@ -178,19 +198,18 @@ export class Field {
 
   // [UI] for Create Datasource
   isValidType?: boolean;
-  isValidTimeFormat?: boolean;
   isValidReplaceValue?: boolean;
-  typeValidMessage?: string;
-  replaceValidMessage?: string;
-  timeFormatValidMessage?: string;
   checked?: boolean;
+  isEdit?: boolean;
+  editName?: string;
+  isInvalidName?: boolean;
+  invalidNameMessage?: string;
 
   // [UI] valid layer popup
   isShowTypeList?: boolean;
-  isShowTimestampValidPopup?: boolean;
 
   // [UI] for Alias
-  dsId?:string;                   // 데이터소스 아이디
+  dsId?: string;                   // 데이터소스 아이디
   dataSource?: string;            // 데이터소스 engine Name
   boardId?: string;               // 대시보드 아이디
   nameAlias?: FieldNameAlias;     // 데이터소스 필드 이름 별칭 정보
@@ -198,6 +217,158 @@ export class Field {
 
   // for MetaData
   uiMetaData?: MetadataColumn;
+  physicalName?: string;
+
+  // for Datasource detail
+  op?: 'replace';
+
+  removeUIproperties?() {
+    delete this.isShowTypeList;
+    delete this.isValidType;
+    delete this.useFilter;
+    delete this.useChartFilter;
+    delete this.useChart;
+  }
+
+  removeIngestionRule?() {
+    delete this.ingestionRule;
+  }
+
+  // TODO 추후 Type.Logical으로 변경시 제거 필요
+  setLogicalType?(type) {
+    this.logicalType = type;
+  }
+
+  public static removeNameValidProperty(field: Field) {
+    delete field.isInvalidName;
+    delete field.invalidNameMessage;
+  }
+
+  public static removeOriginalNameProperty(field: Field) {
+    delete field.originalName;
+  }
+
+  public static setRemoveField(field): void {
+    field.unloaded = true;
+  }
+
+  public static setUndoRemoveField(field): void {
+    field.unloaded = false;
+  }
+
+  public static setCheckField(field): void {
+    field.checked = true;
+  }
+
+  public static setUndoCheckField(field): void {
+    field.checked = false;
+  }
+
+  public static isEnableFieldEditNameLength(field: Field): boolean {
+    return field.editName.length < 50;
+  }
+
+  public static isEmptyFieldEditName(field: Field): boolean {
+    return StringUtil.isEmpty(field.editName);
+  }
+
+  public static isNameEqualEditName(field: Field): boolean {
+    return field.name === field.editName.trim();
+  }
+
+
+  public static isDisableFieldEditNameCharacter(field: Field): boolean {
+    return (/^[!@#$%^*+=()~`\{\}\[\]\-\_\;\:\'\"\,\.\/\?\<\>\|\&\\]+$/gi).test(field.editName) || (/[\s\r\n]/gi).test(field.editName);
+  }
+
+  public static isDisableOriginalName(field: Field): boolean {
+    return this.isCreatedField(field) || (field.name === field.originalName);
+  }
+
+  public static isTimestampTypeField(field): boolean {
+    return field.logicalType === LogicalType.TIMESTAMP;
+  }
+
+  public static isDimensionField(field): boolean {
+    return field.role === FieldRole.DIMENSION;
+  }
+
+  public static isMeasureField(field): boolean {
+    return field.role === FieldRole.MEASURE;
+  }
+
+  public static isTimestampField(field): boolean {
+    return field.role === FieldRole.TIMESTAMP;
+  }
+
+  public static isCheckedField(field): boolean {
+    return field.checked === true;
+  }
+
+  public static isRemovedField(field): boolean {
+    return field.unloaded === true;
+  }
+
+  public static isCreatedField(field): boolean {
+    return field.derived === true;
+  }
+
+  public static isGeoType(field): boolean {
+    return field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON;
+  }
+
+  public static isStringBaseType(field): boolean {
+    return field.type === Type.Logical.STRING;
+  }
+
+  public static isExpressionField(field): boolean {
+    return this.isCreatedField(field) && field.logicalType === LogicalType.STRING;
+  }
+
+
+  public static isEmptyFormat(field): boolean {
+    return isNullOrUndefined(field.format);
+  }
+
+  public static isEmptyIngestionRule(field): boolean {
+    return isNullOrUndefined(field.ingestionRule);
+  }
+
+  public static getSlicedColumnName?(field: Field): string {
+    if (field.name.length > 50) {
+      return field.name.slice(0,50);
+    } else {
+      return field.name;
+    }
+  }
+
+  public static getFieldTypeIconClass(field): string {
+    switch (field.logicalType) {
+      case LogicalType.TIMESTAMP:
+        return 'ddp-icon-type-calen';
+      case LogicalType.BOOLEAN:
+        return 'ddp-icon-type-tf';
+      case LogicalType.STRING:
+        return Field.isCreatedField(field) ? 'ddp-icon-type-expression' : 'ddp-icon-type-ab';
+      case LogicalType.INTEGER:
+        return 'ddp-icon-type-int';
+      case LogicalType.FLOAT:
+      case LogicalType.DOUBLE:
+        return 'ddp-icon-type-float';
+      case LogicalType.LNG:
+        return 'ddp-icon-type-longitude';
+      case LogicalType.LNT:
+        return 'ddp-icon-type-latitude';
+      case LogicalType.GEO_POINT:
+        return 'ddp-icon-type-point';
+      case LogicalType.GEO_LINE:
+        return 'ddp-icon-type-line';
+      case LogicalType.GEO_POLYGON:
+        return 'ddp-icon-type-polygon';
+      default:
+        return '';
+    }
+  }
 
   /**
    * 차원값의 타입 아이콘 클래스 반환
@@ -209,8 +380,10 @@ export class Field {
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
-    } else if ('LNG' === logicalType || 'LNT' === logicalType) {
-      return 'ddp-icon-dimension-local';
+    } else if ('LNG' === logicalType) {
+      return 'ddp-icon-dimension-longitude';
+    } else if ('LNT' === logicalType) {
+      return 'ddp-icon-dimension-latitude';
     } else if ('TIMESTAMP' === logicalType) {
       return 'ddp-icon-dimension-calen';
     } else if ('DOUBLE' === logicalType) {
@@ -260,6 +433,8 @@ export class Field {
 
 // 데이터소스 생성시 사용하는 정보
 export class DatasourceInfo {
+  public datasource: Datasource;
+  public datasourceId: string;
   // src type
   public type: SourceType;
   public dsType: DataSourceType;
@@ -272,6 +447,8 @@ export class DatasourceInfo {
 
   // 1step 커넥션 정보
   public connectionData: CreateConnectionData;
+  // 1step 업로드 정보
+  public uploadData;
 
   // 2step 데이터베이스 정보
   public databaseData: any;
@@ -296,6 +473,8 @@ export class DatasourceInfo {
   // TODO isDisableDataSelect로 변경
   public workbenchFl: boolean;
   public isDisableDataSelect: boolean;
+
+  public kafkaData: KafkaData;
 }
 
 export class IngestionRule {
@@ -303,9 +482,31 @@ export class IngestionRule {
   public type: IngestionRuleType;
   // value
   public value: string;
+
+  // Only use UI
+  public isValidReplaceValue: boolean;
+  public replaceValidationMessage: string;
+
   // constructor
   constructor() {
     this.type = IngestionRuleType.DEFAULT;
+  }
+
+  initType() {
+    this.type = IngestionRuleType.DEFAULT;
+  }
+
+  removeUIProperties() {
+    delete this.isValidReplaceValue;
+    delete this.replaceValidationMessage;
+  }
+
+  isDefaultType() {
+    return this.type === IngestionRuleType.DEFAULT;
+  }
+
+  isReplaceType() {
+    return this.type === IngestionRuleType.REPLACE;
   }
 }
 
@@ -369,7 +570,9 @@ export enum SourceType {
   REALTIME = <any>'REALTIME',
   IMPORT = <any>'IMPORT',
   SNAPSHOT = <any>'SNAPSHOT',
-  NONE = <any>'NONE'
+  NONE = <any>'NONE',
+  ENGINE = <any>'ENGINE',
+  STAGEDB = <any>'STAGEDB'
 }
 
 export enum Status {
@@ -399,7 +602,7 @@ export enum LogicalType {
   GEO_POINT = <any>'GEO_POINT',
   GEO_LINE = <any>'GEO_LINE',
   GEO_POLYGON = <any>'GEO_POLYGON',
-  USER_DEFINED = <any>'user_defined',
+  USER_DEFINED = <any>'user_defined'
 }
 
 export enum FieldRole {
@@ -455,23 +658,19 @@ export enum TempDsStatus {
 }
 
 export class FieldFormat {
-  format: string;
   // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
-  unit: FieldFormatUnit;
-  // timezone (default browser) TODO 추후 서비스 로직에서 default 설정
-  timeZone: string;
-  locale: string;
-  // GEO format
-  originalSrsName?: string;
+  unit?: FieldFormatUnit;  // ONLY USE UNIX
+  format?: string; // ONLY USE TIME
+  timeZone?: string; // ONLY USE TIME (default browser) TODO 추후 서비스 로직에서 default 설정
+  locale?: string; // ONLY USE TIME
+  originalSrsName?: string; // ONLY GEO
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
-  isValidTimeFormat?: boolean;
-  timeFormatValidMessage?: string;
-  // TODO 아래로 통일
   isValidFormat?: boolean;
   formatValidMessage?: string;
+  isShowTimestampValidPopup?: boolean;
 
   formatInitialize() {
     this.format = 'yyyy-MM-dd';
@@ -485,10 +684,83 @@ export class FieldFormat {
     this.unit = FieldFormatUnit.MILLISECOND;
   }
 
+  disableTimezone() {
+    this.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+  }
+
+  removeDateTypeProperties() {
+    delete this.format;
+    delete this.locale;
+  }
+
+  removeUnixTypeProperties() {
+    delete this.unit;
+  }
+
+  removeUIProperties() {
+    delete this.isValidFormat;
+    delete this.formatValidMessage;
+    delete this.isShowTimestampValidPopup;
+  }
+
+  isDateTime() {
+    return this.type === FieldFormatType.DATE_TIME;
+  }
+
+  isEnableTimezone() {
+    return this.format.toUpperCase().indexOf('H') !== -1;
+  }
+
+  isEmptyFormat() {
+    return isNullOrUndefined(this.format);
+  }
+
   constructor() {
     this.type = FieldFormatType.DATE_TIME;
     // TODO 타임스탬프 개선시 제거
     this.unit = FieldFormatUnit.MILLISECOND;
+  }
+
+  public static of(fieldFormat: FieldFormat) {
+    let resultFieldFormat = new FieldFormat();
+    resultFieldFormat.type = fieldFormat.type;
+    // if not undefined properties
+    if (!isNullOrUndefined(fieldFormat.unit)) {
+      resultFieldFormat.unit = fieldFormat.unit;
+    }
+    if (!isNullOrUndefined(fieldFormat.timeZone)) {
+      resultFieldFormat.timeZone = fieldFormat.timeZone;
+    }
+    if (!isNullOrUndefined(fieldFormat.format)) {
+      resultFieldFormat.format = fieldFormat.format;
+    }
+    if (!isNullOrUndefined(fieldFormat.locale)) {
+      resultFieldFormat.locale = fieldFormat.locale;
+    }
+    if (!isNullOrUndefined(fieldFormat.originalSrsName)) {
+      resultFieldFormat.originalSrsName = fieldFormat.originalSrsName;
+    }
+    if (!isNullOrUndefined(fieldFormat.isValidFormat)) {
+      resultFieldFormat.isValidFormat = fieldFormat.isValidFormat;
+    }
+    return resultFieldFormat;
+  }
+
+  public changeType(format: string): void {
+    if (this.type === FieldFormatType.DATE_TIME) {
+      this.removeDateTypeProperties();
+      this.disableTimezone();
+      this.unitInitialize();
+      this.removeUIProperties();
+      // TODO
+      this.isValidFormat = true;
+      this.type = FieldFormatType.UNIX_TIME;
+    } else if (this.type === FieldFormatType.UNIX_TIME) {
+      this.removeUnixTypeProperties();
+      this.format;
+      this.formatValidMessage;
+      this.type = FieldFormatType.DATE_TIME;
+    }
   }
 }
 
@@ -504,13 +776,13 @@ export enum FieldFormatType {
 }
 
 export enum FieldFormatUnit {
-  SECOND = <any>'second',
-  MILLISECOND = <any>'millisecond'
+  SECOND = 'SECOND',
+  MILLISECOND = 'MILLISECOND'
 }
 
 export enum IngestionRuleType {
-  DISCARD = <any>'discard',
-  REPLACE = <any>'replace',
+  DISCARD = 'discard',
+  REPLACE = 'replace',
   // only used in UI
-  DEFAULT = <any>'default'
+  DEFAULT = 'default'
 }

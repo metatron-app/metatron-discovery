@@ -14,10 +14,37 @@
 
 <!-- 상단 영역 -->
 <div class="ddp-ui-divide">
-  <div class="ddp-ui-down-title2" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'"
+  <div class="ddp-ui-down-title2 ddp-flex" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'"
+       [class.ddp-selected]="isNewFilter"
        [ngStyle]="!isDashboardMode ? { cursor : 'default' } : {}">
+
+    <!-- 필드 이름 표시 영역 -->
+    <div *ngIf="filter" class="ddp-itemtype-title">
+      <div class="ddp-data-itemtype ddp-type">
+        <span class="ddp-icon-box">
+          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
+          <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
+        </span>
+        <span class="ddp-txt-itemtype">
+          <span class="ddp-data-name">{{filter.field}}</span>
+          <span class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
+            {{ 'msg.board.ui.filter.used-this-chart' | translate }}
+          </span>
+        </span>
+      </div>
+    </div>
+    <!-- // 필드 이름 표시 영역 -->
+
     <!-- 필터 속성 표시 영역 -->
-    <div *ngIf="filter" class="ddp-ui-buttons">
+    <div *ngIf="filter" class="ddp-flex-button">
+      <div *ngIf="isDeSelected" class="ddp-wrap-morebutton ddp-hover-tooltip">
+        <em class="ddp-icon-sinfo2"></em>
+        <div class="ddp-ui-tooltip-info ddp-down">
+          <em class="ddp-icon-view-top"></em> {{ 'msg.comm.ui.no.filtering' | translate }}
+        </div>
+      </div>
+
       <em class="ddp-icon-global-s" *ngIf="isBoardFilter"></em>
       <!-- 추천/필수 필터 경우 -->
       <div *ngIf="filter.ui.filteringSeq > 0" class="ddp-wrap-datarecommend">
@@ -34,35 +61,6 @@
         </div>
         <!-- 더보기 팝업 -->
         <div class="ddp-wrap-popup2 ddp-types" style="min-width: 150px;">
-          <span class="ddp-label">{{'msg.comm.ui.soring.by' | translate }}</span>
-          <!-- 정렬 버튼 목록 -->
-          <ul class="ddp-list-popup ddp-type">
-            <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.ASC );updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.DESC);updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.ASC );updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
-              <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.DESC);updateFilterEvent.emit(filter);"
-                 href="javascript:" >
-                {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-          </ul>
-          <!-- // 정렬 버튼 목록 -->
           <!-- 기능 버튼 목록 -->
           <ul class="ddp-list-popup">
             <li *ngIf="!isDashboardMode && isBoardFilter && isChangeable">
@@ -72,7 +70,7 @@
               </a>
             </li>
             <li *ngIf="false" >
-            <!--<li *ngIf="!isDashboardMode && !isBoardFilter && isChangeable">-->
+              <!--<li *ngIf="!isDashboardMode && !isBoardFilter && isChangeable">-->
               <a href="javascript:" (click)="changeChartToGlobal(filter)">
                 <em class="ddp-icon-drop-global"></em>
                 {{'msg.board.filter.ui.turn.global' | translate}}
@@ -98,29 +96,83 @@
             </li>
           </ul>
           <!-- // 기능 버튼 목록 -->
+          <!-- 옵션 목록 -->
+          <div class="ddp-wrap-layer">
+            <ul class="ddp-list-layer-option type-option type-sub-down">
+              <li>
+                <a href="javascript:">
+                  <div class="ddp-data-result ddp-type">
+                    {{ isMultiSelector ? ('msg.board.li.multiple' | translate) : ('msg.board.li.single' | translate ) }}
+                    <em class="ddp-icon-view "></em>
+                  </div>
+                  <span class="ddp-txt-data" title="Selection">
+                    <em class="ddp-icon-drop-select"></em>{{'msg.board.li.sel.type'|translate}}
+                  </span>
+                </a>
+                <div class="ddp-ui-layer-sub">
+                  <ul class="ddp-list-popup">
+                    <li [class.ddp-selected]="!isMultiSelector">
+                      <a (click)="setSelectorType('SINGLE')" href="javascript:">
+                        {{'msg.board.li.single' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="isMultiSelector">
+                      <a (click)="setSelectorType('MULTI')" href="javascript:">
+                        {{'msg.board.li.multiple' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <!-- Sort Option -->
+              <li>
+                <a href="javascript:">
+                  <div class="ddp-data-result ddp-type">
+                    {{ currentSortOptLabel }} <em class="ddp-icon-view"></em>
+                  </div>
+                  <span class="ddp-txt-data" title="Selection">
+                    <em class="ddp-icon-drop-sort"></em>{{'msg.comm.ui.soring.by' | translate }}
+                  </span>
+                </a>
+                <div class="ddp-ui-layer-sub">
+                  <ul class="ddp-list-popup">
+                    <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.ASC );updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.DESC);updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.ASC );updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
+                      <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.DESC);updateFilterEvent.emit(filter);"
+                         href="javascript:" >
+                        {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <!-- // Sort Option -->
+            </ul>
+          </div>
+          <!-- 옵션 목록 -->
         </div>
         <!-- // 더보기 팝업 -->
       </div>
       <!-- // 더보기 버튼 영역 -->
     </div>
     <!-- // 필터 속성 표시 영역 -->
-    <!-- 필드 이름 표시 영역 -->
-    <div *ngIf="filter" class="ddp-itemtype-title">
-      <div class="ddp-data-itemtype ddp-type">
-        <span class="ddp-icon-box">
-          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
-          <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
-        </span>
-        <span class="ddp-txt-itemtype">
-          <span class="ddp-data-name">{{filter.field}}</span>
-          <span class="ddp-data-sub">{{dataSource?.name}}</span>
-          <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
-            {{ 'msg.board.ui.filter.used-this-chart' | translate }}
-          </span>
-        </span>
-      </div>
-    </div>
-    <!-- // 필드 이름 표시 영역 -->
   </div>
 </div>
 <!-- // 상단 영역 -->
@@ -147,80 +199,91 @@
         <!-- //popup -->
       </div>
     </div>
-    <!-- // 검색 영여 -->
-    <!-- 목록 영역 -->
-    <ul class="ddp-list-checktype ddp-list-padd" *ngIf="isMultiSelector" >
-      <li *ngIf="filter.ui.importanceType === 'general'">
-        <label class="ddp-label-checkbox" >
-          <input (click)="checkAll($event)" [checked]="isCheckAll()" type="checkbox" >
-          <i class="ddp-icon-checkbox ddp-dark"></i>
-          <span class="ddp-txt-checkbox">({{'msg.board.filter.ui.all' | translate}})</span>
-        </label>
-      </li>
-      <li *ngFor="let item of pageCandidateList">
-        <label class="ddp-label-checkbox" >
-          <input type="checkbox" (click)="onSelected(item.name, $event)"
-                 [checked]="filter.valueList.indexOf(item.name) > -1">
-          <i class="ddp-icon-checkbox ddp-dark"></i>
-          <span class="ddp-txt-checkbox">
-            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
-            <span class="ddp-data-valuenum">{{item.count}}</span>
-          </span>
-        </label>
-      </li>
-    </ul>
-    <ul class="ddp-list-checktype ddp-list-padd" *ngIf="!isMultiSelector" >
-      <li *ngIf="filter.ui.importanceType === 'general'">
-        <label class="ddp-label-radio">
-          <input type="radio" name="{{filter.field}}" (click)="checkAll($event)"
-                 [checked]="filter.valueList.length === 0">
-          <i class="ddp-icon-radio"></i>
-          <span class="ddp-txt-radio">({{'msg.board.filter.ui.all' | translate}})</span>
-        </label>
-      </li>
-      <li *ngFor="let item of pageCandidateList">
-        <label class="ddp-label-radio">
-          <input type="radio" name="{{filter.field}}" (click)="onSelected(item.name, $event)"
-                 [checked]="filter.valueList.indexOf(item.name) > -1" >
-          <i class="ddp-icon-radio"></i>
-          <span class="ddp-txt-radio">
-            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
-            <span class="ddp-data-valuenum">{{item.count}}</span>
-          </span>
-        </label>
-      </li>
-    </ul>
-    <!-- // 목록 영역 -->
-    <!-- 목록 제한 및 페이징 영역 -->
-    <div class="ddp-ui-values">
-      <div class="ddp-data-values">
-        <label class="ddp-label-check-value">
-          <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
-                 [checked]="filter.showSelectedItem"
-                 type="checkbox" >
-          <i></i>
-        </label>
-        <ng-container *ngIf="filter.showSelectedItem">
-          {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
-        </ng-container>
-        <ng-container *ngIf="!filter.showSelectedItem">
-          {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
-        </ng-container>
 
+    <div class="ddp-no-result" *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
+      <div class="ddp-wrap-info" *ngIf="isOverCandidateWarning">
+        <div class="ddp-ui-info">
+          <em class="ddp-icon-info"></em>
+          {{ 'msg.board.filter.ui.search-all' | translate }}
+        </div>
       </div>
-      <!-- 페이징 영역 -->
-      <div class="ddp-ui-page">
-        <a (click)="setCandidatePage(currentPage-1)"
-           [class.ddp-disabled]="1 === currentPage"
-           href="javascript:" class="ddp-btn-prev"></a>
-        <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-        <a (click)="setCandidatePage(currentPage+1)"
-           [class.ddp-disabled]="lastPage === currentPage"
-           href="javascript:" class="ddp-btn-next"></a>
-      </div>
-      <!-- // 페이징 영역 -->
+      <span class="ddp-txt-noresult">{{ 'msg.comm.ui.no.rslt' | translate }}</span>
     </div>
-    <!-- // 목록 제한 및 페이징 영역 -->
+
+    <div *ngIf="filter.showSelectedItem || (pageCandidateList != null && pageCandidateList.length > 0)">
+      <div class="ddp-select-setting">
+        <ul class="ddp-list-select">
+          <li *ngIf="isMultiSelector"><a href="javascript:" (click)="checkAll()">{{ 'msg.comm.ui.list.sel.all' | translate }}</a></li>
+          <li>
+            <a href="javascript:" (click)="deselectAll()">
+              <span *ngIf="!isMultiSelector">{{ 'msg.comm.ui.list.desel' | translate }}</span>
+              <span *ngIf="isMultiSelector">{{ 'msg.comm.ui.list.desel.all' | translate }}</span>
+            </a>
+          </li>
+        </ul>
+        <span class="ddp-data-total">{{ 'msg.comm.ui.total' | translate }} <strong>{{ totalCount }}</strong></span>
+      </div>
+
+      <!-- 목록 영역 -->
+      <ul class="ddp-list-checktype ddp-list-padd" *ngIf="isMultiSelector">
+        <li *ngFor="let item of pageCandidateList">
+          <label class="ddp-label-checkbox" >
+            <input type="checkbox" (click)="onSelected(item.name, $event)"
+                   [checked]="filter.valueList.indexOf(item.name) > -1">
+            <i class="ddp-icon-checkbox ddp-dark"></i>
+            <span class="ddp-txt-checkbox">
+            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
+              <span class="ddp-data-valuenum">{{item.count}}</span>
+          </span>
+          </label>
+        </li>
+      </ul>
+      <ul class="ddp-list-checktype ddp-list-padd" *ngIf="!isMultiSelector" >
+        <li *ngFor="let item of pageCandidateList">
+          <label class="ddp-label-radio">
+            <input type="radio" name="{{filter.field}}" (click)="onSelected(item.name, $event)"
+                   [checked]="filter.valueList.indexOf(item.name) > -1" >
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">
+            {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
+              <span class="ddp-data-valuenum">{{item.count}}</span>
+          </span>
+          </label>
+        </li>
+      </ul>
+      <!-- // 목록 영역 -->
+
+      <!-- 목록 제한 및 페이징 영역 -->
+      <div class="ddp-ui-values">
+        <div class="ddp-data-values">
+          <label class="ddp-label-check-value">
+            <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
+                   [checked]="filter.showSelectedItem"
+                   type="checkbox" >
+            <i></i>
+          </label>
+          <ng-container *ngIf="filter.showSelectedItem">
+            {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
+          </ng-container>
+          <ng-container *ngIf="!filter.showSelectedItem">
+            {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
+          </ng-container>
+        </div>
+
+        <!-- 페이징 영역 -->
+        <div class="ddp-ui-page">
+          <a (click)="setCandidatePage(currentPage-1)"
+             [class.ddp-disabled]="1 === currentPage"
+             href="javascript:" class="ddp-btn-prev"></a>
+          <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+          <a (click)="setCandidatePage(currentPage+1)"
+             [class.ddp-disabled]="lastPage === currentPage"
+             href="javascript:" class="ddp-btn-next"></a>
+        </div>
+        <!-- // 페이징 영역 -->
+      </div>
+      <!-- // 목록 제한 및 페이징 영역 -->
+    </div>
   </div>
 </div>
 <!-- // 컨텐츠 영역 -->

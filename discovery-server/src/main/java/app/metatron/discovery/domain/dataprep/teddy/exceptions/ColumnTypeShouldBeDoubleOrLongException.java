@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class ColumnTypeShouldBeDoubleOrLongException extends TeddyException {
+
   public ColumnTypeShouldBeDoubleOrLongException(String message) {
     super(message);
   }

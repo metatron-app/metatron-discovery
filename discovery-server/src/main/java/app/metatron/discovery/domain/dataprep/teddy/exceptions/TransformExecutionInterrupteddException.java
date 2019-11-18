@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class TransformExecutionInterrupteddException extends TeddyException {
+
   public TransformExecutionInterrupteddException(String message) {
     super(message);
   }

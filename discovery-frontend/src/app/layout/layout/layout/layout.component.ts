@@ -15,6 +15,7 @@
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'app-layout',
@@ -34,10 +35,23 @@ export class LayoutComponent extends AbstractComponent implements OnInit, OnDest
 
   ngAfterViewInit() {
     this.broadCaster.broadcast('ENTER_LAYOUT_MODULE');
+    // Alert 에서 번역이 필요한 부분 세팅
+    this._setAlertTranslateMsg();
   }
 
   ngOnDestroy() {
     super.ngOnDestroy();
   }
 
+  /**
+   * 얼럿창에서 번역이 필요한 부분 세팅
+   * @private
+   */
+  private _setAlertTranslateMsg() {
+    Alert.ERROR_NAME = this.translateService.instant('msg.comm.alert.error.msg');
+    Alert.MORE_BTN_DESC = this.translateService.instant('msg.comm.alert.error.btn');
+    Alert.CLOSE_BTN = this.translateService.instant('msg.comm.btn.close');
+  }
+
 }
+

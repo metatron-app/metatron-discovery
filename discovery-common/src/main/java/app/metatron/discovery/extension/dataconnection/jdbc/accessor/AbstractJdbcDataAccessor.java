@@ -43,21 +43,41 @@ import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataCo
 import static java.util.stream.Collectors.toList;
 
 /**
- *
+ * The type Abstract jdbc data accessor.
  */
 public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJdbcDataAccessor.class);
 
+  /**
+   * The Connection info.
+   */
   protected JdbcConnectInformation connectionInfo;
+  /**
+   * The Connector.
+   */
   protected JdbcConnector connector;
+  /**
+   * The Dialect.
+   */
   protected JdbcDialect dialect;
+  /**
+   * The Connection.
+   */
   protected Connection connection;
 
+  /**
+   * Instantiates a new Abstract jdbc data accessor.
+   */
   public AbstractJdbcDataAccessor(){
 
   }
 
+  /**
+   * Gets connection info.
+   *
+   * @return the connection info
+   */
   public JdbcConnectInformation getConnectionInfo() {
     return connectionInfo;
   }
@@ -67,6 +87,11 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     this.connectionInfo = connectionInfo;
   }
 
+  /**
+   * Gets connector.
+   *
+   * @return the connector
+   */
   public JdbcConnector getConnector() {
     return connector;
   }
@@ -112,6 +137,11 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     this.connection = connection;
   }
 
+  /**
+   * Get exclude schemas list.
+   *
+   * @return the list
+   */
   public List<String> getExcludeSchemas(){
     List<String> excludeSchemaList = null;
     if(connectionInfo.getPropertiesMap() != null
@@ -133,6 +163,11 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     return excludeSchemaList;
   }
 
+  /**
+   * Get exclude tables list.
+   *
+   * @return the list
+   */
   public List<String> getExcludeTables(){
     List<String> excludeTableList = null;
     if(connectionInfo.getPropertiesMap() != null
@@ -154,6 +189,14 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     return excludeTableList;
   }
 
+  /**
+   * Create page info map map.
+   *
+   * @param size          the size
+   * @param totalElements the total elements
+   * @param page          the page
+   * @return the map
+   */
   protected Map<String, Integer> createPageInfoMap(int size, int totalElements, int page) {
     Map<String, Integer> pageInfoMap = new HashMap<>();
     pageInfoMap.put("size", size);
@@ -189,12 +232,14 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
   @Override
   public void useDatabase(String catalog, String database) {
     String useQuery = dialect.getUseDatabaseQuery(connectionInfo, database);
-    try{
-      execute(this.getConnection(), useQuery);
-    } catch (Exception e){
-      LOGGER.error("Fail to Use database : {}", e.getMessage());
-      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
-                                            "Fail to Use database : " + e.getMessage());
+    if(StringUtils.isNotEmpty(useQuery)){
+      try{
+        execute(this.getConnection(), useQuery);
+      } catch (Exception e){
+        LOGGER.error("Fail to Use database : {}", e.getMessage());
+        throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
+                                              "Fail to Use database : " + e.getMessage());
+      }
     }
   }
 
@@ -206,14 +251,18 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     ResultSet rs = null;
     try {
       conn = this.getConnection();
-      rs = conn.getMetaData().getSchemas();
+
+      String schemaPatternParam = schemaPattern;
+      if(StringUtils.isNotEmpty(schemaPattern)){
+        schemaPatternParam = "%" + schemaPattern + "%";
+      }
+      rs = conn.getMetaData().getSchemas(catalog, schemaPatternParam);
 
       // 1. TABLE_SCHEM String => schema name
       // 2. TABLE_CATALOG String => catalog name (may be null)
       while (rs.next()) {
         dataBaseNames.add(rs.getString(1));
       }
-
     } catch (Exception e) {
       LOGGER.error("Fail to get list of schema : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
@@ -431,8 +480,10 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
   public Map<String, Object> showTableDescription(String catalog, String schema, String tableName) {
     try {
       String tableDescQuery = dialect.getTableDescQuery(connectionInfo, catalog, schema, tableName);
-      return executeQueryForMap(this.getConnection(), tableDescQuery);
-
+      if(StringUtils.isNotEmpty(tableDescQuery)){
+        return executeQueryForMap(this.getConnection(), tableDescQuery);
+      }
+      return null;
     } catch (Exception e) {
       LOGGER.error("Fail to get desc of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
@@ -447,7 +498,9 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
       int columnCount = rsmd.getColumnCount();
       for (int i = 1; i <= columnCount; i++) {
         String columnName = rsmd.getColumnLabel(i);
-        Object columnObj = dialect.resultObjectConverter().apply(resultSet.getObject(i));
+        Object columnObj = dialect.resultObjectConverter() == null
+            ? resultSet.getObject(i)
+            : dialect.resultObjectConverter().apply(resultSet.getObject(i));
         rowMap.put(columnName, columnObj);
       }
       return rowMap;
@@ -471,7 +524,9 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
             Map<String, Object> rowMap = new LinkedHashMap<>();
             for (int i = 1; i <= columnCount; i++) {
               String columnName = rsmd.getColumnLabel(i);
-              Object columnObj = dialect.resultObjectConverter().apply(rs.getObject(i));
+              Object columnObj = dialect.resultObjectConverter() == null
+                  ? rs.getObject(i)
+                  : dialect.resultObjectConverter().apply(rs.getObject(i));
               rowMap.put(columnName, columnObj);
             }
             resultList.add((T) rowMap);
@@ -496,9 +551,13 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
         LOGGER.error("Execute Query For map result greater than 1");
         throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                               "Execute Query For map result greater than 1");
-      } else {
-        return resultList.get(0);
       }
+
+      if (resultList.size() < 1){
+        return null;
+      }
+
+      return resultList.get(0);
     } catch (Exception e) {
       throw e;
     }
@@ -565,6 +624,13 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     }
   }
 
+  /**
+   * Convert value to required type object.
+   *
+   * @param value        the value
+   * @param requiredType the required type
+   * @return the object
+   */
   protected Object convertValueToRequiredType(Object value, Class<?> requiredType) {
     if (String.class == requiredType) {
       return value.toString();

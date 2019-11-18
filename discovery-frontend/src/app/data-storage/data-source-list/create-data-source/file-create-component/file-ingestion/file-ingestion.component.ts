@@ -13,12 +13,22 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
-import { IngestionSettingComponent } from '../../../component/ingestion-setting.component';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
+import {IngestionSettingComponent} from '../../../component/ingestion-setting.component';
+import {DataStorageConstant} from "../../../../constant/data-storage-constant";
 
 /**
  * Creating datasource with File - ingestion step
@@ -72,7 +82,7 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
       this._ingestionSettingComponent.init(
         this._sourceData,
         'FILE',
-        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampField,
+        this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null :  this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );
       // remove changed flag
@@ -95,5 +105,17 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
    */
   public onClickPageChange(route: string): void {
     route === 'PREV' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
+  }
+
+  /**
+   * Get title
+   * @returns {string}
+   */
+  public get getTitle(): string {
+    if (this._sourceData.datasourceId) {
+      return this.translateService.instant('msg.storage.ui.dsource.reingestion.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    } else {
+      return this.translateService.instant('msg.storage.ui.dsource.create.title') + ' (' + this.translateService.instant('msg.storage.ui.dsource.create.file.title') + ')';
+    }
   }
 }

@@ -34,6 +34,8 @@ export class MetadataService extends AbstractService {
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  metadataDetailSelectedTab: string = 'information';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -56,7 +58,11 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public createMetaData(params: object): Promise<any> {
-    return this.post(this.URL_METADATA, params);
+    return this.post(this.URL_METADATA + '/batch', params);
+  }
+
+  public getDuplicatedMetadataNameList(params: string[]): Promise<string[]> {
+    return this.post(this.URL_METADATA + '/name/duplicated', params);
   }
 
   /**
@@ -103,7 +109,6 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public updateMetadata(id: string, params: any): Promise<any> {
-
     return this.patch(this.URL_METADATA + `/${id}`, params);
   }
 
@@ -157,6 +162,22 @@ export class MetadataService extends AbstractService {
     return this.get(this.URL_METADATA + `/tags`);
   }
 
+  public getPopularityTags(params:{scope?:string, domainType?:string, nameContains?: string, size?:number }): Promise<any> {
+    let url: string = this.API_URL + `/tags/popularity`;
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataSampleData(metadataId: string, limit: number = 50) {
+    return this.get(this.URL_METADATA + '/' + metadataId + '/data?limit=' + limit);
+  }
+
+  public getDownloadMetadataSampleData(metadataId: string, fileName: string, limit: number = 50) {
+    return this.get(this.URL_METADATA + '/' + metadataId + '/data/download?limit=' + limit + '&fileName=' + fileName);
+  }
+
   /**
    * 데이터 소스에 대한 메타데이터 조회
    * @param {string} sourceId
@@ -186,5 +207,113 @@ export class MetadataService extends AbstractService {
       'table': tableName,
     };
     return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param);
+  }
+
+  public getMetadataSourceTypeCount() {
+    return this.get(this.URL_METADATA + '/statistics/count/sourcetype');
+  }
+
+  public getMetadataListByPopularity(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/popularity';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByMyFavorite(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/favorite/my';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByCreatorFavorite(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/favorite/creator';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public getMetadataListByRecommended(params) {
+    // URL
+    let url: string = this.URL_METADATA + '/recommended';
+    // if exist params
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  /**
+   * Get Top user in Metadata Detail
+   * @param {string} metaDataId
+   * @returns {Promise<any>}
+   */
+  public getTopUserInMetadataDetail(metaDataId: string): Promise<any> {
+    return this.get(this.URL_METADATA + `/${metaDataId}/users/frequency`);
+  }
+
+  /**
+   * Get Recently Updated in Metadata Detail Info
+   * @param {string} metaDataId
+   * @returns {Observable<any>}
+   */
+  public getRecentlyUpdatedInMetadataDetail(metaDataId: string): Promise<any> {
+    return this.get(this.URL_METADATA + `/${metaDataId}/history`);
+  }
+
+  /**
+   * Get Recently Updated in Metadata Detail Info
+   * @param {string} metaDataId
+   * @param params
+   * @returns {Observable<any>}
+   */
+  public getRecentlyUsedInMetadataDetail(metaDataId: string, params?): Promise<any> {
+    // URL
+    let url: string = this.URL_METADATA + `/${metaDataId}/related?`;
+    // if exist params
+    if (params) {
+      url += CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+
+  public getMetadataTagList(projection: string, params?): Promise<any> {
+    // URL
+    let url: string = this.URL_METADATA + `/tags?projection=${projection}`;
+    // if exist params
+    if (params) {
+      url += '&' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  public toggleMetadataFavorite(id: string, isFavorited: boolean) {
+    let url: string = this.URL_METADATA + `/${id}/favorite/`;
+
+    if (isFavorited) {
+      url += 'detach';
+    } else {
+      url += 'attach';
+    }
+    return this.post(url, null);
+  }
+
+  public isShowLineage(): Promise<any> {
+    return this.get(this.API_URL + `extensions/lineage`)
+  }
+
+  public onSelectMetadataDetailTab(selectedTab: string) {
+    this.metadataDetailSelectedTab = selectedTab;
   }
 }

@@ -15,7 +15,12 @@
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../common/component/abstract.component';
 import {CreateWorkbookComponent} from '../workbook/component/create-workbook/create-workbook.component';
-import {CountByBookType, PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
+import {
+  CountByBookType,
+  PermissionChecker,
+  PublicType,
+  Workspace
+} from '../domain/workspace/workspace';
 import {WorkspaceService} from './service/workspace.service';
 import {ActivatedRoute} from '@angular/router';
 import {Book} from '../domain/workspace/book';
@@ -44,8 +49,14 @@ import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {PageResult} from '../domain/common/page';
 import {ChangeOwnerWorkspaceComponent} from './component/management/change-owner-workspace.component';
 import {WorkspacePermissionSchemaSetComponent} from './component/permission/workspace-permission-schema-set.component';
-import {ImplementorType} from '../domain/dataconnection/dataconnection';
+import {ImplementorType, JdbcDialect} from '../domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
+import {StorageService} from "../data-storage/service/storage.service";
+import {UsedCriteria} from "../common/value/used-criteria.data.value";
+
+const DEFAULT_CONTENT_SORT_INDEX = 3;
+const DEFAULT_CONTENT_FILTER_INDEX = 0;
+const DEFAULT_VIEW_TYPE = 'CARD';
 
 @Component({
   selector: 'app-workspace',
@@ -112,6 +123,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   // 저장된 초기 폴더 구조
   private initFolderHierarchies: Hirearchies[];
 
+  // 커넥션 타입 목록
+  private _connTypeList: JdbcDialect[] = [];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -156,7 +170,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public isShareType: boolean = false;
 
   // 필터 보이기/감추기
-  public contentFilter: any[];
+  public contentFilter: any[] = [
+    {key: 'all', value: this.translateService.instant('msg.comm.ui.list.dropbox.all')},
+    {key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.dropbox.workbook')},
+    {key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.dropbox.notebook')},
+    {key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.dropbox.workbench')},
+  ];
+
   // 선택한 필터 키
   public selectedContentFilter: any;
 
@@ -197,7 +217,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public moveSelectionFl: boolean = false;
 
   // 뷰타입 LIST, CARD
-  public viewType = 'CARD';
+  public viewType = DEFAULT_VIEW_TYPE;
 
   // 이동 가능한 워크스페이스 목록
   public importAvailWorkspaces: Workspace[];
@@ -214,7 +234,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   // 노트북 서버 설정 여부
   public isSetNotebookServer: boolean = false;
 
-  public readonly CONNECTION_TYPE = ImplementorType;
+  public contentSortIndex: number = DEFAULT_CONTENT_SORT_INDEX;
+
+  public contentFilterIndex: number = DEFAULT_CONTENT_FILTER_INDEX;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -244,6 +266,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     // Init
     super.ngOnInit();
 
+    // 커넥션 타입 목록 저장
+    this._connTypeList = StorageService.connectionTypeList;
+
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
       this._initViewPage(params['id'], params['folderId']);
@@ -256,7 +281,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       // 워크벤치 생성 완료
       if (data.name === 'create-workbench') {
         // 재조회
-        this.detailPage( data.data, 'workbench' );
+        this.detailPage(data.data, 'workbench');
       }
     });
     this.subscriptions.push(popupSubscription);
@@ -286,6 +311,20 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 워크벤치 커넥션 타입 아이콘 경로
+   * @param book
+   */
+  public getWorkbenchConnTypeIcon(book: Book): string {
+    if (isNullOrUndefined(this._connTypeList) || 0 === this._connTypeList.length) {
+      this._connTypeList = StorageService.connectionTypeList;
+    }
+    const connType = this.getConnType(book);
+    return this.getConnImplementorGrayImgUrl(connType,
+      isNullOrUndefined(this._connTypeList.find(item => item.implementor === connType)) ?
+        null : this._connTypeList.find(item => item.implementor === connType).iconResource3
+    );
+  } // function - getWorkbenchConnTypeIcon
 
   /**
    * 데이터를 검색한다.
@@ -325,6 +364,15 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         .then((folder) => {
           // 홀더 저장
           this.folder = folder;
+
+          this.contentFilter.forEach(filter => {
+            filter.key === 'all'
+              ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.folder.books.filter(book => book.type !== 'folder').length })
+              : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.folder.books.filter(book => book.type !== 'folder' && book.type === filter.key).length })
+          });
+
+          this.safelyDetectChanges();
+
           // 저장된 폴더 구조 추적
           this._traceFolderHierarchies();
           // 로딩 hide
@@ -514,8 +562,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public createFolder() {
 
-    if( this.folder && this.folder.hierarchies && 9 <= this.folder.hierarchies.length ) {
-      Alert.warning( this.translateService.instant('msg.space.warning.can-not-create-11depth-folder') );
+    if (this.folder && this.folder.hierarchies && 9 <= this.folder.hierarchies.length) {
+      Alert.warning(this.translateService.instant('msg.space.warning.can-not-create-11depth-folder'));
       return;
     }
 
@@ -722,7 +770,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
   } // function - detailPage
 
-  /**
+  public detailValidPage(book: Book) {
+    if ( book.contents.connValid ) {
+      this.detailPage(book.id, book.type);
+    }
+  }
+
+ /**
    * 데이터소스 뷰 페이지
    */
   public datasourceView() {
@@ -973,11 +1027,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public selectedFilter($event) {
     this.selectedContentFilter = $event;
     this._updateStateSelectAll();
+    this.saveWorkspaceCriteria();
   }
 
   // 정렬 선택이벤트
   public selectedSort($event) {
     this.selectedContentSort = $event;
+    this.saveWorkspaceCriteria();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1264,6 +1320,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public setViewType(arg: string) {
     this.viewType = arg;
     this.setCookie();
+    this.saveWorkspaceCriteria();
   } // function - setViewType
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1273,11 +1330,15 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 개인 워크스페이스 조회
    */
-  private getMyWorkspace(): Promise<any> {
+  private getMyWorkspace(init?:boolean): Promise<any> {
     // 로딩 show
     this.loadingShow();
     // 개인 워크스페이스 조회
     return this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
+      if (init) {
+        this.sendViewActivityStream(workspace.id, 'WORKSPACE');
+      }
+
       if (PublicType.SHARED === workspace.publicType && workspace.published) {
         // 게스트 사용자의 경우 전체 공개 워크스페이스로 강제 이동
         this.router.navigate(['/workspace', workspace.id]).then();
@@ -1437,7 +1498,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     // 워크스페이스 아이디를 가지고 왔는지 여부
     if (this.workspaceId == null) {
       // 개인 워크스페이스 조회
-      this.getMyWorkspace();
+      this.getMyWorkspace(true);
     } else {
       // 아이디로 워크스페이스 조회
       this.getWorkspace();
@@ -1514,6 +1575,12 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           });
         }
 
+        this.contentFilter.forEach(filter => {
+          filter.key === 'all'
+            ? filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.all', { value: this.workspace.books.filter(book => book.type !== 'folder').length })
+            : filter.value = this.translateService.instant('msg.comm.ui.list.dropbox.' + filter.key, { value: this.workspace.books.filter(book => (book.type !== 'folder') && book.type === filter.key).length })
+        });
+
       } else {
         // 워크스페이스 이름
         this.workspaceName = workspace.name;
@@ -1554,6 +1621,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
     // 쿠키 조회
     this.getCookie();
+    this.loadWorkspaceCriteria();
 
     // initialize Data
     this.workspaceId = (workspaceId) ? workspaceId : undefined;
@@ -1563,7 +1631,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     (isNullOrUndefined(this.currentFolderId)) || (this.cookieWorkspace.folderId = this.isRoot ? null : this.currentFolderId);
 
     if (this.viewType === null) {
-      this.viewType = 'CARD';
+      this.viewType = DEFAULT_VIEW_TYPE;
       this.cookieWorkspace.viewType = this.viewType;
     }
     this.cookieService.set(CookieConstant.KEY.CURRENT_WORKSPACE, JSON.stringify(this.cookieWorkspace), 0, '/');
@@ -1579,21 +1647,14 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       this.owner = new UserProfile();
       this.isRoot = true;
 
-      this.contentFilter = [
-        {key: 'all', value: this.translateService.instant('msg.comm.ui.list.all')},
-        {key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.workbook')},
-        {key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.notebook')},
-        {key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.workbench')},
-      ];
-      this.selectedContentFilter = this.contentFilter[0];
-
       this.contentSort = [
         {key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.asc'), type: 'asc'},
         {key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.desc'), type: 'desc'},
         {key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.asc'), type: 'asc'},
         {key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.desc'), type: 'desc'},
       ];
-      this.selectedContentSort = this.contentSort[3];
+      this.selectedContentSort = this.contentSort[this.contentSortIndex];
+      this.selectedContentFilter = this.contentFilter[this.contentFilterIndex];
 
       // initialize data
       this.getWorkspaceData();
@@ -1677,13 +1738,32 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     } else {
       filteredList = this.folder.books.filter((book: Book) => book.name.toLowerCase().includes(this.srchText.toLowerCase()));
     }
+
     if ('all' !== this.selectedContentFilter.key) {
       filteredList = filteredList.filter((book: Book) => {
-        return book.type === this.selectedContentFilter.key || 'folder' === book.type
+        return book.type.includes(this.selectedContentFilter.key)  || book.type.includes('folder')
       });
     }
     return filteredList;
   } // function - _getDisplayItems
+
+  private saveWorkspaceCriteria(): void {
+    let criteria: UsedCriteria = this.getUsedCriteriaFromLocalStorage();
+
+    criteria.workspace.contentFilterIndex = this.contentFilter.indexOf(this.selectedContentFilter);
+    criteria.workspace.viewType = this.viewType;
+    criteria.workspace.contentSortIndex = this.contentSort.indexOf(this.selectedContentSort);
+
+    this.setUsedCriteriaToLocalStorage(criteria);
+  }
+
+  private loadWorkspaceCriteria(): void {
+    let criteria: UsedCriteria = this.getUsedCriteriaFromLocalStorage();
+
+    this.viewType = criteria.workspace.viewType ? criteria.workspace.viewType : DEFAULT_VIEW_TYPE;
+    this.contentSortIndex = isNullOrUndefined(criteria.workspace.contentSortIndex) ? DEFAULT_CONTENT_SORT_INDEX : criteria.workspace.contentSortIndex;
+    this.contentFilterIndex = isNullOrUndefined(criteria.workspace.contentFilterIndex) ? DEFAULT_CONTENT_FILTER_INDEX : criteria.workspace.contentFilterIndex;
+  }
 }
 
 

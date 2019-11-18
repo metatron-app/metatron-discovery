@@ -62,7 +62,7 @@ public class CachedUserService {
     } else {
       User user = userRepository.findByUsername(username);
       if (user == null) {
-        LOGGER.debug("User({}) not found. Return empty User object.");
+        LOGGER.debug("User({}) not found. Return empty User object.", username);
         return null;
       } else {
         user.setRoleService(roleService);

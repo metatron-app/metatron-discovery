@@ -1,0 +1,236 @@
+<div class="ddp-wrap-tab-contents" *ngIf="metadata">
+  <div class="ddp-ui-tab-contents">
+    <div class="ddp-clear">
+      <div class="ddp-detail-view ddp-left">
+
+        <table class="ddp-table-detail type-meata">
+          <colgroup>
+            <col width="120px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.explore.ui.detail.data.name'| translate}}
+            </th>
+            <td>
+              {{metadata.name}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.explore.ui.detail.description'| translate}}
+            </th>
+            <td [innerHTML]="metadata.description || '-'">
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.explore.ui.detail.tags'| translate}}
+            </th>
+            <td>
+              <div class="ddp-list-tags" *ngIf="metadata.tags.length > 0 else noTag">
+                <div class="ddp-tags" *ngFor="let tag of metadata.tags">
+                  <span class="txt-tags" title="{{tag.name}}"># {{tag.name}}</span>
+                </div>
+              </div>
+              <ng-template #noTag>
+                -
+              </ng-template>
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.explore.ui.detail.popularity'| translate}}
+            </th>
+            <td>
+              <div class="ddp-ui-popularity">
+                <em class="ddp-icon-popularity"></em>
+                <div class="ddp-bar">
+                  <span [style.width]="metadata.popularity ? metadata.popularity + '%' : 0 + '%'" style="margin-bottom:10px;"></span>
+                </div>
+                <div class="ddp-wrap-hover-info" style="top:-2px;">
+                  <!-- layer -->
+                  <component-popularity-layer></component-popularity-layer>
+                  <!-- //layer -->
+                  <em class="ddp-icon-info3"></em>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>{{'msg.explore.ui.detail.catalogs'| translate}}</th>
+            <td>
+              <ng-container *ngIf="metadata.catalogs.length > 0; else noCatalog">
+                <div class="ddp-ui-catalogs ddp-type" *ngFor="let catalog of metadata.catalogs | slice:0:2">
+                  <div class="ddp-box-catalogs">
+                    <span *ngFor="let hierarchy of catalog.hierarchies">{{hierarchy.name}}</span>
+                  </div>
+                </div>
+                <!-- more -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-ui-catalog-more" [class.ddp-selected]="catalogLayerComponent.isShowLayerPopup">
+                  <a href="javascript:" class="ddp-link-more" *ngIf="metadata.catalogs.length > 2"
+                     (click)="catalogLayerComponent.openLayerPopup()">
+                    More
+                  </a>
+                  <!-- popup -->
+                  <component-explore-catalog-layer [catalogList]="metadata.catalogs" #catalogLayerComponent></component-explore-catalog-layer>
+                  <!-- //popup -->
+                </div>
+                <!-- //more -->
+              </ng-container>
+              <ng-template #noCatalog>
+                Unclassified
+              </ng-template>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- detail view -->
+      <div class="ddp-detail-view ddp-right">
+        <!-- Top user -->
+        <div *ngIf="topUserList.length !== 0" class="ddp-detail">
+          <div class="ddp-label">{{'msg.explore.ui.detail.top.user'| translate}}</div>
+          <div class="ddp-data-det">
+            <!-- user -->
+            <ul class="ddp-list-user">
+              <li *ngFor="let topUser of topUserList">
+                <component-explore-data-user-card
+                  [topUser]="topUser"
+                  [sourceType]="metadata.sourceType">
+                </component-explore-data-user-card>
+              </li>
+            </ul>
+            <!-- //user -->
+          </div>
+        </div>
+        <!-- Top user -->
+        <!-- Recently updated -->
+        <div class="ddp-detail">
+          <div class="ddp-label">{{'msg.explore.ui.detail.recent.updated'| translate}}</div>
+          <div class="ddp-data-det" *ngIf="recentlyUpdatedList.length !== 0">
+            <table class="ddp-table-detail4">
+              <colgroup>
+                <col width="*">
+                <col width="30%">
+                <col width="20%">
+              </colgroup>
+              <thead>
+              <tr>
+                <th>{{'msg.explore.ui.detail.tab.overview.updated.contents'| translate}}</th>
+                <th>{{'msg.explore.ui.detail.tab.overview.updated.at'| translate}}</th>
+                <th>{{'msg.explore.ui.detail.tab.overview.user'| translate}}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let recentlyUpdated of recentlyUpdatedList">
+                <td><span class="ddp-txt-long" title="{{  recentlyUpdated['contents'] }}">{{ recentlyUpdated['contents'] }}</span></td>
+                <td> {{ recentlyUpdated['createdTime'] | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
+                <td>
+                  <div class="ddp-txt-long">
+<!--                    <em class="ddp-icon-control-fav ddp-fright"></em>-->
+                    <span class="ddp-txt-link type-default" title="{{ recentlyUpdated['user']['fullName'] }}">{{ recentlyUpdated['user']['fullName'] }}</span>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+
+            </table>
+          </div>
+          <div *ngIf="recentlyUpdatedList.length === 0">no used</div>
+        </div>
+        <!-- Recently updated -->
+
+        <!-- recent dashboard only for source Type -->
+        <div class="ddp-detail" *ngIf="isDatasourceTypeMetadata()">
+          <div class="ddp-label">
+            {{'msg.explore.ui.detail.recent.used'| translate}}
+            <a href="javascript:"
+               class="ddp-link ddp-fright"
+               *ngIf="recentlyUsedDashboardList.length > 5"
+               (click)="onClickSeeAllRecentDashboards()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
+          </div>
+          <div class="ddp-data-det">
+            <ul class="ddp-list-graph ddp-bottom" *ngIf="recentlyUsedDashboardList.length > 0">
+              <li
+                *ngFor="let recentlyUsedDashboard of recentlyUsedDashboardList"
+                [class.ddp-cursor-default]="!recentlyUsedDashboard.hasPermission"
+                (click)="onDashboardClicked(recentlyUsedDashboard)">
+                <!-- Graph -->
+                <div class="ddp-box-image" [class.ddp-cursor]="recentlyUsedDashboard.hasPermission">
+                  <img (invoke)="dashboardUtil.getBoardImage($event, recentlyUsedDashboard.imageUrl)"/>
+                </div>
+                <!-- //Graph -->
+                <div class="ddp-data-graph">
+                  <span class="ddp-txt-det">
+                      <span class="ddp-det-new" [ngClass]="{'type-link': recentlyUsedDashboard.hasPermission}">
+                        <em [class.ddp-link-new]="recentlyUsedDashboard.hasPermission"></em>
+                        <span class="ddp-txt-in">
+                          {{ recentlyUsedDashboard.name }}
+                        </span>
+                      </span>
+                  </span>
+                </div>
+              </li>
+            </ul>
+            <div *ngIf="recentlyUsedDashboardList.length === 0">no used</div>
+          </div>
+        </div>
+<!--        // recent dashboard -->
+
+<!--        // recent query - only for DB, Stage DB type -->
+        <div class="ddp-detail" *ngIf="( isDatabaseTypeMetadata() || isStagingTypeMetadata()) && (recentlyQueriesForDataBase.length !== 0)">
+          <div class="ddp-label">
+            {{'msg.explore.ui.detail.recent.query'| translate}}
+            <a href="javascript:"
+               class="ddp-link ddp-fright"
+               *ngIf="recentlyQueriesForDataBase.length > 4"
+               (click)="onClickSeeAllRecentQueries()">{{'msg.explore.btn.detail.more.list'| translate}} &gt;</a>
+          </div>
+          <div class="ddp-data-det">
+            <table class="ddp-table-detail4">
+              <colgroup>
+                <col width="15%">
+                <col width="10%">
+                <col width="150px">
+                <col width="*">
+              </colgroup>
+              <thead>
+              <tr>
+                <th>{{ 'msg.explore.ui.detail.tab.overview.date' | translate }}</th>
+                <th>{{ 'msg.explore.ui.detail.tab.overview.user' | translate }}</th>
+                <th>{{ 'msg.explore.ui.detail.tab.overview.result' | translate }}</th>
+                <th>{{ 'msg.explore.ui.detail.tab.overview.query' | translate }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let recentQuery of recentlyQueriesForDataBase | slice:0:5">
+                <td >{{ recentQuery.createdTime | mdate:'YYYY-MM-DD HH:mm:ss' }}</td>
+                <td>{{ recentQuery['createdBy']['fullName'] }}</td>
+                <td> <span class="ddp-data-state" [ngClass]="recentQuery.queryResultStatus === 'SUCCESS' ? 'ddp-success' : 'ddp-fail'">{{ recentQuery.queryResultStatus === 'SUCCESS'? 'Success' : 'Fail' }}</span></td>
+                <td>
+                  <div class="ddp-txt-long ddp-type-button">
+                    <a href="javascript:" class="ddp-btn-selection ddp-fright" (click)="copyToClipboard(recentQuery['query'])">Copy</a>
+                    <span class="ddp-txt-name" title="">{{ recentQuery['query'] }}</span>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="ddp-detail" *ngIf="( isDatabaseTypeMetadata() || isStagingTypeMetadata()) && recentlyQueriesForDataBase.length === 0">
+          <div class="ddp-label">
+            {{'msg.explore.ui.detail.recent.query'| translate}}
+          </div>
+          <div >no used</div>
+        </div>
+      </div>
+<!--      &lt;!&ndash; //detail view &ndash;&gt;-->
+    </div>
+  </div>
+</div>
+
+<ng-template #component_recent_queries></ng-template>

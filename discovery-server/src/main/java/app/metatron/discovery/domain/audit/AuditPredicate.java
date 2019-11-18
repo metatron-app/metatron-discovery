@@ -54,7 +54,7 @@ public class AuditPredicate {
     }
 
     if(elapsedTime != null){
-      builder = builder.and(audit.elapsedTime.gt(elapsedTime));
+      builder = builder.and(audit.elapsedTime.goe(elapsedTime));
     }
 
     builder = builder.and(audit.query.isNotNull());
@@ -62,76 +62,14 @@ public class AuditPredicate {
     return builder;
   }
 
-//  public static Predicate countByUser(DateTime from, DateTime to, Audit.AuditType auditType) {
-//
-//    BooleanBuilder builder = new BooleanBuilder();
-//    QAudit audit = QAudit.audit;
-//
-//    if(auditType != null){
-//      builder = builder.and(audit.type.eq(auditType));
-//    }
-//
-//    if(from != null && to != null) {
-//      builder = builder.and(audit.startTime.between(from, to));
-//    }
-//
-//    builder = builder.and(audit.user.isNotNull());
-//
-//    return builder;
-//  }
-//
-//  public static Predicate countStatusByDateUser(DateTime from, DateTime to, Audit.AuditStatus auditStatus,
-//                                                Audit.AuditType auditType, String user) {
-//
-//    BooleanBuilder builder = new BooleanBuilder();
-//    QAudit audit = QAudit.audit;
-//
-//    if(auditStatus != null){
-//      builder = builder.and(audit.status.eq(auditStatus));
-//    } else {
-//      // 기본은 성공/실패 케이스만 카운트
-//      builder = builder.and(audit.status.in(Audit.AuditStatus.SUCCESS, Audit.AuditStatus.FAIL));
-//    }
-//
-//    if(auditType != null){
-//      builder = builder.and(audit.type.eq(auditType));
-//    }
-//
-//    if(from != null && to != null) {
-//      builder = builder.and(audit.startTime.between(from, to));
-//    }
-//
-//    if(StringUtils.isNotEmpty(user)){
-//      builder = builder.and(audit.user.containsIgnoreCase(user));
-//    }
-//
-//    return builder;
-//  }
-//  public static Predicate countByStatus(DateTime from, DateTime to, Audit.AuditStatus auditStatus,
-//                                                Audit.AuditType auditType, String user) {
-//
-//    BooleanBuilder builder = new BooleanBuilder();
-//    QAudit audit = QAudit.audit;
-//
-//    if(auditStatus != null){
-//      builder = builder.and(audit.status.eq(auditStatus));
-//    } else {
-//      // 기본은 성공/실패 케이스만 카운트
-//      builder = builder.and(audit.status.in(Audit.AuditStatus.SUCCESS, Audit.AuditStatus.FAIL));
-//    }
-//
-//    if(auditType != null){
-//      builder = builder.and(audit.type.eq(auditType));
-//    }
-//
-//    if(from != null && to != null) {
-//      builder = builder.and(audit.startTime.between(from, to));
-//    }
-//
-//    if(StringUtils.isNotEmpty(user)){
-//      builder = builder.and(audit.user.containsIgnoreCase(user));
-//    }
-//
-//    return builder;
-//  }
+  public static Predicate searchListWithValidResource(String searchKeyword, Audit.AuditStatus auditStatus, Audit.AuditType auditType,
+                                     DateTime from, DateTime to, String user, Long elapsedTime) {
+
+    BooleanBuilder builder
+        = (BooleanBuilder) AuditPredicate.searchList(searchKeyword, auditStatus, auditType, from, to, user, elapsedTime);
+    QAudit audit = QAudit.audit;
+
+    builder.and(audit.incrementMemorySeconds.gt(0).or(audit.incrementVcoreSeconds.gt(0)));
+    return builder;
+  }
 }

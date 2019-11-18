@@ -12,14 +12,13 @@
   ~ limitations under the License.
   -->
 
-<!-- database name -->
-<!-- 클릭시 ddp-selected 추가 -->
 <div class="ddp-data-namesub">
+  <!-- database name -->
   <div class="ddp-data-in" [ngClass]="{'ddp-selected':isDatabaseSearchShow}" [class.ddp-disabled]="disable" (click)="databaseSearchShow()" (clickOutside)="isDatabaseSearchShow=false">
     <em class="ddp-icon-database3"></em>
     <span class="ddp-txt-namesub">{{selectedDatabaseName}}</span>
     <em class="ddp-icon-view" ></em>
-    <!-- box layout -->
+    <!-- Select box -->
     <div class="ddp-box-layout4" *ngIf="isDatabaseSearchShow" (click)="$event.stopImmediatePropagation()">
       <!-- search -->
       <div class="ddp-wrap-search">
@@ -45,17 +44,16 @@
             </a>
           </li>
         </ul>
-        <a *ngIf="page.page < pageResult.totalPages - 1" (click)="$event.stopPropagation();getDatabase(page.page + 1);"
+        <a *ngIf="isShowMore" (click)="moreDatabases($event);"
            href="javascript:" class="ddp-btn-more" >+ {{'msg.comm.ui.more' | translate}}</a>
       </div>
     </div>
-    <!-- //box layout -->
+    <!-- // Select box -->
   </div>
-  <!-- //database name -->
+  <!-- // database name -->
   <!-- table button -->
   <a href="javascript:" class="ddp-link-btn" [ngClass]="{'ddp-disabled':disable}" (click)="openSchemaBrowser()">
     <em class="ddp-icon-table"></em>
   </a>
-  <!-- //table button -->
+  <!-- // table button -->
 </div>
-<!-- //database name -->

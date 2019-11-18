@@ -35,6 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -89,7 +90,7 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
    * @param o_O the exception to handle.
    */
   @ExceptionHandler({InvocationTargetException.class, IllegalArgumentException.class, ClassCastException.class,
-      ConversionFailedException.class, NullPointerException.class})
+      ConversionFailedException.class, NullPointerException.class, HttpMessageNotWritableException.class})
   ResponseEntity<ErrorResponse> handleMiscFailures(Exception o_O, WebRequest webRequest) {
 
     return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, new HttpHeaders(), new UnknownServerException(o_O), webRequest);
@@ -191,7 +192,7 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
         message = MetatronException.DEFAULT_GLOBAL_MESSAGE;
       }
 
-      LOGGER.error("[API:{}] {} {}: {}, {}", ((ServletWebRequest) webRequest).getRequest().getRequestURI(),
+      LOGGER.error("[API:{}] {} {}: {}", ((ServletWebRequest) webRequest).getRequest().getRequestURI(),
                    code == null ? "" : code.getCode(), message, details);
       if(printStackTrace) {
         exception.printStackTrace();

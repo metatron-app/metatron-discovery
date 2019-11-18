@@ -13,6 +13,7 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Location} from '@angular/common';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
 import {Modal} from '../../common/domain/modal';
@@ -23,7 +24,7 @@ import {ActivatedRoute} from '@angular/router';
 import {MetadataModelService} from './service/metadata.model.service';
 import {SelectCatalogComponent} from './component/select-catalog.component';
 import {ChooseCodeTableComponent} from '../component/choose-code-table/choose-code-table.component';
-import {MetadataDetailColumnschemaComponent} from './metadata-detail-columnschema.component';
+import {ColumnSchemaComponent} from '../detail/component/column-schema/column-schema.component';
 import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictionary/choose-column-dictionary.component';
 import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
 import {CodeTable} from '../../domain/meta-data-management/code-table';
@@ -35,6 +36,7 @@ import {MetadataDetailInformationComponent} from "./metadata-detail-information.
   templateUrl: './metadata-detail.component.html',
 })
 export class MetadataDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -52,8 +54,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   @ViewChild(ChooseCodeTableComponent)
   private _chooseCodeTableComp: ChooseCodeTableComponent;
 
-  @ViewChild(MetadataDetailColumnschemaComponent)
-  private _detailColumnSchemaComp: MetadataDetailColumnschemaComponent;
+  @ViewChild(ColumnSchemaComponent)
+  private _detailColumnSchemaComp: ColumnSchemaComponent;
 
   @ViewChild(MetadataDetailInformationComponent)
   private _detailInformationComp: MetadataDetailInformationComponent;
@@ -78,6 +80,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
   public selectedMetadataId: string;
 
+  public metadata: Metadata;
+
   // 이름 에디팅여부
   public isNameEdit: boolean = false;
   public isDescEdit: boolean = false;
@@ -88,6 +92,11 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   public name: string;
   public desc: string;
 
+  public metadataLoaded: boolean = false;
+
+  // Lineage 탭 제어
+  public showLineageTab: boolean = false;
+
   /**
    * Metadata SourceType Enum
    */
@@ -97,17 +106,22 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
+    private _location: Location,
     protected element: ElementRef,
     protected metadataService: MetadataService,
-    public metadataModelService: MetadataModelService,
     protected activatedRoute: ActivatedRoute,
-    protected injector: Injector) {
+    protected injector: Injector,
+    public metadataModelService: MetadataModelService) {
     super(element, injector);
 
     // path variable
     this.activatedRoute.params.subscribe((params) => {
 
       this.selectedMetadataId = params['metadataId'];
+      if( params['tab'] ) {
+        this.tab = params['tab'];
+        this.metadataLoaded = false;
+      }
 
       this.getMetadataDetail();
     });
@@ -117,7 +131,12 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ngOnInit() {
+    this._showLineageTab();
+
     super.ngOnInit();
+
+    // To keep selected tab when back from code table detail and column dictionary detail screen
+    this.tab = this.metadataService.metadataDetailSelectedTab;
   }
 
   public ngOnDestroy() {
@@ -131,8 +150,17 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
    * Go back
    */
   public goBack() {
-    this.router.navigateByUrl('/management/metadata/metadata');
+    this.router.navigate(['management/metadata/metadata']);
+    //this._location.back();
   } // function - goBack
+
+  /**
+   * Change current selected tab
+   */
+  public changeTab(tab: string) {
+    this.tab = tab;
+    this.metadataService.metadataDetailSelectedTab = tab;
+  }
 
   /**
    * Get metadata detail information
@@ -142,7 +170,9 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.metadataService.getDetailMetaData(this.selectedMetadataId).then((result) => {
       this.loadingHide();
       if (result) {
+        this.metadata = result;
         this.metadataModelService.setMetadata(result);
+        this.metadataLoaded = true;
       }
     }).catch(() => {
       this.loadingHide();
@@ -292,9 +322,18 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  private _showLineageTab() {
+    this.metadataService.isShowLineage()
+      .then((result) => {
+        this.showLineageTab = result;
+      })
+      .catch(error => {});
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
+
 

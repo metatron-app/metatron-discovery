@@ -40,6 +40,7 @@ import {ChartUtil} from '../../../common/component/chart/option/util/chart-util'
 import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
 import {isNullOrUndefined} from "util";
 import {CommonConstant} from "../../../common/constant/common.constant";
+import {TooltipOptionConverter} from "../../../common/component/chart/option/converter/tooltip-option-converter";
 
 @Component({
   selector: 'map-page-pivot',
@@ -224,13 +225,28 @@ export class MapPagePivotComponent extends PagePivotComponent {
     //   fieldPivot = FieldPivot.MAP_LAYER2;
     // }
 
+    let currentMapLayer = this.shelf.layers[this.uiOption.layerNum].fields;
+    // check is different database on the same shelf (do not need to loop because database checking)
+    if (!isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
+      && targetField.dataSource != currentMapLayer[0].field.dataSource) {
+      this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.filter((field) => {
+        return (field.name != targetField.name && field.ref != targetField.ref)
+      });
+      Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+      return;
+    }
+
     // change logical type
     if (targetField.logicalType == LogicalType.GEO_LINE) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.LINE;
     } else if (targetField.logicalType == LogicalType.GEO_POLYGON) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.POLYGON;
     } else if (targetField.logicalType == LogicalType.GEO_POINT) {
-      this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.SYMBOL;
+      if (!_.isUndefined(this.uiOption.layers[this.uiOption.layerNum]['clustering']) && this.uiOption.layers[this.uiOption.layerNum]['clustering']) {
+        this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.CLUSTER;
+      } else {
+        this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.SYMBOL;
+      }
     }
 
     const idx = shelf.findIndex((field) => {
@@ -436,6 +452,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     // set layer alias
     this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
+
+    // 크기 반경
+    this.setPointOption();
 
     // emit
     this.changeShelfEvent.emit({shelf: this.shelf, eventType: eventType});
@@ -717,7 +736,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     targetContainer = 'layer' + this.uiOption.layerNum;
 
     if (targetField) {
-      shelf.push(targetField);
+      shelf.fields.push(targetField);
       this.convertField(targetField, targetContainer);
     }
   }
@@ -782,6 +801,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       // symbol, heatmap => no aggregation type
       if (MapLayerType.SYMBOL === this.uiOption.layers[this.uiOption.layerNum].type ||
+        MapLayerType.CLUSTER === this.uiOption.layers[this.uiOption.layerNum].type ||
         MapLayerType.HEATMAP === this.uiOption.layers[this.uiOption.layerNum].type) {
 
         shelf.splice(idx, 1);
@@ -829,28 +849,35 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
     this.uiOption.layerNum = this.uiOption.layers.length - 1;
 
-    // 공간연산에서 choropleth 를 활성화 하고 default 값인 count를 지정할 경우 count에 대한 정보를 강제 입력
-    if(this.uiOption['analysis']['operation']['choropleth'] == true ) {
-      let field = {
-        alias: 'count',
-        type: 'measure',
-        subRole: 'measure',
-        name: 'count',
-        isCustomField: true
-      };
+    // 공간연산에서 choropleth 를 활성화 했을 경우
+    // 커스텀 하게 default 값 count 정보 설정
+    if (this.uiOption['analysis']['operation']['choropleth'] == true) {
+      let field: MeasureField = new MeasureField();
+      // 이미 변수가 선언이 되어 있어 강제로 변경
+      field.aggregationType = null;
+      field.alias = 'count';
+      field.type = 'measure';
+      field.subRole = 'measure';
+      field.name = 'count';
+      field.isCustomField = true;
+      field.field = new Field();
+      field.field.logicalType = LogicalType.INTEGER;
+      this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
 
+      // 공간연산 실행 시 layer의 field에 해당 값 적용
       let uiOption = this.uiOption;
-      this.shelf.layers.forEach( (layer) => {
-        if(layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
+      this.shelf.layers.forEach((layer) => {
+        if (layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
           layer.fields.push(_.cloneDeep(field));
-          layer.fields.forEach( (field) => {
-            if( uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
+          layer.fields.forEach((field) => {
+            if (uiOption['analysis']['operation']['aggregation']['column'] == field.name && !(!_.isUndefined(field.isCustomField) && field.isCustomField == true)) {
               field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
             }
           });
         }
       });
     }
+    this.setPointOption();
   }
 
   /**
@@ -867,8 +894,75 @@ export class MapPagePivotComponent extends PagePivotComponent {
       delete this.uiOption.analysis.mainLayer;
       delete this.uiOption.analysis.compareLayer;
       delete this.uiOption.analysis.type;
+
+      // Tooltip setting
+      let layerItems = [];
+      // 공간연산 사용 여부
+      for (let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
+        if (this.shelf && !_.isUndefined(this.shelf.layers[layerIndex])) {
+          this.shelf.layers[layerIndex].fields.forEach((field) => {
+            layerItems.push(field);
+          });
+        }
+      }
+      // set alias
+      for (const item of layerItems) {
+        item['alias'] = ChartUtil.getAlias(item);
+      }
+      // return shelf list except geo dimension
+      let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
+      // tooltip option panel이 첫번째로 열렸는지 여부
+      this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
+      this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
+
       // emit
-      this.removeAnalysisLayerEvent.emit();
+      this.removeAnalysisLayerEvent.emit(this.shelf);
     }
   }
+
+  /**
+   * 크기반경 설정
+   */
+  private setPointOption() {
+    if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
+      for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
+        // 크기 반경 관련 설정
+        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL) {
+          // 크기 설정
+          if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
+            // default size of points are 5 pixel
+            this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
+            this.uiOption.layers[layerIndex].pointRadius = 5;
+          }
+          let hasMeasure = this.shelf.layers[layerIndex].fields.find((field) => {
+            return field.type == 'measure';
+          });
+          // Measure 값이 없을 경우
+          if (this.shelf['layers'][layerIndex].fields.length <= 1
+            || (this.shelf['layers'][layerIndex].fields.length > 1
+              && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
+              && isNullOrUndefined(hasMeasure))) {
+            delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
+            delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
+            delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
+            this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
+          } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
+            if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
+              if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 20;
+              } else {
+                this.uiOption.layers[layerIndex]['pointRadiusTo'] = 200;
+              }
+            }
+            this.uiOption.layers[layerIndex]['needToCalPointRadius'] = true;
+          }
+        }
+      }
+    }
+  }
+
+
+
+
+
 }

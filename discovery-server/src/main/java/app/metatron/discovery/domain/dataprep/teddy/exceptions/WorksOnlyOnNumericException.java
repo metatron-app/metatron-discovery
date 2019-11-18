@@ -14,8 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
-public class WorksOnlyOnNumericException extends TeddyException{
-    public WorksOnlyOnNumericException(String message) {
-        super(message);
-    }
+public class WorksOnlyOnNumericException extends TeddyException {
+
+  public WorksOnlyOnNumericException(String message) {
+    super(message);
+  }
 }

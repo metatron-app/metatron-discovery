@@ -18,7 +18,7 @@
     <parent>
         <artifactId>metatron-discovery</artifactId>
         <groupId>app.metatron.discovery</groupId>
-        <version>3.2.0</version>
+        <version>3.4.0-rc2</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -107,6 +107,27 @@
             </plugin>
 
             <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <id>generate-docs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/asciidoc</sourceDirectory>
+                            <outputDirectory>target/classes/resource/docs</outputDirectory>
+                            <backend>html</backend>
+                            <doctype>book</doctype>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.2.3</version>
@@ -121,6 +142,94 @@
                         </resource>
                     </resources>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.version}</version>
+                <configuration>
+                    <systemProperties>
+                        <property>
+                            <name>jadira.usertype.useJdbc42Apis</name>
+                            <value>false</value>
+                        </property>
+                    </systemProperties>
+                    <propertyFile>src/main/resources/liquibase-generate.yaml</propertyFile>
+                    <!--<propertyFile>src/main/resources/liquibase-diff.yaml</propertyFile>-->
+                    <!--<propertyFile>src/main/resources/liquibase-diff-hibernate.yaml</propertyFile>-->
+                    <propertyFileWillOverride>true</propertyFileWillOverride>
+                    <diffChangeLogFile>src/main/resources/db/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
+                    <outputChangeLogFile>src/main/resources/db/changelog/${maven.build.timestamp}_changelog.xml</outputChangeLogFile>
+                    <verbose>false</verbose>
+                    <logging>info</logging>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                        <version>${javassist.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.liquibase.ext</groupId>
+                        <artifactId>liquibase-hibernate5</artifactId>
+                        <version>${liquibase-hibernate5.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-core</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-entitymanager</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-envers</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-jpa</artifactId>
+                        <version>${spring.boot.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-entitymanager</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-core</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-core</artifactId>
+                        <version>${hibernate.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-entitymanager</artifactId>
+                        <version>${hibernate.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>javax.validation</groupId>
+                        <artifactId>validation-api</artifactId>
+                        <version>${validation-api.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jadira.usertype</groupId>
+                        <artifactId>usertype.core</artifactId>
+                        <version>7.0.0.CR1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>joda-time</groupId>
+                        <artifactId>joda-time</artifactId>
+                        <version>2.9.5</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
 
@@ -236,6 +345,14 @@
                 <exclusion>
                     <artifactId>tomcat-jdbc</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hibernate-entitymanager</artifactId>
+                    <groupId>org.hibernate</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hibernate-core</artifactId>
+                    <groupId>org.hibernate</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -426,12 +543,52 @@
 
         <dependency>
             <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.common</groupId>
+            <artifactId>hibernate-commons-annotations</artifactId>
+            <version>5.1.0.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
             <artifactId>hibernate-search-orm</artifactId>
             <version>${hibernate.search.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hibernate-commons-annotations</artifactId>
+                    <groupId>org.hibernate.common</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hibernate-core</artifactId>
+                    <groupId>org.hibernate</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-backward-codecs</artifactId>
             <version>${lucene.version}</version>
         </dependency>
 
@@ -556,12 +713,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.5.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.jgroups.kubernetes</groupId>
             <artifactId>dns</artifactId>
             <version>0.9.1</version>
@@ -629,7 +780,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jackson.databind.version}</version>
         </dependency>
 
         <dependency>
@@ -654,6 +805,19 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>${jackson.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.woodstox</groupId>
+                    <artifactId>stax2-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- https://github.com/FasterXML/woodstox/issues/10 -->
+        <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>5.1.0</version>
         </dependency>
 
         <!-- 도구 관련 Library -->
@@ -673,7 +837,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.5</version>
+            <version>3.8.1</version>
         </dependency>
 
         <dependency>
@@ -703,7 +867,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.2</version>
+            <version>1.3.3</version>
         </dependency>
 
         <dependency>
@@ -863,8 +1027,8 @@
 
         <dependency>
             <groupId>org.jadira.usertype</groupId>
-            <artifactId>usertype.jodatime</artifactId>
-            <version>2.0.1</version>
+            <artifactId>usertype.core</artifactId>
+            <version>7.0.0.CR1</version>
         </dependency>
 
         <dependency>
@@ -1068,6 +1232,13 @@
         </dependency>
         <!-- Kurbernetes (E) -->
 
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-jdbc</artifactId>
+            <version>2.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <!-- SAML -->
         <dependency>
@@ -1093,6 +1264,44 @@
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j</artifactId>
             <version>${pf4j.version}</version>
+        </dependency>
+
+        <!-- Spring Data Envers -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-envers</artifactId>
+            <version>1.1.9.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-envers</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Hibernate envers -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-envers</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>64.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>1.3.10.RELEASE</version>
+        </dependency>
+
+        <!-- Liquibase -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
 
     </dependencies>

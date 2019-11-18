@@ -14,21 +14,39 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotCastFromException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnTypeShouldBeDoubleOrLongException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidAggregationValueExpressionTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidColumnExpressionTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidFunctionArgsException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidFunctionTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.NoAssignmentStatementIsAllowedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TypeDifferentException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TypeMismatchException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnsupportedAggregationFunctionExpressionException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnsupportedConstantType;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
 import app.metatron.discovery.domain.dataprep.transform.Histogram;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.BuiltinFunctions;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.ExprEval;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.ExprType;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Function;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Null;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,11 +54,22 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataFrame implements Serializable, Transformable {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DataFrame.class);
 
   private static int CANCEL_INTERVAL = 1000;
@@ -69,20 +98,20 @@ public class DataFrame implements Serializable, Transformable {
 
   // copy the references to all members (to avoid deep copy, but make a non-identical object)   // TODO: find out why we do deep-copy like this
   public DataFrame(DataFrame df) {
-    colCnt             = df.colCnt;
-    colNames           = df.colNames;
-    colDescs           = df.colDescs;
-    colHists           = df.colHists;
-    rows               = df.rows;
-    mapColno           = df.mapColno;
-    newColNames        = df.newColNames;
+    colCnt = df.colCnt;
+    colNames = df.colNames;
+    colDescs = df.colDescs;
+    colHists = df.colHists;
+    rows = df.rows;
+    mapColno = df.mapColno;
+    newColNames = df.newColNames;
     interestedColNames = df.interestedColNames;
-    dsName             = df.dsName;
-    slaveDsNameMap     = df.slaveDsNameMap;
-    ruleString         = df.ruleString;
-    jsonRuleString     = df.jsonRuleString;
-    valid              = df.valid;
-    ruleColumns        = df.ruleColumns;
+    dsName = df.dsName;
+    slaveDsNameMap = df.slaveDsNameMap;
+    ruleString = df.ruleString;
+    jsonRuleString = df.jsonRuleString;
+    valid = df.valid;
+    ruleColumns = df.ruleColumns;
   }
 
   // Constructor
@@ -143,31 +172,56 @@ public class DataFrame implements Serializable, Transformable {
 
   public static DataFrame getNewDf(Rule rule, String dsName, String ruleString) {
     switch (rule.getName()) {
-      case "move":         return new DfMove(dsName, ruleString);
-      case "sort":         return new DfSort(dsName, ruleString);
-      case "union":        return new DfUnion(dsName, ruleString);
-      case "drop":         return new DfDrop(dsName, ruleString);
-      case "keep":         return new DfKeep(dsName, ruleString);
-      case "delete":       return new DfDelete(dsName, ruleString);
-      case "flatten":      return new DfFlatten(dsName, ruleString);
-      case "header":       return new DfHeader(dsName, ruleString);
-      case "rename":       return new DfRename(dsName, ruleString);
-      case "replace":      return new DfReplace(dsName, ruleString);
-      case "settype":      return new DfSetType(dsName, ruleString);
-      case "setformat":    return new DfSetFormat(dsName, ruleString);
-      case "set":          return new DfSet(dsName, ruleString);
-      case "countpattern": return new DfCountPattern(dsName, ruleString);
-      case "derive":       return new DfDerive(dsName, ruleString);
-      case "merge":        return new DfMerge(dsName, ruleString);
-      case "unnest":       return new DfUnnest(dsName, ruleString);
-      case "extract":      return new DfExtract(dsName, ruleString);
-      case "aggregate":    return new DfAggregate(dsName, ruleString);
-      case "split":        return new DfSplit(dsName, ruleString);
-      case "nest":         return new DfNest(dsName, ruleString);
-      case "pivot":        return new DfPivot(dsName, ruleString);
-      case "unpivot":      return new DfUnpivot(dsName, ruleString);
-      case "join":         return new DfJoin(dsName, ruleString);
-      case "window":       return new DfWindow(dsName, ruleString);
+      case "move":
+        return new DfMove(dsName, ruleString);
+      case "sort":
+        return new DfSort(dsName, ruleString);
+      case "union":
+        return new DfUnion(dsName, ruleString);
+      case "drop":
+        return new DfDrop(dsName, ruleString);
+      case "keep":
+        return new DfKeep(dsName, ruleString);
+      case "delete":
+        return new DfDelete(dsName, ruleString);
+      case "flatten":
+        return new DfFlatten(dsName, ruleString);
+      case "header":
+        return new DfHeader(dsName, ruleString);
+      case "rename":
+        return new DfRename(dsName, ruleString);
+      case "replace":
+        return new DfReplace(dsName, ruleString);
+      case "settype":
+        return new DfSetType(dsName, ruleString);
+      case "setformat":
+        return new DfSetFormat(dsName, ruleString);
+      case "set":
+        return new DfSet(dsName, ruleString);
+      case "countpattern":
+        return new DfCountPattern(dsName, ruleString);
+      case "derive":
+        return new DfDerive(dsName, ruleString);
+      case "merge":
+        return new DfMerge(dsName, ruleString);
+      case "unnest":
+        return new DfUnnest(dsName, ruleString);
+      case "extract":
+        return new DfExtract(dsName, ruleString);
+      case "aggregate":
+        return new DfAggregate(dsName, ruleString);
+      case "split":
+        return new DfSplit(dsName, ruleString);
+      case "nest":
+        return new DfNest(dsName, ruleString);
+      case "pivot":
+        return new DfPivot(dsName, ruleString);
+      case "unpivot":
+        return new DfUnpivot(dsName, ruleString);
+      case "join":
+        return new DfJoin(dsName, ruleString);
+      case "window":
+        return new DfWindow(dsName, ruleString);
 
       default:
         throw new IllegalArgumentException("getNewDf(): unknown rule: " + rule.getName());
@@ -225,6 +279,10 @@ public class DataFrame implements Serializable, Transformable {
 
   public ColumnDescription getColDesc(int colno) {
     return colDescs.get(colno);
+  }
+
+  public void setColDesc(int colno, ColumnDescription colDesc) {
+    colDescs.set(colno, colDesc);
   }
 
   public ColumnType getColType(int colno) {
@@ -316,9 +374,9 @@ public class DataFrame implements Serializable, Transformable {
 
   String addColumnWithTimestampStyle(int colno, String colName, ColumnType colType, String colTimestampStyle) {
     return addColumn(colno,
-                     colName,
-                     colType,
-                     colTimestampStyle);
+            colName,
+            colType,
+            colTimestampStyle);
   }
 
   String addColumnWithTimestampStyle(String colName, ColumnType colType, String colTimestampStyle) {
@@ -327,9 +385,9 @@ public class DataFrame implements Serializable, Transformable {
 
   String addColumn(int colno, String colName, ColumnType colType) {
     return addColumn(colno,
-                     colName,
-                     colType,
-                     null);
+            colName,
+            colType,
+            null);
   }
 
   public String addColumn(String colName, ColumnType colType) {
@@ -338,7 +396,7 @@ public class DataFrame implements Serializable, Transformable {
 
   String addColumnWithDf(DataFrame df, int colno) {
     return addColumn(df.colNames.get(colno),
-                     df.colDescs.get(colno));
+            df.colDescs.get(colno));
   }
 
   void addColumnWithDfAll(DataFrame df) {
@@ -347,18 +405,11 @@ public class DataFrame implements Serializable, Transformable {
     }
   }
 
-  // Initialization functions
-  private int getMaxColCnt(List<String[]> strGrid) {
-    int colCnt = 0;
-    for (String[] strRow : strGrid) {
-      if (strRow.length > colCnt) {
-        colCnt = strRow.length;
-      }
-    }
-    return colCnt;
+  public void setByGrid(PrepParseResult result) {
+    setByGrid(result.grid, result.colNames);
   }
 
-  public void setByGrid(List<String[]> strGrid, List<String> colNames, int maxColCnt) {
+  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
     if (strGrid == null) {
       LOGGER.warn("setByGrid(): null grid");
       return;
@@ -376,10 +427,7 @@ public class DataFrame implements Serializable, Transformable {
         addColumn(colName, ColumnType.STRING);
       }
     } else {
-      if (maxColCnt == -1) {
-        maxColCnt = getMaxColCnt(strGrid);
-      }
-      for (int colno = 1; colno <= maxColCnt; colno++) {
+      for (int colno = 1; colno <= strGrid.get(0).length; colno++) {
         addColumn("column" + colno, ColumnType.STRING);
       }
     }
@@ -393,20 +441,8 @@ public class DataFrame implements Serializable, Transformable {
     }
   }
 
-  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
-    setByGrid(strGrid, colNames, -1);
-  }
-
-  public void setByGrid(PrepCsvParseResult result) {
-    setByGrid(result.grid, result.colNames, result.maxColCnt);
-  }
-
-  public void setByGridWithJson(PrepJsonParseResult result) {
-    setByGrid(result.grid, result.colNames, result.maxColCnt);
-  }
-
   // column 순서가 중요해서 JdbcConnectionService를 그대로 쓰기가 어려움. customize가 필요.
-  public void setByJDBC(Statement stmt, String query, int limit) throws JdbcTypeNotSupportedException, JdbcQueryFailedException {
+  public void setByJDBC(Statement stmt, String query, int limit) throws TeddyException {
     ResultSet rs;
     ResultSetMetaData rsmd;
     int colno;
@@ -504,8 +540,8 @@ public class DataFrame implements Serializable, Transformable {
     TeddyUtil.showSep(widths);
   }
 
-  public void dropColumn(String targetColName) throws TeddyException{
-    if(colNames.contains(targetColName)) {
+  public void dropColumn(String targetColName) throws TeddyException {
+    if (colNames.contains(targetColName)) {
       colDescs.remove(getColnoByColName(targetColName));
       colNames.remove(targetColName);
       mapColno.clear();
@@ -516,7 +552,7 @@ public class DataFrame implements Serializable, Transformable {
         i++;
       }
 
-      colCnt = colCnt -1;
+      colCnt = colCnt - 1;
     }
 
     List<Row> newRows = new ArrayList<>();
@@ -530,10 +566,13 @@ public class DataFrame implements Serializable, Transformable {
     rows = newRows;
   }
 
+  // FIX-ME: All 3 functions below are not used. The argument count is checked at rule-parse time, not execution time.
+
   //check if Args size are exactly matched with desirable size.
   private void assertArgsEq(int desirable, List<Expr> args, String func) throws TeddyException {
     if (args.size() != desirable) {
-      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(), desirable);
+      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(),
+              desirable);
       throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
   }
@@ -541,7 +580,8 @@ public class DataFrame implements Serializable, Transformable {
   //check if Args size are greater than matched with desirable size.
   private void assertArgsGt(int desirable, List<Expr> args, String func) throws TeddyException {
     if (args.size() < desirable) {
-      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= greater than {}", func, args.size(), desirable);
+      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= greater than {}", func,
+              args.size(), desirable);
       throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
   }
@@ -549,7 +589,8 @@ public class DataFrame implements Serializable, Transformable {
   //check if Args size are in between desirable nubmers.
   private void assertArgsBw(int min, int max, List<Expr> args, String func) throws TeddyException {
     if (args.size() < min || args.size() > max) {
-      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= between {} and {}", func, args.size(), min, max);
+      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= between {} and {}", func,
+              args.size(), min, max);
       throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
   }
@@ -592,20 +633,15 @@ public class DataFrame implements Serializable, Transformable {
     else if (expr instanceof Constant) {
       if (expr instanceof Constant.StringExpr) {
         resultType = getColTypeFromExprType(ExprType.STRING);
-      }
-      else if (expr instanceof Constant.LongExpr) {
+      } else if (expr instanceof Constant.LongExpr) {
         resultType = getColTypeFromExprType(ExprType.LONG);
-      }
-      else if (expr instanceof Constant.DoubleExpr) {
+      } else if (expr instanceof Constant.DoubleExpr) {
         resultType = getColTypeFromExprType(ExprType.DOUBLE);
-      }
-      else if (expr instanceof Constant.BooleanExpr) {
+      } else if (expr instanceof Constant.BooleanExpr) {
         resultType = getColTypeFromExprType(ExprType.BOOLEAN);
-      }
-      else if (expr instanceof Null.NullExpr) {
+      } else if (expr instanceof Null.NullExpr) {
         resultType = ColumnType.UNKNOWN;  // binary op에서 반대편 type을 result로 하기 위해
-      }
-      else {
+      } else {
         errmsg = String.format("decideType(): unsupported constant type: expr=%s", expr);
         // Array, map, timestamp는 constant로써 입력하는 것이 불가함.
         throw new UnsupportedConstantType(errmsg);
@@ -616,8 +652,10 @@ public class DataFrame implements Serializable, Transformable {
       ColumnType left = decideType_internal(((Expr.BinaryNumericOpExprBase) expr).getLeft());
       ColumnType right = decideType_internal(((Expr.BinaryNumericOpExprBase) expr).getRight());
       if (left == right) {
-        return (expr instanceof Expr.BinDivExpr) ? ColumnType.DOUBLE : left;    // for compatability to twinkle, which acts like this because of spark's behavior
-      } else if (left == ColumnType.DOUBLE && right == ColumnType.LONG || left == ColumnType.LONG && right == ColumnType.DOUBLE) {
+        return (expr instanceof Expr.BinDivExpr) ? ColumnType.DOUBLE
+                : left;    // for compatability to twinkle, which acts like this because of spark's behavior
+      } else if (left == ColumnType.DOUBLE && right == ColumnType.LONG
+              || left == ColumnType.LONG && right == ColumnType.DOUBLE) {
         // 한쪽이 double인 경우는 허용
         return ColumnType.DOUBLE;
       }
@@ -628,7 +666,7 @@ public class DataFrame implements Serializable, Transformable {
     else if (expr instanceof Expr.FunctionExpr) {
       String func = ((Expr.FunctionExpr) expr).getName();
       List<Expr> args = ((Expr.FunctionExpr) expr).getArgs();
-      for(Expr arg : args) {  //args를 다시 decideType을 돌려서 함수 내에 있는 identifier들도 찾아낸다.
+      for (Expr arg : args) {  //args를 다시 decideType을 돌려서 함수 내에 있는 identifier들도 찾아낸다.
         decideType_internal(arg);
       }
       switch (func) {
@@ -643,17 +681,22 @@ public class DataFrame implements Serializable, Transformable {
               resultType = trueExpr;
             } else {
               if (trueExpr == ColumnType.UNKNOWN && falseExpr == ColumnType.UNKNOWN) {
-                throw new UnknownTypeException(String.format("decideType(): both types are UNKNOWN trueVal=%s falseVal=%s", args.get(1).toString(), args.get(2).toString()));
+                throw new UnknownTypeException(
+                        String.format("decideType(): both types are UNKNOWN trueVal=%s falseVal=%s",
+                                args.get(1).toString(), args.get(2).toString()));
               } else if (trueExpr == ColumnType.UNKNOWN) {
                 resultType = falseExpr;
               } else if (falseExpr == ColumnType.UNKNOWN) {
                 resultType = trueExpr;
               } else {
-                throw new TypeDifferentException(String.format("decideType(): type different: trueVal=%s falseVal=%s", args.get(1).toString(), args.get(2).toString()));
+                throw new TypeDifferentException(
+                        String.format("decideType(): type different: trueVal=%s falseVal=%s", args.get(1).toString(),
+                                args.get(2).toString()));
               }
             }
           } else {
-            throw new InvalidFunctionArgsException("decideType(): invalid conditional function argument count: " + args.size());
+            throw new InvalidFunctionArgsException(
+                    "decideType(): invalid conditional function argument count: " + args.size());
           }
           break;
         // 1-argument functions
@@ -739,11 +782,11 @@ public class DataFrame implements Serializable, Transformable {
           break;
         case "concat":
           assertArgsGt(1, args, func);
-          resultType=ColumnType.STRING;
+          resultType = ColumnType.STRING;
           break;
         case "concat_ws":
           assertArgsGt(2, args, func);
-          resultType=ColumnType.STRING;
+          resultType = ColumnType.STRING;
           break;
         case "sum":
         case "avg":
@@ -751,7 +794,7 @@ public class DataFrame implements Serializable, Transformable {
         case "max":
         case "min":
           assertArgsGt(2, args, func);
-          resultType=ColumnType.DOUBLE;
+          resultType = ColumnType.DOUBLE;
           break;
         case "year":
         case "month":
@@ -828,13 +871,15 @@ public class DataFrame implements Serializable, Transformable {
       switch (func) {
         case "concat":
         case "concat_ws":
-          for(int i=0; i <args.size(); i++) {
-            if(args.get(i) instanceof Identifier.IdentifierExpr
-                    && getColTypeByColName(((Identifier.IdentifierExpr) args.get(i)).getValue()).equals(ColumnType.TIMESTAMP)) {
+          for (int i = 0; i < args.size(); i++) {
+            if (args.get(i) instanceof Identifier.IdentifierExpr
+                    && getColTypeByColName(((Identifier.IdentifierExpr) args.get(i)).getValue())
+                    .equals(ColumnType.TIMESTAMP)) {
               Function newFunc = new BuiltinFunctions.Times.TimestampToString();
               List<Expr> newArgs = new ArrayList<>();
               newArgs.add(args.get(i));
-              newArgs.add(new Constant.StringExpr("'" + getColTimestampStyleByColName(((Identifier.IdentifierExpr) args.get(i)).getValue()) + "'"));
+              newArgs.add(new Constant.StringExpr(
+                      "'" + getColTimestampStyleByColName(((Identifier.IdentifierExpr) args.get(i)).getValue()) + "'"));
               args.set(i, new Expr.FunctionExpr(newFunc, newFunc.name(), newArgs));
             }
           }
@@ -864,15 +909,15 @@ public class DataFrame implements Serializable, Transformable {
           case DOUBLE:
             return obj;
           case LONG:
-            return ((Long)obj).doubleValue();
+            return ((Long) obj).doubleValue();
           case STRING:
             try {
               return Double.valueOf(obj.toString());
-            } catch(Exception e) {
+            } catch (Exception e) {
               return obj;
             }
           case BOOLEAN:
-            return (boolean)obj ? 1D : 0D;
+            return (boolean) obj ? 1D : 0D;
           case TIMESTAMP:
             Long longV = ((DateTime) obj).getMillis();
             return longV.doubleValue();
@@ -884,8 +929,8 @@ public class DataFrame implements Serializable, Transformable {
         switch (fromType) {
           case DOUBLE:
             try {
-              return ((Double)obj).longValue();
-            } catch(Exception e) {
+              return ((Double) obj).longValue();
+            } catch (Exception e) {
               return obj;
             }
           case LONG:
@@ -893,11 +938,11 @@ public class DataFrame implements Serializable, Transformable {
           case STRING:
             try {
               return Long.valueOf(obj.toString());
-            } catch(Exception e) {
+            } catch (Exception e) {
               return obj;
             }
           case BOOLEAN:
-            return (boolean)obj ? 1L : 0L;
+            return (boolean) obj ? 1L : 0L;
           case TIMESTAMP:
             return ((DateTime) obj).getMillis();
           default:
@@ -907,16 +952,16 @@ public class DataFrame implements Serializable, Transformable {
       case STRING:
         switch (fromType) {
           case DOUBLE:
-            return String.valueOf(((Double)obj).doubleValue());
+            return String.valueOf(((Double) obj).doubleValue());
           case LONG:
-            return String.valueOf(((Long)obj).longValue());
+            return String.valueOf(((Long) obj).longValue());
           case STRING:
             return obj;
           case BOOLEAN:
-            return String.valueOf((boolean)obj?"true":"false");
+            return String.valueOf((boolean) obj ? "true" : "false");
           case TIMESTAMP:
             try {
-              if(format.equals("")) {
+              if (format.equals("")) {
                 format = null;
               }
               return ((DateTime) obj).toString(format, Locale.ENGLISH);
@@ -930,11 +975,11 @@ public class DataFrame implements Serializable, Transformable {
       case BOOLEAN:
         switch (fromType) {
           case DOUBLE:
-            return ((Double)obj)!=0;
+            return ((Double) obj) != 0;
           case LONG:
-            return ((Long)obj)!=0;
+            return ((Long) obj) != 0;
           case STRING:
-            if (((String)obj).equalsIgnoreCase("true") || ((String)obj).equalsIgnoreCase("false")) {
+            if (((String) obj).equalsIgnoreCase("true") || ((String) obj).equalsIgnoreCase("false")) {
               return Boolean.valueOf(obj.toString());
             } else {
               return null;
@@ -958,10 +1003,17 @@ public class DataFrame implements Serializable, Transformable {
           case TIMESTAMP:
             return obj;
           case LONG:
-            return new DateTime((long)obj);
+            return new DateTime((long) obj);
           default:
             return obj;
         }
+
+      case ARRAY:
+      case MAP:
+        if (fromType != ColumnType.STRING) {
+          throw new WorksOnlyOnStringException("Only strings can be casted into array/maps");
+        }
+        return obj;
 
       default:
         throw new CannotCastFromException("cast(): cannot cast from " + toType);
@@ -975,19 +1027,20 @@ public class DataFrame implements Serializable, Transformable {
     try {
       exprEval = expr.eval(row);
     } catch (RuleException re) {
-      if(TeddyException.fromRuleException(re) instanceof  ColumnNotFoundException)
+      if (TeddyException.fromRuleException(re) instanceof ColumnNotFoundException) {
         throw TeddyException.fromRuleException(re);
+      }
       return null;
     } catch (Exception e) {
-      if(e instanceof NullPointerException)
+      if (e instanceof NullPointerException) {
         throw new ColumnNotFoundException(e.getMessage());
+      }
       return null;
     }
 
     if (exprEval == null) {
       return null;
-    }
-    else if (colType == ColumnType.BOOLEAN) {
+    } else if (colType == ColumnType.BOOLEAN) {
       obj = exprEval.asBoolean();
     } else {
       obj = exprEval.value();
@@ -997,7 +1050,7 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   protected Boolean checkCondition(Expr expr, Row row) throws TeddyException {
-    if(expr ==null) {
+    if (expr == null) {
       return true;
     } else {
       ExprEval exprEval;
@@ -1007,12 +1060,14 @@ public class DataFrame implements Serializable, Transformable {
         exprEval = expr.eval(row);
         result = exprEval.asBoolean();
       } catch (RuleException re) {
-        if(TeddyException.fromRuleException(re) instanceof  ColumnNotFoundException)
+        if (TeddyException.fromRuleException(re) instanceof ColumnNotFoundException) {
           throw TeddyException.fromRuleException(re);
+        }
         return false;
       } catch (Exception e) {
-        if(e instanceof NullPointerException)
+        if (e instanceof NullPointerException) {
           throw new ColumnNotFoundException(e.getMessage());
+        }
         return false;
       }
 
@@ -1030,19 +1085,22 @@ public class DataFrame implements Serializable, Transformable {
     for (int i = 0; i < str.length(); i++) {
       String c = String.valueOf(str.charAt(i));
 
-      if(c.matches("[a-zA-Z]"))
-        ignorePatternStr += "["+c.toUpperCase() + c.toLowerCase()+"]";
-      else
-        ignorePatternStr +=c;
+      if (c.matches("[a-zA-Z]")) {
+        ignorePatternStr += "[" + c.toUpperCase() + c.toLowerCase() + "]";
+      } else {
+        ignorePatternStr += c;
+      }
     }
     return ignorePatternStr;
   }
 
-  protected String compilePatternWithQuote(String patternStr, String quoteStr){
-    return patternStr + "(?=([^" + quoteStr + "]*" + quoteStr + "[^" + quoteStr + "]*" + quoteStr + ")*[^" + quoteStr + "]*$)";
+  protected String compilePatternWithQuote(String patternStr, String quoteStr) {
+    return patternStr + "(?=([^" + quoteStr + "]*" + quoteStr + "[^" + quoteStr + "]*" + quoteStr + ")*[^" + quoteStr
+            + "]*$)";
   }
 
-  protected String getColNameAndColnoFromFunc(Expr.FunctionExpr funcExpr, List<Integer> targetAggrColnos) throws ColumnNotFoundException, InvalidAggregationValueExpressionTypeException {
+  protected String getColNameAndColnoFromFunc(Expr.FunctionExpr funcExpr, List<Integer> targetAggrColnos)
+          throws ColumnNotFoundException, InvalidAggregationValueExpressionTypeException {
     List<Expr> args = funcExpr.getArgs();
     String funcName = funcExpr.getName();
 
@@ -1052,11 +1110,12 @@ public class DataFrame implements Serializable, Transformable {
       return modifyDuplicatedColName(funcName + "_" + origColName);
     }
 
-    throw new InvalidAggregationValueExpressionTypeException("aggregate(): invalid argument expression: " + funcExpr.toString());
+    throw new InvalidAggregationValueExpressionTypeException(
+            "aggregate(): invalid argument expression: " + funcExpr.toString());
   }
 
   private Map<String, Object> getAvgObj(List<Object> aggregatedValues, int targetExprIdx,
-                                        int targetColno, DataFrame prevDf, Row row) throws ColumnTypeShouldBeDoubleOrLongException {
+          int targetColno, DataFrame prevDf, Row row) throws ColumnTypeShouldBeDoubleOrLongException {
     Map<String, Object> avgObj = (Map<String, Object>) aggregatedValues.get(targetExprIdx);
 
     avgObj.put("count", (Long) avgObj.get("count") + 1);
@@ -1068,13 +1127,15 @@ public class DataFrame implements Serializable, Transformable {
         avgObj.put("sum", (Double) avgObj.get("sum") + (Double) row.get(targetColno));
         break;
       default:
-        throw new ColumnTypeShouldBeDoubleOrLongException("getAvgObj(): wrong colType: " + prevDf.getColType(targetColno).toString());
+        throw new ColumnTypeShouldBeDoubleOrLongException(
+                "getAvgObj(): wrong colType: " + prevDf.getColType(targetColno).toString());
     }
 
     return avgObj;
   }
 
-  protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<Expr.FunctionExpr> funcExprs) throws TeddyException, InterruptedException {
+  protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<Expr.FunctionExpr> funcExprs)
+          throws TeddyException, InterruptedException {
     List<Integer> targetColnos = new ArrayList<>();   // Each aggregation value has 1 target column. (except "count")
     List<String> resultColNames = new ArrayList<>();
     List<ColumnType> resultColTypes = new ArrayList<>();
@@ -1112,7 +1173,8 @@ public class DataFrame implements Serializable, Transformable {
           break;
 
         default:
-          throw new UnsupportedAggregationFunctionExpressionException("aggregate(): unsupported aggregation function: " + funcExpr.toString());
+          throw new UnsupportedAggregationFunctionExpressionException(
+                  "aggregate(): unsupported aggregation function: " + funcExpr.toString());
       }
       resultColNames.add(resultColName);
       resultColTypes.add(resultColType);
@@ -1172,7 +1234,8 @@ public class DataFrame implements Serializable, Transformable {
               }
               break;
             default:
-              throw new InvalidAggregationValueExpressionTypeException("aggregate(): invalid argument expression: " + funcExpr.toString());
+              throw new InvalidAggregationValueExpressionTypeException(
+                      "aggregate(): invalid argument expression: " + funcExpr.toString());
           }
         }
         groupByBuckets.put(groupByKey, aggregatedValues);
@@ -1216,8 +1279,8 @@ public class DataFrame implements Serializable, Transformable {
         switch (funcExpr.getName()) {
           case "avg":
             Map<String, Object> avgObj = (Map<String, Object>) aggregatedValues.get(i);
-            Double sum = (Double)avgObj.get("sum");
-            Long count = (Long)avgObj.get("count");
+            Double sum = (Double) avgObj.get("sum");
+            Long count = (Long) avgObj.get("count");
             Double avg = BigDecimal.valueOf(sum / count).setScale(2, RoundingMode.HALF_UP).doubleValue();
             newRow.add(resultColNames.get(i), avg);
             break;
@@ -1291,7 +1354,7 @@ public class DataFrame implements Serializable, Transformable {
           try {
             obj1_isMismatched = !ColumnType.fromClass(obj1).equals(row1.cmpKeyTypes.get(i));
             ojb2_isMismatched = !ColumnType.fromClass(obj2).equals(row2.cmpKeyTypes.get(i));
-          } catch(Exception e) {
+          } catch (Exception e) {
             return 0;
           }
 
@@ -1301,9 +1364,9 @@ public class DataFrame implements Serializable, Transformable {
             return -1 * sign;
           } else if (ojb2_isMismatched) {
             return 1 * sign;
-          }else {
+          } else {
             ColumnType colType = row1.cmpKeyTypes.get(i);
-            switch(colType) {
+            switch (colType) {
               case STRING:
                 result = ((String) obj1).compareTo((String) obj2);
                 if (result != 0) {
@@ -1336,7 +1399,8 @@ public class DataFrame implements Serializable, Transformable {
                 break;
               default:
                 try {
-                  throw new InvalidColumnExpressionTypeException("doSortInternal(): invalid column type: " + colType.name());
+                  throw new InvalidColumnExpressionTypeException(
+                          "doSortInternal(): invalid column type: " + colType.name());
                 } catch (TeddyException e) {
                   e.printStackTrace();
                 }
@@ -1348,10 +1412,11 @@ public class DataFrame implements Serializable, Transformable {
     });
   }
 
-  protected List<Row> filter(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws NoAssignmentStatementIsAllowedException, TypeMismatchException {
+  protected List<Row> filter(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length)
+          throws NoAssignmentStatementIsAllowedException, TypeMismatchException {
     List<Row> rows = new ArrayList<>();
 
-    if(condExpr instanceof Expr.BinAsExpr) {
+    if (condExpr instanceof Expr.BinAsExpr) {
       throw new NoAssignmentStatementIsAllowedException(condExpr.toString());
     }
 
@@ -1391,7 +1456,8 @@ public class DataFrame implements Serializable, Transformable {
     for (String colName : colNames) {
       String lowerColName = colName.toLowerCase();
       if (lowerColNames.contains(lowerColName)) {
-        throw new IllegalColumnNameForHiveException("Column names become duplicated while saving into a Hive table: " + colName);
+        throw new IllegalColumnNameForHiveException(
+                "Column names become duplicated while saving into a Hive table: " + colName);
       }
       lowerColNames.add(lowerColName);
     }
@@ -1399,8 +1465,9 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   protected String makeParsable(String colName) {
-    if(colName.matches("^\'.+\'"))
-        colName = colName.substring(1, colName.length()-1);
+    if (colName.matches("^\'.+\'")) {
+      colName = colName.substring(1, colName.length() - 1);
+    }
 
     return colName.replaceAll("[\\p{Punct}\\p{IsPunctuation}]", "_");
   }
@@ -1453,7 +1520,8 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     assert false : prevDf.ruleString;
     return null;
   }

@@ -1,0 +1,160 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- box -->
+<div class="ddp-box-layout4 type-time" (clickOutside)="cancelPopup()" [delayClickOutsideInit]="true" *ngIf="fieldFormat?.isShowTimestampValidPopup">
+  <div class="ddp-data-title" >
+    {{'msg.storage.ui.schema.column.format.title' | translate}}
+  </div>
+  <a href="javascript:" class="ddp-btn-close" (click)="cancelPopup()"></a>
+  <div class="ddp-data-det">
+    <!--edit -->
+    <div class="ddp-wrap-edit3">
+      <div class="ddp-view-label">
+        <label class="ddp-ui-label-name ">
+          {{'msg.storage.ui.time.display.format' | translate}}
+          <!-- 설명 -->
+          <div class="ddp-wrap-hover-info">
+            <em class="ddp-icon-info3"></em>
+            <!-- popup -->
+            <div class="ddp-box-layout4">
+              <div class="ddp-data-title">
+                {{'msg.storage.ui.display.format.guide' | translate}}
+              </div>
+              <div class="ddp-data-det">
+                <dl class="ddp-dl-det">
+                  <dt>
+                    yyyy
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.four-digit-year' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    MM
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-month' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    dd
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-day' | translate}}<br />
+                    {{'msg.storage.ui.th.two-digit-day-thorough' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    HH
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.four-digit-hour' | translate}}<br />
+                    {{'msg.storage.ui.th.four-digit-hour-allowed' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    mm 
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-minute' | translate}}<br />
+                    {{'msg.storage.ui.th.two-digit-minute-thorough' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    ss
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-second' | translate}}<br />
+                    {{'msg.storage.ui.th.two-digit-second-thorough' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    S
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.one-more-digit' | translate}} <br />
+                    {{'msg.storage.ui.th.one-more-digit-decimal' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    TZD
+                  </dt>
+                  <dd>
+                    <em>=</em>
+                    {{'msg.storage.ui.th.time-zone-designator' | translate}} <br />
+                    (Z or +hh:mm or -hh:mm)
+                  </dd>
+                </dl>
+              </div>
+            </div>
+            <!-- //popup -->
+          </div>
+          <!-- //설명 -->
+        </label>
+        <div class="ddp-type-format" (click)="onChangeEnableUnixType(); $event.preventDefault()">
+          <label class="ddp-label-checkbox">
+            <input type="checkbox" [checked]=" fieldFormat.type === FIELD_FORMAT_TYPE.UNIX_TIME" [disabled]="isReadOnly">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
+          </label>
+        </div>
+      </div>
+      <!-- edit option -->
+      <div class="ddp-ui-option-in">
+        <!-- apply -->
+        <div class="ddp-type-apply" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.DATE_TIME">
+          <!-- input text 입력시 ddp-edit 추가 -->
+          <!-- TODO 추후 데이터소스 연결시 isDisableValidation 제거-->
+          <div class="ddp-input-apply">
+            <input type="text" placeholder="{{'msg.storage.ph.time.format' | translate}}" class="ddp-input-txt" [(ngModel)]="fieldFormat.format" (ngModelChange)="onChangedFormatText($event)" [readOnly]="isReadOnly">
+            <em class="ddp-icon-apply" (click)="onClickFormatValidation()" *ngIf="!isDisableValidation && !isReadOnly"></em>
+          </div>
+          <div class="ddp-txt-error" *ngIf="(!isDisableValidation && !isReadOnly) && fieldFormat.isValidFormat === false">
+            <em class="ddp-icon-error-s"></em>{{fieldFormat.formatValidMessage}}
+          </div>
+        </div>
+        <!-- //apply -->
+
+        <!-- checkbox -->
+        <ul class="ddp-list-checktype" *ngIf="fieldFormat.type === FIELD_FORMAT_TYPE.UNIX_TIME">
+          <li *ngFor="let type of formatUnitList">
+            <label class="ddp-label-radio" (click)="onChangeUnixType(type)">
+              <input type="radio" [checked]="fieldFormat.unit === type.value" [disabled]="isReadOnly && fieldFormat.unit !== type.value">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{type.label}}</span>
+            </label>
+          </li>
+        </ul>
+        <!-- //checkbox -->
+      </div>
+      <!-- //edit option -->
+    </div>
+    <!--//edit -->
+    <!-- edit -->
+    <div class="ddp-wrap-edit3 type-det" *ngIf="fieldFormat.isValidFormat && fieldFormat.type === FIELD_FORMAT_TYPE.DATE_TIME && fieldFormat.timeZone !== TIMEZONE_DISABLE_KEY">
+      {{'msg.storage.ui.timezone' | translate}}
+      <span class="ddp-txt-det">{{getTimezoneLabel()}}</span>
+    </div>
+    <!-- //edit -->
+  </div>
+
+</div>
+<!-- //box -->

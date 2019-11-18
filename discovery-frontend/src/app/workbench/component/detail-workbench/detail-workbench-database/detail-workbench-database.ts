@@ -18,17 +18,14 @@ import {
   EventEmitter,
   Injector,
   Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output, ViewChild
+  Output, SimpleChange, SimpleChanges, ViewChild
 } from '@angular/core';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { isUndefined } from 'util';
-import { Page } from '../../../../domain/common/page';
-import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
-import { WorkbenchService } from '../../../service/workbench.service';
-import { StringUtil } from '../../../../common/util/string.util';
+import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {isUndefined} from 'util';
+import {Page} from '../../../../domain/common/page';
+import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
+import {WorkbenchService} from '../../../service/workbench.service';
+import {StringUtil} from '../../../../common/util/string.util';
 import {CommonUtil} from "../../../../common/util/common.util";
 
 @Component({
@@ -38,7 +35,7 @@ import {CommonUtil} from "../../../../common/util/common.util";
     '(document:click)': 'onClickHost($event)',
   }
 })
-export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implements OnInit, OnDestroy, OnChanges {
+export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -48,6 +45,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
 
   // request reconnect count
   private _setDatabaseSchemaReconnectCnt: number = 0;
+
+  private readonly _pageSize = 20;
+  private _allDatabases: string[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
@@ -95,36 +95,18 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
     super(workbenchService, element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public ngOnInit(): void {
-    super.ngOnInit();
-
-  }
-
-  public ngOnChanges() {
-    // 데이터 베이스 가져오기.
-    if (
-      !!this.params && (
-        this.selectedDatabaseName !== this.params.dataconnection.database
-        || this.workbenchId !== this.params.workbenchId
-      )
-    ) {
-      this.selectedDatabaseName = this.params.dataconnection.database;
-      this.workbenchId = this.params.workbenchId;
-      this.getDatabase();
+  public ngOnChanges(changes: SimpleChanges) {
+    const paramChanges: SimpleChange = changes.params;
+    if (paramChanges && paramChanges.currentValue) {
+      if (this.selectedDatabaseName !== paramChanges.currentValue.dataconnection.database) {
+        this.selectedDatabaseName = paramChanges.currentValue.dataconnection.database;
+      }
+      if (this.workbenchId !== paramChanges.currentValue.workbenchId) {
+        this.workbenchId = paramChanges.currentValue.workbenchId;
+      }
+      this._getDatabaseList(this.params.dataconnection.id);
     }
   }
-
-  public ngOnDestroy() {
-    super.ngOnDestroy();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * 스키마 브라우져 창 열기
@@ -143,115 +125,6 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
       this.isDatabaseSearchShow = false;
     }
   }
-
-  /**
-   * 데이터 베이스 리스트 가져오기
-   */
-  public getDatabase(pageNum: number = 0, isSearch: boolean = false) {
-    if (this.disable || isUndefined(this.params.dataconnection.id)) {
-      return;
-    }
-
-    // 호출 횟수 증가
-    this._getDatabaseListReconnectCount++;
-
-    this.loadingShow();
-
-    this.searchText = (this.searchText) ? this.searchText.trim().toLowerCase() : '';
-
-    this.page.page = pageNum;
-    (0 === pageNum) && (this.databases = []);
-    this.dataconnectionService.getDatabaseListInConnection(this.params.dataconnection.id, this._getParameterForDatabase(WorkbenchService.websocketId, this.page, this.searchText))
-      .then((data) => {
-        // 호출 횟수 초기화
-        this._getDatabaseListReconnectCount = 0;
-        if (data) {
-          this.databases = this.databases.concat(data.databases);
-          this.pageResult = data.page;
-          if (0 === this.pageResult.number && this.databases.length > 0) {
-
-            const generalConnection: any = this.getLocalStorageGeneral();
-            if (generalConnection !== null) {
-              if (!isUndefined(generalConnection.schema)) {
-                this.selectedDatabase(generalConnection.schema);
-              } else {
-                this.selectedDatabase(this.databases[0]);
-              }
-            } else {
-              this.selectedDatabase(this.databases[0], isSearch, true);
-            }
-
-          }
-        }
-        this.safelyDetectChanges();
-        this.loadingHide();
-      })
-      .catch((error) => {
-        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getDatabaseListReconnectCount <= 5) {
-          this.webSocketCheck(() => {
-            this.getDatabase(pageNum, isSearch);
-          });
-        } else {
-          this.commonExceptionHandler(error);
-        }
-      });
-  } // function - getDatabase
-
-
-  private _getDatabaseList(connectionId: string, page: Page, searchText: string): void {
-    // 호출 횟수 증가
-    this._getDatabaseListReconnectCount++;
-    this.dataconnectionService.getDatabaseListInConnection(connectionId, this._getParameterForDatabase(WorkbenchService.websocketId, page, searchText))
-      .then((result) => {
-        // 호출 횟수 초기화
-        this._getDatabaseListReconnectCount = 0;
-        this.databases = result.databases;
-        this.pageResult = result.page;
-        this.loadingHide();
-      })
-      .catch((error) => {
-        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getDatabaseListReconnectCount <= 5) {
-          this.webSocketCheck(() => {
-            this._getDatabaseList(connectionId, page, searchText);
-          });
-        } else {
-          this.commonExceptionHandler(error);
-        }
-      });
-  }
-
-
-  /**
-   * 데이터베이스 이름 클릭했을 때
-   */
-  public databaseSearchShow() {
-    if( this.disable ) {
-      return;
-    }
-    this.isDatabaseSearchShow = !this.isDatabaseSearchShow;
-  } // function - databaseSearchShow
-
-  /**
-   * 데이터 베이스 선택하기
-   * @param {string} param
-   * @param {boolean} isSearchShow
-   * @param {boolean} init
-   */
-  public selectedDatabase(param: string, isSearchShow: boolean = false, init: boolean = false) {
-    if (this.disable) {
-      return;
-    }
-    this.params.dataconnection.database = param;
-    this.selectedDatabaseName = param;
-    this.isDatabaseSearchShow = isSearchShow;
-    this._setDatabaseSchema(this.params.dataconnection.id, this.params.dataconnection.database);
-    this.saveLocalStorageGeneralSchema(this.params.dataconnection.database);
-    if (init == true) {
-      this.initDatabaseEvent.emit(param);
-    } else {
-      this.selectedDatabaseEvent.emit(param);
-    }
-  } // function - selectedDatabase
 
   /**
    * 데이터베이스 검색 이벤트
@@ -273,13 +146,12 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
    * @private
    */
   private _searchDatabase(): void {
-    // 데이터베이스 검색어
-    this.searchText = this.inputSearch.nativeElement.value;
-    // 데이터 베이스 페이징 초기화
-    this.page.page = 0;
-    // TODO 데이터베이스 검색
-    this.loadingShow();
-    this._getDatabaseList(this.params.dataconnection.id, this.page, this.searchText.toLowerCase());
+    this.searchText = this.inputSearch.nativeElement.value.trim();
+    if ('' === this.searchText) {
+      this.databases = this._allDatabases.slice(0, this._pageSize);
+    } else {
+      this.databases = this._allDatabases.filter(ds => ds.includes(this.searchText)).slice(0, this._pageSize);
+    }
   }
 
   /**
@@ -305,9 +177,86 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
     }
   } // function - isShowBtnClear
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get isShowMore() {
+    return this.databases.length < this._allDatabases.filter(ds => ds.includes(this.searchText)).length;
+  }
+
+  public moreDatabases(event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.databases
+      = this.databases.concat(
+      this._allDatabases
+        .filter(ds => ds.includes(this.searchText))
+        .slice(this.databases.length, this.databases.length + this._pageSize)
+    );
+  }
+
+  private _getDatabaseList(connectionId: string): void {
+    // 호출 횟수 증가
+    this._getDatabaseListReconnectCount++;
+    const param = this._getParameterForDatabase(WorkbenchService.websocketId);
+    this.dataconnectionService.getDatabaseListInConnection(connectionId, param)
+      .then((result) => {
+        // 호출 횟수 초기화
+        this._getDatabaseListReconnectCount = 0;
+        if (result && result.databases && 0 < result.databases.length) {
+          this._allDatabases = result.databases.sort();
+          this.databases = this._allDatabases.slice(0, this._pageSize);
+          const generalConnection: any = this.getLocalStorageGeneral();
+          if (generalConnection) {
+            if (undefined === generalConnection.schema || null === generalConnection.schema) {
+              this.selectedDatabase(this.databases[0]);
+            } else {
+              this.selectedDatabase(generalConnection.schema);
+            }
+          } else {
+            this.selectedDatabase(this.databases[0], true);
+          }
+        }
+        this.loadingHide();
+      })
+      .catch((error) => {
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getDatabaseListReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this._getDatabaseList(connectionId);
+          });
+        } else {
+          this.commonExceptionHandler(error);
+        }
+      });
+  }
+
+  /**
+   * 데이터베이스 이름 클릭했을 때
+   */
+  public databaseSearchShow() {
+    if (this.disable) {
+      return;
+    }
+    this.isDatabaseSearchShow = !this.isDatabaseSearchShow;
+  } // function - databaseSearchShow
+
+  /**
+   * 데이터 베이스 선택하기
+   * @param {string} param
+   * @param {boolean} init
+   */
+  public selectedDatabase(param: string, init: boolean = false) {
+    if (this.disable) {
+      return;
+    }
+    this.params.dataconnection.database = param;
+    this.selectedDatabaseName = param;
+    this.isDatabaseSearchShow = false;
+    this._setDatabaseSchema(this.params.dataconnection.id, this.params.dataconnection.database);
+    this.saveLocalStorageGeneralSchema(this.params.dataconnection.database);
+    if (init == true) {
+      this.initDatabaseEvent.emit(param);
+    } else {
+      this.selectedDatabaseEvent.emit(param);
+    }
+  } // function - selectedDatabase
 
   /**
    * 데이터베이스 스키마 조회
@@ -317,13 +266,11 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
   private _setDatabaseSchema(connectionId: string, databaseName: string) {
     // 호출 횟수 증가
     this._setDatabaseSchemaReconnectCnt++;
-    console.log('>>>>', WorkbenchService.websocketId);
     this.loadingShow();
     this.dataconnectionService.setDatabaseShema(connectionId, databaseName, WorkbenchService.websocketId)
       .then(() => {
         // 호출 횟수 초기화
         this._setDatabaseSchemaReconnectCnt = 0;
-
         this.loadingHide();
       })
       .catch((error) => {
@@ -336,8 +283,7 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
         }
 
       });
-  } // function - _setDatabaseShema
-
+  } // function - _setDatabaseSchema
 
   /**
    * local storage 에 저장된 기본정보 불러오기
@@ -361,16 +307,11 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * Get parameters for database list
    * @param {string} webSocketId
    * @param {Page} page
    * @param {string} databaseName
-   * @returns {any}
    * @private
    */
   private _getParameterForDatabase(webSocketId: string, page?: Page, databaseName?: string): any {
@@ -382,6 +323,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
       params['sort'] = page.sort;
       params['page'] = page.page;
       params['size'] = page.size;
+    } else {
+      params['page'] = 0;
+      params['size'] = 10000;
     }
     if (StringUtil.isNotEmpty(databaseName)) {
       params['databaseName'] = databaseName.trim();

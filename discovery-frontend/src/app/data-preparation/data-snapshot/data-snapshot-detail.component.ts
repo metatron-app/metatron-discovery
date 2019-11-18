@@ -23,7 +23,12 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {OriginDsInfo, PrDataSnapshot, SsType, Status} from '../../domain/data-preparation/pr-snapshot';
+import {
+  OriginDsInfo,
+  PrDataSnapshot,
+  SsType,
+  Status
+} from '../../domain/data-preparation/pr-snapshot';
 import {DataSnapshotService} from './service/data-snapshot.service';
 import {PopupService} from '../../common/service/popup.service';
 import {GridComponent} from '../../common/component/grid/grid.component';
@@ -32,7 +37,7 @@ import {DsType, Field} from '../../domain/data-preparation/pr-dataset';
 import {GridOption} from '../../common/component/grid/grid.option';
 import {Alert} from '../../common/util/alert.util';
 import {PreparationAlert} from '../util/preparation-alert.util';
-import {isNull, isNullOrUndefined, isUndefined} from 'util';
+import {isNull, isUndefined} from 'util';
 import {saveAs} from 'file-saver';
 import * as pixelWidth from 'string-pixel-width';
 import {AbstractComponent} from '../../common/component/abstract.component';
@@ -43,7 +48,6 @@ import {
   DatasourceInfo,
   DataSourceType,
   FieldRole,
-  LogicalType,
   SourceType
 } from "../../domain/datasource/datasource";
 import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
@@ -129,7 +133,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   // Grid 에서 필요한 parameter
   public offset: number = 0;
-  public target: number = 10000;
+  public target: number = 1000;
 
 
   // % 계산
@@ -154,6 +158,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public sSInformationList: {label : String, value : string, isFileUri?: boolean}[] = [];
 
   public ssType = SsType;
+
+  public callbackIndex = null;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -180,6 +187,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     super.ngOnDestroy();
     $('body').removeClass('body-hidden');
 
+    if(this.callbackIndex) {
+      clearTimeout(this.callbackIndex);
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -213,6 +223,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * Close snapshot popup
    */
   public close() {
+
+    if(this.callbackIndex) {
+      clearTimeout(this.callbackIndex);
+    }
+
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
@@ -317,6 +332,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     switch (type) {
       case 'INTEGER':
       case 'FLOAT':
+      case 'LONG':
+      case 'DOUBLE':
         return FieldRole.MEASURE;
       default:
         return FieldRole.DIMENSION;
@@ -481,6 +498,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         // set file format
         if (this.selectedDataSnapshot.ssType ===  SsType.URI){
           this.snapshotUriFileFormat = this.selectedDataSnapshot.storedUri.slice((this.selectedDataSnapshot.storedUri.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
+          if( this.snapshotUriFileFormat === 'sql' ) {
+            this.isEnableCreateDatasource = false;
+          }
         }
 
         // dsId
@@ -524,8 +544,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           } else {
             this.progressbarWidth = '100%';
           }
+
           // Whenever received response at the status of preparing, it requests snapshot data
-          setTimeout(() => {
+          this.callbackIndex = setTimeout(() => {
+            this.callbackIndex = null;
             this.getSnapshot();
           }, 2000)
 
@@ -612,21 +634,28 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     let sourceInfo = this.selectedDataSnapshot.sourceInfo;
 
     if( isUndefined(sourceInfo) ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
+      this.originDsInfo.dsName = null;
+      this.originDsInfo.qryStmt = null;
+      this.originDsInfo.storedUri = null;
+      this.originDsInfo.createdTime = null;
     } else {
       if( isUndefined(sourceInfo.origDsName) ) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
-        this.originDsInfo.dsName = '';
+        this.originDsInfo.dsName = null;
       } else {
         this.originDsInfo.dsName = sourceInfo.origDsName;
       }
       if( isUndefined(sourceInfo.origDsQueryStmt) ) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
+        this.originDsInfo.qryStmt = null;
       } else {
         this.originDsInfo.qryStmt = sourceInfo.origDsQueryStmt;
       }
+      if( isUndefined(sourceInfo.origDsStoredUri) ) {
+        this.originDsInfo.storedUri = null;
+      } else {
+        this.originDsInfo.storedUri = sourceInfo.origDsStoredUri;
+      }
       if( isUndefined(sourceInfo.origDsCreatedTime) ) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
+        this.originDsInfo.createdTime = null;
       } else {
         this.originDsInfo.createdTime = sourceInfo.origDsCreatedTime;
       }
@@ -800,20 +829,23 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         value : this.prepCommonUtil.getSnapshotType(snapshot.ssType)});
     }
 
+    let sqlType: boolean = false;
     // File type
     if (snapshot.storedUri) {
-      const fileType : string[] = this.prepCommonUtil.getFileNameAndExtension(snapshot.storedUri);
+      const fileType : string = this.prepCommonUtil.getExtensionForSnapshot(snapshot.storedUri);
+      if( 'sql' === fileType ) { sqlType = true; }
       this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
-        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType[1].toUpperCase()})`},
+        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType.toUpperCase()})`},
         {label: this.translateService.instant('msg.dp.th.file.uri'),
           value : snapshot.storedUri, isFileUri: true});
     }
 
     // Summary only when snapshot is successful
     if (snapshot.displayStatus !== 'FAIL') {
-      this.sSInformationList.push(
-        {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()}`},
-        {label: '', value : `${this.getCols()}`});
+      this.sSInformationList.push( {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()}`} );
+      if( sqlType===false ) {
+        this.sSInformationList.push( {label: '', value : `${this.getCols()}`} );
+      }
     }
 
     if (snapshot.totalBytes) {

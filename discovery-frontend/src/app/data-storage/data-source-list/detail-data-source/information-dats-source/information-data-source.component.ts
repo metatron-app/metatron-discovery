@@ -26,7 +26,13 @@ import {
   ViewChild
 } from '@angular/core';
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {ConnectionType, Datasource, Field, SourceType, Status} from '../../../../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  Field,
+  SourceType,
+  Status
+} from '../../../../domain/datasource/datasource';
 import {SetWorkspacePublishedComponent} from '../../../component/set-workspace-published/set-workspace-published.component';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
 import {QueryDetailComponent} from './component/query-detail/query-detail.component';
@@ -38,9 +44,14 @@ import {StringUtil} from '../../../../common/util/string.util';
 import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
-import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
-import { CommonUtil } from '../../../../common/util/common.util';
+import {IngestionLogComponent} from './component/ingestion-log/ingestion-log.component';
+import {CommonUtil} from '../../../../common/util/common.util';
 import {Metadata} from "../../../../domain/meta-data-management/metadata";
+import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
+import {DataStorageConstant} from "../../../constant/data-storage-constant";
+import * as moment from 'moment';
+import {Segments} from "../../../../domain/datasource/stats";
+import {SchedulingService} from "../../../service/scheduling.service";
 
 declare let echarts: any;
 
@@ -136,10 +147,16 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Input()
   public metaData: Metadata;
 
+  @Output() readonly changedDatasourceStatus = new EventEmitter();
+
   // source description edit flag
   public isEditSourceDescription: boolean = false;
   // advanced setting show flag
   public isShowAdvancedSetting: boolean = false;
+
+  public detailFl: boolean = false;
+
+  public histogramSegment: Segments[];
 
   // process step
   public ingestionProcessStatusStep: number = 0;
@@ -150,12 +167,20 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   // description
   public descriptionChangeText: string;
 
+  public schedulingStatus: string;
+
+  public dsStatus = Status;
+  public dsSrcType = SourceType;
+  public dsConnType = ConnectionType;
+  public snSsType = SsType;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
+              private schedulingService: SchedulingService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -177,6 +202,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     if (!this.isLinkedSource() && this.isEnabled() && this.timestampColumn) {
       this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
     }
+    this.getSchedulingJob();
   }
 
   // Destory
@@ -197,8 +223,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         // set process status
         this._setProcessStatus(changes.ingestionProcess.currentValue);
         // if success ingestion
-        if (changes.ingestionProcess.currentValue['message'] === 'END_INGESTION_JOB') {
+        if (changes.ingestionProcess.currentValue['message'] === DataStorageConstant.Datasource.IngestionStep.END_INGESTION_JOB) {
           this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
+          // set metadata
+          this.changedDatasourceStatus.emit();
         }
       }
     }
@@ -235,7 +263,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * Update datasource description
    */
   public updateSourceDescription(): void {
-    // 설명 길이 체크
+    // Check length of description
     if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 450) {
       Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
       return;
@@ -263,9 +291,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * Link master data click event
+   * Link meta data click event
    */
-  public onClickLinkMasterData(): void {
+  public onClickLinkMetadata(): void {
     this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]).then();
   }
 
@@ -328,11 +356,11 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       case SourceType.FILE:
         return this.translateService.instant('msg.storage.li.file');
       case SourceType.JDBC:
-        return this.translateService.instant('msg.storage.li.db') + `(${this.getConnectionTypeLabel(this.getConnection.implementor)})`;
+        return this.translateService.instant('msg.storage.li.db') + ` (${this.getConnectionTypeLabel(this.getConnection.implementor)})`;
       case SourceType.HIVE:
         return this.translateService.instant('msg.storage.li.hive');
       case SourceType.REALTIME:
-        return this.translateService.instant('msg.storage.li.stream');
+        return this.translateService.instant('msg.storage.li.stream')+ ` (${this.datasource.ingestion.consumerType})`;
       case SourceType.SNAPSHOT:
         return this.translateService.instant('msg.storage.li.ss');
     }
@@ -511,6 +539,13 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     return this.getIngestionPeriod.weekDays.toString();
   }
 
+  public get getIngestionStatusLabel(): string {
+    if (this.schedulingStatus === 'NORMAL') {
+      return 'WAITING';
+    }
+    return this.schedulingStatus;
+  }
+
   /**
    * data range label
    * @returns {string}
@@ -551,6 +586,11 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - validation
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  isShowLinkMetadata(): boolean {
+    // 최초접근시 Enable 상태이거나 step이 END_INGESTION_JOB 인 경우
+    return (this.isNotShowProgress || this.ingestionProcessStatusStep >= 4) && !_.isNil(this.metaData);
+  }
 
   /**
    * source type linked
@@ -605,6 +645,12 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     }
   }
 
+  public isRealtimeType(): boolean {
+    if (this.datasource.hasOwnProperty('srcType')) {
+      return this.getSrcType === SourceType.REALTIME;
+    }
+  }
+
   /**
    * Url 타입이 default라면
    * @returns {boolean}
@@ -649,6 +695,52 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     }
   }
 
+  public convertTime(date:string, granularityType:GranularityType): string {
+    if (granularityType === GranularityType.YEAR) {
+      return moment(date).format('YYYY');
+    } else if (granularityType === GranularityType.MONTH) {
+      return moment(date).format('YYYY-MM');
+    } else if (granularityType === GranularityType.DAY) {
+      return moment(date).format('YYYY-MM- DD');
+    } else if (granularityType === GranularityType.HOUR) {
+      return moment(date).format('YYYY-MM-DD hh');
+    }
+    return date;
+  }
+
+  public getSchedulingJob() {
+    if (this.datasource.connType === this.dsConnType.ENGINE && this.datasource.srcType === this.dsSrcType.JDBC && this.datasource.ingestion.type != 'single') {
+      this.schedulingService.getScheduling('ingestion', this.datasource.id).then((data) => {
+        if (!_.isNil(data) && data.length == 1) {
+          this.schedulingStatus = data[0].status;
+          this.changeDetect.detectChanges();
+        }
+      }).catch();
+    }
+  }
+
+  public pauseSchedulingJob() {
+    this.schedulingService.pauseScheduling('ingestion', this.datasource.id).then((data) => {
+      Alert.success(this.translateService.instant('msg.storage.th.batch.pause.success'));
+    }).catch((error) => {
+      Alert.error(this.translateService.instant('msg.storage.th.batch.pause.fail'));
+    });
+    setTimeout(() => {
+      this.getSchedulingJob()
+    }, 500);
+  }
+
+  public resumeSchedulingJob() {
+    this.schedulingService.resumeScheduling('ingestion', this.datasource.id).then((data) => {
+      Alert.success(this.translateService.instant('msg.storage.th.batch.resume.success'));
+    }).catch((error) => {
+      Alert.error(this.translateService.instant('msg.storage.th.batch.resume.fail'));
+    });
+    setTimeout(() => {
+      this.getSchedulingJob()
+    }, 500);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -684,13 +776,20 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   private getBarOption(timeStats: any) {
     // bar option
     const barOption = _.cloneDeep(this.barOption);
+    this.histogramSegment = timeStats.segments;
 
     // timestamp
     barOption.xAxis[0].data = timeStats.segments.map((item) => {
-      return item.interval.split('/')[0];
+      return this.convertTime(item.interval.split('/')[0], this.getSegGranularity);
     });
     barOption.series[0].data = timeStats.segments.map((item) => {
       return item.rows;
+    });
+
+    barOption.tooltip.formatter = ((params): any => {
+      const segmentsData = timeStats.segments[params[0].dataIndex];
+      return this.convertTime(segmentsData.interval.split('/')[0], this.getSegGranularity) + '<br/>' + params[0].marker
+          + segmentsData.rows + ' row counts (' + this.bytesToSize(segmentsData.serializedSize) + ')';
     });
 
     return barOption;
@@ -771,26 +870,26 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   private _setProcessStatus(processData: any): void {
     switch (processData.message) {
       // 데이터 준비
-      case 'START_INGESTION_JOB':
-      case 'PREPARATION_HANDLE_LOCAL_FILE':
-      case 'PREPARATION_LOAD_FILE_TO_ENGINE':
+      case DataStorageConstant.Datasource.IngestionStep.START_INGESTION_JOB:
+      case DataStorageConstant.Datasource.IngestionStep.PREPARATION_HANDLE_LOCAL_FILE:
+      case DataStorageConstant.Datasource.IngestionStep.PREPARATION_LOAD_FILE_TO_ENGINE:
         this.ingestionProcessStatusStep = 1;
         break;
       // 엔진 적재
-      case 'ENGINE_INIT_TASK':
-      case 'ENGINE_RUNNING_TASK':
+      case DataStorageConstant.Datasource.IngestionStep.ENGINE_INIT_TASK:
+      case DataStorageConstant.Datasource.IngestionStep.ENGINE_RUNNING_TASK:
         this.ingestionProcessStatusStep = 2;
         break;
       // 상태 확인
-      case 'ENGINE_REGISTER_DATASOURCE':
+      case DataStorageConstant.Datasource.IngestionStep.ENGINE_REGISTER_DATASOURCE:
         this.ingestionProcessStatusStep = 3;
         break;
       // 완료
-      case 'END_INGESTION_JOB':
+      case DataStorageConstant.Datasource.IngestionStep.END_INGESTION_JOB:
         this.ingestionProcessStatusStep = 4;
         break;
       // 실패
-      case 'FAIL_INGESTION_JOB':
+      case DataStorageConstant.Datasource.IngestionStep.FAIL_INGESTION_JOB:
         break;
     }
   }

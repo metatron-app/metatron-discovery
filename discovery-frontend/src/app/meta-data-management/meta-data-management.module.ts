@@ -24,6 +24,15 @@ import {CodeTableComponent} from './code-table/code-table.component';
 import {DetailCodeTableComponent} from './code-table/detail-code-table/detail-code-table.component';
 import {CreateCodeTableComponent} from './code-table/create-code-table/create-code-table.component';
 import {CodeTableService} from './code-table/service/code-table.service';
+
+import {LineageComponent} from './lineage/lineage.component';
+import {DetailLineageComponent} from './lineage/detail-lineage/detail-lineage.component';
+import {LineageService} from './lineage/service/lineage.service';
+import {EditLineagePopup} from './lineage/component/edit-lineage-popup.component';
+import {CreateLineageComponent} from './lineage/component/create-lineage.component';
+import {CreateLineageUploadFileComponent} from './lineage/component/create-lineage-upload-file.component';
+import {CreateLineageConfirmGridComponent} from './lineage/component/create-lineage-confirm-grid.component';
+
 import {ColumnDictionaryService} from './column-dictionary/service/column-dictionary.service';
 import {LinkedColumnDictionaryComponent} from './component/linked-column-dictionary/linked-column-dictionary.component';
 import {LinkedMetadataComponent} from './component/linked-metadata-columns/linked-metadata.component';
@@ -32,28 +41,30 @@ import {MetadataComponent} from './metadata/metadata.component';
 import {MetadataService} from './metadata/service/metadata.service';
 import {MetadataDetailComponent} from './metadata/metadata-detail.component';
 import {SelectCatalogComponent} from './metadata/component/select-catalog.component';
-import {SelectDatatypeComponent} from './metadata/create-metadata/select-datatype.component';
-import {CompleteCreateMetadataComponent} from './metadata/create-metadata/complete-create-metadata.component';
-import {MetadataDetailInformationComponent} from './metadata/metadata-detail-information.component';
-import {MetadataDetailColumnschemaComponent} from './metadata/metadata-detail-columnschema.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {DatasourceShareModule} from '../datasource/datasource-share.module';
-import {DsSelectDatasourceComponent} from './metadata/create-metadata/ds-select-datasource.component';
 import {MetadataModelService} from './metadata/service/metadata.model.service';
-import {HiveSetConnectionComponent} from './metadata/create-metadata/hive-set-connection.component';
 import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
-import {StagingSelectSchemaComponent} from './metadata/create-metadata/staging-select-schema.component';
 import {CatalogService} from './catalog/service/catalog.service';
-import {HiveSelectSchemaComponent} from './metadata/create-metadata/hive-select-schema.component';
 import {ChooseColumnDictionaryComponent} from './component/choose-column-dictionary/choose-column-dictionary.component';
 import {CatalogComponent} from './catalog/catalog.component';
 import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
-import {TopInfoComponent} from './metadata/component/top-info.component';
+import {DetailModule} from './detail/detail.module';
+import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
+import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.module";
+import {SortingComponent} from "./component/sorting.component";
+import {MetadataDetailInformationComponent} from "./metadata/component/metadata-detail-information.component";
+import {MetadataDetailTopComponent} from "./metadata/component/metadata-detail-top.component";
+import {LayoutModule} from "../layout/layout/layout.module";
 
 @NgModule({
   imports: [
     CommonModule,
+    DetailModule,
     DatasourceShareModule,
+    DatasourceMetadataSharedModule,
+    CreateMetadataModule,
+    LayoutModule,
     RouterModule.forChild([
       {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
       {path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
@@ -64,25 +75,16 @@ import {TopInfoComponent} from './metadata/component/top-info.component';
         canActivate: [MetadataManagementGuard],
       },
       {path: 'code-table/:codeTableId', component: DetailCodeTableComponent, canActivate: [MetadataManagementGuard]},
+      {path: 'lineage/:lineageId', component: DetailLineageComponent, canActivate: [MetadataManagementGuard]},
     ]),
   ],
   declarations: [
+    SortingComponent,
     // 메타데이터 매니지먼트
     MetaDataManagementComponent,
     // 메타데이터
     MetadataComponent,
     MetadataDetailComponent,
-    // 메타데이터 생성
-    SelectDatatypeComponent,
-    // 메타데이터 생성 - 데이터소스
-    DsSelectDatasourceComponent,
-    // 메타데이터 생성 - HIVE
-    HiveSetConnectionComponent,
-    HiveSelectSchemaComponent,
-    // 메타데이터 생성 - StagingDB
-    StagingSelectSchemaComponent,
-    // 메타데이터 생성 - 공통
-    CompleteCreateMetadataComponent,
     // 컬럼 사전
     ColumnDictionaryComponent,
     DetailColumnDictionaryComponent,
@@ -99,18 +101,27 @@ import {TopInfoComponent} from './metadata/component/top-info.component';
     ChooseCodeTableComponent,
     // 컬럼 사전 선택 텀포넌트
     ChooseColumnDictionaryComponent,
-
+    //리니지
+    LineageComponent,
+    DetailLineageComponent,
+    EditLineagePopup,
+    CreateLineageComponent,
+    CreateLineageUploadFileComponent,
+    CreateLineageConfirmGridComponent,
     SelectCatalogComponent,
-    MetadataDetailInformationComponent,
-    MetadataDetailColumnschemaComponent,
     CatalogComponent,
-    TopInfoComponent,
+    // Metadata Detail
+    MetadataDetailTopComponent,
+    // Metadata Detail Tabs
+    MetadataDetailInformationComponent
   ],
   providers: [
     // 코드 테이블 서비스
     CodeTableService,
     // 컬럼 사전 서비스
     ColumnDictionaryService,
+    // 리니지 서비스
+    LineageService,
     // 메타데이터 서비스
     MetadataService,
     // 데이터소스 서비스

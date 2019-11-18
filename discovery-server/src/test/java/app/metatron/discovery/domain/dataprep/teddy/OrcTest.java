@@ -17,12 +17,10 @@ package app.metatron.discovery.domain.dataprep.teddy;
 import static org.junit.Assert.assertEquals;
 
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
 import app.metatron.discovery.domain.dataprep.etl.TeddyOrcWriter;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +48,7 @@ public class OrcTest extends TeddyTest {
     loadGridCsv("crime", "teddy/crime.csv");
     loadGridCsv("sale", "teddy/sale.csv");
     loadGridCsv("contract", "teddy/contract.csv");
+    loadGridCsv("product", "teddy/product.csv");
     loadGridCsv("store", "teddy/store.csv");
     loadGridCsv("store1", "teddy/store.csv");
     loadGridCsv("store2", "teddy/store2.csv");
@@ -193,7 +192,8 @@ public class OrcTest extends TeddyTest {
 
     String ruleString = "derive as: Turbo value: speed * 10";
 
-    DataFrame newDf = apply_rule(df, ruleString);    newDf.show();
+    DataFrame newDf = apply_rule(df, ruleString);
+    newDf.show();
   }
 
   @Test
@@ -230,7 +230,6 @@ public class OrcTest extends TeddyTest {
     df.show();
 
     String ruleString = "set col: speed value: speed * '10'";
-
 
     try {
       DataFrame newDf = apply_rule(df, ruleString);
@@ -374,7 +373,7 @@ public class OrcTest extends TeddyTest {
 
     String ruleString = "extract col: cdate on: /\\w+/ quote: '\"' limit: 3";
 
-    DataFrame newDf = apply_rule(contract,ruleString);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
 
@@ -617,6 +616,7 @@ public class OrcTest extends TeddyTest {
     assertEquals("ercedes", newDf2.rows.get(2).get("split_name2"));
     assertEquals("borghini", newDf2.rows.get(4).get("split_name2"));
   }
+
   @Test
   public void test_aggregate_sum() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
@@ -987,78 +987,78 @@ public class OrcTest extends TeddyTest {
     assertEquals("column2", newDf.getColName(4));
   }
 
-//  @Test
-//  public void test_orc_write() throws IOException, TeddyException {
-//    final File file = new File("/tmp/tmp_2.orc");
-//    file.deleteOnExit();
-//
-//    final OrcFile.WriterOptions wOpts =
-//            OrcFile.writerOptions(new Configuration()).inspector(ROW_OI);
-//    final OrcFile.ReaderOptions rOpts = new OrcFile.ReaderOptions(new Configuration());
-//
-//    final org.apache.hadoop.hive.ql.io.orc.Writer writer = OrcFile.createWriter(new Path(file.toString()), wOpts);
-//    writeUsingOrcWriter(writer);
-//    final byte[] memOrcBytes = FileUtils.readFileToByteArray(file);
-//
-//    readAndAssertUsingReader(OrcUtils.createReader(memOrcBytes, rOpts).rows());
-//  }
+  //  @Test
+  //  public void test_orc_write() throws IOException, TeddyException {
+  //    final File file = new File("/tmp/tmp_2.orc");
+  //    file.deleteOnExit();
+  //
+  //    final OrcFile.WriterOptions wOpts =
+  //            OrcFile.writerOptions(new Configuration()).inspector(ROW_OI);
+  //    final OrcFile.ReaderOptions rOpts = new OrcFile.ReaderOptions(new Configuration());
+  //
+  //    final org.apache.hadoop.hive.ql.io.orc.Writer writer = OrcFile.createWriter(new Path(file.toString()), wOpts);
+  //    writeUsingOrcWriter(writer);
+  //    final byte[] memOrcBytes = FileUtils.readFileToByteArray(file);
+  //
+  //    readAndAssertUsingReader(OrcUtils.createReader(memOrcBytes, rOpts).rows());
+  //  }
 
-//  @Test
-//  public void test_orc_write() throws IOException {
-//    String input = "my_text_string\t1\t2\t3\t123.4\t123.45";
-//
-//    String typeStr = "struct<string_value:string,short_value:smallint,integer_value:int,long_value:bigint,double_value:double,float_value:float>";
-//    TypeInfo typeInfo = TypeInfoUtils.getTypeInfoFromTypeString(typeStr);
-//    ObjectInspector inspector = OrcStruct.createObjectInspector(typeInfo);
-//
-//    String[] inputTokens = input.split("\\t");
-//
-//    OrcStruct orcLine = OrcUtils.createOrcStruct(
-//            typeInfo,
-//            new Text(inputTokens[0]),
-//            new ShortWritable(Short.valueOf(inputTokens[1])),
-//            new IntWritable(Integer.valueOf(inputTokens[2])),
-//            new LongWritable(Long.valueOf(inputTokens[3])),
-//            new DoubleWritable(Double.valueOf(inputTokens[4])),
-//            new FloatWritable(Float.valueOf(inputTokens[5])));
-//    Configuration conf = new Configuration();
-//    Path tempPath = new Path("/user/hive/dataprep/test.orc");
+  //  @Test
+  //  public void test_orc_write() throws IOException {
+  //    String input = "my_text_string\t1\t2\t3\t123.4\t123.45";
+  //
+  //    String typeStr = "struct<string_value:string,short_value:smallint,integer_value:int,long_value:bigint,double_value:double,float_value:float>";
+  //    TypeInfo typeInfo = TypeInfoUtils.getTypeInfoFromTypeString(typeStr);
+  //    ObjectInspector inspector = OrcStruct.createObjectInspector(typeInfo);
+  //
+  //    String[] inputTokens = input.split("\\t");
+  //
+  //    OrcStruct orcLine = OrcUtils.createOrcStruct(
+  //            typeInfo,
+  //            new Text(inputTokens[0]),
+  //            new ShortWritable(Short.valueOf(inputTokens[1])),
+  //            new IntWritable(Integer.valueOf(inputTokens[2])),
+  //            new LongWritable(Long.valueOf(inputTokens[3])),
+  //            new DoubleWritable(Double.valueOf(inputTokens[4])),
+  //            new FloatWritable(Float.valueOf(inputTokens[5])));
+  //    Configuration conf = new Configuration();
+  //    Path tempPath = new Path("/user/hive/dataprep/test.orc");
 
-//    Writer writer = OrcFile.createWriter(tempPath, OrcFile.writerOptions(conf).inspector(inspector).stripeSize(100000).bufferSize(10000));
-//    writer.addRow(orcLine);
-//    writer.close();
-//  }
+  //    Writer writer = OrcFile.createWriter(tempPath, OrcFile.writerOptions(conf).inspector(inspector).stripeSize(100000).bufferSize(10000));
+  //    writer.addRow(orcLine);
+  //    writer.close();
+  //  }
 
-//  @Test
-//  public void test_orc_write_var() throws IOException {
-//    String input = "my_text_string\t1\t2\t3\t123.4\t123.45";
-//
-//    String typeStr = "struct<string_value:string,short_value:smallint,integer_value:int,long_value:bigint,double_value:double,float_value:float>";
-//    TypeInfo typeInfo = TypeInfoUtils.getTypeInfoFromTypeString(typeStr);
-//    ObjectInspector inspector = OrcStruct.createObjectInspector(typeInfo);
-//
-//    String[] inputTokens = input.split("\\t");
-//
-//    Object[] objs = new Object[inputTokens.length];
-//    objs[0] = new Text(inputTokens[0]);
-//    objs[1] = new ShortWritable(Short.valueOf(inputTokens[1]));
-//    objs[2] = new IntWritable(Integer.valueOf(inputTokens[2]));
-//    objs[3] = new LongWritable(Long.valueOf(inputTokens[3]));
-//    objs[4] = new DoubleWritable(Double.valueOf(inputTokens[4]));
-//    objs[5] = new FloatWritable(Float.valueOf(inputTokens[5]));
-//
-//    OrcStruct orcLine = OrcUtils.createOrcStruct(typeInfo, objs);
-//    Configuration conf = new Configuration();
-//    Path tempPath = new Path("/user/hive/dataprep/test2.orc");
+  //  @Test
+  //  public void test_orc_write_var() throws IOException {
+  //    String input = "my_text_string\t1\t2\t3\t123.4\t123.45";
+  //
+  //    String typeStr = "struct<string_value:string,short_value:smallint,integer_value:int,long_value:bigint,double_value:double,float_value:float>";
+  //    TypeInfo typeInfo = TypeInfoUtils.getTypeInfoFromTypeString(typeStr);
+  //    ObjectInspector inspector = OrcStruct.createObjectInspector(typeInfo);
+  //
+  //    String[] inputTokens = input.split("\\t");
+  //
+  //    Object[] objs = new Object[inputTokens.length];
+  //    objs[0] = new Text(inputTokens[0]);
+  //    objs[1] = new ShortWritable(Short.valueOf(inputTokens[1]));
+  //    objs[2] = new IntWritable(Integer.valueOf(inputTokens[2]));
+  //    objs[3] = new LongWritable(Long.valueOf(inputTokens[3]));
+  //    objs[4] = new DoubleWritable(Double.valueOf(inputTokens[4]));
+  //    objs[5] = new FloatWritable(Float.valueOf(inputTokens[5]));
+  //
+  //    OrcStruct orcLine = OrcUtils.createOrcStruct(typeInfo, objs);
+  //    Configuration conf = new Configuration();
+  //    Path tempPath = new Path("/user/hive/dataprep/test2.orc");
 
-//    Writer writer = OrcFile.createWriter(tempPath, OrcFile.writerOptions(conf).inspector(inspector).stripeSize(100000).bufferSize(10000));
-//    writer.addRow(orcLine);
-//    writer.close();
-//  }
+  //    Writer writer = OrcFile.createWriter(tempPath, OrcFile.writerOptions(conf).inspector(inspector).stripeSize(100000).bufferSize(10000));
+  //    writer.addRow(orcLine);
+  //    writer.close();
+  //  }
 
-// 1.5.0 이상을 써야 overwrite 옵션을 쓸 수 있으나, 그러면 대신 TimestampColumnVector가 안만들어짐.
-// 그래서 전체적으로 1.4.4를 쓰게 되었고, 미리 지우는 코드를 짜기 심히 귀찮아서 주석처리함.
-// @Test
+  // 1.5.0 이상을 써야 overwrite 옵션을 쓸 수 있으나, 그러면 대신 TimestampColumnVector가 안만들어짐.
+  // 그래서 전체적으로 1.4.4를 쓰게 되었고, 미리 지우는 코드를 짜기 심히 귀찮아서 주석처리함.
+  // @Test
   public void test_orc_write_vector_simple() throws IOException {
     Random rand = new Random();
 
@@ -1083,7 +1083,6 @@ public class OrcTest extends TeddyTest {
     DoubleColumnVector floatColumnVector = (DoubleColumnVector) batch.cols[3];
     LongColumnVector booleanVector = (LongColumnVector) batch.cols[4];
     BytesColumnVector stringVector = (BytesColumnVector) batch.cols[5];
-
 
     for (int r = 0; r < 100000; ++r) {
       int row = batch.size++;
@@ -1127,34 +1126,5 @@ public class OrcTest extends TeddyTest {
 
     TeddyOrcWriter orcWriter = new TeddyOrcWriter();
     orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
-  }
-
-  @Test
-  public void test_makeHiveTable() throws IOException, TeddyException, SQLException, ClassNotFoundException {
-    DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
-    df = prepare_sample(df);
-    df.show();
-
-    Configuration conf = new Configuration();
-    String hadoopConfDir = "Users/jhkim/opt/hadoop/etc/hadoop";
-    conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-    conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
-
-    String location = "/tmp/test_dataprep/test_makeHiveTable";
-    Path file = new Path(location + "/file1.orc");
-
-    FileSystem fs = FileSystem.get(conf);
-    fs.delete(file, true);
-
-    TeddyOrcWriter orcWriter = new TeddyOrcWriter();
-    orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
-
-    TeddyExecutor executor = new TeddyExecutor();
-    executor.hiveHostname = "localhost";
-    executor.hivePort = 10000;
-    executor.hiveUsername = "hadoop";
-    executor.hivePassword = "hadoop";
-    executor.makeHiveTable(df, new ArrayList<>(), "default.test_orc_hive", location, PrSnapshot.HIVE_FILE_FORMAT.ORC, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
   }
 }

@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-popuptype" *ngIf="isShowJoinPopup">
+<div class="ddp-layout-popuptype popup-dashboard-join" *ngIf="isShowJoinPopup" >
   <em class="ddp-bg-popup" ></em>
   <div class="ddp-ui-popup ddp-ui-popup-join" >
     <!-- title -->
@@ -25,7 +25,7 @@
     </div>
     <!-- //title -->
     <!-- contents -->
-    <div class="ddp-box-pop-contents">
+    <div class="ddp-box-pop-contents" [style.bottom]="editingJoin.joinInfoList.length !== 0 ? '' : '0px'">
 
       <!-- Join Popup Left Grid -->
       <div class="ddp-ui-part">
@@ -74,9 +74,9 @@
                 <col width="*"/>
               </colgroup>
               <tbody>
-              <tr *ngFor="let field of editingJoin.left.uiFields">
+              <tr *ngFor="let field of getGridFields(editingJoin.left.uiFields)">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                  <em class="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>
@@ -102,7 +102,7 @@
           <div class="ddp-wrap-drop-search" [class.ddp-selected]="editingJoin.isJoinDatasourceFl"
                (click)="openOptionsJoinDatasources()">
             <div class="ddp-type-selectbox2">
-              <span class="ddp-txt-selectbox ddp-result">{{editingJoin.right ? editingJoin.right.name : 'Please choose a datasource'}}</span>
+              <span class="ddp-txt-selectbox ddp-result">{{editingJoin.right ? editingJoin.right.name : 'msg.board.ui.please.choose.dsource' | translate }}</span>
             </div>
             <!-- drop search -->
             <div class="ddp-ui-drop-search">
@@ -162,9 +162,9 @@
                 <col width="*"/>
               </colgroup>
               <tbody>
-              <tr *ngFor="let field of editingJoin.right.uiFields">
+              <tr *ngFor="let field of getGridFields(editingJoin.right.uiFields)">
                 <td class="ddp-txt-center">
-                  <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                  <em class="{{getFieldTypeIconClass(field.logicalType?.toString())}}"></em>
                 </td>
                 <td>{{field.name}}</td>
               </tr>
@@ -185,11 +185,11 @@
           <div class="ddp-form-join">
             <!-- select box -->
             <div id="joinLeft" class="ddp-type-selectbox" [class.ddp-selected]="editingJoin.isJoinLeftFl"
-                 (click)="editingJoin.isJoinLeftFl=true">
+                 (click)="editingJoin.isJoinLeftFl=!editingJoin.isJoinLeftFl" (clickOutside)="editingJoin.isJoinLeftFl=false"
+                 [excludeBeforeClick]="true" [exclude]="'#joinLeft'">
               <span class="ddp-txt-selectbox">{{editingJoin.leftJoinKey && editingJoin.leftJoinKey !=='' ? editingJoin.leftJoinKey : 'Column'}}</span>
-              <ul class="ddp-list-selectbox ddp-selectdown" (clickOutside)="editingJoin.isJoinLeftFl=false"
-                  [excludeBeforeClick]="true" [exclude]="'#joinLeft'">
-                <li *ngFor="let field of editingJoin.left.uiFields" (click)="selectJoinColumn($event, 'left', field.name)">
+              <ul class="ddp-list-selectbox ddp-selectdown" >
+                <li *ngFor="let field of getJoinCandidateKeys( editingJoin.left.uiFields )" (click)="selectJoinColumn($event, 'left', field.name)">
                   <a href="javascript:">{{field.name}}</a>
                 </li>
               </ul>
@@ -198,11 +198,11 @@
             <span class="ddp-data-default">=</span>
             <!-- select box -->
             <div id="joinRight" class="ddp-type-selectbox" [class.ddp-selected]="editingJoin.isJoinRightFl"
-                 (click)="editingJoin.isJoinRightFl=true" (clickOutside)="editingJoin.isJoinRightFl=false"
+                 (click)="editingJoin.isJoinRightFl=!editingJoin.isJoinRightFl" (clickOutside)="editingJoin.isJoinRightFl=false"
                  [excludeBeforeClick]="true" [exclude]="'#joinRight'">
               <span class="ddp-txt-selectbox">{{editingJoin.rightJoinKey && editingJoin.rightJoinKey !=='' ? editingJoin.rightJoinKey : 'Column'}}</span>
               <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="editingJoin.right">
-                <li *ngFor="let field of editingJoin.right.uiFields" (click)="selectJoinColumn($event, 'right', field.name)">
+                <li *ngFor="let field of getJoinCandidateKeys( editingJoin.right.uiFields )" (click)="selectJoinColumn($event, 'right', field.name)">
                   <a href="javascript:">{{field.name}}</a>
                 </li>
               </ul>
@@ -210,7 +210,9 @@
             <!-- //select box -->
           </div>
           <!-- //join form -->
-          <a href="javascript:" class="ddp-btn-solid" (click)="addToJoinKeys()">{{'msg.board.ui.add.join.keys' | translate}}</a>
+          <a (click)="addToJoinKeys()"
+             [class.ddp-disabled]="!this.isValidJoinKeys()"
+             href="javascript:" class="ddp-btn-solid" >{{'msg.board.ui.add.join.keys' | translate}}</a>
         </div>
         <!-- // join keys -->
 
@@ -224,12 +226,13 @@
         </div>
       </div>
       <!-- //join keys -->
-
     </div>
     <!-- //contents -->
-    <div class="ddp-ui-join-type">
+
+    <!-- Select join type area -->
+    <div *ngIf="editingJoin.joinInfoList.length !== 0" class="ddp-ui-join-type">
       <div class="ddp-ui-data-join">
-        <!-- data join -->
+        <!-- Join type area -->
         <div class="ddp-data-join">
           <span class="ddp-ui-label">{{'msg.board.th.join.type' | translate}}</span>
           <ul class="ddp-list-join">
@@ -238,33 +241,29 @@
                 <em class="ddp-icon-joininner"></em>
                 {{'msg.board.ui.join.type.inner' | translate}}
               </a>
-
             </li>
             <li [class.ddp-selected]="editingJoin.selectedJoinType === 'left'" (click)="changeJoinType('left')">
               <a href="javascript:">
                 <em class="ddp-icon-joinleft"></em>
                 {{'msg.board.ui.join.type.left' | translate}}
               </a>
-
             </li>
             <li class="ddp-disabled">
               <a href="javascript:">
                 <em class="ddp-icon-joinright"></em>
                 {{'msg.board.ui.join.type.right' | translate}}
               </a>
-
             </li>
             <li class="ddp-disabled">
               <a href="javascript:">
                 <em class="ddp-icon-joinouter"></em>
                 {{'msg.board.ui.join.type.fullouter' | translate}}
               </a>
-
             </li>
           </ul>
         </div>
-        <!-- //data join -->
-        <!-- data join -->
+        <!-- // Join type area -->
+        <!-- Join key list -->
         <div class="ddp-data-join">
           <span class="ddp-ui-label">{{'msg.board.ui.join.keys' | translate : { value : editingJoin.joinInfoList.length} }}</span>
           <!-- nodata -->
@@ -282,22 +281,18 @@
               <em class="ddp-icon-control-cut" (click)="removeJoinInfoList(idx)"></em>
             </li>
           </ul>
-
-
         </div>
-        <!-- //data join -->
+        <!-- // Join key list -->
       </div>
-
     </div>
+    <!-- Select join type area -->
 
-
-    <div class="ddp-box-resultpreview">
+    <!-- Preview Grid -->
+    <div *ngIf="editingJoin.joinInfoList.length !== 0" class="ddp-box-resultpreview">
       <!-- top -->
       <div class="ddp-ui-pop-top">
         <span class="ddp-txt-title">{{'msg.board.ui.join.preview.rslt' | translate}}</span>
         <div class="ddp-wrap-grid-option">
-
-
           <div class="ddp-part-right">
             <!--<div class="ddp-data-form">-->
             <!--<strong>432.3</strong>-->
@@ -314,14 +309,25 @@
                 (changeValue)="setRowPreviewGrid($event)"></component-input>
               {{'msg.comm.detail.rows' | translate}}
             </div>
+            <div (click)="isShowTypes = !isShowTypes" (clickOutside)="isShowTypes = false" class="ddp-data-form">
+              <strong class="ddp-cursor">{{objKeyList( logicalTypeMap ).length}}</strong> Types
+              <!-- 팝업 -->
+              <div *ngIf="isShowTypes" class="ddp-wrap-popup2 ddp-types">
+                <ul class="ddp-list-popup">
+                  <li *ngFor="let type of objKeyList( logicalTypeMap )">
+                    <a href="javascript:">
+                      <em class="{{getFieldTypeIconClass(type)}}"></em> {{logicalTypeMap[type]}}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- //팝업 -->
+            </div>
           </div>
         </div>
       </div>
       <!-- //top -->
 
-      <div class="ddp-ui-grid-form" style="background-color: #ffffff; z-index: 2;" [hidden]="editingJoin.previewGridFl">
-        <!-- empty-->
-      </div>
       <div class="ddp-ui-grid-form" >
         <!-- No Data -->
         <div class="ddp-data-empty" *ngIf="isEmptyPreviewGrid">
@@ -332,6 +338,8 @@
       </div>
 
     </div>
+    <!-- // Preview Grid -->
 
   </div>
+
 </div>

@@ -7,7 +7,7 @@
 .ddp-loading-part {position:absolute; top:0; left:0; right:0; bottom:0; z-index:40;}
 .ddp-loading-part .ddp-ui-loading {display:inline-block; position:absolute; left:0; right:0; top:50%; margin:-63px 0 0 0; text-align:center;}
 
-.ddp-loading-part .ddp-ui-loading .lds-wedges {position:relative; margin:0px 0 0 100px; top:40px; left:0; display:inline-block;}
+.ddp-loading-part .ddp-ui-loading .lds-wedges {position:relative; margin:0 0 0 100px; top:40px; left:0; display:inline-block;}
 .ddp-loading-part .ddp-ui-loading .ddp-btn-cancel a {font-size:14px;text-align:center; text-decoration: underline; }
 
 @keyframes lds-wedges {
@@ -134,8 +134,8 @@
 .ddp-type-progressbar2 .ddp-data-progressbar {display:inline-block; content:''; position:absolute; top:0; left:0; bottom:0; border-radius:4px; background-color:#666eb2;}
 .ddp-type-progressbar2 .ddp-data-progressbar.type-failed {background-color:#cd5454;}
 @keyframes loading {
-  0% {width:0;}
-  100% {width:100%;}
+    0% {width:0;}
+    100% {width:100%;}
 }
 .ddp-box-loading.ddp-box-s {padding:23px 0; text-align:center;}
 .ddp-box-loading.ddp-box-s .ddp-box-in {display:inline-block;}

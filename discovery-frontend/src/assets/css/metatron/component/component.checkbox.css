@@ -3,7 +3,7 @@
 /**************************************************************
     체크박스 폼
 **************************************************************/
-.ddp-list-checktype.ddp-list-padd li {padding:5px 0 5px 0; font-size:0px;}
+.ddp-list-checktype.ddp-list-padd li {padding:5px 0 5px 0; font-size:0;}
 .ddp-list-checktype.ddp-list-padd li .ddp-label-checkbox span.ddp-txt-checkbox {font-size:13px;}
 .ddp-list-checktype.ddp-list-padd li .ddp-label-checkbox span.ddp-txt-checkbox span.ddp-data-valuenum {position:relative; top:-1px; margin-left:5px; color:#90969f; font-size:12px;}
 
@@ -13,10 +13,13 @@
 .ddp-label-checkbox.ddp-inline {display:inline-block;}
 
 .ddp-label-checkbox {display:inline-block; position:relative; padding-left:19px;  cursor:pointer;}
-.ddp-label-checkbox span.ddp-txt-checkbox {font-size:13px; color:#36393e; vertical-align:bottom; }
+.ddp-label-checkbox span.ddp-txt-checkbox {display:inline-block; font-size:13px; color:#36393e; vertical-align:bottom; word-break:break-all; }
 .ddp-label-checkbox input[type="checkbox"] {position:absolute; top:50%; left:0; opacity:0; margin-top:-7px;}
 .ddp-label-checkbox i.ddp-icon-checkbox {display:inline-block; position:absolute; top:50%; left:0; margin-top:-6px; width:12px; height:12px; background:url(../../../images/icon_checkbox.png) no-repeat;}
-
+.ddp-label-checkbox i.ddp-icon-global,
+.ddp-label-radio i.ddp-icon-global {display:inline-block; position:absolute; top:50%; left:0; margin-top:-6px; width:13px; height:13px; background:url(../../../images/icon_global.png) no-repeat; background-position:left -18px;}
+.ddp-label-checkbox.type-global,
+.ddp-label-radio.type-global {cursor:default;}
 .ddp-label-checkbox input[type="checkbox"]:checked + i.ddp-icon-checkbox,
 .ddp-label-checkbox.ddp-checkboxtype input[type="checkbox"]:checked + i.ddp-icon-checkbox {background-position:-12px top;}
 .ddp-label-checkbox input[type="checkbox"]:disabled + i.ddp-icon-checkbox {background-position:-36px top; cursor: no-drop;}
@@ -39,7 +42,6 @@
 .ddp-label-check-value input {display:none;}
 .ddp-label-check-value i {display:inline-block; width:22px; height:14px; background:url(../../../images/icon_checkvalue.png) no-repeat;}
 .ddp-label-check-value input[type=checkbox]:checked + i {background-position:left -15px;}
-
 
 
 .ddp-num-checkbox {display:inline-block; cursor:pointer;}
@@ -124,10 +126,10 @@
 .ddp-checkbox-slide.ddp-checkbox-automatic2,
 .ddp-checkbox-slide.ddp-checkbox-automatic3 {display:inline-block; position:relative; padding:5px 5px 5px 65px;}
 .ddp-checkbox-slide.ddp-checkbox-automatic2 label:after {
-  display:inline-block; top:-7px; content:'OFF'; color:#b7b9c2; font-size:11px;
+    display:inline-block; top:-7px; content:'OFF'; color:#b7b9c2; font-size:11px;
 }
 .ddp-checkbox-slide.ddp-checkbox-automatic3 label:after {
-  display:inline-block; top:-7px; content:'수동'; color:#b7b9c2; font-size:11px;
+    display:inline-block; top:-7px; content:'수동'; color:#b7b9c2; font-size:11px;
 }
 .ddp-checkbox-slide.ddp-checkbox-automatic3.ddp-change label:after{content:'자동'}
 .ddp-checkbox-slide.ddp-checkbox-automatic3.ddp-en label:after {width:40px; left:-44px; top:-6px; content:'manual'}
@@ -167,7 +169,7 @@
 .ddp-checkbox-slide.ddp-middle label:after {display:inline-block; top:-5px; content:'ON'; color:#9c9c9c; font-size:11px;}
 
 .ddp-checkbox-slide.ddp-slide-text {position:relative;}
-.ddp-checkbox-slide.ddp-slide-text .ddp-txt-slide {display:inline-block; position:relative; top:1px; color:#9c9c9c; font-size:11px; vertical-align:middle;}
+.ddp-checkbox-slide.ddp-slide-text .ddp-txt-slide {display:inline-block; position:relative; top:2px; margin-right:5px; color:#9c9c9c; font-size:11px; vertical-align:middle;}
 .ddp-checkbox-slide.ddp-slide-text label{display:inline-block;}
 .ddp-checkbox-slide.ddp-slide-text.ddp-middle label:after {display:none;}
 

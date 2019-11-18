@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="-e Usage: metatron.sh\n\t
-        [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}"
+        [--config=directory] [--management] [--debug=port] {start|stop|restart|status}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -15,9 +15,6 @@ while [ $# -gt 0 ]; do
         export METATRON_CONF_DIR="${conf_dir}"
       fi
       ;;
-    --init)
-      METATRON_INIT_MODE=",initial"
-      ;;
     --management)
       METATRON_MGMT_MODE=",management"
       ;;
@@ -26,6 +23,9 @@ while [ $# -gt 0 ]; do
       ;;
     start)
       MODE="start"
+      ;;
+    foreground)
+      MODE="foreground"
       ;;
     stop)
       MODE="stop"
@@ -86,7 +86,7 @@ else
 fi
 
 
-METATRON_APP_PROFILE="${METATRON_DB_TYPE}-default-db,logging-console-debug,scheduling${METATRON_MGMT_MODE}${METATRON_PREP_MODE}${METATRON_EXTRA_PROFILE}${METATRON_INIT_MODE}"
+METATRON_APP_PROFILE="${METATRON_DB_TYPE}-default-db,logging-console-debug,scheduling${METATRON_MGMT_MODE}${METATRON_PREP_MODE}${METATRON_EXTRA_PROFILE}
 METATRON_OPTION="--loader.system=true --spring.config.location=classpath:application.yaml${METATRON_CONF_FILE}"
 METATRON_OPTION="${METATRON_OPTION} --spring.profiles.active=${METATRON_APP_PROFILE}"
 
@@ -138,13 +138,13 @@ function check_if_process_is_alive() {
   fi
 }
 
-function upstart() {
+function foreground() {
 
   initialize_default_directories
 
-  echo "METATRON_CLASSPATH: ${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" >> "${METATRON_OUTFILE}"
+  echo "METATRON_CLASSPATH: ${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}"
 
-  $METATRON_RUNNER $JAVA_OPTS -cp "${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" $METATRON_MAIN $METATRON_OPTION >> "${METATRON_OUTFILE}"
+  $METATRON_RUNNER $JAVA_OPTS -cp "${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" $METATRON_MAIN $METATRON_OPTION
 }
 
 function start() {
@@ -230,8 +230,8 @@ case "${MODE}" in
   stop)
     stop
     ;;
-  upstart)
-    upstart
+  foreground)
+    foreground
     ;;
   reload)
     stop

@@ -31,6 +31,7 @@ import {TimeListFilter} from '../../domain/workbook/configurations/filter/time-l
 import {isNullOrUndefined, isUndefined} from 'util';
 import {DashboardUtil} from '../util/dashboard.util';
 import {Alert} from '../../common/util/alert.util';
+import {TimeRelativeFilter} from "../../domain/workbook/configurations/filter/time-relative-filter";
 
 @Component({
   selector: 'app-config-filter-select',
@@ -300,7 +301,8 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   public addTimestampFilter(field: Field | CustomField, unit?: TimeUnit, byUnit?: ByTimeUnit) {
     let timeFilter: TimeFilter;
     if (isNullOrUndefined(unit)) {
-      timeFilter = new TimeAllFilter(<Field>field);
+      // timeFilter = new TimeAllFilter(<Field>field);
+      timeFilter = new TimeRelativeFilter(<Field>field);
     } else {
       timeFilter = new TimeListFilter(<Field>field);
       timeFilter.timeUnit = unit;
@@ -456,7 +458,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
 
     // 필드 설정
     fields.forEach((field: Field) => {
-      let boardFilter: Filter = boardFilters.find(filter => field.name === filter.field);
+      let boardFilter: Filter = boardFilters.find( filter => {
+        return field.name === filter.field && filter.dataSource === field.dataSource;
+      });
 
       // 타임스탬프 필드 여부
       field['isTimestamp'] = ('user_expr' !== field.type && (<Field>field).logicalType === LogicalType.TIMESTAMP);

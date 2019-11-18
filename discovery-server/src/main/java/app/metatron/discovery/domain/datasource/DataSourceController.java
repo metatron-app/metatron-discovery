@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.common.errors.TimeoutException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.locationtech.jts.geom.Geometry;
@@ -97,6 +98,7 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.ReingestionRequest;
 import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineLoadService;
@@ -107,11 +109,17 @@ import app.metatron.discovery.domain.workbench.WorkbenchProperties;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.util.CsvProcessor;
+import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.CommonsCsvProcessor;
 import app.metatron.discovery.util.ExcelProcessor;
+import app.metatron.discovery.util.JsonProcessor;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.ProjectionUtils;
 
+import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_ENGINE_GET_TASK_LOG_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
@@ -428,6 +436,7 @@ public class DataSourceController {
   public @ResponseBody
   ResponseEntity<?> getDataFromDatasource(@PathVariable("id") String id,
                                           @RequestParam(value = "limit", required = false) Integer limit,
+                                          @RequestParam(value = "intervals", required = false) List<String> intervals,
                                           @RequestBody(required = false) SearchQueryRequest request) {
 
     DataSource dataSource = dataSourceRepository.findOne(id);
@@ -449,7 +458,7 @@ public class DataSourceController {
     }
     request.setDataSource(defaultDataSource);
 
-    if(CollectionUtils.isEmpty(request.getProjections())) {
+    if (CollectionUtils.isEmpty(request.getProjections())) {
       request.setProjections(new ArrayList<>());
     }
 
@@ -461,6 +470,13 @@ public class DataSourceController {
         limit = 1000000;
       }
       request.setLimits(new Limit(limit));
+    }
+
+    if (CollectionUtils.isNotEmpty(intervals)) {
+      List<Field> timestampFields = dataSource.getFieldByRole(Field.FieldRole.TIMESTAMP);
+
+      IntervalFilter intervalFilter = new IntervalFilter(timestampFields.get(0).getName(), intervals);
+      request.addFilters(intervalFilter);
     }
 
     return ResponseEntity.ok(engineQueryService.search(request));
@@ -488,6 +504,8 @@ public class DataSourceController {
     if (BooleanUtils.isTrue(singleMode)) {
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
     }
+
+    dataSource.setAppend(false);
 
     ThreadFactory factory = new ThreadFactoryBuilder()
         .setNameFormat("ingestion-append-" + dataSource.getId() + "-%s")
@@ -849,8 +867,8 @@ public class DataSourceController {
       try {
         geometry = wktReader.read(value);
 
-        LogicalType parsedType = findGeoType(geometry).orElseThrow(
-                () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
+        LogicalType parsedType = findGeoType(geometry, type).orElseThrow(
+            () -> new RuntimeException("ERROR_NOT_SUPPORT_WKT_TYPE")
         );
 
         if (type != parsedType) {
@@ -879,7 +897,7 @@ public class DataSourceController {
     return ResponseEntity.ok(resultResponse);
   }
 
-  private Optional<LogicalType> findGeoType(Geometry geometry) {
+  private Optional<LogicalType> findGeoType(Geometry geometry, LogicalType type) {
 
     Class<? extends Geometry> c = geometry.getClass();
     LogicalType logicalType = null;
@@ -890,7 +908,11 @@ public class DataSourceController {
     } else if (c.equals(Polygon.class)) {
       logicalType = LogicalType.GEO_POLYGON;
     } else if (c.equals(MultiLineString.class)) {
-      logicalType = LogicalType.GEO_LINE;
+      if (type != null && type == LogicalType.GEO_POLYGON) { // It can be a polygon.
+        logicalType = LogicalType.GEO_POLYGON;
+      } else {
+        logicalType = LogicalType.GEO_LINE;
+      }
     } else if (c.equals(MultiPolygon.class)) {
       logicalType = LogicalType.GEO_POLYGON;
     }
@@ -983,9 +1005,21 @@ public class DataSourceController {
       if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
         resultResponse = new ExcelProcessor(tempFile).getSheetData(sheetName, limit, firstHeaderRow);
       } else if ("csv".equals(extensionType)) {
-        CsvProcessor csvProcessor = new CsvProcessor(tempFile);
-        csvProcessor.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
-        resultResponse = csvProcessor.getData(lineSep, delimiter, limit, firstHeaderRow);
+        CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor("file://" + tempFile)
+            .totalCount()
+            .maxRowCount(Integer.valueOf(limit).longValue())
+            .withHeader(firstHeaderRow)
+            .parse(delimiter);
+
+        resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
+
+        //        CsvProcessor csvProcessor = new CsvProcessor(tempFile);
+        //        csvProcessor.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
+        //        resultResponse = csvProcessor.getData(lineSep, delimiter, limit, firstHeaderRow);
+      } else if ("json".equals(extensionType)) {
+        JsonProcessor jsonProcessor = new JsonProcessor().parse("file://" + tempFile)
+                                     .maxRowCount(Integer.valueOf(limit).longValue());
+        resultResponse = jsonProcessor.ingestionDataResultResponse();
       } else {
         throw new BadRequestException("Invalid temporary file.");
       }
@@ -997,6 +1031,9 @@ public class DataSourceController {
                                                  "Column Index : " + e.getColumnIndex() + ",\n" +
                                                  "Char Index : " + e.getCharIndex()
           , e.getCause());
+    } catch (CommonsCsvProcessor.CommonsCsvException e) {
+      LOGGER.error("Failed to parse file ({}) : {}", fileKey, e.getMessage());
+      throw new DataSourceIngestionException(e.getMessage(), e.getCause());
     } catch (Exception e) {
       LOGGER.error("Failed to parse file ({}) : {}", fileKey, e.getMessage());
       throw new DataSourceIngestionException("Fail to parse file.", e.getCause());
@@ -1006,9 +1043,10 @@ public class DataSourceController {
   }
 
   @RequestMapping(value = "/datasources/filter", method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request,
-                                                           Pageable pageable,
-                                                           PersistentEntityResourceAssembler resourceAssembler) {
+  public @ResponseBody
+  ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request,
+                                      Pageable pageable,
+                                      PersistentEntityResourceAssembler resourceAssembler) {
 
     List<String> statuses = request == null ? null : request.getStatus();
     List<String> workspaces = request == null ? null : request.getWorkspace();
@@ -1041,19 +1079,19 @@ public class DataSourceController {
 
     // Validate status
     List<DataSource.Status> statusEnumList
-            = request.getEnumList(statuses, DataSource.Status.class, "status");
+        = request.getEnumList(statuses, DataSource.Status.class, "status");
 
     // Validate DataSourceType
     List<DataSource.DataSourceType> dataSourceTypeEnumList
-            = request.getEnumList(dataSourceTypes, DataSource.DataSourceType.class, "dataSourceType");
+        = request.getEnumList(dataSourceTypes, DataSource.DataSourceType.class, "dataSourceType");
 
     // Validate ConnectionType
     List<DataSource.ConnectionType> connectionTypeEnumList
-            = request.getEnumList(connectionTypes, DataSource.ConnectionType.class, "connectionType");
+        = request.getEnumList(connectionTypes, DataSource.ConnectionType.class, "connectionType");
 
     // Validate SourceType
     List<DataSource.SourceType> sourceTypeEnumList
-            = request.getEnumList(sourceTypes, DataSource.SourceType.class, "sourceType");
+        = request.getEnumList(sourceTypes, DataSource.SourceType.class, "sourceType");
 
     // Validate createdTimeFrom, createdTimeTo
     SearchParamValidator.range(null, createdTimeFrom, createdTimeTo);
@@ -1064,12 +1102,12 @@ public class DataSourceController {
     // 기본 정렬 조건 셋팅
     if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
       pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
-              new Sort(Sort.Direction.DESC, "createdTime", "name"));
+                                 new Sort(Sort.Direction.DESC, "createdTime", "name"));
     }
 
     Page<DataSource> dataSources = dataSourceService.findDataSourceListByFilter(
-            statusEnumList, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
-            modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, published, pageable
+        statusEnumList, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
+        modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, published, pageable
     );
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources, resourceAssembler));
@@ -1092,12 +1130,177 @@ public class DataSourceController {
 
     DataSourceListCriterionKey criterionKeyEnum = DataSourceListCriterionKey.valueOf(criterionKey);
 
-    if(criterionKeyEnum == null){
+    if (criterionKeyEnum == null) {
       throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
     }
 
     ListCriterion criterion = dataSourceService.getListCriterionByKey(criterionKeyEnum);
     return ResponseEntity.ok(criterion);
+  }
+
+  @RequestMapping(path = "/datasources/{id}/append", method = {RequestMethod.PATCH, RequestMethod.PUT})
+  public @ResponseBody
+  ResponseEntity<?> appendReingestionDataSource(
+      @PathVariable("id") String id,
+      @RequestBody ReingestionRequest reingestionRequest) {
+
+    DataSource dataSource = dataSourceRepository.findOne(id);
+    if (dataSource == null) {
+      throw new ResourceNotFoundException(id);
+    }
+
+    if (reingestionRequest.getIngestionInfo() instanceof LocalFileIngestionInfo) {
+      IngestionInfo ingestionInfo = reingestionRequest.getIngestionInfo();
+      LocalFileIngestionInfo localFileIngestionInfo = (LocalFileIngestionInfo) dataSource.getIngestionInfo();
+      localFileIngestionInfo.setPath(((LocalFileIngestionInfo) ingestionInfo).getPath());
+      localFileIngestionInfo.setUploadFileName(((LocalFileIngestionInfo) ingestionInfo).getUploadFileName());
+      localFileIngestionInfo.setRemoveFirstRow(((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow());
+      localFileIngestionInfo.setFormat(ingestionInfo.getFormat());
+      if (ingestionInfo.getIntervals() != null) {
+        localFileIngestionInfo.setIntervals(ingestionInfo.getIntervals());
+      }
+      dataSource.setIngestionInfo(localFileIngestionInfo);
+    }
+
+    if (!reingestionRequest.getPatches().isEmpty()) {
+      for (CollectionPatch patch : reingestionRequest.getPatches()) {
+        dataSource.getFields().add(new Field(patch));
+        LOGGER.debug("Add field in datasource({})", dataSource.getId());
+      }
+
+      metadataService.updateFromDataSource(dataSource, true);
+    }
+
+    // Status change
+    dataSource.setStatus(PREPARING);
+    dataSourceRepository.saveAndFlush(dataSource);
+
+    dataSource.setAppend(true);
+    LOGGER.debug("Re-Ingestion append dataSource : {} ", dataSource.toString());
+
+    ThreadFactory factory = new ThreadFactoryBuilder()
+        .setNameFormat("ingestion-append-" + dataSource.getId() + "-%s")
+        .setDaemon(true)
+        .build();
+    ExecutorService service = Executors.newSingleThreadExecutor(factory);
+    service.submit(() -> jobRunner.ingestion(dataSource));
+
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(path = "/datasources/{id}/overwrite", method = {RequestMethod.PATCH, RequestMethod.PUT})
+  public @ResponseBody
+  ResponseEntity<?> overwriteReingestionDataSource(
+      @PathVariable("id") String id,
+      @RequestBody DataSource paramDataSource) {
+
+    DataSource dataSource = dataSourceRepository.findOne(id);
+    if (dataSource == null) {
+      throw new ResourceNotFoundException(id);
+    }
+
+    if (StringUtils.isEmpty(dataSource.getOwnerId())) {
+      dataSource.setOwnerId(AuthUtils.getAuthUserName());
+    }
+
+    if (dataSource.getConnType() == ENGINE) {
+      if (dataSource.getSrcType() == FILE) {
+        dataSource.setEngineName(dataSourceService.convertName(dataSource.getName()));
+        dataSource.setIncludeGeo(dataSource.existGeoField()); // mark datasource include geo column
+        dataSource.setStatus(PREPARING);
+        dataSource.setFields(paramDataSource.getFields());
+        dataSource.setIngestionInfo(paramDataSource.getIngestionInfo());
+        dataSource.setName(paramDataSource.getName());
+        dataSource.setDescription(paramDataSource.getDescription());
+      }
+    }
+
+    dataSourceRepository.saveAndFlush(dataSource);
+    metadataService.updateFromDataSource(dataSource, true);
+
+    dataSource.setAppend(true);
+    LOGGER.debug("Re-Ingestion overwrite dataSource : {} ", dataSource.toString());
+
+    engineIngestionService.purgeDataSource(id);
+
+    ThreadFactory factory = new ThreadFactoryBuilder()
+        .setNameFormat("ingestion-overwrite-" + dataSource.getId() + "-%s")
+        .setDaemon(true)
+        .build();
+    ExecutorService service = Executors.newSingleThreadExecutor(factory);
+    service.submit(() -> jobRunner.ingestion(dataSource));
+
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/datasources/kafka/topic", method = RequestMethod.POST)
+  public @ResponseBody
+  ResponseEntity<?> getKafkaTopic(@RequestParam(value = "bootstrapServer") String bootstrapServer) {
+
+    try {
+      return ResponseEntity.ok(dataSourceService.getKafkaTopic(bootstrapServer));
+    } catch (TimeoutException te) {
+      LOGGER.error("Fail to timeout kafka ({}) : {}", bootstrapServer, te.getMessage());
+      throw new DataSourceIngestionException("Fail to timeout kafka.", te.getCause());
+    } catch (Exception e) {
+      LOGGER.error("Failed to get kafka topic ({}) : {}", bootstrapServer, e.getMessage());
+      throw new DataSourceIngestionException("Failed to get kafka topic.", e.getCause());
+    }
+
+  }
+
+  @RequestMapping(value = "/datasources/kafka/data", method = RequestMethod.POST)
+  public @ResponseBody
+  ResponseEntity<?> getPreviewFromKafka(@RequestParam(value = "bootstrapServer") String bootstrapServer,
+                                       @RequestParam(value = "topic") String topic) {
+
+    try {
+      List kafkaData = dataSourceService.getKafkaPreviewData(bootstrapServer, topic);
+      JsonProcessor jsonProcessor = new JsonProcessor().parse(kafkaData);
+      return ResponseEntity.ok(jsonProcessor.ingestionDataResultResponse());
+    } catch (TimeoutException te) {
+      LOGGER.error("Fail to timeout kafka ({} : {}) : {}", bootstrapServer, topic, te.getMessage());
+      throw new DataSourceIngestionException("Fail to timeout kafka.", te.getCause());
+    } catch (Exception e) {
+      LOGGER.error("Failed to parse kafka ({} : {}) : {}", bootstrapServer, topic, e.getMessage());
+      throw new DataSourceIngestionException("Fail to parse kafka.", e.getCause());
+    }
+
+  }
+
+  @RequestMapping(value = "/datasources/stream/upload", method = RequestMethod.POST, produces = "application/json")
+  public
+  @ResponseBody
+  ResponseEntity<?> uploadFileForStreamIngestion(@RequestParam("file") MultipartFile file) {
+
+    // 파일명 가져오기
+    String fileName = file.getOriginalFilename();
+
+    // 파일명을 통해 확장자 정보 얻기
+    String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
+
+    if (StringUtils.isEmpty(extensionType) || !extensionType.matches("json")) {
+      throw new BadRequestException("Not supported file type : " + extensionType);
+    }
+
+    // Upload 파일 처리
+    String tempFileName = "TEMP_FILE_" + UUID.randomUUID().toString() + "." + extensionType;
+    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
+
+    Map<String, Object> responseMap = Maps.newHashMap();
+    responseMap.put("filekey", tempFileName);
+    responseMap.put("filePath", tempFilePath);
+
+    try {
+      File tempFile = new File(tempFilePath);
+      file.transferTo(tempFile);
+
+    } catch (IOException e) {
+      LOGGER.error("Failed to upload file : {}", e.getMessage());
+      throw new DataSourceIngestionException("Fail to upload file.", e.getCause());
+    }
+
+    return ResponseEntity.ok(responseMap);
   }
 
   class TimeFormatCheckResponse {

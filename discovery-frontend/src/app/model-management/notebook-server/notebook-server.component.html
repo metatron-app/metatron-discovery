@@ -44,6 +44,7 @@
             <!-- selectbox -->
             <!-- 선택시 : ddp-selected 추가 -->
             <component-select [array]="notebookServerType"
+                              [defaultIndex]="typeDefaultIndex"
                               [viewKey]="'value'"
                               (onSelected)="selectedLanguage($event)">
             </component-select>
@@ -61,13 +62,14 @@
         <!-- 검색 -->
         <div class="ddp-form-search ddp-fleft">
           <em class="ddp-icon-search"></em>
-          <input type="text" placeholder="{{'msg.nbook.ui.search.server.ph' | translate}}" [(ngModel)]="searchText" (keypress)="searchNotebookServer($event)">
-          <em class="ddp-btn-search-close" (click)="getInitialNotebookServer();"></em>
+          <input type="text" placeholder="{{'msg.nbook.ui.search.server.ph' | translate}}"
+                 [(ngModel)]="searchText" (keypress)="searchNotebookServer($event)">
+          <em *ngIf="searchText !== ''" class="ddp-btn-search-close" (click)="refreshSearch();"></em>
         </div>
         <!-- //검색 -->
         <!-- right -->
         <div class="ddp-ui-rightoption">
-          <span class="ddp-data-total">{{'msg.nbook.ui.num.lists' | translate : {value : totalElements} }}</span>
+          <span class="ddp-data-total">{{'msg.nbook.ui.num.lists' | translate : {value : pageResult.totalElements} }}</span>
           <a href="javascript:" class="ddp-btn-link" (click)="addServer()"><em class="ddp-icon-link-add" ></em>{{'msg.nbook.btn.add.server' | translate}}</a>
           <a href="javascript:" class="ddp-btn-link" (click)="confirmDeleteAll()" [ngClass]="{'ddp-disabled': deleteAvailable()}" ><em class="ddp-icon-link-cut"></em>{{'msg.comm.ui.sel.del' | translate}}</a>
         </div>
@@ -77,21 +79,20 @@
     </div>
 
 
-    <table class="ddp-table-form ddp-table-type3">
+    <table class="ddp-table-form ddp-table-type3" *ngIf="resultData.length > 0">
       <colgroup>
         <col width="51px">
         <col width="*">
-        <col width="10%">
-        <col width="10%">
-        <col width="7%">
-        <col width="15%">
-        <col width="20%">
+        <col width="130px">
+        <col width="300px">
+        <col width="200px">
+        <col width="250px">
       </colgroup>
       <thead>
       <tr>
         <th class="ddp-txt-center" >
           <div class="ddp-ui-checkbox">
-            <input type="checkbox" class="ddp-checkbox-form" (click)="allCheckClick($event)">
+            <input type="checkbox" class="ddp-checkbox-form" (click)="allCheckClick()">
             <i class="ddp-icon-checkbox"></i>
           </div>
         </th>
@@ -102,38 +103,34 @@
           {{'msg.nbook.th.type' | translate}}
         </th>
         <th>
-          {{'msg.comm.th.host' | translate}}
+          {{'msg.comm.th.url' | translate}}
         </th>
-        <th>
-          {{'msg.comm.th.port' | translate}}
-        </th>
-        <th>
-          {{'msg.nbook.th.creator.id' | translate}}
-          <!--<em class="ddp-icon-array-default2"></em>-->
-          <!--<em class="ddp-icon-array-asc2" style="display:none;"></em>-->
-          <!--<em class="ddp-icon-array-des2" style="display:none;"></em>-->
+        <th (click)="onClickSort('modifiedTime')">
+          {{'msg.comm.ui.list.updated' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
         </th>
 
-        <th>
-          {{'msg.nbook.th.last.updated' | translate}}
-
-          <!--<em class="ddp-icon-array-default2"></em>-->
-          <em class="ddp-icon-array-asc2" *ngIf="sort == 'asc'" (click)="sortingToggle('desc')"></em>
-          <em class="ddp-icon-array-des2" *ngIf="sort == 'desc'" (click)="sortingToggle('asc')"></em>
+        <th (click)="onClickSort('createdTime')">
+          {{'msg.comm.ui.list.created' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
         </th>
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let item of resultData" (click)="connectorItemRowClick(item);">
+      <tr *ngFor="let item of resultData; let index = index" (click)="connectorItemRowClick(item);">
         <td class="ddp-txt-center" (click)="checkColumn($event)">
           <div class="ddp-ui-checkbox" >
-            <input type="checkbox" class="ddp-checkbox-form" value="{{item.id}}" (click)="checkClick($event)">
+            <input type="checkbox" class="ddp-checkbox-form" value="{{item.id}}" (click)="checkClick($event, index)">
             <i class="ddp-icon-checkbox"></i>
           </div>
         </td>
-        <td>
+        <td title="{{ item.hasOwnProperty('description') && item.description != '' ? item.name+'-'+item.description : item.name}}">
           <div class=" ddp-txt-long">{{item.name}}<span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == false"></span>
-            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') == true && item.description != ''">-{{item.description}}</span>
+            <span class="ddp-txt-colortype" *ngIf="item.hasOwnProperty('description') && item.description != ''">-{{item.description}}</span>
           </div>
         </td>
         <td>
@@ -144,19 +141,17 @@
             {{item.type}}
           </span>
         </td>
+        <td class="ddp-txt-ellipsis" title="{{item.url}}">
+          {{item.url}}
+        </td>
+        <td class="ddp-txt-ellipsis" title="{{item.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}} {{'msg.nbook.ui.by' | translate}} {{item.modifiedBy.fullName}}">
+          {{item.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.modifiedBy.fullName}}
 
-
-        <td>
-          {{item.hostname}}
         </td>
         <td>
-          {{item.port}}
-        </td>
-        <td>
-          {{item.createdBy.fullName}} ({{item.createdBy.username}})
-        </td>
-        <td>
-          {{item.modifiedTime | date : 'yyyy-MM-dd'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.modifiedBy.fullName}}
+          <div class="ddp-txt-ellipsis" style="padding-right:20px;" title="{{item.createdTime | mdate: 'YYYY-MM-DD HH:mm'}} {{'msg.nbook.ui.by' | translate}} {{item.createdBy.fullName}}">
+            {{item.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.nbook.ui.by' | translate}}</em>{{item.createdBy.fullName}}
+          </div>
           <div class="ddp-btn-control">
             <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item.id)"></em>
           </div>
@@ -166,13 +161,18 @@
 
     </table>
 
-    <div class="ddp-box-add-link" *ngIf="page.page < pageResult.totalPages && pageResult" (click)="getNotebookServerList()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    <div class="ddp-data-source-none" *ngIf="resultData && resultData.length === 0; else yesNb">
+      {{'msg.nbook.ui.no.nb' | translate}}
     </div>
+    <!-- //데이터 없음 -->
+
+    <ng-template #yesNb>
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </ng-template>
   </div>
 
 
 </div>
 
-<app-add-notebook-server (createComplete)="getInitialNotebookServer()"></app-add-notebook-server>
+<app-add-notebook-server (createComplete)="reloadPage()"></app-add-notebook-server>
 <app-delete-modal (deleteConfirm)="deleteNotebookServer()"></app-delete-modal>

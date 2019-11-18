@@ -14,9 +14,9 @@
 
 import {
   ApplicationRef,
-  ComponentFactoryResolver,
-  ViewChild,
+  ChangeDetectionStrategy,
   Component,
+  ComponentFactoryResolver,
   ElementRef,
   EventEmitter,
   Injector,
@@ -24,34 +24,40 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ChangeDetectionStrategy,
-  SimpleChanges, SimpleChange
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
-import { Workbook } from '../domain/workbook/workbook';
-import { Dashboard, PresentationDashboard, LayoutMode, BoardDataSource } from '../domain/dashboard/dashboard';
-import { Widget } from '../domain/dashboard/widget/widget';
-import { ChartSelectInfo } from '../common/component/chart/base-chart';
-import { SelectionFilterComponent } from './component/selection-filter/selection-filter.component';
-import { DashboardLayoutComponent } from './component/dashboard-layout/dashboard.layout.component';
-import { Filter } from '../domain/workbook/configurations/filter/filter';
-import { PopupService } from '../common/service/popup.service';
-import { DatasourceService } from '../datasource/service/datasource.service';
+import {Workbook} from '../domain/workbook/workbook';
+import {
+  BoardDataSource,
+  Dashboard,
+  LayoutMode,
+  PresentationDashboard
+} from '../domain/dashboard/dashboard';
+import {Widget} from '../domain/dashboard/widget/widget';
+import {ChartSelectInfo} from '../common/component/chart/base-chart';
+import {SelectionFilterComponent} from './component/selection-filter/selection-filter.component';
+import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
+import {Filter} from '../domain/workbook/configurations/filter/filter';
+import {PopupService} from '../common/service/popup.service';
+import {DatasourceService} from '../datasource/service/datasource.service';
 import {
   ConnectionType,
   Datasource,
   TempDsStatus,
   TemporaryDatasource
 } from 'app/domain/datasource/datasource';
-import { Modal } from '../common/domain/modal';
-import { ConfirmModalComponent } from '../common/component/modal/confirm/confirm.component';
-import { CommonConstant } from '../common/constant/common.constant';
-import { CookieConstant } from '../common/constant/cookie.constant';
-import { Alert } from '../common/util/alert.util';
-import { WidgetService } from './service/widget.service';
-import { DashboardUtil } from './util/dashboard.util';
-import { EventBroadcaster } from '../common/event/event.broadcaster';
+import {Modal} from '../common/domain/modal';
+import {ConfirmModalComponent} from '../common/component/modal/confirm/confirm.component';
+import {CommonConstant} from '../common/constant/common.constant';
+import {CookieConstant} from '../common/constant/cookie.constant';
+import {Alert} from '../common/util/alert.util';
+import {WidgetService} from './service/widget.service';
+import {DashboardUtil} from './util/dashboard.util';
+import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {isNullOrUndefined} from "util";
-import { Message } from '@stomp/stompjs';
+import {Message} from '@stomp/stompjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -89,6 +95,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   public ingestionStatus: { progress: number, message: string, step?: number };  // 적재 진행 정보
 
   public isError:boolean = false;
+  public errorMsg:string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -196,8 +203,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       this.broadCaster.broadcast('SET_GLOBAL_FILTER', { filters: boardFilters });
     }
     this.selectionFilter.init();
-    // TODO 필터 변경알림 나중에 제거할 로직
-    // this.popupService.notiFilter({ name: 'change-filter-widget-value', data: filter });
   } // function - changeFilterWidgetEventHandler
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -234,9 +239,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   /**
    * show error screen
    */
-  public showError() {
+  public showError(msg: string = this.translateService.instant('msg.board.unload.desc')) {
     this.isError = true;
     this.safelyDetectChanges();
+    this.errorMsg = msg;
   } // function - showError
 
   /**

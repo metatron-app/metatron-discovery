@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Output, QueryList, Renderer, ViewChildren} from '@angular/core';
 import {
   ConnectionType,
   Datasource,
@@ -38,13 +38,19 @@ import {Filter} from "../../../../shared/datasource-metadata/domain/filter";
 import {Type} from "../../../../shared/datasource-metadata/domain/type";
 import {isNullOrUndefined} from "util";
 import {StorageService} from "../../../service/storage.service";
+import {DatetimeValidPopupComponent} from "../../../../shared/datasource-metadata/component/datetime-valid-popup.component";
 import Role = Type.Role;
+import {CommonUtil} from "../../../../common/util/common.util";
+import {MetadataColumn} from "../../../../domain/meta-data-management/metadata-column";
 
 @Component({
   selector: 'edit-config-schema',
   templateUrl: './edit-config-schema.component.html'
 })
 export class EditConfigSchemaComponent extends AbstractComponent {
+
+  @ViewChildren(DatetimeValidPopupComponent)
+  private readonly _datetimePopupComponentList: QueryList<DatetimeValidPopupComponent>;
 
   // 데이터소스 아이디
   private _sourceId: string;
@@ -53,8 +59,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   // data list
   public fieldDataList: any[];
 
-  // default format object
-  public defaultFormatObj: any = {};
   // search keyword
   public searchTextKeyword: string;
   // field list
@@ -81,6 +85,14 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   // error flag
   public isExistErrorInFieldList: boolean;
 
+  // constant
+  public readonly UUID = CommonUtil.getUUID();
+  public readonly TYPE_SELECT_LIST_WRAP_ELEMENT = this.UUID + '-type-select-list-wrap-elm';
+  public readonly TYPE_SELECT_LIST_ICON_ELEMENT = this.UUID + '-type-select-list-icon-elm';
+  public readonly TYPE_SELECTED_LABEL_ELEMENT = this.UUID + '-type-selected-label-elm';
+  public readonly TYPE_SELECTED_ICON_ELEMENT = this.UUID + '-type-selected-icon-elm';
+
+
   @Output()
   public readonly updatedSchema: EventEmitter<any> = new EventEmitter();
 
@@ -95,6 +107,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
               private connectionService: DataconnectionService,
               private storageService: StorageService,
               public constant: ConstantService,
+              public renderer: Renderer,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -123,6 +136,9 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       if (column.logicalType === LogicalType.TIMESTAMP && !column.format) {
         column.format = new FieldFormat();
       }
+      if (column.logicalType === LogicalType.TIMESTAMP) {
+        column.format.isValidFormat = true;
+      }
     });
     // init filtered field list
     this._updateFilteredFieldList();
@@ -136,7 +152,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * Set exist error in field list flag
    */
   public setIsExistErrorInFieldListFlag(): void {
-    // this.isExistErrorInFieldList = this.fieldList.some(field => field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat);
+    this.isExistErrorInFieldList = this.fieldList.some(field =>  field.role !== FieldRole.TIMESTAMP && (field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat));
   }
 
   /**
@@ -144,7 +160,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public save(): void {
     // if not exist error
-    if (!this.isExistErrorInFieldList) {
+    if (!this.fieldList.some(field =>  field.role !== FieldRole.TIMESTAMP && (field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat))) {
       // 로딩 show
       this.loadingShow();
       // 필드 업데이트
@@ -219,7 +235,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isValidInformationIcon(field: Field): boolean {
-    return (field.format && field.format.isValidFormat);
+    return field.format && field.format.isValidFormat !== false;
   }
 
   /**
@@ -246,7 +262,13 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public onClickInfoIcon(field: Field): void {
     if (field.logicalType === LogicalType.TIMESTAMP) {
-      field.isShowTimestampValidPopup = true;
+      // if open type list
+      if (field.isShowTypeList) {
+        field.isShowTypeList = false;
+      }
+      const index = this.filteredFieldList.filter(item => item.role !== FieldRole.TIMESTAMP && item.logicalType === LogicalType.TIMESTAMP).findIndex(item => item.name === field.name);
+      // popup show
+      this._datetimePopupComponentList.toArray()[index].init();
     }
   }
 
@@ -292,7 +314,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       // 만약 기존 타입이 GEO 또는 TIMESTAMP 타입이라면
       if (prevLogicalType ===  LogicalType.GEO_POINT || prevLogicalType === LogicalType.GEO_POLYGON || prevLogicalType === LogicalType.GEO_LINE || prevLogicalType === LogicalType.TIMESTAMP) {
         // remove format
-        delete targetField.format;
+        targetField.format = null;
         this.setIsExistErrorInFieldListFlag();
       }
       // 변경될 타입이 GEO 타입이라면
@@ -317,11 +339,13 @@ export class EditConfigSchemaComponent extends AbstractComponent {
           });
       } else if (typeToChange.value === LogicalType.TIMESTAMP && isNullOrUndefined(targetField.format)) {  // 변경될 타입이 TIMESTAMP 타입이라면
         targetField.format = new FieldFormat();
-        // TODO 타임스탬프 1540 진행시 제거
-        targetField.format.formatInitialize();
-        delete targetField.format.unit;
-        // targetField.isShowTimestampValidPopup = true;
+        //
+        this.safelyDetectChanges();
+        // open timestamp popup
+        this.onClickInfoIcon(targetField);
       }
+      // close list
+      targetField.isShowTypeList = false;
     }
   }
 
@@ -329,9 +353,11 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * Change type list show flag
    * @param {Field} field
    */
-  public onChangeTypeListShowFlag(field: Field): void {
+  public onChangeTypeListShowFlag(field: Field, event: MouseEvent): void {
+    const targetElement = event.target['classList'];
     // if not derived and TIMESTAMP
-    if (!this.isDisableChangeType(field)) {
+    if ((targetElement.contains(this.TYPE_SELECT_LIST_ICON_ELEMENT) || targetElement.contains(this.TYPE_SELECT_LIST_WRAP_ELEMENT) || targetElement.contains(this.TYPE_SELECTED_ICON_ELEMENT)) || targetElement.contains(this.TYPE_SELECTED_LABEL_ELEMENT)
+      && !this.isDisableChangeType(field)) {
       if (!field.isShowTypeList) {
         this._setConvertedTypeList(field);
       }
@@ -360,47 +386,42 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     const result = [];
     // original fields list loop
     this._originFieldList.forEach((originField) => {
-      // find field in fieldList
-      const targetField = this.fieldList.find(field => field.name === originField.name);
-      // if not exist target field (removed field)
-      if (isNullOrUndefined(targetField)) {
-        // TODO removed field 설정후 result.push
-      } else { // if exist target field
-        const tempField = _.cloneDeep(targetField);
-        delete tempField['isShowTypeList'];
-        // if changed logical name
-        if (originField.logicalName !== tempField.logicalName) {
-          tempField['op'] = 'replace';
-          tempField.logicalName = tempField.logicalName;
-        }
-        // if changed description
-        if (originField.description !== tempField.description) {
-          tempField['op'] = 'replace';
-          tempField.description = tempField.description;
-        }
-        // if changed logical type
-        if (originField.logicalType !== tempField.logicalType) {
-          tempField['op'] = 'replace';
-          tempField.logicalType = tempField.logicalType;
-          // if is TIMESTAMP, not GEO in originField
-          if (originField.logicalType === LogicalType.TIMESTAMP) {
-            tempField.format = null;
+      // if not derived and TIMESTAMP column
+      if (!originField.derived && originField.role !== FieldRole.TIMESTAMP) {
+        // find field in fieldList
+        const targetField = this.fieldList.find(field => field.name === originField.name);
+        // if not exist target field (removed field)
+        if (isNullOrUndefined(targetField)) {
+          // TODO removed field 설정후 result.push
+        } else { // if exist target field
+          const tempField = _.cloneDeep(targetField);
+          delete tempField.isShowTypeList;
+          // if changed logical name
+          if (originField.logicalName !== tempField.logicalName) {
+            tempField.op = 'replace';
           }
-        }
-        // if changed field format TODO 1540
-        if (tempField.logicalType === LogicalType.TIMESTAMP && tempField.format) {
-          delete tempField.format.isValidFormat;
-          delete tempField.format.formatValidMessage;
-          // if changed format
-          if (tempField.format.format !== tempField.format.format) {
-            tempField['op'] = 'replace';
-            if (StringUtil.isEmpty(tempField.format.format)) {
-              tempField.format.format = null;
+          // if changed description
+          else if (originField.description !== tempField.description) {
+            tempField.op = 'replace';
+          }
+          // if changed logical type
+          if (originField.logicalType !== tempField.logicalType) {
+            tempField.op  = 'replace';
+            // if exist format and is not TIMESTAMP or GEO
+            if (tempField.hasOwnProperty('format') && tempField.logicalType !== LogicalType.TIMESTAMP && tempField.logicalType !== LogicalType.GEO_POINT && tempField.logicalType !== LogicalType.GEO_LINE && tempField.logicalType !== LogicalType.GEO_POLYGON) {
+              // remove format property
+              tempField.format = null;
+            } else if (tempField.logicalType === LogicalType.TIMESTAMP) { // if change type is TIMESTAMP
+              tempField.format.removeUIProperties();
             }
+            // if is TIMESTAMP, different format type, unit, format
+          } else if (originField.logicalType === tempField.logicalType && tempField.logicalType === LogicalType.TIMESTAMP && (originField.format.type !== tempField.format.type || originField.format.format !== tempField.format.format || originField.format.unit !== tempField.format.unit)) {
+            tempField.op  = 'replace';
+            tempField.format.removeUIProperties();
           }
+          // push result
+          tempField.op && result.push(tempField);
         }
-        // push result
-        tempField['op'] && result.push(tempField);
       }
     });
     // TODO check created field
@@ -507,5 +528,37 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         })
         .catch(error => this.commonExceptionHandler(error));
     }
+  }
+
+
+  @ViewChildren('descriptionInputs')
+  private descriptionInputs: QueryList<ElementRef>;
+
+  @ViewChildren('descriptionTds')
+  private descriptionTds: QueryList<ElementRef>;
+
+  public focusDescriptionInput(index: number) {
+
+    this.descriptionInputs.toArray()[ index ].nativeElement.focus();
+    this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+  }
+
+  public blurDescriptionInput(index: number) {
+    this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
+  }
+
+  @ViewChildren('nameInputs')
+  private nameInputs: QueryList<ElementRef>;
+
+  @ViewChildren('nameTds')
+  private nameTds: QueryList<ElementRef>;
+
+  public focusNameInput(index: number) {
+    this.nameInputs.toArray()[ index ].nativeElement.focus();
+    this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+  }
+
+  public blurNameInput(index: number) {
+    this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
   }
 }

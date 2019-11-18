@@ -37,6 +37,9 @@
       <!-- edit -->
       <!-- edit -->
       <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
+        [defaultType]="initialPeriodData?.type"
         [title]="'msg.groups.th.create.date' | translate"
         [roundSecond]="true"
         (changeDate)="onChangeDate($event)"
@@ -58,15 +61,16 @@
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
         <input type="text" placeholder="{{'msg.groups.ui.search.description' | translate}}"
-               [ngModel]="searchKeyword"
+               [(ngModel)]="searchKeyword"
                (keypress)="onSearchText($event)"
                (keyup.esc)="onSearchTextInit()">
-        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword"></em>
+        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword !== ''"></em>
       </div>
       <!-- //검색 -->
       <!-- right -->
       <div class="ddp-ui-rightoption">
-        <span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : groupList.length} }}</span>
+        <span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements} }}</span>
+        <!--<span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : groupList.length} }}</span>-->
         <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateModal()"><em class="ddp-icon-link-add"></em>{{'msg.groups.ui.create.grp' | translate}}</a>
       </div>
       <!-- //right -->
@@ -144,13 +148,14 @@
 
   </table>
 
-  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-  </div>
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
+
 </div>
 
 <!-- 그룹 생성 팝업 -->
-<app-create-user-management-groups (createComplete)="getGroupListInit()"></app-create-user-management-groups>
+<app-create-user-management-groups (createComplete)="reloadPage()"></app-create-user-management-groups>
 <!-- //그룹 생성 팝업 -->
 <!-- 삭제확인 공통팝업 -->
 <app-confirm-modal (confirm)="confirmDeleteGroup($event)"></app-confirm-modal>

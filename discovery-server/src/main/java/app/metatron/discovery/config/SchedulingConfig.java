@@ -28,11 +28,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
-import app.metatron.discovery.common.scheduling.AutowiringSpringBeanJobFactory;
+import app.metatron.discovery.common.scheduling.AutowiringQuartzBeanJobFactory;
 import app.metatron.discovery.domain.scheduling.common.TemporaryCSVFileCleanJob;
 import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
 import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
 import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.EngineMonitoringJob;
+import app.metatron.discovery.domain.scheduling.engine.EngineMonitoringSetter;
 import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
 import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
 import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
@@ -54,6 +56,8 @@ public class SchedulingConfig {
 
   private final static String JOB_GROUP_CLEANER = "cleaner";
 
+  private final static String JOB_GROUP_ENGINE_MON = "monitoring";
+
   @Autowired
   @Qualifier("dataSource")
   DataSource dataSource;
@@ -66,7 +70,7 @@ public class SchedulingConfig {
 
   @Bean
   public JobFactory jobFactory() {
-    AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+    AutowiringQuartzBeanJobFactory jobFactory = new AutowiringQuartzBeanJobFactory();
     jobFactory.setApplicationContext(applicationContext);
     return jobFactory;
   }
@@ -86,7 +90,9 @@ public class SchedulingConfig {
                                        calculatePopularityJob().getObject(),
                                        notebookKillKernelJob().getObject(),
                                        tempCSVFileCleanJob().getObject(),
-                                       timeoutWorkbenchConnectionCloseJob().getObject());
+                                       timeoutWorkbenchConnectionCloseJob().getObject(),
+                                       engineMonitoringJob().getObject(),
+                                       engineMonitoringSetter().getObject());
     schedulerFactoryBean.setTriggers(dataSourceCheckTrigger().getObject(),
                                      dataSourceIngestionCheckTrigger().getObject(),
                                      dataSourceSizeCheckTrigger().getObject(),
@@ -94,7 +100,9 @@ public class SchedulingConfig {
                                      calculatePopularityTrigger().getObject(),
                                      notebookKillKernelTrigger().getObject(),
                                      tempCSVFileCleanTrigger().getObject(),
-                                     timeoutWorkbenchConnectionCloseTrigger().getObject());
+                                     timeoutWorkbenchConnectionCloseTrigger().getObject(),
+                                     engineMonitoringTrigger().getObject(),
+                                     engineMonitoringSetterTrigger().getObject());
 
     return schedulerFactoryBean;
   }
@@ -125,7 +133,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean dataSourceCheckTrigger(){
+  public CronTriggerFactoryBean dataSourceCheckTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(dataSourceCheckJob().getObject());
     triggerFactory.setStartDelay(10000);
@@ -152,7 +160,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean dataSourceIngestionCheckTrigger(){
+  public CronTriggerFactoryBean dataSourceIngestionCheckTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(dataSourceIngestionCheckJob().getObject());
     triggerFactory.setStartDelay(10000);
@@ -178,7 +186,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean dataSourceSizeCheckTrigger(){
+  public CronTriggerFactoryBean dataSourceSizeCheckTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(dataSourceSizeCheckJob().getObject());
     triggerFactory.setStartDelay(20000);
@@ -209,7 +217,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean tempDataSourceCleanTrigger(){
+  public CronTriggerFactoryBean tempDataSourceCleanTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(tempDataSourceCleanJob().getObject());
     triggerFactory.setStartDelay(20000);
@@ -241,7 +249,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean calculatePopularityTrigger(){
+  public CronTriggerFactoryBean calculatePopularityTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(calculatePopularityJob().getObject());
     triggerFactory.setName("calculate-popularity-trigger");
@@ -271,7 +279,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean notebookKillKernelTrigger(){
+  public CronTriggerFactoryBean notebookKillKernelTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(notebookKillKernelJob().getObject());
     triggerFactory.setName("kill-notebook-kernel-trigger");
@@ -301,7 +309,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean tempCSVFileCleanTrigger(){
+  public CronTriggerFactoryBean tempCSVFileCleanTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(tempCSVFileCleanJob().getObject());
     triggerFactory.setStartDelay(20000);
@@ -332,7 +340,7 @@ public class SchedulingConfig {
    * @return
    */
   @Bean
-  public CronTriggerFactoryBean timeoutWorkbenchConnectionCloseTrigger(){
+  public CronTriggerFactoryBean timeoutWorkbenchConnectionCloseTrigger() {
     CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
     triggerFactory.setJobDetail(timeoutWorkbenchConnectionCloseJob().getObject());
     triggerFactory.setStartDelay(1000);
@@ -340,6 +348,48 @@ public class SchedulingConfig {
     triggerFactory.setGroup(JOB_GROUP_DOMAIN);
     triggerFactory.setCronExpression("0 0/30 * 1/1 * ? *");
     return triggerFactory;
+  }
+
+  @Bean
+  public CronTriggerFactoryBean engineMonitoringTrigger() {
+    CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
+    triggerFactory.setJobDetail(engineMonitoringJob().getObject());
+    triggerFactory.setStartDelay(10000);
+    triggerFactory.setName("engine-monitoring-trigger");
+    triggerFactory.setGroup(JOB_GROUP_ENGINE_MON);
+    triggerFactory.setCronExpression("0 0/1 * 1/1 * ? *");
+    return triggerFactory;
+  }
+
+  @Bean
+  public JobDetailFactoryBean engineMonitoringJob() {
+    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+    jobDetailFactory.setName("engine-monitoring");
+    jobDetailFactory.setGroup(JOB_GROUP_ENGINE_MON);
+    jobDetailFactory.setJobClass(EngineMonitoringJob.class);
+    jobDetailFactory.setDurability(true);
+    return jobDetailFactory;
+  }
+
+  @Bean
+  public CronTriggerFactoryBean engineMonitoringSetterTrigger() {
+    CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
+    triggerFactory.setJobDetail(engineMonitoringSetter().getObject());
+    triggerFactory.setStartDelay(10000);
+    triggerFactory.setName("engine-monitoring-setter-trigger");
+    triggerFactory.setGroup(JOB_GROUP_ENGINE_MON);
+    triggerFactory.setCronExpression("0 0/10 * 1/1 * ? *");
+    return triggerFactory;
+  }
+
+  @Bean
+  public JobDetailFactoryBean engineMonitoringSetter() {
+    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+    jobDetailFactory.setName("engine-monitoring-setter");
+    jobDetailFactory.setGroup(JOB_GROUP_ENGINE_MON);
+    jobDetailFactory.setJobClass(EngineMonitoringSetter.class);
+    jobDetailFactory.setDurability(true);
+    return jobDetailFactory;
   }
 
 }

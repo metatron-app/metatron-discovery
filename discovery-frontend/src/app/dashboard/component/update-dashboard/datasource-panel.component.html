@@ -38,17 +38,18 @@
       <!-- // 검색 -->
     </div>
     <!-- 차원값 영역 -->
-    <div class="ddp-wrap-drop-submenu ddp-selected">
+    <div class="ddp-wrap-drop-submenu" [class.ddp-selected]="isSelectedDimension">
       <!-- 차원값 제목 -->
-      <div class="ddp-ui-sub-title">
+      <div (click)="isSelectedDimension = !isSelectedDimension" class="ddp-ui-sub-title">
         <div class="ddp-ui-sub-titlein ddp-dimension">
           <em class="ddp-icon-menumove"></em> {{ 'msg.comm.name.dim' | translate }}
-          <a href="javascript:" class="ddp-icon-add" (click)="openCustomFieldPopup( 'DIMENSION' )"></a>
+          <a (click)="$event.preventDefault();$event.stopImmediatePropagation();openCustomFieldPopup( 'DIMENSION' )"
+             href="javascript:" class="ddp-icon-add" ></a>
         </div>
       </div>
       <!-- // 차원값 제목 -->
       <!-- 차원값 목록 -->
-      <div class="ddp-wrap-list-source">
+      <div *ngIf="isSelectedDimension" class="ddp-wrap-list-source">
         <ul class="ddp-list-source ddp-list-dimension">
           <li class="ddp-ui-dimension" *ngFor="let field of displayDimensions" >
             <em class="ddp-icon-datause" *ngIf="field.useChart"></em>
@@ -67,6 +68,15 @@
                 </div>
               </div>
               <!-- //사용자 정보 미리보기 -->
+              <!-- 연결키 정보 -->
+              <div *ngIf="field['assInfo']" class="ddp-wrap-user-preview">
+                <em class="ddp-icon-control-link ddp-type"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  <span *ngFor="let info of field['assInfo']" class="ddp-txt-tooltip">{{info}}</span>
+                </div>
+              </div>
+              <!-- // 연결키 정보 -->
               <em class="ddp-icon-control-filter ddp-type"
                   *ngIf="!field.useChartFilter" (click)="toggleFilter($event,field)"
                   [ngClass]="{'ddp-selected' : field.useFilter}" ></em>
@@ -98,17 +108,18 @@
     </div>
     <!-- // 차원값 영역 -->
     <!-- 측정값 영역 -->
-    <div class="ddp-wrap-drop-submenu ddp-selected">
+    <div class="ddp-wrap-drop-submenu" [class.ddp-selected]="isSelectedMeasure">
       <!-- 측정값 제목 -->
-      <div class="ddp-ui-sub-title">
+      <div (click)="isSelectedMeasure = !isSelectedMeasure" class="ddp-ui-sub-title">
         <div class="ddp-ui-sub-titlein ddp-measure">
           <em class="ddp-icon-menumove"></em> {{ 'msg.comm.name.mea' | translate }}
-          <a href="javascript:" class="ddp-icon-add" (click)="openCustomFieldPopup( 'MEASURE' )"></a>
+          <a (click)="$event.preventDefault();$event.stopImmediatePropagation();openCustomFieldPopup( 'MEASURE' )"
+             href="javascript:" class="ddp-icon-add"></a>
         </div>
       </div>
       <!-- // 측정값 제목 -->
       <!-- 측정값 목록 -->
-      <div class="ddp-wrap-list-source">
+      <div *ngIf="isSelectedMeasure" class="ddp-wrap-list-source">
         <ul class="ddp-list-source ddp-list-measure">
           <li class="ddp-ui-measure" *ngFor="let field of displayMeasures" >
             <em class="ddp-icon-datause" *ngIf="field.useChart"></em>
@@ -127,6 +138,15 @@
                 </div>
               </div>
               <!-- //사용자 정보 미리보기 -->
+              <!-- 연결키 정보 -->
+              <div *ngIf="field['assInfo']" class="ddp-wrap-user-preview">
+                <em class="ddp-icon-control-link ddp-type"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  <span *ngFor="let info of field['assInfo']" class="ddp-txt-tooltip">{{info}}</span>
+                </div>
+              </div>
+              <!-- // 연결키 정보 -->
               <em *ngIf="!field.useChartFilter && !field['isCustomMeasure']" (click)="toggleFilter($event,field)"
                   [ngClass]="{'ddp-selected' : field.useFilter, 'ddp-disabled' : field.aggregated}"
                   class="ddp-icon-control-filter ddp-type" ></em>
@@ -178,7 +198,7 @@
                   (close)="isShowCustomFiled = false">
 </app-custom-field>
 <!-- Field Context Menu layer more -->
-<page-data-context (openCustomFieldEvent)="openCustomFieldPopup($event)"
+<page-data-context (openCustomFieldEvent)="openCustomFieldPopupFromContext($event)"
                    (openColumnDetailEvent)="onColumnDetailPopup($event)"
                    (deleteCustomFieldEvent)="deleteCustomField($event)"
                    (changeAlias)="changeDatasourceFieldAlias($event)"></page-data-context>

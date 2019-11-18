@@ -34,30 +34,23 @@
     <div class="ddp-wrap-top-filtering">
       <!-- filter search -->
       <div class="ddp-filter-search ddp-fright">
-        <div class="ddp-form-filter-search">
+        <div class="ddp-form-filter-search" style="width:215px;">
           <component-input
             [autoFocus]="false"
+            [isEnableDelete]="true"
             [value]="searchKeyword"
             [placeHolder]="'msg.storage.ph.connection.search' | translate"
             (changeValue)="onChangedSearchKeyword($event)">
           </component-input>
         </div>
         <!-- form -->
-        <a href="javascript:" class="ddp-btn-selection" (click)="searchConnection()">{{'msg.comm.btn.search' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
       </div>
       <!-- //filter search -->
       <!-- filters -->
-      <div class="ddp-wrap-form-filtering">
-        <criterion-filter-box *ngFor="let criterion of connectionFilterList"
-                              [criterion]="criterion"
-                              [defaultSelectedItemList]="defaultSelectedFilterList[criterion.criterionKey]"
-                              [removeCriterionKey]="removedCriterionKey"
-                              [enableRemove]="isAdvancedCriterion(criterion)"
-                              [criterionApiFunc]="criterionApiFunc"
-                              (changedCriteria)="onChangedCriteriaFilter($event)"
-                              (removedCriterion)="removeCriterionFilterInConnectionFilterList($event)">
-        </criterion-filter-box>
-      </div>
+      <component-criterion [criterionApiFunc]="criterionApiFunc"
+                           (changedFilter)="onChangedFilter($event)">
+      </component-criterion>
       <!-- //filters -->
     </div>
     <!-- create connection -->
@@ -68,7 +61,11 @@
       <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" (click)="onClickCreateConnection()"><em class="ddp-icon-add2"></em>{{'msg.comm.btn.new' | translate}}</a>
     </div>
     <!-- //create connection -->
-    <table class="ddp-table-form ddp-table-type3">
+    <div class="ddp-data-source-none" *ngIf="isEmptyList(); else existList">
+      {{'msg.comm.ui.no.rslt' | translate}}
+    </div>
+    <ng-template #existList>
+      <table class="ddp-table-form ddp-table-type3">
       <colgroup>
         <col width="*">
         <col width="12%">
@@ -113,16 +110,15 @@
       </tr>
       </tbody>
     </table>
-    <!-- 더보기 -->
-    <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreConnectionList()">
-      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-    </div>
-    <!-- //더보기 -->
+      <!-- Pagination -->
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+      <!-- // Pagination -->
+    </ng-template>
   </div>
 </div>
 <!-- 커넥션 생성 팝업 -->
-<app-create-connection (createdConnection)="searchConnection()"></app-create-connection>
+<app-create-connection (createdConnection)="reloadPage()"></app-create-connection>
 <!-- 커넥션 상세 팝업 -->
-<app-update-connection (updatedConnection)="searchConnection()"></app-update-connection>
+<app-update-connection (updatedConnection)="reloadPage(false)"></app-update-connection>
 <!-- 삭제 모달 -->
 <app-delete-modal (deleteConfirm)="removeConnection($event)"></app-delete-modal>

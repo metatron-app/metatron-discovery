@@ -493,11 +493,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     }
 
     if (this.datasetJdbc.sqlInfo.queryStmt !== param) {
+      this.isQuerySuccess = false;
+      this.showQueryStatus = false;
+
       this.datasetJdbc.sqlInfo.queryStmt = param;
       this.datasetJdbc.sqlInfo.valid = false;
 
       this._deleteGridInfo(this.datasetJdbc.rsType);
-      this.clickable = true;
     }
 
   }
@@ -713,7 +715,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.datasetJdbc.dataconnection.connection.catalog = connectionInfo.catalog;
       }
 
-      if (this.datasetJdbc.dataconnection.connection.implementor === 'TIBERO' && !connectionInfo.url) {
+      if ( (this.datasetJdbc.dataconnection.connection.implementor === 'TIBERO' || this.datasetJdbc.dataconnection.connection.implementor === 'ORACLE')
+            && !connectionInfo.url) {
+
         this.datasetJdbc.dataconnection.connection.sid = connectionInfo.sid;
       }
 

@@ -13,18 +13,25 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { PublicType, Workspace } from '../../../domain/workspace/workspace';
-import { CommonUtil } from 'app/common/util/common.util';
-import { Alert } from '../../../common/util/alert.util';
-import { WorkspaceService } from '../../service/workspace.service';
-import { PermissionService } from '../../../user/service/permission.service';
-import { RoleSet, RoleSetScope } from '../../../domain/user/role/roleSet';
-import { PermissionSchemaComponent } from '../permission/permission-schema.component';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {PublicType, Workspace} from '../../../domain/workspace/workspace';
+import {CommonUtil} from 'app/common/util/common.util';
+import {Alert} from '../../../common/util/alert.util';
+import {WorkspaceService} from '../../service/workspace.service';
+import {PermissionService} from '../../../user/service/permission.service';
+import {RoleSet, RoleSetScope} from '../../../domain/user/role/roleSet';
+import {PermissionSchemaComponent} from '../permission/permission-schema.component';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 import * as _ from 'lodash';
-import { PermissionSchemaSetComponent } from '../permission/permission-schema-set.component';
+import {PermissionSchemaSetComponent} from '../permission/permission-schema-set.component';
 
 @Component({
   selector: 'app-create-workspace',
@@ -59,6 +66,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
 
   public isShow: boolean = false;
   public shareWorkspace: Workspace;
+  public sharedWorkspaceList: Workspace[];
 
   // 유효성 관련 - 이름
   public isInvalidName: boolean = false;
@@ -77,6 +85,12 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
   public selectedRoleSetInfo: RoleSet;      // RoleSet 선택 정보
   public selectedRoleSetDetail: RoleSet;    // 선택된 RoleSet 상세 정보
 
+  public params = {
+    size: this.page.size,
+    page: this.page.page,
+    sort: { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true }
+  };
+
   get disableCreateWorkspace() {
     return this.isInvalidName || this.isInvalidDesc
       || !this.shareWorkspace.name || '' === this.shareWorkspace.name
@@ -89,6 +103,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
 
   // 생성자
   constructor(private workbookService: WorkspaceService,
+              private workspaceService: WorkspaceService,
               protected permissionService: PermissionService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -137,9 +152,43 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
 
   // 닫기
   public close() {
+    this.sharedWorkspaceList = undefined;
+    this.isInvalidName = undefined;
     $(document.body).css('overflow', this._docOverflow);
     this.isShow = false;
   }
+
+  /**
+   * Check if name is in use
+   * @param {string} newWorkspaceName
+   */
+  public async nameChange(newWorkspaceName) {
+    this.shareWorkspace.name = newWorkspaceName;
+    this.params.size = 100;
+
+    this.loadingShow();
+
+    if (_.isNil(this.sharedWorkspaceList)) {
+      // get workspaces which contains keyword(newWorkspaceName)
+      this.workspaceService.getSharedWorkspaces('forListView', this.params).then(workspaces => {
+        if (workspaces['_embedded']) {
+          this.sharedWorkspaceList = workspaces['_embedded']['workspaces'];
+          this._checkDuplicateName(newWorkspaceName);
+        } else {
+          this.sharedWorkspaceList = [];
+        }
+
+      }).catch((error) => {
+        Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
+        this.loadingHide();
+      });
+    } else if (this.sharedWorkspaceList.length > 0) {
+      this._checkDuplicateName(newWorkspaceName);
+    }
+
+    this.loadingHide();
+  }
+
 
   /**
    * 컴포넌트 자체 클릭 이벤트
@@ -176,30 +225,28 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
    * 공유 워크스페이스 생성
    */
   public createShareWorkspace() {
-
     if( this.disableCreateWorkspace ) {
-      return;
-    }
+      this.shareWorkspace.name = this.shareWorkspace.name ? this.shareWorkspace.name.trim() : '';
+      // check if name is empty
+      if (this.shareWorkspace.name == null || this.shareWorkspace.name.length === 0) {
+        this.isInvalidName = true;
+        this.errMsgName = this.translateService.instant('msg.alert.create.name.empty');
+      }
 
-    this.shareWorkspace.name = this.shareWorkspace.name ? this.shareWorkspace.name.trim() : '';
-    if (this.shareWorkspace.name == null || this.shareWorkspace.name.length === 0) {
-      this.isInvalidName = true;
-      this.errMsgName = this.translateService.instant('msg.alert.edit.name.empty');
-      return;
-    }
+      // check name length
+      if (CommonUtil.getByte(this.shareWorkspace.name) > 150) {
+        this.isInvalidName = true;
+        this.errMsgName = this.translateService.instant('msg.alert.edit.name.len');
+      }
 
-    // 이름 길이 체크
-    if (CommonUtil.getByte(this.shareWorkspace.name) > 150) {
-      this.isInvalidName = true;
-      this.errMsgName = this.translateService.instant('msg.alert.edit.name.len');
-      return;
-    }
+      // check description length
+      if (this.shareWorkspace.description != null
+        && CommonUtil.getByte(this.shareWorkspace.description.trim()) > 450) {
+        this.isInvalidDesc = true;
+        this.errMsgDesc = this.translateService.instant('msg.alert.edit.description.len');
+      }
 
-    // 설명 길이 체크
-    if (this.shareWorkspace.description != null
-      && CommonUtil.getByte(this.shareWorkspace.description.trim()) > 450) {
-      this.isInvalidDesc = true;
-      this.errMsgDesc = this.translateService.instant('msg.alert.edit.description.len');
+      Alert.fail(this.translateService.instant('msg.comm.alert.error'));
       return;
     }
 
@@ -310,5 +357,15 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
       });
     });
   } // function - _loadRoleSets
+
+  private _checkDuplicateName(newWorkspaceName: string) {
+    // check if name is in use and set isInvalidName flag according to the condition
+    this.isInvalidName = this.sharedWorkspaceList.some((workspace) => {
+      if (workspace.name === newWorkspaceName) {
+        this.errMsgName = this.translateService.instant('msg.comm.ui.workspace.name.duplicated');
+        return true;
+      }
+    });
+  }
 
 }

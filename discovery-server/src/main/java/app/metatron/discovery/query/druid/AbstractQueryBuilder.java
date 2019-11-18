@@ -42,42 +42,13 @@
 
 package app.metatron.discovery.query.druid;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.QueryHistoryTeller;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
-import app.metatron.discovery.domain.datasource.data.forward.CsvResultForward;
-import app.metatron.discovery.domain.datasource.data.forward.ExcelResultForward;
-import app.metatron.discovery.domain.datasource.data.forward.JsonResultForward;
-import app.metatron.discovery.domain.datasource.data.forward.OrcResultForward;
-import app.metatron.discovery.domain.datasource.data.forward.ParquetResultForward;
-import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.datasource.JoinMapping;
-import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
-import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
-import app.metatron.discovery.domain.workbook.configurations.field.Field;
-import app.metatron.discovery.domain.workbook.configurations.field.MapField;
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
+import app.metatron.discovery.domain.datasource.data.forward.*;
+import app.metatron.discovery.domain.workbook.configurations.datasource.*;
+import app.metatron.discovery.domain.workbook.configurations.field.*;
 import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
@@ -85,15 +56,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFor
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
-import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
-import app.metatron.discovery.query.druid.aggregations.CountAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
-import app.metatron.discovery.query.druid.aggregations.HyperUniqueAggregation;
-import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
-import app.metatron.discovery.query.druid.aggregations.SketchAggregation;
-import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
+import app.metatron.discovery.query.druid.aggregations.*;
 import app.metatron.discovery.query.druid.datasource.QueryDataSource;
 import app.metatron.discovery.query.druid.datasource.TableDataSource;
 import app.metatron.discovery.query.druid.extractionfns.LookupFunction;
@@ -115,15 +78,21 @@ import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.TimeUnits;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.CONFUSING_FIELD_CODE;
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
-import static app.metatron.discovery.domain.datasource.data.forward.ResultForward.ForwardType.CSV;
-import static app.metatron.discovery.domain.datasource.data.forward.ResultForward.ForwardType.EXCEL;
-import static app.metatron.discovery.domain.datasource.data.forward.ResultForward.ForwardType.JSON;
-import static app.metatron.discovery.domain.datasource.data.forward.ResultForward.ForwardType.NONE;
-import static app.metatron.discovery.domain.datasource.data.forward.ResultForward.ForwardType.PARQUET;
+import static app.metatron.discovery.domain.datasource.data.forward.ResultForward.ForwardType.*;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 
 /**
@@ -583,6 +552,12 @@ public abstract class AbstractQueryBuilder {
 
         filter.addField(new RegExpFilter(fieldName, PolarisUtils.convertSqlLikeToRegex(likeFilter.getExpr(), false)));
 
+      } else if (reqFilter instanceof RegExprFilter) {
+
+        RegExprFilter regExprFilter = (RegExprFilter) reqFilter;
+
+        filter.addField(new RegExpFilter(fieldName, regExprFilter.getExpr()));
+
       } else if (reqFilter instanceof IntervalFilter) {
 
         IntervalFilter intervalFilter = (IntervalFilter) reqFilter;
@@ -606,7 +581,7 @@ public abstract class AbstractQueryBuilder {
           for (String interval : curIntervals) {
             String[] splitedInterval = StringUtils.split(interval, "/");
             String expr = String.format("(timestamp(%s, format='%s') >= timestamp('%s') && (timestamp(%s, format='%s') <= timestamp('%s')",
-                                        engineColumnName, datasourceField.getTimeFormat(), splitedInterval[0], engineColumnName, datasourceField.getFormat(), splitedInterval[1]);
+                    engineColumnName, datasourceField.getTimeFormat(), splitedInterval[0], engineColumnName, datasourceField.getFormat(), splitedInterval[1]);
 
             orFilter.addField(new MathFilter(expr));
           }
@@ -628,16 +603,16 @@ public abstract class AbstractQueryBuilder {
           field = "__time";
         } else {
           DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(engineColumnName,
-                                                                 datasourceField.getTimeFormat(),
-                                                                 null, null);
+                  datasourceField.getTimeFormat(),
+                  null, null);
           field = millisFunc.toExpression();
         }
 
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampFilter.getTimeFormat();
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(field,
-                                                           timeFormat.getFormat(),
-                                                           timeFormat.selectTimezone(),
-                                                           timeFormat.getLocale());
+                timeFormat.getFormat(),
+                timeFormat.selectTimezone(),
+                timeFormat.getLocale());
 
         InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), timestampFilter.getSelectedTimestamps());
 
@@ -805,9 +780,11 @@ public abstract class AbstractQueryBuilder {
       case VARIATION:
         aggregations.add(new VarianceAggregation(aliasName, fieldName));
         break;
-      case APPROX:
+      case FIRST:
+        aggregations.add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MIN.name()));
         break;
-      case COMPLEX:
+      case LAST:
+        aggregations.add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MAX.name()));
         break;
     }
 
@@ -977,7 +954,7 @@ public abstract class AbstractQueryBuilder {
   private void addCsvContext(CsvResultForward resultForward) {
     addContext("forwardURL", resultForward.getForwardUrl());
     Map<String, Object> csvContext = Maps.newHashMap();
-    csvContext.put("header", resultForward.isHasHeader());
+    csvContext.put("withHeader", resultForward.isHasHeader());
     csvContext.put("format", "csv");
     csvContext.put("columns", StringUtils.join(getAllOutputFieldName(), ","));
     addContext("forwardContext", csvContext);

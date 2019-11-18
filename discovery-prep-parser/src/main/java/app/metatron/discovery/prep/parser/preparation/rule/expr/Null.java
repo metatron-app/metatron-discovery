@@ -15,6 +15,7 @@
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
 public interface Null extends Constant {
+
   class NullExpr implements Null {
 
     private final String value;

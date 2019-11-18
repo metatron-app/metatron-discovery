@@ -14,9 +14,15 @@
 
 package app.metatron.discovery.query.polaris;
 
+import app.metatron.discovery.domain.datasource.data.InvalidExpressionException;
+import app.metatron.discovery.query.druid.Aggregation;
+import app.metatron.discovery.query.druid.PostAggregation;
+import app.metatron.discovery.query.druid.aggregations.*;
+import app.metatron.discovery.query.druid.limits.WindowingSpec;
+import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
+import app.metatron.discovery.query.polaris.ExprParser.FunctionExprContext;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -28,25 +34,7 @@ import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import app.metatron.discovery.domain.datasource.data.InvalidExpressionException;
-import app.metatron.discovery.query.druid.Aggregation;
-import app.metatron.discovery.query.druid.PostAggregation;
-import app.metatron.discovery.query.druid.aggregations.CardinalityAggregation;
-import app.metatron.discovery.query.druid.aggregations.CountAggregation;
-import app.metatron.discovery.query.druid.aggregations.DistinctSketchAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
-import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
-import app.metatron.discovery.query.druid.limits.WindowingSpec;
-import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
-import app.metatron.discovery.query.polaris.ExprParser.FunctionExprContext;
+import java.util.*;
 
 import static app.metatron.discovery.query.polaris.ExprParser.IDENTIFIER;
 import static app.metatron.discovery.query.polaris.ExprParser.IdentifierExprContext;
@@ -503,125 +491,9 @@ public class ComputationalField {
     return tree.getText();
   }
 
-//  public static boolean makeAggregationFunctions(String fieldName, String computationalField, List<Aggregation> aggregations, List<PostAggregation> postAggregations) {
-//
-//    List<FunctionExprContext> aggregationFunctions = new ArrayList<FunctionExprContext>();
-//    app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(new ANTLRInputStream(computationalField));
-//    CommonTokenStream tokens = new CommonTokenStream(lexer);
-//    app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(tokens);
-//    ParseTree tree = parser.expr();
-//
-//    getAggregations(tree, aggregationFunctions);
-//
-//    int aggregationCount = aggregations.size();
-//    String postAggregation = tree.getText();
-//    for (int i = 0; i < aggregationFunctions.size(); i++) {
-//
-//      FunctionExprContext context = aggregationFunctions.get(i);
-//
-//      String paramName = "aggregationfunc" + String.format("_%03d", aggregationCount+i);
-//      String aggregationFunction = context.getText();
-//      String fieldExpression = context.fnArgs().getText();
-//      String dataType = "double";
-//      //String fieldExpression = generateAggregationExpression( context.fnArgs().getText() );
-//
-//      if ("sumof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-//        aggregations.add(new GenericSumAggregation(paramName, null, fieldExpression, dataType));
-//        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-//      } else if ("minof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-//        aggregations.add(new GenericMinAggregation(paramName, null, fieldExpression, dataType));
-//        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-//      } else if ("maxof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-//        aggregations.add(new GenericMaxAggregation(paramName, null, fieldExpression, dataType));
-//        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-//      } else if ("avgof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-//        aggregations.add(new GenericSumAggregation("count", "count", null, dataType));
-//        aggregations.add(new GenericSumAggregation(paramName, null, fieldExpression, dataType));
-//        postAggregation = postAggregation.replace(aggregationFunction, "(" + paramName + "/count)");
-//      } else if ("countof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-//        aggregations.add(new CountAggregation(paramName));
-//        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-//      } else if ("countd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-//        aggregations.add(new CardinalityAggregation(paramName, Arrays.asList( fieldExpression ), true));
-//        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-//      } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-//        aggregations.add(new CardinalityAggregation(paramName, Arrays.asList( context.fnArgs().getChild(2).getText() ),  context.fnArgs().getChild(0).getText(), true));
-//        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-//      }
-//
-//    }
-//
-//    MathPostAggregator mathPostAggregator = new MathPostAggregator(fieldName, postAggregation, null);
-//    postAggregations.add(mathPostAggregator);
-//
-//    return true;
-//  }
-
-  public static boolean makePostAggregationFunctionParseTree( String fieldName, ParseTree tree, List<Aggregation> aggregations, List<PostAggregation> postAggregations ){
-
-    List<FunctionExprContext> aggregationFunctions = new ArrayList<FunctionExprContext>();
-
-    if ( tree instanceof IdentifierExprContext && tree.getChildCount() == 1 ){
-      return false;
-    }
-
-    getAggregations(tree, aggregationFunctions);
-
-    int aggregationCount = aggregations.size();
-    String postAggregation = tree.getText();
-    for (int i = 0; i < aggregationFunctions.size(); i++) {
-
-      FunctionExprContext context = aggregationFunctions.get(i);
-
-      String paramName = "aggregationfunc" + String.format("_%03d", aggregationCount + i);
-      String aggregationFunction = context.getText();
-      String fieldExpression = context.fnArgs().getText();
-      String dataType = "double";
-
-      //String fieldExpression = generateAggregationExpression( context.fnArgs().getText() );
-
-      if ("sumof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new GenericSumAggregation(paramName, null, fieldExpression, dataType));
-        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-      } else if ("minof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new GenericMinAggregation(paramName, null, fieldExpression, dataType));
-        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-      } else if ("maxof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new GenericMaxAggregation(paramName, null, fieldExpression, dataType));
-        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-      } else if ("avgof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new GenericSumAggregation("count", "count", null, dataType));
-        aggregations.add(new GenericSumAggregation(paramName, null, fieldExpression, dataType));
-        postAggregation = postAggregation.replace(aggregationFunction, "(" + paramName + "/count)");
-      } else if ("varianceof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new VarianceAggregation(paramName, null, fieldExpression));
-        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-      } else if ("stddevof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new VarianceAggregation(paramName, null, fieldExpression));
-        postAggregation = postAggregation.replace(aggregationFunction, "sqrt(" + paramName + ")");
-      } else if ("countof".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new CountAggregation(paramName));
-        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-      } else if ("countd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        List<String> dimensions = new ArrayList<String>();
-        dimensions.add(fieldExpression);
-        aggregations.add(new CardinalityAggregation(paramName, dimensions, true));
-        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-      } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        List<String> dimensions = new ArrayList<String>();
-        dimensions.add(context.fnArgs().getChild(2).getText());
-        aggregations.add(new CardinalityAggregation(paramName, dimensions, context.fnArgs().getChild(0).getText(), true));
-        postAggregation = postAggregation.replace(aggregationFunction, paramName);
-      }
-    }
-
-    MathPostAggregator mathPostAggregator = new MathPostAggregator(fieldName, postAggregation, null);
-    postAggregations.add(mathPostAggregator);
-
-    return true;
-  }
-
-  public static boolean makeAggregationFunctions3(String fieldName, String computationalField, List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs, Map<String, Object> queryContext) {
+  public static boolean makeAggregationFunctions(String fieldName, String computationalField,
+          List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs,
+          Map<String, Object> queryContext) {
 
     ParseTree tree = getParseTree( computationalField );
 
@@ -629,6 +501,7 @@ public class ComputationalField {
     getAggregations(tree, aggregationFunctions);
 
     int aggregationCount = aggregations.size();
+    boolean finalize = false;
 
     for (int i = 0; i < aggregationFunctions.size(); i++) {
 
@@ -666,6 +539,9 @@ public class ComputationalField {
       } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
         aggregations.add(new CardinalityAggregation(paramName, Arrays.asList( context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "") ), context.fnArgs().getChild(0).getText(), true));
         paramName = "ROUND(" + paramName + ")";
+
+        // set true case of only "ifcountd" function
+        finalize = true;
       }
       else {
         continue;
@@ -689,7 +565,7 @@ public class ComputationalField {
       String postAggregationExpression = tree.getText();
 
       if(StringUtils.isNotEmpty(postAggregationExpression) && !"null".equals(postAggregationExpression)) {
-        MathPostAggregator mathPostAggregator = new MathPostAggregator(fieldName, postAggregationExpression, null);
+        MathPostAggregator mathPostAggregator = new MathPostAggregator(fieldName, postAggregationExpression, finalize);
         postAggregations.add(mathPostAggregator);
       }
 
@@ -711,7 +587,7 @@ public class ComputationalField {
 
         String paramName = "postaggregationfunc" + String.format("_%03d", postAggregations.size());
         String postAggregationExpression = postnode.getText();
-        MathPostAggregator mathPostAggregator = new MathPostAggregator(paramName, postAggregationExpression, null);
+        MathPostAggregator mathPostAggregator = new MathPostAggregator(paramName, postAggregationExpression, false);
         postAggregations.add(mathPostAggregator);
 
         while (postnode.getChildCount() > 0) {
@@ -763,7 +639,8 @@ public class ComputationalField {
 
     String newComputationalField = generateAggregationExpression( fieldName, mapField, mapHistoryField );
 
-    return makeAggregationFunctions3( fieldName, newComputationalField, aggregations, postAggregations, windowingSpecs, context );
+    return makeAggregationFunctions(fieldName, newComputationalField, aggregations, postAggregations, windowingSpecs,
+            context);
 
   }
 

@@ -20,6 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.List;
@@ -33,6 +36,7 @@ import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 
 @Entity
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Table(name = "mdm_code_table")
 public class CodeTable extends AbstractHistoryEntity implements MetatronDomain<String> {
 

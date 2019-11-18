@@ -79,9 +79,14 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   public isMultiSelector: boolean = false;        // 복수 선택 여부
   public isSearchFocus: boolean = false;          // 검색바 포커스 여부
   public isOverCandidateWarning: boolean = false;  // Candidate Limit 을 넘겼는지 여부
+  public isNewFilter:boolean = false;
+
+  public searchAllMessage = '';
 
   @Input('filter')
   public originalFilter: InclusionFilter;
+
+  public isDeSelected: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -114,6 +119,16 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     super.ngAfterViewInit();
 
     this._initComponent(this.originalFilter);
+
+    if( this.originalFilter['isNew'] ) {
+      this.isNewFilter = true;
+      this.safelyDetectChanges();
+      delete this.originalFilter['isNew'];
+      setTimeout( () => {
+        this.isNewFilter = false;
+        this.safelyDetectChanges();
+      }, 1500 );
+    }
 
     // 필터 선택 변경
     this.subscriptions.push(
@@ -179,17 +194,11 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
   /**
    * 전체선택
-   * @param {MouseEvent} event
    */
-  public checkAll(event: MouseEvent) {
+  public checkAll() {
     if (this.isMultiSelector) {
-      const checked = event.target ? event.target['checked'] : event.currentTarget['checked'];
-      if (checked) {
-        this.filter.valueList = [];
-        this._candidateList.forEach(item => this.filter.valueList.push(item.name));
-      } else {
-        this.filter.valueList = [];
-      }
+      this.filter.valueList = [];
+      this._candidateList.forEach(item => this.filter.valueList.push(item.name));
     } else {
       this.filter.valueList = [];
     }
@@ -201,16 +210,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       }
     });
 
+    this.isDeSelected = false;
     this.updateFilterEvent.emit(this.filter);
   } // function - checkAll
-
-  /**
-   * 전체 체크 여부
-   * @returns {boolean}
-   */
-  public isCheckAll(): boolean {
-    return this.filter.valueList.length > 0 && this.filter.valueList.length === this._candidateList.length;
-  } // function - isCheckAll
 
   /**
    * 값 선택
@@ -240,6 +242,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       }
     });
 
+    this.isDeSelected = false;
     this.updateFilterEvent.emit(this.filter);
   } // function - onSelected
 
@@ -318,6 +321,11 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    * @param {boolean} isInitial
    */
   public setCandidatePage(page: number, isInitial: boolean = false) {
+    if(this.searchText === '') {
+      this.searchAllMessage = '';
+    } else {
+      this.searchAllMessage = this.translateService.instant('msg.board.filter.ui.search-all');
+    }
 
     if (isInitial) {
       this.pageCandidateList = [];
@@ -392,6 +400,64 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     this.isSearchFocus = false;
     this._candidate(false);
   } // function - candidateFromSearchText
+
+  public deselectAll() {
+    this.filter.valueList = [];
+    this.isDeSelected = true;
+    this.updateFilterEvent.emit(this.filter);
+  }
+
+  public get currentSortOptLabel():string {
+    if( this.sortBy.TEXT === this.filter.sort.by ) {
+      if( this.sortDirection.ASC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.alphnumeric.asc');
+      } else if( this.sortDirection.DESC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.alphnumeric.desc');
+      }
+    } else if( this.sortBy.COUNT === this.filter.sort.by ) {
+      if( this.sortDirection.ASC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.frequency.asc');
+      } else if( this.sortDirection.DESC === this.filter.sort.direction ) {
+        return this.translateService.instant('msg.comm.ui.soring.frequency.desc');
+      }
+    }
+  }
+
+  public setSelectorType(type: string) {
+    if ('SINGLE' === type) {
+      this.isMultiSelector = false;
+      if (this.isListSelector) {
+        this.filter.selector = InclusionSelectorType.SINGLE_LIST;
+        this.originalFilter.selector = InclusionSelectorType.SINGLE_LIST;
+      } else {
+        this.filter.selector = InclusionSelectorType.SINGLE_COMBO;
+        this.originalFilter.selector = InclusionSelectorType.SINGLE_COMBO;
+      }
+      if (1 < this.filter.valueList.length) {
+        this.filter.valueList = [this.filter.valueList[0]];
+        this.originalFilter.valueList = [this.originalFilter.valueList[0]];
+      }
+    } else {
+      this.isMultiSelector = true;
+      if (this.isListSelector) {
+        this.filter.selector = InclusionSelectorType.MULTI_LIST;
+        this.originalFilter.selector = InclusionSelectorType.MULTI_LIST;
+      } else {
+        this.filter.selector = InclusionSelectorType.MULTI_COMBO;
+        this.originalFilter.selector = InclusionSelectorType.MULTI_COMBO;
+      }
+    }
+    this.updateFilterEvent.emit(this.filter);
+    this.safelyDetectChanges();
+  }
+
+  public get isSingleSelector():boolean {
+    return InclusionSelectorType.SINGLE_LIST === this.filter.selector || InclusionSelectorType.SINGLE_COMBO === this.filter.selector;
+  }
+
+  public get isListSelector(): boolean {
+    return InclusionSelectorType.SINGLE_LIST === this.filter.selector || InclusionSelectorType.MULTI_LIST === this.filter.selector;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -501,6 +567,12 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
         // 위젯 화면 표시
         this.isShowFilter = true;
+
+        if(result == null || result.length == 0) {
+          this.searchAllMessage = this.translateService.instant('msg.board.filter.ui.search-all.nodata');
+        } else {
+          this.searchAllMessage = '';
+        }
 
         this.loadingHide();
       }).catch((error) => {

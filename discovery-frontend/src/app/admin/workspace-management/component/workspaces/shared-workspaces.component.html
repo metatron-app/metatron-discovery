@@ -77,9 +77,15 @@
     <div class="ddp-ui-option ddp-clear">
       <!-- edit -->
       <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
+        [defaultType]="initialPeriodData?.type"
         [usedCustomDateType]="true"
         [customDateTypeList]="customDateTypeList"
         [roundSecond]="true"
+        [selectedDate]="initialPeriodData?.dateType ? initialPeriodData?.dateType : 'CREATED'"
+        [startPlaceholder]="'msg.storage.ui.criterion.time.past' | translate"
+        [endPlaceholder]="'msg.storage.ui.criterion.time.current' | translate"
         (changeDate)="onFilterDate($event)"
         [title]="'msg.storage.ui.list.date' | translate"
       ></component-period>
@@ -96,7 +102,7 @@
                (keypress)="onSearchText($event)"
                (keyup.esc)="onSearchTextInit()"
                [ngModel]="searchText">
-        <em class="ddp-btn-search-close" (click)="onSearchTextInit()" *ngIf="searchText"></em>
+        <em class="ddp-btn-search-close" (click)="onSearchTextInit()" *ngIf="searchText !== ''"></em>
       </div>
       <!-- //검색 -->
       <!-- total -->
@@ -168,11 +174,10 @@
       </td>
       <td>
         <!-- ddp-tag ddp-info -->
-        <div class="ddp-type-txt" [class.ddp-tag]="workspace.published">
-          <span class="ddp-txt-long">{{workspace.name}}</span>
-          <!-- only all allowance -->
-          <em class="ddp-tag-annoymous" *ngIf="workspace.published">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
-          <!-- //only all allowance -->
+        <div class="ddp-txt-long ddp-type">
+          <em class="ddp-tag-global type-tag" *ngIf="workspace.published">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
+          <span class="ddp-data-long" [class.ddp-global]="workspace.published">{{workspace.name}}
+          </span>
         </div>
       </td>
       <td>
@@ -222,11 +227,9 @@
     </tr>
     </tbody>
   </table>
-  <!-- more contents -->
-  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-  </div>
-  <!-- //more contents -->
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
 </div>
 <!-- 공통 모달 -->
 <app-confirm-modal (confirm)="confirmEvent($event)"></app-confirm-modal>

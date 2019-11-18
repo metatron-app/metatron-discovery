@@ -29,6 +29,8 @@ import {GridComponent} from '../grid/grid.component';
 import {CommonUtil} from '../../util/common.util';
 import {Alert} from '../../util/alert.util';
 import {SearchQueryRequest} from "../../../domain/datasource/data/search-query-request";
+import {QueryParam} from "../../../domain/dashboard/dashboard";
+import {DatasourceService} from "../../../datasource/service/datasource.service";
 
 @Component({
   selector: 'data-download',
@@ -49,6 +51,8 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
 
   // 다운로드 데이터
   private _downData: { cols: any[], rows: any[] };
+
+  private _queryParams: QueryParam;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -90,7 +94,8 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private widgetService: WidgetService,
+  constructor(private datasourceService: DatasourceService,
+              private widgetService: WidgetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -145,15 +150,21 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {string} widgetId
    * @param {boolean} isOriginDown
    */
-  public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown: boolean = true) {
+  public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown: boolean = true, query: SearchQueryRequest = null) {
     this._openComponent(event, 'RIGHT');
     this._downloadId = widgetId;
     this.mode = 'WIDGET';
     this.isOriginDown = isOriginDown;
     this.preview = undefined;
+    this.query = query;
+
+    let param = null;
+    if (query) {
+      param = query.getDownloadFilters();
+    }
 
     if (isOriginDown) {
-      this.widgetService.previewWidget(widgetId, isOriginDown, true).then(result => {
+      this.widgetService.previewWidget(widgetId, isOriginDown, true, param).then(result => {
         if (result) {
           this.preview = new PreviewResult(result.estimatedSize, result.totalCount);
         }
@@ -172,7 +183,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {GridComponent} gridComp
    * @param {PreviewResult} preview
    */
-  public openGridDown(event: MouseEvent, gridComp: GridComponent, preview?:PreviewResult ) {
+  public openGridDown(event: MouseEvent, gridComp: GridComponent, preview?: PreviewResult) {
     this._openComponent(event, 'RIGHT');
     (preview) && (this.preview = preview);
     this.mode = 'GRID';
@@ -180,19 +191,13 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this._gridComp = gridComp;
   } // function - openGridDown
 
-  /**
-   * 데이터 다운로드 팝업 오픈
-   * @param {MouseEvent} event
-   * @param {any[]} cols
-   * @param {any[]} rows
-   * @param {PreviewResult} preview
-   */
-  public openDataDown(event: MouseEvent, cols: any[], rows: any[], preview?: PreviewResult) {
+  public openDataDown(event: MouseEvent, cols: any[], rows: any[], preview: PreviewResult, queryParam?: QueryParam) {
     this._openComponent(event, 'RIGHT');
-    (preview) && (this.preview = preview);
+    this.preview = preview;
     this.mode = 'DATA';
     this.isOriginDown = true;
     this._downData = {cols: cols, rows: rows};
+    (queryParam) && (this._queryParams = queryParam);
   } // function - openDataDown
 
   /**
@@ -211,7 +216,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     if ('WIDGET' === this.mode) {
       this.startDownEvent.emit();
       let param = null;
-      if(this.query) {
+      if (this.query) {
         param = this.query.getDownloadFilters();
       }
 
@@ -228,7 +233,18 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     } else if ('GRID' === this.mode) {
       this._gridComp.csvDownload('data');
     } else if ('DATA' === this.mode) {
-      this._dataDownload( this._downData.cols, this._downData.rows, 'CSV' );
+      if( !this._downData.rows && this._queryParams ) {
+        this.loadingShow();
+        this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
+          this._dataDownload(this._downData.cols, downData, 'CSV');
+          this.loadingHide();
+        }).catch(() => {
+          this.loadingHide();
+        });
+      } else {
+
+      }
+
     }
   } // function - downloadCSV
 
@@ -240,7 +256,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     if ('WIDGET' === this.mode) {
       this.startDownEvent.emit();
       let param = null;
-      if(this.query) {
+      if (this.query) {
         param = this.query.getDownloadFilters();
       }
       this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'EXCEL', param).subscribe(
@@ -256,7 +272,17 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     } else if ('GRID' === this.mode) {
       this._gridComp.excelDownload('data');
     } else if ('DATA' === this.mode) {
-      this._dataDownload( this._downData.cols, this._downData.rows, 'EXCEL' );
+      if( !this._downData.rows && this._queryParams ) {
+        this.loadingShow();
+        this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
+          this._dataDownload(this._downData.cols, downData, 'EXCEL');
+          this.loadingHide();
+        }).catch(() => {
+          this.loadingHide();
+        });
+      } else {
+        this._dataDownload(this._downData.cols, this._downData.rows, 'EXCEL');
+      }
     }
   } // function - downloadExcel
 
@@ -321,10 +347,10 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
         })
       );
 
-      if( 'CSV' === type ) {
-        saveAs(new Blob(['\ufeff' + downRows.join('\n')], { type: 'application/csv;charset=utf-8' }), fileName + '.csv');
+      if ('CSV' === type) {
+        saveAs(new Blob(['\ufeff' + downRows.join('\n')], {type: 'application/csv;charset=utf-8'}), fileName + '.csv');
       } else {
-        saveAs(new Blob(['\ufeff' + downRows.join('\n')], { type: 'application/vnd.ms-excel;charset=charset=utf-8' }), fileName + '.xls');
+        saveAs(new Blob(['\ufeff' + downRows.join('\n')], {type: 'application/vnd.ms-excel;charset=charset=utf-8'}), fileName + '.xls');
       }
 
     }

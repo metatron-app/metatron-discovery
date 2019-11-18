@@ -69,8 +69,6 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-
-    this.sourceData = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -83,17 +81,11 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
 
   // 닫기
   public createClose() {
-
-    this.sourceData = null;
-
     this.closeEvent.emit('close-create');
   }
 
   // 완료
   public createComplete() {
-
-    this.sourceData = null;
-
     this.completeEvent.emit();
   }
 

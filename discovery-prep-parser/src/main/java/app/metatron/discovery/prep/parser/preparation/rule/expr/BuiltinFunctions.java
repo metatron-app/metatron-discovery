@@ -15,18 +15,17 @@
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
 
 /**
  */
@@ -120,6 +119,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class Regex implements Function, Function.Factory {
+
     private Matcher matcher;
     private int index = -1;
 
@@ -143,7 +143,9 @@ public interface BuiltinFunctions extends Function.Library {
     }
   }
 
-  abstract class AggreationFunc extends SingleParam { }
+  abstract class AggreationFunc extends SingleParam {
+
+  }
 
   class Sum extends AggreationFunc {
 
@@ -201,13 +203,21 @@ public interface BuiltinFunctions extends Function.Library {
     }
   }
 
-  abstract class WindowFuncNonParam extends NonParam { }
+  abstract class WindowFuncNonParam extends NonParam {
 
-  abstract class WindowFuncSingleParam extends SingleParam { }
+  }
 
-  abstract class WindowFuncDoubleParam extends DoubleParam { }
+  abstract class WindowFuncSingleParam extends SingleParam {
 
-  abstract class WindowFuncTripleParam extends TripleParam { }
+  }
+
+  abstract class WindowFuncDoubleParam extends DoubleParam {
+
+  }
+
+  abstract class WindowFuncTripleParam extends TripleParam {
+
+  }
 
   class rank extends WindowFuncNonParam {
 
@@ -265,7 +275,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
   }
 
-  class rolling_sum extends  WindowFuncTripleParam {
+  class rolling_sum extends WindowFuncTripleParam {
 
     @Override
     public String name() {
@@ -273,7 +283,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
   }
 
-  class rolling_avg extends  WindowFuncTripleParam {
+  class rolling_avg extends WindowFuncTripleParam {
 
     @Override
     public String name() {
@@ -292,15 +302,19 @@ public interface BuiltinFunctions extends Function.Library {
   interface Math extends Function {
 
     abstract class SingleParamMath extends SingleParam {
+
     }
 
     abstract class DoubleParamMath extends DoubleParam {
+
     }
 
     abstract class TripleParamMath extends TripleParam {
+
     }
 
     class Abs extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.abs";
@@ -308,6 +322,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Acos extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.acos";
@@ -315,6 +330,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Asin extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.asin";
@@ -322,6 +338,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Atan extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.atan";
@@ -329,6 +346,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Cbrt extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.cbrt";
@@ -336,6 +354,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Ceil extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.ceil";
@@ -343,6 +362,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Cos extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.cos";
@@ -350,6 +370,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Cosh extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.cosh";
@@ -357,6 +378,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Exp extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.exp";
@@ -364,6 +386,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Expm1 extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.expm1";
@@ -371,6 +394,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Floor extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.floor";
@@ -378,6 +402,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class GetExponent extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.getExponent";
@@ -385,6 +410,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Round extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.round";
@@ -392,6 +418,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Signum extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.signum";
@@ -399,6 +426,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Sin extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.sin";
@@ -406,6 +434,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Sinh extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.sinh";
@@ -413,6 +442,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Sqrt extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.sqrt";
@@ -420,6 +450,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Tan extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.tan";
@@ -427,6 +458,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Tanh extends SingleParamMath {
+
       @Override
       public String name() {
         return "math.tanh";
@@ -434,6 +466,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Max extends DoubleParamMath {
+
       @Override
       public String name() {
         return "math.max";
@@ -441,6 +474,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Min extends DoubleParamMath {
+
       @Override
       public String name() {
         return "math.min";
@@ -448,6 +482,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class NextAfter extends DoubleParamMath {
+
       @Override
       public String name() {
         return "math.nextAfter";
@@ -455,6 +490,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class Pow extends DoubleParamMath {
+
       @Override
       public String name() {
         return "math.pow";
@@ -464,6 +500,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class ConditionFunc implements Function {
+
     @Override
     public String name() {
       return "if";
@@ -484,6 +521,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class CastFunc implements Function, Function.Factory {
+
     private ExprType castTo;
 
     @Override
@@ -529,14 +567,14 @@ public interface BuiltinFunctions extends Function.Library {
 
     protected void initialize(List<Expr> args, Map<String, Expr> params, Expr.NumericBinding bindings) {
       String format = args.size() > 1 ?
-          Evals.getConstantString(args.get(1)).trim() :
-          Evals.evalOptionalString(params.get("format"), bindings);
+              Evals.getConstantString(args.get(1)).trim() :
+              Evals.evalOptionalString(params.get("format"), bindings);
       String language = args.size() > 2 ?
-          Evals.getConstantString(args.get(2)).trim() :
-          Evals.evalOptionalString(params.get("locale"), bindings);
+              Evals.getConstantString(args.get(2)).trim() :
+              Evals.evalOptionalString(params.get("locale"), bindings);
       String timezone = args.size() > 3 ?
-          Evals.getConstantString(args.get(3)).trim() :
-          Evals.evalOptionalString(params.get("timezone"), bindings);
+              Evals.getConstantString(args.get(3)).trim() :
+              Evals.evalOptionalString(params.get("timezone"), bindings);
 
       formatter = format == null ? DateTimeFormat.fullDateTime() : DateTimeFormat.forPattern(format);
       if (language != null) {
@@ -558,6 +596,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class UnixTimestampFunc extends TimestampFromEpochFunc {
+
     @Override
     public String name() {
       return "unix_timestamp";
@@ -611,6 +650,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class IsNullFunc implements Function {
+
     @Override
     public String name() {
       return "isnull";
@@ -629,6 +669,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class IsNanFunc implements Function {
+
     @Override
     public String name() {
       return "isnan";
@@ -647,6 +688,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class IsMismatchedFunc implements Function {
+
     @Override
     public String name() {
       return "ismismatched";
@@ -665,6 +707,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class IsMissingFunc implements Function {
+
     @Override
     public String name() {
       return "ismissing";
@@ -683,6 +726,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   abstract class NvlFunc implements Function {
+
     @Override
     public String name() {
       return "nvl";
@@ -702,6 +746,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class Coalesce extends NvlFunc {
+
     @Override
     public String name() {
       return "coalesce";
@@ -709,6 +754,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class DateDiffFunc implements Function {
+
     @Override
     public String name() {
       return "datediff";
@@ -727,6 +773,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class ToDateFunc implements Function {
+
     @Override
     public String name() {
       return "to_date";
@@ -745,6 +792,7 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   class CaseWhenFunc implements Function {
+
     @Override
     public String name() {
       return "case";
@@ -762,7 +810,9 @@ public interface BuiltinFunctions extends Function.Library {
   }
 
   interface Times extends Function {
+
     class TimestampToString implements Function {
+
       @Override
       public String name() {
         return "timestamptostring";
@@ -779,6 +829,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class YearFunc implements Function {
+
       @Override
       public String name() {
         return "year";
@@ -795,6 +846,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class MonthFunc implements Function {
+
       @Override
       public String name() {
         return "month";
@@ -811,6 +863,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class DayFunc implements Function {
+
       @Override
       public String name() {
         return "day";
@@ -827,6 +880,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class HourFunc implements Function {
+
       @Override
       public String name() {
         return "hour";
@@ -843,6 +897,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class MinuteFunc implements Function {
+
       @Override
       public String name() {
         return "minute";
@@ -859,6 +914,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class SecondFunc implements Function {
+
       @Override
       public String name() {
         return "second";
@@ -875,6 +931,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class MillisecondFunc implements Function {
+
       @Override
       public String name() {
         return "millisecond";
@@ -891,6 +948,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class WeekdayFunc implements Function {
+
       @Override
       public String name() {
         return "weekday";
@@ -907,6 +965,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class NowFunc implements Function {
+
       @Override
       public String name() {
         return "now";
@@ -919,6 +978,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class AddtimeFunc implements Function {
+
       @Override
       public String name() {
         return "add_time";
@@ -935,6 +995,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class TimeDiffFunc implements Function {
+
       @Override
       public String name() {
         return "time_diff";
@@ -951,6 +1012,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class TimeBetweenFunc implements Function {
+
       @Override
       public String name() {
         return "time_between";
@@ -967,6 +1029,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class TimestampFunc implements Function {
+
       @Override
       public String name() {
         return "timestamp";
@@ -986,6 +1049,7 @@ public interface BuiltinFunctions extends Function.Library {
   interface Str extends Function {
 
     class ConcatFunc implements Function {
+
       @Override
       public String name() {
         return "concat";
@@ -998,6 +1062,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class ConcatwsFunc implements Function {
+
       @Override
       public String name() {
         return "concat_ws";
@@ -1066,6 +1131,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class RPadFunc implements Function, Factory {
+
       @Override
       public String name() {
         return "rpad";
@@ -1098,6 +1164,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class UpperFunc implements Function {
+
       @Override
       public String name() {
         return "upper";
@@ -1116,6 +1183,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class LowerFunc implements Function {
+
       @Override
       public String name() {
         return "lower";
@@ -1134,6 +1202,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class SplitFunc implements Function {
+
       @Override
       public String name() {
         return "split";
@@ -1151,6 +1220,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class ProperFunc implements Function {
+
       @Override
       public String name() {
         return "proper";
@@ -1169,6 +1239,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class LengthFunc implements Function {
+
       @Override
       public String name() {
         return "length";
@@ -1186,6 +1257,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class SubstringFunc implements Function {
+
       @Override
       public String name() {
         return "substring";
@@ -1203,6 +1275,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class ContainsFunc implements Function {
+
       @Override
       public String name() {
         return "contains";
@@ -1210,7 +1283,7 @@ public interface BuiltinFunctions extends Function.Library {
 
       @Override
       public boolean validate(List<Expr> args) {
-        if (args.size() !=2 ) {
+        if (args.size() != 2) {
           LOGGER.warn("function 'substring' allows 2 or 3 arguments");
           return false;
         }
@@ -1220,6 +1293,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class StartsWithFunc implements Function {
+
       @Override
       public String name() {
         return "startswith";
@@ -1227,7 +1301,7 @@ public interface BuiltinFunctions extends Function.Library {
 
       @Override
       public boolean validate(List<Expr> args) {
-        if (args.size() !=2 ) {
+        if (args.size() != 2) {
           LOGGER.warn("function 'startswith' allows 2 or 3 arguments");
           return false;
         }
@@ -1237,6 +1311,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class EndsWithFunc implements Function {
+
       @Override
       public String name() {
         return "endswith";
@@ -1244,7 +1319,7 @@ public interface BuiltinFunctions extends Function.Library {
 
       @Override
       public boolean validate(List<Expr> args) {
-        if (args.size() !=2 ) {
+        if (args.size() != 2) {
           LOGGER.warn("function 'endswith' allows 2 or 3 arguments");
           return false;
         }
@@ -1254,6 +1329,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class LeftFunc implements Function {
+
       @Override
       public String name() {
         return "left";
@@ -1272,6 +1348,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class RightFunc implements Function {
+
       @Override
       public String name() {
         return "right";
@@ -1289,6 +1366,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class MidFunc implements Function {
+
       @Override
       public String name() {
         return "mid";
@@ -1307,6 +1385,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class IndexOfFunc implements Function {
+
       @Override
       public String name() {
         return "indexOf";
@@ -1343,6 +1422,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class TrimFunc implements Function {
+
       @Override
       public String name() {
         return "trim";
@@ -1360,6 +1440,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class LTrimFunc implements Function {
+
       @Override
       public String name() {
         return "ltrim";
@@ -1377,6 +1458,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class RTrimFunc implements Function {
+
       @Override
       public String name() {
         return "rtrim";
@@ -1394,6 +1476,7 @@ public interface BuiltinFunctions extends Function.Library {
     }
 
     class InFunc implements Function, Factory {
+
       @Override
       public String name() {
         return "in";

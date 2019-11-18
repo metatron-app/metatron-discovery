@@ -13,15 +13,20 @@
  */
 
 import * as _ from 'lodash';
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { BoardConfiguration, BoardDataSource, Dashboard, JoinMapping } from '../../domain/dashboard/dashboard';
-import { BookTree } from '../../domain/workspace/book';
-import { BoardGlobalOptions } from '../../domain/dashboard/dashboard.globalOptions';
-import { FilterUtil } from '../util/filter.util';
-import { MetadataService } from '../../meta-data-management/metadata/service/metadata.service';
-import { CommonUtil } from '../../common/util/common.util';
+import {
+  BoardConfiguration,
+  BoardDataSource,
+  Dashboard,
+  JoinMapping
+} from '../../domain/dashboard/dashboard';
+import {BookTree} from '../../domain/workspace/book';
+import {BoardGlobalOptions} from '../../domain/dashboard/dashboard.globalOptions';
+import {FilterUtil} from '../util/filter.util';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {CommonUtil} from '../../common/util/common.util';
 
 declare let async;
 
@@ -164,7 +169,7 @@ export class DashboardService extends AbstractService {
 
   /******* 계산식 필드 *******/
   public getCalculationFunction() {
-    return this.get(this.API_URL + 'commoncodes/search/categorycode?CategoryCode=PAGE-CALCULATION');
+    return this.get(this.API_URL + 'expressions/list');
   }
 
   public validate(param: any) {

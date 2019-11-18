@@ -165,6 +165,8 @@ public class EngineLoadService {
                                             .anyMatch(legacyField -> legacyField.getName().equals(compareField));
           }
           field.setName(newFieldName);
+          // #1920 Change buildspec column to originalname
+          field.setOriginalName(newFieldName);
         }
       }
     }
@@ -274,7 +276,7 @@ public class EngineLoadService {
     Map<String, Object> result = engineRepository.load(specStr, paramMap, Map.class)
                                                  .orElseThrow(() -> new DataSourceIngestionException("Result empty"));
 
-    LOGGER.info("Successfully load. Result is ", result);
+    LOGGER.info("Successfully load. Result is {}", result);
 
     if (temporary == null) {
       temporary =

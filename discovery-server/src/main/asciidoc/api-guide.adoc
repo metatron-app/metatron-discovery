@@ -1,5 +1,5 @@
 = RESTful Metatron API Guide
-Big Data Tech. Lab;
+metatron.app;
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
@@ -82,261 +82,24 @@ not create URIs themselves, instead they should use the above-described links to
 
 [[overview-projection]]
 == Projection
+We introduced the concept of projection model to provide each result set.
+You can get a model that fits your purpose through the projection name.
 
-리스트 조회 및 검색시 미리 정의된 projection 파라미터에 따라, Response 값이 다르게 전달 됩니다.
 
 [[overview-page-sort]]
 == Page & Sort
+For list items, the paging and sort parameters are supported.
+Some limited sort items are marked separately.
 
-리스트 조회 및 검색시 페이징 및 필드별 정렬을 파라미터로 지정이 가능합니다.
+[[Authentication]]
+== Authentication
+In the Authorization request header, specify the token that is issued as follows.
+
+    Authorization: bearer {Token}
+
 
 [[resources]]
 = Resources
-
-[[resources-workspace]]
-== Workspace
-
-워크스페이스는 분석을 위한 작업 공간을 의미하며 사용자 별로 개인(Private) 공간과
-여려개의 공유(Shared) 공간을 구성할 수 있습니다.
-
-[[resources-workspace-overview]]
-=== 개요
-
-[[resources-workspace-overview-representations]]
-==== Resource representations
-
-.Workspace
-|===
-|Name |Type |Description |Note
-
-|id
-|String
-|Workspacd Id, 생성시 부여 함
-|
-
-|name
-|String
-|작업 공간 이름
-|
-
-|description
-|String
-|작업 공간 설명
-|
-
-|ownerId
-|String
-|작업 공간 소유자 ID (추후 사용자 객체로 변경 예정)
-|
-
-|publicType
-|String
-|작업 공간 공유 유형, 개인(PRIVATE), 공유(SHARED)
-|
-
-|sharedTargets[]
-|List
-|공유 대상
-|
-
-|workBooks[]
-|List
-|작업 공간 내 생성된 워크북 목록, 워크북 설명 참조
-|
-
-|dataSources[]
-|List
-|작업 공간 내 활용 가능한 데이터 소스 목록, 데이터 소스 설명 참조
-|
-
-|===
-
-[[resources-workspace-overview-projection]]
-==== Projection
-
-===== basic (default)
-
-기본 워크스페이스 정보와 연결된 리소스를 제외한 워크북 개수 정보만 추가로 전달합니다.
-
-.'basic' Projection
-|===
-|Name |Type |Description |Note
-
-|id
-|String
-|Workspacd Id, 생성시 부여
-|
-
-|name
-|String
-|작업 공간 이름
-|
-
-|description
-|String
-|작업 공간 설명
-|
-
-|ownerId
-|String
-|작업 공간 소유자 ID
-|
-
-|publicType
-|String
-|작업 공간 공유 유형, 개인(PRIVATE), 공유(SHARED)
-|
-
-|workBookCount
-|Integer
-|작업 공간내 포함된 워크북 개수
-|
-
-|workBooks[]
-|List
-|작업 공간 내 생성된 워크북 목록, 워크북 설명 참조
-|
-|===
-
-
-===== withWorkBooks
-
-기본 워크스페이스 정보 및 내부 워크북 정보를 포함합니다
-
-.'withWorkBooks' Projection
-|===
-|Name |Type |Description |Note
-
-|id
-|String
-|Workspacd Id, 생성시 부여
-|
-
-|name
-|String
-|작업 공간 이름
-|
-
-|description
-|String
-|작업 공간 설명
-|
-
-|ownerId
-|String
-|작업 공간 소유자 ID
-|
-
-|publicType
-|String
-|작업 공간 공유 유형, 개인(PRIVATE), 공유(SHARED)
-|
-
-|workBooks[]
-|List
-|작업 공간 내 생성된 워크북 목록, 워크북 설명 참조
-|
-|===
-
-[[resources-workspaces-list]]
-=== Listing workspaces
-
-A `GET` request will list all of the service's workspaces.
-
-==== Response structure
-
-include::{snippets}/workspace-list/response-fields.adoc[]
-
-==== Example request
-
-include::{snippets}/workspace-list/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/workspace-list/http-response.adoc[]
-
-
-[[resources-workspaces-search]]
-=== Searching workspaces
-
-A `GET` request will search all of the service's workspaces.
-
-==== Searching private workspace
-
-사용자별 개인 공간 정보를 가져옵니다.
-
-===== Example request
-
-include::{snippets}/workspace-search-private/curl-request.adoc[]
-
-
-==== Searching shared workspaces
-
-사용자가 공유했거나 공유 받은 공간 목록을 검색합니다
-
-===== Example request
-
-include::{snippets}/workspace-search-shared/curl-request.adoc[]
-
-
-[[resources-workspaces-create]]
-=== Creating a workspace
-
-A `POST` request is used to create a workspace
-
-==== Request structure
-
-TBD
-//include::{snippets}/workspace-create/request-fields.adoc[]
-
-==== Example request
-
-include::{snippets}/workspace-create/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/workspace-create/http-response.adoc[]
-
-[[resources-workspaces-retrieve]]
-=== Retrieve a workspace
-
-A `GET` request is used to retrieve a workspace
-
-==== Example request
-
-include::{snippets}/workspace-retrieve/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/workspace-retrieve/http-response.adoc[]
-
-[[resources-workspaces-update]]
-=== Updating a workspace
-
-A `PATCH` request is used to update a workspace
-
-==== Request structure
-
-TBD
-//include::{snippets}/workspace-update/request-fields.adoc[]
-
-==== Example request
-
-include::{snippets}/workspace-update/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/workspace-update/http-response.adoc[]
-
-[[resources-workspaces-delete]]
-=== Deleting a workspace
-
-A `DELETE` request is used to update a workspace
-
-==== Example request
-
-include::{snippets}/workspace-delete/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/workspace-delete/http-response.adoc[]
+include::./api-datasource-guide.adoc[]
+include::./api-datasource-query-guide.adoc[]
+include::./api-workbook-guide.adoc[]

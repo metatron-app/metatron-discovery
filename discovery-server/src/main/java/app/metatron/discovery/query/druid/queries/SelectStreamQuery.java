@@ -14,18 +14,19 @@
 
 package app.metatron.discovery.query.druid.queries;
 
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
+import app.metatron.discovery.query.druid.Filter;
+import app.metatron.discovery.query.druid.Limit;
+import app.metatron.discovery.query.druid.Query;
+import app.metatron.discovery.query.druid.limits.DefaultLimit;
+import app.metatron.discovery.query.druid.limits.OrderByColumn;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
-import app.metatron.discovery.query.druid.Filter;
-import app.metatron.discovery.query.druid.Query;
-import app.metatron.discovery.query.druid.limits.OrderByColumn;
-import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 
 /**
  * Created by kyungtaak on 2017. 3. 6..
@@ -43,9 +44,9 @@ public class SelectStreamQuery extends Query {
 
   private boolean descending;
 
-  private List<OrderByColumn> orderBySpecs;
+  private List<OrderByColumn> orderingSpecs;
 
-  private int limit;
+  private Limit limitSpec;
 
   private List<String> intervals;
 
@@ -61,6 +62,10 @@ public class SelectStreamQuery extends Query {
   private Field geometry;
 
   public SelectStreamQuery() {
+  }
+
+  public void setDefaultLimitSize(int size) {
+    limitSpec = new DefaultLimit(size, null);
   }
 
   public Filter getFilter() {
@@ -103,20 +108,20 @@ public class SelectStreamQuery extends Query {
     this.descending = descending;
   }
 
-  public List<OrderByColumn> getOrderBySpecs() {
-    return orderBySpecs;
+  public List<OrderByColumn> getOrderingSpecs() {
+    return orderingSpecs;
   }
 
-  public void setOrderBySpecs(List<OrderByColumn> orderBySpecs) {
-    this.orderBySpecs = orderBySpecs;
+  public void setOrderingSpecs(List<OrderByColumn> orderingSpecs) {
+    this.orderingSpecs = orderingSpecs;
   }
 
-  public int getLimit() {
-    return limit;
+  public Limit getLimitSpec() {
+    return limitSpec;
   }
 
-  public void setLimit(int limit) {
-    this.limit = limit;
+  public void setLimitSpec(Limit limitSpec) {
+    this.limitSpec = limitSpec;
   }
 
   public List<String> getIntervals() {

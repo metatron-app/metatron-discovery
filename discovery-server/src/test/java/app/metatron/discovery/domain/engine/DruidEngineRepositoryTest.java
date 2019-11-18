@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.engine;
 
+import com.google.common.collect.Lists;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.junit.Test;
@@ -24,9 +26,19 @@ import java.util.Optional;
 import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
+import app.metatron.discovery.query.druid.datasource.TableDataSource;
+import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
+import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
+import app.metatron.discovery.query.druid.limits.DefaultLimit;
+import app.metatron.discovery.query.druid.limits.OrderByColumn;
 import app.metatron.discovery.query.druid.queries.GeoBoundaryFilterQuery;
+import app.metatron.discovery.query.druid.queries.GroupByQuery;
 import app.metatron.discovery.query.druid.queries.SelectStreamQuery;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by kyungtaak on 2016. 8. 22..
@@ -42,6 +54,29 @@ public class DruidEngineRepositoryTest extends AbstractIntegrationTest {
 
     Optional<JsonNode> node = druidEngineRepository.query(query, JsonNode.class);
     System.out.println(node.get());
+  }
+
+  @Test
+  public void searchLastQuery() {
+
+    GroupByQuery groupByQuery = new GroupByQuery();
+    groupByQuery.setDataSource(new TableDataSource("sales_geo"));
+    groupByQuery.setGranularity(new SimpleGranularity("all"));
+
+    groupByQuery.setDimensions(Lists.newArrayList(new DefaultDimension("Category"), new DefaultDimension("Sub-Category")));
+    groupByQuery.setAggregations(Lists.newArrayList(new RelayAggregation("Sales", "Sales", "double", RelayAggregation.RelayType.TIME_MAX.name())));
+
+    groupByQuery.setLimitSpec(new DefaultLimit(10000, Lists.newArrayList(new OrderByColumn("Sub-Category", OrderByColumn.DIRECTION.ASCENDING))));
+
+    Optional<JsonNode> node = druidEngineRepository.query(GlobalObjectMapper.writeValueAsString(groupByQuery), JsonNode.class);
+
+    assertTrue(node.isPresent());
+    assertTrue(node.get().isArray());
+
+    JsonNode resultNode = node.get();
+    assertTrue(resultNode.isArray());
+    assertEquals(resultNode.size(), 3);
+
   }
 
   @Test

@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class WorksOnlyOnTimestampException extends TeddyException {
+
   public WorksOnlyOnTimestampException(String message) {
     super(message);
   }

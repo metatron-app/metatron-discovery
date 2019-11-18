@@ -15,10 +15,9 @@
   position: relative;
 }
 
-.lm_dragging, .lm_dragging * {
-  cursor: move !important;
-  user-select: none
-}
+.lm_dragging, .lm_dragging * { cursor: move !important; user-select: none; }
+.lm_dragging_horizontal, .lm_dragging_horizontal * { cursor: ew-resize !important; user-select: none; }
+.lm_dragging_vertical, .lm_dragging_vertical * { cursor: ns-resize !important; user-select: none; }
 
 .lm_maximised {
   position: absolute;
@@ -40,21 +39,24 @@
   background: orange
 }
 
+.lm_splitter.lm_vertical { cursor: ns-resize; }
+
 .lm_splitter.lm_vertical .lm_drag_handle {
   width: 100%;
   position: absolute;
-  cursor: ns-resize
+  cursor: ns-resize;
 }
 
 .lm_splitter.lm_horizontal {
   float: left;
-  height: 100%
+  height: 100%;
+  cursor: ew-resize;
 }
 
 .lm_splitter.lm_horizontal .lm_drag_handle {
   height: 100%;
   position: absolute;
-  cursor: ew-resize
+  cursor: ew-resize;
 }
 
 .lm_header {

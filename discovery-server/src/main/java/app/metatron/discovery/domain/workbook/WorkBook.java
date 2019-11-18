@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
@@ -89,22 +90,30 @@ public class WorkBook extends Book {
     projection.put("type", "workbook");
 
     Map<String, Object> contents = Maps.newLinkedHashMap();
-    contents.put("dashboard", dashBoards.size());
 
     // TODO: 기획쪽과 논의해볼 필요가 있음.
+    int dashboardSize = 0;
     final Map<String, DataSource> dataSourceMap = Maps.newHashMap();
+    final Map<String, DataSource> inactiveDataSourceMap = Maps.newHashMap();
     for (DashBoard dashBoard : dashBoards) {
-      if(dashBoard.getDataSources() == null) {
+      if(dashBoard.getDataSources() == null || dashBoard.getDataSources().isEmpty()) {
         continue;
       }
+      dashboardSize++;
       dashBoard.getDataSources().forEach(dataSource -> {
         if(!dataSourceMap.containsKey(dataSource.getId())) {
           dataSourceMap.put(dataSource.getId(), dataSource);
+          if (BooleanUtils.isNotTrue(dataSource.getPublished()) && !dataSource.getWorkspaces().contains(workspace)) {
+            inactiveDataSourceMap.put(dataSource.getId(), dataSource);
+          }
+
         }
       });
     }
+    contents.put("dashboard", dashboardSize);
     contents.put("dataSource", dataSourceMap.values().size());
-
+    contents.put("inactiveDataSource", inactiveDataSourceMap.values().size());
+    contents.put("connValid", dataSourceMap.values().size() == 0 || dataSourceMap.values().size() != inactiveDataSourceMap.values().size());
     projection.put("contents", contents);
 
     return projection;

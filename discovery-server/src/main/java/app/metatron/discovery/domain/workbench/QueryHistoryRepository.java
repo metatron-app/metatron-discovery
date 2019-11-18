@@ -25,6 +25,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by h on 2016. 10. 31..
@@ -100,4 +101,13 @@ public interface QueryHistoryRepository extends JpaRepository<QueryHistory, Long
          "where h.queryResultStatus = :queryStatus " +
          "group by h.query ")
  Page<Object[]> countHistoryByQuery(@Param("queryStatus") QueryResult.QueryResultStatus queryStatus, Pageable pageable);
+
+ @Query("SELECT COUNT(h.id) AS CNT, MAX(h.id) AS ID " +
+         "FROM QueryHistory h " +
+         "WHERE h.createdTime > :createdTime " +
+         "AND h.dataConnectionId = :dataConnectionId " +
+         "GROUP BY h.createdBy " +
+         "ORDER BY CNT DESC ")
+ List<Map> countHistoryByUserAndDataConnection(@Param("createdTime") DateTime createdTime,
+                                               @Param("dataConnectionId") String dataConnectionId);
 }

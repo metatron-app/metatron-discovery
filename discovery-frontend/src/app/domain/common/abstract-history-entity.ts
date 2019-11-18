@@ -21,6 +21,7 @@ export class AbstractHistoryEntity {
   public createdTime: Date;
   public modifiedBy: UserDetail;
   public modifiedTime: Date;
+  public lastAccessTime: Date;
 }
 
 export class UserDetail {

@@ -107,7 +107,7 @@ public class WorkbookController {
           throw new UnsupportedOperationException("Unsupported action included.");
         case REPLACE:
           if (!dashBoardMap.containsKey(id)) {
-            LOGGER.debug("Not found id({})", workbook.getId(), id);
+            LOGGER.debug("Not found workbook({}) : {}", workbook.getId(), id);
             break;
           }
 

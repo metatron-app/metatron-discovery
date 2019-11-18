@@ -42,6 +42,8 @@ import javax.annotation.PostConstruct;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.engine.EngineException;
+import app.metatron.discovery.domain.notebook.NotebookErrorCodes;
+import app.metatron.discovery.domain.notebook.NotebookException;
 
 /**
  * Created by kyungtaak on 2016. 8. 22..
@@ -156,7 +158,9 @@ public class HttpRepository implements HttpRepositoryAction {
 
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
-            throw new RuntimeException("Fail to call : " + IOUtils.readLines(response.getBody()));
+            String errorBody = IOUtils.readLines(response.getBody()).toString();
+            LOGGER.error(errorBody);
+            throw new NotebookException(NotebookErrorCodes.CONNECTION_ERROR_CODE, "Fail to call : " + errorBody);
         }
     }
 }

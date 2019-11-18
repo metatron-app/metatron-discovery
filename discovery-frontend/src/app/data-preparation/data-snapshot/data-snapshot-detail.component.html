@@ -74,6 +74,13 @@
             <em class="ddp-icon-spin-loading"></em>
             {{'msg.dp.btn.json.download' | translate}}
           </a>
+          <a href="javascript:" class="ddp-btn-bg "
+             (click)="downloadSnapshot('sql')"
+             *ngIf="snapshotUriFileFormat === 'sql' || selectedDataSnapshot.ssType === ssType.STAGING_DB">
+            <em class="ddp-icon-link-down"></em>
+            <em class="ddp-icon-spin-loading"></em>
+            {{'msg.dp.btn.sql.download' | translate}}
+          </a>
         </div>
         <!-- //요약 -->
         <!-- grid -->
@@ -233,16 +240,16 @@
             </dt>
             <dd>
 
-              <div class="ddp-ui-sub">
+              <div class="ddp-ui-sub" *ngIf="originDsInfo.dsName">
                 <span class="ddp-data-sub">{{'msg.board.th.datasource' | translate}} <em class="ddp-data-result">{{ originDsInfo.dsName }}</em></span>
               </div>
               <div class="ddp-ui-sub" *ngIf="originDsInfo.qryStmt">
                 <span class="ddp-data-sub">{{'msg.dp.th.query.stmt' | translate}} <em class="ddp-data-result">{{ originDsInfo.qryStmt }}</em></span>
               </div>
-              <div class="ddp-ui-sub" *ngIf="originDsInfo.filePath">
-                <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result">{{ originDsInfo.filePath }}</em></span>
+              <div class="ddp-ui-sub" *ngIf="originDsInfo.storedUri">
+                <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result">{{ originDsInfo.storedUri }}</em></span>
               </div>
-              <div class="ddp-ui-sub">
+              <div class="ddp-ui-sub" *ngIf="originDsInfo.createdTime">
                 <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{originDsInfo.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
               </div>
             </dd>

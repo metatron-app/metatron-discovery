@@ -14,16 +14,24 @@
 
 import {
   ChangeDetectorRef,
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
   Output
 } from '@angular/core';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 import * as $ from 'jquery';
-import { PageResult } from '../../../domain/common/page';
-import { CommonUtil } from '../../../common/util/common.util';
-import { AuditService } from '../service/audit.service';
-import { ClipboardService } from 'ngx-clipboard';
+import {PageResult} from '../../../domain/common/page';
+import {CommonUtil} from '../../../common/util/common.util';
+import {AuditService} from '../service/audit.service';
+import {ClipboardService} from 'ngx-clipboard';
+import * as _ from "lodash";
 
 @Component({
   selector: 'app-log-statistics-detail',
@@ -130,17 +138,8 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
+  public CommonUtil = CommonUtil;
 
-  /**
-   * Job log detail로 이동
-   * @param data
-   */
-  public getDetail(data) {
-    if(data.isUser && this.isQueryDetailShow === false) {
-      this.router.navigateByUrl(['/management/monitoring/audit/']  + data.id);
-    }
-  }
 
   /**
    * 더 조회할 컨텐츠가 있는지 여부
@@ -333,6 +332,19 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
   /**
    * Check if data is long enough to open the query popup
    */
+  public isDataLongEnough1(key , index?: number) : boolean {
+
+    if (_.isNil(key) || _.isNil(index)) {
+      return false;
+    }
+
+    return $('#' + index + key).width() >= $('#' + key).width() - 20;
+  }
+
+
+  /**
+   * Check if data is long enough to open the query popup
+   */
   public isDataLongEnough(key , id?) : boolean {
     if (id) {
       return $('#' + id).outerWidth() >= $('#'+key).outerWidth()-20;
@@ -355,13 +367,17 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
     }
   }
 
+  /**
+   * Navigate to audit detail page
+   * @param data
+   */
   public auditDetailOpen(data) {
-    console.info('data --> ',data);
     if(data.hasOwnProperty('id')) {
       this.auditService.previousRouter = '/management/monitoring/statistics';
       this.router.navigateByUrl('/management/monitoring/audit/' + data.id);
     }
   }
+
 }
 
 class Order {

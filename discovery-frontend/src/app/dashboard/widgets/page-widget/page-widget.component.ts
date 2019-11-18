@@ -49,14 +49,18 @@ import {AnalysisPredictionService} from '../../../page/component/analysis/servic
 import {Widget} from '../../../domain/dashboard/widget/widget';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {FilterUtil} from '../../util/filter.util';
-import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart/network-chart.component';
+import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart.component';
 import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
 import {BoardConfiguration, BoardDataSource, LayoutMode} from '../../../domain/dashboard/dashboard';
-import {GridChartComponent} from '../../../common/component/chart/type/grid-chart/grid-chart.component';
-import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
-import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
+import {GridChartComponent} from '../../../common/component/chart/type/grid-chart.component';
+import {BarChartComponent} from '../../../common/component/chart/type/bar-chart.component';
+import {LineChartComponent} from '../../../common/component/chart/type/line-chart.component';
 import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
-import {BoardSyncOptions, BoardWidgetOptions, WidgetShowType} from '../../../domain/dashboard/dashboard.globalOptions';
+import {
+  BoardSyncOptions,
+  BoardWidgetOptions,
+  WidgetShowType
+} from '../../../domain/dashboard/dashboard.globalOptions';
 import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
 import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
@@ -77,7 +81,7 @@ declare let $;
   selector: 'page-widget',
   templateUrl: 'page-widget.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: ['.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50%; left: 50%; margin-left: -350px; margin-top: -250px;}']
+  styles: ['.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50% !important; left: 50% !important; margin-left: -350px; margin-top: -250px;}']
 })
 export class PageWidgetComponent extends AbstractWidgetComponent implements OnInit, OnDestroy {
 
@@ -173,6 +177,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     return !this.isShowHierarchyView && !this.isError && !this.isShowNoData;
   } // get - isShowChartTools
 
+  get isNotMapType() {
+    return this.chart.uiOption.type !== ChartType.MAP;
+  }
+
   // is Origin data down
   public isOriginDown: boolean = false;
   public srchText: string = '';
@@ -212,6 +220,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 컴포넌트 초기 실행
    */
   public ngOnInit() {
+    this._checkDatasource();
     super.ngOnInit();
   }
 
@@ -242,6 +251,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       useCustomField = true;
     }
     this.useCustomField = useCustomField;
+
+    // 테마 변경 이벤트
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CHANGE_THEME').subscribe(data => {
+        this.chart.draw(true);
+      })
+    );
 
     // 새로 고침 이벤트
     this.subscriptions.push(
@@ -973,10 +989,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public showDownloadLayer(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    if( ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType] ) {
-      this._dataDownComp.openGridDown(event, this._dataGridComp );
+    if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
+      this._dataDownComp.openGridDown(event, this._dataGridComp);
     } else {
-      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
+      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown, this.query);
     }
   } // function - showDownloadLayer
 
@@ -1067,7 +1083,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
     };
 
-    if( ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType] ) {
+    if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
       const boardConf: BoardConfiguration = this.widget.dashBoard.configuration;
       const query: SearchQueryRequest
         = this.datasourceService.makeQuery(
@@ -1523,7 +1539,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         // line차트이면서 columns 데이터가 있는경우
         if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
           // 고급분석 예측선 API 호출
-          this.getAnalysis();
+          this.getAnalysis(cloneQuery);
         } else {
           this.chart.resultData = this.resultData;
           this.isSetChartData = true;
@@ -1698,24 +1714,66 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   /**
    * 고급분석 예측선 API 호출
+   * @param query
    */
-  private getAnalysis(): void {
+  private getAnalysis(query: SearchQueryRequest): void {
     if (this.isAnalysisPredictionEnabled()) {
       Promise
         .resolve()
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
-            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
-              .catch((error) => {
-                this._showError(error);
-                this.updateComplete();
-              });
+            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(
+              this.widgetConfiguration, this.widget, this.chart, this.resultData, query.filters
+            ).catch((error) => {
+              this._showError(error);
+              this.updateComplete();
+            });
           } else {
             this.predictionLineDisabled();
           }
         })
     } else {
       this.predictionLineDisabled();
+    }
+  }
+
+  /**
+   * Check datasource
+   * @private
+   */
+  private _checkDatasource(): void {
+    let valid = true;
+    let invalidDatasourceName = '';
+    if (this.widget.configuration.chart.type === ChartType.MAP && !_.isNil(this.widget.configuration.dataSource.dataSources)) {
+      for (const widgetDatasource of this.widget.configuration.dataSource.dataSources) {
+        for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
+          if (widgetDatasource.id == dashboardDatasource.id) {
+            if (!dashboardDatasource.valid) {
+              valid = false;
+              if (invalidDatasourceName != '') {
+                invalidDatasourceName += ', '
+              }
+              invalidDatasourceName += dashboardDatasource.name;
+            }
+          }
+        }
+      }
+    } else {
+      for (const dashboardDatasource of this.inputWidget.dashBoard.dataSources) {
+        if (this.widget.configuration.dataSource.id == dashboardDatasource.id) {
+          if (!dashboardDatasource.valid) {
+            valid = false;
+            invalidDatasourceName = dashboardDatasource.name;
+          }
+        }
+      }
+    }
+
+    if (!valid) {
+      this._showError({
+        code: 'GB0000',
+        details: this.translateService.instant('msg.board.error.deny-datasource', {datasource: invalidDatasourceName})
+      });
     }
   }
 

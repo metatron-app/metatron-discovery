@@ -29,7 +29,7 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 메타데이터 아이디
+  // Metadata Id
   private _metaDataId: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -40,9 +40,9 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 메타데이터
+  // Metadata
   public metaData: Metadata = new Metadata();
-  // 필드 목록
+  // Field List
   public columnList: MetadataColumn[] = [];
 
   // Logical type list
@@ -55,7 +55,6 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(
     private _metaDataService: MetadataService,
     private _activatedRoute: ActivatedRoute,
@@ -76,9 +75,9 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
     window.history.pushState(null, null, window.location.href);
 
     this._activatedRoute.params.subscribe((params) => {
-      // 라우터에서 metadata id 뽑아오기
+      // get metadata id from router
       this._metaDataId = params['id'];
-      // 메타데이터 상세정보 조회
+      // get metadata detail information
       this._getDetailMetaData();
     });
   }
@@ -100,7 +99,7 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
   }
 
   /**
-   * 현재 필드의 logical Type label
+   * Current field's logical Type label
    * @param {MetadataColumn} column
    * @returns {string}
    */
@@ -111,7 +110,7 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
   }
 
   /**
-   * 컬럼 인기도
+   * Column popularity
    * @param {MetadataColumn} column
    * @returns {string}
    */
@@ -128,33 +127,33 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 메타데이터 상세정보 조회
+   * Get Metadata detail information
    * @private
    */
   private _getDetailMetaData(): void {
-    // 로딩 show
+    // Loading show
     this.loadingShow();
-    // 메타데이터 상세정보 조회
+    // Get Metadata detail information
     this._metaDataService.getDetailMetaData(this._metaDataId).then((result) => {
-      // 메타데이터 정보
+      // Metadata detail information
       this.metaData = result;
-      // 컬럼 스키마 목록 조회
+      // Get Column Schema List
       this._getColumnSchemaList();
     }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 컬럼 스키마 목록 조회
+   * Get Column Schema List
    * @private
    */
   private _getColumnSchemaList(): void {
-    // 로딩 show
+    // Loading show
     this.loadingShow();
-    // 컬럼 조회
+    // Get Column Schema List
     this._metaDataService.getColumnSchemaListInMetaData(this._metaDataId).then((result) => {
-      // 컬럼 데이터
+      // Column Data
       this.columnList = result;
-      // 로딩 hide
+      // Loading hide
       this.loadingHide();
     }).catch(error => this.commonExceptionHandler(error));
   }

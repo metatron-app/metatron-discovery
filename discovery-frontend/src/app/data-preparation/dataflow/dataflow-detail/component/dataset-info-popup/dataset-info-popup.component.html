@@ -46,7 +46,7 @@
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
 
-    <span class="ddp-txt-explain">
+    <span class="ddp-txt-explain" >
       <span *ngIf="selectedDataSet.dsDesc; else notMaxLength"
             title="{{selectedDataSet.dsDesc}}"
             [innerHTML]="getDescriptionWithBR(selectedDataSet.dsDesc)">
@@ -70,26 +70,30 @@
     </a>
 
     <div class="ddp-databuttons ddp-clear" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()=== 'IMPORTED'">
-      <div class="ddp-col-5">
-        <a href="javascript:" class="ddp-btn-line ddp-full" (click)="dataSwap('imported')">
+      <div class="ddp-col-6">
+        <a href="javascript:"
+           class="ddp-btn-line ddp-full"
+           style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"
+           title="{{'msg.dp.ui.swap.dataset' | translate }}" (click)="dataSwap('imported')">
           {{'msg.dp.ui.swap.dataset' | translate }}
         </a>
       </div>
-      <div class="ddp-col-7">
+      <div class="ddp-col-6">
         <a href="javascript:"
            class="ddp-btn-solid ddp-bg-black ddp-full"
+           style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"
+           title="{{'msg.dp.btn.new.ds' | translate}}"
            (click)="datasetEventHandler.emit()">
           {{'msg.dp.btn.new.ds' | translate}}
         </a>
       </div>
     </div>
 
-
     <!-- 클릭시 ddp-selected 추가 -->
     <div class="ddp-more"
-         [ngClass]="{'ddp-selected':isBtnOptionOpen}"
          *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString() === 'WRANGLED'"
-         (clickOutside)="isBtnOptionOpen = false">
+         [ngClass]="{'ddp-selected':isBtnOptionOpen}" (clickOutside)="isBtnOptionOpen = false"
+         style="bottom:-3px;">
       <a href="javascript:" class="ddp-btn-more" (click)="openBtnOptions()"></a>
       <!-- popup -->
       <div class="ddp-wrap-popup2 ddp-types">

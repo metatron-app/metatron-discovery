@@ -19,7 +19,7 @@
   <!-- 제목 영역 -->
   <div class="ddp-data-detailinfo">
     <span class="ddp-data-name">{{datasource.name}}</span>
-    <div (click)="isShowDataPreview = true" class="ddp-ui-detail">
+    <div *ngIf="isEnabled" (click)="isShowDataPreview = true" class="ddp-ui-detail">
       <em class="ddp-icon-detail"></em>
       <div class="ddp-ui-tooltip-info">
         <em class="ddp-icon-view-top"></em> {{ 'msg.comm.detail.details' | translate }}
@@ -59,11 +59,11 @@
         <th> {{'msg.comm.detail.created' | translate}} </th>
         <td> {{datasource.createdTime | mdate:'YYYY-MM-DD'}} </td>
       </tr>
-      <tr *ngIf="datasource.summary">
+      <tr *ngIf="isEnabled && datasource.summary">
         <th> {{'msg.comm.detail.size' | translate}} </th>
         <td> {{datasource.summary.size | fileSize:2}} </td>
       </tr>
-      <tr *ngIf="datasource.summary" >
+      <tr *ngIf="isEnabled && datasource.summary" >
         <th> {{'msg.comm.detail.rows' | translate}} </th>
         <td> {{datasource.summary.count | numberCommas}} </td>
       </tr>
@@ -74,7 +74,7 @@
   <!-- // 데이터소스 상세 영역 -->
 
   <!-- 필드 목록 영역 -->
-  <div class="ddp-data-listview">
+  <div *ngIf="isEnabled" class="ddp-data-listview">
 
     <table class="ddp-table-listview">
       <colgroup>

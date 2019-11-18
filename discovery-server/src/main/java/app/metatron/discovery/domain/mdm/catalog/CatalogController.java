@@ -38,7 +38,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.common.entity.DomainType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.favorite.FavoriteService;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataPredicate;
 import app.metatron.discovery.domain.mdm.MetadataProjections;
@@ -73,6 +75,9 @@ public class CatalogController {
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
 
+  @Autowired
+  FavoriteService favoriteService;
+
   CatalogProjections catalogProjections = new CatalogProjections();
 
   MetadataProjections metadataProjections = new MetadataProjections();
@@ -98,6 +103,9 @@ public class CatalogController {
     } else {
       result = catalogService.findOnlySubCatalogs(parentId, nameContains, searchDateBy, from, to);
     }
+
+    //check favorite boolean
+    catalogService.markFavorites(result);
 
     return ResponseEntity.ok(
         ProjectionUtils.toListResource(projectionFactory, catalogProjections.getProjectionByName(projection), result)
@@ -138,13 +146,18 @@ public class CatalogController {
    */
   @RequestMapping(path = "/catalogs/{catalogId}/tree", method = RequestMethod.GET)
   public @ResponseBody
-  ResponseEntity<?> findCatalogForTree(@PathVariable("catalogId") String catalogId) {
+  ResponseEntity<?> findCatalogForTree(@PathVariable("catalogId") String catalogId,
+                                       @RequestParam(value = "includeAllHierarchies", required = false, defaultValue = "false") Boolean includeAllHierarchies) {
 
     if (!Catalog.ROOT.equals(catalogId) && catalogRepository.findOne(catalogId) == null) {
       throw new ResourceNotFoundException(catalogId);
     }
 
-    return ResponseEntity.ok(catalogService.findSubCatalogsForTreeView(catalogId));
+    if(includeAllHierarchies){
+      return ResponseEntity.ok(catalogService.findHierarchies(catalogId));
+    } else {
+      return ResponseEntity.ok(catalogService.findSubCatalogsForTreeView(catalogId));
+    }
   }
 
   @RequestMapping(path = {"/catalogs/{fromCatalogIds}/move", "/catalogs/{fromCatalogIds}/move/{toCatalogId}"}, method = RequestMethod.POST)
@@ -196,5 +209,38 @@ public class CatalogController {
     }
 
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(path = "/catalogs/favorite/my", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity<?> findFavoriteCatalogs(@RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
+    List<Catalog> favoriteCatalogs = catalogService.findFavoriteCatalogs();
+    return ResponseEntity.ok(
+        ProjectionUtils.toListResource(projectionFactory, catalogProjections.getProjectionByName(projection), favoriteCatalogs)
+    );
+  }
+
+  @RequestMapping(value = "/catalogs/{catalogId}/favorite/{action:attach|detach}", method = RequestMethod.POST)
+  public ResponseEntity <?> manageFavorite(@PathVariable("catalogId") String catalogId, @PathVariable("action") String action) {
+    switch (action) {
+      case "attach":
+        favoriteService.addFavorite(DomainType.CATALOG, catalogId);
+        break;
+      case "detach":
+        favoriteService.removeFavorite(DomainType.CATALOG, catalogId);
+        break;
+    }
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Find Category sort by used count
+   */
+  @RequestMapping(path = "/catalogs/popularity", method = RequestMethod.GET)
+  public @ResponseBody
+  ResponseEntity<?> findCatalogsByPopularity(@RequestParam(value = "nameContains", required = false) String nameContains,
+                                             Pageable pageable) {
+    Page<CatalogCountDTO> catalogs = catalogService.getCatalogsWithCount(nameContains, pageable);
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(catalogs));
   }
 }

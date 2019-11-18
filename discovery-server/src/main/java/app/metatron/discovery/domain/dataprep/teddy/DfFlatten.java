@@ -14,17 +14,20 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayException;
 import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfFlatten extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfFlatten.class);
 
   public DfFlatten(String dsName, String ruleString) {
@@ -40,7 +43,8 @@ public class DfFlatten extends DataFrame {
     int targetColno = prevDf.getColnoByColName(targetColName);
 
     if (prevDf.getColType(targetColno) != ColumnType.ARRAY) {
-      throw new WorksOnlyOnArrayException("DfFlatten.prepare(): works only on ARRAY: " + prevDf.getColType(targetColno));
+      throw new WorksOnlyOnArrayException(
+              "DfFlatten.prepare(): works only on ARRAY: " + prevDf.getColType(targetColno));
     }
 
     // 컬럼 이름이 바뀌는 일은 없음
@@ -61,33 +65,39 @@ public class DfFlatten extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int targetColno = (int) preparedArgs.get(0);
 
     LOGGER.trace("DfFlatten.gather(): start: offset={} length={} targetColno={}", offset, length, targetColno);
 
-    for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-      Row row = prevDf.rows.get(rowno);
-      ArrayList targetObj = (ArrayList) row.get(targetColno);
-      if (targetObj == null) {
-        continue;
-      }
-
-      for (Object obj : targetObj) {
-        String value = obj.toString();
-        Row newRow = new Row();
-        for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
-          String colName = prevDf.getColName(colno);
-
-          if (colno == targetColno) {
-            newRow.add(colName, value);
-          } else {
-            newRow.add(colName, row.get(colno));
-          }
+    try {
+      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
+        Row row = prevDf.rows.get(rowno);
+        String jsonStr = (String) row.get(targetColno);
+        if (jsonStr == null) {
+          continue;
         }
-        rows.add(newRow);
+        List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, List.class);
+
+        for (Object obj : list) {
+          Row newRow = new Row();
+          for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
+            String colName = prevDf.getColName(colno);
+
+            if (colno == targetColno) {
+              newRow.add(colName, obj);
+            } else {
+              newRow.add(colName, row.get(colno));
+            }
+          }
+          rows.add(newRow);
+        }
       }
+    } catch (IOException e) {
+      LOGGER.error("DfFlatten.gather():", e);
+      throw new InvalidJsonException(e.getMessage());
     }
 
     LOGGER.trace("DfFlatten.gather(): done: offset={} length={} targetColno={}", offset, length, targetColno);

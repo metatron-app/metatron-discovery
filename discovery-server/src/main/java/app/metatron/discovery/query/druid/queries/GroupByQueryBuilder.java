@@ -167,7 +167,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
   private Having having;
 
-  private RelayAggregation.Relaytype relayType;
+  private RelayAggregation.RelayType relayType;
 
   private List<String> percentPartitionExprs = Lists.newArrayList(
       "#_ = " + new RunningSumFunc("_").toExpression(),
@@ -195,7 +195,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     enableMapLayer(layer);
     if (layer.getView() instanceof LayerView.AbbreviatedView) {
       LayerView.AbbreviatedView abbrView = (LayerView.AbbreviatedView) layer.getView();
-      relayType = abbrView.getRelayType() == null ? RelayAggregation.Relaytype.FIRST : abbrView.getRelayType();
+      relayType = abbrView.getRelayType() == null ? RelayAggregation.RelayType.TIME_MAX : abbrView.getRelayType();
     }
     return this;
   }
@@ -298,13 +298,11 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
               geoColumnName = aliasName;
             }
 
-            boolean isGeom = BooleanUtils.isNotTrue(datasourceField.getDerived());
-
             LayerView layerView = mapViewLayer.getView();
-            if (layerView instanceof LayerView.ClusteringLayerView) {
-              LayerView.ClusteringLayerView clusteringLayerView = (LayerView.ClusteringLayerView) layerView;
+            if (layerView instanceof LayerView.ClusteringLayerView || layerView instanceof LayerView.AbbreviatedView) {
+              LayerView.HashLayerView clusteringLayerView = (LayerView.HashLayerView) layerView;
 
-              virtualColumns.put(VC_COLUMN_GEO_COORD, new ExprVirtualColumn(clusteringLayerView.toHashExpression(engineColumnName, isGeom), VC_COLUMN_GEO_COORD));
+              virtualColumns.put(VC_COLUMN_GEO_COORD, new ExprVirtualColumn(clusteringLayerView.toHashExpression(engineColumnName), VC_COLUMN_GEO_COORD));
               dimensions.add(new DefaultDimension(VC_COLUMN_GEO_COORD));
 
               aggregations.addAll(clusteringLayerView.getClusteringAggregations(engineColumnName));
@@ -315,7 +313,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             } else if (layerView instanceof LayerView.HashLayerView) {
               LayerView.HashLayerView hashLayerView = (LayerView.HashLayerView) layerView;
 
-              virtualColumns.put(VC_COLUMN_GEO_COORD, new ExprVirtualColumn(hashLayerView.toHashExpression(engineColumnName, isGeom), VC_COLUMN_GEO_COORD));
+              virtualColumns.put(VC_COLUMN_GEO_COORD, new ExprVirtualColumn(hashLayerView.toHashExpression(engineColumnName), VC_COLUMN_GEO_COORD));
               dimensions.add(new DefaultDimension(VC_COLUMN_GEO_COORD));
               postAggregations.add(new ExprPostAggregator(hashLayerView.toWktExpression(VC_COLUMN_GEO_COORD, geoColumnName)));
             }

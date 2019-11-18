@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import static app.metatron.discovery.common.GlobalObjectMapper.getDefaultMapper;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.DAY;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.HOUR;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.MILLIS;
@@ -22,11 +24,14 @@ import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.NOT_USED;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.SECOND;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.YEAR;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.transformError;
 
-import app.metatron.discovery.domain.dataprep.PrepUtil;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 // 각 column마다 1개씩
 public class Histogram implements Serializable {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DataFrame.class);
 
   public enum Granule {
@@ -122,22 +128,19 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, String.class)) {
         continue;
-      } else if (!(obj instanceof Map)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
-      assert obj instanceof Map : obj;
+      Map<String, Object> objMap;
+      try {
+        objMap = getDefaultMapper().readValue((String) obj, Map.class);
+      } catch (IOException e) {
+        LOGGER.error("Cannot read JSON from a map type value", e);
+        throw transformError(MSG_DP_ALERT_FAILED_TO_PARSE_JSON, e.getMessage());
+      }
 
-      for (Object o : ((Map<String, Object>) obj).keySet()) {
+      for (Object o : objMap.keySet()) {
         String str = o.toString();
         Integer cnt = map.get(str);
         map.put(str, cnt == null ? 1 : cnt + 1);
@@ -182,21 +185,19 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, String.class)) {
         continue;
-      } else if (!(obj instanceof List)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
-      assert obj instanceof List : obj;
 
-      for (Object o : (List<Object>) obj) {
+      List<Object> list;
+      try {
+        list = getDefaultMapper().readValue((String) obj, List.class);
+      } catch (IOException e) {
+        LOGGER.error("Cannot read JSON from an array type value", e);
+        throw transformError(MSG_DP_ALERT_FAILED_TO_PARSE_JSON, e.getMessage());
+      }
+
+      for (Object o : list) {
         String str = o.toString();
         Integer cnt = map.get(str);
         map.put(str, cnt == null ? 1 : cnt + 1);
@@ -230,6 +231,22 @@ public class Histogram implements Serializable {
     LOGGER.trace("updateHistArray() end: colno={}", colno);
   }
 
+  private boolean checkMismatchMissing(int rowno, Object obj, Class cls) {
+    if (obj == null || (obj instanceof String && obj.equals(""))) {
+      missing++;
+      missingRows.add(rowno);
+      return true;
+    } else if (!obj.getClass().equals(cls)) {
+      mismatched++;
+      mismatchedRows.add(rowno);
+      return true;
+    }
+
+    matched++;
+    matchedRows.add(rowno);
+    return false;
+  }
+
   private void updateHistString(int colno, List<Row> rows) {
     Map<String, Integer> map = new HashMap();
     Map<String, List<Integer>> mapRownos = new HashMap();
@@ -240,17 +257,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, String.class)) {
         continue;
-      } else if (!(obj instanceof String)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof String : obj;
@@ -304,17 +312,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, Boolean.class)) {
         continue;
-      } else if (!(obj instanceof Boolean)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof Boolean : obj;
@@ -349,17 +348,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, Long.class)) {
         continue;
-      } else if (!(obj instanceof Long)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof Long : obj;
@@ -576,17 +566,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, DateTime.class)) {
         continue;
-      } else if (!(obj instanceof DateTime)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof DateTime : obj;
@@ -649,7 +630,7 @@ public class Histogram implements Serializable {
             .forEach(entry -> {
               // 다음 bucket으로 이동. sort가 잘 되었고, 경계값이 잘 설정되었다면, 마지막 bucket을 넘기 전에 stream이 끝난다.
               while (entry.getKey().isEqual(tsLabels.get(barIdx + 1)) ||
-                     entry.getKey().isAfter(tsLabels.get(barIdx + 1))) {
+                      entry.getKey().isAfter(tsLabels.get(barIdx + 1))) {
                 barIdx++;
               }
               counts.set(barIdx, counts.get(barIdx) + entry.getValue());
@@ -682,17 +663,8 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null) {
-        missing++;
-        missingRows.add(rowno);
+      if (checkMismatchMissing(rowno, obj, Double.class)) {
         continue;
-      } else if (!(obj instanceof Double)) {
-        mismatched++;
-        mismatchedRows.add(rowno);
-        continue;
-      } else {
-        matched++;
-        matchedRows.add(rowno);
       }
 
       assert obj instanceof Double : obj;
@@ -904,8 +876,10 @@ public class Histogram implements Serializable {
 
     assert min >= labels.get(0) : String.format("min=%.15f start_label=%.15f", min, labels.get(0));
     assert min < labels.get(1) : String.format("min=%.15f start_label=%.15f", min, labels.get(1));
-    assert max >= labels.get(labels.size() - 2) : String.format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 2));
-    assert max < labels.get(labels.size() - 1) : String.format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 1));
+    assert max >= labels.get(labels.size() - 2) : String
+            .format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 2));
+    assert max < labels.get(labels.size() - 1) : String
+            .format("max=%.15f end_label=%.15f", max, labels.get(labels.size() - 1));
 
     return labels;
   }
@@ -949,8 +923,10 @@ public class Histogram implements Serializable {
 
     assert min >= labels.get(0) : String.format("min=%d start_label=%d", min, labels.get(0));
     assert min < labels.get(1) : String.format("min=%d start_label=%d", min, labels.get(1));
-    assert max >= labels.get(labels.size() - 2) : String.format("max=%d end_label=%d", max, labels.get(labels.size() - 2));
-    assert max < labels.get(labels.size() - 1) : String.format("max=%d end_label=%d", max, labels.get(labels.size() - 1));
+    assert max >= labels.get(labels.size() - 2) : String
+            .format("max=%d end_label=%d", max, labels.get(labels.size() - 2));
+    assert max < labels.get(labels.size() - 1) : String
+            .format("max=%d end_label=%d", max, labels.get(labels.size() - 1));
 
     LOGGER.trace("getLongLabels() end: labels={}", labels);
     return labels;
@@ -1007,7 +983,7 @@ public class Histogram implements Serializable {
     List<DateTime> labels = new ArrayList<>();
 
     DateTime dt = new DateTime(min.getYear(), min.getMonthOfYear(), min.getDayOfMonth(),
-                               min.getHourOfDay() / unitSize * unitSize, 0);
+            min.getHourOfDay() / unitSize * unitSize, 0);
     while (dt.isBefore(max) || dt.isEqual(max)) {
       labels.add(dt);
       dt = dt.plusHours(unitSize);
@@ -1020,7 +996,7 @@ public class Histogram implements Serializable {
     List<DateTime> labels = new ArrayList<>();
 
     DateTime dt = new DateTime(min.getYear(), min.getMonthOfYear(), min.getDayOfMonth(),
-                               min.getHourOfDay(), min.getMinuteOfHour() / unitSize * unitSize);
+            min.getHourOfDay(), min.getMinuteOfHour() / unitSize * unitSize);
     while (dt.isBefore(max) || dt.isEqual(max)) {
       labels.add(dt);
       dt = dt.plusMinutes(unitSize);
@@ -1046,7 +1022,8 @@ public class Histogram implements Serializable {
     List<DateTime> labels = new ArrayList<>();
 
     DateTime dt = new DateTime(min.getYear(), min.getMonthOfYear(), min.getDayOfMonth(),
-            min.getHourOfDay(), min.getMinuteOfHour(), min.getSecondOfMinute(), min.getMillisOfSecond() / unitSize * unitSize);
+            min.getHourOfDay(), min.getMinuteOfHour(), min.getSecondOfMinute(),
+            min.getMillisOfSecond() / unitSize * unitSize);
     while (dt.isBefore(max) || dt.isEqual(max)) {
       labels.add(dt);
       dt = dt.plusMillis(unitSize);
@@ -1056,7 +1033,7 @@ public class Histogram implements Serializable {
   }
 
   private List<DateTime> getFinestLabels(DateTime min, DateTime max, int barCnt, List<DateTime> currentBestLabels,
-                                         List<Granule> granules, List<Integer> unitSizes) {
+          List<Granule> granules, List<Integer> unitSizes) {
     LOGGER.trace("getFinestLabels() start: granules={} unitSizes={}", granules, unitSizes);
     assert granules.size() > 0;
     assert granules.size() == unitSizes.size() : String.format("granules.size=%d unitSizes.size=%d",
@@ -1117,29 +1094,29 @@ public class Histogram implements Serializable {
     labels.add(new DateTime(max.getYear() / 10 * 10, 1, 1, 0, 0));
     bestGranularity = YEAR;
 
-    List<Granule> granules  = new ArrayList<>();
+    List<Granule> granules = new ArrayList<>();
     List<Integer> unitSizes = new ArrayList<>();
 
-    granules.addAll( Arrays.asList(new Granule[]{YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{5000, 1000,  500,  100,   50,   10,    5,    2,    1}));
+    granules.addAll(Arrays.asList(new Granule[]{YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{5000, 1000, 500, 100, 50, 10, 5, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{MONTH, MONTH, MONTH, MONTH}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{    6,    3,      2,     1}));
+    granules.addAll(Arrays.asList(new Granule[]{MONTH, MONTH, MONTH, MONTH}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{6, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{DAY, DAY, DAY, DAY, DAY, DAY}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{ 15,  10,   5,   3,   2,   1}));
+    granules.addAll(Arrays.asList(new Granule[]{DAY, DAY, DAY, DAY, DAY, DAY}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{15, 10, 5, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{HOUR, HOUR, HOUR, HOUR}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{   6,    3,    2,    1}));
+    granules.addAll(Arrays.asList(new Granule[]{HOUR, HOUR, HOUR, HOUR}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{6, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{    30,     15,     10,      5,      3,      2,      1}));
+    granules.addAll(Arrays.asList(new Granule[]{MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE, MINUTE}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{30, 15, 10, 5, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{SECOND, SECOND, SECOND, SECOND, SECOND, SECOND, SECOND}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{    30,     15,     10,      5,      3,      2,      1}));
+    granules.addAll(Arrays.asList(new Granule[]{SECOND, SECOND, SECOND, SECOND, SECOND, SECOND, SECOND}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{30, 15, 10, 5, 3, 2, 1}));
 
-    granules.addAll( Arrays.asList(new Granule[]{MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{   500,    100,     50,     10,      5,      2,      1}));
+    granules.addAll(Arrays.asList(new Granule[]{MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS, MILLIS}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{500, 100, 50, 10, 5, 2, 1}));
 
     labels = getFinestLabels(min, max, barCnt, labels, granules, unitSizes);
     return labels;

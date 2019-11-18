@@ -57,6 +57,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+
+import javax.annotation.PostConstruct;
 
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
@@ -85,6 +88,7 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo
 import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
+import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
@@ -258,18 +262,20 @@ public class DataSourceEventHandler {
   @HandleAfterCreate
   public void handleDataSourceAfterCreate(DataSource dataSource) {
 
-    // IngestionHistoy 가 존재하면 저장 수행
-    IngestionHistory histroy = dataSource.getHistory();
-    if (histroy != null) {
-      histroy.setDataSourceId(dataSource.getId());
-      ingestionHistoryRepository.save(histroy);
+    // IngestionHistory 가 존재하면 저장 수행
+    IngestionHistory history = dataSource.getHistory();
+    if (history != null) {
+      history.setDataSourceId(dataSource.getId());
+      ingestionHistoryRepository.save(history);
     }
 
     // save context from domain
     contextService.saveContextFromDomain(dataSource);
 
-    // create metadata from datasource
-    metadataService.saveFromDataSource(dataSource);
+    if (dataSource.getConnType() == LINK) {
+      // create metadata
+      metadataService.saveFromDataSource(dataSource);
+    }
 
     // 수집 경로가 아닌 경우 Pass
     if (dataSource.getIngestion() == null) {
@@ -420,16 +426,13 @@ public class DataSourceEventHandler {
   @HandleBeforeLinkDelete
   @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_DATASOURCE')")
   public void handleBeforeLinkDelete(DataSource dataSource, Object linked) {
-
     // Count connected workspaces.
+    Set<Workspace> preWorkspaces = dataSourceRepository.findWorkspacesInDataSource(dataSource.getId());
     // Not a public workspace and linked entity type is Workspace.
     if (BooleanUtils.isNotTrue(dataSource.getPublished()) &&
-        !CollectionUtils.sizeIsEmpty(linked) &&
-        CollectionUtils.get(linked, 0) instanceof Workspace) {
+        !CollectionUtils.sizeIsEmpty(preWorkspaces)) {
       dataSource.setLinkedWorkspaces(dataSource.getWorkspaces().size());
       LOGGER.debug("DELETED: Set linked workspace in datasource({}) : {}", dataSource.getId(), dataSource.getLinkedWorkspaces());
-
-      Set<Workspace> preWorkspaces = dataSourceRepository.findWorkspacesInDataSource(dataSource.getId());
 
       for (Workspace workspace : preWorkspaces) {
         if(!dataSource.getWorkspaces().contains(workspace)) {
@@ -487,8 +490,23 @@ public class DataSourceEventHandler {
       } catch (Exception e) {
         LOGGER.warn("Fail to remove history related datasource({}) : {} ", dataSource.getId(), e.getMessage());
       }
+
+      // Delete Metadata
+      try{
+        Optional<Metadata> metadata = metadataService.findByDataSource(dataSource.getId());
+        if(metadata.isPresent()){
+          metadataService.delete(metadata.get().getId());
+        }
+      } catch (Exception e){
+        LOGGER.warn("Fail to remove metadata related datasource({}) : {} ", dataSource.getId(), e.getMessage());
+      }
     }
 
+  }
+
+  @PostConstruct
+  void setGlobalSecurityContext() {
+    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
   }
 
 }

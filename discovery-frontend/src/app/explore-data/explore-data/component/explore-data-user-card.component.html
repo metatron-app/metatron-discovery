@@ -1,0 +1,47 @@
+<!-- SourceType is ENGINE(Datasource) -->
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'ENGINE'">
+  <div class="ddp-data-photo">
+    <img src="../../../../assets/images/img_photo.png">
+  </div>
+  <div class="ddp-wrap-data">
+    <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
+<!--      <em class="ddp-icon-control-fav"></em>-->
+    </div>
+    <div>
+      <div class="ddp-data-info" [class.type-link]="topUser.hasPermission"  (click)="onClickDashBoardName(topUser.hasPermission)">
+          <em *ngIf="topUser.hasPermission" [class.ddp-link-new]="topUser.hasPermission" ></em>
+          <span class="ddp-txt-info">
+            {{ topUser['dashboard']['workBook']
+            ? topUser['dashboard']['workBook']['name'] + " > " + topUser['dashboard']['name']
+            : topUser['dashboard']['name']
+            }}
+          </span>
+      </div>
+    </div>
+    <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
+  </div>
+</div>
+<!-- SourceType is ENGINE(Datasource) -->
+
+<!-- SourceType is JDBC(Database) -->
+<div class="ddp-box-user" *ngIf="sourceType.toString() === 'JDBC' || sourceType.toString() === 'STAGEDB'">
+  <div class="ddp-data-photo">
+    <img src="../../../../assets/images/img_photo.png">
+  </div>
+  <div class="ddp-wrap-data">
+    <div class="ddp-data-name">{{ topUser['user']['fullName'] }}
+<!--      <em class="ddp-icon-control-fav ddp-fright"></em>-->
+    </div>
+    <div>
+      <div class="ddp-data-info" [class.type-link]="topUser.hasPermission" (click)="onClickWorkbenchName(topUser.hasPermission)">
+          <em *ngIf="topUser.hasPermission" [class.ddp-link-new]="topUser.hasPermission"></em>
+          <span class="ddp-txt-info">
+            {{ topUser['workbench']['name'] }}
+          </span>
+      </div>
+    </div>
+    <div class="ddp-data-date">{{ topUser['lastPublishedTime'] | mdate:'YYYY-MM-DD HH:mm:ss'}}</div>
+  </div>
+</div>
+<!-- SourceType is JDBC(Database) -->
+

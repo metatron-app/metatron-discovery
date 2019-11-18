@@ -35,14 +35,13 @@
     <!-- 좌측 워크스페이스 제목 영역 -->
     <div class="ddp-ui-toptitle">
       <em class="ddp-icon-navi" (click)="gotoWorkspace()"></em>
-      <span class="ddp-data-name">
+      <span class="ddp-data-name" title="{{workbook.name}}">
           <em class="ddp-box-tag">{{'msg.space.ui.tag.workbook'| translate}}</em>{{workbook.name}}
       </span>
       <!-- more -->
       <div *ngIf="isChangeAuthUser"
            class="ddp-ui-more ddp-hover-tooltip" [ngClass]="{'ddp-selected' : isShowDetailMenu}"
-           (click)="toggleWorkbookDetailMenu($event)"
-           (clickOutside)="isShowDetailMenu = false">
+           (click)="toggleWorkbookDetailMenu($event)" >
         <a href="javascript:" class="ddp-icon-more"></a>
         <div class="ddp-ui-tooltip-info ddp-down">
           <em class="ddp-icon-view-top"></em>
@@ -96,7 +95,7 @@
 
             <!-- 데이터 베이스 수 -->
             <div class="ddp-wrap-selectbox" [class.ddp-selected]="isShowDatasourceMenu" *ngIf="datasources">
-              <div class="ddp-data-selectbox" (click)="isShowDatasourceMenu = !isShowDatasourceMenu" >
+              <div class="ddp-data-selectbox" (click)="toggleDatasourceLayer()" >
                 <em class="ddp-icon-database3"></em>
                 {{'msg.board.th.datasource' | translate}}
               </div>
@@ -104,11 +103,11 @@
               <div class="ddp-wrap-popup2" (clickOutside)="isShowDatasourceMenu=false"
                    [excludeBeforeClick]="true" [exclude]="'.ddp-data-selectbox'">
                 <ul class="ddp-list-popup ddp-type">
-                  <li *ngFor="let ds of datasources" [ngClass]="{'ddp-selected' : selectedDatasources.indexOf(ds.id) > -1}">
+                  <li *ngFor="let ds of datasources" [ngClass]="{'ddp-selected' : ds.valid && selectedDatasources.indexOf(ds.id) > -1, 'ddp-disabled' : !ds.valid}">
                     <a href="javascript:" >
                       <label class="ddp-label-checkbox">
                         <input (click)="selectDatasource(ds.id);"
-                               [checked]="selectedDatasources.indexOf(ds.id) > -1" type="checkbox" >
+                               [checked]="ds.valid && selectedDatasources.indexOf(ds.id) > -1" type="checkbox" >
                         <i class="ddp-icon-checkbox"></i>
                         <span class="ddp-txt-checkbox" title="{{ds['name']}}">{{ds['name']}}</span>
                       </label>
@@ -146,13 +145,14 @@
                 <ul class="ddp-list-board-listview"
                     dnd-sortable-container [sortableData]="filteredDashboard" [dropZones]="['source-dropZone']" >
                   <li *ngFor="let dashboard of filteredDashboard ; let x = index"
-                      (click)="loadAndSelectDashboard(dashboard)"
+                      (click)="detailDashboard(dashboard)"
                       dnd-sortable
                       [sortableIndex]="x"
                       [dragEnabled]="true"
                       [dragData]="dashboard"
                       (onDropSuccess)="changeOrder()"
-                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id">
+                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id"
+                      [class.ddp-disabled]="isInvalidDatasource(dashboard)" >
                     <a href="javascript:">
                       <span class="ddp-ui-number">{{x + 1}}</span>
                       <em *ngIf="isChangeAuthUser && publicType.SHARED === workspace?.publicType"
@@ -199,13 +199,14 @@
                 <ul class="ddp-list-board-thumbview"
                     dnd-sortable-container [sortableData]="filteredDashboard" [dropZones]="['source-dropZone']" >
                   <li *ngFor="let dashboard of filteredDashboard; let x = index"
-                      (click)="loadAndSelectDashboard(dashboard)"
+                      (click)="detailDashboard(dashboard)"
                       dnd-sortable
                       [sortableIndex]="x"
                       [dragEnabled]="true"
                       [dragData]="dashboard"
                       (onDropSuccess)="changeOrder()"
-                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id" >
+                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id"
+                      [class.ddp-disabled]="isInvalidDatasource(dashboard)">
                     <a href="javascript:">
                       <span class="ddp-icon-number">{{x + 1}}</span>
                       <span class="ddp-data-name"
@@ -216,7 +217,7 @@
                         {{dashboard.name}}
                       </span>
                       <span class="ddp-wrap-image" >
-                        <img (invoke)="getBoardImage($event, dashboard.imageUrl)" />
+                        <img *ngIf="dashboard.imageUrl" (invoke)="dashboardUtil.getBoardImage($event, dashboard.imageUrl)" />
                       </span>
                       <!-- buttons -->
                       <div class="ddp-btn-control" *ngIf="isChangeAuthUser">
@@ -375,7 +376,7 @@
         <!-- name -->
         <div class="ddp-box-navi" [ngClass]="{'ddp-selected' : isDashboardNameEditMode}" >
           <div class="ddp-wrap-naviname" (click)="onChangeModeName($event)">
-            <span class="ddp-data-naviname">{{selectedDashboard.name ? selectedDashboard.name : ''}}<em class="ddp-icon-edit2"></em></span>
+            <span class="ddp-data-naviname" [title]="selectedDashboard.name">{{selectedDashboard.name ? selectedDashboard.name : ''}}<em class="ddp-icon-edit2"></em></span>
           </div>
           <div class="ddp-wrap-input" >
             <component-input

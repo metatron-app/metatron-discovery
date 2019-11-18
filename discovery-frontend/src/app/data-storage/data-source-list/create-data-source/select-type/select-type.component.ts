@@ -15,7 +15,12 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {StorageService} from "../../../service/storage.service";
-import {ConnectionType, DatasourceInfo, DataSourceType, SourceType} from "../../../../domain/datasource/datasource";
+import {
+  ConnectionType,
+  DatasourceInfo,
+  DataSourceType,
+  SourceType
+} from "../../../../domain/datasource/datasource";
 
 @Component({
   selector: 'select-type',
@@ -62,7 +67,7 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
     switch (selectType) {
       case 'file':
         this._sourceData.type = SourceType.FILE;
-        this.step = 'file-select';
+        this.step = 'file-upload';
         break;
       case 'database':
         this._sourceData.type = SourceType.JDBC;
@@ -81,6 +86,10 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
       case 'snapshot':
         this._sourceData.type = SourceType.SNAPSHOT;
         this.step = 'snapshot-select';
+        break;
+      case 'stream':
+        this._sourceData.type = SourceType.REALTIME;
+        this.step = 'stream-select';
         break;
     }
     this._sourceData.connType = ConnectionType.ENGINE;

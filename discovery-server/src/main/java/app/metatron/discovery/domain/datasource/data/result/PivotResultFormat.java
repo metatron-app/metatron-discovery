@@ -14,31 +14,6 @@
 
 package app.metatron.discovery.domain.datasource.data.result;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
@@ -59,6 +34,28 @@ import app.metatron.discovery.query.druid.limits.PivotSpec;
 import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
 import app.metatron.discovery.query.druid.queries.GroupingSet;
 import app.metatron.discovery.util.EnumUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by kyungtaak on 2016. 8. 21..
@@ -91,13 +88,13 @@ public class PivotResultFormat extends SearchResultFormat {
 
   @JsonCreator
   public PivotResultFormat(@JsonProperty("separator") String separator,
-                           @JsonProperty("keyFields") List<String> keyFields,
-                           @JsonProperty("pivots") List<Pivot> pivots,
-                           @JsonProperty("aggregations") List<Aggregation> aggregations,
-                           @JsonProperty("expressions") List<PivotSpec.ConditionExpression> expressions,
-                           @JsonProperty("resultType") String resultType,
-                           @JsonProperty("groupingSize") Integer groupingSize,
-                           @JsonProperty("includePercent") Boolean includePercentage) {
+          @JsonProperty("keyFields") List<String> keyFields,
+          @JsonProperty("pivots") List<Pivot> pivots,
+          @JsonProperty("aggregations") List<Aggregation> aggregations,
+          @JsonProperty("expressions") List<PivotSpec.ConditionExpression> expressions,
+          @JsonProperty("resultType") String resultType,
+          @JsonProperty("groupingSize") Integer groupingSize,
+          @JsonProperty("includePercent") Boolean includePercentage) {
 
     this.separator = separator == null ? DEFAULT_SEPARATOR : separator;
 
@@ -150,24 +147,24 @@ public class PivotResultFormat extends SearchResultFormat {
     pivotSpec.setAppendValueColumn(true);
 
     pivotSpec.setPivotColumns(pivots.stream()
-                                    .map(pivot -> {
-                                      PivotColumn pivotColumn = new PivotColumn(pivot.getField());
+            .map(pivot -> {
+              PivotColumn pivotColumn = new PivotColumn(pivot.getField());
 
-                                      Optional<Sort> findSort = this.getRequest().getLimits().getSort()
-                                          .stream().filter(sort -> sort.getField().equalsIgnoreCase(pivot.getFieldName()))
-                                          .findFirst();
-                                      if(findSort.isPresent()) {
-                                        pivotColumn.setDirection(
-                                            findSort.get().getDirection() == Sort.Direction.DESC ?
-                                                PivotColumn.Direction.DESCENDING : PivotColumn.Direction.ASCENDING);
-                                      }
+              Optional<Sort> findSort = this.getRequest().getLimits().getSort()
+                      .stream().filter(sort -> sort.getField().equalsIgnoreCase(pivot.getFieldName()))
+                      .findFirst();
+              if (findSort.isPresent()) {
+                pivotColumn.setDirection(
+                        findSort.get().getDirection() == Sort.Direction.DESC ?
+                                PivotColumn.Direction.DESCENDING : PivotColumn.Direction.ASCENDING);
+              }
 
-                                      return pivotColumn;
-                                    }).collect(Collectors.toList()));
+              return pivotColumn;
+            }).collect(Collectors.toList()));
 
     pivotSpec.setValueColumns(aggregations.stream()
-                                          .map(aggregation -> aggregation.getFieldName())
-                                          .collect(Collectors.toList()));
+            .map(aggregation -> aggregation.getFieldName())
+            .collect(Collectors.toList()));
 
     for (String expression : expressions) {
       addExpression(new PivotSpec.ConditionExpression(expression));
@@ -274,7 +271,8 @@ public class PivotResultFormat extends SearchResultFormat {
 
         // Percentage Case
         if (includePercentage && StringUtils.endsWith(nodeKey, ChartResultFormat.POSTFIX_PERCENTAGE)) {
-          String originalKey = StringUtils.substring(nodeKey, 0, nodeKey.length() - ChartResultFormat.POSTFIX_PERCENTAGE.length());
+          String originalKey = StringUtils
+                  .substring(nodeKey, 0, nodeKey.length() - ChartResultFormat.POSTFIX_PERCENTAGE.length());
           if (grouped && categoryMap.containsKey(originalKey)) {
             List<List<Double>> values = categoryMap.get(originalKey);
             values.get(1).add(getDoubleValue(nodeValue));
@@ -282,8 +280,8 @@ public class PivotResultFormat extends SearchResultFormat {
             valueMap.get(originalKey).get(1).add(getDoubleValue(nodeValue));
           } else {
             valueMap.put(originalKey,
-                         Lists.newArrayList(Lists.newArrayList(),
-                                            Lists.newArrayList(getDoubleValue(nodeValue))));
+                    Lists.newArrayList(Lists.newArrayList(),
+                            Lists.newArrayList(getDoubleValue(nodeValue))));
           }
           // Normal Value Case
         } else {
@@ -293,8 +291,8 @@ public class PivotResultFormat extends SearchResultFormat {
             valueMap.get(nodeKey).get(0).add(getDoubleValue(nodeValue));
           } else {
             valueMap.put(nodeKey,
-                         Lists.newArrayList(Lists.newArrayList(getDoubleValue(nodeValue)),
-                                            Lists.newArrayList()));
+                    Lists.newArrayList(Lists.newArrayList(getDoubleValue(nodeValue)),
+                            Lists.newArrayList()));
           }
         }
       }
@@ -322,8 +320,8 @@ public class PivotResultFormat extends SearchResultFormat {
     if (analysis instanceof PredictionAnalysis) {
       // 시간 필드를 구하고,
       List<Field> timeFields = request.getProjections().stream()
-                                      .filter(field -> field.getFormat() instanceof ContinuousTimeFormat)
-                                      .collect(Collectors.toList());
+              .filter(field -> field.getFormat() instanceof ContinuousTimeFormat)
+              .collect(Collectors.toList());
       String timeFieldName = timeFields.get(0).getAlias();
 
       // 예측 대상 필드 구하고,
@@ -332,13 +330,13 @@ public class PivotResultFormat extends SearchResultFormat {
       List<String> parameterNames = null;
       if (CollectionUtils.isEmpty(predictionAnalysis.getForecast().getParameters())) {
         parameterNames = request.getProjections().stream()
-                                .filter(field -> field instanceof MeasureField)
-                                .map(field -> field.getAlias())
-                                .collect(Collectors.toList());
+                .filter(field -> field instanceof MeasureField)
+                .map(field -> field.getAlias())
+                .collect(Collectors.toList());
       } else {
         parameterNames = predictionAnalysis.getForecast().getParameters().stream()
-                                           .map(hyperParameter -> hyperParameter.getField())
-                                           .collect(Collectors.toList());
+                .map(hyperParameter -> hyperParameter.getField())
+                .collect(Collectors.toList());
       }
       // 각 요소별 데이터 초기화
       Map<String, List> result = com.facebook.presto.jdbc.internal.guava.collect.Maps.newHashMap();
@@ -364,19 +362,29 @@ public class PivotResultFormat extends SearchResultFormat {
           for (String parameterName : parameterNames) {
             List<List<Double>> paramValues = result.get(parameterName);
             JsonNode paramNode = itemNode.get(parameterName);
-            paramValues.get(0).add(paramNode.get(0).asDouble());
-            paramValues.get(1).add(paramNode.get(1).asDouble());
-            paramValues.get(2).add(paramNode.get(2).asDouble());
+            if (paramNode == null) {
+              paramValues.get(0).add(0.0);
+              paramValues.get(1).add(0.0);
+              paramValues.get(2).add(0.0);
+            } else {
+              paramValues.get(0).add(paramNode.get(0).asDouble());
+              paramValues.get(1).add(paramNode.get(1).asDouble());
+              paramValues.get(2).add(paramNode.get(2).asDouble());
+            }
           }
 
-          // 파라미터 정보 가져오기
+          // find predict param.
           if (first) {
             for (String parameterName : parameterNames) {
-              String paramNamePlus = parameterName + ".params";  // .param postfix 로 [alpha, beta, gamma] 값이 포함됨
+              // include value [alpha, beta, gamma] by .param postfix
+              String paramNamePlus = parameterName + ".params";
               List<Double> infoValues = Lists.newArrayList();
 
-              // Array node 파싱
               JsonNode paramNode = itemNode.get(paramNamePlus);
+              // no predict result case
+              if (paramNode == null) {
+                continue;
+              }
               paramNode.forEach(arrayItem -> infoValues.add(arrayItem.asDouble()));
 
               result.put(paramNamePlus, infoValues);
@@ -384,7 +392,7 @@ public class PivotResultFormat extends SearchResultFormat {
             first = false;
           }
 
-          // Prediction 값은 제거
+          // remove prediction value
           it.remove();
         }
       }
@@ -483,16 +491,16 @@ public class PivotResultFormat extends SearchResultFormat {
     for (int i = pivotColumn.size(); i > 0; i--) {
       List<String> names = Lists.newArrayList(keyFields);
 
-      for (int j = 0; j < i-1; j++) {
+      for (int j = 0; j < i - 1; j++) {
         names.add(pivotColumn.get(j));
       }
 
       groupNames.add(names);
     }
 
-    if(groupingSize != null) {
+    if (groupingSize != null) {
       int diff = groupNames.size() - groupingSize;
-      if(groupNames.size() > diff) {
+      if (groupNames.size() > diff) {
         for (int i = 0; i < diff; i++) {
           groupNames.remove(i + 1);
         }
@@ -517,7 +525,7 @@ public class PivotResultFormat extends SearchResultFormat {
 
     @JsonCreator
     public Pivot(@JsonProperty(value = "fieldName", required = true) String fieldName,
-                 @JsonProperty("values") List<String> values) {
+            @JsonProperty("values") List<String> values) {
       Preconditions.checkArgument(StringUtils.isNotEmpty(fieldName), "fieldName required.");
       this.fieldName = fieldName;
       this.values = values;
@@ -564,7 +572,7 @@ public class PivotResultFormat extends SearchResultFormat {
 
     @JsonCreator
     public Aggregation(@JsonProperty(value = "fieldName", required = true) String fieldName,
-                       @JsonProperty(value = "defaultValue") String defaultValue) {
+            @JsonProperty(value = "defaultValue") String defaultValue) {
       this.fieldName = fieldName;
       this.defaultValue = defaultValue;
     }

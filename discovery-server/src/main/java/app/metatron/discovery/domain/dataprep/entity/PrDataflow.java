@@ -17,157 +17,165 @@ package app.metatron.discovery.domain.dataprep.entity;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
+import org.hibernate.annotations.GenericGenerator;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "pr_dataflow")
 public class PrDataflow extends AbstractHistoryEntity {
 
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    @Column(name = "df_id")
-    private String dfId;
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @Column(name = "df_id")
+  private String dfId;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "pr_dataflow_dataset",
-            joinColumns = @JoinColumn(name = "df_id", referencedColumnName="df_id"),
-            inverseJoinColumns = @JoinColumn(name = "ds_id", referencedColumnName="ds_id"))
-    private List<PrDataset> datasets;
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "pr_dataflow_dataset",
+          joinColumns = @JoinColumn(name = "df_id", referencedColumnName = "df_id"),
+          inverseJoinColumns = @JoinColumn(name = "ds_id", referencedColumnName = "ds_id"))
+  private List<PrDataset> datasets;
 
-    @Size(max = 2000)
-    @Column(name = "df_name", nullable = false)
-    private String dfName;
+  @Size(max = 2000)
+  @Column(name = "df_name", nullable = false)
+  private String dfName;
 
-    @Lob
-    @Column(name = "df_desc")
-    private String dfDesc;
+  @Lob
+  @Column(name = "df_desc")
+  private String dfDesc;
 
-    @Lob
-    @Column(name = "custom")
-    private String custom;
+  @Lob
+  @Column(name = "custom")
+  private String custom;
 
-    public String getDfId() {
-        return dfId;
-    }
+  public String getDfId() {
+    return dfId;
+  }
 
-    public void setDfId(String dfId) {
-        this.dfId = dfId;
-    }
+  public void setDfId(String dfId) {
+    this.dfId = dfId;
+  }
 
-    public List<PrDataset> getDatasets() {
-        return datasets;
-    }
+  public List<PrDataset> getDatasets() {
+    return datasets;
+  }
 
-    public void setDatasets(List<PrDataset> datasets) {
-        this.datasets = datasets;
-    }
+  public void setDatasets(List<PrDataset> datasets) {
+    this.datasets = datasets;
+  }
 
-    public String getDfName() {
-        return dfName;
-    }
+  public String getDfName() {
+    return dfName;
+  }
 
-    public void setDfName(String dfName) {
-        this.dfName = dfName;
-    }
+  public void setDfName(String dfName) {
+    this.dfName = dfName;
+  }
 
-    public String getDfDesc() {
-        return dfDesc;
-    }
+  public String getDfDesc() {
+    return dfDesc;
+  }
 
-    public void setDfDesc(String dfDesc) {
-        this.dfDesc = dfDesc;
-    }
+  public void setDfDesc(String dfDesc) {
+    this.dfDesc = dfDesc;
+  }
 
-    public String getCustom() {
-        return custom;
-    }
+  public String getCustom() {
+    return custom;
+  }
 
-    public void setCustom(String custom) {
-        this.custom = custom;
-    }
+  public void setCustom(String custom) {
+    this.custom = custom;
+  }
 
-    public boolean addDataset(PrDataset dataset) {
-        if(dataset!=null) {
-            if(this.datasets==null) {
-                this.datasets = new ArrayList<PrDataset>();
-            }
-            for(PrDataset ds : this.datasets) {
-                if(ds.getDsId()==dataset.getDsId()) {
-                    return false;
-                }
-            }
-            this.datasets.add(dataset);
-            return true;
+  public boolean addDataset(PrDataset dataset) {
+    if (dataset != null) {
+      if (this.datasets == null) {
+        this.datasets = new ArrayList();
+      }
+      for (PrDataset ds : this.datasets) {
+        if (ds.getDsId() == dataset.getDsId()) {
+          return false;
         }
-        return false;
+      }
+      this.datasets.add(dataset);
+      return true;
     }
+    return false;
+  }
 
-    public void deleteDataset(PrDataset dataset) {
-        if(dataset!=null && this.datasets!=null) {
-            this.datasets.remove(dataset);
+  public void deleteDataset(PrDataset dataset) {
+    if (dataset != null && this.datasets != null) {
+      this.datasets.remove(dataset);
+    }
+  }
+
+  @JsonIgnore
+  public Map<String, Integer> getDatasetCountByType() {
+    Map<String, Integer> countMap = null;
+    if (this.datasets != null) {
+      countMap = new HashMap<String, Integer>();
+      for (PrDataset pd : this.datasets) {
+        String key = pd.getDsType().name();
+        if (null != key) {
+          Integer value = countMap.get(key);
+          if (null == value) {
+            value = 0;
+          }
+          value++;
+          countMap.put(key, value);
         }
+      }
     }
+    return countMap;
+  }
 
-    @JsonIgnore
-    public Map<String,Integer> getDatasetCountByType() {
-        Map<String,Integer> countMap = null;
-        if(this.datasets!=null) {
-            countMap = new HashMap<String,Integer>();
-            for(PrDataset pd : this.datasets) {
-                String key = pd.getDsType().name();
-                if(null!=key) {
-                    Integer value = countMap.get(key);
-                    if(null==value) {
-                        value = 0;
-                    }
-                    value++;
-                    countMap.put(key,value);
-                }
-            }
+  @JsonIgnore
+  public Integer getDsCountByType(PrDataset.DS_TYPE type) {
+    Integer count = 0;
+    if (this.datasets != null) {
+      for (PrDataset pd : this.datasets) {
+        PrDataset.DS_TYPE dsType = pd.getDsType();
+        if (null != dsType && dsType == type) {
+          count++;
         }
-        return countMap;
+      }
     }
+    return count;
+  }
 
-    @JsonIgnore
-    public Integer getDsCountByType(PrDataset.DS_TYPE type) {
-        Integer count = 0;
-        if(this.datasets!=null) {
-            for(PrDataset pd : this.datasets) {
-                PrDataset.DS_TYPE dsType = pd.getDsType();
-                if(null!=dsType && dsType==type) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
+  public Integer getImportedDsCount() {
+    return this.getDsCountByType(PrDataset.DS_TYPE.IMPORTED);
+  }
 
-    public Integer getImportedDsCount() {
-        return this.getDsCountByType(PrDataset.DS_TYPE.IMPORTED);
-    }
+  public Integer getWrangledDsCount() {
+    return this.getDsCountByType(PrDataset.DS_TYPE.WRANGLED);
+  }
 
-    public Integer getWrangledDsCount() {
-        return this.getDsCountByType(PrDataset.DS_TYPE.WRANGLED);
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getName()+"{" +
-                "dfId='" + String.valueOf(dfId) + '\'' +
-                ", dfName='" + dfName + '\'' +
-                ", dfDesc='" + dfDesc + '\'' +
-                ", custom='" + custom + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return this.getClass().getName() + "{" +
+            "dfId='" + String.valueOf(dfId) + '\'' +
+            ", dfName='" + dfName + '\'' +
+            ", dfDesc='" + dfDesc + '\'' +
+            ", custom='" + custom + '\'' +
+            '}';
+  }
 }
 
 

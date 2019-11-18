@@ -40,6 +40,7 @@ import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.rule.EvaluationRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
@@ -50,11 +51,17 @@ import app.metatron.discovery.domain.workbook.configurations.format.GeoPointForm
 import app.metatron.discovery.query.druid.ShapeFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
+import app.metatron.discovery.query.druid.funtions.ShapeCentroidYXFunc;
+import app.metatron.discovery.query.druid.funtions.ShapeFromWktFunc;
+import app.metatron.discovery.query.druid.funtions.StructFunc;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
 import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
 import app.metatron.discovery.spec.druid.ingestion.parser.*;
+
+import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.ALL;
+import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.INCREMENTAL;
 
 public class AbstractSpecBuilder {
 
@@ -84,13 +91,27 @@ public class AbstractSpecBuilder {
         addRule(field.getName(), field.getIngestionRuleObject());
       }
 
+      if (field.getRole() == Field.FieldRole.DIMENSION && field.changedName()) {
+        dataSchema.addEvaluation(new Evaluation(field.getName(), "\"" + field.getOriginalName() + "\""));
+      }
+
       FieldFormat fieldFormat = field.getFormatObject();
       if (fieldFormat != null) {
         if (fieldFormat instanceof GeoFormat) {
           useRelay = true;
           GeoFormat geoFormat = (GeoFormat) fieldFormat;
-          makeSecondaryIndexing(field.getName(), field.getType(), geoFormat, BooleanUtils.isTrue(field.getDerived()));
-          addGeoFieldToMatric(field.getName(), field.getType(), geoFormat);
+
+          if (geoFormat instanceof GeoPointFormat && BooleanUtils.isNotTrue(field.getDerived())) {
+
+            ShapeFromWktFunc shapeFromWktFunc = new ShapeFromWktFunc(field.getName());
+            ShapeCentroidYXFunc shapeCentroidXYFunc = new ShapeCentroidYXFunc(shapeFromWktFunc.toExpression());
+            StructFunc structFunc = new StructFunc("\"_\"[0]", "\"_\"[1]");
+
+            dataSchema.addEvaluation(new Evaluation(field.getName(), shapeCentroidXYFunc.toExpression(), structFunc.toExpression()));
+          }
+
+          makeSecondaryIndexing(field.getName(), geoFormat);
+          addGeoFieldToMatric(field.getName(), geoFormat);
         }
       }
 
@@ -124,6 +145,17 @@ public class AbstractSpecBuilder {
       granularitySpec.setRollup(dataSource.getIngestionInfo().getRollup());
     }
 
+    // Set Append
+    if (dataSource.getIngestionInfo() instanceof BatchIngestionInfo
+        && ((BatchIngestionInfo) dataSource.getIngestionInfo()).getRange() == ALL) {
+      granularitySpec.setAppend(false);
+    } else if (dataSource.getIngestionInfo() instanceof BatchIngestionInfo
+        && ((BatchIngestionInfo) dataSource.getIngestionInfo()).getRange() == INCREMENTAL) {
+      granularitySpec.setAppend(true);
+    } else {
+      granularitySpec.setAppend(dataSource.getAppend());
+    }
+
     dataSchema.setGranularitySpec(granularitySpec);
 
     if (!useRelay) {
@@ -154,21 +186,17 @@ public class AbstractSpecBuilder {
     }
   }
 
-  private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat, boolean derived) {
+  private void makeSecondaryIndexing(String name, GeoFormat geoFormat) {
     String originalSrsName = geoFormat.notDefaultSrsName();
     if (geoFormat instanceof GeoPointFormat) {
-      if (originalType == DataType.STRUCT && derived) {
-        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
-      } else {
-        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonShapeStrategy("coord", ShapeFormat.WKT, originalSrsName)));
-      }
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
     } else {
       secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", ShapeFormat.WKT, geoFormat.getMaxLevels(), originalSrsName)));
     }
   }
 
-  private void addGeoFieldToMatric(String name, DataType originalType, GeoFormat geoFormat) {
-    if (geoFormat instanceof GeoPointFormat && originalType == DataType.STRUCT) {
+  private void addGeoFieldToMatric(String name, GeoFormat geoFormat) {
+    if (geoFormat instanceof GeoPointFormat) {
       dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
     } else {
       dataSchema.addMetrics(new RelayAggregation(name, "string"));
@@ -224,18 +252,19 @@ public class AbstractSpecBuilder {
         case TIMESTAMP:
         case STRING:
         case TEXT:
+        case BOOLEAN:
           dimenstionSchemas.add(dimensionfield.getName());
           break;
         case INTEGER:
         case LONG:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "long", null));
+          dimenstionSchemas.add(DimensionSchema.of(dimensionfield.getName(), DataType.LONG));
           break;
         case FLOAT:
         case DOUBLE:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "double", null));
+          dimenstionSchemas.add(DimensionSchema.of(dimensionfield.getName(), DataType.DOUBLE));
           break;
         case ARRAY:
-          dimenstionSchemas.add(new DimensionSchema(dimensionfield.getName(), "string", DimensionSchema.MultiValueHandling.ARRAY));
+          dimenstionSchemas.add(new StringDimensionSchema(dimensionfield.getName(), DimensionSchema.MultiValueHandling.ARRAY));
           break;
         default:
           throw new IllegalArgumentException("Not support dimension type");
@@ -260,7 +289,7 @@ public class AbstractSpecBuilder {
       // get Columns
       List<String> columns = dataSource.getFields().stream()
                                        .filter(field -> BooleanUtils.isNotTrue(field.getDerived()))
-                                       .map((field) -> field.getName())
+                                       .map((field) -> field.getOriginalName())
                                        .collect(Collectors.toList());
 
       if (hadoopIngestion) {
@@ -297,6 +326,7 @@ public class AbstractSpecBuilder {
           }
 
           csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
+          csvStreamParser.setCharset(((LocalFileIngestionInfo) ingestionInfo).getCharset());
         }
 
         if (fileFormat instanceof CsvFileFormat) {
@@ -307,7 +337,7 @@ public class AbstractSpecBuilder {
           csvStreamParser.setDimensionsSpec(dimensionsSpec);
           csvStreamParser.setColumns(columns);
 
-          if(!csvFormat.isDefaultCsvMode()) {
+          if (!csvFormat.isDefaultCsvMode()) {
             csvStreamParser.setDelimiter(csvFormat.getDelimiter());
             csvStreamParser.setRecordSeparator(csvFormat.getLineSeparator());
           }
@@ -338,10 +368,6 @@ public class AbstractSpecBuilder {
       parseSpec.setDimensionsSpec(dimensionsSpec);
 
       OrcParser orcParser = new OrcParser(parseSpec);
-
-      if (ingestionInfo instanceof HiveIngestionInfo) {
-        orcParser.setTypeString(((HiveIngestionInfo) ingestionInfo).getTypeString());
-      }
       parser = orcParser;
 
     } else if (fileFormat instanceof ParquetFileFormat) {

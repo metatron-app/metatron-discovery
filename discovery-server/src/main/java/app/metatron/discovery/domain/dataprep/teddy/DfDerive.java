@@ -20,13 +20,13 @@ import app.metatron.discovery.prep.parser.preparation.rule.Derive;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfDerive extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfDerive.class);
 
   public DfDerive(String dsName, String ruleString) {
@@ -51,20 +51,23 @@ public class DfDerive extends DataFrame {
 
     //Decide new column's type.(And check identifiers that occurs in rule string.)
     ColumnType newColType = decideType(expr);
+    if (newColType == ColumnType.UNKNOWN) {   // We cannot process UNKNOWN type in Histogram.
+      newColType = ColumnType.STRING;
+    }
 
     if (ruleColumns.size() == 0) {             // identifier가 없거나 2개 이상인 경우, 제일 끝으로 붙인다.
       newColPos = getColCnt();
-    } else if(ruleColumns.size() == 1){                        // 딱 한 개의 identifier가 있는 경우 해당 identifier 뒤로 붙인다.
-      newColPos = prevDf.getColnoByColName(ruleColumns.get(0))+1;
-      timestampStyle = colDescs.get(newColPos-1).getTimestampStyle();
+    } else if (ruleColumns.size() == 1) {                        // 딱 한 개의 identifier가 있는 경우 해당 identifier 뒤로 붙인다.
+      newColPos = prevDf.getColnoByColName(ruleColumns.get(0)) + 1;
+      timestampStyle = colDescs.get(newColPos - 1).getTimestampStyle();
     } else {                                    //여러개인 경우 colno가 가장 마지막인 녀석 뒤로 붙인다.
-      for(String colName : ruleColumns) {
+      for (String colName : ruleColumns) {
         newColPos = getColnoByColName(colName) > newColPos ? getColnoByColName(colName) : newColPos;
       }
       newColPos++;
     }
 
-    if(newColType == ColumnType.TIMESTAMP) {
+    if (newColType == ColumnType.TIMESTAMP) {
       timestampStyle = timestampStyle == null ? TimestampTemplate.DATE_TIME_01.getFormat() : timestampStyle;
     } else {
       timestampStyle = null;
@@ -80,7 +83,8 @@ public class DfDerive extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int newColPos = (int) preparedArgs.get(0);
     String targetColName = (String) preparedArgs.get(1);

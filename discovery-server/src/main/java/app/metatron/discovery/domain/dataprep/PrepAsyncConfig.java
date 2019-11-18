@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +24,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 @Configuration
 @EnableAsync
@@ -45,6 +44,7 @@ public class PrepAsyncConfig {
   }
 
   public class HandlingExecutor implements AsyncTaskExecutor {
+
     private AsyncTaskExecutor executor;
 
     public HandlingExecutor(AsyncTaskExecutor executor) {
@@ -100,7 +100,7 @@ public class PrepAsyncConfig {
 
     private void handle(Exception ex) {
       errorLogger.info("Failed to execute task. : {}", ex.getMessage());
-      errorLogger.error("Failed to execute task. ",ex);
+      errorLogger.error("Failed to execute task. ", ex);
     }
 
   }

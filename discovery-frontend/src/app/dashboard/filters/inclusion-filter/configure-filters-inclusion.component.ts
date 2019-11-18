@@ -136,7 +136,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public measureFields: Field[] = [];
 
   public useDefineValue: boolean = true;
-  public usePaging: boolean = false;
+  public usePaging: boolean = true;
 
   public matcherTypeList: any[];
   private selectedMatcherType: any;
@@ -491,6 +491,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     this.resetRegExpr(this.regExpr);
     this.resetCondition(this.condition);
     this.resetLimitation(this.limitation);
+    this.candidateWithValidation();
   } // function resetAll
 
   /**
@@ -514,6 +515,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     this._limitation = _.cloneDeep( this.limitation );
     this.targetFilter.preFilters = [this._wildcard, this._regExpr, this._condition, this._limitation];
     this.datasourceService.getCandidateForFilter(this.targetFilter, this._board, [], this._targetField).then(result => {
+      this._candidateList = this._candidateList.filter(item => item.isDefinedValue);  // initialize list
       this._setCandidateResult(result, this.targetFilter, this._targetField);
       this.safelyDetectChanges();
       this.loadingHide();
@@ -603,6 +605,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this.currentPage = 1;
       this.lastPage = 1;
       this.totalCount = 0;
+      this.safelyDetectChanges();
     }
     if (this._candidateList && 0 < this._candidateList.length) {
 
@@ -661,19 +664,18 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * 전체 선택
    * @param event
    */
-  public candidateSelectAll(event: any) {
-    const checked = event.target ? event.target.checked : event.currentTarget.checked;
+  public candidateSelectAll() {
     if (this.isSingleSelect(this.targetFilter)) {
       this.selectedValues = [];
     } else {
-      if (checked) {
-        this.selectedValues = [].concat(this._candidateList);
-        this.toggleAllCandidateValues(true);
-      } else {
-        this.selectedValues = [];
-      }
+      this.selectedValues = [].concat(this._candidateList);
+      this.toggleAllCandidateValues(true);
     }
   } // function - candidateSelectAll
+
+  public candidateDeselectAll() {
+    this.selectedValues = [];
+  }
 
   /**
    * 전체 선택 여부
@@ -811,6 +813,10 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     return this.selectedMatcherType.value == MatcherType.REGULAR_EXPRESSION;
   }
 
+  public isNoFiltering() {
+    return this.selectedValues.length == 0;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -897,6 +903,15 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
           .map(item => this._objToCandidate(item, targetField))
           .filter(item => -1 === this._candidateList.findIndex(can => can.name === item.name))
       );
+
+    if(targetFilter.candidateValues && 0 < targetFilter.candidateValues.length) {
+      this._candidateList =
+        this._candidateList.concat(
+          targetFilter.candidateValues
+            .map(item => this._stringToCandidate(item))
+            .filter(item => -1 === this._candidateList.findIndex(can => can.name === item.name))
+        );
+    }
 
     // 목록에 선택값이 없을 경우 선택값 추가
     if (this.selectedValues && 0 < this.selectedValues.length) {

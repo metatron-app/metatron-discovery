@@ -15,6 +15,7 @@
 import {Injectable, Injector} from '@angular/core';
 import {CommonUtil} from '../../../common/util/common.util';
 import {AbstractService} from '../../../common/service/abstract.service';
+import {Catalog} from "../../../domain/catalog/catalog";
 
 @Injectable()
 export class CatalogService extends AbstractService {
@@ -50,67 +51,90 @@ export class CatalogService extends AbstractService {
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * 카타로그 생성
-   * @param {string} name
-   * @returns {Promise<any>}
-   */
+  public selectedCatalog: Catalog.Tree;
+
   public createCatalog(params: any): Promise<any> {
     return this.post(this.URL_CATALOG, params);
   }
 
-  /**
-   * 카타로그 삭제
-   * @param {string} id
-   * @returns {Promise<any>}
-   */
   public deleteCatalog(id: string): Promise<any> {
     return this.delete(this.URL_CATALOG + `/${id}`);
   }
 
-  /**
-   * 카타로그 이름 수정
-   * @param {string} name
-   * @returns {Promise<any>}
-   */
   public updateCatalog(id: string, name: string): Promise<any> {
     return this.patch(this.URL_CATALOG + `/${id}`, {name: name});
   }
 
   /**
-   * 카탈로그내 포함되어 있는 메타데이터를 조회합니다.
+   * Toggle catalog favorite flag
    *
-   * @param nameContains
-   * @param pageable
+   * @param id
+   * @param isFavorite
    * @return
    */
-  public getMetadataInCatalog(id: string, params?: any): Promise<any> {
+  public toggleCatalogFavorite(id: string, isFavorite): Promise<any> {
+    let url: string = this.URL_CATALOG + `/${id}/favorite/`;
+
+    if (isFavorite) {
+      url += 'detach';
+    } else {
+      url += 'attach';
+    }
+    return this.post(url, null);
+  }
+
+  public getMetadataInCatalog(id: string, params?: any, allSubCatalogs: boolean = true, projection: string = 'default'): Promise<any> {
     let url = this.URL_CATALOG + `/${id}/metadatas`;
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
     }
-    return this.get(url + `&projection=default&allSubCatalogs=true`);
+    return this.get(url + `&projection=${projection}&allSubCatalogs=${allSubCatalogs}`);
   }
 
-  /**
-   * 전체 카테고리를 트리로 조회합니다.
-   * @param id
-   * @return
-   */
-  public getTreeCatalogs(id: string): Promise<any> {
-    return this.get(this.URL_CATALOG + `/${id}/tree`);
+  public getTreeCatalogs(id: string, includeAllHierarchies?: boolean): Promise<any> {
+    if (includeAllHierarchies) {
+      return this.get(this.URL_CATALOG + `/${id}/tree/?includeAllHierarchies=${includeAllHierarchies}`);
+    } else {
+      return this.get(this.URL_CATALOG + `/${id}/tree`);
+    }
   }
 
-  /**
-   * 전체 카테고리를 조회합니다.
-   * @param param
-   * @return
-   */
-  public getCatalogs(params: any): Promise<any> {
+  public getCatalogs(params: any, projection: string = 'forListView'): Promise<any> {
 
     let url = this.URL_CATALOG;
     url += '?' + CommonUtil.objectToUrlString(params);
-    return this.get(url + `&projection=forListView`);
+    return this.get(url + `&projection=${projection}`);
   }
 
+
+  /**
+   * Get catalog detail including favorite
+   * @param id
+   * @return
+   */
+
+  public getCatalogDetail(id: string): Promise<any> {
+    let url = this.URL_CATALOG;
+    url += `/${id}?projection=forHierarchyView`;
+
+    return this.get(url);
+  }
+
+  /**
+   * Get my favorite catalog list
+   * @return
+   */
+
+  public getMyFavoriteCatalogList(): Promise<any> {
+    let url = this.URL_CATALOG;
+    url += '/favorite/my?projection=forListView';
+
+    return this.get(url);
+  }
+
+  public getPopularityCatalogs(params: { nameContains?: string, size?: number }): Promise<any> {
+    let url = this.URL_CATALOG + '/popularity';
+    url += '?' + CommonUtil.objectToUrlString(params);
+    return this.get(url);
+  }
 }

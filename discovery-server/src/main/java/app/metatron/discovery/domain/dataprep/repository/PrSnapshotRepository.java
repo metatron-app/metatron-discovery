@@ -16,15 +16,14 @@ package app.metatron.discovery.domain.dataprep.repository;
 
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshotProjections;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import java.util.List;
-
-@RepositoryRestResource(path = "preparationsnapshots", itemResourceRel = "preparationsnapshot" , collectionResourceRel = "preparationsnapshots",
+@RepositoryRestResource(path = "preparationsnapshots", itemResourceRel = "preparationsnapshot", collectionResourceRel = "preparationsnapshots",
         excerptProjection = PrSnapshotProjections.DefaultProjection.class)
 public interface PrSnapshotRepository extends JpaRepository<PrSnapshot, String> {
 
@@ -34,9 +33,16 @@ public interface PrSnapshotRepository extends JpaRepository<PrSnapshot, String> 
     Page<PrSnapshot> searchByQuery(@Param("q") String query, Pageable pageable);
     */
 
-    Page<PrSnapshot> findBySsNameContaining(@Param("ssName") String ssName, Pageable pageable);
-    Page<PrSnapshot> findBySsNameContainingAndSsTypeIn(@Param("ssName") String ssName, @Param("ssTypes") List<PrSnapshot.SS_TYPE> ssTypeList, Pageable pageable);
-    Page<PrSnapshot> findBySsNameContainingAndStatusIn(@Param("ssName") String ssName, @Param("statuses") List<PrSnapshot.STATUS> statusList, Pageable pageable);
-    Page<PrSnapshot> findBySsNameContainingAndStatusInAndSsTypeIn(@Param("ssName") String ssName, @Param("statuses") List<PrSnapshot.STATUS> statusList, @Param("ssTypes") List<PrSnapshot.SS_TYPE> ssTypes, Pageable pageable);
+  Page<PrSnapshot> findBySsNameContaining(@Param("ssName") String ssName, Pageable pageable);
+
+  Page<PrSnapshot> findBySsNameContainingAndSsTypeIn(@Param("ssName") String ssName,
+          @Param("ssTypes") List<PrSnapshot.SS_TYPE> ssTypeList, Pageable pageable);
+
+  Page<PrSnapshot> findBySsNameContainingAndStatusIn(@Param("ssName") String ssName,
+          @Param("statuses") List<PrSnapshot.STATUS> statusList, Pageable pageable);
+
+  Page<PrSnapshot> findBySsNameContainingAndStatusInAndSsTypeIn(@Param("ssName") String ssName,
+          @Param("statuses") List<PrSnapshot.STATUS> statusList, @Param("ssTypes") List<PrSnapshot.SS_TYPE> ssTypes,
+          Pageable pageable);
 
 }

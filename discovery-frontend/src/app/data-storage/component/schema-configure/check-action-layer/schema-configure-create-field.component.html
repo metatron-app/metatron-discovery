@@ -1,0 +1,108 @@
+<!--
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-wrap-add-column" [class.ddp-selected]="isShowCreateField" (clickOutside)="closeCreateFieldPopup()">
+  <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="openCreateFieldPopup()"><em class="ddp-icon-add2"></em>{{'msg.storage.ui.add.column' | translate}}</a>
+  <!-- popup -->
+  <div class="ddp-box-layout4 ddp-box-column" *ngIf="isShowCreateField">
+    <!-- close -->
+    <a href="javascript:" class="ddp-btn-close" (click)="closeCreateFieldPopup()"></a>
+    <!-- //close -->
+    <div class="ddp-wrap-edit3">
+      <label class="ddp-ui-label-name">
+        {{'msg.storage.ui.method' | translate}}
+      </label>
+      <!-- edit option -->
+      <div class="ddp-ui-option-in">
+        <!-- clear -->
+        <div class="ddp-option-form ddp-clear">
+          <div class="ddp-col-4">
+            <!-- selectbox -->
+            <storage-filter-select-box
+              #typeSelectBox
+              [isEnableIcon]="true"
+              [filterList]="typeList"
+              [selectedFilter]="selectedType"
+              (changedFilter)="changeSelectedType($event)"></storage-filter-select-box>
+            <!-- //selectbox -->
+          </div>
+        </div>
+        <!-- //clear -->
+        <!-- only expression -->
+        <div class="ddp-option-form ddp-form-error" *ngIf="isExpressionField()">
+        <textarea class="ddp-textarea-auto" placeholder="{{'msg.storage.ui.list.expression' | translate}}"
+                  [(ngModel)]="expression" (ngModelChange)="isInvalidExpression = undefined" (focusout)="checkValidExpression()"></textarea>
+          <span class="ddp-data-error" *ngIf="isInvalidExpression"> {{invalidExpressionMessage}}</span>
+        </div>
+        <!-- //only expression -->
+        <!-- not expression -->
+        <div class="ddp-option-form ddp-clear" *ngIf="!isExpressionField()">
+          <!-- latitude column -->
+          <div class="ddp-col-6 ddp-form-error">
+            <!-- select box -->
+            <column-select-box
+              #latitudeSelectBox
+              [columnList]="latitudeFieldList"
+              [selectedColumn]="selectedLatitudeField"
+              [placeholder]="'msg.storage.ui.latitude.column' | translate"
+              [searchPlaceHolder]="'msg.storage.ui.latitude.column' | translate"
+              (onSelected)="changeSelectedLatitudeField($event)"></column-select-box>
+            <!-- //select box -->
+            <span class="ddp-data-error" *ngIf="isInvalidLatitudeField"> {{'msg.storage.ui.required' | translate}}</span>
+          </div>
+          <!-- //latitude column -->
+          <!-- longitude column -->
+          <div class="ddp-col-6 ddp-form-error">
+            <!-- select box -->
+            <column-select-box
+              #longitudeSelectBox
+              [columnList]="longitudeFieldList"
+              [selectedColumn]="selectedLongitudeField"
+              [placeholder]="'msg.storage.ui.longitude.column' | translate"
+              [searchPlaceHolder]="'msg.storage.ui.longitude.column' | translate"
+              (onSelected)="changeSelectedLongitudeField($event)"></column-select-box>
+            <!-- //select box -->
+            <span class="ddp-data-error" *ngIf="isInvalidLongitudeField"> {{'msg.storage.ui.required' | translate}}</span>
+          </div>
+          <!-- //longitude column -->
+        </div>
+        <!-- //not expression -->
+      </div>
+      <!-- //edit option -->
+    </div>
+    <!-- Column Name -->
+    <div class="ddp-wrap-edit3">
+      <label class="ddp-ui-label-name">
+        {{'msg.storage.ui.th.column.name' | translate}}
+      </label>
+      <!-- edit option -->
+      <div class="ddp-ui-option-in">
+        <!-- clear -->
+        <div class="ddp-option-form ddp-form-error">
+          <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.storage.ui.th.column.name' | translate}}"
+                 [(ngModel)]="fieldName" (ngModelChange)="isInvalidFieldName = undefined" (focusout)="checkValidFieldName()">
+          <span class="ddp-data-error" *ngIf="isInvalidFieldName"> {{invalidFieldNameMessage}}</span>
+        </div>
+        <!-- //clear -->
+      </div>
+      <!-- //edit option -->
+    </div>
+    <!-- //Column Name -->
+    <div class="ddp-box-button">
+      <a href="javascript:" class="ddp-btn-line" (click)="closeCreateFieldPopup()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="onClickCreateField()">{{'msg.comm.btn.add' | translate}}</a>
+    </div>
+  </div>
+  <!-- //popup -->
+</div>

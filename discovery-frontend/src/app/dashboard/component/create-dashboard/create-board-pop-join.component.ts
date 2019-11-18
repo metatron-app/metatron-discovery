@@ -14,18 +14,19 @@
 
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { BoardDataSource, JoinMapping, QueryParam } from '../../../domain/dashboard/dashboard';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { Datasource, Field } from '../../../domain/datasource/datasource';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { CommonUtil } from '../../../common/util/common.util';
-import { Alert } from '../../../common/util/alert.util';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {BoardDataSource, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
+import {GridComponent} from '../../../common/component/grid/grid.component';
+import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
+import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
+import {GridOption} from '../../../common/component/grid/grid.option';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {CommonUtil} from '../../../common/util/common.util';
+import {Alert} from '../../../common/util/alert.util';
 import * as $ from 'jquery';
-import { StringUtil } from '../../../common/util/string.util';
+import {StringUtil} from '../../../common/util/string.util';
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 @Component({
   selector: 'create-board-pop-join',
@@ -63,8 +64,11 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
 
   public isEmptyPreviewGrid: boolean = false; // 프리뷰 그리드 데이터 존재 여부
   public isShowJoinPopup: boolean = false;    // Join Popup 표시 여부
+  public isShowTypes:boolean = false;
 
   public editingJoin: EditJoin;               // 편집중인 조인 정보
+
+  public logicalTypeMap: any = {};
 
   @Output('complete')
   public completeEvent: EventEmitter<JoinMapping[]> = new EventEmitter();
@@ -89,7 +93,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
    */
   public ngOnInit() {
     super.ngOnInit();
-
   }
 
   /**
@@ -123,7 +126,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     this._queryData(this.editingJoin.left.engineName, this.editingJoin.left.temporary).then(data => {
       this.updateGrid(data[0], this.editingJoin.left.uiFields, 'left');
       this.changeDetect.detectChanges();
-    }).catch(err => this.commonExceptionHandler(err));
+    }).catch(err => this.showErrorMsgForJoin(err));
     this.isShowJoinPopup = true;
   } // function - addJoin
 
@@ -204,6 +207,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     }));
 
     promises.push(new Promise((res, rej) => {
+      this.editingJoin.rowNum = 1000;
       this._loadDataToPreviewGrid(false).then(res).catch(rej);
     }));
 
@@ -219,6 +223,27 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 그리드 필드 목록
+   * @param {Field[]} fields
+   */
+  public getGridFields(fields: Field[]) {
+    return fields.filter(item => item.name !== CommonConstant.COL_NAME_CURRENT_DATETIME);
+  } // function - getGridFields
+
+  /**
+   * 조인 키 목록
+   * @param {Field[]} fields
+   */
+  public getJoinCandidateKeys(fields: Field[]) {
+    return fields.filter(item => {
+      return (item.logicalType !== LogicalType.TIMESTAMP && item.role !== FieldRole.MEASURE
+        && item.logicalType !== LogicalType.GEO_POINT
+        && item.logicalType !== LogicalType.GEO_LINE
+        && item.logicalType !== LogicalType.GEO_POLYGON
+        && item.name !== CommonConstant.COL_NAME_CURRENT_DATETIME);
+    });
+  } // function - getJoinCandidateKeys
 
   /**
    * 조인 화면 내 검색어에 의한 데이터 소스 목록
@@ -309,9 +334,11 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
         this._similarity = similarity;
         this._setSimilarity();
         this.changeDetect.detectChanges();
-      }).catch(err => this.commonExceptionHandler(err));
+      }).catch(err => {
+        this.showErrorMsgForJoin(err);
+      });
 
-    }).catch(err => this.commonExceptionHandler(err));
+    }).catch(err => this.showErrorMsgForJoin(err));
   } // function - loadDataToRightJoinGrid
 
   /**
@@ -331,13 +358,30 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     }
   } // function - selectJoinColumn
 
+  public isValidJoinKeys() {
+    if ('' !== this.editingJoin.leftJoinKey.trim() && '' !== this.editingJoin.rightJoinKey.trim()) {
+      const leftField = this.getGridFields(this.editingJoin.left.uiFields).find(item => item.name === this.editingJoin.leftJoinKey);
+      const rightField = this.getGridFields(this.editingJoin.right.uiFields).find(item => item.name === this.editingJoin.rightJoinKey);
+      if (leftField && rightField) {
+        const numberTypes = ['INT', 'INTEGER', 'LONG', 'DOUBLE', 'FLOAT'];
+        const leftType = leftField.logicalType ? (-1 < numberTypes.indexOf(leftField.logicalType.toString()) ? 'number' : leftField.logicalType.toString()) : '';
+        const rightType = rightField.logicalType ? (-1 < numberTypes.indexOf(rightField.logicalType.toString()) ? 'number' : rightField.logicalType.toString()) : '';
+        return leftType === rightType;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
   /**
    * 조인키를 추가한다.
    */
   public addToJoinKeys() {
 
     // validation
-    if ('' === this.editingJoin.leftJoinKey.trim() || '' === this.editingJoin.rightJoinKey.trim()) {
+    if (!this.isValidJoinKeys()) {
       this.editingJoin.joinChooseColumnErrorFl = true;
       return;
     }
@@ -354,6 +398,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
 
     this._setSimilarity();
 
+    this.editingJoin.rowNum = 1000;
     this._loadDataToPreviewGrid().then();
 
   } // function - addToJoinKeys
@@ -363,10 +408,15 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
    * @param {number} rowNum
    */
   public setRowPreviewGrid(rowNum: number) {
-    // Row 설정
-    this.editingJoin.rowNum = rowNum;
-    // 조회
-    this._loadDataToPreviewGrid().then();
+
+    // 숫자가 변경 됐을때만 실행
+    if (Number(rowNum) !== this.editingJoin.rowNum) {
+      // Row 설정
+      this.editingJoin.rowNum = rowNum;
+      // 조회
+      this._loadDataToPreviewGrid().then();
+    }
+
   } // function - setRowPreviewGrid
 
   /**
@@ -377,6 +427,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     if (this.editingJoin.selectedJoinType === type) return;
     this.editingJoin.selectedJoinType = type;
     if (this.editingJoin.joinInfoList.length !== 0) {
+      this.editingJoin.rowNum = 1000;
       this._loadDataToPreviewGrid().then(); // 조회
     }
   } // function - changeJoinType
@@ -388,6 +439,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   public removeJoinInfoList(idx) {
     this.editingJoin.joinInfoList.splice(idx, 1);
     if (this.editingJoin.joinInfoList.length !== 0) {
+      this.editingJoin.rowNum = 1000;
       this._loadDataToPreviewGrid().then();
     } else {
       this._initPreview();
@@ -405,6 +457,10 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   public highlightSearchText(name, searchText): string {
     return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search">$1</span>');
   } // function - highlightSearchText
+
+  public objKeyList( obj ) {
+    return ( obj ) ? Object.keys(obj) : [];
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -454,7 +510,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   private _initPreview() {
     (this.joinPreview) && (this.joinPreview.destroy());
     this.isEmptyPreviewGrid = false;
-    this.editingJoin.previewGridFl = false;
   } // function - _initPreview
 
   /**
@@ -472,6 +527,18 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
         Alert.warning(this.translateService.instant('msg.board.alert.join.setting.error'));
         return;
       }
+
+      this.logicalTypeMap = []
+        .concat( this.editingJoin.left.uiFields )
+        .concat( this.editingJoin.right.uiFields )
+        .reduce((acc, item) => {
+          acc[item.logicalType] = ( acc[item.logicalType] ) ? acc[item.logicalType] + 1 : 1;
+          return acc;
+        }, {} );
+      // this.previewLogicalTypes
+      //   = Object.keys( logicalTypeMap ).map( key => {
+      //     return { type : key, count : logicalTypeMap[key] };
+      // });
 
       // 조인 정보 생성
       const joinInfo = new JoinMapping();
@@ -505,7 +572,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
           joinInfo.joinAlias = 'join_' + (paramJoins.length + 1);
           paramJoins.push(joinInfo);
         }
-
       }
 
       // 조회 상태 저장
@@ -515,7 +581,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
 
       this._queryData(paramJoins).then((data) => {
         this.editingJoin.columnCnt = data[1].length;
-        this.editingJoin.previewGridFl = true;
 
         if (0 < data[0].length && 0 < data[1].length) {
           this.isEmptyPreviewGrid = false;
@@ -526,7 +591,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
           this.isEmptyPreviewGrid = true;
         }
 
-        this.changeDetect.detectChanges();
+        this.safelyDetectChanges();
 
         (res) && (res());
         (loading) && (this.loadingHide());
@@ -610,10 +675,10 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   private updateGrid(data: any, fields: Field[], targetGrid: string = 'main') {
 
     // 헤더정보 생성
-    const headers: header[] = fields.map(
+    const headers: header[] = this.getGridFields(fields).map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
         return new SlickGridHeader()
           .Id(field.name)
           .Name(field.name)
@@ -673,6 +738,16 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
 
   } // function - updateGrid
 
+
+  /**
+   * Show detail Error msg alert
+   * @param err
+   */
+  private showErrorMsgForJoin(err) {
+    err.message = this.translateService.instant('msg.space.alert.join.msg');
+    this.commonExceptionHandler(err);
+  }
+
 }
 
 /**
@@ -699,8 +774,6 @@ class EditJoin {
 
   public columnCnt: number = 0;
   public rowNum: number = 1000;
-
-  public previewGridFl: boolean = false;
 
   public tempJoinMappings: JoinMapping[];
 

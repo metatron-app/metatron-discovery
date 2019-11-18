@@ -23,18 +23,18 @@ import {
   Renderer2,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { WorkspaceService } from '../../service/workspace.service';
-import { CreateWorkspaceComponent } from './create-workspace.component';
-import { Page } from '../../../domain/common/page';
-import { Workspace, PermissionChecker } from '../../../domain/workspace/workspace';
-import { Alert } from '../../../common/util/alert.util';
-import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../common/domain/modal';
-import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { SYSTEM_PERMISSION } from '../../../common/permission/permission';
-import { CommonUtil } from '../../../common/util/common.util';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {WorkspaceService} from '../../service/workspace.service';
+import {CreateWorkspaceComponent} from './create-workspace.component';
+import {Page} from '../../../domain/common/page';
+import {PermissionChecker, Workspace} from '../../../domain/workspace/workspace';
+import {Alert} from '../../../common/util/alert.util';
+import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
+import {Modal} from '../../../common/domain/modal';
+import {CookieConstant} from '../../../common/constant/cookie.constant';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {SYSTEM_PERMISSION} from '../../../common/permission/permission';
+import {CommonUtil} from '../../../common/util/common.util';
 
 @Component({
   selector: 'app-workspace-list',
@@ -84,6 +84,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 공유 워크스페이스 리스트
   public sharedWorkspace: Workspace[] = [];
+  public cntAllWorkspaces:number = 0;
 
   // 정렬
   public sort = [
@@ -118,7 +119,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
               protected renderer: Renderer2,
               protected element: ElementRef,
               protected injector: Injector,
-              private workspaceService: WorkspaceService,) {
+              private workspaceService: WorkspaceService) {
     super(element, injector);
   }
 
@@ -160,6 +161,14 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
   }
 
   /**
+   * After create a workspace navigate to detail page of workspace just created
+   * @param {string} id
+   */
+  public onWorkspaceCreateComplete(id: string) {
+    this.router.navigate(['/workspace', id]);
+  }
+
+  /**
    * 공유 워크스페이스 조회 api
    * @param {number} pageNum
    */
@@ -193,6 +202,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
       // page 객체 저장
       this.pageResult = workspaces['page'];
+      this.cntAllWorkspaces = this.pageResult.totalElements;
 
       // 결과가 있을 경우
       if (workspaces['_embedded']) {
@@ -213,6 +223,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 공유 워크스페이스 생성 이벤트
   public createWorkspace() {
+    //this.createWorkspaceComp.sharedWorkspaceList = this.sharedWorkspace;
     this.createWorkspaceComp.init();
   }
 
@@ -446,6 +457,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
     // 공유 워크스페이스 리스트
     this.sharedWorkspace = [];
+    this.cntAllWorkspaces = 0;
     // 정렬 선택 값
     this.sortText = this.sort[0];
     // 검색어

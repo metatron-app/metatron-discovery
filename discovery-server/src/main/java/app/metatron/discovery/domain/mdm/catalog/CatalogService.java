@@ -19,6 +19,8 @@ import com.google.common.collect.Maps;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.entity.DomainType;
+import app.metatron.discovery.domain.favorite.Favorite;
+import app.metatron.discovery.domain.favorite.FavoriteRepository;
+import app.metatron.discovery.util.AuthUtils;
 
 
 @Component
@@ -40,6 +47,9 @@ public class CatalogService {
 
   @Autowired
   CatalogRepository catalogRepository;
+
+  @Autowired
+  FavoriteRepository favoriteRepository;
 
   public List<Catalog> findAllCatalogs(String nameContains, String searchDateBy, DateTime from, DateTime to) {
     return Lists.newArrayList(
@@ -64,7 +74,7 @@ public class CatalogService {
   public List<Map<String, Object>> findSubCatalogsForTreeView(String catalogId) {
 
     List<Catalog> catalogs = findOnlySubCatalogs(catalogId, null, null, null, null);
-
+    markFavorites(catalogs);
     return catalogs.stream()
                    .map(catalog -> catalog.getTreeView(this))
                    .collect(Collectors.toList());
@@ -81,9 +91,8 @@ public class CatalogService {
 
   public List<Map<String, String>> findHierarchies(String catalogId) {
 
-    List<Catalog> books = catalogRepository.findAllAncestors(catalogId);
-
-    return books.stream()
+    List<Catalog> catalogs = catalogRepository.findAllAncestors(catalogId);
+    return catalogs.stream()
                 .map(catalog -> {
                   Map<String, String> map = Maps.newLinkedHashMap();
                   map.put("id", catalog.getId());
@@ -130,5 +139,81 @@ public class CatalogService {
 
     return catalogRepository.save(moveCatalog);
   }
+
+    public List<Catalog> findFavoriteCatalogs(){
+        String userName = AuthUtils.getAuthUserName();
+        List<Favorite> favorites = favoriteRepository.findByCreatedByAndDomainType(userName, DomainType.CATALOG);
+        List<Catalog> catalogs = null;
+        if(favorites != null && !favorites.isEmpty()){
+            List<String> catalogIds = favorites.stream()
+                    .map(favorite -> favorite.getTargetId())
+                    .collect(Collectors.toList());
+
+            catalogs = catalogRepository.findAll(catalogIds);
+        }
+
+        return catalogs;
+    }
+
+    public List<Catalog> markFavorites(List<Catalog> catalogList){
+        if(catalogList != null && !catalogList.isEmpty()){
+            String userName = AuthUtils.getAuthUserName();
+            List<String> catalogIds = catalogList.stream().map(catalog -> catalog.getId()).collect(Collectors.toList());
+
+            List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, DomainType.CATALOG, catalogIds);
+            if(favoriteList != null && !favoriteList.isEmpty()){
+                List<String> favoriteCatalogList = favoriteList.stream().map(favorite -> favorite.getTargetId()).collect(Collectors.toList());
+                catalogList.stream()
+                        .filter(catalog -> favoriteCatalogList.contains(catalog.getId()))
+                        .forEach(catalog -> catalog.setFavorite(true));
+            }
+        }
+        return catalogList;
+    }
+
+    public Catalog markFavorite(Catalog catalog){
+        if(catalog != null){
+            String userName = AuthUtils.getAuthUserName();
+            String catalogId = catalog.getId();
+
+            List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, DomainType.CATALOG, Lists.newArrayList(catalogId));
+            if(favoriteList != null && !favoriteList.isEmpty()){
+                catalog.setFavorite(true);
+            }
+        }
+        return catalog;
+    }
+
+    public boolean isFavorite(Catalog catalog){
+        boolean isFavorite = false;
+        if(catalog != null){
+            String userName = AuthUtils.getAuthUserName();
+            String catalogId = catalog.getId();
+
+            List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, DomainType.CATALOG, Lists.newArrayList(catalogId));
+            if(favoriteList != null && !favoriteList.isEmpty()){
+                isFavorite = true;
+            }
+        }
+        return isFavorite;
+    }
+
+    /**
+     * Get catalogs with used count through pagination.
+     * default sort by used count desc
+     * @param pageable the pageable
+     * @return the page
+     */
+    public Page<CatalogCountDTO> getCatalogsWithCount(String nameContains, Pageable pageable){
+        Page<CatalogCountDTO> catalogCountDTOS = catalogRepository.getCatalogsWithCount(nameContains, pageable);
+
+        // find whole hierarchies
+        catalogCountDTOS.getContent().stream()
+                .forEach(catalogCountDTO -> {
+                    catalogCountDTO.setHierarchies(findHierarchies(catalogCountDTO.getId()));
+                });
+
+        return catalogCountDTOS;
+    }
 
 }

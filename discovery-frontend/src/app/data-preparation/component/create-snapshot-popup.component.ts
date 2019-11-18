@@ -53,6 +53,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   private uriFileFormat: UriFileFormat;
 
   private _isDataprepStagingEnabled: boolean = true;
+  private _isSparkEngineEnabled: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -78,6 +80,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   public overwriteMethod: {value: AppendMode, label: string}[];
 
+  public Engine = Engine;
+
   public engineList: {value: Engine, label: string}[];
 
   public hiveEmbeddedFormat : {value: HiveFileFormat, label: string}[];
@@ -90,9 +94,11 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   public isErrorShow: boolean = false;
   public fileUrlErrorMsg: string = '';
+  public fileFormatErrorMsg: string = '';
   public ssNameErrorMsg: string = '';
   public tblErrorMsg: string = '';
 
+  public storedUriChangedDirectly: boolean = false;
 
   @Output()
   public snapshotCreateFinishEvent = new EventEmitter();
@@ -229,7 +235,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     // file uri cannot be empty
     if (SsType.URI === this.snapshot.ssType) {
-      this.snapshot.engine = Engine.EMBEDDED;
       if (this.snapshot.storedUri.length < 1){
         this.fileUrlErrorMsg = this.translateService.instant('msg.common.ui.required');
         this.isErrorShow = true;
@@ -237,6 +242,11 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       }
     }
 
+    if ( this.snapshot.engine !== Engine.EMBEDDED && this.uriFileFormat === UriFileFormat.SQL ) {
+      this.fileFormatErrorMsg = this.translateService.instant('msg.dp.alert.ss.not.support.sql');
+      this.isErrorShow = true;
+      return;
+    }
 
     this.loadingShow();
     this._createSnapshot(this.datasetId, this.snapshot);
@@ -248,10 +258,23 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * When snapshot Name change, modify file type uris
    * */
   public changeSSUri(){
-    if(this.snapshot.storedUri && this.snapshot.storedUri.lastIndexOf("/") > 0) {
-      this.snapshot.storedUri = this.snapshot.storedUri.substring(0,this.snapshot.storedUri.lastIndexOf("/")+1)
-        + this.snapshot.ssName.replace(/\s/gi, "")
-        + '.'+this.uriFileFormat.toString().toLowerCase();
+    if( this.storedUriChangedDirectly === true) {
+      return;
+    }
+
+    let fileName = this.snapshot.ssName.replace(/[^\w_가-힣]/gi, "_") +'.'+ this.uriFileFormat.toString().toLowerCase();
+    this.changeStoredUri(fileName);
+  }
+
+  public changeStoredUri(fileName: string = null){
+    var slashIndex = this.snapshot.storedUri.lastIndexOf("/");
+    if(this.snapshot.storedUri && slashIndex > 0) {
+      if(fileName===null) {
+        fileName = this.snapshot.storedUri.substring(slashIndex+1);
+      }
+      let replacedFileName = fileName.replace(/[^\w_.ㄱ-힣]/gi, "_");
+
+      this.snapshot.storedUri = this.snapshot.storedUri.substring(0,slashIndex+1) + replacedFileName;
     }
   }
 
@@ -264,11 +287,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   public onSelected(event,type) {
     switch (type){
       case 'engine':
+        this.fileFormatErrorMsg = '';
+        this.isErrorShow = false;
         if ('EMBEDDED' === event.value) {
           this.snapshot.hiveFileFormat = this.hiveEmbeddedFormat[0].value;
         }
         break;
       case 'format':
+        this.fileFormatErrorMsg = '';
+        this.isErrorShow = false;
         if ( this.snapshot.ssType && this.snapshot.ssType === SsType.URI) {
           this.uriFileFormat = event.value;
         }
@@ -327,6 +354,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.snapshot.ssType = ssType;
     this.isErrorShow = false;
     this.fileUrlErrorMsg = '';
+    this.fileFormatErrorMsg = '';
     this.tblErrorMsg = '';
     this.ssNameErrorMsg = '';
 
@@ -355,6 +383,13 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   }
 
+  /**
+   * Change ETL Engine
+   * @param engine
+   */
+  public changeEtlEngine(engine : Engine) {
+    this.snapshot.engine = engine;
+  }
 
   /**
    * Toggle Advanced setting button
@@ -368,9 +403,16 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Check if staging is enabled
    */
   public isStagingEnabled() :boolean {
-    return StorageService.isEnableStageDB && this._isDataprepStagingEnabled
+    return StorageService.isEnableStageDB && this._isDataprepStagingEnabled;
   }
 
+
+  /**
+   * Check if spark engine is enabled
+   */
+  public isSparkEnabled() :boolean {
+    return this._isSparkEngineEnabled;
+  }
 
   /**
    * Remove error msg when keydown in ssName
@@ -397,6 +439,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.isErrorShow = false
   }
 
+  /**
+   * Check if it has changed directly
+   */
+  public onChangeStoredUri(event, selection) {
+    if(event) {
+      this.storedUriChangedDirectly = true;
+      this.changeStoredUri();
+    }
+  }
 
   /**
    * Remove error msg when keydown in file uri
@@ -454,7 +505,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     // -------------------
     this.fileFormat = [
       { value: UriFileFormat.CSV, label: 'CSV' },
-      { value: UriFileFormat.JSON, label: 'JSON' }
+      { value: UriFileFormat.JSON, label: 'JSON' },
+      { value: UriFileFormat.SQL, label: 'SQL' }
     ];
 
     this.ssName = '';
@@ -482,7 +534,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     ];
 
     this.engineList = [
-      { value : Engine.EMBEDDED, label : 'Embedded Engine' }
+      { value : Engine.EMBEDDED, label : 'Embedded Engine' },
+      { value : Engine.SPARK, label : 'Spark' }
     ];
 
   }
@@ -527,7 +580,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     if (0 < this.fileLocations.length) {
 
       result = this.fileUris[0] ;
-      if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0)
+      if (['.csv','.json','.sql'].indexOf(this.snapshot.storedUri) < 0)
         result +=  '.' + this.uriFileFormat.toString().toLowerCase();
     }
     return result;
@@ -561,6 +614,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
       this.dataflowService.getConfiguration(this.datasetId).then((conf) => {
 
+        if(conf['sparkEngineEnabled']) {
+          this._isSparkEngineEnabled = conf['sparkEngineEnabled'];
+        } else {
+          this._isSparkEngineEnabled = false;
+        }
+
         this.ssName = this._getDefaultSnapshotName(conf['ss_name']);
 
         this._setFileLocationAndUri(conf['file_uri']);
@@ -570,7 +629,10 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
         this._getStagingDb();
 
+        // default: URI & EMBBEDED
         this.changeSsType(SsType.URI);
+        this.changeEtlEngine(Engine.EMBEDDED);
+
 
         this.loadingHide();
         resolve();

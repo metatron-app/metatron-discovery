@@ -12,11 +12,9 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output
-} from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'component-select',
@@ -82,6 +80,7 @@ export class SelectComponent extends AbstractComponent implements OnInit {
     }
   }
 
+  @Input() public className = '';
   // Placeholder 사용여부 (기본: 사용안함)
   @Input() public usePlaceholder = false;
   // 기본 메시지
@@ -105,6 +104,13 @@ export class SelectComponent extends AbstractComponent implements OnInit {
 
   // Select box width is longer when it's dataprep
   @Input() public isDataprep: boolean = false;
+
+  // select box icon 이 있는경우
+  @Input() public isIconType: boolean = false;
+
+  // 길어지면 말줄임 여부 true ? ... : 밑으로 길어짐
+  @Input() public isEllipsis?: boolean = true;
+
 
   // 선택 아이템
   public selectedItem: any;
@@ -196,6 +202,58 @@ export class SelectComponent extends AbstractComponent implements OnInit {
   public toggleSelectList() {
     this.isShowSelectList = !this.isShowSelectList;
     this.beforeShowSelectedList.emit(this.isShowSelectList);
+  }
+
+  // icon type class type
+  public getIconClass(item : any){
+
+    let iconClass : string = '';
+
+    if( isNullOrUndefined(item.field) ){
+      return iconClass;
+    }
+
+    // map chart custom field check
+    if( !isNullOrUndefined(item.isCustomField) && item.isCustomField ){
+      return iconClass;
+    }
+
+    if (item.field.role.toString() == 'DIMENSION') {
+      switch (item.field.logicalType.toString()) {
+        case 'STRING' :
+          iconClass = 'ddp-icon-dimension-ab';
+          break;
+        case 'LNG' :
+          iconClass = 'ddp-icon-dimension-local';
+          break;
+        case 'TIMESTAMP' :
+          iconClass = 'ddp-icon-dimension-calen';
+          break;
+        case 'INTEGER' :
+          iconClass = 'ddp-icon-dimension-float';
+          break;
+        case 'BOOLEAN' :
+          iconClass = 'ddp-icon-dimension-tf';
+          break;
+        case 'DOUBLE' :
+          iconClass = 'ddp-icon-dimension-float';
+          break;
+      }
+    } else {
+      switch (item.field.logicalType.toString()) {
+        case 'INTEGER' :
+          iconClass = 'ddp-icon-measure-sharp';
+          break;
+        case 'DOUBLE' :
+          iconClass = 'ddp-icon-measure-sharp';
+          break;
+        default :
+          iconClass = 'ddp-icon-measure-sharp';
+          break;
+      }
+    }
+    return iconClass;
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -52,7 +52,10 @@ import {
 } from '../../../domain/datasource/datasource';
 import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
 import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {FilterWidget, FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
+import {
+  FilterWidget,
+  FilterWidgetConfiguration
+} from '../../../domain/dashboard/widget/filter-widget';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {PopupService} from '../../../common/service/popup.service';
 import {FilterUtil} from '../../util/filter.util';
@@ -496,9 +499,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           const pgeWidget: PageWidget = <PageWidget>widget;
           pgeWidget.mode = 'chart';
           if (pgeWidget.configuration && pgeWidget.configuration.dataSource && pgeWidget.configuration.filters) {
-            pgeWidget.configuration.filters.forEach(item => {
-              item.dataSource = pgeWidget.configuration.dataSource.engineName;
-            });
+            if( ChartType.MAP !== pgeWidget.configuration.chart.type ) {
+              pgeWidget.configuration.filters.forEach(item => {
+                item.dataSource = pgeWidget.configuration.dataSource.engineName;
+              });
+            }
           }
         }
         widget.dashBoard = boardInfo;
@@ -540,7 +545,6 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * @private
    */
   private _convertSpecToUI(boardInfo: Dashboard): Dashboard {
-
     (boardInfo.configuration) || (boardInfo.configuration = new BoardConfiguration());
     (boardInfo.configuration.options) || (boardInfo.configuration.options = new BoardGlobalOptions());
 
@@ -573,10 +577,13 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     boardConf.widgets = layoutWidgets;
 
     // 필터 설정 변경
-    boardConf.filters.forEach((item: Filter, idx: number) => {
+    let filters = boardConf.filters;
+    (filters) || (filters = []);
+
+    filters.forEach((item: Filter, idx: number) => {
       if ('interval' === item.type) {
         // ----> convert IntervalFilter to TimeFilter
-        boardConf.filters[idx] = FilterUtil.convertIntervalToTimeFilter(<IntervalFilter>item, boardInfo);
+        filters[idx] = FilterUtil.convertIntervalToTimeFilter(<IntervalFilter>item, boardInfo);
       } else if (FilterUtil.isTimeFilter(item)) {
         // ----> convert TimeFilter ServerSpec to UISpec
         const timeFilter: TimeFilter = <TimeFilter>item;

@@ -14,71 +14,112 @@
 
 package app.metatron.discovery.domain.dataprep.entity;
 
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.user.UserProfile;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.List;
 
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.user.UserProfile;
+
 public class PrDatasetProjections {
 
-    @Projection(name = "default", types = { PrDataset.class })
-    public interface DefaultProjection {
+  @Projection(name = "default", types = {PrDataset.class})
+  public interface DefaultProjection {
 
-        Integer getRefDfCount();
-        String getDsId();
-        String getSerializedPreview();
-        String getDsName();
-        String getDsDesc();
-        PrDataset.DS_TYPE getDsType();
-        PrDataset.IMPORT_TYPE getImportType();
-        String getStoredUri();
-        String getFilenameBeforeUpload();
-        Long getTotalLines();
-        Long getTotalBytes();
-        String getDcId();
-        String getDcImplementor();
-        String getDcName();
-        String getDcDesc();
-        String getDcType();
-        String getDcHostname();
-        Integer getDcPort();
-        String getDcOptions();
-        String getDcUsername();
-        String getDcPassword();
-        String getDcUrl();
-        String getDcConnectUrl();
-        String getDcAuthenticationType();
-        Boolean getDcPublished();
-        PrDataset.RS_TYPE getRsType();
-        String getDbName();
-        String getTblName();
-        String getQueryStmt();
-        String getCreatorDfId();
-        String getCreatorDfName();
-        Integer getRuleCurIdx();
-        String getSheetName();
-        PrDataset.FILE_FORMAT getFileFormat();
-        String getDelimiter();
-        String getCustom();
-        //PrDataset.STORAGE_TYPE getStorageType();
+    Integer getRefDfCount();
 
-        List<PrDataflow> getDataflows();
-        List<PrTransformRule> getTransformRules();
-        DataFrame getGridResponse();
-        // Map<String, Object> getConnectionInfo();
+    String getDsId();
 
-        DateTime getCreatedTime();
-        DateTime getModifiedTime();
+    String getSerializedPreview();
 
-        @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
-        UserProfile getCreatedBy();
+    String getDsName();
 
-        @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
-        UserProfile getModifiedBy();
-    }
+    String getDsDesc();
+
+    PrDataset.DS_TYPE getDsType();
+
+    PrDataset.IMPORT_TYPE getImportType();
+
+    String getStoredUri();
+
+    String getFilenameBeforeUpload();
+
+    Long getTotalLines();
+
+    Long getTotalBytes();
+
+    String getDcId();
+
+    String getDcImplementor();
+
+    String getDcName();
+
+    String getDcDesc();
+
+    String getDcType();
+
+    String getDcHostname();
+
+    Integer getDcPort();
+
+    String getDcOptions();
+
+    String getDcUsername();
+
+    String getDcPassword();
+
+    String getDcUrl();
+
+    String getDcConnectUrl();
+
+    String getDcAuthenticationType();
+
+    Boolean getDcPublished();
+
+    PrDataset.RS_TYPE getRsType();
+
+    String getDbName();
+
+    String getTblName();
+
+    String getQueryStmt();
+
+    String getCreatorDfId();
+
+    String getCreatorDfName();
+
+    Integer getRuleCurIdx();
+
+    String getSheetName();
+
+    PrDataset.FILE_FORMAT getFileFormat();
+
+    String getDelimiter();
+
+    Integer getManualColumnCount();
+
+    String getQuoteChar();
+
+    String getCustom();
+
+    List<PrDataflow> getDataflows();
+
+    List<PrTransformRule> getTransformRules();
+
+    DataFrame getGridResponse();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+  }
 
 }
 

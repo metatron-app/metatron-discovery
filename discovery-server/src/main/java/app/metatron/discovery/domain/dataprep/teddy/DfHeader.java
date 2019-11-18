@@ -18,13 +18,13 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.NoRowException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Header;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfHeader extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfHeader.class);
 
   public DfHeader(String dsName, String ruleString) {
@@ -37,8 +37,9 @@ public class DfHeader extends DataFrame {
     Header header = (Header) rule;
 
     int targetRowno = header.getRownum().intValue() - 1;
-    if (targetRowno < 0) {
-      throw new NoRowException("DfHeader.prepare(): rownum should be >= 1: rownum=" + (targetRowno + 1));
+    if (targetRowno < 0 || targetRowno >= prevDf.rows.size()) {
+      throw new NoRowException(
+              "DfHeader.prepare(): row number should be >= 1 and < row_count: rowno=" + (targetRowno + 1));
     }
 
     int i = 1;
@@ -47,7 +48,7 @@ public class DfHeader extends DataFrame {
       String newColName = targetRow.get(colno) == null ? null : targetRow.get(colno).toString();
 
       // if column value is missing, use "columnN" naming
-      if (newColName ==  null || newColName.equals("")) {
+      if (newColName == null || newColName.equals("")) {
         newColName = "column" + (i++);
       } else {
         newColName = makeParsable(newColName);
@@ -62,13 +63,15 @@ public class DfHeader extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException {
     List<Row> rows = new ArrayList<>();
     int targetRowno = (int) preparedArgs.get(0);
 
     LOGGER.trace("DfHeader.gather(): start: offset={} length={} targetRowno={}", offset, length, targetRowno);
 
-    assert prevDf.getColCnt() == getColCnt() : String.format("prevDf.colcnt=%d this.colcnt=%d", prevDf.getColCnt(), getColCnt());
+    assert prevDf.getColCnt() == getColCnt() : String
+            .format("prevDf.colcnt=%d this.colcnt=%d", prevDf.getColCnt(), getColCnt());
 
     for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
       if (rowno == targetRowno) {

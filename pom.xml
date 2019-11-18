@@ -20,14 +20,14 @@
     <groupId>app.metatron.discovery</groupId>
     <artifactId>metatron-discovery</artifactId>
     <packaging>pom</packaging>
-    <version>3.2.0</version>
+    <version>3.4.0-rc2</version>
 
     <modules>
         <module>discovery-frontend</module>
         <module>discovery-server</module>
         <module>discovery-prep-parser</module>
         <module>discovery-common</module>
-        <!--<module>discovery-extensions</module>-->
+        <module>discovery-extensions</module>
         <module>discovery-distribution</module>
     </modules>
 
@@ -49,16 +49,16 @@
         <spring.data.rest.version>2.6.8.RELEASE</spring.data.rest.version>
         <spring.security.version>4.1.3.RELEASE</spring.security.version>
         <spring.security.jwt.version>1.0.8.RELEASE</spring.security.jwt.version>
-        <spring.security.oauth.version>2.0.11.RELEASE</spring.security.oauth.version>
+        <spring.security.oauth.version>2.0.17.RELEASE</spring.security.oauth.version>
         <spring.session.version>1.3.0.RELEASE</spring.session.version>
 
         <!-- WAS -->
         <tomcat.version>8.5.23</tomcat.version>
 
         <!-- SpringFramework -->
-        <hibernate.version>5.2.12.Final</hibernate.version>
-        <hibernate.search.version>5.5.5.Final</hibernate.search.version>
-        <lucene.version>5.3.1</lucene.version>
+        <hibernate.version>5.4.3.Final</hibernate.version>
+        <hibernate.search.version>5.11.1.Final</hibernate.search.version>
+        <lucene.version>5.5.5</lucene.version>
 
         <!-- Cache -->
         <infinispan.version>9.0.0.CR2</infinispan.version>
@@ -73,7 +73,8 @@
         <!-- test library versions -->
         <junit.version>4.12</junit.version>
 
-        <jackson.version>2.8.10</jackson.version>
+        <jackson.version>2.9.9</jackson.version>
+        <jackson.databind.version>2.9.9.2</jackson.databind.version>
 
         <metatron.metis.version>2.0.0-SNAPSHOT</metatron.metis.version>
 
@@ -99,6 +100,15 @@
         <pf4j.version>2.5.0</pf4j.version>
         <pf4j.spring.version>0.5.0</pf4j.spring.version>
 
+        <!-- liquibase -->
+        <!-- The javassist version should match the one managed by
+        https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
+        <javassist.version>3.24.0-GA</javassist.version>
+        <!-- The liquibase version should match the one managed by
+        https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
+        <liquibase.version>3.5.3</liquibase.version>
+        <liquibase-hibernate5.version>3.6</liquibase-hibernate5.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
     </properties>
     <build>
         <plugins>
@@ -461,12 +471,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.mchange</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>0.9.5.2</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-spring4-embedded</artifactId>
                 <version>${infinispan.version}</version>
@@ -506,7 +510,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson.databind.version}</version>
             </dependency>
 
             <dependency>
@@ -579,7 +583,7 @@
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
-                <version>1.2</version>
+                <version>1.3.3</version>
             </dependency>
 
             <dependency>
@@ -798,6 +802,12 @@
             <id>spring-repo</id>
             <name>Spring Repository</name>
             <url>https://repo.spring.io/release</url>
+        </repository>
+
+        <repository>
+            <id>metatron-public</id>
+            <name>Metatron Public Repository</name>
+            <url>http://52.231.187.35:9081/nexus/content/repositories/metatron-public/</url>
         </repository>
 
     </repositories>

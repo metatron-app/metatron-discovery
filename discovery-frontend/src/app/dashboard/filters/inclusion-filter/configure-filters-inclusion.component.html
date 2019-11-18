@@ -11,28 +11,24 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <!-- 선택 방식 결정 -->
-<div *ngIf="isShow" class="ddp-toggle">
-  <ul class="ddp-list-buttons ddp-type2">
-    <li [ngClass]="{'ddp-selected' : isSingleSelect(targetFilter)}"
-        (click)="setSelectorType(targetFilter, 'SINGLE')" >
-      <em class="ddp-icon-check"></em>
-      <label class="ddp-label-radio">
-        <input type="radio" checked="checked" >
-        <i class="ddp-icon-radio"></i>
-        <span class="ddp-txt-radio">{{'msg.board.li.single' | translate}}</span>
-      </label>
-    </li>
-    <li [ngClass]="{'ddp-selected' : !isSingleSelect(targetFilter)}"
-        (click)="setSelectorType(targetFilter, 'MULTI')" >
-      <em class="ddp-icon-check"></em>
-      <label class="ddp-label-checkbox">
-        <input type="checkbox" checked="checked" >
-        <i class="ddp-icon-checkbox"></i>
-        <span class="ddp-txt-checkbox">{{'msg.board.li.multiple' | translate}}</span>
-      </label>
-    </li>
-  </ul>
+<div *ngIf="isShow" class="ddp-wrap-setting">
+  <div class="ddp-wrap-edit">
+    <label class="ddp-label-type">{{'msg.board.li.sel.type'|translate}}</label>
+    <div class="ddp-ui-edit-option ">
+      <ul class="ddp-list-buttons">
+        <li [ngClass]="{'ddp-selected' : isSingleSelect(targetFilter)}"
+            (click)="setSelectorType(targetFilter, 'SINGLE')" >
+          {{'msg.board.li.single' | translate}}
+        </li>
+        <li [ngClass]="{'ddp-selected' : !isSingleSelect(targetFilter)}"
+            (click)="setSelectorType(targetFilter, 'MULTI')" >
+          {{'msg.board.li.multiple' | translate}}
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>
 <!-- // 선택 방식 결정 -->
 
@@ -43,7 +39,6 @@
     <div class="ddp-option-in">
       <!-- 상단 버튼 영역 -->
       <div class="ddp-option-btn">
-
         <!-- 상단 목록 필터링 설정 영역 -->
         <div (clickOutside)="targetFilter['isShowCandidateFilter'] = false"
              [class.ddp-selected]="targetFilter['isShowCandidateFilter']" class="ddp-wrap-edit-set ">
@@ -209,7 +204,7 @@
 
             <!-- button -->
             <div class="ddp-pop-buttons">
-              <a (click)="resetAll()" href="javascript:" class="ddp-btn-pop">
+              <a (click)="resetAll()" href="javascript:" class="ddp-btn-pop" style="margin-right: 2px;">
                 <em class="ddp-btn-reset"></em>{{'msg.page.btn.reset' | translate}}
               </a>
               <a (click)="candidateWithValidation()" href="javascript:" class="ddp-btn-pop ddp-bg-gray">
@@ -261,11 +256,6 @@
         </div>
         <!-- // 상단 목록 정렬 설정 영역 -->
 
-        <!-- 활성 아이템만 보기 버튼 -->
-        <a (click)="this.setOnlyShowCandidateValues()" [class.ddp-selected]="isOnlyShowCandidateValues"
-           href="javascript:" class="ddp-btn-eyes ddp-btn-box"><em class="ddp-icon-eyes2"></em></a>
-        <!-- // 활성 아이템만 보기 버튼 -->
-
       </div>
       <!-- // 상단 버튼 영역 -->
 
@@ -274,8 +264,10 @@
         <div (clickOutside)="inactiveSearchInput()"
              [class.ddp-search]="targetFilter['isShowSearch']"  [class.ddp-focus]="targetFilter['isShowSearch']"
              [class.ddp-warning]="isOverCandidateWarning"
+             [class.ddp-nofilter]="isNoFiltering() && targetFilter['isShowSearch']"
              class="ddp-search-value" >
           <a (click)="candidateFromSearchText()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
+          <div class="ddp-txt-nofilter">{{ 'msg.comm.ui.no.filtering' | translate }}</div>
           <div class="ddp-data-value">
             <em class="icon-search"></em>
             <input #inputSearch type="text" placeholder="{{'msg.board.ui.search.item.name' | translate}}"
@@ -296,34 +288,39 @@
   </div>
   <!-- // 상단 영역 -->
 
-  <!-- 아이템 목록 영역 -->
-  <div class="ddp-box-item-search ddp-type-filter" [ngStyle]="{top : useDefineValue ? '180px' : '0px'}">
+  <!-- setting -->
+  <div class="ddp-select-setting ddp-clear">
+    <span class="ddp-data-total">{{ 'msg.comm.ui.total' | translate }} <strong>{{totalCount}}</strong></span>
+    <ul class="ddp-list-select">
+      <li *ngIf="!isSingleSelect(targetFilter)"><a href="javascript:" (click)="candidateSelectAll()">{{ 'msg.comm.ui.list.sel.all' | translate }}</a></li>
+      <li>
+        <a href="javascript:" (click)="candidateDeselectAll();">
+          <span *ngIf="isSingleSelect(targetFilter)">{{ 'msg.comm.ui.list.desel' | translate }}</span>
+          <span *ngIf="!isSingleSelect(targetFilter)">{{ 'msg.comm.ui.list.desel.all' | translate }}</span>
+        </a>
+      </li>
+    </ul>
 
+    <div class="ddp-setting">
+      <div class="ddp-label-setting">
+        <em class="ddp-icon-eye"></em>Turn all
+      </div>
+      <div class="ddp-setting-check">
+        <a (click)="toggleAllCandidateValues(true)" href="javascript:">on</a>
+        <a (click)="toggleAllCandidateValues(false)" href="javascript:">off</a>
+      </div>
+    </div>
+  </div>
+  <!-- //setting -->
+
+  <!-- 아이템 목록 영역 -->
+  <div class="ddp-box-item-search ddp-type-filter" [ngStyle]="{top : useDefineValue ? '188px' : '0px'}">
     <!-- 후보값 목록 표시 -->
-    <ul class="ddp-list-checktype ddp-type-list" [ngStyle]="{bottom : useDefineValue ? '88px' : ''}">
-      <li *ngIf="useAll" >
-        <label *ngIf="!isSingleSelect(targetFilter)" class="ddp-label-checkbox">
-          <input (click)="candidateSelectAll($event)" [checked]="isCheckedAllItem()" type="checkbox">
-          <i class="ddp-icon-checkbox"></i>
-          <span class="ddp-txt-checkbox">({{ 'msg.board.filter.ui.all' | translate }})</span>
+    <ul class="ddp-list-checktype ddp-type-list" [ngStyle]="{bottom : useDefineValue ? '95px' : ''}">
+      <li *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
+        <label style="display:inline-block; font-size:13px; color:#4b515b; vertical-align:bottom; word-break:break-all;">
+          {{ 'msg.comm.ui.no.rslt' | translate }}
         </label>
-        <label *ngIf="isSingleSelect(targetFilter)" class="ddp-label-radio">
-          <input (click)="candidateSelectAll($event)" [checked]="isCheckedAllItem()"
-                 type="radio" name="candidateSingle_{{compUUID}}" >
-          <i class="ddp-icon-radio"></i>
-          <span class="ddp-txt-radio">({{'msg.board.filter.ui.all' | translate}})</span>
-        </label>
-        <!-- setting -->
-        <div class="ddp-setting">
-          <div class="ddp-label-setting">
-            <em class="ddp-icon-eye"></em>Turn all
-          </div>
-          <div class="ddp-setting-check">
-            <a (click)="toggleAllCandidateValues(true)" href="javascript:">on</a>
-            <a (click)="toggleAllCandidateValues(false)" href="javascript:">off</a>
-          </div>
-        </div>
-        <!-- //setting -->
       </li>
       <li *ngFor="let item of pageCandidateList" >
         <!-- check -->
@@ -355,39 +352,39 @@
     </ul>
     <!-- // 후보값 목록 표시 -->
 
-    <!-- 페이지 번호 표시 -->
-    <div *ngIf="usePaging" class="ddp-data-result">
-      <!-- page -->
-      <div class="ddp-ui-page">
-        <a (click)="setCandidatePage(currentPage-1)"
-           [class.ddp-disabled]="1 === currentPage"
-           href="javascript:" class="ddp-btn-prev"></a>
-        <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-        <a (click)="setCandidatePage(currentPage+1)"
-           [class.ddp-disabled]="lastPage === currentPage"
-           href="javascript:" class="ddp-btn-next"></a>
-      </div>
-      <!-- //page -->
-    </div>
-    <!-- // 페이지 번호 표시 -->
-
     <!-- 선택 결과 표시 영역 -->
     <div class="ddp-data-result2"
-         [ngStyle]="{bottom : useDefineValue ? '50px' : ''}" [class.sys-essential-result]="!useDefineValue">
-      <div class="ddp-data-values">
-        <label class="ddp-label-check-value">
-          <input (click)="targetFilter.showSelectedItem = !targetFilter.showSelectedItem;setCandidatePage(1, true);"
-                 [checked]="targetFilter.showSelectedItem"
-                 type="checkbox" >
-          <i></i>
-        </label>
-        <ng-container *ngIf="targetFilter.showSelectedItem">
-          {{ 'msg.board.filter.selected-values' | translate : { value : selectedValues.length } }}
-        </ng-container>
-        <ng-container *ngIf="!targetFilter.showSelectedItem">
-          {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
-        </ng-container>
+         [ngStyle]="{bottom : useDefineValue ? '60px' : ''}" [class.sys-essential-result]="!useDefineValue">
+      <!-- 목록 제한 및 페이징 영역 -->
+      <div class="ddp-ui-values">
+        <div class="ddp-data-values">
+          <label class="ddp-label-check-value">
+            <input (click)="targetFilter.showSelectedItem = !targetFilter.showSelectedItem;setCandidatePage(1, true);"
+                   [checked]="targetFilter.showSelectedItem"
+                   type="checkbox" >
+            <i></i>
+          </label>
+          <ng-container *ngIf="targetFilter.showSelectedItem">
+            {{ 'msg.board.filter.selected-values' | translate : { value : selectedValues.length } }}
+          </ng-container>
+          <ng-container *ngIf="!targetFilter.showSelectedItem">
+            {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
+          </ng-container>
+        </div>
+        <!-- 페이징 영역 -->
+        <div class="ddp-ui-page">
+          <a (click)="setCandidatePage(currentPage-1)"
+             [class.ddp-disabled]="1 === currentPage"
+             href="javascript:" class="ddp-btn-prev"></a>
+          <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+          <a (click)="setCandidatePage(currentPage+1)"
+             [class.ddp-disabled]="lastPage === currentPage"
+             href="javascript:" class="ddp-btn-next"></a>
+        </div>
+        <!-- // 페이징 영역 -->
       </div>
+      <!-- // 목록 제한 및 페이징 영역 -->
+
     </div>
     <!-- // 선택 결과 표시 영역 -->
 
@@ -408,4 +405,4 @@
 </div>
 <!-- // 기능 버튼 및 목록 영역 -->
 
-<div *ngIf="isNoData && isNoData" class="ddp-ui-empty">{{'msg.board.filter.ui.no-data' | translate}}</div>
+<!--<div *ngIf="isNoData && isNoData" class="ddp-ui-empty">{{'msg.board.filter.ui.no-data' | translate}}</div>-->

@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
+import app.metatron.discovery.fixture.HiveTestFixture;
 import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,6 +48,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformati
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
 /**
@@ -2442,6 +2444,32 @@ import static org.hamcrest.Matchers.hasSize;
             .statusCode(HttpStatus.SC_OK)
             .log().all();
     // @formatter:on
+  }
+
+  @Test
+  @Sql({"/sql/test_dataconnection.sql"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void queryForListOfDatabasesByConnectionId_when_filter_database_hive_connection() {
+    // given
+    HiveTestFixture.setUpDefaultDatabaseFixture();
+    final String connectionId = "hive-local-manual-conn";
+    final String filteringDatabaseName = "metatron";
+
+    // REST when
+    Response resp =
+        given()
+          .auth().oauth2(oauth_token)
+        .when()
+          .get("/api/connections/{connectionId}/databases?databaseName={filteringDatabaseName}", connectionId, filteringDatabaseName)
+        .then()
+          .log().all()
+          .statusCode(HttpStatus.SC_OK)
+        .extract().response();
+
+    // then
+    List<String> databases = from(resp.asString()).getList("databases", String.class);
+    assertThat(databases).hasSize(1);
+    assertThat(databases.get(0)).isEqualTo("metatron_test_db");
   }
 
 }

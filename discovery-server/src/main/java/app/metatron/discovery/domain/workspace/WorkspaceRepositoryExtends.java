@@ -53,5 +53,7 @@ public interface WorkspaceRepositoryExtends {
 
   Map<String, Long> countByBookType(Workspace workspace);
 
+  Map<WorkspaceMember.MemberType, Long> countByMemberType(Workspace workspace);
+
   Double avgDashBoardByWorkBook(Workspace workspace);
 }

@@ -28,7 +28,7 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.user.UserProfile;
 
 /**
- * Created by kyungtaak on 2017. 1. 18..
+ *
  */
 public class DataSourceProjections extends BaseProjections {
 
@@ -75,6 +75,8 @@ public class DataSourceProjections extends BaseProjections {
     String getEngineName();
 
     String getDescription();
+
+    Boolean getValid();
 
   }
 
@@ -131,6 +133,8 @@ public class DataSourceProjections extends BaseProjections {
 
     Boolean getPublished();
 
+    DataSource.Status getStatus();
+
     Integer getLinkedWorkspaces();
 
     DataSourceSummary getSummary();
@@ -181,6 +185,8 @@ public class DataSourceProjections extends BaseProjections {
     DataSource.SourceType getSrcType();
 
     DataSourceTemporary getTemporary();
+
+    Boolean getValid();
 
     @Value("#{@contextService.getContexts(target)}")
     Map<String, Object> getContexts();

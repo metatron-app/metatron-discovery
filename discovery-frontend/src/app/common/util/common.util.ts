@@ -13,13 +13,15 @@
  */
 
 import * as _ from 'lodash';
-import { CommonConstant } from '../constant/common.constant';
-import { CookieConstant } from '../constant/cookie.constant';
-import { SYSTEM_PERMISSION } from 'app/common/permission/permission';
-import { Modal } from '../domain/modal';
-import { environment } from '../../../environments/environment';
-import { Router } from '@angular/router';
-import { isNullOrUndefined } from 'util';
+import {CommonConstant} from '../constant/common.constant';
+import {CookieConstant} from '../constant/cookie.constant';
+import {SYSTEM_PERMISSION} from 'app/common/permission/permission';
+import {Modal} from '../domain/modal';
+import {environment} from '../../../environments/environment';
+import {Router} from '@angular/router';
+import {isNullOrUndefined} from 'util';
+import {Theme, UserSetting} from "../value/user.setting.value";
+import {LocalStorageConstant} from "../constant/local-storage.constant";
 
 declare let $;
 
@@ -333,5 +335,39 @@ export class CommonUtil {
     const sec = Math.floor((ms / 1000) % 60);
     return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
   } // function - convertMilliseconds
+
+  public static getUserSetting(): UserSetting {
+    if(localStorage) {
+      const value = this.getLocalStorage(LocalStorageConstant.KEY.USER_SETTING);
+      if(value) {
+        return JSON.parse(value);
+      }
+    }
+    return new UserSetting();
+  }
+
+  public static getLocalStorage(key:string): any {
+    if(localStorage) {
+      return localStorage.getItem(key);
+    } else {
+      return null;
+    }
+  }
+
+  public static setLocalStorage(key:string, value:any): void {
+    if(localStorage) {
+      localStorage.setItem(key,  value);
+    }
+  }
+
+  public static setThemeCss(theme:Theme): void {
+    if (theme === Theme.DARK) {
+      $('body').addClass(Theme.DARK);
+    } else {
+      if ($('body').hasClass(Theme.DARK)) {
+        $('body').removeClass(Theme.DARK);
+      }
+    }
+  }
 
 }

@@ -12,30 +12,40 @@
  * limitations under the License.
  */
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestEngineIngestion;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.*;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.rule.DiscardNullRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.GeoPointRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegrationTest;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.format.*;
+import app.metatron.discovery.util.JsonPatch;
+import app.metatron.discovery.util.PolarisUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,62 +71,13 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestEngineIngestion;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.BatchPeriod;
-import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.rule.DiscardNullRule;
-import app.metatron.discovery.domain.datasource.ingestion.rule.GeoPointRule;
-import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegrationTest;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoPolygonFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
-import app.metatron.discovery.util.JsonPatch;
-import app.metatron.discovery.util.PolarisUtils;
-
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.MASTER;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.DAY;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.HOUR;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.MONTH;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.SECOND;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.IMPORT;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.*;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.*;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -124,7 +85,7 @@ import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
 
 /**
- * Created by kyungtaak on 2016. 1. 30..
+ *
  */
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
@@ -608,7 +569,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void getDataFromDataSources() {
 
-    String datasourceId = "ds-37";
+    String datasourceId = "ds-gis-37";
 
     //    SearchQueryRequest request = new SearchQueryRequest();
     //    request.setFilters(Lists.newArrayList(new InclusionFilter("Category", Lists.newArrayList("Office Supplies"))));
@@ -619,6 +580,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
       .queryParam("limit", 5)
+      .queryParam("intervals", "2011-01-01/2012-01-01")
       //.body(request)
       .log().all()
     .when()
@@ -1544,7 +1506,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       e.printStackTrace();
     }
 
-    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_space.csv").getPath();
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_header.csv").getPath();
 
     DataSource dataSource = new DataSource();
     dataSource.setName("localFileIngestion_" + PolarisUtils.randomString(5));
@@ -1562,22 +1524,24 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
 
-    Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
-    field1.setUnloaded(true);
+    Field field1 = new Field("sd_updated", DataType.STRING, DIMENSION, 2L);
+    field1.setOriginalName("sd");
+    //field1.setUnloaded(true);
     fields.add(field1);
 
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
 
-    Field field2 = new Field("m2", DataType.DOUBLE, MEASURE, 4L);
-    field2.setUnloaded(true);
+    Field field2 = new Field("m2_updated", DataType.DOUBLE, MEASURE, 4L);
+    //field2.setUnloaded(true);
+    field2.setOriginalName("m2");
     fields.add(field2);
 
     dataSource.setFields(fields);
 
     LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
     localFileIngestionInfo.setPath(targetFile);
-    localFileIngestionInfo.setRemoveFirstRow(false);
-    localFileIngestionInfo.setFormat(new CsvFileFormat("\u0020", "\n"));
+    localFileIngestionInfo.setRemoveFirstRow(true);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", null));
     localFileIngestionInfo.setIntervals(Lists.newArrayList("2000-01-01T00:00:00.000Z/2020-01-01T00:00:00.000Z"));
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
@@ -3512,7 +3476,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     //
     List<String> wktList = Lists.newArrayList(
-            "MULTIPOINT((3.5 5.6),(4.8 10.5))"
+        "MULTIPOINT((3.5 5.6),(4.8 10.5))"
     );
 
     // @formatter:off

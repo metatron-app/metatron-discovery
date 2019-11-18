@@ -299,9 +299,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
     }).catch((error) => {
       this.loadingHide();
-      return {
-        error : error
-      };
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
 
   } // function - init
@@ -1863,7 +1862,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     const defaultStyle: string = 'line-height:30px;';
     const nullStyle: string = 'color:#b8bac2; font-style: italic;';
     const selectStyle: string = 'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0px; line-height:30px; padding:0 10px;';
-    const mismatchStyle: string = 'color:' + this._BARCHART_MISMATCH_COLOR + '; font-style: italic;';
+    const mismatchStyle: string = 'color:' + this._BARCHART_MISMATCH_COLOR + ';';
 
     // 헤더정보 생성
     const headers: header[] = fields.map((field: Field) => {
@@ -1998,44 +1997,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       if ('TIMESTAMP' === type) {
         // 단일 데이터에 대한 타임 스템프 처리
         strFormatVal = this._setTimeStampFormat(value, colDescs.timestampStyle);
-      } else if ('ARRAY' === type) {
-        // 배열 형식내 각 항목별 타임 스템프 처리
-        const arrColDescs = colDescs.arrColDesc ? colDescs.arrColDesc : {};
-        strFormatVal = JSON.stringify(
-          value.map((item: any, idx: number) => {
-            const colDesc = arrColDescs[idx] ? arrColDescs[idx] : {};
-            if ('TIMESTAMP' === colDesc['type']) {
-              return this._setTimeStampFormat(item, colDesc['timestampStyle']);
-            } else {
-              // 재귀 호출 부분
-              const tempResult: string = this._setFieldFormatter(item, colDesc['type'], colDesc);
-              // array, map 타임의 경우 stringify가 중복 적용되기에 parse 처리 해줌
-              return ('ARRAY' === colDesc['type'] || 'MAP' === colDesc['type']) ? JSON.parse(tempResult) : tempResult;
-            }
-          })
-        );
-      } else if ('MAP' === type) {
-        // 구조체내 각 항목별 타임 스템프 처리
-        const mapColDescs = colDescs.mapColDesc ? colDescs.mapColDesc : {};
-        let newMapValue = {};
-        for (let key in value) {
-          if (value.hasOwnProperty(key)) {
-            const colDesc = mapColDescs.hasOwnProperty(key) ? mapColDescs[key] : {};
-            if ('TIMESTAMP' === colDesc['type']) {
-              newMapValue[key] = this._setTimeStampFormat(value[key], colDesc['timestampStyle']);
-            } else {
-              // 재귀 호출 부분
-              const tempResult: string = this._setFieldFormatter(value[key], colDesc['type'], colDesc);
-              // array, map 타임의 경우 stringify가 중복 적용되기에 parse 처리 해줌
-              newMapValue[key]
-                = ('ARRAY' === colDesc['type'] || 'MAP' === colDesc['type']) ? JSON.parse(tempResult) : tempResult;
-            }
-          }
-        }
-        strFormatVal = JSON.stringify(newMapValue);
       } else {
         strFormatVal = <string>value;
       }
+      // ARRAY and MAP are represented as string
     } else {
       strFormatVal = <string>value;
     }

@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.domain.workbench.util.AvaticaQueryEncoder;
+import org.apache.calcite.avatica.AvaticaStatement;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveStatement;
 import org.joda.time.DateTime;
@@ -46,7 +48,6 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionSe
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.WebSocketUtils;
 
@@ -128,6 +130,7 @@ public class QueryEditorService {
     dataSourceInfo.setQueryList(queryList);
 
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+    JdbcDialect jdbcDialect = jdbcDataAccessor.getDialect();
 
     int queryIndex = 0;
     while(!queryList.isEmpty()){
@@ -167,7 +170,7 @@ public class QueryEditorService {
       entityManager.clear();
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, queryIndex, queryEditor.getId());
+                                             jdbcDialect, queryHistoryId, auditId, queryIndex, queryEditor.getId());
       queryResults.add(queryResult);
 
       //increase query index
@@ -203,11 +206,49 @@ public class QueryEditorService {
     return queryResults;
   }
 
+  public List<String> multiLineQuerySplitter(String query){
+    List<String> queryList = new ArrayList<>();
+    String[] strByLine = StringUtils.split(query, System.lineSeparator());
+
+    StringBuilder stringBuilder = new StringBuilder();
+    int lineCount = strByLine.length;
+    for(int i = 0; i < lineCount; ++i){
+      String byLine = strByLine[i];
+
+      stringBuilder.append(byLine);
+
+      int semiColonIndex = StringUtils.indexOf(byLine, ";");
+      int hyphenIndex = StringUtils.indexOf(byLine, "--");
+      int sharpIndex = StringUtils.indexOf(byLine, "#");
+      int commentIndex = (hyphenIndex >= 0 && sharpIndex >= 0)
+          ? Math.min(hyphenIndex, sharpIndex)
+          : Math.max(hyphenIndex, sharpIndex);
+
+      //semicolon before comment
+      if(semiColonIndex > -1 && commentIndex > -1 && semiColonIndex < commentIndex){
+        queryList.add(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+      } else if(semiColonIndex > -1 && commentIndex < 0){
+        queryList.add(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+      } else if(i < lineCount - 1){
+        stringBuilder.append(System.lineSeparator());
+      }
+    }
+
+    if(StringUtils.isNotEmpty(stringBuilder.toString())){
+      queryList.add(stringBuilder.toString());
+    }
+
+    return queryList;
+  }
+
   public List<String> getSubstitutedQueryList(String queryStr, Workbench workbench) {
     List<String> returnList = new ArrayList<>();
 
     //1. semicolon split
-    List<String> queryList = Arrays.asList(queryStr.split(";"));
+//    List<String> queryList = Arrays.asList(queryStr.split(";"));
+    List<String> queryList = multiLineQuerySplitter(queryStr);
 
 
     //2. GlobalVar replace
@@ -266,8 +307,8 @@ public class QueryEditorService {
   }
 
   private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
-                                   DataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   int queryIndex, String queryEditorId){
+                                   DataConnection jdbcDataConnection, JdbcDialect jdbcDialect, long queryHistoryId,
+                                   String auditId, int queryIndex, String queryEditorId){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
@@ -336,29 +377,34 @@ public class QueryEditorService {
           sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
                   queryEditorId, workbenchId, webSocketId);
           resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
+          queryResult = getQueryResult(jdbcDialect, resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
       } else {
+        if(stmt instanceof AvaticaStatement) {
+          // #2728 조건문에 한글이 포함할 수 있으므로 인코딩
+          query = AvaticaQueryEncoder.encode(query);
+        }
+
         if(stmt.execute(query)){
           sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
                   queryEditorId, workbenchId, webSocketId);
           resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
+          queryResult = getQueryResult(jdbcDialect, resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
       }
     } catch(SQLException e){
-      LOGGER.error("Query Execute SQLException : {}", e);
+      LOGGER.error("Query Execute SQLException : ", e);
       queryResult
               = createMessageResult("An error occurred during query execution.  \n" +
               "Please contact your system administrator.  \n" +
               "(SQLException (" + e.getSQLState() + ") (" + e.getErrorCode() + ") : \n" +
               e.getMessage() + ")", query, QueryResult.QueryResultStatus.FAIL);
     } catch(Exception e){
-      LOGGER.error("Query Execute Exception : {}", e);
+      LOGGER.error("Query Execute Exception : ", e);
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
       if (logThread != null) {
@@ -396,7 +442,8 @@ public class QueryEditorService {
     return queryResult;
   }
   
-  private QueryResult getQueryResult(ResultSet resultSet, String query, String tempTable, int pageSize, String queryEditorId, int queryIndex) throws SQLException{
+  private QueryResult getQueryResult(JdbcDialect jdbcDialect, ResultSet resultSet, String query, String tempTable,
+                                     int pageSize, String queryEditorId, int queryIndex) throws SQLException{
     //1. create CSV File with header
     String csvBaseDir = workbenchProperties.getTempCSVPath();
     if(!csvBaseDir.endsWith(File.separator)){
@@ -420,6 +467,7 @@ public class QueryEditorService {
 
     //3. write csv
     int rowNumber = jdbcConnectionService.writeResultSetToCSV(
+            jdbcDialect,
             resultSet,
             csvBaseDir + tempFileName,
             fieldList.stream().map(field -> field.getName()).collect(Collectors.toList()));

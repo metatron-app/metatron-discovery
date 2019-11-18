@@ -43,6 +43,7 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.ProgressResponse;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceErrorCodes;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
@@ -63,6 +64,7 @@ import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.util.PolarisUtils;
 
@@ -93,7 +95,7 @@ public class IngestionJobRunner {
   @Autowired
   private EngineProperties engineProperties;
 
-  @Autowired
+  @Autowired(required = false)
   private StorageProperties storageProperties;
 
   @Autowired
@@ -122,6 +124,9 @@ public class IngestionJobRunner {
 
   @Autowired
   private IngestionOptionService ingestionOptionService;
+
+  @Autowired
+  private MetadataService metadataService;
 
   private SimpMessageSendingOperations messagingTemplate;
 
@@ -156,6 +161,7 @@ public class IngestionJobRunner {
 
     IngestionHistory history = null;
     Map<String, Object> results = Maps.newLinkedHashMap();
+    Boolean isResultEmpty = false;
 
     try {
 
@@ -171,35 +177,45 @@ public class IngestionJobRunner {
       sendTopic(sendTopicUri, new ProgressResponse(20, PREPARATION_HANDLE_LOCAL_FILE));
       history = updateHistoryProgress(history.getId(), PREPARATION_HANDLE_LOCAL_FILE);
 
-      ingestionJob.preparation();
-
-      sendTopic(sendTopicUri, new ProgressResponse(40, PREPARATION_LOAD_FILE_TO_ENGINE));
-      history = updateHistoryProgress(history.getId(), PREPARATION_LOAD_FILE_TO_ENGINE);
-
-      ingestionJob.loadToEngine();
-
-      sendTopic(sendTopicUri, new ProgressResponse(50, ENGINE_INIT_TASK));
-      history = updateHistoryProgress(history.getId(), ENGINE_INIT_TASK);
-
-      ingestionJob.buildSpec();
-
-      // Call engine api.
-      String taskId = ingestionJob.process();
-
-      history = updateHistoryProgress(history.getId(), ENGINE_RUNNING_TASK, taskId);
-
-      results.put("history", history);
-      sendTopic(sendTopicUri, new ProgressResponse(70, ENGINE_RUNNING_TASK, results));
-
-      // Check ingestion Task.
-      IngestionStatusResponse statusResponse = checkIngestion(taskId);
-      if (statusResponse.getStatus() == FAILED) {
-        throw new DataSourceIngestionException(INGESTION_ENGINE_TASK_ERROR, "An error occurred while loading the data source : " + statusResponse.getCause());
+      try{
+        ingestionJob.preparation();
+      } catch(DataSourceIngestionException e){
+        //if Result is Empty, complete ingestion.
+        if(e.getCode() == DataSourceErrorCodes.INGESTION_JDBC_EMPTY_RESULT_ERROR){
+          LOGGER.debug("Jdbc result is empty. : {}", dataSource.getId());
+          isResultEmpty = true;
+        } else { throw e; }
       }
 
-      // Check registering datasource
-      sendTopic(sendTopicUri, new ProgressResponse(90, ENGINE_REGISTER_DATASOURCE));
-      history = updateHistoryProgress(history.getId(), ENGINE_REGISTER_DATASOURCE, taskId);
+      if(!isResultEmpty){
+        sendTopic(sendTopicUri, new ProgressResponse(40, PREPARATION_LOAD_FILE_TO_ENGINE));
+        history = updateHistoryProgress(history.getId(), PREPARATION_LOAD_FILE_TO_ENGINE);
+
+        ingestionJob.loadToEngine();
+
+        sendTopic(sendTopicUri, new ProgressResponse(50, ENGINE_INIT_TASK));
+        history = updateHistoryProgress(history.getId(), ENGINE_INIT_TASK);
+
+        ingestionJob.buildSpec();
+
+        // Call engine api.
+        String taskId = ingestionJob.process();
+
+        history = updateHistoryProgress(history.getId(), ENGINE_RUNNING_TASK, taskId);
+
+        results.put("history", history);
+        sendTopic(sendTopicUri, new ProgressResponse(70, ENGINE_RUNNING_TASK, results));
+
+        // Check ingestion Task.
+        IngestionStatusResponse statusResponse = checkIngestion(taskId);
+        if (statusResponse.getStatus() == FAILED) {
+          throw new DataSourceIngestionException(INGESTION_ENGINE_TASK_ERROR, "An error occurred while loading the data source : " + statusResponse.getCause());
+        }
+
+        // Check registering datasource
+        sendTopic(sendTopicUri, new ProgressResponse(90, ENGINE_REGISTER_DATASOURCE));
+        history = updateHistoryProgress(history.getId(), ENGINE_REGISTER_DATASOURCE, taskId);
+      }
 
       SegmentMetaDataResponse segmentMetaData = checkDataSource(dataSource.getEngineName());
       if (segmentMetaData == null) {
@@ -219,6 +235,9 @@ public class IngestionJobRunner {
 
       results.put("summary", summary);
       results.put("history", history);
+
+      // create metadata
+      createMetadata(dataSource);
 
       ProgressResponse successResponse = new ProgressResponse(100, END_INGESTION_JOB);
       successResponse.setResults(results);
@@ -434,5 +453,13 @@ public class IngestionJobRunner {
     return statusResponse;
   }
 
+  public void createMetadata(DataSource dataSource){
+    try{
+      // create metadata
+      metadataService.saveFromDataSource(dataSource);
+    }catch (Exception e){
+      LOGGER.error("Fail to create Metadata : {}", e);
+    }
+  }
 }
 

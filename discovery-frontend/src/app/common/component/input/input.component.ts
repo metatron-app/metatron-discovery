@@ -62,9 +62,10 @@ export class InputComponent implements OnInit, OnDestroy {
 
   @Input() public immediately: boolean = false; // 즉시 값 적용 여부
 
-  @Input() public isTrim:boolean = true;        // 공백 제거 여부
+  @Input() public isTrim: boolean = true;        // 공백 제거 여부
 
   @Input() public showClear: boolean = true;    // Clear 버튼 표시 여부 ( 현재는 search 에서만 표시 )
+  @Input() public isEnableDelete: boolean;    // Clear 버튼 표시 여부 ( default input 용 )
 
   @Input() public inputClass: string = ''; // Input Element 클래스
 
@@ -73,6 +74,8 @@ export class InputComponent implements OnInit, OnDestroy {
   @Input() public optionalClass: string = '';   // 추가적인 스타일 적용을 위한 클래스
 
   @Input() public optionalStyle: string = '';   // 추가적인 스타일 적용을 위한 스타일
+
+  @Input() public beforeChangeValue: Function;
 
   @Output('changeValue') public changeEvent: EventEmitter<number | string> = new EventEmitter();
 
@@ -88,7 +91,7 @@ export class InputComponent implements OnInit, OnDestroy {
 
   // 생성자
   constructor(protected elementRef: ElementRef,
-              protected changeDetect:ChangeDetectorRef) {
+              protected changeDetect: ChangeDetectorRef) {
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -126,7 +129,7 @@ export class InputComponent implements OnInit, OnDestroy {
     const inputNativeElm = this._inputElm.nativeElement;
     inputNativeElm.disabled = this.disabled;
     inputNativeElm.value = this.value;
-    if( 0 < this.maxLen ) {
+    if (0 < this.maxLen) {
       inputNativeElm.maxLength = this.maxLen;
     }
     if (isNullOrUndefined(this.value)) {
@@ -134,7 +137,7 @@ export class InputComponent implements OnInit, OnDestroy {
     }
 
     if ('' !== this.optionalStyle) {
-      this._styleElm.nativeElement.style = this.optionalStyle;
+      this._styleElm.nativeElement.setAttribute( 'style', this.optionalStyle );
     }
     if ('' === this.inputClass) {
       switch (this.compType) {
@@ -149,9 +152,9 @@ export class InputComponent implements OnInit, OnDestroy {
 
     this._safelyDetectChanges();
 
-    this.autoFocus && setTimeout( () => {
+    this.autoFocus && setTimeout(() => {
       inputNativeElm.focus();
-    }, 400 );
+    }, 400);
   } // function - ngAfterViewInit
 
   /**
@@ -205,11 +208,14 @@ export class InputComponent implements OnInit, OnDestroy {
    */
   protected setValue() {
     let inputValue = this._inputElm.nativeElement.value;
-    inputValue = inputValue ? ( ( this.isTrim ) ? inputValue.trim() : inputValue ) : '';
+    inputValue = inputValue ? ((this.isTrim) ? inputValue.trim() : inputValue) : '';
     if (inputValue !== this.value) {
-      if ('string' === this.valueType || ('number' === this.valueType && /^[0-9]*$/gi.test(inputValue))) {
+      if ((isNullOrUndefined(this.beforeChangeValue) || this.beforeChangeValue(inputValue))
+        && ('string' === this.valueType || ('number' === this.valueType && !isNaN(Number(inputValue))))) {
         this.value = inputValue;
         this.changeEvent.emit(this.value);
+      } else {
+        this._inputElm.nativeElement.value = this.value;
       }
     }
   } // function - setValue

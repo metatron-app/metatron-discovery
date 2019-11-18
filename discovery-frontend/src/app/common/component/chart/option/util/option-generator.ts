@@ -771,6 +771,17 @@ export namespace OptionGenerator {
     }
 
     /**
+     * E-Chart 기본 옵션값으로 ItemStyleSet 생성 - Opacity 1
+     * @returns {{normal: ItemStyleSet}}
+     */
+    export function opacity1(): ItemStyleSet {
+      return {
+        normal: { opacity : 1 },
+        emphasis: {}
+      };
+    }
+
+    /**
      * custom item 스타일 생성
      *
      * @returns {ItemStyleSet}
@@ -2038,7 +2049,7 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#6344ad",
-              transparency: 10
+              transparency: 50
             },
             size: {
               "by": "NONE",
@@ -2046,7 +2057,7 @@ export namespace OptionGenerator {
               "max": 10
             },
             outline: null,
-            clustering: true,
+            clustering: false,
             coverage: 50,
             thickness: {
               by: "NONE",

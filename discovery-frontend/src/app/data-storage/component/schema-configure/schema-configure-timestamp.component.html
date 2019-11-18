@@ -1,0 +1,29 @@
+<div class="ddp-ui-timestamp">
+  <span class="ddp-txt-timestamp">
+      <em class="ddp-icon-time2"></em>
+    {{'msg.storage.ui.timestamp.description' | translate}}
+  </span>
+  <div class="ddp-ui-setting">
+    <label class="ddp-label-radio" *ngFor="let type of timestampTypeList" (change)="onChangeSelectedTimestampType(type)">
+      <input type="radio" [checked]="selectedTimestampType === type.value" [disabled]="isFieldTimestampType(type) && isEmptyTimestampFieldList()">
+      <i class="ddp-icon-radio"></i>
+      <span class="ddp-txt-radio">{{type.label}}</span>
+    </label>
+    <!-- select box -->
+    <div class="ddp-type-selectbox" [class.ddp-disabled]="isEmptyTimestampFieldList()" [class.ddp-selected]="isShowTimestampFieldList"
+         (click)="onChangeTimestampFieldListShowFlag()" (clickOutside)="isShowTimestampFieldList = false">
+      <span class="ddp-txt-selectbox">{{isEmptySelectedTimestampField() ? ('msg.storage.ui.ph.timestamp.column' | translate) : getSlicedColumnName(selectedTimestampField)}}</span>
+      <ul class="ddp-list-selectbox ddp-selectdown">
+        <li *ngIf="isEmptyTimestampFieldList()">
+          <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+        </li>
+        <li *ngFor="let field of timestampFieldList" (click)="onChangeSelectedTimestampField(field)">
+          <a href="javascript:">
+            {{getSlicedColumnName(field)}}
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!-- //select box -->
+  </div>
+</div>

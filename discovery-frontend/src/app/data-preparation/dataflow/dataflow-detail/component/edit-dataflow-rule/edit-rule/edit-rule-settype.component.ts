@@ -54,7 +54,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
   public selectedTimestamp : string = '';
   public selectedType : string = '';
-  public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp'];
+  public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp', 'map', 'array'];
 
   public defaultIndex : number = -1;
 
@@ -271,16 +271,20 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     // 선택된 컬럼이 타임스탬프 타입이라면 new Type 셀렉트박스에서 타임스탬프를 지운다
     let hasTimestampType = false;
+    let isAllString = true;
     data.selectedList.forEach((item) => {
       if (item.type === 'TIMESTAMP') {
         hasTimestampType = true;
       }
+      if (item.type !== 'STRING') {
+        isAllString = false;
+      }
     });
 
     if (hasTimestampType) { // 타임스탬프 타입이 하나라도 있다면 splice
-
-      if (-1 !== this.typeList.indexOf('timestamp')) {
-        this.typeList.splice(this.typeList.length-1, 1);
+      var pos = this.typeList.indexOf('timestamp');
+      if (-1 !== pos ) {
+        this.typeList.splice(pos, 1);
         this.selectedType = '';
         this.prepSelectBoxComponent.selectedItem = null;
         this.isTimestamp = false;
@@ -309,6 +313,31 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     } else {
       this.isTimestamp = false;
     }
+
+    // 선택된 컬럼이 STRING인 경우에만 MAP, ARRAY로 settype 가능하다
+    if (!isAllString) {
+      var pos = this.typeList.indexOf('map');
+      if (-1 !== pos) {
+        this.typeList.splice(this.typeList.length-1, 1);
+        this.selectedType = '';
+        this.prepSelectBoxComponent.selectedItem = null;
+      }
+      pos = this.typeList.indexOf('array');
+      if (-1 !== pos) {
+        this.typeList.splice(this.typeList.length-1, 1);
+        this.selectedType = '';
+        this.prepSelectBoxComponent.selectedItem = null;
+      }
+    } else {
+      if (-1 === this.typeList.indexOf('map')) {
+        this.typeList.push('map');
+      }
+      if (-1 === this.typeList.indexOf('array')) {
+        this.typeList.push('array');
+      }
+    }
+
+    this.typeList.sort();
   }
 
   /**
@@ -374,7 +403,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    this.selectedFields = arrFields.map( item => {
+      if(item.length>2 && item.startsWith('`') && item.endsWith('`')) {
+        item = item.substring(1,item.length-1);
+      }
+      return this.fields.find( orgItem => orgItem.name === item );
+    } ).filter(field => !!field);
 
     // TYPE
     this.selectedType = data.jsonRuleString.type.toLowerCase();

@@ -1,0 +1,154 @@
+<!-- 제목 영역 -->
+<div class="ddp-icon-name">
+  <div class="ddp-ui-name2">
+    {{'msg.book.create.workbench.title' | translate}}
+    <span class="ddp-txt-info">{{'msg.comm.ui.sel.conn.description' | translate}}</span>
+    <em class="ddp-bg-order-line2-type"></em>
+  </div>
+</div>
+<!-- // 제목 영역 -->
+<!-- contents in  -->
+<div class="ddp-type-contents-in ddp-size-resize">
+  <div class="ddp-popup-dashboard">
+    <!-- 옵션 -->
+    <div class="ddp-type-top-option ddp-clear">
+      <!-- 검색 -->
+      <component-input [compType]="'search'" [placeHolder]="'msg.book.ui.conn.search.name' | translate" [value]="searchKeyword" [autoFocus]="false" [optionalClass]="'ddp-fleft'"
+                       (changeValue)="onChangeSearchKeyword($event)"></component-input>
+      <!-- //검색 -->
+      <div class="ddp-ui-rightoption">
+        <!-- form -->
+        <div class="ddp-form-label2">
+          <label class="ddp-label-type">{{'msg.bench.th.db.type' | translate}}</label>
+          <div class="ddp-wrap-dropdown">
+            <!-- select box -->
+            <component-filter-select-box [filterList]="connectionTypeList"
+                                       [selectedFilter]="selectedConnectionType"
+                                       [isEnableIcon]="false" (changedFilter)="onChangeConnectionType($event)">
+            </component-filter-select-box>
+            <!-- //select box -->
+          </div>
+        </div>
+        <!-- //form -->
+        <!-- form -->
+        <div class="ddp-form-label2">
+          <label class="ddp-label-type">{{'msg.bench.th.account.type' | translate}}</label>
+          <div class="ddp-wrap-dropdown">
+            <!-- select box -->
+            <component-filter-select-box [filterList]="authenticationTypeList"
+                                       [selectedFilter]="selectedAuthenticationType"
+                                       [isEnableIcon]="false" (changedFilter)="onChangeAuthenticationType($event)">
+            </component-filter-select-box>
+            <!-- //select box -->
+          </div>
+        </div>
+        <!-- //form -->
+      </div>
+    </div>
+    <!-- //옵션 -->
+    <div class="ddp-wrap-variable">
+      <div class="ddp-wrap-grid" >
+        <!-- view table -->
+        <div class="ddp-wrap-viewtable ddp-add">
+          <!-- 테이블 -->
+          <div class="ddp-box-viewtable">
+            <!-- gridhead -->
+            <div class="ddp-ui-gridhead">
+              <table class="ddp-table-form ddp-table-type2">
+                <colgroup>
+                  <col width="51px">
+                  <col width="*">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="15%">
+                  <col width="15%">
+                </colgroup>
+                <thead>
+                <tr>
+                  <th class="ddp-txt-center">
+                    {{'msg.comm.th.no' | translate}}
+                  </th>
+                  <th class="ddp-cursor" (click)="onChangeSort(SORT_KEY.NAME)">
+                    {{'msg.comm.th.conn' | translate}}
+                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== SORT_KEY.NAME || selectedContentSort.sort === SORT_VALUE.DEFAULT"></em>
+                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === SORT_KEY.NAME && selectedContentSort.sort === SORT_VALUE.ASC"></em>
+                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === SORT_KEY.NAME && selectedContentSort.sort === SORT_VALUE.DESC"></em>
+                  </th>
+                  <th>
+                    {{'msg.comm.th.type' | translate}}
+                  </th>
+                  <th>
+                    {{'msg.comm.th.host' | translate}}
+                  </th>
+                  <th>
+                    {{'msg.comm.th.port' | translate}}
+                  </th>
+                  <th>
+                    {{'msg.comm.th.account.type' | translate}}
+                  </th>
+                  <th class="ddp-cursor" (click)="onChangeSort(SORT_KEY.MODIFIED)">
+                    {{'msg.comm.th.updated' | translate}}
+                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== SORT_KEY.MODIFIED || selectedContentSort.sort === SORT_VALUE.DEFAULT"></em>
+                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === SORT_KEY.MODIFIED && selectedContentSort.sort === SORT_VALUE.ASC"></em>
+                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === SORT_KEY.MODIFIED && selectedContentSort.sort === SORT_VALUE.DESC"></em>
+                  </th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+            <!--// gridhead -->
+
+            <!-- gridbody -->
+            <div class="ddp-ui-gridbody">
+              <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                <colgroup>
+                  <col width="51px">
+                  <col width="*">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="15%">
+                  <col width="15%">
+                </colgroup>
+                <tbody>
+                <tr *ngFor="let connection of connectionList" [class.ddp-selected]="isSelectedConnection(connection)" (click)="onChangeSelectedConnection(connection)">
+                  <td class="ddp-txt-center">{{connection.num}}</td>
+                  <td>
+                    <div class=" ddp-txt-long">
+                      {{connection.name}}
+                      <span class="ddp-txt-colortype" *ngIf="connection.description">- {{connection.description}}</span>
+                    </div>
+                  </td>
+                  <td>{{getConvertedConnectionTypeLabel(connection.implementor)}}</td>
+                  <td>{{connection.hostname}}</td>
+                  <td>{{connection.port}}</td>
+                  <td>{{getConvertedAuthenticationTypeLabel(connection.authenticationType)}}</td>
+                  <td>{{connection.modifiedTime  | date:'yyyy-MM-dd'}}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <!--// gridbody -->
+          </div>
+          <!-- //테이블 -->
+          <!-- 더보기 -->
+          <div class="ddp-box-add-link3" [class.ddp-disabled]="!isMoreContents()" (click)="onClickMoreContents()">
+            <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+          </div>
+          <!-- //더보기 -->
+        </div>
+        <!-- //view table -->
+      </div>
+    </div>
+  </div>
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isNotEmptySelectedConnection()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>
+<!-- //contents in  -->
+

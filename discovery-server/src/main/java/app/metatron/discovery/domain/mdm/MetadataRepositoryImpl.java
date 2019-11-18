@@ -16,6 +16,9 @@ package app.metatron.discovery.domain.mdm;
 
 import com.google.common.collect.Lists;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPQLQuery;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -37,8 +40,8 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     super(Metadata.class);
   }
 
-  public Page<Metadata> searchMetadatas(Metadata.SourceType sourceType, String catalogId, String tag, String nameContains,
-                                      String searchDateBy, DateTime from, DateTime to, Pageable pageable) {
+  public Page<Metadata> searchMetadatas(List<Metadata.SourceType> sourceType, String catalogId, String tag, String nameContains,
+                                        String searchDateBy, DateTime from, DateTime to, Pageable pageable) {
 
     QMetadata qMetadata = QMetadata.metadata;
     QTagDomain qTagDomain = QTagDomain.tagDomain;
@@ -46,13 +49,46 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     JPQLQuery<Metadata> query;
     if(StringUtils.isNotEmpty(tag)) {
       query = from(qMetadata, qTagDomain).select(qMetadata)
-          .where(qMetadata.id.eq(qTagDomain.domainId))
-          .where(qTagDomain.tag.name.eq(tag));
+              .where(qMetadata.id.eq(qTagDomain.domainId))
+              .where(qTagDomain.tag.name.eq(tag));
     } else {
       query = from(qMetadata);
     }
 
     query.where(MetadataPredicate.searchList(sourceType, catalogId, null, nameContains, searchDateBy, from, to));
+
+    Long total = query.fetchCount();
+
+    List<Metadata> contents;
+    if(total > pageable.getOffset()) {
+      query = getQuerydsl().applyPagination(pageable, query);
+      contents = query.fetch();
+    } else {
+      contents = Lists.newArrayList();
+    }
+
+    return new PageImpl<>(contents, pageable, total);
+
+  }
+
+  public Page<Metadata> searchMetadatas(String keyword, List<Metadata.SourceType> sourceType, String catalogId, String tag,
+                                        String nameContains, String descContains, List<String> userIds,
+                                        String searchDateBy, DateTime from, DateTime to, Pageable pageable) {
+
+    QMetadata qMetadata = QMetadata.metadata;
+    QTagDomain qTagDomain = QTagDomain.tagDomain;
+
+    JPQLQuery<Metadata> query;
+    if(StringUtils.isNotEmpty(tag)) {
+      query = from(qMetadata, qTagDomain).select(qMetadata)
+              .where(qMetadata.id.eq(qTagDomain.domainId))
+              .where(qTagDomain.tag.name.eq(tag));
+    } else {
+      query = from(qMetadata);
+    }
+
+    query.where(MetadataPredicate.searchList(keyword, sourceType, catalogId, nameContains, descContains,
+            userIds, searchDateBy, from, to));
 
     Long total = query.fetchCount();
 
@@ -74,7 +110,7 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     QMetadataSource qMetadataSource = qMetadata.source;
 
     JPQLQuery<Metadata> query = from(qMetadata).join(qMetadataSource).fetchJoin()
-                                               .where(qMetadataSource.sourceId.eq(sourceId));
+            .where(qMetadataSource.sourceId.eq(sourceId));
 
     if(StringUtils.isNotEmpty(schema)) {
       query.where(qMetadataSource.schema.eq(schema));
@@ -93,8 +129,37 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
     QMetadataSource qMetadataSource = qMetadata.source;
 
     JPQLQuery query = from(qMetadata).distinct().join(qMetadataSource).fetchJoin()
-                                               .where(qMetadataSource.sourceId.in(sourceIds));
+            .where(qMetadataSource.sourceId.in(sourceIds));
 
     return query.fetch();
+  }
+
+  @Override
+  public List<Metadata> findByName(String name) {
+    QMetadata qMetadata = QMetadata.metadata;
+
+    JPQLQuery query = from(qMetadata).distinct().where(qMetadata.name.eq(name));
+
+    return query.fetch();
+  }
+
+  @Override
+  public List<Metadata> findById(String id) {
+    QMetadata qMetadata = QMetadata.metadata;
+
+    JPQLQuery query = from(qMetadata).distinct().where(qMetadata.id.eq(id));
+
+    return query.fetch();
+  }
+
+  @Override
+  public List<MetadataStatsDto> countBySourceType() {
+    NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "count");
+    QMetadata qMetadata = QMetadata.metadata;
+
+    return from(qMetadata)
+            .select(Projections.constructor(MetadataStatsDto.class, qMetadata.sourceType, qMetadata.sourceType.count().as(aliasCount)))
+            .groupBy(qMetadata.sourceType)
+            .fetch();
   }
 }

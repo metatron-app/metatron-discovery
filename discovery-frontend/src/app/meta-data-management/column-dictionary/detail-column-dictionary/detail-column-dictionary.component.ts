@@ -27,9 +27,16 @@ import {FieldFormatType, LogicalType} from '../../../domain/datasource/datasourc
 import * as _ from 'lodash';
 import {LinkedMetadataComponent} from '../../component/linked-metadata-columns/linked-metadata.component';
 import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {Location} from '@angular/common';
+import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'app-detail-column-dictionary',
+  styles: [
+    ':host /deep/ .sys-desc-input { padding: 0 0 0 0 !important;}',
+    ':host /deep/ .sys-desc-input input { padding-right : 32px !important;}',
+    ':host /deep/ .sys-desc-input .ddp-input-apply .ddp-icon-apply { display: block !important; }',
+  ],
   templateUrl: './detail-column-dictionary.component.html',
 })
 export class DetailColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
@@ -115,6 +122,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   constructor(
     private _columnDictionaryService: ColumnDictionaryService,
     private _activatedRoute: ActivatedRoute,
+    private _location: Location,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -151,6 +159,12 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // 이름 변경 모드
+  public changeLogicalNameMode() {
+    this.logicalNameEditFl = true;
+    this.reLogicalName = this.columnDictionary.logicalName;
+  }
+
   /**
    * 컬럼 사전 제거
    */
@@ -163,7 +177,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
       Alert.success(this.translateService.instant('msg.metadata.ui.dictionary.delete.success',
         {value: this.columnDictionary.logicalName}));
       // 컬럼 사전 목록으로 돌아가기
-      this.router.navigate(['/management/metadata/column-dictionary']);
+      this._location.back();
     }).catch(error => this.commonExceptionHandler(error));
   }
 
@@ -182,6 +196,10 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public isSelectedLogicalType(type: any): boolean {
     return this.columnDictionary.logicalType === type;
+  }
+
+  public isEmptyDictionaryFormat(): boolean {
+    return _.isNil(this.columnDictionary.format) || StringUtil.isEmpty(this.columnDictionary.format.format);
   }
 
   /**
@@ -212,7 +230,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onClickPrevButton(): void {
     // 컬럼 사전 목록 화면으로 이동
-    this.router.navigate(['/management/metadata/column-dictionary']);
+    this.router.navigate(['management/metadata/column-dictionary']).then();
   }
 
   /**
@@ -298,6 +316,17 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   }
 
   /**
+   * Changed datasource name event
+   * @param {string} text
+   */
+  public onChangedSourceLogicalName(text: string): void {
+    // set rename text
+    this.reLogicalName = text;
+    // rename
+    this.onClickUpdateLogicalName();
+  }
+
+  /**
    * 연결된 메타데이터 목록 더보기 클릭 이벤트
    */
   public onClickUsedInMetadataMoreList(): void {
@@ -326,25 +355,23 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 논리명이 중복인지 확인
-    this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.reLogicalName.trim()).
-      then((result) => {
-        // 중복
-        if (result['duplicated']) {
-          // alert
-          Alert.warning(this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.duplicated',
-            {value: this.reLogicalName.trim()}));
-          // 로딩 hide
-          this.loadingHide();
-        } else {
-          // edit flag
-          this.logicalNameEditFl = false;
-          // blur
-          // this.logicalNameElement.nativeElement.blur();
-          // 컬럼 사전 업데이트
-          this._updateColumnDictionary({logicalName: this.reLogicalName.trim()});
-        }
-      }).
-      catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.reLogicalName.trim()).then((result) => {
+      // 중복
+      if (result['duplicated']) {
+        // alert
+        Alert.warning(this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.duplicated',
+          {value: this.reLogicalName.trim()}));
+        // 로딩 hide
+        this.loadingHide();
+      } else {
+        // edit flag
+        this.logicalNameEditFl = false;
+        // blur
+        // this.logicalNameElement.nativeElement.blur();
+        // 컬럼 사전 업데이트
+        this._updateColumnDictionary({logicalName: this.reLogicalName.trim()});
+      }
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -395,20 +422,21 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   /**
    * 설명 수정 클릭 이벤트
    */
-  public onClickUpdateDescription(): void {
+  public onClickUpdateDescription(inputVal): void {
     // 설명 자리수 계산
-    if (CommonUtil.getByte(this.reDesc.trim()) > 150) {
-      // alert
+    if (CommonUtil.getByte(inputVal.trim()) > 450) {
       Alert.warning(this.translateService.instant('msg.metadata.ui.dictionary.create.valid.desc.length'));
-      // return
+      const tempVal = this.reDesc;
+      this.reDesc = '';
+      this.safelyDetectChanges();
+      this.reDesc = tempVal;
+      this.safelyDetectChanges();
       return;
     }
     // edit flag
     this.descEditFl = false;
-    // blur
-    // this.descElement.nativeElement.blur();
-    // 컬럼 사전 업데이트
-    this._updateColumnDictionary({description: this.reDesc.trim()});
+    this.reDesc = inputVal.trim();
+    this._updateColumnDictionary({description: this.reDesc});
   }
 
   /**
@@ -520,12 +548,13 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 조회
-    this._columnDictionaryService.getCodeTableInColumnDictionary(this._columnDictionaryId).then((result) => {
-      // 코드테이블
-      this.columnDictionary.codeTable = result;
-      // 로딩 hide
-      this.loadingHide();
-    }).catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getCodeTableInColumnDictionary(this._columnDictionaryId)
+      .then((result) => {
+        // 코드테이블
+        this.columnDictionary.codeTable = result;
+        // 로딩 hide
+        this.loadingHide();
+      }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**

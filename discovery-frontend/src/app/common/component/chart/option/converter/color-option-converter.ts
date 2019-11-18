@@ -505,7 +505,7 @@ export class ColorOptionConverter {
       }
     } else {
       // symbol 타입 , cluster 사용일 경우
-      if( uiOption.layers[layerIndex].type == MapLayerType.SYMBOL && uiOption.layers[layerIndex]['clustering'] ){
+      if( uiOption.layers[layerIndex].type == MapLayerType.CLUSTER && uiOption.layers[layerIndex]['clustering'] ){
         alias = 'count';
       }
     }
@@ -530,7 +530,7 @@ export class ColorOptionConverter {
     }
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (maxValue - minValue) / (colorListLength + 1);
+    const addValue = (maxValue - minValue) / (colorListLength);
 
     let shape;
 

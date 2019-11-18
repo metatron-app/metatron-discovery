@@ -627,7 +627,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    */
   public onEditRulesBtnClicked() {
     this.gridComponent.destroy();
-    this.router.navigate([`/management/datapreparation/dataflow/${this.dataflow.dfId}/rule/${this.selectedDataSet.dsId}`]);
+    this.router.navigate([`/management/datapreparation/dataflow/${this.dataflow.dfId}/rule/${this.selectedDataSet.dsId}`], {skipLocationChange: true});
   }
 
   /**
@@ -694,7 +694,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       ];
 
       // EXCEL
-      if (PreparationCommonUtil.getFileNameAndExtension(dataset.filenameBeforeUpload)[1].toUpperCase() === 'EXCEL') {
+      var re = /.+\.xlsx?$/i;
+      if (re.test(dataset.filenameBeforeUpload) === true) {
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 

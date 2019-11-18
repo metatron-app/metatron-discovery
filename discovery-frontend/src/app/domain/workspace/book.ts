@@ -15,8 +15,9 @@
 /**
  * Created by LDL on 2017. 6. 29..
  */
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 import {ImplementorType} from '../dataconnection/dataconnection';
+
 /**
  * Created by LDL on 2017. 6. 16..
  */
@@ -45,6 +46,7 @@ export class contents {
   public dashboard: number;
   public connType: ImplementorType;
   public connName: string;
+  public connValid: boolean;
 }
 
 // 네비게이션 북 트리용

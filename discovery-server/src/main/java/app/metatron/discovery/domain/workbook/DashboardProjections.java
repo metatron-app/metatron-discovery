@@ -84,6 +84,9 @@ public class DashboardProjections extends BaseProjections {
     UserProfile getModifiedBy();
 
     DateTime getModifiedTime();
+
+    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), @dashBoardService.backingDataSource(target.dataSources, target.workBook))}")
+    Object getDataSources();
   }
 
   /**
@@ -142,7 +145,8 @@ public class DashboardProjections extends BaseProjections {
 
     String getTemporaryId();
 
-    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), target.dataSources)}")
+    //@Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), target.dataSources)}")
+    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.datasource.DataSourceProjections$ForDetailProjection), @dashBoardService.backingDataSource(target.dataSources, target.workBook))}")
     Object getDataSources();
 
 //    @Value("#{T(app.metatron.discovery.util.ProjectionUtils).toListResource(@projectionFactory, T(app.metatron.discovery.domain.workbook.widget.WidgetProjections$ForDetailViewProjection), target.widgets)}")
@@ -162,4 +166,33 @@ public class DashboardProjections extends BaseProjections {
     DateTime getModifiedTime();
   }
 
+  /**
+   *
+   */
+  @Projection(name = "forMetadataThumbnailView", types = {DashBoard.class})
+  public interface ForMetadataThumbnailViewProjection {
+    String getId();
+
+    String getName();
+
+    String getDescription();
+
+    String getImageUrl();
+
+    @Value("#{T(app.metatron.discovery.util.HibernateUtils).unproxy(target.workBook)}")
+    WorkBook getWorkbook();
+
+    @Value("#{@metadataService.getWorkspacePermission(target.workBook.workspace, T(app.metatron.discovery.domain.workspace.WorkspacePermissions).PERM_WORKSPACE_VIEW_WORKBOOK)}")
+    Boolean getHasPermission();
+
+    DateTime getCreatedTime();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+
+    DateTime getModifiedTime();
+  }
 }

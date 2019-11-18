@@ -1,0 +1,28 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div [ngClass]="['ddp-ui-contents-det']">
+  <!-- option -->
+  <div class="ddp-list-option ddp-clear">
+    <!-- tab -->
+    <div class="ddp-wrap-boxtab">
+      <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isTaskTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.TASK)">Task</a>
+      <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isSupervisorTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.SUPERVISOR)">Supervisor</a>
+      <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isRemoteWorkerTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.REMOTE_WORKER)">Middle Manager</a>
+    </div>
+  </div>
+  <!-- //option -->
+  <ingestion-task *ngIf="isTaskTab"></ingestion-task>
+  <ingestion-supervisor *ngIf="isSupervisorTab"></ingestion-supervisor>
+  <ingestion-worker *ngIf="isRemoteWorkerTab"></ingestion-worker>
+</div>

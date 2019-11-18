@@ -1,3 +1,5 @@
+import {SourceType} from "../../../domain/meta-data-management/metadata";
+
 /**
  * Objects to be shared by the datasource and metadata
  */
@@ -45,12 +47,15 @@ export namespace Type {
     PHONE_NUMBER = 'PHONE_NUMBER', // Phone Number
     URL = 'URL',
     HTTP_CODE = 'HTTP_CODE',
-
     ////////////////////////////////////////////////////////////////////////////
     // Value to be used only on View
     ////////////////////////////////////////////////////////////////////////////
     ALL = 'ALL',
-    USER_DEFINED = 'user_defined'
+    USER_DEFINED = 'user_defined',
+    ////////////////////////////////////////////////////////////////////////////
+    // Value to be used only metadata
+    ////////////////////////////////////////////////////////////////////////////
+    LONG = 'LONG'
   }
 
   export enum FieldFormat {
@@ -60,5 +65,15 @@ export namespace Type {
     GEO_POINT = 'geo_point',
     GEO_LINE = 'geo_line',
     GEO_POLYGON = 'geo_polygon'
+  }
+  
+  export enum MetadataSource {  // TODO 추후 동적필터가 들어오게되면 제거 필요
+    ENGINE = 'ENGINE',
+    JDBC = 'JDBC',
+    STAGEDB = 'STAGEDB',
+    ////////////////////////////////////////////////////////////////////////////
+    // Value to be used only on View
+    ////////////////////////////////////////////////////////////////////////////
+    ALL = 'ALL'
   }
 }

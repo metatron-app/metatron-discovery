@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.List;
@@ -37,8 +38,10 @@ import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.mdm.catalog.Catalog;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.tag.Tag;
 
 @Entity
+@Audited(withModifiedFlag = true)
 @Table(name="mdm_metadata")
 public class Metadata extends AbstractHistoryEntity implements MetatronDomain<String> {
 
@@ -85,7 +88,7 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   /**
    * Linked catalog
    */
-  @ManyToMany(cascade = {CascadeType.MERGE})
+  @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
   @JoinTable(name = "catalog_metadata",
       joinColumns = @JoinColumn(name = "meta_id", referencedColumnName = "id"),
       inverseJoinColumns = @JoinColumn(name = "catalog_id", referencedColumnName = "id"))
@@ -93,7 +96,13 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   private List<Catalog> catalogs;
 
   @Transient
-  List<String> tags;
+  List<Tag> tags;
+
+  @Transient
+  boolean favorite;
+
+  @Transient
+  Double popularity;
 
   public Metadata() {
   }
@@ -238,12 +247,28 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
     this.catalogs = catalogs;
   }
 
-  public List<String> getTags() {
+  public List<Tag> getTags() {
     return tags;
   }
 
-  public void setTags(List<String> tags) {
+  public void setTags(List<Tag> tags) {
     this.tags = tags;
+  }
+
+  public boolean isFavorite() {
+    return favorite;
+  }
+
+  public void setFavorite(boolean favorite) {
+    this.favorite = favorite;
+  }
+
+  public Double getPopularity() {
+    return popularity;
+  }
+
+  public void setPopularity(Double popularity) {
+    this.popularity = popularity;
   }
 
   @Override
@@ -257,7 +282,7 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   }
 
   public enum SourceType {
-    ENGINE, JDBC, STAGEDB
+    ENGINE, JDBC, STAGEDB, ETC
   }
 
 }

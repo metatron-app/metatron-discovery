@@ -17,16 +17,20 @@ package app.metatron.discovery.domain.mdm.source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceProjections;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataController;
 import app.metatron.discovery.domain.workbook.DashboardRepository;
+import app.metatron.discovery.util.ProjectionUtils;
 
 @Component
 @Transactional(readOnly = true)
@@ -46,6 +50,9 @@ public class MetaSourceService {
   @Autowired
   DashboardRepository dashboardRepository;
 
+  @Autowired
+  ProjectionFactory projectionFactory;
+
   public List<MetadataSource> findMetadataSourcesBySourceId(String type, String sourceId) {
     return null;
   }
@@ -58,14 +65,32 @@ public class MetaSourceService {
    * @return
    */
   public Object getSourcesBySourceId(Metadata.SourceType type, String sourceId) {
-
     switch (type) {
       case ENGINE:
         return dataSourceRepository.findOne(sourceId);
       case JDBC:
         return dataConnectionRepository.findOne(sourceId);
     }
-
     return null;
+  }
+
+  /**
+   * Gets sources by source id with projection.
+   *
+   * @param type     the type
+   * @param sourceId the source id
+   * @return the sources by source id with projection
+   */
+  public Object getSourcesBySourceIdWithProjection(Metadata.SourceType type, String sourceId) {
+    Object source = null;
+    switch (type) {
+      case ENGINE:
+        DataSource dataSource = dataSourceRepository.findOne(sourceId);
+        return ProjectionUtils.toResource(projectionFactory, DataSourceProjections.ForDetailProjection.class, dataSource);
+      case JDBC:
+        source = dataConnectionRepository.findOne(sourceId);
+        break;
+    }
+    return source;
   }
 }

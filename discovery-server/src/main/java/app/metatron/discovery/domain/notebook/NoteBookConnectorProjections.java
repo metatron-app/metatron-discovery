@@ -40,6 +40,8 @@ public class NoteBookConnectorProjections {
 
     Integer getPort();
 
+    String getUrl();
+
     @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
     UserProfile getCreatedBy();
 

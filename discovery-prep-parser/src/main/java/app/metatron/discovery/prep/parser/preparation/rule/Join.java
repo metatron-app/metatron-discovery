@@ -14,6 +14,12 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule;
 
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.INNER;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.INVALID;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.LEFT;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.OUTER;
+import static app.metatron.discovery.prep.parser.preparation.rule.Join.JOIN_TYPE.RIGHT;
+
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 
 public class Join implements Rule, Rule.Factory {
@@ -24,10 +30,34 @@ public class Join implements Rule, Rule.Factory {
   Expression condition;
   String joinType;
 
+  public enum JOIN_TYPE {
+    INNER,
+    LEFT,
+    RIGHT,
+    OUTER,
+    INVALID
+  }
+
+  public static JOIN_TYPE getJoinTypeEnum(String joinType) {
+    joinType = joinType.replace("'", "").toUpperCase();
+
+    if (joinType.equals(INNER.name())) {
+      return INNER;
+    } else if (joinType.equals(LEFT.name())) {
+      return LEFT;
+    } else if (joinType.equals(RIGHT.name())) {
+      return RIGHT;
+    } else if (joinType.equals(OUTER.name())) {
+      return OUTER;
+    }
+    return INVALID;
+  }
+
   public Join() {
   }
 
-  public Join(Expression dataset2, Expression leftSelectCol, Expression rightSelectCol, Expression condition, String joinType) {
+  public Join(Expression dataset2, Expression leftSelectCol, Expression rightSelectCol, Expression condition,
+          String joinType) {
     this.dataset2 = dataset2;
     this.leftSelectCol = leftSelectCol;
     this.rightSelectCol = rightSelectCol;
@@ -88,11 +118,11 @@ public class Join implements Rule, Rule.Factory {
   @Override
   public String toString() {
     return "Join{" +
-        "dataset2=" + dataset2 +
-        ", leftSelectCol=" + leftSelectCol +
-        ", condition=" + condition +
-        ", rightSelectCol=" + rightSelectCol +
-        ", joinType='" + joinType + '\'' +
-        '}';
+            "dataset2=" + dataset2 +
+            ", leftSelectCol=" + leftSelectCol +
+            ", condition=" + condition +
+            ", rightSelectCol=" + rightSelectCol +
+            ", joinType='" + joinType + '\'' +
+            '}';
   }
 }

@@ -14,31 +14,18 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
-import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.PrepUtil;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
-import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.joda.time.DateTime;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -50,15 +37,31 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
 
 @Component
 public class TeddyImpl {
+
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyImpl.class);
 
   Map<String, RevisionSet> revisionSetCache = Maps.newHashMap();
@@ -72,7 +75,7 @@ public class TeddyImpl {
   @Autowired
   PrepProperties prepProperties;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   public void checkNonAlphaNumericalColNames(String dsId) throws IllegalColumnNameForHiveException {
@@ -142,7 +145,8 @@ public class TeddyImpl {
       String jsonRuleString = rev.get(i).jsonRuleString;
 
       try {
-        nextDf = apply(newRev.get(-1), ruleString, jsonRuleString);   // apply trailing rules of the original revision into the new revision.
+        nextDf = apply(newRev.get(-1), ruleString,
+                jsonRuleString);   // apply trailing rules of the original revision into the new revision.
       } catch (Exception e) {
         nextDf = new DataFrame(newRev.get(-1));
         nextDf.setRuleString(ruleString);
@@ -154,8 +158,10 @@ public class TeddyImpl {
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString, String jsonRuleString, boolean suppress) {
-    Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
+  public DataFrame append(String dsId, int stageIdx, String ruleString, String jsonRuleString,
+          boolean suppress) {
+    Revision rev = getCurRev(
+            dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
     DataFrame newDf = null;
     boolean suppressed = false;
@@ -181,8 +187,10 @@ public class TeddyImpl {
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
-    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
-    newRev.setCurStageIdx(rev.getCurStageIdx() + 1);                        // APPEND's result grid is the new appended df
+    newRev.saveSlaveDsNameMap(
+            getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
+    newRev.setCurStageIdx(rev.getCurStageIdx()
+            + 1);                        // APPEND's result grid is the new appended df
 
     addRev(dsId, newRev);
     return newDf;
@@ -198,7 +206,8 @@ public class TeddyImpl {
     return rev.get(stageIdx); // if null, get curStage
   }
 
-  private DataFrame apply(DataFrame df, String ruleString, String jsonRuleString) throws TeddyException {
+  private DataFrame apply(DataFrame df, String ruleString, String jsonRuleString)
+          throws TeddyException {
     List<DataFrame> slaveDfs = null;
 
     List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
@@ -240,18 +249,18 @@ public class TeddyImpl {
     return revisionSetCache.get(dsId).isRedoable();
   }
 
-  public void delete(String dsId, int stageIdx) throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
-    Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the delete target.
+  public void delete(String dsId, int stageIdx) throws TransformExecutionFailedException, TransformTimeoutException {
+    Revision rev = getCurRev(dsId);                 // rule apply == revision generate, so always use the last one.
+    Revision newRev = new Revision(rev, stageIdx);  // apply previous rules until the delete target.
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
     addRev(dsId, newRev);
   }
 
-  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString) throws TeddyException {    // used in DELETE only
-    Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the update target.
+  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString) throws TeddyException {
+    Revision rev = getCurRev(dsId);                 // rule apply == revision generate, so always use the last one.
+    Revision newRev = new Revision(rev, stageIdx);  // apply previous rules until the update target.
 
     // replace with the new, updated DF
     DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString, jsonRuleString);
@@ -265,18 +274,25 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, Integer columnCount, String dsName) {
+  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String quoteChar,
+          Integer columnCount, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+    Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
     int samplingRows = prepProperties.getSamplingLimitRows();
 
     String extensionType = FilenameUtils.getExtension(strUri);
     switch (extensionType) {
       case "json":
-        df.setByGridWithJson(PrepJsonUtil.parseJson(strUri, samplingRows, columnCount, hadoopConf));
+        df.setByGrid(PrepJsonUtil.parse(strUri, samplingRows, columnCount, hadoopConf));
         break;
       default: // csv
-        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, samplingRows, columnCount, hadoopConf));
+        PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+                .withDelim(delimiter)
+                .withQuoteChar(quoteChar)
+                .withLimitRows(samplingRows)
+                .withManualColCnt(columnCount)
+                .withHadoopConf(hadoopConf);
+        df.setByGrid(csvUtil.parse(strUri));
     }
 
     return createStage0(dsId, df);
@@ -294,10 +310,10 @@ public class TeddyImpl {
     DataConnection hiveConnection = new DataConnection();
     StageDBConnection stageDB = storageProperties.getStagedb();
     hiveConnection.setHostname(stageDB.getHostname());
-    hiveConnection.setPort(    stageDB.getPort());
+    hiveConnection.setPort(stageDB.getPort());
     hiveConnection.setUsername(stageDB.getUsername());
     hiveConnection.setPassword(stageDB.getPassword());
-    hiveConnection.setUrl(     stageDB.getUrl());
+    hiveConnection.setUrl(stageDB.getUrl());
     hiveConnection.setImplementor("HIVE");
 
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(hiveConnection);
@@ -307,51 +323,52 @@ public class TeddyImpl {
     try {
       conn = jdbcDataAccessor.getConnection();
       stmt = conn.createStatement();
+      stmt.setFetchSize(prepProperties.getSamplingMaxFetchSize());
     } catch (SQLException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, e);
+      throw PrepException.create(PREP_TEDDY_ERROR_CODE, e);
     }
 
-    DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    DataFrame df = new DataFrame(dsName);   // dsName is for join/union to display the dataset name instead of id)
 
     try {
       df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
-    } catch (JdbcTypeNotSupportedException e) {
-      LOGGER.error("loadHiveDataset(): JdbcTypeNotSupportedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
-    } catch (JdbcQueryFailedException e) {
-      LOGGER.error("loadHiveDataset(): JdbcQueryFailedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
+    } catch (TeddyException e) {
+      LOGGER.error("loadStageDBDataset(): TeddyException occurred", e);
+      throw PrepException.fromTeddyException(e);
     }
 
     return createStage0(dsId, df);
   }
 
-  public DataFrame loadJdbcDataset(String dsId, DataConnection jdbcDataConnection, String dbName, String sql,
-                                   String dsName) throws PrepException {
-    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+  public DataFrame loadJdbcDataFrame(DataConnection dataConnection, String sql, int limit, String dsName) {
+    JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(dataConnection);
     Connection conn;
     Statement stmt = null;
 
     try {
       conn = jdbcDataAccessor.getConnection();
       stmt = conn.createStatement();
+      stmt.setFetchSize(prepProperties.getSamplingMaxFetchSize());
     } catch (SQLException e) {
       e.printStackTrace();
     }
 
-    DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    DataFrame df = new DataFrame(dsName);   // dsName is for join/union to display the dataset name instead of id)
 
     try {
-      df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
-    } catch (JdbcTypeNotSupportedException e) {
-      LOGGER.error("loadContentsByImportedJdbc(): JdbcTypeNotSupportedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
-    } catch (JdbcQueryFailedException e) {
-      LOGGER.error("loadContentsByImportedJdbc(): JdbcQueryFailedException occurred", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_QUERY_FAILED);
+      df.setByJDBC(stmt, sql, limit);
+    } catch (TeddyException e) {
+      LOGGER.error("loadJdbaDataFrame(): TeddyException occurred", e);
+      throw PrepException.fromTeddyException(e);
     }
 
+    return df;
+  }
+
+  public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String sql, String dsName)
+          throws PrepException {
+    DataFrame df = loadJdbcDataFrame(dataConnection, sql, prepProperties.getSamplingLimitRows(), dsName);
     return createStage0(dsId, df);
   }
 
@@ -403,63 +420,92 @@ public class TeddyImpl {
     return true;
   }
 
+  // Applying "header" is the default.
+  // In cases of below, we don't do that.
+  // 4. The type of column name is not a string. (Datasets from like JDBC, Engine, etc.)
+  // 1. A null or empty column name.
+  // 2. A column that's name started with a number.
+  // 3. The length of the column name is all the same to it's column values. (This needs some efforts.)
+
+  public boolean shouldApplyHeaderRule(DataFrame df) {
+    if (df.rows.size() <= 1) {
+      return false;
+    }
+
+    Row row = df.rows.get(0);
+    for (int colno = 0; colno < df.getColCnt(); colno++) {
+      if (df.getColType(colno) != ColumnType.STRING) {
+        return false;
+      }
+
+      String col = (String) row.get(colno);
+      if (col == null || col.length() == 0) {
+        return false;
+      }
+
+      if (Character.isDigit(((String) col).charAt(0))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   // Get header and settype rule strings via inspecting 100 rows.
   public List<String> getAutoTypingRules(DataFrame df) throws TeddyException {
     String[] ruleStrings = new String[3];
-    List<String> setTypeRules = new ArrayList<>();
-    List<String> columnNames = new ArrayList<>(df.colNames);
-    List<ColumnType> columnTypes = new ArrayList<>();
-    List<ColumnType> columnTypesRow0 = new ArrayList<>();
-    List<String> timestampStyles = new ArrayList<>();
+    List<String> setTypeRules = new ArrayList();
+    List<String> colNames = new ArrayList(df.colNames);
+    List<ColumnType> colTypes = new ArrayList();
+    List<ColumnType> columnTypesRow0 = new ArrayList();
+    List<String> formats = new ArrayList();
 
-    if(df.colCnt == 0)
+    if (df.colCnt == 0) {
       df.colCnt = df.rows.get(0).objCols.size();
-
-    for(int i=0; i<df.colCnt; i++) {
-      //각 컬럼마다 100개의 row를 검색하여 Type, 0번 row의 Type, TimestampStyle을 확인.
-      guessColTypes(df, i, columnTypes, columnTypesRow0, timestampStyles);
     }
 
-    //If all column types of row 0 elements is String and predicted column types is not all String.
-    //Then add Header rule and change column name.
-    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
-        Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt && looksLikeHeadered(df)) {
+    for (int i = 0; i < df.colCnt; i++) {
+      guessColTypes(df, i, colTypes, columnTypesRow0, formats);
+    }
+
+    if (shouldApplyHeaderRule(df)) {
       String ruleString = "header rownum: 1";
 
       setTypeRules.add(ruleString);
-      columnNames.clear();
+      colNames.clear();
 
-      DataFrame newDf = dataFrameService.applyRule(df, ruleString);
+      DataFrame newDf = dataFrameService.applyRule(df, ruleString, null);
 
-      columnNames.addAll(newDf.colNames);
+      colNames.addAll(newDf.colNames);
     }
-    //Boolean, Long, Double 룰스트링 만들기.(Timestamp는 format 문제로 개별 추가)
+
+    // Build rule strings for Boolean, Long, Double types.
     ruleStrings[0] = "settype col: ";
     ruleStrings[1] = "settype col: ";
     ruleStrings[2] = "settype col: ";
 
-    //각 컬럼의 type에 따라 rulestring에 추가.
-    for(int i = 0; i < df.colCnt; i++) {
-      if(columnTypes.get(i) == ColumnType.BOOLEAN)
-        ruleStrings[0] = ruleStrings[0] + "`" + columnNames.get(i) + "`, ";
-      else if(columnTypes.get(i) == ColumnType.LONG)
-        ruleStrings[1] = ruleStrings[1] + "`" + columnNames.get(i) + "`, ";
-      else if(columnTypes.get(i) == ColumnType.DOUBLE)
-        ruleStrings[2] = ruleStrings[2] + "`" + columnNames.get(i) + "`, ";
-      else if(columnTypes.get(i) == ColumnType.TIMESTAMP)
-        setTypeRules.add("settype col: `" + columnNames.get(i) + "` type: Timestamp format: '" + timestampStyles.get(i) + "'");
+    for (int i = 0; i < df.colCnt; i++) {
+      if (colTypes.get(i) == ColumnType.BOOLEAN) {
+        ruleStrings[0] = ruleStrings[0] + "`" + colNames.get(i) + "`, ";
+      } else if (colTypes.get(i) == ColumnType.LONG) {
+        ruleStrings[1] = ruleStrings[1] + "`" + colNames.get(i) + "`, ";
+      } else if (colTypes.get(i) == ColumnType.DOUBLE) {
+        ruleStrings[2] = ruleStrings[2] + "`" + colNames.get(i) + "`, ";
+      } else if (colTypes.get(i) == ColumnType.TIMESTAMP) {
+        setTypeRules.add("settype col: `" + colNames.get(i) + "` type: Timestamp format: '" + formats.get(i) + "'");
+      }
     }
 
     //생선된 rulestring을 settypeRules에 추가.
-    if(ruleStrings[0].length() > 13) {
+    if (ruleStrings[0].length() > 13) {
       ruleStrings[0] = ruleStrings[0].substring(0, ruleStrings[0].length() - 2) + " type: Boolean";
       setTypeRules.add(ruleStrings[0]);
     }
-    if(ruleStrings[1].length() > 13) {
+    if (ruleStrings[1].length() > 13) {
       ruleStrings[1] = ruleStrings[1].substring(0, ruleStrings[1].length() - 2) + " type: Long";
       setTypeRules.add(ruleStrings[1]);
     }
-    if(ruleStrings[2].length() > 13) {
+    if (ruleStrings[2].length() > 13) {
       ruleStrings[2] = ruleStrings[2].substring(0, ruleStrings[2].length() - 2) + " type: Double";
       setTypeRules.add(ruleStrings[2]);
     }
@@ -467,7 +513,8 @@ public class TeddyImpl {
   }
 
   // Guess column types via inspecting 100 rows.
-  private void guessColTypes(DataFrame df, int colNo, List<ColumnType> columnTypes, List<ColumnType> columnTypesrow0, List<String> timestampStyles) {
+  private void guessColTypes(DataFrame df, int colNo, List<ColumnType> colTypes, List<ColumnType> columnTypesrow0,
+          List<String> formats) {
     List<ColumnType> columnTypeGuess = new ArrayList<>();
     List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
     ColumnType columnType = ColumnType.STRING;
@@ -475,10 +522,9 @@ public class TeddyImpl {
     int maxCount;
     int maxRow = df.rows.size() < 100 ? df.rows.size() : 100;
 
-    //0번부터 99번까지 첫 100개의 row를 검사.
-    for(int i = 0; i<maxRow; i++) {
+    for (int i = 0; i < maxRow; i++) {
       //null check
-      if(df.rows.get(i).objCols.get(colNo) == null) {
+      if (df.rows.get(i).objCols.get(colNo) == null) {
         columnTypeGuess.add(ColumnType.UNKNOWN);
         continue;
       }
@@ -512,7 +558,8 @@ public class TeddyImpl {
       //Timestamp Check
       for (TimestampTemplate tt : TimestampTemplate.values()) {
         try {
-          DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
+          DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat())
+                  .withLocale(Locale.ENGLISH);
           DateTime.parse(str, dtf);
 
           timestampStyleGuess.add(tt);
@@ -524,14 +571,15 @@ public class TeddyImpl {
       }
 
       //Else String
-      if(columnTypeGuess.size() == i)
+      if (columnTypeGuess.size() == i) {
         columnTypeGuess.add(ColumnType.STRING);
+      }
     }
 
     //가장 많이 선택된 columnType을 확인.
     maxCount = 0;
-    for(ColumnType ct: ColumnType.values()){
-      if(Collections.frequency(columnTypeGuess, ct) > maxCount) {
+    for (ColumnType ct : ColumnType.values()) {
+      if (Collections.frequency(columnTypeGuess, ct) > maxCount) {
         maxCount = Collections.frequency(columnTypeGuess, ct);
         columnType = ct;
       }
@@ -539,9 +587,9 @@ public class TeddyImpl {
 
     //columnType == TIMESTAMP인 경우엔 Style 확인 필요.
     maxCount = 0;
-    if(columnType == ColumnType.TIMESTAMP) {
-      for(TimestampTemplate tt : TimestampTemplate.values()) {
-        if(Collections.frequency(timestampStyleGuess, tt) > maxCount) {
+    if (columnType == ColumnType.TIMESTAMP) {
+      for (TimestampTemplate tt : TimestampTemplate.values()) {
+        if (Collections.frequency(timestampStyleGuess, tt) > maxCount) {
           maxCount = Collections.frequency(timestampStyleGuess, tt);
           timestampStyle = tt.getFormat();
         }
@@ -551,9 +599,9 @@ public class TeddyImpl {
     }
 
     //최다 득표 타입, 0번 row의 타입, timestampStyle을 넣어준다.
-    columnTypes.add(columnType);
+    colTypes.add(columnType);
     columnTypesrow0.add(columnTypeGuess.get(0));
-    timestampStyles.add(timestampStyle);
+    formats.add(timestampStyle);
   }
 
   // Just apply rules to dataframe. No rule list
@@ -564,7 +612,7 @@ public class TeddyImpl {
 
     List<String> ruleStrings = getAutoTypingRules(df);
     for (String ruleString : ruleStrings) {
-      df = dataFrameService.applyRule(df, ruleString);
+      df = dataFrameService.applyRule(df, ruleString, null);
     }
 
     return df;

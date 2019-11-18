@@ -32,6 +32,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.rest.webmvc.PersistentEntityResource;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -88,13 +89,14 @@ import app.metatron.discovery.domain.workbook.DashboardRepository;
 import app.metatron.discovery.domain.workbook.WorkBook;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 
 import static app.metatron.discovery.domain.workspace.Workspace.PublicType.PRIVATE;
 import static java.util.stream.Collectors.toList;
 
 
 /**
- * Created by kyungtaak on 2017. 1. 18..
+ *
  */
 @RepositoryRestController
 public class WorkspaceController {
@@ -146,9 +148,13 @@ public class WorkspaceController {
   @Autowired
   HttpRepository httpRepository;
 
-
   @Autowired
   DataConnectionRepository dataConnectionRepository;
+
+  @Autowired
+  ProjectionFactory projectionFactory;
+
+  WorkspaceProjections workspaceProjections = new WorkspaceProjections();
 
   public WorkspaceController() {
   }
@@ -202,6 +208,7 @@ public class WorkspaceController {
    * @param myWorkspace
    * @param nameContains
    * @param pageable
+   * @param projection
    * @param resourceAssembler
    * @return
    * */
@@ -212,12 +219,15 @@ public class WorkspaceController {
       @RequestParam(required = false) Boolean myWorkspace,
       @RequestParam(required = false) Boolean published,
       @RequestParam(required = false) String nameContains,
+      @RequestParam(value = "projection", required = false, defaultValue = "default") String projection,
       Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
 
     Page<Workspace> publicWorkspaces = workspaceService.getPublicWorkspaces(
-            onlyFavorite, myWorkspace, published, nameContains, pageable);
+        onlyFavorite, myWorkspace, published, nameContains, pageable);
 
-    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(publicWorkspaces, resourceAssembler));
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(ProjectionUtils.toPageResource(projectionFactory,
+                                                                                                    workspaceProjections.getProjectionByName(projection),
+                                                                                                    publicWorkspaces)));
   }
 
   @RequestMapping(path = "/workspaces", method = RequestMethod.GET)
@@ -253,7 +263,7 @@ public class WorkspaceController {
 
     } else {
       Page<Workspace> workspaces = workspaceRepository
-          .findAll(WorkspacePredicate.searchPublicTypeAndNameContains(type, nameContains), pageable);
+          .findAll(WorkspacePredicate.searchPublicTypeAndNameContainsAndActive(type, nameContains, true), pageable);
 
       // 특정 데이터 소스에 연결된 Workspace 찾기
       List<String> linkedWorkspaceIds = null;
@@ -365,7 +375,9 @@ public class WorkspaceController {
    *
    * @param workspaceId
    * @param type
+   * @param connType
    * @param onlyPublic
+   * @param status
    * @param nameContains
    * @param pageable
    * @param resourceAssembler
@@ -377,6 +389,7 @@ public class WorkspaceController {
                                                @RequestParam(required = false) String type,
                                                @RequestParam(required = false) String connType,
                                                @RequestParam(required = false) Boolean onlyPublic,
+                                               @RequestParam(required = false) List<String> status,
                                                @RequestParam(required = false) String nameContains,
                                                Pageable pageable,
                                                PersistentEntityResourceAssembler resourceAssembler) {
@@ -384,6 +397,13 @@ public class WorkspaceController {
     Workspace workspace = workspaceRepository.findOne(workspaceId);
     if (workspace == null) {
       return ResponseEntity.notFound().build();
+    }
+
+    List<DataSource.Status> statuses = Lists.newArrayList();
+    if (CollectionUtils.isNotEmpty(status)) {
+      for (String aStatus : status) {
+        statuses.add(SearchParamValidator.enumUpperValue(DataSource.Status.class, aStatus, "status"));
+      }
     }
 
     // Source Type 별 조회
@@ -405,8 +425,8 @@ public class WorkspaceController {
     }
 
     Page<DataSource> dataSources = dataSourceRepository.findAll(
-        DataSourcePredicate.searchAvailableDatasourcesInWorkspace(
-            workspace, sourceType, connectionType, onlyPublic, nameContains),
+        DataSourcePredicate.searchDatasourcesInWorkspace(
+            workspace, sourceType, connectionType, statuses, onlyPublic, nameContains),
         pageable);
 
     return ResponseEntity.ok(pagedResourcesAssembler.toResource(dataSources, resourceAssembler));
@@ -447,7 +467,8 @@ public class WorkspaceController {
   }
 
   /**
-   * @param workspaceId  workspace Id
+   * @param workspaceId
+   * @param type
    */
   @RequestMapping(path = "/workspaces/{workspaceId}/connectors", method = RequestMethod.GET)
   public @ResponseBody
@@ -562,9 +583,9 @@ public class WorkspaceController {
                                             @RequestParam(value = "timeUnit", required = false) String timeUnit,
                                             @RequestParam(value = "accumulated", required = false, defaultValue = "true") Boolean accumulated,
                                             @RequestParam(value = "from", required = false)
-                                              @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime from,
+                                            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime from,
                                             @RequestParam(value = "to", required = false)
-                                              @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime to) {
+                                            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime to) {
 
     Workspace workspace = workspaceRepository.findOne(workspaceId);
     if (workspace == null) {
@@ -572,7 +593,7 @@ public class WorkspaceController {
     }
 
     TimeFieldFormat.TimeUnit unit = null;
-    if(StringUtils.isNotEmpty(timeUnit)) {
+    if (StringUtils.isNotEmpty(timeUnit)) {
       unit = SearchParamValidator
           .enumUpperValue(TimeFieldFormat.TimeUnit.class, timeUnit, "timeUnit");
     } else {
@@ -580,11 +601,11 @@ public class WorkspaceController {
     }
 
     DateTime now = DateTime.now();
-    if(from == null) {
+    if (from == null) {
       from = now.minusMonths(1);
     }
 
-    if(to == null) {
+    if (to == null) {
       to = now;
     }
 
@@ -592,8 +613,8 @@ public class WorkspaceController {
   }
 
   /**
-   *
-   *
+   * @param bookId
+   * @param excludes
    * @param publicType
    * @param nameContains
    * @param pageable
@@ -614,7 +635,7 @@ public class WorkspaceController {
       throw new ResourceNotFoundException(bookId);
     }
 
-    if(CollectionUtils.isEmpty(excludes)) {
+    if (CollectionUtils.isEmpty(excludes)) {
       excludes = Lists.newArrayList(book.getWorkspace().getId());
     }
 
@@ -643,9 +664,9 @@ public class WorkspaceController {
     }
 
     Page<Workspace> results;
-    if(CollectionUtils.isEmpty(dataSourceIds) && CollectionUtils.isEmpty(joinedWorkspaceIds)) {
+    if (CollectionUtils.isEmpty(dataSourceIds) && CollectionUtils.isEmpty(joinedWorkspaceIds)) {
       // dataSourceIds, joinedWorkspaceIds 둘다 0 인 케이스는 질의 불필요
-      results = new PageImpl(Lists.newArrayList());
+      results = new PageImpl(Collections.emptyList(), pageable, 0);
     } else {
       results = workspaceRepository.findAll(
           WorkspacePredicate.searchWorkbookImportAvailable(dataSourceIds, joinedWorkspaceIds, pubType, nameContains), pageable);
@@ -791,7 +812,7 @@ public class WorkspaceController {
     return ResponseEntity.noContent().build();
   }
 
-  @RequestMapping(path = "/workspaces/{id}/delegate/{owner}", method = RequestMethod.POST)
+  @RequestMapping(path = "/workspaces/{id}/delegate/{owner:.+}", method = RequestMethod.POST)
   public ResponseEntity<?> delegateWorkspace(@PathVariable("id") String workspaceId,
                                              @PathVariable("owner") String owner) {
 

@@ -1,0 +1,144 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-pop-meta-detail " *ngIf="isShow">
+  <!-- popup -->
+  <div class="ddp-box-meta type-form">
+    <a href="javascript:" class="ddp-btn-close" (click)="selfHide();"></a>
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <!-- title -->
+      <div class="ddp-ui-title">
+
+        <span class="ddp-label-title ">Node Information</span>
+
+      </div>
+      <!-- //title -->
+    </div>
+    <!-- //top -->
+
+    <div class="ddp-detail-contents type-form">
+      <!-- option -->
+      <div class="ddp-option-type">
+        <!-- selectbox -->
+        <!--<div class="ddp-type-selectbox">
+          <span class="ddp-txt-selectbox">Last 1 day</span>
+          <ul class="ddp-list-selectbox ddp-selectdown">
+            <li>
+              <a href="javascript:">
+                Last 1 hour
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 1 day
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 7 days
+              </a>
+            </li>
+            <li>
+              <a href="javascript:">
+                Last 30 days
+              </a>
+            </li>
+          </ul>
+        </div>-->
+        <!-- //selectbox -->
+      </div>
+      <!-- //option -->
+      <div class="ddp-view-datadetail">
+        <!-- detail -->
+        <div class="ddp-ui-datadetail type-detail">
+
+          <label class="ddp-label-detail">GC Count</label>
+          <!-- graph 영역 -->
+          <div class="ddp-wrap-graph type-info" #gcCount></div>
+          <!-- //graph 영역 -->
+        </div>
+
+        <!-- //detail -->
+        <!-- detail -->
+        <div class="ddp-ui-datadetail type-detail">
+
+          <label class="ddp-label-detail">Memory</label>
+          <!-- graph 영역 -->
+          <div class="ddp-wrap-graph type-info" #memory></div>
+          <!-- //graph 영역 -->
+        </div>
+
+        <!-- //detail -->
+        <!-- detail -->
+        <div class="ddp-ui-datadetail type-detail">
+
+          <label class="ddp-label-detail">information</label>
+
+          <table class="ddp-table-detail">
+            <colgroup>
+              <col width="80px">
+              <col width="*">
+            </colgroup>
+            <tbody>
+            <tr>
+              <th>
+                Server
+              </th>
+              <td>
+                {{monitoring.hostname}}:{{monitoring.port}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                Node
+              </th>
+              <td>
+                {{ convertTypeLabel(monitoring.type) }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                Status
+              </th>
+              <td>
+                <ng-template [ngIf]="monitoring.status">
+                  <ok-icon></ok-icon>
+                </ng-template>
+                <ng-template [ngIf]="!monitoring.status">
+                  <div class="ddp-datasource">
+                    <error-icon></error-icon>
+                    <div class="ddp-txt-info type-error">
+                      <em class="ddp-icon-error"></em>{{ 'msg.engine.monotoring.failure.time.label' | translate }} : {{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
+                    </div>
+                  </div>
+                </ng-template>
+              </td>
+            </tr>
+
+            </tbody>
+          </table>
+
+        </div>
+
+        <!-- //detail -->
+
+      </div>
+
+    </div>
+
+  </div>
+  <!-- //popup -->
+
+</div>

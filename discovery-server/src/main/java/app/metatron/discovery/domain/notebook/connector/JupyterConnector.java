@@ -126,7 +126,7 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
                 builder.run();
                 return tempFilePath + getFileExtension(notebook.getKernelType());
             } catch (Exception e1) {
-                throw new RuntimeException("Fail to convert notebook to script from " + hostname);
+                throw new RuntimeException("Fail to convert notebook to script from " + getUrl());
             }
         }
     }
@@ -209,7 +209,7 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
                 // 3. 이름 바꾸기
                 String srcPath = response
                         .map(jupyterResponse -> jupyterResponse.getPath())
-                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + hostname));
+                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + getUrl()));
 
                 notebookRequest = Maps.newHashMap();
                 notebookRequest.put("path", workspaceId);
@@ -221,9 +221,9 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
                 response = httpRepository.call(patchUrl.toUriString(), HttpMethod.PATCH, patchEntity, JupyterConnector.JupyterResponse.class, true);
                 response
                         .map(jupyterResponse -> jupyterResponse.getPath())
-                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + hostname));
+                        .orElseThrow(() -> new RuntimeException("Fail to create directory of jupyter from " + getUrl()));
             } else {
-                throw new RuntimeException("Fail to create directory of jupyter from " + hostname);
+                throw new RuntimeException("Fail to create directory of jupyter from " + getUrl());
             }
         }
     }
@@ -233,54 +233,58 @@ public class JupyterConnector extends NotebookConnector implements NotebookActio
      */
     @Override
     public String createNotebook(Notebook notebook) {
-        // 1. 빈 파일 생성 (POST)
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Lists.newArrayList(MediaType.APPLICATION_JSON));
+        try {
+            // 1. 빈 파일 생성 (POST)
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Lists.newArrayList(MediaType.APPLICATION_JSON));
 
-        Map<String, Object> notebookRequest = Maps.newHashMap();
-        notebookRequest.put("type", "notebook");
-        HttpEntity<Map<String, Object>> createEntity = new HttpEntity<>(notebookRequest, headers);
+            Map<String, Object> notebookRequest = Maps.newHashMap();
+            notebookRequest.put("type", "notebook");
+            HttpEntity<Map<String, Object>> createEntity = new HttpEntity<>(notebookRequest, headers);
 
-        UriComponents postUrl = UriComponentsBuilder
+            UriComponents postUrl = UriComponentsBuilder
                 .fromHttpUrl(getConnectionUrl(URI_CONTENTS_ITEM))
                 .buildAndExpand(notebook.getWorkspace().getId());
-        Optional<JupyterResponse> response = httpRepository.call(postUrl.toUriString(), HttpMethod.POST, createEntity, JupyterConnector.JupyterResponse.class, true);
+            Optional<JupyterResponse> response = httpRepository.call(postUrl.toUriString(), HttpMethod.POST, createEntity, JupyterConnector.JupyterResponse.class, true);
 
-        // 2. 빈 파일 이름 변경 (PATCH)
-        String srcPath = response
+            // 2. 빈 파일 이름 변경 (PATCH)
+            String srcPath = response
                 .map(jupyterResponse -> jupyterResponse.getPath())
-                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + getUrl()));
 
-        notebookRequest = Maps.newHashMap();
-        notebookRequest.put("path", notebook.getWorkspace().getId() + File.separator + UUID.randomUUID().toString() + ".ipynb");
-        HttpEntity<Map<String, Object>> patchEntity = new HttpEntity<>(notebookRequest, headers);
+            notebookRequest = Maps.newHashMap();
+            notebookRequest.put("path", notebook.getWorkspace().getId() + File.separator + UUID.randomUUID().toString() + ".ipynb");
+            HttpEntity<Map<String, Object>> patchEntity = new HttpEntity<>(notebookRequest, headers);
 
-        UriComponents patchUrl = UriComponentsBuilder
+            UriComponents patchUrl = UriComponentsBuilder
                 .fromHttpUrl(getConnectionUrl(URI_CONTENTS_ITEM))
                 .buildAndExpand(srcPath);
-        response = httpRepository.call(patchUrl.toUriString(), HttpMethod.PATCH, patchEntity, JupyterConnector.JupyterResponse.class, true);
+            response = httpRepository.call(patchUrl.toUriString(), HttpMethod.PATCH, patchEntity, JupyterConnector.JupyterResponse.class, true);
 
-        // 3. 데이터 소스 로딩 관련 Cell 추가 (PUT)
-        String destPath = response
+            // 3. 데이터 소스 로딩 관련 Cell 추가 (PUT)
+            String destPath = response
                 .map(jupyterResponse -> jupyterResponse.getPath())
-                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + getUrl()));
 
-        notebookRequest = Maps.newHashMap();
-        notebookRequest.put("type", "notebook");
-        JupyterBuilder builder = notebook.getKernelType().equals(Notebook.KernelType.R) ? new RBuilder() : new Py3Builder();
-        notebookRequest.put("content", builder.createCells(notebook));
-        HttpEntity<Map<String, Object>> putEntity = new HttpEntity<>(notebookRequest, headers);
+            notebookRequest = Maps.newHashMap();
+            notebookRequest.put("type", "notebook");
+            JupyterBuilder builder = notebook.getKernelType().equals(Notebook.KernelType.R) ? new RBuilder() : new Py3Builder();
+            notebookRequest.put("content", builder.createCells(notebook));
+            HttpEntity<Map<String, Object>> putEntity = new HttpEntity<>(notebookRequest, headers);
 
-        UriComponents putUrl = UriComponentsBuilder
+            UriComponents putUrl = UriComponentsBuilder
                 .fromHttpUrl(getConnectionUrl(URI_CONTENTS_ITEM))
                 .buildAndExpand(destPath);
-        response = httpRepository.call(putUrl.toUriString(), HttpMethod.PUT, putEntity, JupyterConnector.JupyterResponse.class, true);
+            response = httpRepository.call(putUrl.toUriString(), HttpMethod.PUT, putEntity, JupyterConnector.JupyterResponse.class, true);
 
-        // 4. 결과 받기
-        return response
+            // 4. 결과 받기
+            return response
                 .map(jupyterResponse -> jupyterResponse.getPath())
-                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + hostname));
+                .orElseThrow(() -> new RuntimeException("Fail to create notebook of jupyter from " + getUrl()));
+        } catch (Exception e) {
+            throw new RuntimeException("Fail to create notebook of jupyter from " + getUrl());
+        }
     }
 
     /**

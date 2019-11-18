@@ -174,6 +174,7 @@ public enum DataType {
         return DataType.STRUCT;
 
       case "date":
+      case "datetime":
       case "timestamp":
         return DataType.TIMESTAMP;
       //

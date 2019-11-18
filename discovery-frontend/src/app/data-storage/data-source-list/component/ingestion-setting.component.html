@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 <!-- contents in  -->
-<div class="ddp-type-contents-in">
+<div class="ddp-type-contents-in ddp-scroll">
 
   <div class="ddp-box-popupcontents2 ddp-box-source-create ddp-box-type">
     <!-- Datasource expiration -->
@@ -160,11 +160,15 @@
                     <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ui.crontab.ph' | translate}}"
                            [ngModel]="cronText"
                            (ngModelChange)="cronText = $event; cronValidationResult = null"
-                           (keypress)="onKeyPressCronText($event)">
+                           (keypress)="onKeyPressCronText($event)"
+                           (focusout)="cronValidation()">
                     <em class="ddp-icon-apply" (click)="cronValidation()"></em>
                   </div>
                   <div class="ddp-txt-error" *ngIf="cronValidationResult === false">
                     <em class="ddp-icon-error-s"></em>{{cronValidationMessage}}
+                  </div>
+                  <div class="ddp-ui-message" *ngIf="cronValidationResult === true">
+                    <span class="ddp-data-ok"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.cron.valid' | translate}}</span>
                   </div>
                 </ng-container>
                 <!-- //crontab (EXPR) -->
@@ -432,11 +436,11 @@
           </div>
           <!-- //info -->
         </label>
-        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowQueryGranularityList"
+        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowQueryGranularityList" [class.ddp-disabled]="isReinjestion"
              (click)="isShowQueryGranularityList = !isShowQueryGranularityList"
              (clickOutside)="isShowQueryGranularityList=false">
           <span class="ddp-txt-selectbox">{{selectedQueryGranularity.label}}</span>
-          <ul class="ddp-list-selectbox ddp-selectdown">
+          <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isReinjestion">
             <li *ngFor="let granularity of queryGranularityList">
               <a href="javascript:" (click)="onChangeQueryGranularity(granularity)">
                 {{granularity.label}}
@@ -465,11 +469,11 @@
           </div>
           <!-- //info -->
         </label>
-        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowSegmentGranularityList"
+        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowSegmentGranularityList" [class.ddp-disabled]="isReinjestion"
              (click)="isShowSegmentGranularityList = !isShowSegmentGranularityList"
              (clickOutside)="isShowSegmentGranularityList=false">
           <span class="ddp-txt-selectbox">{{selectedSegmentGranularity.label}}</span>
-          <ul class="ddp-list-selectbox ddp-selectdown">
+          <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isReinjestion">
             <li *ngFor="let granularity of segmentGranularityList">
               <a href="javascript:" (click)="onChangeSegmentGranularity(granularity)">
                 {{granularity.label}}
@@ -541,7 +545,7 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option">
           <label class="ddp-label-radio" *ngFor="let type of rollUpTypeList" (change)="onChangeRollUpType(type)">
-            <input type="radio" [checked]="selectedRollUpType.value === type.value">
+            <input type="radio" [checked]="selectedRollUpType.value === type.value" [disabled]="isReinjestion || includGeoType">
             <i class="ddp-icon-radio"></i>
             <span class="ddp-txt-radio">{{type.label}}</span>
           </label>

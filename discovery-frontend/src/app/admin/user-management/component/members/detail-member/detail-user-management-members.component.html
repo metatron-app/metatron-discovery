@@ -47,23 +47,23 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option">
           <div class="ddp-data-txt">
-            {{userData.createdTime| mdate:'YYYY-MM-DD HH:mm'}}
+            {{ userData.createdTime | mdate:'YYYY-MM-DD HH:mm' }}
           </div>
         </div>
         <!-- //edit option -->
       </div>
       <!-- //edit -->
       <!-- edit -->
-      <!--<div class="ddp-wrap-edit">-->
-      <!--<label class="ddp-label-type">{{'msg.mem.ui.last.access' | translate}}</label>-->
-      <!--&lt;!&ndash; edit option &ndash;&gt;-->
-      <!--<div class="ddp-ui-edit-option">-->
-      <!--<div class="ddp-data-txt">-->
-      <!--2011.01.01 00:00:00-->
-      <!--</div>-->
-      <!--</div>-->
-      <!--&lt;!&ndash; //edit option &ndash;&gt;-->
-      <!--</div>-->
+      <div class="ddp-wrap-edit" *ngIf="userData.lastAccessTime">
+        <label class="ddp-label-type">{{'msg.mem.ui.detail.last.access' | translate}}</label>
+        <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <div class="ddp-data-txt">
+            {{ userData.lastAccessTime | mdate:'YYYY-MM-DD HH:mm'}}
+            </div>
+          </div>
+      <!-- //edit option -->
+      </div>
       <!-- //edit -->
 
       <!-- right -->
@@ -93,10 +93,11 @@
           <!-- //edit option -->
         </div>
         <!-- //edit -->
-        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickResetPassword()"><em
-          class="ddp-icon-key"></em>{{'msg.mem.btn.reset.pw' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickResetPassword()" style="padding: 6px 10px 6px 10px;">
+          <em class="ddp-icon-key"></em>{{'msg.mem.btn.reset.pw' | translate}}
+        </a>
         <!--<a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickLoginUser()"><em class="ddp-icon-view"></em>{{'msg.mem.btn.login.usr' | translate}}</a>-->
-        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteUser()"><em
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteUser()" *ngIf="userData.status?.toString() === 'LOCKED'"><em
           class="ddp-icon-delete"></em>{{'msg.mem.btn.delete.usr' | translate}}</a>
 
       </div>

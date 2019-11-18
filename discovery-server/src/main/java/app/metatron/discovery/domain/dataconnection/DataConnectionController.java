@@ -104,7 +104,7 @@ public class DataConnectionController {
   @Autowired
   MetadataSourceRepository metadataSourceRepository;
   
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   @Autowired
@@ -195,11 +195,7 @@ public class DataConnectionController {
   @RequestMapping(value = "/connections/query/hive/databases", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> queryForListOfHiveDatabases(Pageable pageable) {
 
-    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-    if(stageDBConnection == null){
-      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
-    }
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
 
     DataConnection hiveConnection = stageDBConnection.getJdbcDataConnection();
 
@@ -224,11 +220,7 @@ public class DataConnectionController {
     //유효성 체크
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-    if(stageDBConnection == null){
-      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
-    }
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
 
     DataConnection hiveConnection = stageDBConnection.getJdbcDataConnection();
 
@@ -263,11 +255,7 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-    if(stageDBConnection == null){
-      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
-    }
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
 
     DataConnection hiveConnection = stageDBConnection.getJdbcDataConnection();
 
@@ -548,11 +536,7 @@ public class DataConnectionController {
     //유효성 체크
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-    if(stageDBConnection == null){
-      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
-    }
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
 
     DataConnection hiveConnection = stageDBConnection.getJdbcDataConnection();
 
@@ -565,6 +549,14 @@ public class DataConnectionController {
     Map<String, Object> returnMap = Maps.newHashMap();
     returnMap.put("tables", filteredTableNameList);
     return ResponseEntity.ok(returnMap);
+  }
+
+  private static StorageProperties.StageDBConnection getStageDBConnection(StorageProperties storageProperties) {
+    if (storageProperties == null || storageProperties.getStagedb() == null) {
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
+    }
+
+    return storageProperties.getStagedb();
   }
 
   public List<String> filterTableForMdm(List<String> tableNameList,
@@ -607,28 +599,28 @@ public class DataConnectionController {
     return filteredTableNameList;
   }
 
+  @Deprecated
   @RequestMapping(value = "/connections/query/hive/strict", method = RequestMethod.GET)
   public @ResponseBody ResponseEntity<?> strictModeForHiveIngestion() {
-    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-    if(stageDBConnection == null){
-      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
-    }
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
     return ResponseEntity.ok(stageDBConnection.isStrictMode());
+  }
+
+  @RequestMapping(value = "/connections/query/hive/partitions/enable", method = RequestMethod.GET)
+  public @ResponseBody ResponseEntity<?> enablePartitionForHiveIngestion() {
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
+    return ResponseEntity.ok(stageDBConnection.getMetastore().includeJdbc());
   }
 
   @RequestMapping(value = "/connections/query/hive/partitions", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> partitionInforForHiveIngestion(@RequestBody ConnectionRequest checkRequest) {
 
-    // validation check
+    // validation checkØ
     SearchParamValidator.checkNull(checkRequest.getType(), "type");
     SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-    if(stageDBConnection == null){
-      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
-    }
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
 
     //when strict mode, requires hive metastore connection info
     if(stageDBConnection.isStrictMode()){
@@ -658,14 +650,10 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
     SearchParamValidator.checkNull(checkRequest.getPartitions(), "partitions");
 
-    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
-    if(stageDBConnection == null){
-      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
-    }
+    StorageProperties.StageDBConnection stageDBConnection = getStageDBConnection(storageProperties);
 
     //when strict mode, requires hive metastore connection info
-    if(stageDBConnection.isStrictMode()){
+    //if(stageDBConnection.isStrictMode()){
       DataConnection hiveConnection = stageDBConnection.getJdbcDataConnection();
 
       if(!HiveDialect.includeMetastoreInfo(hiveConnection)){
@@ -678,10 +666,10 @@ public class DataConnectionController {
                                                                                        checkRequest.getQuery(),
                                                                                        checkRequest.getPartitions());
       return ResponseEntity.ok(validatePartition);
-    } else {
-      throw new DataConnectionException(DataConnectionErrorCodes.NOT_SUPPORTED_API,
-              "/connections/query/hive/partitions/validate API required strict mode.");
-    }
+    //} else {
+    //  throw new DataConnectionException(DataConnectionErrorCodes.NOT_SUPPORTED_API,
+    //          "/connections/query/hive/partitions/validate API required strict mode.");
+    //}
   }
 
   @RequestMapping(value = "/connections/criteria", method = RequestMethod.GET)

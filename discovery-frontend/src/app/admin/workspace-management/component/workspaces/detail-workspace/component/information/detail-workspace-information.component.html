@@ -67,9 +67,9 @@
             {{'msg.space.ui.owner' | translate}}
           </div>
 
-          <span class="ddp-data-name ddp-hover">{{ getUserFullName(owner) ? getUserFullName(owner) : UNKNOWN_USER }}
+          <span class="ddp-data-name ddp-hover">{{owner?.fullName}}
             <user-information [name]="getUserFullName(owner)"
-                              [id]="owner?.fullName === '__UNKNOWN_USER' ? '' : owner?.username"
+                              [id]="owner?.username"
                               [email]="owner?.email">
             </user-information>
           </span>
@@ -87,6 +87,14 @@
           <!--<a href="javascript:" class="ddp-btn-pop" (click)="onClickEmailToUsers()"><em class="ddp-icon-email"></em>{{'msg.spaces.shared.detail.btn.email.users' | translate}}</a>-->
         <!--</div>-->
         <!-- //이메일 보내기 -->
+      </td>
+    </tr>
+    <tr *ngIf="isPublicWorkspace()">
+      <th>
+        {{'msg.spaces.shared.detail.statistics.favorite.count' | translate}}
+      </th>
+      <td>
+        {{workspace.countOfFavoties}}
       </td>
     </tr>
 

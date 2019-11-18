@@ -210,12 +210,12 @@
               <div class="ddp-col-7">{{'msg.metadata.ui.codetable.create.value' | translate}} </div>
             </div>
             <!-- list -->
-            <div class="ddp-clear ddp-list-code" *ngFor="let pair of codeList">
+            <div class="ddp-clear ddp-list-code" *ngFor="let pair of codeList; let index = index">
               <div class="ddp-col-5">
-                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.code" (keypress)="onKeypressCodePair(pair)">
+                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.code" (input)="onChangeCodePair(pair, index)">
               </div>
               <div class="ddp-col-7">
-                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.value" (keypress)="onKeypressCodePair(pair)">
+                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.value" (input)="onChangeCodePair(pair, index)">
               </div>
               <a href="javascript:" class="ddp-icon-close" (click)="onClickDeleteCode(pair)" *ngIf="isShowDeleteCodePair()"></a>
               <span class="ddp-data-error" *ngIf="pair['invalid']"> {{'msg.metadata.ui.codetable.create.valid.code-value.required' | translate}}</span>
@@ -225,8 +225,20 @@
           </div>
           <!-- //box -->
           <div class="ddp-txt-right">
-            <a href="javascript:" class="ddp-btn-pop  ddp-type" (click)="onClickResetCodeTable()"><em class="ddp-btn-reset"></em>{{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}</a>
-            <a href="javascript:" class="ddp-btn-pop ddp-bg-black ddp-type" (click)="onClickSaveCodeTable()"><em class="ddp-icon-checked"></em>{{'msg.metadata.ui.codetable.detail.code.table.save.btn' | translate}}</a>
+            <a href="javascript:"
+               class="ddp-btn-pop ddp-type"
+               [class.ddp-disabled]="!isCodeListModified"
+               (click)="onClickResetCodeTable()">
+              <em class="ddp-btn-reset"></em>
+              {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
+            </a>
+            <a href="javascript:"
+               class="ddp-btn-pop ddp-bg-black ddp-type"
+               [class.ddp-disabled]="!isCodeListModified"
+               (click)="onClickSaveCodeTable()">
+               <em class="ddp-icon-checked"></em>
+              {{'msg.metadata.ui.codetable.detail.code.table.save.btn' | translate}}
+            </a>
           </div>
         </div>
       </div>
@@ -239,10 +251,6 @@
 <!-- 코드 테이블 삭제 모달 -->
 <app-delete-modal (deleteConfirm)="deleteCodeTable()"></app-delete-modal>
 <!-- //코드 테이블 삭제 모달 -->
-
-<!-- 코드 테이블 변경 확인 모달 -->
-<app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>
-<!-- //코드 테이블 변경 확인 모달 -->
 
 <!-- 연결된 컬럼 사전 목록 -->
 <app-linked-column-dictionary></app-linked-column-dictionary>

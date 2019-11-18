@@ -1,5 +1,4 @@
 import {Injectable, Injector} from "@angular/core";
-import {FileItem, ParsedResponseHeaders} from "ng2-file-upload";
 import {TranslateService} from '@ngx-translate/core';
 import {StringUtil} from "../../common/util/string.util";
 import {GranularityType} from "../../domain/workbook/configurations/field/timestamp-field";
@@ -20,6 +19,7 @@ import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparat
 import * as _ from "lodash";
 import {CommonConstant} from "../../common/constant/common.constant";
 import {ConnectionParam} from "./data-connection-create.service";
+import {DataStorageConstant} from "../constant/data-storage-constant";
 
 @Injectable()
 export class DataSourceCreateService {
@@ -34,24 +34,6 @@ export class DataSourceCreateService {
   constructor(injector: Injector) {
     this._translateService = injector.get(TranslateService);
     this._granularityService = injector.get(GranularityService);
-  }
-
-  public getConnectionTypeList(): {label: string, value: ConnectionType}[] {
-    return [
-      { label : this._translateService.instant('msg.storage.ui.list.ingested.data'), value : ConnectionType.ENGINE },
-      { label : this._translateService.instant('msg.storage.ui.list.linked.data'), value : ConnectionType.LINK }
-    ];
-  }
-
-  /**
-   * Get convert sheets
-   * @param {object} sheets
-   * @return {Sheet[]}
-   */
-  public getConvertSheets(sheets: object): Sheet[] {
-    return Object.keys(sheets).map(key => {
-      return sheets[key].valid ? {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning} : {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning, errorMessage: this.getFileErrorMessage(sheets[key].warning)};
-    });
   }
 
   /**
@@ -209,81 +191,6 @@ export class DataSourceCreateService {
     ];
   }
 
-  public getDimensionLogicalTypeList(): TypeFilterObject[] {
-    return [
-      {
-        label: this._translateService.instant('msg.storage.ui.list.string'),
-        icon: 'ddp-icon-type-ab',
-        value: LogicalType.STRING
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.boolean'),
-        icon: 'ddp-icon-type-tf',
-        value: LogicalType.BOOLEAN
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.integer'),
-        icon: 'ddp-icon-type-int',
-        value: LogicalType.INTEGER
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.double'),
-        icon: 'ddp-icon-type-float',
-        value: LogicalType.DOUBLE
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.date'),
-        icon: 'ddp-icon-type-calen',
-        value: LogicalType.TIMESTAMP
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.lnt'),
-        icon: 'ddp-icon-type-latitude',
-        value: LogicalType.LNT
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.lng'),
-        icon: 'ddp-icon-type-longitude',
-        value: LogicalType.LNG
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.geo.point'),
-        icon: 'ddp-icon-type-point',
-        value: LogicalType.GEO_POINT
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.expression'),
-        icon: 'ddp-icon-type-expression',
-        value: LogicalType.USER_DEFINED
-      }
-    ];
-  }
-
-  public getMeasureLogicalTypeList(): TypeFilterObject[] {
-    return [
-      {
-        label: this._translateService.instant('msg.storage.ui.list.integer'),
-        icon: 'ddp-icon-type-int',
-        value: LogicalType.INTEGER
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.double'),
-        icon: 'ddp-icon-type-float',
-        value: LogicalType.DOUBLE
-      },
-    ];
-  }
-
-  public getConvertibleLogicalTypeList(isDimensionRole: boolean, isTypeString?: boolean): TypeFilterObject[] {
-    if (isDimensionRole) {
-      return isTypeString
-        ? this.getDimensionLogicalTypeList().filter(type => type.value !== LogicalType.USER_DEFINED && type.value !==  LogicalType.GEO_LINE && type.value !==  LogicalType.GEO_POLYGON)
-        : this.getDimensionLogicalTypeList().filter(type => type.value !== LogicalType.USER_DEFINED && type.value !==  LogicalType.GEO_POINT && type.value !==  LogicalType.GEO_LINE && type.value !==  LogicalType.GEO_POLYGON);
-    } else {
-      return  this.getMeasureLogicalTypeList();
-    }
-  }
-
   /**
    * Create source params
    * @param {DatasourceInfo} sourceInfo
@@ -325,7 +232,7 @@ export class DataSourceCreateService {
     // if exist tuning options
     sourceInfo.ingestionData.tuningConfig.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.tuningOptions = this._toObject(sourceInfo.ingestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
     // if not used current_time TIMESTAMP, set intervals
-    if (sourceInfo.schemaData.selectedTimestampType !== ConfigureTimestampType.CURRENT_TIME) {
+    if (sourceInfo.schemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
       result.intervals =  [this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.startIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.endIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity)];
     }
     // DB
@@ -337,6 +244,26 @@ export class DataSourceCreateService {
       this._setSnapshotIngestionParams(result, sourceInfo);
     }
     return result;
+  }
+
+  /**
+   * Get file format parameter
+   * @returns {Object}
+   */
+  public getFileFormatParams(fileFormat: string, fileData: any): object {
+    const format = {
+      type: fileFormat,
+    };
+    // if file format is csv, add delimiter and lineSeparator
+    if (fileFormat === 'csv') {
+      format['delimiter'] = fileData.delimiter;
+      format['lineSeparator'] = fileData.separator;
+    } else {
+      // add sheetIndex
+      format['sheetIndex'] = fileData.fileResult.sheets.findIndex(sheet => sheet === fileData.fileResult.selectedSheet);
+      format['sheetName'] = fileData.fileResult.selectedSheet.sheetName;
+    }
+    return format;
   }
 
   /**
@@ -433,9 +360,9 @@ export class DataSourceCreateService {
    */
   private _getFieldParams(schemaData: any): Field[] {
     // timestamp enable
-    const isCreateTimestamp = schemaData.selectedTimestampType === ConfigureTimestampType.CURRENT_TIME;
-    // fields param clone
-    let fields = _.cloneDeep(schemaData._originFieldList);
+    const isCreateTimestamp = schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
+    // fields param
+    let fields = _.cloneDeep(schemaData.fieldList);
     // seq number
     let seq = 0;
     // field 설정
@@ -483,18 +410,20 @@ export class DataSourceCreateService {
    */
   private _removeUnnecessaryPropertyInField(field: Field) {
     delete field['biType'];
+    // if disable originalName
+    if (Field.isDisableOriginalName(field)) {
+      Field.removeOriginalNameProperty(field);
+    }
     // delete used UI
-    delete field.isValidTimeFormat;
-    delete field.isValidReplaceValue;
-    delete field.replaceValidMessage;
-    delete field.timeFormatValidMessage;
     delete field.checked;
     // if unloaded property is false, delete unloaded property
     if (field.unloaded === false) {
       delete field.unloaded;
     }
     // if exist ingestion rule property
-    if (field.hasOwnProperty('ingestionRule')) {
+    if (!Field.isEmptyIngestionRule(field)) {
+      delete field.ingestionRule.isValidReplaceValue;
+      delete field.ingestionRule.replaceValidationMessage;
       // ingestion type
       const type = field.ingestionRule.type;
       // if type is default
@@ -504,19 +433,25 @@ export class DataSourceCreateService {
         delete field.ingestionRule.value;
       }
     }
+    if (!Field.isEmptyFormat(field)) {
+      delete field.format.isValidFormat;
+      delete field.format.formatValidMessage;
+    }
     // if not GEO types
-    if (field.logicalType.toString().indexOf('GEO_') === -1) {
-      if (field.logicalType !== LogicalType.TIMESTAMP && field.format) {
+    if (!Field.isGeoType(field)) {
+      if (!Field.isTimestampTypeField(field) && field.format) {
         delete field.format;
-      } else if (field.logicalType === LogicalType.TIMESTAMP && field.format.type === FieldFormatType.UNIX_TIME) {
+      } else if (Field.isTimestampTypeField(field) && field.format.type === FieldFormatType.UNIX_TIME) {
         // remove format
         delete field.format.format;
         // remove timezone
         delete field.format.timeZone;
         delete field.format.locale;
-      } else if (field.logicalType === LogicalType.TIMESTAMP && field.format.type === FieldFormatType.DATE_TIME) {
+      } else if (Field.isTimestampTypeField(field) && field.format.type === FieldFormatType.DATE_TIME) {
         delete field.format.unit;
       }
+    } else {  // if GEO types
+      delete field.format.unit;
     }
   }
 
@@ -532,14 +467,6 @@ export class DataSourceCreateService {
       return acc;
     }, {});
   }
-
-}
-
-export enum ConfigureTimestampType {
-  // FIELD = <any>'FIELD',
-  // CURRENT = <any>'CURRENT',
-  CURRENT_TIME = 'CURRENT',
-  TIMESTAMP_FIELD = 'FIELD'
 }
 
 // 타입 셀렉트 필터
@@ -552,7 +479,7 @@ export interface TypeFilterObject {
 export interface FileResult {
   filePath: string;
   fileKey: string;
-  fileSize: string;
+  fileSize: number;
   fileName: string;
   sheets?: Sheet[];
   selectedSheet?: Sheet;
@@ -565,18 +492,11 @@ export interface Sheet {
   errorMessage?: string;
 }
 
-export interface UploadResult {
-  success: boolean;
-  item: FileItem;
-  response: any;
-  status: number;
-  headers: ParsedResponseHeaders;
-}
-
 export interface FileDetail {
   data: any[];
   fields: any[];
   headers?: any[];
+  charset: string;
   success?: boolean;
   totalRows?: number;
   isParsable: {valid: boolean, warning?: string};
@@ -696,7 +616,7 @@ export class CreateSourceConfigureData {
   // selected timestamp field
   public selectedTimestampField: Field;
   // selected timestamp Type
-  public selectedTimestampType: ConfigureTimestampType;
+  public selectedTimestampType: DataStorageConstant.Datasource.TimestampType;
   // search text
   public searchText: string;
   // selected filter type
@@ -748,4 +668,11 @@ export class CreateSourceCompleteData {
   public descInvalidMessage: string;
 }
 
-
+export class KafkaData {
+  public bootstrapServer: string;
+  public topic: string;
+  public fieldList: Field[];
+  public fieldData: Field[];
+  public totalRows: number;
+  public useKafkaData: boolean;
+}

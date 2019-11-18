@@ -1,0 +1,439 @@
+<!-- tab contents -->
+<div class="ddp-ui-tab-contents" >
+  <div class="ddp-box-message" *ngIf="'ENGINE' === metadata.sourceType?.toString()">
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{ "msg.metadata.ui.notice" | translate }}
+      </div>
+    </div>
+  </div>
+  <!-- datadetail -->
+  <div class="ddp-ui-datadetail ddp-border-none">
+    <!-- button -->
+    <div *ngIf="'ENGINE' === metadata.sourceType?.toString()" class="ddp-btn-detail">
+      <a href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="onClickGoToDatasourceButton()">{{ 'msg.metadata.ui.move.datasource' | translate }}</a>
+    </div>
+    <!-- //button -->
+    <label class="ddp-label-detail">{{ 'msg.metadata.ui.info' | translate }}</label>
+    <!-- info -->
+    <div class="ddp-ui-information">
+      <div class="ddp-data-name">{{ metadata.name }}</div>
+      <div class="ddp-ui-popularity">
+        <em class="ddp-icon-popularity"></em>
+        <span class="ddp-txt-label">{{ 'msg.storage.ui.th.popularity' | translate }}</span>
+        <div class="ddp-bar">
+          <span [style.width]="metadata.popularity + '%'"></span>
+        </div>
+      </div>
+    </div>
+    <!-- //info -->
+    <table class="ddp-table-detail type-sub">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>{{ 'msg.metadata.md.ui.tags' | translate }}</th>
+        <td>
+          <div class="ddp-list-tags">
+            <div class="ddp-tags" *ngFor="let tag of metadata.tags" [ngClass]="{'ddp-tags' : tag.name !== '','ddp-tag-default': tag.name === ''}"># {{tag.name}}
+              <a href="javascript:" class="ddp-btn-delete" (click)="deleteTag(tag)" *ngIf="'' !== tag.name"></a>
+            </div>
+          </div>
+          <div class="ddp-tag-default ddp-wrap-drop-search" [ngClass]="{'ddp-selected': showTags}" (clickOutside)="tagClickOutsideEvent()">
+            <component-input
+              [compType]="'default'"
+              [value]="tagValue"
+              [immediately]="true"
+              [autoFocus]="false"
+              [placeHolder]="'msg.metadata.ui.search.tag.ph' | translate"
+              (changeValue)="tagValue = $event;"
+              (inputFocus)="showTags = true"
+              (pressEnter)="addTag()">
+            </component-input>
+            <div class="ddp-ui-drop-search">
+              <ng-container *ngIf="'' !== tagValue; else popularityTags">
+                <ul *ngIf="0 < filteredTagsList.length" class="ddp-list-selectbox2 type-border type-scroll-none">
+                  <li *ngFor="let tag of filteredTagsList" (click)="$event.stopImmediatePropagation();setTagValue(tag)"
+                      [innerHTML]="getTagName(tag)"></li>
+                </ul>
+                <span *ngIf="0 === filteredTagsList.length" class="ddp-noresult">
+                  {{'msg.metadata.ui.search.no-result' | translate}}
+                </span>
+              </ng-container>
+              <ng-template #popularityTags>
+                <div class="ddp-data-title"> {{'msg.metadata.ui.popular.tags' | translate}} </div>
+                <ul class="ddp-list-selectbox2 type-border type-scroll-none">
+                  <li *ngFor="let tag of popularityTagList" (click)="$event.stopImmediatePropagation();setTagValue(tag.name)"> {{tag.name}} </li>
+                </ul>
+              </ng-template>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>{{ 'msg.metadata.md.th.catalogs' | translate }}</th>
+        <td>
+          <div *ngIf="metadata.catalogs && 0 < metadata.catalogs.length;" class="ddp-wrap-catalogs2">
+            <div class="ddp-ui-catalogs2" *ngFor="let catalog of metadata.catalogs">
+              <span class="ddp-catalogs-in">
+                <em class="ddp-icon-folder-type"></em>
+                <span *ngFor="let hierarchy of catalog['hierarchies'];"> {{ hierarchy.name }}</span>
+                <a (click)="deleteCatalogFromMetadata(catalog.id)" href="javascript:" class="ddp-btn-delete"></a>
+              </span>
+            </div>
+          </div>
+          <div class="ddp-apply ddp-clear type-catalog">
+            <div *ngIf="isSearchCatalog; else catalogAddButton"
+                 (clickOutside)="isSearchCatalog = false"
+                 [class.ddp-selected]="showCatalogs" class="ddp-type-search type-box" >
+              <component-input
+                [compType]="'default'"
+                [value]="catalogSearchText"
+                [immediately]="true"
+                [autoFocus]="false"
+                [placeHolder]="'msg.metadata.ui.search.catalog.ph' | translate"
+                (inputFocus)="showCatalogs = true"
+                (changeValue)="changeInputCatalog($event);">
+              </component-input>
+              <div class="ddp-box-layout4">
+                <ng-container *ngIf="'' !== catalogSearchText; else popularityCatalogs">
+                  <ul *ngIf="0 < searchCatalogList.length" class="ddp-list-popup ddp-wrap-catalogs2">
+                    <li *ngFor="let catalog of searchCatalogList" [class.ddp-selected]="isExistCatalog(catalog)">
+                      <a (click)="selectCatalog(catalog)" href="javascript:">
+                        <div class="ddp-ui-catalogs2">
+                          <em class="ddp-icon-folder-type"></em>
+                          <span *ngFor="let hierarchyItem of catalog.hierarchies"
+                                [innerHTML]="getCatalogHierarchyName(hierarchyItem.name)" ></span>
+                        </div>
+                        <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                  <span *ngIf="0 === searchCatalogList.length" class="ddp-noresult">
+                    {{'msg.metadata.ui.search.no-result' | translate}}
+                  </span>
+                </ng-container>
+                <ng-template #popularityCatalogs>
+                  <div class="ddp-data-title"> {{'msg.metadata.ui.popular.catalogs' | translate}} </div>
+                  <ul class="ddp-list-popup ddp-wrap-catalogs2">
+                    <li *ngFor="let catalog of popularityCatalogList" [class.ddp-selected]="isExistCatalog(catalog)">
+                      <a (click)="selectCatalog(catalog)" href="javascript:">
+                        <div class="ddp-ui-catalogs2">
+                          <em class="ddp-icon-folder-type"></em>
+                          <span *ngFor="let hierarchyItem of catalog.hierarchies" >{{hierarchyItem.name}}</span>
+                        </div>
+                        <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </ng-template>
+              </div>
+            </div>
+            <ng-template #catalogAddButton>
+              <a (click)="showSearchCatalog($event)"
+                 href="javascript:" class="ddp-btn-add"
+                 style="margin-left:0;">
+                <em class="ddp-icon-plus"></em>{{'msg.comm.btn.add'|translate}}
+              </a>
+            </ng-template>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>
+          {{ 'msg.metadata.metadata.detail.ui.description' | translate }}
+        </th>
+        <td>
+          <div *ngIf="descriptionChangeText === ''" class="ddp-data-none">{{ 'msg.metadata.metadata.detail.ui.no.description' | translate }}</div>
+          <div class="ddp-edit-description" [ngClass]="{'ddp-edit': isEditDescription}">
+            <!-- data -->
+            <div class="ddp-data-description">
+              <div class="ddp-txt-description" [innerText]="descriptionChangeText"></div>
+              <a href="javascript:" (click)="toggleEditDescriptionFlag()" class="ddp-btn-edit" ><em class="ddp-icon-edit"></em>Edit</a>
+            </div>
+            <!-- //data -->
+            <div class="ddp-box-textarea">
+              <textarea #descInput [(ngModel)]="descriptionChangeText">{{ this.descriptionChangeText }}</textarea>
+              <div class="ddp-textarea-buttons">
+                <a href="javascript:" class="ddp-box-btn" (click)="toggleEditDescriptionFlag()"><em class="ddp-icon-cancel"></em></a>
+                <a href="javascript:" class="ddp-box-btn" (click)="onUpdateSourceDescriptionClicked()"><em class="ddp-icon-check"></em></a>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+    <div class="ddp-wrap-table-detail ">
+      <label class="ddp-label-detail">{{ 'msg.metadata.metadata.detail.ui.source.information' | translate }}</label>
+      <table class="ddp-table-detail type-sub">
+        <colgroup>
+          <col width="170px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{ 'msg.metadata.md.ui.data.type' | translate }}
+          </th>
+          <td>
+            {{ dataType }}
+          </td>
+        </tr>
+        <tr *ngIf="metadata.sourceType === sourceType.ENGINE && metadata.source.source !== undefined">
+          <th>
+            {{ 'msg.metadata.metadata.detail.ui.status' | translate }}
+          </th>
+          <td>
+            <span class="{{ statusClass }}" > {{ metadata.source.source.status }} </span>
+          </td>
+        </tr>
+        <tr *ngIf="metadata.sourceType === sourceType.ENGINE && metadata.source.source === undefined">
+          <th>
+            {{ 'msg.metadata.metadata.detail.ui.status' | translate }}
+          </th>
+          <td>
+            <span class="{{ statusClass }}" > Undefined </span>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{ 'msg.metadata.metadata.detail.ui.created.at' | translate }}
+          </th>
+          <td>
+            {{ metadata.createdTime | mdate:'YYYY-MM-DD HH:mm' }} <span class="ddp-txt-colortype">by</span> {{ metadata.createdBy.fullName }}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{ 'msg.metadata.metadata.detail.ui.updated.at' | translate }}
+          </th>
+          <td>
+            {{ metadata.modifiedTime | mdate:'YYYY-MM-DD HH:mm'  }} <span class="ddp-txt-colortype">by</span> {{ metadata.modifiedBy.fullName }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- If sourceType is not ENGINE, but JDBC(hive) or stageDB     -->
+      <div class="ddp-wrap-detail-sub"
+           *ngIf="metadata.sourceType !== sourceType.ENGINE
+           && (dataType === 'Staging DB' || dataType === 'Database(Hive)')
+           && metadata['source']['sourceInfo']">
+        <label class="ddp-label-detail ddp-type">{{ 'msg.metadata.metadata.detail.ui.ingestion.information' | translate }}</label>
+        <div class="ddp-table-label">{{ 'msg.metadata.metadata.detail.ui.detailed.table.information' | translate }}</div>
+        <table class="ddp-table-detail type-sub">
+          <colgroup>
+            <col width="170px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.database' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['Database:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.owner' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['Owner:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.create.time' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['CreateTime:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.last.access.time' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['LastAccessTime:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.retention' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['Retention:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.location' | translate }}</th>
+            <td>
+              <a href="javascript:" class="ddp-link-url2">{{ metadata['source']['sourceInfo']['Detail Information']['Location:'] }}</a>
+            </td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.type' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['Table Type:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.parameters' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['Table Parameters:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.num.files' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['numFiles'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.num.rows' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['numRows'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.row.data.size' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['rawDataSize'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.total.size' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['totalSize'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.transient.last.Ddl.time' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Detail Information']['transient_lastDdlTime'] }}</td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="ddp-table-label">Storage Information </div>
+        <table class="ddp-table-detail type-sub">
+          <colgroup>
+            <col width="170px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.serbe.library' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Storage Information']['SerDe Library:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.input.format' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Storage Information']['InputFormat:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.output.format' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Storage Information']['OutputFormat:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.compressed' | translate }}</th><td>{{ metadata['source']['sourceInfo']['Storage Information']['Compressed:'] }}
+            </td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.num.buckets' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Storage Information']['Num Buckets:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.bucket.columns' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Storage Information']['Bucket Columns:'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.sort.columns' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['Storage Information']['Sort Columns:'] }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- If sourceType is not ENGINE, but JDBC(hive) or stageDB     -->
+
+      <!-- If sourceType is not  ENGINE, JDBC(hive), stageDB     -->
+      <div class="ddp-wrap-detail-sub"
+           *ngIf="metadata.sourceType !== sourceType.ENGINE
+           && dataType !== 'Database(Hive)'
+           && dataType !== 'Staging DB'
+           && metadata['source']['sourceInfo']">
+        <label class="ddp-label-detail ddp-type">{{ 'msg.metadata.metadata.detail.ui.ingestion.information' | translate }}</label>
+        <table class="ddp-table-detail type-sub">
+          <colgroup>
+            <col width="170px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.catalog' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['TABLE_CATALOG'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.schema' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['TABLE_SCHEMA'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.name' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['TABLE_NAME'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.type' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['TABLE_TYPE'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.engine' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['ENGINE'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.version' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['VERSION'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.row.format' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['ROW_FORMAT'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.rows' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['TABLE_ROWS'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.avg.row.length' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['AVG_ROW_LENGTH'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.data.length' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['DATA_LENGTH'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.max.data.length' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['MAX_DATA_LENGTH']}}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.index.length' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['INDEX_LENGTH'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.data.free' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['DATA_FREE'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.auto.increment' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['AUTO_INCREMENT'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.create.time' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['CREATE_TIME'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.update.time' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['UPDATE_TIME'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.check.time' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['CHECK_TIME'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.collation' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['TABLE_COLLATION'] }}</td>
+          </tr>
+
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.checksum' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['CHECKSUM'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.create.options' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['CREATE_OPTIONS'] }}</td>
+          </tr>
+          <tr>
+            <th>{{ 'msg.metadata.metadata.detail.ui.table.comment' | translate }}</th>
+            <td>{{ metadata['source']['sourceInfo']['TABLE_COMMENT'] }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- If sourceType is not  ENGINE, JDBC(hive), stageDB     -->
+    </div>
+
+  </div>
+  <!-- //datadetail -->
+
+
+</div>
+<!-- //tab contents -->

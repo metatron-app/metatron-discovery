@@ -35,6 +35,8 @@ public class IngestionDataResultResponse implements Serializable {
   // Use this on file ingestion preview
   protected FileValidationResponse isParsable;
 
+  protected String charset;
+
   public IngestionDataResultResponse() {
     // Empty Constructor
   }
@@ -56,6 +58,14 @@ public class IngestionDataResultResponse implements Serializable {
     this.data = data;
     this.totalRows = totalRows;
     this.isParsable = isParsable;
+  }
+
+  public IngestionDataResultResponse(List<Field> fields, List<Map<String, Object>> data, long totalRows, FileValidationResponse isParsable, String charset) {
+    this.fields = fields;
+    this.data = data;
+    this.totalRows = totalRows;
+    this.isParsable = isParsable;
+    this.charset = charset;
   }
 
   public IngestionDataResultResponse(List<Field> fields, List<Map<String, Object>> data, FileValidationResponse isParsable) {
@@ -97,12 +107,17 @@ public class IngestionDataResultResponse implements Serializable {
     this.isParsable = isParsable;
   }
 
+  public String getCharset() { return charset; }
+
+  public void setCharset(String charset) { this.charset = charset; }
+
   @Override
   public String toString() {
     return "QueryResultSet{" +
             "fields=" + fields +
             ", data=" + data +
             ", totalRows=" + totalRows +
+            ", charset=" + charset +
             '}';
   }
 }

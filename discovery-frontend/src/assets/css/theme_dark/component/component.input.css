@@ -1,0 +1,372 @@
+@charset "utf-8";
+
+/**************************************************************
+	툴팁
+**************************************************************/
+.theme-dark input.ddp-input-type::-webkit-input-placeholder {
+    color: #d7d7dc;
+}
+
+.theme-dark input.ddp-input-type:-ms-input-placeholder {
+    color: #d7d7dc;
+}
+
+.theme-dark input.ddp-input-type:disabled {
+    color: rgba(75, 81, 91, 0.3);
+}
+
+.theme-dark input.ddp-input-typebasic {
+    display: block;
+    width: 100%;
+    padding: 6px 10px 6px 10px;
+    border-radius: 2px;
+    border: 1px solid #d0d1d9;
+    box-sizing: border-box;
+    font-size: 13px;
+}
+
+.theme-dark input.ddp-input-typebasic::-webkit-input-placeholder {
+    color: #a4aab0;
+}
+
+.theme-dark input.ddp-input-typebasic:-ms-input-placeholder {
+    color: #a4aab0;
+}
+
+.theme-dark input.ddp-input-typebasic:focus {
+    border: 1px solid #b7b9c2;
+}
+
+.theme-dark input.ddp-input-typebasic:read-only:focus {
+    border: 1px solid #d0d1d9;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-full {
+    width: 100%;
+}
+
+.theme-dark input.ddp-input-typebasic:disabled {
+    background-color: rgba(240, 240, 240, 0.3);
+    cursor: no-drop;
+    opacity: 0.5;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-disabled {
+    background-color: rgba(240, 240, 240, 0.3);
+    cursor: no-drop;
+    opacity: 0.5;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-inline {
+    display: inline-block;
+    width: inherit;
+    position: relative;
+    top: -3px;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-error {
+    color: #eb5f58;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-font-size {
+    padding-top: 10px;
+    font-size: 12px;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-timeout {
+    width: 289px;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-readonly,
+.theme-dark input.ddp-input-typebasic.ddp-readonly:focus {
+    padding-left: 0px;
+    border: 1px solid transparent;
+    background: none;
+}
+
+.theme-dark input.ddp-input-typebasic.ddp-focus:focus {
+    color: #4b515b;
+}
+
+.theme-dark input.ddp-input-type {
+    display: block;
+    width: 100%;
+    padding-bottom: 10px;
+    font-size: 16px;
+    border: none;
+    border-bottom: 1px solid #e7e7ea;
+}
+
+.theme-dark .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic.ddp-disabled,
+.theme-dark .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic[disabled="disabled"] {
+    background-color: #9a9c9f;
+    border: 1px solid #9a9c9f;
+    opacity: 1;
+}
+
+.theme-dark .ddp-ng-ellipsis span.ddp-data-ellipsis {
+    display: block;
+    border: 1px solid #d0d1d9;
+    width: 100%;
+    padding: 6px 10px 6px 10px;
+    border-radius: 2px;
+    font-size: 13px;
+    background-color: #fff;
+    box-sizing: border-box;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.theme-dark .ddp-ng-ellipsis input {
+    display: none;
+}
+
+.theme-dark .ddp-ng-ellipsis.ddp-selected span.ddp-data-ellipsis {
+    display: none;
+}
+
+.theme-dark .ddp-ng-ellipsis.ddp-selected input {
+    display: block;
+}
+
+.theme-dark .ddp-ng-ellipsis.ddp-selected .ddp-ui-tooltip-info {
+    display: block;
+}
+
+/**************************************************************
+    적용 input
+**************************************************************/
+.theme-dark .ddp-input-apply {
+    position: relative;
+}
+
+.theme-dark .ddp-input-apply.ddp-disabled:before {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: '';
+    z-index: 3;
+}
+
+.theme-dark .ddp-input-apply.ddp-disabled {
+    opacity: 0.5;
+    background-color: rgba(240, 240, 240, 0.3);
+    cursor: no-drop;
+}
+
+.theme-dark .ddp-input-apply.ddp-disabled input.ddp-input-txt {
+    background: rgba(240, 240, 240, 0.3);
+}
+
+.theme-dark .ddp-input-apply.ddp-disabled:hover input.ddp-input-txt, .theme-dark .ddp-input-apply.ddp-disabledinput.ddp-input-txt:focus {
+    border: 1px solid #d0d1d8;
+}
+
+.theme-dark .ddp-input-apply.ddp-disabled .ddp-icon-apply {
+    display: block;
+}
+
+.theme-dark .ddp-input-apply input.ddp-input-txt {
+    display: block;
+    width: 100%;
+    padding: 6px 10px 6px 10px;
+    color: #4b515b;
+    font-size: 13px;
+    text-align: left;
+    border: 1px solid #d0d1d8;
+    border-radius: 2px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-input-apply input.ddp-input-txt:focus,
+.theme-dark .ddp-input-apply.ddp-edit input.ddp-input-txt {
+    padding-right: 28px;
+}
+
+.theme-dark .ddp-input-apply .ddp-icon-apply {
+    display: none;
+    position: absolute;
+    top: 50%;
+    right: 3px;
+    width: 24px;
+    height: 24px;
+    margin-top: -12px;
+    background-color: #d0d1d8;
+}
+
+.theme-dark .ddp-input-apply .ddp-icon-apply:before {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -4px 0 0 -6px;
+    width: 11px;
+    height: 8px;
+    background: url(../../../images/icon_select2.png) no-repeat;
+    background-position: -27px top;
+    content: '';
+}
+
+.theme-dark .ddp-input-apply:hover input.ddp-input-txt,
+.theme-dark .ddp-input-apply input.ddp-input-txt:focus {
+    border: 1px solid #b7b9c2;
+}
+
+.theme-dark .ddp-input-apply input.ddp-input-txt:focus + .ddp-icon-apply {
+    display: block;
+}
+
+.theme-dark .ddp-input-apply.ddp-edit input.ddp-input-txt {
+    border: 1px solid #b7b9c2;
+}
+
+.theme-dark .ddp-input-apply.ddp-edit .ddp-icon-apply {
+    display: block;
+    background-color: #2ABCEF;
+}
+
+.theme-dark .ddp-input-apply.ddp-loading input.ddp-input-txt {
+    border: 1px solid #b7b9c2;
+}
+
+.theme-dark .ddp-input-apply .ddp-icon-apply-loading {
+    display: none;
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    margin-top: -6px;
+    width: 12px;
+    height: 12px;
+    background: url(../../../images/icon_tabloading.png) no-repeat;
+    vertical-align: middle;
+    animation-name: spin;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.theme-dark .ddp-input-apply.ddp-loading .ddp-icon-apply-loading {
+    display: block;
+}
+
+.theme-dark .ddp-input-apply.ddp-loading .ddp-input-form {
+    display: none;
+}
+
+.theme-dark .ddp-input-apply.ddp-loading:hover .ddp-icon-apply {
+    display: none;
+}
+
+.theme-dark .ddp-input-apply.ddp-loading:before {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    content: '';
+}
+
+.theme-dark .ddp-input-apply2 {
+    border: 1px solid #d0d1d8;
+    background-color: #fff;
+}
+
+.theme-dark .ddp-input-apply2:hover {
+    border: 1px solid #b7b9c2;
+}
+
+.theme-dark .ddp-input-apply2 .txt-apply {
+    position: relative;
+    float: right;
+}
+
+.theme-dark .ddp-input-apply2 .txt-apply .txt-data {
+    float: left;
+    position: Relative;
+    top: 4px;
+    margin: 0 5px;
+    color: #bdc0c9;
+    font-size: 12px;
+}
+
+.theme-dark .ddp-input-apply2 .txt-apply .ddp-icon-apply {
+    display: none;
+    float: left;
+    position: relative;
+    width: 24px;
+    height: 24px;
+    margin: 2px 2px 0 0;
+    background-color: #d0d1d8;
+    cursor: pointer;
+}
+
+.theme-dark .ddp-input-apply2 .txt-apply .ddp-icon-apply:before {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -4px 0 0 -6px;
+    width: 11px;
+    height: 8px;
+    background: url(../../../images/icon_select2.png) no-repeat;
+    background-position: -27px top;
+    content: '';
+}
+
+.theme-dark .ddp-input-apply2 .ddp-wrap-input {
+    display: block;
+    overflow: hidden;
+}
+
+.theme-dark .ddp-input-apply2 .ddp-wrap-input input {
+    display: block;
+    width: 100%;
+    padding: 6px 0 7px 5px;
+    border: none;
+    background: none;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-input-apply2.ddp-edit .txt-apply .ddp-icon-apply {
+    display: block;
+    background-color: #2ABCEF;
+}
+
+.theme-dark .ddp-input-apply2.ddp-focus .txt-apply .ddp-icon-apply {
+    display: block;
+}
+
+/**************************************************************
+    calen
+**************************************************************/
+.theme-dark .ddp-form-calen {
+    position: relative;
+}
+
+.theme-dark .ddp-form-calen input.ddp-input-typebasic {
+    padding-right: 30px;
+}
+
+.theme-dark .ddp-form-calen:after {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    margin-top: -6px;
+    width: 11px;
+    height: 11px;
+    background: url(../../../images/icon_type.png) no-repeat;
+    content: '';
+}
+
+/**************************************************************
+    textarea
+**************************************************************/
+.theme-dark .ddp-textarea-auto {display:block; width:100% !important; max-width:100%; padding:6px 10px 6px 10px; height:31px; min-height:31px; font-size:13px; resize:auto; box-sizing:border-box; border:1px solid #d0d1d8; box-sizing:border-box;}

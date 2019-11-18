@@ -12,14 +12,12 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Output, ViewChild
-} from '@angular/core';
-import { DataconnectionService } from '../../dataconnection/service/dataconnection.service';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { SetWorkspacePublishedComponent } from '../component/set-workspace-published/set-workspace-published.component';
-import { CommonUtil } from '../../common/util/common.util';
-import { StringUtil } from '../../common/util/string.util';
+import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
+import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
+import {CommonUtil} from '../../common/util/common.util';
+import {StringUtil} from '../../common/util/string.util';
 import {AuthenticationType, Dataconnection} from '../../domain/dataconnection/dataconnection';
 import {ConnectionComponent} from "../component/connection/connection.component";
 import {AbstractComponent} from "../../common/component/abstract.component";
@@ -32,6 +30,9 @@ import * as _ from 'lodash';
   templateUrl: './update-connection.component.html'
 })
 export class UpdateConnectionComponent extends AbstractComponent {
+
+  @ViewChild('connection_name_element')
+  private readonly CONNECTION_NAME_ELEMENT: ElementRef;
 
   // workspace set component
   @ViewChild(SetWorkspacePublishedComponent)
@@ -113,7 +114,9 @@ export class UpdateConnectionComponent extends AbstractComponent {
    */
   public done(): void {
     // set click flag
-    this._connectionComponent.isConnectionCheckRequire = true;
+    if (this._connectionComponent.isEmptyConnectionValidation()) {
+      this._connectionComponent.setRequireCheckConnection();
+    }
     // if enable update connection, done modal open
     if (this._isEnableUpdateConnection()) {
       const modal = new Modal();
@@ -188,30 +191,46 @@ export class UpdateConnectionComponent extends AbstractComponent {
   /**
    * Is enable update connection
    * @return {boolean}
-   * @private
+   * @privatedafs
    */
   private _isEnableUpdateConnection(): boolean {
     // check valid connection
-    if (!this._connectionComponent.isValidConnection) {
+    if (!this._connectionComponent.isEnableConnection()) {
+      // #1990 scroll into invalid input
+      this._connectionComponent.scrollIntoConnectionInvalidInput();
       return false;
     }
     // if empty connection name
     if (StringUtil.isEmpty(this.connectionName)) {
       this.isShowConnectionNameRequired = true;
       this.nameErrorMsg = this.translateService.instant('msg.storage.dconn.name.error');
+      // #1990 scroll into invalid input
+      this._scrollIntoConnectionNameInput();
       return false;
     }
     // if connection name over 150 byte
     else if (CommonUtil.getByte(this.connectionName.trim()) > 150) {
       this.isShowConnectionNameRequired = true;
       this.nameErrorMsg = this.translateService.instant('msg.alert.edit.name.len');
+      // #1990 scroll into invalid input
+      this._scrollIntoConnectionNameInput();
       return false;
     }
-    // if exist properties
-    if (this._connectionComponent.isExistProperties()) {
-      return this._connectionComponent.isValidProperties();
+    // if exist properties and invalid property
+    if (this._connectionComponent.isExistProperties() && !this._connectionComponent.isValidProperties()) {
+      // #1990 scroll into invalid input
+      this._connectionComponent.scrollIntoPropertyInvalidInput();
+      return false;
     }
     return true;
+  }
+
+  /**
+   * Scroll into connection name input
+   * @private
+   */
+  private _scrollIntoConnectionNameInput() {
+    this.CONNECTION_NAME_ELEMENT.nativeElement.scrollIntoView();
   }
 
   /**
@@ -288,8 +307,9 @@ export class UpdateConnectionComponent extends AbstractComponent {
     // update connection
     this.connectionService.updateConnection(this._connectionId, {published: !this.originConnectionData.published})
       .then((result) => {
-        this.originConnectionData.published = this.published = result.published;
-        this.originConnectionData.modifiedTime = this.published = result.modifiedTime;
+        this.originConnectionData.published = result.published;
+        this.originConnectionData.modifiedTime = result.modifiedTime;
+        this.published = result.published;
         // alert
         result['published']
           ? Alert.success(this.translateService.instant('msg.storage.alert.dconn-public.success'))
@@ -347,24 +367,27 @@ export class UpdateConnectionComponent extends AbstractComponent {
         params.port = '';
       }
     }
-    // if security type is MANUAL
-    if (this._connectionComponent.selectedAuthenticationType.value === AuthenticationType.MANUAL) {
-      // if password different
-      if (this._connectionComponent.password.trim() !== this.originConnectionData.password) {
-        params.password = this._connectionComponent.password.trim();
+    // if enable authentication type
+    if (!this._connectionComponent.isDisableAuthenticationType()) {
+      // if security type is MANUAL
+      if (this._connectionComponent.selectedAuthenticationType.value === AuthenticationType.MANUAL) {
+        // if password different
+        if (this._connectionComponent.password.trim() !== this.originConnectionData.password) {
+          params.password = this._connectionComponent.password.trim();
+        }
+        // if username different
+        if (this._connectionComponent.username.trim() !== this.originConnectionData.username) {
+          params.username = this._connectionComponent.username.trim();
+        }
       }
-      // if username different
-      if (this._connectionComponent.username.trim() !== this.originConnectionData.username) {
-        params.username = this._connectionComponent.username.trim();
-      }
-    }
-    // if changed security type
-    if (this.originConnectionData.authenticationType !== this._connectionComponent.selectedAuthenticationType.value) {
-      params.authenticationType = this._connectionComponent.selectedAuthenticationType.value;
-      // if origin security type is MANUAL, delete username and password
-      if (this.originConnectionData.authenticationType === AuthenticationType.MANUAL) {
-        params.username = '';
-        params.password = '';
+      // if changed security type
+      if (this.originConnectionData.authenticationType !== this._connectionComponent.selectedAuthenticationType.value) {
+        params.authenticationType = this._connectionComponent.selectedAuthenticationType.value;
+        // if origin security type is MANUAL, delete username and password
+        if (this.originConnectionData.authenticationType === AuthenticationType.MANUAL) {
+          params.username = '';
+          params.password = '';
+        }
       }
     }
     // if changed property

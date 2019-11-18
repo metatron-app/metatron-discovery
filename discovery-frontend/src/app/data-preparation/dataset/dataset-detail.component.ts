@@ -30,6 +30,7 @@ import {PrDataflow} from '../../domain/data-preparation/pr-dataflow';
 import {CreateSnapshotPopup} from '../component/create-snapshot-popup.component';
 import {SnapshotLoadingComponent} from '../component/snapshot-loading.component';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {Location} from "@angular/common";
 
 import {isNull, isNullOrUndefined} from "util";
 import * as pixelWidth from 'string-pixel-width';
@@ -90,6 +91,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public isSelectDataflowOpen: boolean = false;
 
+  public isForLineage: boolean = true;
+
   // dataflow id str
   public dfStr : string;
 
@@ -116,6 +119,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
               private dataflowService: DataflowService,
               private dataflowModelService: DataflowModelService,
               private activatedRoute: ActivatedRoute,
+              private _location:Location,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -156,8 +160,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       { command: 'setformat', alias: 'Sf'}
     ];
 
-
-
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
@@ -182,12 +184,15 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     this.snapshotLoadingComponent.init(data);
   }
 
-  /** 데이터셋 리스트로 돌아간다 */
+
+  /**
+   * Go back to dataset list
+   */
   public close() {
     clearInterval(this.interval);
     this.interval = undefined;
-    this.router.navigate(['/management/datapreparation/dataset']);
-  } // function - close
+    this._location.back();
+  }
 
   /**
    * 데이터셋 옵션 레이어 toggle (우측상단)
@@ -341,6 +346,25 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     this.changeDetect.detectChanges();
     this.dsDesc.nativeElement.focus();
+  }
+
+  public makeLineage() {
+    var params = {
+      'dsId': this.dataset.dsId,
+      'dsName': this.dataset.dsName
+    };
+
+    this.loadingShow();
+    this.datasetService.makeLineage(params)
+      .then(result => {
+        this.loadingHide();
+        Alert.success(this.translateService.instant('msg.dp.alert.create-lineage.success',{value:result.length}));
+      })
+      .catch((error) => {
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
   }
 
   /** get total bytes */

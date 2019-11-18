@@ -16,6 +16,8 @@ spring:
     admin:
       client:
         enabled: false
+liquibase:
+  change-log: classpath:db/changelog/db.changelog-master.xml
 server:
   port: 8180
   display-name: polaris
@@ -87,6 +89,9 @@ polaris:
       -
         method: POST
         api: /api/images/**
+      -
+        method: GET
+        api: /api/monitoring/ingestion/task/*/log
   datasource:
     connections:
       ORACLE: ["ENGINE", "LIVE"]
@@ -96,6 +101,10 @@ polaris:
       PRESTO: ["LIVE"]
       PHOENIX: ["LIVE"]
   engine:
+    monitoring:
+      emitter:
+        type: kafka
+        datasource: druid-metric
     api:
       query:
         target: broker
@@ -177,6 +186,42 @@ polaris:
         target: coordinator
         method: DELETE
         uri: /druid/coordinator/v1/datasources/{datasourceId}/purge
+      getHistoricalNode:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/servers?simple
+      getMiddleMgmtNode:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/workers
+      getConfigs:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/configs/{configName}
+      getPendingTasks:
+        target: overlord
+        method: GET
+        uri : /druid/indexer/v1/pendingTasks
+      getRunningTasks:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/runningTasks
+      getWaitingTasks:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/waitingTasks
+      getCompleteTasks:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/completeTasks
+      sql:
+        target: broker
+        method: POST
+        uri: /druid/v2/sql
+      getSupervisorList:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/supervisor?full
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
 #  cors:
@@ -188,18 +233,18 @@ polaris:
 #      exposedHeaders: "*"
 #      allowCredentials: false
 #      maxAge: 3600
----
-spring:
-  profiles: initial
-  datasource:
-    initialize: true
-  jpa:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: create
-          import_files: /scripts/default.sql,/scripts/default_expressions.sql,/scripts/default_datasource_ingestion_options.sql
-          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
+#---
+#spring:
+#  profiles: initial
+#  datasource:
+#    initialize: true
+#  jpa:
+#    properties:
+#      hibernate:
+#        hbm2ddl:
+#          auto: create
+#          import_files: /scripts/default.sql,/scripts/default_expressions.sql,/scripts/default_datasource_ingestion_options.sql
+#          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
 ---
 spring:
   profiles: local
@@ -257,7 +302,12 @@ polaris:
       port: 10000
       username: hive
       password: hive
-      metastoreUri: thrift://localhost:9083
+      metastore:
+        uri: thrift://localhost:9083
+        jdbc:
+          url:
+          username:
+          password:
   dataprep:
     localBaseDir: ${user.home}/dataprep
 #    hadoopConfDir: /etc/hadoop
@@ -306,9 +356,11 @@ spring:
         order_inserts: true
         order_updates: true
         hbm2ddl:
-          auto: update
+          auto: validate
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        connection:
+          release_mode: after_transaction
 
 ---
 spring:
@@ -335,7 +387,7 @@ spring:
         order_inserts: true
         order_updates: true
         hbm2ddl:
-          auto: update
+          auto: none
         dialect: org.hibernate.dialect.H2Dialect
         naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
   h2:

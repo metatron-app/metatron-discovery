@@ -109,7 +109,8 @@
                 <em class="ddp-icon-listdelete" (click)="deleteSelectedField(index)"></em>
               </li>
               <!-- ddp-selected 추가시 popup 열림 -->
-              <li class="ddp-add" (click)="toggleAddColumn()" [ngClass]="{'ddp-selected' : addColumnShowFl && uiOption?.toolTip?.displayTypes.indexOf('DATA_VALUE') != -1}">
+              <li class="ddp-add" (clickOutside)="$event.stopPropagation(); this.addColumnShowFl=false;" (click)="toggleAddColumn()"
+                  [ngClass]="{'ddp-selected' : addColumnShowFl && uiOption?.toolTip?.displayTypes.indexOf('DATA_VALUE') != -1}">
                 <span class="ddp-data-value">
                     {{'msg.page.chart.datalabel.map.add.column'| translate}}
                 </span>

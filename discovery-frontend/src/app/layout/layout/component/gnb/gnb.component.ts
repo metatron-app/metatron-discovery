@@ -12,13 +12,16 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { CookieConstant } from '../../../../common/constant/cookie.constant';
-import { UserService } from '../../../../user/service/user.service';
-import { User } from '../../../../domain/user/user';
-import { ProfileComponent } from '../../../../user/profile/profile.component';
-import { CommonUtil } from '../../../../common/util/common.util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {CookieConstant} from '../../../../common/constant/cookie.constant';
+import {UserService} from '../../../../user/service/user.service';
+import {User} from '../../../../domain/user/user';
+import {ProfileComponent} from '../../../../user/profile/profile.component';
+import {CommonUtil} from '../../../../common/util/common.util';
+import {LocalStorageConstant} from "../../../../common/constant/local-storage.constant";
+import {Language, Theme, UserSetting} from "../../../../common/value/user.setting.value";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
 
 @Component({
   selector: 'app-gnb',
@@ -32,19 +35,19 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  //
   protected defaultPhotoSrc = '/assets/images/img_photo.png';
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // my info show/hide
   public isMyInfoShow = false;
+  public isLanguageShow = false;
 
   // UI에서 사용할 유저객체
   public user: User;
+
+  public constTheme = Theme;
 
   @ViewChild(ProfileComponent)
   public profileComponent: ProfileComponent;
@@ -55,6 +58,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
 
   // 생성자
   constructor(private userService: UserService,
+              protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -94,12 +98,29 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     this.profileComponent.init(this.user);
   }
 
+  public getCurrentLang(): string {
+    return this.getLanguage();
+  }
+
+  public changeLanguage(lang: string): void {
+    if (this.getCurrentLang() != lang) {
+      this.setLanguage(lang);
+      this._saveUserSetting(null, UserSetting.getLanguage(lang));
+    }
+    this.isLanguageShow = false;
+  }
+
   /**
    * 사용자 정보 수정 완료
-   * @param event
+   * @param userData
    */
-  public updatedUser(event): void {
-    this.user = event;
+  public updatedUser(userData): void {
+    delete this.user.imageUrl;
+    this.safelyDetectChanges();
+    setTimeout(() => {
+      this.user = userData;
+      this.safelyDetectChanges();
+    }, 250 );
   }
 
   /**
@@ -113,6 +134,16 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
       return this.defaultPhotoSrc;
     }
   } // function - getUserImage
+
+  public isThemeDark(): boolean {
+    return $('body').hasClass(Theme.DARK);
+  }
+
+  public themeCheckboxClick(theme: Theme) {
+    CommonUtil.setThemeCss(theme);
+    this.broadCaster.broadcast('CHANGE_THEME', theme);
+    this._saveUserSetting(theme, null);
+  }
 
   public logout() {
     if( CommonUtil.isSamlSSO() ) {
@@ -136,5 +167,21 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private _saveUserSetting(theme:Theme, language:Language): void {
+    let userData: UserSetting = CommonUtil.getUserSetting();
+    if (!userData) {
+      userData = new UserSetting();
+    }
+
+    if (theme != null) {
+      userData.theme = theme;
+    }
+    if (language != null) {
+      userData.language = language;
+    }
+
+    CommonUtil.setLocalStorage(LocalStorageConstant.KEY.USER_SETTING, JSON.stringify(userData));
+  }
 
 }

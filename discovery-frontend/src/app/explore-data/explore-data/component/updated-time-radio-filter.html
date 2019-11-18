@@ -1,0 +1,39 @@
+<div class="ddp-result-filtering" [class.ddp-selected]="updatedTimeFilterShowFlag" (click)="toggleSelectedFilterShowFlag()" (clickOutside)="closeSelectedFilter();" >
+  <span class="ddp-txt-label" >Updated time:</span>
+  <div class="ddp-box-result">
+    <span class="ddp-txt-result" >
+      {{ selectedUpdatedTimeOptionName === 'BETWEEN'
+      ? startDateStr + endDateStr
+      : selectedUpdatedTimeOptionName }}
+    </span>
+  </div>
+  <div class="ddp-wrap-popup2 ddp-date">
+    <ul class="ddp-list-popup">
+      <li *ngFor="let sortOption of sortOptionList" (click)="onChangeFilter(sortOption)">
+        <a href="javascript:" >
+          <label class="ddp-label-radio">
+            <input type="radio" [checked]="selectedDate.type === sortOption.value">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-checkbox">{{ sortOption.name }}</span>
+          </label>
+          <!-- dateinfo -->
+          <div class="ddp-wrap-dateinfo" *ngIf="selectedDate.type === 'BETWEEN' && sortOption.value === 'BETWEEN'">
+            <div class="ddp-ui-dateinfo">
+              <span class="ddp-txt-date">{{'msg.storage.ui.criterion.time.from' | translate}}</span>
+              <div class="ddp-box-dateinfo ddp-clear">
+                <input (click)="datePickerIsOn = true; $event.stopPropagation(); $event.stopImmediatePropagation()" #startPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.past' | translate}}" readonly>
+              </div>
+            </div>
+            <div class="ddp-ui-dateinfo">
+              <span class="ddp-txt-date">{{'msg.storage.ui.criterion.time.to' | translate}}</span>
+              <div class="ddp-box-dateinfo ddp-clear">
+                <input (click)="datePickerIsOn = true; $event.stopPropagation(); $event.stopImmediatePropagation()" #endPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.current' | translate}}" readonly>
+              </div>
+            </div>
+          </div>
+          <!-- //dateinfo -->
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

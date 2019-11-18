@@ -14,20 +14,29 @@
 
 package app.metatron.discovery.extensions;
 
+import org.pf4j.DefaultPluginClasspath;
 import org.pf4j.DefaultPluginManager;
+import org.pf4j.DevelopmentPluginClasspath;
+import org.pf4j.PluginClasspath;
 import org.pf4j.PluginStatusProvider;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import org.springframework.boot.ApplicationHome;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.annotation.PostConstruct;
 
+import app.metatron.discovery.MetatronDiscoveryApplication;
 import app.metatron.discovery.domain.extension.ExtensionProperties;
 
 /**
@@ -93,19 +102,29 @@ public class CustomPluginManager extends DefaultPluginManager {
     beanFactory.registerSingleton(extension.getClass().getName(), extension);
   }
 
-//  @Override
-//  protected Path createPluginsRoot() {
-//    String pluginsDir;
-//    System.out.println("getRuntimeMode() = " + getRuntimeMode());
-//    if (isDevelopment()) {
-//      pluginsDir = "../discovery-distribution/plugins";
-//    } else {
-//      pluginsDir = "./discovery-distribution/plugins";
-//    }
-//    Path pluginPath = Paths.get(pluginsDir);
-//    System.out.println("pluginPath.toAbsolutePath().toString() = " + pluginPath.toAbsolutePath().toString());
-//    return pluginPath;
-//  }
+  @Override
+  protected Path createPluginsRoot() {
+    LOGGER.info("Plugin RuntimeMode :  = " + getRuntimeMode());
+    String pluginsDir = System.getProperty("pf4j.pluginsDir");
+    if (pluginsDir == null) {
+      if (isDevelopment()) {
+        pluginsDir = "./discovery-distribution/extensions";
+      } else {
+        ApplicationHome home = new ApplicationHome(MetatronDiscoveryApplication.class);
+        LOGGER.info("Application Home : " + home.getDir().getAbsolutePath());
+        pluginsDir = home.getDir().getAbsolutePath() + "/extensions";
+      }
+    }
+
+    Path pluginPath = Paths.get(pluginsDir);
+    LOGGER.info("PluginPath : " + pluginPath.toAbsolutePath().toString());
+    return pluginPath;
+  }
+
+  @Override
+  protected PluginClasspath createPluginClasspath() {
+    return new DefaultPluginClasspath();
+  }
 
   @PostConstruct
   public void postConstruct(){

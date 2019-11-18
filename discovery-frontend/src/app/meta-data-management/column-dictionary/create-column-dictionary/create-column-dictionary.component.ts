@@ -159,7 +159,11 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
    */
   public onClickDone(): void {
     // validation 체크 & 논리명 중복되는지 확인 후 컬럼 사전 생성
-    this._doneValidation() && this._checkEnableLogicalNameAndCreateColumnDictionary();
+    if( this._doneValidation() ) {
+      this.doneLogicNameValidation().then( isOk => {
+        ( isOk ) && (this._createColumnDictionary());
+      });
+    }
   }
 
   /**
@@ -222,6 +226,89 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     this.selectedCodeTable = codeTable;
   }
 
+  public doneLogicNameValidation():Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      // 논리명 비어있는지 확인
+      if (this.logicalName.trim() === '') {
+        // message
+        this.logicalNameValidationMsg = this.translateService.instant(
+          'msg.metadata.ui.dictionary.create.valid.logical.name.required');
+        // return
+        return false;
+      }
+
+      // 논리명 자리수 계산
+      if (CommonUtil.getByte(this.logicalName.trim()) > 150) {
+        // message
+        this.logicalNameValidationMsg = this.translateService.instant(
+          'msg.metadata.ui.dictionary.create.valid.logical.name.length');
+        // return
+        return false;
+      }
+
+      // 로딩 show
+      this.loadingShow();
+      // 논리명이 중복인지 확인
+      return this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.logicalName.trim()).then((result) => {
+        this.loadingHide();
+        // 중복
+        if (result['duplicated']) {
+          // message
+          this.logicalNameValidationMsg = this.translateService.instant(
+            'msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.logicalName.trim()});
+          // 로딩 hide
+          return false;
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  public doneColNameValidation():boolean {
+    // 컬럼명 비어있는지 확인
+    if (this.columnName.trim() === '') {
+      // message
+      this.columnNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.column.name.required');
+      // return
+      return false;
+    }
+    // 컬럼명 자리수 계산
+    if (CommonUtil.getByte(this.columnName.trim()) > 150) {
+      // message
+      this.columnNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.column.name.length');
+      // return
+      return false;
+    }
+    return true;
+  }
+
+  public doneShortNameValidation():boolean {
+    // 약어가 자리수 계산
+    if (CommonUtil.getByte(this.shortName.trim()) > 150) {
+      // message
+      this.shortNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.short.name.length');
+      // return
+      return false;
+    }
+    return true;
+  }
+
+  public doneDescValidation():boolean {
+    // 설명 자리수 계산
+    if (CommonUtil.getByte(this.description.trim()) > 150) {
+      // message
+      this.descriptionValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.desc.length');
+      // return
+      return false;
+    }
+    return true;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -263,78 +350,9 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
    * @private
    */
   private _doneValidation(): boolean {
-    // 논리명 비어있는지 확인
-    if (this.logicalName.trim() === '') {
-      // message
-      this.logicalNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.logical.name.required');
-      // return
-      return false;
-    }
-    // 논리명 자리수 계산
-    if (CommonUtil.getByte(this.logicalName.trim()) > 150) {
-      // message
-      this.logicalNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.logical.name.length');
-      // return
-      return false;
-    }
-    // 컬럼명 비어있는지 확인
-    if (this.columnName.trim() === '') {
-      // message
-      this.columnNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.column.name.required');
-      // return
-      return false;
-    }
-    // 컬럼명 자리수 계산
-    if (CommonUtil.getByte(this.columnName.trim()) > 150) {
-      // message
-      this.columnNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.column.name.length');
-      // return
-      return false;
-    }
-    // 약어가 자리수 계산
-    if (CommonUtil.getByte(this.shortName.trim()) > 150) {
-      // message
-      this.shortNameValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.short.name.length');
-      // return
-      return false;
-    }
-    // 설명 자리수 계산
-    if (CommonUtil.getByte(this.description.trim()) > 150) {
-      // message
-      this.descriptionValidationMsg = this.translateService.instant(
-        'msg.metadata.ui.dictionary.create.valid.desc.length');
-      // return
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * 논리명 중복 체크후 컬럼 사전 생성
-   * @private
-   */
-  private _checkEnableLogicalNameAndCreateColumnDictionary(): void {
-    // 로딩 show
-    this.loadingShow();
-    // 논리명이 중복인지 확인
-    this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.logicalName.trim()).then((result) => {
-      // 중복
-      if (result['duplicated']) {
-        // message
-        this.logicalNameValidationMsg = this.translateService.instant(
-          'msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.logicalName.trim()});
-        // 로딩 hide
-        this.loadingHide();
-      } else {
-        // 컬럼사전 생성
-        this._createColumnDictionary();
-      }
-    }).catch(error => this.commonExceptionHandler(error));
+    return this.doneColNameValidation()
+      && this.doneShortNameValidation()
+      && this.doneDescValidation();
   }
 
   /**
@@ -351,9 +369,9 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
         this.translateService.instant('msg.metadata.ui.dictionary.create.success', {value: this.logicalName.trim()}));
       // 로딩 hide
       this.loadingHide();
-      // close
-      this.createComplete.emit();
       this.onClickCancel();
+      // close
+      this.createComplete.emit(result.id);
     }).catch(error => this.commonExceptionHandler(error));
   }
 

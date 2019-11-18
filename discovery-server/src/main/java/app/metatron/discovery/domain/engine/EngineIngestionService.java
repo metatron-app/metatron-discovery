@@ -207,6 +207,10 @@ public class EngineIngestionService {
 
   }
 
+  public void purgeDataSource(String dataSourceId) {
+    engineMetaRepository.purgeDataSource(dataSourceId);
+  }
+
   /**
    * 실제 스펙을 가지고 Supervisor task 전달
    */

@@ -1,0 +1,230 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-type-contents2">
+
+  <div class="ddp-top-flow">
+    <!-- 버튼 -->
+    <div class="ddp-data-form">
+      <a href="#" class="ddp-btn-buttons3 type-normal" (click)="confirmOpen('SHUTDOWN'); $event.preventDefault();">{{'msg.engine.monitoring.ingestion.shutdown' | translate}}</a>
+      <a href="#" class="ddp-btn-buttons3 type-normal" (click)="confirmOpen('RESET'); $event.preventDefault();">{{'msg.engine.monitoring.ingestion.reset' | translate}}</a>
+    </div>
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+
+      <a href="javascript:" class="ddp-btn-back" (click)="prevSupervisorList();"></a>
+      <span class="ddp-data-name">{{supervisorId}}</span>
+    </div>
+    <!-- //navi wrap -->
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
+
+      <label class="ddp-label-detail">{{'msg.comm.ui.info' | translate}}</label>
+
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="160px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            Topic
+          </th>
+          <td>
+            {{supervisorPayload.topic}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Datasource
+          </th>
+          <td>
+            {{supervisorPayload.dataSource}}
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+    <!-- //detail -->
+
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
+      <div class="ddp-label-option">
+        <label class="ddp-label-detail">LAG</label>
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-type-selectbox" [class.ddp-selected]="isShowLagDuration"
+             (click)="isShowLagDuration = !isShowLagDuration" (clickOutside)="isShowLagDuration=false">
+          <span class="ddp-txt-selectbox">{{getDurationLabel(selectedLagDuration)}}</span>
+
+          <ul class="ddp-list-selectbox ddp-selectdown ">
+            <li>
+              <a href="javascript:" (click)="changeLagDuration('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1HOUR')}}
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="changeLagDuration('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('1DAY')}}
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="changeLagDuration('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('7DAYS')}}
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="changeLagDuration('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
+                {{getDurationLabel('30DAYS')}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="ddp-box-graph" #lag>
+
+      </div>
+    </div>
+    <!-- //detail -->
+    <!-- detail -->
+    <div class="ddp-ui-datadetail type-detail">
+      <div class="ddp-label-option">
+        <label class="ddp-label-detail">Active Tasks</label>
+        <table class="ddp-table-detail3 type-running">
+          <colgroup>
+            <col width="*">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              Task ID
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let runningTask of supervisorPayload.activeTasks">
+            <td>
+              <a href="javascript:" class="ddp-btn-pop  ddp-type" (click)="showTaskPopup(runningTask.id);">{{'msg.comm.detail.details' | translate}}</a>
+              <div class="ddp-txt-long">
+                {{runningTask.id}}
+              </div>
+
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- //detail -->
+  </div>
+</div>
+<div class="ddp-wrap-layout-popup" *ngIf="showConfirm">
+  <div class="ddp-box-popup ddp-box-popup-type2">
+    <a href="javascript:" class="ddp-btn-close" (click)="showConfirm = false"></a>
+    <!-- title -->
+    <div class="ddp-pop-title">{{confirmModal.name}}</div>
+    <!-- //title -->
+
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="showConfirm = false">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="confirmDone();">{{confirmModal.btnName}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+</div>
+<!-- 미리보기 팝업 -->
+<div class="ddp-pop-preview ddp-type" [style.display]="isShowTaskPopup ? 'block' : 'none'">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      Task {{'msg.comm.ui.info' | translate}}
+    </div>
+    <em class="ddp-btn-popup-close" (click)="isShowTaskPopup = false"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ">
+    <div class="ddp-wrap-informaiton ">
+      <div class="ddp-ui-detail ddp-clear ddp-task-detail ">
+        <table class="ddp-table-detail2 type-vertical-top">
+          <colgroup>
+            <col width="200px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              Queue Insertion Time
+            </th>
+            <td>
+              {{task.queue_insertion_time}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Time Stamp
+            </th>
+            <td>
+              {{task.created_time}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Host
+            </th>
+            <td>
+              {{task.host}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Location
+            </th>
+            <td>
+              {{task.location}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Datasource
+            </th>
+            <td>
+              {{task.datasource}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Type
+            </th>
+            <td>
+              {{getTypeTranslate(task.type)}}
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+        <a href="javascript:" class="ddp-btn-selection ddp-black" (click)="goToTask(task.task_id)"><em class="ddp-icon-view"></em>{{'msg.engine.monitoring.ingestion.supervisor.move.task' | translate}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- //cpmtemts -->
+</div>
+<!-- //미리보기 팝업 -->

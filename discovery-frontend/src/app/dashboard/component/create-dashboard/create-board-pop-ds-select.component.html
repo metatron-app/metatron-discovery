@@ -84,14 +84,12 @@
               <table class="ddp-table-form ddp-table-type2">
                 <colgroup>
                   <col width="40px">
-                  <col width="50px">
                   <col width="*">
                   <col width="30%">
                 </colgroup>
                 <thead>
                   <tr>
                     <th class="ddp-txt-center"> </th>
-                    <th class="ddp-txt-center"> {{'msg.comm.th.no' | translate}} </th>
                     <th (click)="changeOrder('name');">
                       {{'msg.comm.th.ds' | translate}}
                       <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
@@ -110,7 +108,6 @@
               <table class="ddp-table-form ddp-table-type2 ddp-table-select">
                 <colgroup>
                   <col width="40px">
-                  <col width="50px">
                   <col width="*">
                   <col width="30%">
                 </colgroup>
@@ -125,7 +122,6 @@
                         <i class="ddp-icon-checkbox"></i>
                       </div>
                     </td>
-                    <td class="ddp-txt-center">{{item.num}}</td>
                     <td>
                       <div class="ddp-txt-long" [class.ddp-global]="item.published">
                         {{item.name}}

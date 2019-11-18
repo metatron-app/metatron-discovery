@@ -1,0 +1,166 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- tab contents -->
+<!--suppress NsUnresolvedStyleClassReference -->
+<div class="ddp-ui-tab-contents" *ngIf="metadataModelService.getMetadata()">
+
+  <div class="ddp-box-message">
+    <div class="ddp-box-synch type-info" *ngIf="isSourceTypeDatasource() && isMetadataSourceTypeIsEngine() && isMsgPopupShow">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{ 'msg.metadata.ui.description' | translate }}
+      </div>
+      <a href="javascript:" class="ddp-btn-info-close" (click)="closeMsgPopup($event)"></a>
+    </div>
+  </div>
+
+  <!-- datadetail -->
+  <div class="ddp-ui-datadetail ddp-border-none">
+    <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link"
+       *ngIf="isSourceTypeDatasource() && isMetadataSourceTypeIsEngine()"
+       (click)="gotoDatasource()">{{ 'msg.metadata.ui.move.datasource' | translate }}</a>
+    <label class="ddp-label-detail">{{'msg.metadata.ui.info' | translate}}</label>
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.comm.ui.description' | translate}}
+        </th>
+        <td>
+          <div class="ddp-edit-description ddp-line" [class.ddp-edit]="isDescEdit">
+            <!-- data -->
+            <div class="ddp-data-description">
+              <div class="ddp-txt-description"
+                   [class.ddp-nodata]="metadataModelService.getMetadata()?.description?.length === 0"
+                   [innerHtml]="getDescription(metadataModelService.getMetadata()?.description)"
+                   (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();">
+              </div>
+              <a href="javascript:" class="ddp-btn-edit"
+                 (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();"
+                 [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata()?.description === ''}">
+                <em class="ddp-icon-edit"></em>
+                Edit
+              </a>
+            </div>
+            <!-- //data -->
+            <div class="ddp-box-textarea" (clickOutside)="isDescEdit ? onDescChange() : null">
+              <textarea
+                #metadataDesc
+                maxlength="150"
+                class="ddp-input-edit" placeholder="{{'msg.metadata.ui.description.ph' | translate}}" [(ngModel)]="editingDesc">
+              </textarea>
+              <div class="ddp-textarea-buttons">
+                <a href="javascript:" class="ddp-box-btn" (click)="onDescEditCancel()"><em class="ddp-icon-cancel"></em></a>
+                <a href="javascript:" class="ddp-box-btn " (click)="onDescChange()"><em class="ddp-icon-check"></em></a>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.metadata.md.ui.data.type' | translate}}
+        </th>
+        <td>
+          {{getMetadataType()}} <span *ngIf="isDatabaseTypeMetadata()">({{getMetadataDatabaseTypeToString()}})</span>
+        </td>
+      </tr>
+      <tr>
+        <th>
+          {{'msg.metadata.md.th.popularity' | translate}}
+        </th>
+        <td>
+          <div class="ddp-bar">
+            <span [style.width]="metadataModelService.getMetadata().popularity ? metadataModelService.getMetadata().popularity + '%' : 0 + '%'"></span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.metadata.md.th.catalogs' | translate}}
+        </th>
+        <td>
+          <div class="ddp-ui-catalogs" *ngFor="let catalog of metadataModelService.getMetadata().catalogs">
+            <div class="ddp-box-catalogs">
+              <span *ngFor="let hierarchy of catalog['hierarchies']">{{hierarchy.name}}</span>
+              <a href="javascript:" class="ddp-btn-delete" (click)="deleteCatalogFromMetadata(catalog.id)"></a>
+            </div>
+          </div>
+          <div class="ddp-ui-buttons">
+            <a href="javascript:" (click)="addCatalog()" class="ddp-btn-add"><em class="ddp-icon-plus"></em> {{'msg.comm.btn.add' | translate}}</a>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <table class="ddp-table-detail" *ngIf="metadataModelService.getMetadata().tags">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.metadata.md.ui.tags' | translate}}
+        </th>
+        <td>
+          <div class="ddp-ui-tags">
+            <div *ngFor="let tag of metadataModelService.getMetadata().tags; let index = index" [ngClass]="{'ddp-tags' : tag.name !== '','ddp-tag-default': tag.name === ''}">#{{tag.name}}
+              <a href="javascript:" class="ddp-btn-delete" (click)="deleteTag(tag)" *ngIf="'' !== tag.name"></a>
+            </div>
+            <div class="ddp-tag-default ddp-wrap-drop-search" [ngClass]="{'ddp-selected': filteredTagsList.length > 0}" (clickOutside)="tagClickOutsideEvent()">
+              <component-input
+                [compType]="'default'"
+                [value]="tagValue"
+                [placeHolder]="'msg.metadata.ui.enter.tag' | translate"
+                (changeValue)="tagValue = $event; addTag();">
+              </component-input>
+              <div class="ddp-ui-drop-search">
+                <ul class="ddp-list-selectbox2">
+                  <li *ngFor="let tag of filteredTagsList" (click)="setTagValue(tag)">
+                    {{tag}}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- //datadetail -->
+</div>
+<!-- //tab contents -->

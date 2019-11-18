@@ -14,37 +14,25 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Aggregate;
-import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
-import app.metatron.discovery.prep.parser.preparation.rule.Delete;
-import app.metatron.discovery.prep.parser.preparation.rule.Derive;
-import app.metatron.discovery.prep.parser.preparation.rule.Drop;
-import app.metatron.discovery.prep.parser.preparation.rule.Extract;
-import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
-import app.metatron.discovery.prep.parser.preparation.rule.Header;
-import app.metatron.discovery.prep.parser.preparation.rule.Join;
-import app.metatron.discovery.prep.parser.preparation.rule.Keep;
-import app.metatron.discovery.prep.parser.preparation.rule.Merge;
-import app.metatron.discovery.prep.parser.preparation.rule.Move;
-import app.metatron.discovery.prep.parser.preparation.rule.Nest;
-import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Rename;
-import app.metatron.discovery.prep.parser.preparation.rule.Replace;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.Set;
-import app.metatron.discovery.prep.parser.preparation.rule.SetFormat;
-import app.metatron.discovery.prep.parser.preparation.rule.SetType;
-import app.metatron.discovery.prep.parser.preparation.rule.Sort;
-import app.metatron.discovery.prep.parser.preparation.rule.Split;
-import app.metatron.discovery.prep.parser.preparation.rule.Union;
-import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
-import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Window;
+import app.metatron.discovery.prep.parser.preparation.rule.*;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.ArrayExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.BinaryNumericOpExprBase;
@@ -55,26 +43,17 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.UnaryNotExp
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier.IdentifierArrayExpr;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class PrepTransformRuleService {
+
   private static Logger LOGGER = LoggerFactory.getLogger(PrepTransformRuleService.class);
 
   @Autowired
   private PrDatasetRepository datasetRepository;
 
-  public PrepTransformRuleService() { }
+  public PrepTransformRuleService() {
+  }
 
   public static final String CREATE_RULE_PREFIX = "create with: ";
 
@@ -155,14 +134,11 @@ public class PrepTransformRuleService {
       }
 
       return new StrExpResult(joinWithComma(wrappedIdentifiers), wrappedIdentifiers);
-    }
-    else if (expr instanceof Identifier) {
+    } else if (expr instanceof Identifier) {
       return new StrExpResult(wrapIdentifier(expr.toString()));
-    }
-    else if (expr instanceof FunctionExpr) {
+    } else if (expr instanceof FunctionExpr) {
       return new StrExpResult(stringifyFuncExpr((FunctionExpr) expr));
-    }
-    else if (expr instanceof FunctionArrayExpr) {
+    } else if (expr instanceof FunctionArrayExpr) {
       FunctionArrayExpr funcArrExpr = (FunctionArrayExpr) expr;
       List<String> funcStrExprs = new ArrayList();
 
@@ -170,20 +146,17 @@ public class PrepTransformRuleService {
         funcStrExprs.add(stringifyFuncExpr(funcExpr));
       }
       return new StrExpResult(joinWithComma(funcStrExprs), funcStrExprs);
-    }
-    else if (expr instanceof BinaryNumericOpExprBase) {
+    } else if (expr instanceof BinaryNumericOpExprBase) {
       BinaryNumericOpExprBase binExpr = (BinaryNumericOpExprBase) expr;
-      return new StrExpResult(stringifyExpr(binExpr.getLeft()).str + " " + binExpr.getOp() + " " + stringifyExpr(binExpr.getRight()).str);
-    }
-    else if (expr instanceof UnaryNotExpr) {
+      return new StrExpResult(stringifyExpr(binExpr.getLeft()).str + " " + binExpr.getOp() + " " + stringifyExpr(
+              binExpr.getRight()).str);
+    } else if (expr instanceof UnaryNotExpr) {
       UnaryNotExpr notExpr = (UnaryNotExpr) expr;
       return new StrExpResult("!" + stringifyExpr(notExpr.getChild()));
-    }
-    else if (expr instanceof UnaryMinusExpr) {
+    } else if (expr instanceof UnaryMinusExpr) {
       UnaryMinusExpr minusExpr = (UnaryMinusExpr) expr;
       return new StrExpResult(minusExpr.toString());
-    }
-    else if (expr instanceof ArrayExpr) {
+    } else if (expr instanceof ArrayExpr) {
       List<String> arrStr = ((ArrayExpr) expr).getValue();
       return new StrExpResult(joinWithComma(arrStr), arrStr);
     }
@@ -205,6 +178,7 @@ public class PrepTransformRuleService {
   }
 
   private class StrExpResult {
+
     public String str;
     public List<String> arrStr;
 
@@ -235,7 +209,8 @@ public class PrepTransformRuleService {
     }
   }
 
-  public List<String> getUpstreamDsIds(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
+  public List<String> getUpstreamDsIds(String ruleString)
+          throws CannotSerializeIntoJsonException, JsonProcessingException {
     List<String> upstreamDsIds = new ArrayList<>();
     Map<String, StrExpResult> mapStrExp = stringifyRuleString(ruleString);
 
@@ -288,7 +263,8 @@ public class PrepTransformRuleService {
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapJsonStr);
   }
 
-  public Map<String, StrExpResult> stringifyRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
+  public Map<String, StrExpResult> stringifyRuleString(String ruleString)
+          throws CannotSerializeIntoJsonException, JsonProcessingException {
     Map<String, StrExpResult> mapStrExp = new HashMap();
 
     if (ruleString.startsWith(CREATE_RULE_PREFIX)) {
@@ -424,7 +400,8 @@ public class PrepTransformRuleService {
         break;
       case "sort":
         Sort sort = (Sort) rule;
-        String type = sort.getType() != null && strip(sort.getType().toString()).equalsIgnoreCase("desc") ? "desc" : "asc";
+        String type =
+                sort.getType() != null && strip(sort.getType().toString()).equalsIgnoreCase("desc") ? "desc" : "asc";
         putIfExists(mapStrExp, "order", stringifyExpr(sort.getOrder()));
         putIfExists(mapStrExp, "type", new StrExpResult(type));
         break;
@@ -457,10 +434,9 @@ public class PrepTransformRuleService {
   /**
    * Returns a string that represents the dataset
    *
-   * @param strExpResult  A result of stringifyExpr()
-   * @return String: the dsName like "sales (CSV)"
-   *         List with 2 elements: dsName list like "lineitem, customer"
-   *         List with N (>2) elements: "N datasets"
+   * @param strExpResult A result of stringifyExpr()
+   * @return String: the dsName like "sales (CSV)" List with 2 elements: dsName list like "lineitem, customer" List with
+   * N (>2) elements: "N datasets"
    */
   private String shortenDatasetList(StrExpResult strExpResult) {
     if (strExpResult.getArrSize() >= 3) {
@@ -484,33 +460,34 @@ public class PrepTransformRuleService {
     return String.format("%d %ss", count, unit);
   }
 
-  private final String FMTSTR_CREATE       = "create with %s";                          // with
-  private final String FMTSTR_HEADER       = "convert row %s to header";                // rownum
-  private final String FMTSTR_KEEP         = "keep rows where %s";                      // row
-  private final String FMTSTR_RENAME       = "rename %s to %s";                         // col, to
-  private final String FMTSTR_RENAMES      = "rename %s";                               // col
-  private final String FMTSTR_NEST         = "convert %s into %s";                      // col, into
-  private final String FMTSTR_UNNEST       = "create a new column from %s";             // col
-  private final String FMTSTR_SETTYPE      = "set type %s to %s";                       // col, type
-  private final String FMTSTR_SETFORMAT    = "set format %s to %s";                     // col, format
-  private final String FMTSTR_DERIVE       = "create %s from %s";                       // as, value
-  private final String FMTSTR_DELETE       = "delete rows where %s";                    // row
-  private final String FMTSTR_SET          = "set %s to %s";                            // col, value
-  private final String FMTSTR_SPLIT        = "split %s into %s on %s";                  // col, limit, on
-  private final String FMTSTR_EXTRACT      = "extract %s %s from %s";                   // on, limit, col
-  private final String FMTSTR_FLATTEN      = "convert arrays in %s to rows";            // col
+  private final String FMTSTR_CREATE = "create with %s";                          // with
+  private final String FMTSTR_HEADER = "convert row %s to header";                // rownum
+  private final String FMTSTR_KEEP = "keep rows where %s";                      // row
+  private final String FMTSTR_RENAME = "rename %s to %s";                         // col, to
+  private final String FMTSTR_RENAMES = "rename %s";                               // col
+  private final String FMTSTR_NEST = "convert %s into %s";                      // col, into
+  private final String FMTSTR_UNNEST = "create a new column from %s";             // col
+  private final String FMTSTR_SETTYPE = "set type %s to %s";                       // col, type
+  private final String FMTSTR_SETFORMAT = "set format %s to %s";                     // col, format
+  private final String FMTSTR_DERIVE = "create %s from %s";                       // as, value
+  private final String FMTSTR_DELETE = "delete rows where %s";                    // row
+  private final String FMTSTR_SET = "set %s to %s";                            // col, value
+  private final String FMTSTR_SPLIT = "split %s into %s on %s";                  // col, limit, on
+  private final String FMTSTR_EXTRACT = "extract %s %s from %s";                   // on, limit, col
+  private final String FMTSTR_FLATTEN = "convert arrays in %s to rows";            // col
   private final String FMTSTR_COUNTPATTERN = "count occurrences of %s in %s";           // value, col
-  private final String FMTSTR_SORT         = "sort rows by %s %s";                      // order, type
-  private final String FMTSTR_REPLACE      = "replace %s from %s with %s";              // on, col, with
-  private final String FMTSTR_REPLACES     = "replace %s";                              // col
-  private final String FMTSTR_MERGE        = "concatenate %s separated by %s";          // col, with
-  private final String FMTSTR_AGGREGATE    = "aggregate with %s grouped by %s";         // value, group
-  private final String FMTSTR_MOVE         = "move %s %s";                              // col, before/after
-  private final String FMTSTR_JOIN_UNION   = "%s with %s";                              // command, strDsNames
-  private final String FMTSTR_PIVOT        = "pivot %s and compute %s grouped by %s";   // col, value, group
-  private final String FMTSTR_UNPIVOT      = "convert %s into rows";                    // col
-  private final String FMTSTR_DROP         = "drop %s";                                 // col
-  private final String FMTSTR_WINDOW       = "create %s from %s%s%s";                   // N columns, value, order, group
+  private final String FMTSTR_SORT = "sort rows by %s %s";                      // order, type
+  private final String FMTSTR_REPLACE = "replace %s from %s with %s";              // on, col, with
+  private final String FMTSTR_REPLACES = "replace %s";                              // col
+  private final String FMTSTR_MERGE = "concatenate %s separated by %s";          // col, with
+  private final String FMTSTR_AGGREGATE_NO_GROUP = "aggregate with %s";         // value
+  private final String FMTSTR_AGGREGATE = "aggregate with %s grouped by %s";         // value, group
+  private final String FMTSTR_MOVE = "move %s %s";                              // col, before/after
+  private final String FMTSTR_JOIN_UNION = "%s with %s";                              // command, strDsNames
+  private final String FMTSTR_PIVOT = "pivot %s and compute %s grouped by %s";   // col, value, group
+  private final String FMTSTR_UNPIVOT = "convert %s into rows";                    // col
+  private final String FMTSTR_DROP = "drop %s";                                 // col
+  private final String FMTSTR_WINDOW = "create %s from %s%s%s";                   // N columns, value, order, group
 
   public String shortenRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
     String shortRuleString;
@@ -534,7 +511,8 @@ public class PrepTransformRuleService {
         if (colCnt >= 3) {
           shortRuleString = String.format(FMTSTR_REPLACES, mapStrExp.get("col").toColList());
         } else {
-          shortRuleString = String.format(FMTSTR_REPLACE, mapStrExp.get("on"), mapStrExp.get("col").toColList(), mapStrExp.get("with"));
+          shortRuleString = String
+                  .format(FMTSTR_REPLACE, mapStrExp.get("on"), mapStrExp.get("col").toColList(), mapStrExp.get("with"));
         }
         break;
       case "rename":
@@ -547,6 +525,9 @@ public class PrepTransformRuleService {
         break;
       case "set":
         shortRuleString = String.format(FMTSTR_SET, mapStrExp.get("col").toColList(), mapStrExp.get("value"));
+        if(mapStrExp.containsKey("row")==true) {
+          shortRuleString = shortRuleString + " (with cond)";
+        }
         break;
       case "settype":
         shortRuleString = String.format(FMTSTR_SETTYPE, mapStrExp.get("col").toColList(), mapStrExp.get("type"));
@@ -570,7 +551,8 @@ public class PrepTransformRuleService {
         shortRuleString = String.format(FMTSTR_DROP, mapStrExp.get("col").toColList());
         break;
       case "pivot":
-        shortRuleString = String.format(FMTSTR_PIVOT, mapStrExp.get("col").toColList(), mapStrExp.get("value"), mapStrExp.get("group").toColList());
+        shortRuleString = String.format(FMTSTR_PIVOT, mapStrExp.get("col").toColList(), mapStrExp.get("value"),
+                mapStrExp.get("group").toColList());
         break;
       case "unpivot":
         shortRuleString = String.format(FMTSTR_UNPIVOT, mapStrExp.get("col").toColList());
@@ -583,7 +565,8 @@ public class PrepTransformRuleService {
       case "extract":
         limit = Integer.parseInt(mapStrExp.get("limit").toString());
         strCount = combineCountAndUnit(limit, "time");            // extract N times, produces just N columns
-        shortRuleString = String.format(FMTSTR_EXTRACT, mapStrExp.get("on"), strCount, mapStrExp.get("col").toColList());
+        shortRuleString = String
+                .format(FMTSTR_EXTRACT, mapStrExp.get("on"), strCount, mapStrExp.get("col").toColList());
         break;
       case "flatten":
         shortRuleString = String.format(FMTSTR_FLATTEN, mapStrExp.get("col"));
@@ -598,7 +581,11 @@ public class PrepTransformRuleService {
         shortRuleString = String.format(FMTSTR_UNNEST, mapStrExp.get("col"));
         break;
       case "aggregate":
-        shortRuleString = String.format(FMTSTR_AGGREGATE, mapStrExp.get("value"), mapStrExp.get("group").toColList());
+        if(mapStrExp.get("group")!=null) {
+          shortRuleString = String.format(FMTSTR_AGGREGATE, mapStrExp.get("value"), mapStrExp.get("group").toColList());
+        } else {
+          shortRuleString = String.format(FMTSTR_AGGREGATE_NO_GROUP, mapStrExp.get("value"));
+        }
         break;
       case "sort":
         shortRuleString = String.format(FMTSTR_SORT, mapStrExp.get("order"), mapStrExp.get("type"));
@@ -607,7 +594,7 @@ public class PrepTransformRuleService {
         StrExpResult before = mapStrExp.get("before");
         StrExpResult after = mapStrExp.get("after");
         String strTo = (before != null) ? "before " + wrapIdentifier(strip(before.str))
-                                        : "after " + wrapIdentifier(strip(after.str));
+                : "after " + wrapIdentifier(strip(after.str));
         shortRuleString = String.format(FMTSTR_MOVE, mapStrExp.get("col").toColList(), strTo);
         break;
       case "setformat":

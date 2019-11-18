@@ -13,28 +13,31 @@
  */
 
 import {
-  Component, DoCheck,
+  Component,
+  DoCheck,
   ElementRef,
   EventEmitter,
   Injector,
-  Input, KeyValueDiffers, OnDestroy,
+  Input,
+  KeyValueDiffers,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource, Field, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import { Alert } from '../../../common/util/alert.util';
-import { StringUtil } from '../../../common/util/string.util';
-import { FilterUtil } from '../../util/filter.util';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {Widget} from '../../../domain/dashboard/widget/widget';
+import {Alert} from '../../../common/util/alert.util';
+import {StringUtil} from '../../../common/util/string.util';
+import {FilterUtil} from '../../util/filter.util';
 import * as _ from 'lodash';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { BoardConfiguration, BoardDataSource, Dashboard } from '../../../domain/dashboard/dashboard';
-import { PageDataContextComponent } from '../../../page/page-data/page-data-context.component';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '../../../domain/dashboard/dashboard';
+import {PageDataContextComponent} from '../../../page/page-data/page-data-context.component';
+import {DashboardUtil} from '../../util/dashboard.util';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 
 @Component({
   selector: 'datasource-panel',
@@ -96,6 +99,9 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
   public dataSourceList: Datasource[] = [];
   public dataSource: Datasource;
+
+  public isSelectedDimension:boolean = true;
+  public isSelectedMeasure:boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Input&Output Variables
@@ -185,7 +191,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    if( dataSource ) {
+    if( dataSource && dataSource.valid ) {
       this.dataSource = dataSource;
       const boardConf: BoardConfiguration = this.dashboard.configuration;
 
@@ -256,7 +262,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
-    let end: number = (this.dimPage * this.DIM_PAGE_SIZE) - 1;
+    let end: number = (this.dimPage * this.DIM_PAGE_SIZE);
     this.displayDimensions = this.dimensionFields.slice(start, end);
   } // function - prevDimPage
 
@@ -272,7 +278,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
-    let end: number = (this.dimPage * this.DIM_PAGE_SIZE) - 1;
+    let end: number = (this.dimPage * this.DIM_PAGE_SIZE);
     this.displayDimensions = this.dimensionFields.slice(start, end);
   } // function - nextDimPage
 
@@ -288,7 +294,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
-    let end: number = (this.meaPage * this.MEA_PAGE_SIZE) - 1;
+    let end: number = (this.meaPage * this.MEA_PAGE_SIZE);
     this.displayMeasures = this.measureFields.slice(start, end);
   } // function - prevMeaPage
 
@@ -304,7 +310,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
     // 페이징 목록
     let start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
-    let end: number = (this.meaPage * this.MEA_PAGE_SIZE) - 1;
+    let end: number = (this.meaPage * this.MEA_PAGE_SIZE);
     this.displayMeasures = this.measureFields.slice(start, end);
   } // function - nextMeaPage
 
@@ -352,11 +358,6 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     }
 
     if (field.useFilter) {  // 제거
-      // 필수필터이면 제거 불가능
-      if (field.role === FieldRole.TIMESTAMP && field.logicalType === LogicalType.TIMESTAMP) {
-        Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
-        return;
-      }
 
       // 추천필터 제거 볼가
       if (field.filtering) {
@@ -375,6 +376,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     } else {  // 추가
       field.useFilter = true;
 
+      this.showDatasourcePanel = false;
       // 시간일 경우
       if (field.logicalType === LogicalType.TIMESTAMP) {
         this.onUpdateFilter.emit(FilterUtil.getTimeAllFilter(field));
@@ -409,6 +411,16 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     }
     this.isShowCustomFiled = true;
   } // function - openCustomFieldPopup
+
+  /**
+   * 사용자 정의 필드 팝업 열기 ( 컨텍스트 메뉴로 부터.. )
+   * @param customField
+   */
+  public openCustomFieldPopupFromContext( customField:CustomField ) {
+    this.customFieldPopupType = customField.role.toString();
+    this.selectedCustomField = customField;
+    this.isShowCustomFiled = true;
+  } // function - openCustomFieldPopupFromContext
 
   /**
    * 사용자 정의 컬럼 변경
@@ -480,36 +492,61 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this._setUseChart(this._totalFields);
       this._setUseFilter(this._totalFields);
 
-      this.dimensionFields = this._totalFields.filter(item => item.role !== FieldRole.MEASURE);
-      this.measureFields = this._totalFields.filter(item => item.role === FieldRole.MEASURE);
+      if( this.dashboard.configuration.dataSource.associations ) {
+        const dsList = this.dashboard.dataSources;
+        const currentEngineName = this.dataSource.engineName;
+        const associations
+          = this.dashboard.configuration.dataSource.associations
+          .filter( item => item.source === currentEngineName || item.target === currentEngineName );
+        if( associations && 0 < associations.length ) {
+          this._totalFields.forEach( field => {
+            associations.forEach( ass => {
+              const colPairKeys:string[] = Object.keys( ass.columnPair );
+              if( currentEngineName === ass.source ) {
+                const pairKey = colPairKeys.find( item => field.name === item );
+                if( pairKey ) {
+                  ( field['assInfo'] ) || ( field['assInfo'] = [] );
+                  field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.target ).name + ' : ' + ass.columnPair[pairKey] );
+                }
+              } else if( currentEngineName === ass.target ) {
+                const pairItem = colPairKeys.find( item => field.name === ass.columnPair[item] );
+                if( pairItem ) {
+                  ( field['assInfo'] ) || ( field['assInfo'] = [] );
+                  field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.source ).name + ' : ' + pairItem );
+                }
+              }
+            })
+          });
+        }
+      }
 
-      let dimensionFields = _.cloneDeep(this.dimensionFields);
-      let measureFields = _.cloneDeep(this.measureFields);
+      this.dimensionFields = _.cloneDeep(this._totalFields.filter(item => item.role !== FieldRole.MEASURE));
+      this.measureFields = _.cloneDeep(this._totalFields.filter(item => item.role === FieldRole.MEASURE));
 
       if (searchText) {
         searchText = searchText.toLowerCase();
-        dimensionFields = dimensionFields.filter(item => item.name.toLowerCase().includes(searchText));
-        measureFields = measureFields.filter(item => item.name.toLowerCase().includes(searchText));
+        this.dimensionFields = this.dimensionFields.filter(item => item.name.toLowerCase().includes(searchText));
+        this.measureFields = this.measureFields.filter(item => item.name.toLowerCase().includes(searchText));
       }
 
-      if (this.DIM_PAGE_SIZE < dimensionFields.length) {
+      if (this.DIM_PAGE_SIZE < this.dimensionFields.length) {
         this.dimPage = 1;
-        this.dimTotalPage = Math.ceil(dimensionFields.length / this.DIM_PAGE_SIZE);
-        this.displayDimensions = dimensionFields.slice(0, this.DIM_PAGE_SIZE - 1);
+        this.dimTotalPage = Math.ceil(this.dimensionFields.length / this.DIM_PAGE_SIZE);
+        this.displayDimensions = this.dimensionFields.slice(0, this.DIM_PAGE_SIZE);
       } else {
         this.dimPage = 1;
         this.dimTotalPage = 1;
-        this.displayDimensions = dimensionFields;
+        this.displayDimensions = this.dimensionFields;
       }
 
-      if (this.MEA_PAGE_SIZE < measureFields.length) {
+      if (this.MEA_PAGE_SIZE < this.measureFields.length) {
         this.meaPage = 1;
-        this.meaTotalPage = Math.ceil(measureFields.length / this.MEA_PAGE_SIZE);
-        this.displayMeasures = measureFields.slice(0, this.MEA_PAGE_SIZE - 1);
+        this.meaTotalPage = Math.ceil(this.measureFields.length / this.MEA_PAGE_SIZE);
+        this.displayMeasures = this.measureFields.slice(0, this.MEA_PAGE_SIZE);
       } else {
         this.meaPage = 1;
         this.meaTotalPage = 1;
-        this.displayMeasures = measureFields;
+        this.displayMeasures = this.measureFields;
       }
 
     }

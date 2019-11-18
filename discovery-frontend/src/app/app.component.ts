@@ -12,27 +12,28 @@
  * limitations under the License.
  */
 
-import { ChangeDetectorRef, Component, Injector } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import {AfterContentChecked, ChangeDetectorRef, Component, Injector} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
 import {
-  Router,
-  // import as RouterEvent to avoid confusion with the DOM Event
   Event as RouterEvent,
-  NavigationStart,
-  NavigationEnd,
   NavigationCancel,
-  NavigationError
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router
 } from '@angular/router';
 
 import * as _ from 'lodash';
-import { EventBroadcaster } from './common/event/event.broadcaster';
+import {EventBroadcaster} from './common/event/event.broadcaster';
+import {UserSetting} from "./common/value/user.setting.value";
+import {CommonUtil} from "./common/util/common.util";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements AfterContentChecked {
 
   public isLoggedIn:boolean = false;
   public routerLoading: boolean = false;
@@ -55,15 +56,20 @@ export class AppComponent {
       this.changeDetect.detectChanges();
     });
 
+    const userSetting:UserSetting = CommonUtil.getUserSetting();
+    CommonUtil.setThemeCss(userSetting.theme);
+
     // 다국어 언어 설정
     if (!this.translateService.getDefaultLang()) {
       // TODO 다국어 언어설정 index.html 과 동일한 언어를 설정
-      const browserLang = translateService.getBrowserLang();
-      // this.translateService.setDefaultLang('ko');
-      // 브라우저 언어에 따라 메세지 선택
-      if (browserLang === "zh" || browserLang === "zh-CN") {
+      let lang = translateService.getBrowserLang();
+      const userLang = userSetting.language;
+      if (!_.isNil(userLang)) {
+        lang = userLang;
+      }
+      if (lang === "zh" || lang === "zh-CN") {
         this.translateService.use("zh")
-      } else if (browserLang === "ko") {
+      } else if (lang === "ko") {
         this.translateService.use("ko")
       } else {
         this.translateService.use("en")
@@ -85,6 +91,10 @@ export class AppComponent {
     });
 
   } // constructor
+
+  ngAfterContentChecked(): void {
+    this.changeDetect.detectChanges();
+  }
 
   // Shows and hides the loading spinner during RouterEvent changes
   navigationInterceptor(event: RouterEvent): void {

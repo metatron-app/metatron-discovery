@@ -83,4 +83,7 @@ export abstract class Field {
   currentPivot?: FieldPivot;
   // 수식이 포함된 컬럼여부
   aggregated?: boolean;
+
+  // only used in UI
+  isCustomField?: boolean
 }

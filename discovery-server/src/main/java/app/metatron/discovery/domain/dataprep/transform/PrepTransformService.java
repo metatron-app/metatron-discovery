@@ -14,93 +14,11 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
+import com.google.common.collect.Maps;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
-import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
-import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
-import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
-import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
-import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
-import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrTransformRuleRepository;
-import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
-import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
-import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.Row;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
-import app.metatron.discovery.prep.parser.exceptions.RuleException;
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Aggregate;
-import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
-import app.metatron.discovery.prep.parser.preparation.rule.Delete;
-import app.metatron.discovery.prep.parser.preparation.rule.Derive;
-import app.metatron.discovery.prep.parser.preparation.rule.Drop;
-import app.metatron.discovery.prep.parser.preparation.rule.Extract;
-import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
-import app.metatron.discovery.prep.parser.preparation.rule.Header;
-import app.metatron.discovery.prep.parser.preparation.rule.Join;
-import app.metatron.discovery.prep.parser.preparation.rule.Keep;
-import app.metatron.discovery.prep.parser.preparation.rule.Merge;
-import app.metatron.discovery.prep.parser.preparation.rule.Move;
-import app.metatron.discovery.prep.parser.preparation.rule.Nest;
-import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Rename;
-import app.metatron.discovery.prep.parser.preparation.rule.Replace;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.Set;
-import app.metatron.discovery.prep.parser.preparation.rule.SetFormat;
-import app.metatron.discovery.prep.parser.preparation.rule.SetType;
-import app.metatron.discovery.prep.parser.preparation.rule.Sort;
-import app.metatron.discovery.prep.parser.preparation.rule.Split;
-import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
-import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Window;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
+
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
@@ -116,8 +34,63 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
+import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.ENGINE;
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
+import app.metatron.discovery.domain.dataprep.etl.SparkExecutor;
+import app.metatron.discovery.domain.dataprep.etl.TeddyExecutor;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrTransformRuleRepository;
+import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
+import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
+
 @Service
 public class PrepTransformService {
+
   private static Logger LOGGER = LoggerFactory.getLogger(PrepTransformService.class);
 
   @Autowired
@@ -126,30 +99,41 @@ public class PrepTransformService {
   @Autowired(required = false)
   TeddyExecutor teddyExecutor;
 
+  @Autowired(required = false)
+  SparkExecutor sparkExecutor;
+
   @Autowired
   PrepHistogramService prepHistogramService;
 
-  @PostConstruct
-  public void init() {
-    System.setProperty("dataprep", Arrays.asList(env.getActiveProfiles()).contains("dataprep") ? "enabled" : "disabled");
-  }
-
   @Autowired
   PrDatasetRepository datasetRepository;
+
   @Autowired
   PrDataflowRepository dataflowRepository;
+
   @Autowired
   PrTransformRuleRepository transformRuleRepository;
-  @Autowired PrepPreviewLineService previewLineService;
-  @Autowired PrepDatasetFileService datasetFileService;
+
+  @Autowired
+  PrepPreviewLineService previewLineService;
+
+  @Autowired
+  PrepDatasetFileService datasetFileService;
+
   @Autowired
   PrSnapshotRepository snapshotRepository;
+
   @Autowired
   DataConnectionRepository connectionRepository;
+
   @Autowired
   PrSnapshotService snapshotService;
-  @Autowired DataFrameService dataFrameService;
-  @Autowired PrepTransformRuleService transformRuleService;
+
+  @Autowired
+  DataFrameService dataFrameService;
+
+  @Autowired
+  PrepTransformRuleService transformRuleService;
 
   @Autowired(required = false)
   TeddyImpl teddyImpl;
@@ -157,24 +141,11 @@ public class PrepTransformService {
   @Autowired(required = false)
   PrepProperties prepProperties;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   @Value("${server.port:8180}")
   private String serverPort;
-
-  // Datasource properties are only for Twinkle, which is to be obsolete.
-  @Value("${spring.datasource.driver-class-name:MISSING_DATASOURCE_DRIVER_CLASS_NAME}")
-  String datasourceDriverClassName;
-
-  @Value("${spring.datasource.url:MISSING_DATASOURCE_URL}")
-  String datasourceUrl;
-
-  @Value("${spring.datasource.username:MISSING_DATASOURCE_USERNAME}")
-  String datasourceUsername;
-
-  @Value("${spring.datasource.password:MISSING_DATASOURCE_PASSWORD}")
-  String datasourcePassword;
 
   public enum OP_TYPE {
     CREATE,
@@ -188,89 +159,78 @@ public class PrepTransformService {
     NOT_USED
   }
 
-  // Properties along the ETL program kinds are gathered into a single JSON properties string.
-  // Currently, the ETL programs kinds are the embedded engine and Apache Spark.
-  private String getJsonPrepPropertiesInfo(String dsId, PrepSnapshotRequestPost requestPost) throws JsonProcessingException, URISyntaxException {
-    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-
-    PrDataset.IMPORT_TYPE importType = dataset.getImportType();
-    boolean dsStagingDb = (importType == PrDataset.IMPORT_TYPE.STAGING_DB);
-
-    PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
-
-    boolean ssHdfs = (ssType == PrSnapshot.SS_TYPE.URI && (new URI(requestPost.getStoredUri())).getScheme().equals("hdfs"));
-    boolean ssStagingDb = (ssType == PrSnapshot.SS_TYPE.STAGING_DB);
-
-    PrSnapshot.ENGINE engine = requestPost.getEngine();
-
-    // check polaris.dataprep.hadoopConfDir
-    if (ssHdfs || ssStagingDb) {
-      prepProperties.getHadoopConfDir(true);
-      prepProperties.getStagingBaseDir(true);
-    }
-
+  private String getJsonPrepPropertiesInfo(PrSnapshot snapshot) throws JsonProcessingException {
     Map<String, Object> mapEveryForEtl = prepProperties.getEveryForEtl();
-    StageDBConnection stageDB = storageProperties.getStagedb();
-    if(stageDB!=null) { // if the value is null, that means storage.stagedb is not in a yaml. NOT using STAGING_DB
+
+    // Add stage db information from storageProperties
+    if (storageProperties != null && storageProperties.getStagedb() != null) {
+      StageDBConnection stageDB = storageProperties.getStagedb();
       mapEveryForEtl.put(STAGEDB_HOSTNAME, stageDB.getHostname());
       mapEveryForEtl.put(STAGEDB_PORT, stageDB.getPort());
       mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
       mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
-      mapEveryForEtl.put(STAGEDB_URL, stageDB.getUrl());
+
+      if (snapshot.getEngine() == ENGINE.SPARK) {
+        mapEveryForEtl.put(STAGEDB_METASTORE_URI, stageDB.getMetastoreUri());
+      }
     }
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapEveryForEtl);
   }
 
-  private String getJsonSnapshotInfo(PrepSnapshotRequestPost requestPost, String ssId) throws JsonProcessingException {
+  private String getJsonSnapshotInfo(PrSnapshot snapshot) throws JsonProcessingException {
+    String ssId = snapshot.getSsId();
+
     Map<String, Object> map = new HashMap();
-    PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
-    PrSnapshot.ENGINE engine = requestPost.getEngine();
-    PrSnapshot.APPEND_MODE appendMode = requestPost.getAppendMode();
+    PrSnapshot.SS_TYPE ssType = snapshot.getSsType();
+    PrSnapshot.ENGINE engine = snapshot.getEngine();
+    PrSnapshot.APPEND_MODE appendMode = snapshot.getAppendMode();
 
-    // 공통
-    map.put("ssId",           ssId);
-    map.put("ssName",         requestPost.getSsName());
-    map.put("ssType",         ssType.name());
-    map.put("engine",         engine.name());
-    map.put("hiveFileFormat",         requestPost.getHiveFileFormat());
-    map.put("hiveFileCompression",    requestPost.getHiveFileCompression());
-    map.put("localBaseDir",   prepProperties.getLocalBaseDir());
+    // Put common properties for every types
+    map.put("ssId", ssId);
+    map.put("ssName", snapshot.getSsName());
+    map.put("ssType", ssType.name());
+    map.put("launchTime", snapshot.getLaunchTime());
+    map.put("engine", engine.name());
 
+    // Put specific properties for each type
     switch (ssType) {
       case URI:
-        String storedUri = requestPost.getStoredUri();
+        String storedUri = snapshot.getStoredUri();
         assert storedUri != null;
-        map.put("storedUri",        storedUri);
+        map.put("localBaseDir", prepProperties.getLocalBaseDir());
+        map.put("storedUri", storedUri);
         break;
       case STAGING_DB:
         map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
-        map.put("partitionColNames",       requestPost.getPartitionColNames());
-        map.put("appendMode",           appendMode.name());
-        map.put("dbName",         requestPost.getDbName());
-        map.put("tblName",        requestPost.getTblName());
+        map.put("dbName", snapshot.getDbName());
+        map.put("tblName", snapshot.getTblName());
+
+        map.put("hiveFileFormat", snapshot.getHiveFileFormat());
+        map.put("hiveFileCompression", snapshot.getHiveFileCompression());
+        map.put("appendMode", appendMode.name());
+        map.put("partitionColNames", snapshot.getPartitionColNames());
         break;
       default:
         assert false : ssType;
     }
 
-    if (engine == PrSnapshot.ENGINE.TWINKLE) {
-      map.put("codec",             requestPost.getHiveFileCompression().name().toLowerCase());
-      map.put("mode",              requestPost.getAppendMode().name().toLowerCase());    // Twinkle demands to lower;
-      map.put("driver-class-name", datasourceDriverClassName);
-      map.put("url",               datasourceUrl);
-      map.put("username",          datasourceUsername);
-      map.put("password",          datasourcePassword);
-    }
+    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
+  }
+
+  private String getJsonCallbackInfo(String oauth_token) throws JsonProcessingException {
+    Map<String, Object> map = new HashMap();
+    map.put("port", getServerPort());
+    map.put("oauth_token", oauth_token);
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
   }
 
-  public PrepTransformService() { }
+  public PrepTransformService() {
+  }
 
-  // skips the last rule for UPDATE purpose
-  public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException, CannotSerializeIntoJsonException {
-    List<String> upstreamDsIds = new ArrayList<>();
+  public List<String> getUpstreamDsIds(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
+    List<String> upstreamDsIds = new ArrayList();
 
     String firstUpstreamDsId = getFirstUpstreamDsId(dsId);
     if (firstUpstreamDsId == null) {  // then, this is not a wrangled dataset
@@ -280,19 +240,41 @@ public class PrepTransformService {
 
     List<PrTransformRule> rules = getRulesInOrder(dsId);
 
-    int until = forUpdate ? rules.size() - 1 : rules.size();
-
-    prepareTransformRules(dsId);
-
-    for (int i = 0; i < until; i++) {
+    for (int i = 0; i < rules.size(); i++) {
       PrTransformRule rule = rules.get(i);
       upstreamDsIds.addAll(transformRuleService.getUpstreamDsIds(rule.getRuleString()));
     }
     return upstreamDsIds;
   }
 
-  public List<String> getUpstreamDsIds(String dsId) throws IOException, CannotSerializeIntoJsonException {
-    return getUpstreamDsIds(dsId, false);
+  public void addDownstreamDsId(List<String> deleteDsIds, String dsId, boolean acceptImported)
+          throws CannotSerializeIntoJsonException, JsonProcessingException {
+    // If already exists, just skip.
+    if (deleteDsIds.contains(dsId)) {
+      return;
+    }
+
+    // If I.DS is not wanted, skip.
+    if (acceptImported || datasetRepository.findOne(dsId).getDsType() == WRANGLED) {
+      deleteDsIds.add(dsId);
+    }
+
+    for (String downstreamDsId : getDownstreamDsIds(dsId)) {
+      addDownstreamDsId(deleteDsIds, downstreamDsId, true);
+    }
+  }
+
+  public List<String> getDownstreamDsIds(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
+    List<String> downstreamDsIds = new ArrayList();
+
+    for (PrDataset dataset : datasetRepository.findAll()) {
+      List<String> upstreamDsIds = getUpstreamDsIds(dataset.getDsId());
+      if (upstreamDsIds.contains(dsId)) {
+        downstreamDsIds.add(dataset.getDsId());
+      }
+    }
+
+    return downstreamDsIds;
   }
 
   // create stage0 (POST)
@@ -322,7 +304,8 @@ public class PrepTransformService {
     String createRuleString = transformRuleService.getCreateRuleString(importedDsId);
     String createJsonRuleString = transformRuleService.jsonizeRuleString(createRuleString);
     String shortRuleString = transformRuleService.shortenRuleString(createRuleString);
-    PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, createRuleString, createJsonRuleString, shortRuleString);
+    PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, createRuleString,
+            createJsonRuleString, shortRuleString);
     transformRuleRepository.saveAndFlush(rule);
 
     PrepTransformResponse response = new PrepTransformResponse(wrangledDsId);
@@ -341,10 +324,7 @@ public class PrepTransformService {
             transform(wrangledDsId, OP_TYPE.APPEND, i, ruleString, jsonRuleString, true);
           }
           break;
-        case DATABASE:
-        case STAGING_DB:
-        case DRUID:
-          /* NOP */
+        default:
           break;
       }
     }
@@ -362,7 +342,8 @@ public class PrepTransformService {
     PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     String upstreamDsId = getFirstUpstreamDsId(wrangledDsId);
 
-    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(), wrangledDataset.getDsName());
+    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(),
+            wrangledDataset.getDsName());
     String cloneDsId = response.getWrangledDsId();
 
     List<PrTransformRule> transformRules = getRulesInOrder(wrangledDsId);
@@ -379,54 +360,8 @@ public class PrepTransformService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public List<String> swap(String oldDsId, String newDsId) throws Exception {
-    List<String> targetDsIds = Lists.newArrayList();
-
-    // Replace all occurrence of oldDsid in whole rule strings in the system.
-    for (PrTransformRule rule : transformRuleRepository.findAll()) {
-      String ruleString = rule.getRuleString();
-      if (ruleString.contains(oldDsId)) {
-        String newRuleString = ruleString.replace(oldDsId, newDsId);
-        String newJsonRuleString = rule.getJsonRuleString().replaceAll(oldDsId, newDsId);
-        String newShortRuleString = transformRuleService.shortenRuleString(newRuleString);
-
-        rule.setRuleString(newRuleString);
-        rule.setJsonRuleString(newJsonRuleString);
-        rule.setShortRuleString(newShortRuleString);
-
-        // un-cache to be reloaded
-        teddyImpl.remove(rule.getDataset().getDsId());
-
-        if(false==targetDsIds.contains(rule.getDataset().getDsId())) {
-          // It must be wrangled dataset, but not chaining wrangled
-          targetDsIds.add(rule.getDataset().getDsId());
-        }
-      }
-    }
-
-    PrDataset oldDataset = datasetRepository.findOne(oldDsId);
-    PrDataset newDataset = datasetRepository.findOne(newDsId);
-
-    List<PrDataflow> dataflows = dataflowRepository.findAll();
-    for (PrDataflow dataflow : dataflows) {
-      List<PrDataset> datasets = dataflow.getDatasets();
-      for (PrDataset dataset : datasets) {
-        if (dataset.getDsId().equals(oldDataset.getDsId())) {
-          datasets.remove(dataset);
-          datasets.add(newDataset);
-          dataflow.setDatasets(datasets);
-          dataflowRepository.save(dataflow);
-          break;
-        }
-      }
-    }
-    dataflowRepository.flush();
-
-    return targetDsIds;
-  }
-
-  @Transactional(rollbackFor = Exception.class)
-  public List<String> swap_upstream(PrDataflow dataflow, PrepSwapRequest swapRequest) throws Exception {
+  public List<String> swap_upstream(PrDataflow dataflow, PrepSwapRequest swapRequest)
+          throws Exception {
     String oldDsId = swapRequest.getOldDsId();
     String newDsId = swapRequest.getNewDsId();
     String wrangledDsId = swapRequest.getWrangledDsId();
@@ -464,7 +399,7 @@ public class PrepTransformService {
       // Uncache the affected target so that it can be reloaded
       teddyImpl.remove(rule.getDataset().getDsId());
 
-      if(false==affectedDsIds.contains(rule.getDataset().getDsId())) {
+      if (false == affectedDsIds.contains(rule.getDataset().getDsId())) {
         // It must be wrangled dataset, but not chaining wrangled
         affectedDsIds.add(rule.getDataset().getDsId());
       }
@@ -498,28 +433,28 @@ public class PrepTransformService {
 
   @Transactional(rollbackFor = Exception.class)
   public void after_swap(List<String> affectedDsIds) throws Exception {
-    for(String affectedDsId : affectedDsIds) {
+    for (String affectedDsId : affectedDsIds) {
       PrepTransformResponse response = this.fetch(affectedDsId, null);
       DataFrame dataFrame = response.getGridResponse();
       this.previewLineService.putPreviewLines(affectedDsId, dataFrame);
     }
   }
 
-  private DataFrame load_internal(String dsId) throws IOException, CannotSerializeIntoJsonException {
-    return load_internal(dsId, false);
+  public DataFrame loadWrangledDataset(String dsId) throws IOException, CannotSerializeIntoJsonException {
+    return loadWrangledDataset(dsId, false);
   }
 
-  private DataFrame load_internal(String dsId, boolean compaction) throws IOException, CannotSerializeIntoJsonException {
+  private DataFrame loadWrangledDataset(String dsId, boolean compaction)
+          throws IOException, CannotSerializeIntoJsonException {
     if (teddyImpl.revisionSetCache.containsKey(dsId)) {
       if (compaction && !onlyAppend(dsId)) {
-        LOGGER.trace("load_internal(): dataset will be uncached and reloaded: dsId={}", dsId);
+        LOGGER.trace("loadWrangledDataset(): dataset will be uncached and reloaded: dsId={}", dsId);
       } else {
         return teddyImpl.getCurDf(dsId);
       }
     }
-    LOGGER.trace("load_internal(): start: dsId={}", dsId);
+    LOGGER.trace("loadWrangledDataset(): start: dsId={}", dsId);
 
-    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     DataFrame gridResponse;
 
     // 만약 PLM cache에 존재하고, transition을 재적용할 필요가 없다면
@@ -536,10 +471,8 @@ public class PrepTransformService {
     gridResponse = createStage0(dsId, upstreamDataset);
     teddyImpl.reset(dsId);
 
-    List<String> ruleStrings = new ArrayList<>();
-    List<String> jsonRuleStrings = new ArrayList<>();
-    ArrayList<String> totalTargetDsIds = new ArrayList<>();           // What is this for?
-    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();     // What is this for?
+    List<String> ruleStrings = new ArrayList();
+    List<String> jsonRuleStrings = new ArrayList();
 
     prepareTransformRules(dsId);
 
@@ -554,17 +487,15 @@ public class PrepTransformService {
       List<String> upstreamDsIds = transformRuleService.getUpstreamDsIds(ruleString);
 
       for (String upstreamDsId : upstreamDsIds) {
-        load_internal(upstreamDsId);
-        totalTargetDsIds.add(upstreamDsId);
+        loadWrangledDataset(upstreamDsId);
 
         PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
-        totalTargetDatasets.add(targetDataset);
       }
     }
 
     // 적용할 rule string이 없으면 그냥 리턴.
     if (ruleStrings.size() == 0) {
-      LOGGER.trace("load_internal(): end (no rules to apply)");
+      LOGGER.trace("loadWrangledDataset(): end (no rules to apply)");
       return teddyImpl.getCurDf(dsId);
     }
 
@@ -576,7 +507,7 @@ public class PrepTransformService {
     updateTransformRules(dsId);
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);
 
-    LOGGER.trace("load_internal(): end (applied rules)");
+    LOGGER.trace("loadWrangledDataset(): end (applied rules)");
     return gridResponse;
   }
 
@@ -587,7 +518,8 @@ public class PrepTransformService {
     List<Future<Histogram>> futures = new ArrayList<>();
     List<Histogram> colHists = new ArrayList<>();
 
-    assert colnos.size() == colWidths.size() : String.format("colnos.size()=%d colWidths.size()=%d", colnos.size(), colWidths.size());
+    assert colnos.size() == colWidths.size() : String
+            .format("colnos.size()=%d colWidths.size()=%d", colnos.size(), colWidths.size());
 
     int dop = 16;
     int issued = 0;
@@ -595,7 +527,8 @@ public class PrepTransformService {
     for (int i = 0; i < colnos.size(); i++) {
       int colno = colnos.get(i);
       int colWidth = colWidths.get(i);
-      futures.add(prepHistogramService.updateHistWithColWidth(df.getColName(colno), df.getColType(colno), df.rows, colno, colWidth));
+      futures.add(prepHistogramService
+              .updateHistWithColWidth(df.getColName(colno), df.getColType(colno), df.rows, colno, colWidth));
 
       if (++issued == dop) {
         for (int j = 0; j < issued; j++) {
@@ -643,14 +576,10 @@ public class PrepTransformService {
     }
   }
 
-  // transform (PUT)
-  @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString, String jsonRuleString, boolean suppress) throws Exception {
-    LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={} jsonRuleString={}",
-        dsId, op, stageIdx, ruleString, jsonRuleString);
-
-    if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
-      confirmRuleStringForException(ruleString);
+  private int preTransform(String dsId, OP_TYPE op, String ruleString)
+          throws CannotSerializeIntoJsonException, IOException {
+    if (op == OP_TYPE.APPEND || op == OP_TYPE.UPDATE || op == OP_TYPE.PREVIEW) {
+      PrepRuleChecker.confirmRuleStringForException(ruleString);
 
       // Check in advance, or a severe inconsistency between stages and rules can happen,
       // when these functions fail at that time, after all works done for the stages successfully.
@@ -661,17 +590,28 @@ public class PrepTransformService {
     assert dataset != null : dsId;
 
     // dataset이 loading되지 않았으면 loading
-    load_internal(dsId);      // TODO: do compaction (only when UI requested explicitly)
+    loadWrangledDataset(dsId);      // TODO: do compaction (only when UI requested explicitly)
 
-    PrepTransformResponse response = null;
     int origStageIdx = teddyImpl.getCurStageIdx(dsId);
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
       for (String upstreamDsId : transformRuleService.getUpstreamDsIds(ruleString)) {
-        load_internal(upstreamDsId);
+        loadWrangledDataset(upstreamDsId);
       }
     }
+
+    return origStageIdx;
+  }
+
+  // transform (PUT)
+  @Transactional(rollbackFor = Exception.class)
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx,
+          String ruleString, String jsonRuleString, boolean suppress) throws Exception {
+    LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={} jsonRuleString={}",
+            dsId, op, stageIdx, ruleString, jsonRuleString);
+
+    int origStageIdx = preTransform(dsId, op, ruleString);
 
     // 아래 각 case에서 ruleCurIdx, matrixResponse는 채워서 리턴
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
@@ -689,7 +629,8 @@ public class PrepTransformService {
         if (stageIdx <= origStageIdx) {
           adjustStageIdx(dsId, origStageIdx - 1, true);
         } else {
-          adjustStageIdx(dsId, origStageIdx, true);  // Currently, this case does not happen (no delete button after curRuleIdx)
+          // Currently, this case does not happen (no delete button after curRuleIdx)
+          adjustStageIdx(dsId, origStageIdx, true);
         }
         break;
       case UPDATE:
@@ -709,13 +650,23 @@ public class PrepTransformService {
         adjustStageIdx(dsId, stageIdx, true);
         break;
       case PREVIEW:
-        response = new PrepTransformResponse(teddyImpl.preview(dsId, stageIdx, ruleString));
-        break;
+        LOGGER.trace("transform(): preview end");
+        return new PrepTransformResponse(teddyImpl.preview(dsId, stageIdx, ruleString));
       case NOT_USED:
       default:
         throw new IllegalArgumentException("invalid transform op: " + op.toString());
     }
 
+    LOGGER.trace("transform(): end");
+    return postTransform(dsId, op);
+  }
+
+  private PrepTransformResponse postTransform(String dsId, OP_TYPE op)
+          throws CannotSerializeIntoJsonException, JsonProcessingException {
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    assert dataset != null : dsId;
+
+    PrepTransformResponse response = null;
     switch (op) {
       case APPEND:
       case DELETE:
@@ -738,8 +689,6 @@ public class PrepTransformService {
 
     response.setRuleCurIdx(dataset.getRuleCurIdx());
     response.setTransformRules(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId), teddyImpl.isRedoable(dsId));
-
-    LOGGER.trace("transform(): end");
     return response;
   }
 
@@ -767,11 +716,12 @@ public class PrepTransformService {
   }
 
   // transform_histogram (POST)
-  public PrepHistogramResponse transform_histogram(String dsId, Integer stageIdx, List<Integer> colnos, List<Integer> colWidths) throws Exception {
+  public PrepHistogramResponse transform_histogram(String dsId, Integer stageIdx,
+          List<Integer> colnos, List<Integer> colWidths) throws Exception {
     LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} stageIdx={} colnos={} colWidths={}",
-                 dsId, teddyImpl.getCurRevIdx(dsId), stageIdx, colnos, colWidths);
+            dsId, teddyImpl.getCurRevIdx(dsId), stageIdx, colnos, colWidths);
 
-    load_internal(dsId);
+    loadWrangledDataset(dsId);
 
     assert stageIdx != null;
     assert stageIdx >= 0 : stageIdx;
@@ -783,20 +733,20 @@ public class PrepTransformService {
     return new PrepHistogramResponse(colHists);
   }
 
-  private Map<String, Integer> getTimestampFormatList(DataFrame df, String colName) throws Exception{
+  private Map<String, Integer> getTimestampFormatList(DataFrame df, String colName)
+          throws Exception {
     Map<String, Integer> timestampFormatList = new LinkedHashMap<>();
     List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
     int colNo;
 
     // 기본 포맷은 항상 리턴
-    for(TimestampTemplate tt : TimestampTemplate.values()) {
+    for (TimestampTemplate tt : TimestampTemplate.values()) {
       String timestampFormat = tt.getFormatForRuleString();
       timestampFormatList.put(timestampFormat, 0);
     }
 
-    if(colName.equals("")) {
-    }
-    else {
+    if (colName.equals("")) {
+    } else {
 
       try {
         colNo = df.getColnoByColName(colName);
@@ -812,8 +762,9 @@ public class PrepTransformService {
       int rowCount = df.rows.size() < 100 ? df.rows.size() : 100;
 
       for (int i = 0; i < rowCount; i++) {
-        if (df.rows.get(i).get(colNo) == null)
+        if (df.rows.get(i).get(colNo) == null) {
           continue;
+        }
 
         String str = df.rows.get(i).get(colNo).toString();
 
@@ -825,38 +776,32 @@ public class PrepTransformService {
             timestampStyleGuess.add(tt);
             break;
           } catch (Exception e) {
-            //LOGGER.info("create(): Detecting Column Type...", e);
+            // Suppress
           }
         }
       }
     }
 
-    /*
-    for(TimestampTemplate tt : TimestampTemplate.values()) {
+    for (TimestampTemplate tt : timestampStyleGuess) {
       String timestampFormat = tt.getFormatForRuleString();
-      timestampFormatList.put(timestampFormat, 0);
-    }
-    */
-
-    for(TimestampTemplate tt : timestampStyleGuess) {
-      String timestampFormat = tt.getFormatForRuleString();
-      timestampFormatList.put(timestampFormat, timestampFormatList.get(timestampFormat)+1);
+      timestampFormatList.put(timestampFormat, timestampFormatList.get(timestampFormat) + 1);
     }
 
     return timestampFormatList;
   }
 
   // transform_timestampFormat
-  public Map<String, Object> transform_timestampFormat(String dsId, List<String> colNames) throws  Exception{
-    load_internal(dsId);
+  public Map<String, Object> transform_timestampFormat(String dsId, List<String> colNames) throws Exception {
+    loadWrangledDataset(dsId);
 
     DataFrame df = teddyImpl.getCurDf(dsId);
     Map<String, Object> response = new HashMap<>();
 
-    if(colNames.size() == 0)
+    if (colNames.size() == 0) {
       colNames.add("");
+    }
 
-    for(String colName : colNames) {
+    for (String colName : colNames) {
       response.put(colName, getTimestampFormatList(df, colName));
     }
 
@@ -864,7 +809,8 @@ public class PrepTransformService {
   }
 
   // this includes IMPORTED datasets
-  private Map<String, Object> buildDatasetInfoRecursive(String wrangledDsId) throws IOException, CannotSerializeIntoJsonException {
+  private Map<String, Object> buildDatasetInfoRecursive(String wrangledDsId)
+          throws IOException, CannotSerializeIntoJsonException {
     // {"origTeddyDsId": "MASTER-TEDDY-DSID",
     //  "importType": "HIVE",
     //  "sourceQuery": "select * from t",
@@ -903,6 +849,7 @@ public class PrepTransformService {
           case URI:
             datasetInfo.put("storedUri", upstreamDataset.getStoredUri());
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
+            datasetInfo.put("quoteChar", upstreamDataset.getQuoteChar());
             datasetInfo.put("manualColumnCount", upstreamDataset.getManualColumnCount());
             break;
 
@@ -912,17 +859,17 @@ public class PrepTransformService {
             datasetInfo.put("dcId", dcId);
             DataConnection dataConnection = this.connectionRepository.getOne(dcId);
 
-            datasetInfo.put("implementor", dataConnection.getImplementor() );
-            datasetInfo.put("connectUri", DataConnectionHelper.getConnectionUrl(dataConnection) );
-            datasetInfo.put("username", dataConnection.getUsername() );
-            datasetInfo.put("password", dataConnection.getPassword() );
+            datasetInfo.put("implementor", dataConnection.getImplementor());
+            datasetInfo.put("connectUri", DataConnectionHelper.getConnectionUrl(dataConnection));
+            datasetInfo.put("username", dataConnection.getUsername());
+            datasetInfo.put("password", dataConnection.getPassword());
             break;
 
           case STAGING_DB:
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             break;
 
-          case DRUID:
+          default:
             assert false : upstreamDataset.getImportType();
         }
       } else {
@@ -945,7 +892,8 @@ public class PrepTransformService {
     // put upstreamDatasetInfos
     datasetInfo.put("upstreamDatasetInfos", upstreamDatasetInfos);
 
-    LOGGER.info("buildDatasetInfoRecursive(): " + GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo));
+    LOGGER.info("buildDatasetInfoRecursive(): " + GlobalObjectMapper.getDefaultMapper()
+            .writeValueAsString(datasetInfo));
     return datasetInfo;
   }
 
@@ -954,22 +902,46 @@ public class PrepTransformService {
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo);
   }
 
-  String runTransformer(String wrangledDsId, PrepSnapshotRequestPost requestPost, String ssId, String authorization) throws Throwable {
+  private void checkHadoopConf(PrSnapshot snapshot) throws URISyntaxException {
+    PrSnapshot.SS_TYPE ssType = snapshot.getSsType();
 
-    String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(wrangledDsId, requestPost);
-    String jsonDatasetInfo        = getJsonDatasetInfo(wrangledDsId);
-    String jsonSnapshotInfo       = getJsonSnapshotInfo(requestPost, ssId);
-
-    switch (requestPost.getEngine()) {
-      case TWINKLE:
-        assert false : "Spark engine not supported for a while";
-      case EMBEDDED:
-        return runTeddy(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, authorization);
+    switch (ssType) {
+      case URI:
+        if ((new URI(snapshot.getStoredUri())).getScheme().equals("hdfs")) {
+          prepProperties.getHadoopConfDir(true);
+          prepProperties.getStagingBaseDir(true);
+        }
+        break;
+      case STAGING_DB:
+        prepProperties.getHadoopConfDir(true);
+        prepProperties.getStagingBaseDir(true);
+        break;
       default:
-        assert false : requestPost.getEngine();
+        break;
     }
+  }
 
-    return "CANNOT_REACH_HERE";
+  private void runTransformer(String wrangledDsId, PrSnapshot snapshot, String authorization) throws Throwable {
+
+    LOGGER.debug("runTransformer(): ssName={} engine={}", snapshot.getSsName(), snapshot.getEngine());
+
+    checkHadoopConf(snapshot);
+
+    String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(snapshot);
+    String jsonDatasetInfo = getJsonDatasetInfo(wrangledDsId);
+    String jsonSnapshotInfo = getJsonSnapshotInfo(snapshot);
+    String jsonCallbackInfo = getJsonCallbackInfo(authorization);
+
+    switch (snapshot.getEngine()) {
+      case EMBEDDED:
+        runTeddy(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo);
+        break;
+      case SPARK:
+        runSpark(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo);
+        break;
+      default:
+        assert false : snapshot.getEngine();
+    }
   }
 
   private String getServerPort() {
@@ -978,47 +950,49 @@ public class PrepTransformService {
       return serverPort;
     }
 
-    return ((StandardEnvironment) this.env).getPropertySources().get("server.ports").getProperty("local.server.port").toString();
+    return ((StandardEnvironment) this.env).getPropertySources().get("server.ports")
+            .getProperty("local.server.port").toString();
   }
 
-  private String runTeddy(String jsonPrepPropertiesInfo, String jsonDatasetInfo, String jsonSnapshotInfo, String authorization) throws Throwable {
+  private void runTeddy(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
+          String jsonSnapshotInfo, String jsonCallbackInfo) throws Throwable {
     LOGGER.info("runTeddy(): engine=embedded");
 
-    Future<String> future = teddyExecutor.run(new String[]{"embedded", jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, getServerPort(), authorization});
+    Future<String> future = teddyExecutor.run(
+            new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo});
 
     LOGGER.debug("runTeddy(): (Future) result from teddyExecutor: " + future.toString());
-    return "RUNNING";
   }
 
-  private void checkHiveNamingRule(String dsId) throws IOException, CannotSerializeIntoJsonException {
+  private void runSpark(String jsonPrepPropertiesInfo, String jsonDatasetInfo,
+          String jsonSnapshotInfo, String jsonCallbackInfo) throws Throwable {
+
+    Future<String> future = sparkExecutor.run(
+            new String[]{jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo});
+
+    LOGGER.debug("runSpark(): (Future) result from sparkExecutor: " + future.toString());
+  }
+
+
+  private void checkHiveNamingRule(String dsId)
+          throws IOException, CannotSerializeIntoJsonException {
     try {
       teddyImpl.checkNonAlphaNumericalColNames(dsId);
     } catch (IllegalColumnNameForHiveException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_COLUMN_NAME_FOR_HIVE, e.getMessage());
-    }
-
-    List<String> upstreamDsIds = getUpstreamDsIds(dsId);
-    for (String upsteramDsId : upstreamDsIds) {
-      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(upsteramDsId));
-      if (dataset.getDsType() == IMPORTED) {
-        continue;
-      }
-      checkHiveNamingRule(upsteramDsId);
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+              PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_COLUMN_NAME_FOR_HIVE, e.getMessage());
     }
   }
 
-  // FIXME: What is this functions for?
-  private void prepareTransformRules(String dsId)
-      throws CannotSerializeIntoJsonException, JsonProcessingException {
+  // Parse the rule string into short version to display in the rule list panel.
+  // Server-side do not use jsonRuleString field of TransformRule class.
+  // It's used by client-side to store something tied up to the rule.
+  private void prepareTransformRules(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     List<PrTransformRule> transformRules = dataset.getTransformRules();
 
-    if (transformRules !=null && transformRules.size() > 0) {
+    if (transformRules != null && transformRules.size() > 0) {
       for (PrTransformRule transformRule : transformRules) {
-        if (transformRule.getJsonRuleString() == null) {
-          String jsonRuleString = transformRule.getJsonRuleString();
-          transformRule.setJsonRuleString(jsonRuleString);
-        }
         if (transformRule.getShortRuleString() == null) {
           String shortRuleString = transformRuleService.shortenRuleString(transformRule.getRuleString());
           transformRule.setShortRuleString(shortRuleString);
@@ -1028,22 +1002,23 @@ public class PrepTransformService {
   }
 
   @Transactional
-  public PrepSnapshotResponse transform_snapshot(String wrangledDsId, PrepSnapshotRequestPost requestPost, String authorization) throws Throwable {
+  public PrepSnapshotResponse transform_snapshot(String wrangledDsId,
+          PrepSnapshotRequestPost requestPost, String authorization) throws Throwable {
     PrepSnapshotResponse response;
-    List<String> allFullDsIds;
     PrSnapshot snapshot = new PrSnapshot();
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
 
     PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
     String ssName = requestPost.getSsName();
 
-    LOGGER.trace("transform_snapshot(): start: ssType={} ssName={} dsId={} ", ssType, ssName, wrangledDsId);
+    LOGGER.debug("transform_snapshot(): start: ssType={} ssName={} dsId={} ", ssType, ssName, wrangledDsId);
 
     if (ssName == null || ssName.equals("")) {
-      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_SNAPSHOT_NAME);
+      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+              PrepMessageKey.MSG_DP_ALERT_INVALID_SNAPSHOT_NAME);
     }
 
-    load_internal(wrangledDsId);
+    loadWrangledDataset(wrangledDsId);
 
     if (requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
       checkHiveNamingRule(wrangledDsId);
@@ -1088,7 +1063,7 @@ public class PrepTransformService {
     snapshot.setOrigDsStoredUri(origDataset.getStoredUri());
 
     String dcId = origDataset.getDcId();
-    if(dcId!=null) { // If ImportType is not UPLOAD, the dataset has no connection
+    if (dcId != null) { // If ImportType is not UPLOAD, the dataset has no connection
       snapshot.setOrigDsDcId(origDataset.getDcId());
       DataConnection origDsDc = connectionRepository.getOne(origDataset.getDcId());
       snapshot.setOrigDsDcImplementor(origDsDc.getImplementor());
@@ -1110,12 +1085,14 @@ public class PrepTransformService {
       case URI:
         String storedUri = requestPost.getStoredUri();
         if (storedUri == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_DEST_URI_IS_NEEDED);
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_DEST_URI_IS_NEEDED);
         }
         try {
           new URI(storedUri);
         } catch (URISyntaxException e) {
-          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX);
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX);
         }
         snapshot.setStoredUri(requestPost.getStoredUri());
         break;
@@ -1147,36 +1124,33 @@ public class PrepTransformService {
       case DRUID:
         break;
       default:
-        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET, ssType.name());
+        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
+                PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET, ssType.name());
     }
 
     snapshotRepository.saveAndFlush(snapshot);
 
-    if (requestPost.getSsType() == PrSnapshot.SS_TYPE.URI ||
-        requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
-      String result = runTransformer(wrangledDsId, requestPost, snapshot.getSsId(), authorization);
-      LOGGER.info("transform_snapshot(): return from runTransformer(): " + result);
-
-      allFullDsIds = new ArrayList<>();   // for backward-compatability
-    }
-    else {
+    if (requestPost.getSsType() == PrSnapshot.SS_TYPE.URI || requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
+      runTransformer(wrangledDsId, snapshot, authorization);
+      LOGGER.info("transform_snapshot(): snapshot generation successfully start");
+    } else {
       throw new IllegalArgumentException(requestPost.toString());
     }
 
     snapshotRepository.saveAndFlush(snapshot);
 
-    response = new PrepSnapshotResponse(snapshot.getSsId(), allFullDsIds, snapshot.getSsName());
+    response = new PrepSnapshotResponse(snapshot.getSsId(), snapshot.getSsName());
 
-    LOGGER.trace("transform_snapshot(): end");
+    LOGGER.debug("transform_snapshot(): end");
     return response;
   }
 
   @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws IOException {
-    PrepTransformResponse response = null;
+    PrepTransformResponse response;
 
     try {
-      load_internal(dsId);
+      loadWrangledDataset(dsId);
 
       response = fetch_internal(dsId, stageIdx);
     } catch (CannotSerializeIntoJsonException e) {
@@ -1196,18 +1170,26 @@ public class PrepTransformService {
     return response;
   }
 
-  private static String getNewDsName(PrDataset importedDataset, PrDataflow dataflow, String dfId, String cloningDsName) {
+  private static String getNewDsName(PrDataset importedDataset, PrDataflow dataflow, String dfId,
+          String cloningDsName) {
+
     if (cloningDsName == null) {
-      return importedDataset.getDsName().replaceFirst(" \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$","");
+      cloningDsName = importedDataset.getDsName().replaceFirst(
+              " \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$", "");
     }
 
     List<String> dsNames = new ArrayList();
     for (PrDataset dataset : dataflow.getDatasets()) {
-      dsNames.add(dataset.getDsName());
+      if (dataset.getDsType() != PrDataset.DS_TYPE.IMPORTED) {
+        dsNames.add(dataset.getDsName());
+      }
     }
 
-    for (int i = 1; /* NOP */; i++) {
-      String newDsName = String.format("%s (%d)", cloningDsName, i);
+    String newDsName = cloningDsName;
+    for (int i = 0; /* NOP */ ; i++) {
+      if (i != 0) {
+        newDsName = String.format("%s (%d)", cloningDsName, i);
+      }
 
       if (!dsNames.contains(newDsName)) {
         return newDsName;
@@ -1217,7 +1199,8 @@ public class PrepTransformService {
     }
   }
 
-  private static PrDataset makeWrangledDataset(PrDataset importedDataset, PrDataflow dataflow, String dfId, String cloningDsName) {
+  private static PrDataset makeWrangledDataset(PrDataset importedDataset, PrDataflow dataflow,
+          String dfId, String cloningDsName) {
     PrDataset wrangledDataset = new PrDataset();
 
     String newDsName = getNewDsName(importedDataset, dataflow, dfId, cloningDsName);
@@ -1264,14 +1247,14 @@ public class PrepTransformService {
   }
 
   public void putAddedInfo(PrepTransformResponse transformResponse, PrDataset wrangledDataset) {
-    if(transformResponse!=null && wrangledDataset!=null) {
+    if (transformResponse != null && wrangledDataset != null) {
       transformResponse.setSampledRows(wrangledDataset.getTotalLines());
       transformResponse.setFullBytes(wrangledDataset.getTotalBytes()); // 아직 totalBytes 미구현
     }
   }
 
   private DataFrame createStage0(String wrangledDsId, PrDataset importedDataset)
-      throws CannotSerializeIntoJsonException, JsonProcessingException {
+          throws CannotSerializeIntoJsonException, JsonProcessingException {
     PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     DataFrame gridResponse;
 
@@ -1284,14 +1267,17 @@ public class PrepTransformService {
         LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
 
         if (importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.CSV ||
-            importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL ||
-            importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
+                importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL ||
+                importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
           Integer columnCount = importedDataset.getManualColumnCount();
-          gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), columnCount, wrangledDataset.getDsName());
+          gridResponse = teddyImpl
+                  .loadFileDataset(wrangledDsId, storedUri,
+                                   importedDataset.getDelimiter(), importedDataset.getQuoteChar(),
+                                   columnCount, wrangledDataset.getDsName());
         } else {
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
                   "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
-          //throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
         }
         break;
 
@@ -1301,26 +1287,29 @@ public class PrepTransformService {
           queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
         }
 
-        String dbName = importedDataset.getDbName();
-        DataConnection dataConnection = this.connectionRepository.getOne( importedDataset.getDcId() );
+        DataConnection dataConnection = this.connectionRepository.getOne(importedDataset.getDcId());
         Hibernate.initialize(dataConnection);
         if (dataConnection instanceof HibernateProxy) {
-          dataConnection = (DataConnection) ((HibernateProxy) dataConnection).getHibernateLazyInitializer().getImplementation();
+          dataConnection = (DataConnection) ((HibernateProxy) dataConnection)
+                  .getHibernateLazyInitializer().getImplementation();
         }
 
-        gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, dbName, queryStmt, wrangledDataset.getDsName());
+        gridResponse = teddyImpl
+                .loadJdbcDataset(wrangledDsId, dataConnection, queryStmt, wrangledDataset.getDsName());
         break;
 
       case STAGING_DB:
         queryStmt = importedDataset.getQueryStmt().trim();
-        if (queryStmt.charAt(queryStmt.length() - 1) == ';')
+        if (queryStmt.charAt(queryStmt.length() - 1) == ';') {
           queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
+        }
 
         gridResponse = teddyImpl.loadStageDBDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
         break;
 
       default:
-        throw new IllegalArgumentException("invalid import type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
+        throw new IllegalArgumentException(
+                "invalid import type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
     }
 
     wrangledDataset.setRuleCurIdx(0);
@@ -1336,27 +1325,18 @@ public class PrepTransformService {
     return gridResponse;
   }
 
-  // only debugging purpose
-  public PrepTransformResponse getCacheInfo() {
-    Map<String, Object> cacheInfo = new HashMap<>();
-
-    PrepTransformResponse response = new PrepTransformResponse();
-    response.setCacheInfo(cacheInfo);
-    return response;
-  }
-
   // FIXME: just send static configurations. we do not need specific dataset info.
-  public Map<String,Object> getConfiguration(String wrangledDsId) {
-    Map<String,Object> configuration = Maps.newHashMap();
+  public Map<String, Object> getConfiguration(String wrangledDsId) {
+    Map<String, Object> configuration = Maps.newHashMap();
     try {
       PrDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
       assert (null != wrangledDataset);
       DateTime launchTime = DateTime.now(DateTimeZone.UTC);
-      String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(),launchTime);
+      String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(), launchTime);
       configuration.put("ss_name", ssName);
 
-      if(prepProperties.isFileSnapshotEnabled()) {
-        Map<String,Object> fileUri = Maps.newHashMap();
+      if (prepProperties.isFileSnapshotEnabled()) {
+        Map<String, Object> fileUri = Maps.newHashMap();
 
         // TODO: "LOCAL", "HDFS" will be replaced by location presets from application.yaml (later)
         String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
@@ -1368,9 +1348,13 @@ public class PrepTransformService {
           hdfsDir = this.snapshotService.escapeUri(hdfsDir);
           fileUri.put("HDFS", hdfsDir);
         } catch (Exception e) {
-          // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
+          // Suppress
         }
         configuration.put("file_uri", fileUri);
+      }
+
+      if (prepProperties.isSparkEngineEnabled()) {
+        configuration.put("sparkEngineEnabled", true);
       }
     } catch (Exception e) {
       throw e;
@@ -1378,593 +1362,45 @@ public class PrepTransformService {
     return configuration;
   }
 
-  private void confirmRuleStringForException(String ruleString) {
-    try {
-      Rule rule = new RuleVisitorParser().parse(ruleString);
+  public String cancelSnapshot(String ssId) {
+    PrSnapshot.STATUS status = snapshotService.getSnapshotStatus(ssId);
 
-      if( rule.getName().equals( "move"  ) ) {
-        Move move = (Move)rule;
-        String after = move.getAfter();
-        String before = move.getBefore();
-        if( (null==after || after.isEmpty()) && (null==before || before.isEmpty()) ) {
-          LOGGER.error("confirmRuleStringForException(): move before and after is empty");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MOVE_BEFORE_AND_AFTER);
-        }
-        Expression expression = move.getCol();
-        if(null==expression) {
-          LOGGER.error("confirmRuleStringForException(): move expression is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MOVE_EXPRESSION);
-        }
-      } else if( rule.getName().equals( "sort"  ) ) {
-        Sort sort = (Sort)rule;
-        Expression order = sort.getOrder();
-        if (order instanceof Identifier.IdentifierExpr || order instanceof Identifier.IdentifierArrayExpr) {
-        } else {
-          LOGGER.error("confirmRuleStringForException(): sort order is not valid");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_ORDER);
-        }
+    if (status == null) {
+      return "NO_MATCHED_SNAPSHOT_ID";
+    }
 
-        Expression type = sort.getType();
-        if (type == null || (type instanceof Constant.StringExpr && ((Constant.StringExpr)type).getEscapedValue().equalsIgnoreCase("DESC")) ) {
-        } else {
-          LOGGER.error("confirmRuleStringForException(): sort type is not valid");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SORT_TYPE);
+    switch (status) {
+      case INITIALIZING:
+      case WRITING:
+      case TABLE_CREATING:
+        snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
+        return "OK";
+      case RUNNING:
+        snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
+        List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
+        if (jobs != null && !jobs.isEmpty()) {
+          for (Future<List<Row>> job : jobs) {
+            job.cancel(true);
+          }
         }
-      } else if( rule.getName().equals( "union"  ) ) {
-      } else if( rule.getName().equals( "drop"  ) ) {
-        Drop drop = (Drop)rule;
-        Expression col = drop.getCol();
-        if (col instanceof Identifier.IdentifierExpr || col instanceof Identifier.IdentifierArrayExpr) {
-        } else {
-          LOGGER.error("confirmRuleStringForException(): drop col is not valid");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DROP_COL);
-        }
-      } else if( rule.getName().equals( "keep"  ) ) {
-        Keep keep = (Keep)rule;
-        Expression expression = keep.getRow();
-        if(null==expression) {
-          LOGGER.error("confirmRuleStringForException(): keep expression is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_KEEP_EXPRESSION);
-        }
-      } else if( rule.getName().equals( "delete"  ) ) {
-        Delete delete = (Delete)rule;
-        Expression expression = delete.getRow();
-        if(null==expression) {
-          LOGGER.error("confirmRuleStringForException(): delete expression is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DELETE_EXPRESSION);
-        }
-      } else if( rule.getName().equals( "flatten"  ) ) {
-        Flatten flatten = (Flatten)rule;
-        String col = flatten.getCol();
-        if(null==col || 0==col.length()) {
-          LOGGER.error("confirmRuleStringForException(): flatten col is wrong");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_FLATTEN_COL);
-        }
-      } else if( rule.getName().equals( "header"  ) ) {
-        Header header = (Header)rule;
-        Long rowNum = header.getRownum();
-        if(null==rowNum || rowNum<0) {
-          LOGGER.error("confirmRuleStringForException(): header rowNum is wrong");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_HEADER_ROWNUM);
-        }
-      } else if( rule.getName().equals( "rename"  ) ) {
-        Rename rename = (Rename)rule;
-        Expression col = rename.getCol();
-        Expression to = rename.getTo();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): rename col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RENAME_COL);
-        }
-        if(null==to) {
-          LOGGER.error("confirmRuleStringForException(): rename to is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RENAME_TO);
-        }
-      } else if( rule.getName().equals( "replace"  ) ) {
-        Replace replace = (Replace)rule;
-        Expression after = replace.getAfter();
-        Expression before = replace.getBefore();
-        Expression col = replace.getCol();
-        boolean global = replace.getGlobal();
-        boolean ignoreCase = replace.getIgnoreCase();
-        Expression on = replace.getOn();
-        Expression quote = replace.getQuote();
-        Expression row = replace.getRow();
-        Constant with = replace.getWith();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): replace col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_REPLACE_COL);
-        }
-        if(null==on) {
-          LOGGER.error("confirmRuleStringForException(): replace on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_REPLACE_ON);
-        }
-      } else if( rule.getName().equals( "settype"  ) ) {
-        SetType setType = (SetType)rule;
-        Expression col = setType.getCol();
-        String format = setType.getFormat();
-        String type = setType.getType();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): settype col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETTYPE_COL);
-        }
-        if(null==type) {
-          LOGGER.error("confirmRuleStringForException(): settype type is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETTYPE_TYPE);
-        }
-      } else if( rule.getName().equals( "setformat"  ) ) {
-        SetFormat setFormat = (SetFormat) rule;
-        Expression col = setFormat.getCol();
-        String format = setFormat.getFormat();
-
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): setformat col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETFORMAT_COL);
-        }
-        if(null==format) {
-          LOGGER.error("confirmRuleStringForException(): setformat format is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SETFORMAT_FORMAT);
-        }
-      } else if( rule.getName().equals( "set"  ) ) {
-        Set set = (Set)rule;
-        Expression col = set.getCol();
-        Expression row = set.getRow();
-        Expression value = set.getValue();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): set col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SET_COL);
-        }
-        if(null==value) {
-          LOGGER.error("confirmRuleStringForException(): set value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SET_VALUE);
-        }
-      } else if( rule.getName().equals( "countpattern"  ) ) {
-        CountPattern countPattern = (CountPattern)rule;
-        Expression after = countPattern.getAfter();
-        Expression before = countPattern.getBefore();
-        Expression col = countPattern.getCol();
-        Boolean ignoreCase = countPattern.getIgnoreCase();
-        Expression on = countPattern.getOn();
-        Expression quote = countPattern.getQuote();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): countpattern col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_COUNTPATTERN_COL);
-        }
-        if(null==on) {
-          LOGGER.error("confirmRuleStringForException(): countpattern on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_COUNTPATTERN_ON);
-        }
-      } else if( rule.getName().equals( "derive"  ) ) {
-        Derive derive = (Derive)rule;
-        String as = derive.getAs();
-        Expression value = derive.getValue();
-        if(null==as) {
-          LOGGER.error("confirmRuleStringForException(): derive as col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DERIVE_AS);
-        }
-        if(null==value) {
-          LOGGER.error("confirmRuleStringForException(): derive value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_DERIVE_VALUE);
-        }
-      } else if( rule.getName().equals( "merge"  ) ) {
-        Merge merge = (Merge)rule;
-        String as = merge.getAs();
-        Expression col = merge.getCol();
-        String with = merge.getWith();
-        if(null==as) {
-          LOGGER.error("confirmRuleStringForException(): merge as is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_AS);
-        }
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): merge col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_COL);
-        }
-        if(null==with) {
-          LOGGER.error("confirmRuleStringForException(): merge with is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_MERGE_WITH);
-        }
-      } else if( rule.getName().equals( "unnest"  ) ) {
-        Unnest unnest = (Unnest)rule;
-        String col = unnest.getCol();
-        Expression idx = unnest.getIdx();
-        String into = unnest.getInto();
-        if(null==idx) {
-          LOGGER.error("confirmRuleStringForException(): unnest idx is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNNEST_IDX);
-        }
-        if(null==into) {
-          LOGGER.error("confirmRuleStringForException(): unnest into is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNNEST_INTO);
-        }
-      } else if( rule.getName().equals( "extract"  ) ) {
-        Extract extract = (Extract)rule;
-        Expression col = extract.getCol();
-        Boolean IgnoreCase = extract.getIgnoreCase();
-        Integer limit = extract.getLimit();
-        Expression on = extract.getOn();
-        Expression quote = extract.getQuote();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): extract col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_COL);
-        }
-        if(null==limit) {
-          LOGGER.error("confirmRuleStringForException(): extract limit is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_LIMIT);
-        }
-        if(null==on) {
-          LOGGER.error("confirmRuleStringForException(): extract on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_EXTRACT_ON);
-        }
-      } else if( rule.getName().equals( "aggregate"  ) ) {
-        Aggregate aggregate = (Aggregate)rule;
-        Expression group = aggregate.getGroup();
-        Expression value = aggregate.getValue();
-        if(null==group) {
-          LOGGER.error("confirmRuleStringForException(): aggregate group is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_GROUP);
-        }
-        if(null==value) {
-          LOGGER.error("confirmRuleStringForException(): aggregate value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_VALUE);
-        }
-      } else if( rule.getName().equals( "split"  ) ) {
-        Split split = (Split)rule;
-        Expression col = split.getCol();
-        Boolean ignoreCase = split.getIgnoreCase();
-        Integer limit = split.getLimit();
-        Expression on = split.getOn();
-        Expression quote = split.getQuote();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): split col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_COL);
-        }
-        if(null==limit) {
-          LOGGER.error("confirmRuleStringForException(): split limit is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_LIMIT);
-        }
-        if(null==on) {
-          LOGGER.error("confirmRuleStringForException(): split on is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_SPLIT_ON);
-        }
-      } else if( rule.getName().equals( "nest"  ) ) {
-        Nest nest = (Nest)rule;
-        String as = nest.getAs();
-        Expression col = nest.getCol();
-        String into = nest.getInto();
-        if(null==as) {
-          LOGGER.error("confirmRuleStringForException(): nest as is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_AS);
-        }
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): nest col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_COL);
-        }
-        if(null==into) {
-          LOGGER.error("confirmRuleStringForException(): nest into is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_NEST_INTO);
-        }
-      } else if( rule.getName().equals( "pivot"  ) ) {
-        Pivot pivot = (Pivot)rule;
-        Expression col = pivot.getCol();
-        Expression group = pivot.getGroup();
-        Integer limit = pivot.getLimit();
-        Expression value = pivot.getValue();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): pivot col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_COL);
-        }
-        if(null==group) {
-          LOGGER.error("confirmRuleStringForException(): pivot group is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_GROUP);
-        }
-        if(null==value) {
-          LOGGER.error("confirmRuleStringForException(): pivot value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_PIVOT_VALUE);
-        }
-      } else if( rule.getName().equals( "unpivot"  ) ) {
-        Unpivot unpivot = (Unpivot)rule;
-        Expression col = unpivot.getCol();
-        Integer groupEvery = unpivot.getGroupEvery();
-        if(null==col) {
-          LOGGER.error("confirmRuleStringForException(): unpivot col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNPIVOT_COL);
-        }
-        if(null==groupEvery) {
-          LOGGER.error("confirmRuleStringForException(): unpivot groupEvery is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_UNPIVOT_GROUPEVERY);
-        }
-      } else if( rule.getName().equals( "join"  ) ) {
-        Join join = (Join)rule;
-        Expression condition = join.getCondition();
-        Expression dataset2 = join.getDataset2();
-        String joinType = join.getJoinType();
-        Expression leftSelectCol = join.getLeftSelectCol();
-        Expression rightSelectCol = join.getRightSelectCol();
-        if(null==dataset2) {
-          LOGGER.error("confirmRuleStringForException(): join col is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_DATASET2);
-        }
-        if(null==joinType) {
-          LOGGER.error("confirmRuleStringForException(): join joinType is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_JOIN_JOINTYPE);
-        }
-      } else if( rule.getName().equals( "window"  ) ) {
-        Window window = (Window) rule;
-        Expression order = window.getOrder();
-        Expression value = window.getValue();
-        if (null == value || !(value instanceof Expr.FunctionExpr || value instanceof Expr.FunctionArrayExpr)) {
-          LOGGER.error("confirmRuleStringForException(): window value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_WINDOW_VALUE);
-        }
-      } else {
-        LOGGER.error("confirmRuleStringForException(): ruleName is wrong - "+rule.getName());
-        throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, "ruleName is wrong");
-      }
-    } catch (PrepException e) {
-      throw e;
-    } catch (RuleException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, TeddyException.fromRuleException(e));
-    } catch (NumberFormatException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_NUMBER_FORMAT, e.getMessage());
-    }catch (Exception e) {
-      LOGGER.error("confirmRuleStringForException(): caught an exception: ", e);
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, e.getMessage());
+        return "OK";
+      case CANCELING:
+      case CANCELED:
+        return "THIS_SNAPSHOT_IS_ALREADY_CANCELED";
+      case SUCCEEDED:
+        snapshotService.deleteSnapshot(ssId);
+        snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
+        return "OK";
+      case FAILED:
+        snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
+        return "OK";
+      case NOT_AVAILABLE:
+      default:
+        return "UNKNOWN_ERROR";
     }
   }
 
-  public String cancelSnapshot(String ssId) {
-      PrSnapshot.STATUS status = teddyExecutor.statusCheck(ssId);
-
-      if(status == null)
-          return "NO_MATCHED_SNAPSHOT_ID";
-
-      switch (status) {
-          case INITIALIZING:
-          case WRITING:
-          case TABLE_CREATING:
-              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
-              return "OK";
-          case RUNNING:
-              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
-              List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
-              if( jobs != null && !jobs.isEmpty()) {
-                  for (Future<List<Row>> job : jobs) {
-                      job.cancel(true);
-                  }
-              }
-              return "OK";
-          case CANCELING:
-          case CANCELED:
-              return "THIS_SNAPSHOT_IS_ALREADY_CANCELED";
-          case SUCCEEDED:
-              snapshotService.deleteSnapshot(ssId);
-              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
-              return "OK";
-          case FAILED:
-              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
-              return "OK";
-          case NOT_AVAILABLE:
-          default:
-              return "UNKNOWN_ERROR";
-      }
-  }
-
-  // Parser쪽에서 함수명을 상수로 정리하고나면 코드 일원화 시켜야함
   public List<ExprFunction> getFunctionList() {
-    List<ExprFunction> functionList = Lists.newArrayList();
-
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "length", "msg.dp.ui.expression.functiondesc.string.length"
-                    , "length(‘hello world’)", "11")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "upper", "msg.dp.ui.expression.functiondesc.string.upper"
-                    , "upper(‘Hello world’)", "’HELLO WORLD’")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "lower", "msg.dp.ui.expression.functiondesc.string.lower"
-                    , "lower(‘Hello WORLD’)", "’hello world’")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "trim", "msg.dp.ui.expression.functiondesc.string.trim"
-                    , "trim(‘  .   Hi!   ‘)", "‘.   Hi!’")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "ltrim", "msg.dp.ui.expression.functiondesc.string.ltrim"
-                    , "ltrim(‘  .   Hi!   ‘)", "’.   Hi!   ‘")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "rtrim", "msg.dp.ui.expression.functiondesc.string.rtrim"
-                    , "rtrim(‘  .   Hi!   ‘)", "‘  .   Hi!’")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "substring", "msg.dp.ui.expression.functiondesc.string.substring"
-                    , "substring(‘hello world’, 1, 7)", "‘ello w’")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "concat", "msg.dp.ui.expression.functiondesc.string.concat"
-                    , "concat(‘1980’, ’02’)", "‘198002’")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "concat_ws", "msg.dp.ui.expression.functiondesc.string.concat_ws"
-                    , "concat_ws(‘-‘, ‘010’, ‘1234’, ‘5678’)", "’010-1234-5678’")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "if", "msg.dp.ui.expression.functiondesc.logical.if"
-                    , "if(gender==‘male’)", "TRUE")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "ismismatched", "msg.dp.ui.expression.functiondesc.logical.ismismatched"
-                    , "", "")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnull", "msg.dp.ui.expression.functiondesc.logical.isnull"
-                    , "isnull(telephone)", "FALSE")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnan", "msg.dp.ui.expression.functiondesc.logical.isnan"
-                    , "isnan(1000/ratio)", "FALSE")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "contains", "msg.dp.ui.expression.functiondesc.logical.contains"
-                    , "startswith(‘hello world’, 'wor')", "true")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "startswith", "msg.dp.ui.expression.functiondesc.logical.startswith"
-                    , "startswith(‘hello world’, 'hell')", "true")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "endswith", "msg.dp.ui.expression.functiondesc.logical.endswith"
-                    , "endswith(‘hello world’, 'world')", "true")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "msg.dp.ui.expression.functiondesc.timestamp.year"
-                    , "year(birthday)", " 1987")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "month", "msg.dp.ui.expression.functiondesc.timestamp.month"
-                    , "month(birthday)", " 2")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "day", "msg.dp.ui.expression.functiondesc.timestamp.day"
-                    , "day(birthday)", " 13")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "hour", "msg.dp.ui.expression.functiondesc.timestamp.hour"
-                    , "hour(last_login)", " 21")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "minute", "msg.dp.ui.expression.functiondesc.timestamp.minute"
-                    , "minute(last_login)", " 49")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "second", "msg.dp.ui.expression.functiondesc.timestamp.second"
-                    , "second(last_login)", " 28")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "millisecond", "msg.dp.ui.expression.functiondesc.timestamp.millisecond"
-                    , "millisecond(last_login)", " 831")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "now", "msg.dp.ui.expression.functiondesc.timestamp.now"
-                    , "now()", "2018-04-18T12:20:90.220Z")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "add_time", "msg.dp.ui.expression.functiondesc.timestamp.add_time"
-                    , "add_time(timestamp, delta, time_unit)", "add_time(end_date, 10, ‘day’)")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "sum", "msg.dp.ui.expression.functiondesc.aggregation.sum"
-                    , "sum(profit)", "")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "avg", "msg.dp.ui.expression.functiondesc.aggregation.avg"
-                    , "avg(profit)", "")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "max", "msg.dp.ui.expression.functiondesc.aggregation.max"
-                    , "max(profit)", "")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "min", "msg.dp.ui.expression.functiondesc.aggregation.min"
-                    , "min(profit)", "")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "count", "msg.dp.ui.expression.functiondesc.aggregation.count"
-                    , "count()", "")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.abs", "msg.dp.ui.expression.functiondesc.math.abs"
-                    , "math.abs(-10)", "10")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.acos", "msg.dp.ui.expression.functiondesc.math.acos"
-                    , "math.acos(-1)", " 3.141592653589793")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.asin", "msg.dp.ui.expression.functiondesc.math.asin"
-                    , "math.asin(-1)", "-1.5707963267948966")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.atan", "msg.dp.ui.expression.functiondesc.math.atan"
-                    , "math.atan(-1)", "-0.7853981633974483")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cbrt", "msg.dp.ui.expression.functiondesc.math.cbrt"
-                    , "math.cbrt(5)", " 1.709975946676697")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.ceil", "msg.dp.ui.expression.functiondesc.math.ceil"
-                    , "math.ceil(15.142)", " 16")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cos", "msg.dp.ui.expression.functiondesc.math.cos"
-                    , "math.cos(45)", "0.5253219888177297")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cosh", "msg.dp.ui.expression.functiondesc.math.cosh"
-                    , "math.cosh(9)", "4051.5420254925943")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.exp", "msg.dp.ui.expression.functiondesc.math.exp"
-                    , "math.exp(4)", "54.598150033144236")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.expm1", "msg.dp.ui.expression.functiondesc.math.expm1"
-                    , "math.expm1(4)", "53.598150033144236")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.getExponent", "msg.dp.ui.expression.functiondesc.math.getExponent"
-                    , "math.getExponent(9)", "3")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.round", "msg.dp.ui.expression.functiondesc.math.round"
-                    , "math.round(14.2)", "14")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.signum", "msg.dp.ui.expression.functiondesc.math.signum"
-                    , "math.signum(-24)", "-1")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sin", "msg.dp.ui.expression.functiondesc.math.sin"
-                    , "math.sin(90)", "0.8939966636005579")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sinh", "msg.dp.ui.expression.functiondesc.math.sinh"
-                    , "math.sinh(1)", "1.1752011936438014")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sqrt", "msg.dp.ui.expression.functiondesc.math.sqrt"
-                    , "math.sqrt(4)", "2")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.tan", "msg.dp.ui.expression.functiondesc.math.tan"
-                    , "math.tan(10)", "0.6483608274590866")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "msg.dp.ui.expression.functiondesc.math.tanh"
-                    , "math.tanh(4)", "0.999329299739067")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.WINDOW, "row_number", "msg.dp.ui.expression.functiondesc.window.row_number"
-                    , "row_number()", "window function")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.WINDOW, "rolling_sum", "msg.dp.ui.expression.functiondesc.window.rolling_sum"
-                    , "rolling_sum(target_col, before, after)", "window function")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.WINDOW, "rolling_avg", "msg.dp.ui.expression.functiondesc.window.rolling_avg"
-                    , "rolling_sum(target_col, before, after)", "window function")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.WINDOW, "lag", "msg.dp.ui.expression.functiondesc.window.lag"
-                    , "lag(target_col, before)", "window function")
-    );
-    functionList.add(
-            new ExprFunction(ExprFunctionCategory.WINDOW, "lead", "msg.dp.ui.expression.functiondesc.window.lead"
-                    , "lead(target_col, after)", "window function")
-    );
-
-    return functionList;
+    return PrepRuleChecker.getFunctionList();
   }
 }

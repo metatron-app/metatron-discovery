@@ -14,21 +14,19 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.SetType;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.ExprType;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DfSetType extends DataFrame {
+
   private static Logger LOGGER = LoggerFactory.getLogger(DfSetType.class);
 
   public DfSetType(String dsName, String ruleString) {
@@ -43,34 +41,55 @@ public class DfSetType extends DataFrame {
     Expression targetColExpr = setType.getCol();
     List<Integer> targetColnos = new ArrayList<>();
     String timestampFormat = setType.getFormat();
-    ColumnType toType = getColTypeFromExprType(ExprType.bestEffortOf(setType.getType()));
+
+    ColumnType toType;
+    switch (setType.getType().toUpperCase()) {
+      case "DOUBLE":
+        toType = ColumnType.DOUBLE;
+        break;
+      case "LONG":
+        toType = ColumnType.LONG;
+        break;
+      case "BOOLEAN":
+        toType = ColumnType.BOOLEAN;
+        break;
+      case "TIMESTAMP":
+        toType = ColumnType.TIMESTAMP;
+        break;
+      case "MAP":
+        toType = ColumnType.MAP;
+        break;
+      case "ARRAY":
+        toType = ColumnType.ARRAY;
+        break;
+      default:
+        toType = ColumnType.STRING;
+    }
 
     if (targetColExpr instanceof Identifier.IdentifierExpr) {
       String targetColName = ((Identifier.IdentifierExpr) targetColExpr).getValue();
       Integer colno = prevDf.getColnoByColName(targetColName);
-      if (colno == null) {
-        throw new ColumnNotFoundException("DfSetType.prepare(): column not found: " + targetColName);
-      }
       targetColnos.add(colno);
       interestedColNames.add(targetColName);
-    }
-    else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
+    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
       List<String> targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
       for (String targetColName : targetColNames) {
         targetColnos.add(prevDf.getColnoByColName(targetColName));
         interestedColNames.add(targetColName);
       }
     } else {
-      throw new WrongTargetColumnExpressionException("DfSetType.prepare(): wrong target column expression: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfSetType.prepare(): wrong target column expression: " + targetColExpr.toString());
     }
 
     if (targetColnos.size() == 0) {
-      throw new WrongTargetColumnExpressionException("DfSetType.prepare(): no target column designated: " + targetColExpr.toString());
+      throw new WrongTargetColumnExpressionException(
+              "DfSetType.prepare(): no target column designated: " + targetColExpr.toString());
     }
 
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
       if (targetColnos.contains(colno)) {
-        if(toType == ColumnType.TIMESTAMP) {
+        if (toType == ColumnType.TIMESTAMP) {
           addColumnWithTimestampStyle(prevDf.getColName(colno), toType, timestampFormat);
         } else {
           addColumnWithTimestampStyle(prevDf.getColName(colno), toType, null);
@@ -87,26 +106,28 @@ public class DfSetType extends DataFrame {
   }
 
   @Override
-  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
+  public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
+          throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     List<Integer> targetColnos = (List<Integer>) preparedArgs.get(0);
     ColumnType toType = (ColumnType) preparedArgs.get(1);
     String timestampFormat = (String) preparedArgs.get(2);
 
-    LOGGER.trace("DfSetType.gather(): start: offset={} length={} targetColnos={} toType={} timestampFormat={}",
-                 offset, length, targetColnos, toType, timestampFormat);
+    LOGGER.debug("DfSetType.gather(): start: offset={} length={} targetColnos={} toType={} timestampFormat={}",
+            offset, length, targetColnos, toType, timestampFormat);
 
     for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
       Row row = prevDf.rows.get(rowno);
       Row newRow = new Row();
       for (int colno = 0; colno < getColCnt(); colno++) {
-        newRow.add(getColName(colno), targetColnos.contains(colno) ? cast(row.get(colno), toType, timestampFormat) : row.get(colno));
+        newRow.add(getColName(colno),
+                targetColnos.contains(colno) ? cast(row.get(colno), toType, timestampFormat) : row.get(colno));
       }
       rows.add(newRow);
     }
 
-    LOGGER.trace("DfSetType.gather(): end: offset={} length={} targetColnos={} toType={} timestampFormat={}",
-                 offset, length, targetColnos, toType, timestampFormat);
+    LOGGER.debug("DfSetType.gather(): end: offset={} length={} targetColnos={} toType={} timestampFormat={}",
+            offset, length, targetColnos, toType, timestampFormat);
     return rows;
   }
 }

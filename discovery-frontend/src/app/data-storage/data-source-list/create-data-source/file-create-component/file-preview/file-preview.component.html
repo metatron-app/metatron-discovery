@@ -1,0 +1,298 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">{{getTitle}}
+      <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
+      <em class="ddp-bg-order-line5-type2"></em>
+    </div>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-sheet-resize">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
+      <div class="ddp-wrap-variable" [class.ddp-type]="!isCsvFile()">
+        <!-- wrap sheet -->
+        <div class="ddp-wrap-sheet">
+
+          <!-- sheet list -->
+          <div class="ddp-ui-sheet-list" [ngStyle]="isCsvFile() ? {'display': 'none'} : {}">
+            <ul class="ddp-list-sheet">
+              <li *ngFor="let sheet of fileResult.sheets"
+                  [class.ddp-selected]="sheet === fileResult.selectedSheet"
+                  (click)="onChangeSelectedSheet(sheet)">
+                <label class="ddp-label-radio">
+                  <input type="radio" [checked]="sheet === fileResult.selectedSheet">
+                  <i class="ddp-icon-radio"></i>
+                </label>
+                <span class="ddp-txt-radio">{{sheet.sheetName}}<em *ngIf="!sheet.valid" class="ddp-icon-error2"></em></span>
+              </li>
+            </ul>
+
+          </div>
+          <!-- //sheet list -->
+          <!-- sheet view -->
+          <div class="ddp-view-sheet" [class.ddp-full]="isCsvFile()">
+            <div class="ddp-wrap-grid-option ddp-data-name">
+              {{isCsvFile() ? '' : fileResult.selectedSheet.sheetName}}
+              <!-- error icon (only sheet) -->
+              <em class="ddp-icon-error2" *ngIf="!isCsvFile() && !fileResult.selectedSheet.valid"></em>
+              <!-- //error icon (only sheet) -->
+              <div class="ddp-part-right">
+                <div class="ddp-data-form">
+                  <strong>{{fileResult.fileSize}}</strong>
+                  {{'msg.storage.ui.dsource.create.file.byte' | translate}}
+                </div>
+                <ng-container *ngIf="selectedFileDetailData">
+                  <div class="ddp-data-form" *ngIf="selectedFileDetailData.fields">
+                    <strong>{{selectedFileDetailData.fields.length}}</strong>
+                    {{'msg.storage.ui.dsource.create.file.columns' | translate}}
+                  </div>
+                  <div class="ddp-data-form">
+                    <input type="text" class="ddp-data-input"
+                           input-mask="number"
+                           [(ngModel)]="rowNum"
+                           (keyup.enter)="onChangeRowNum()">
+                    <strong>/ {{selectedFileDetailData.totalRows}}</strong>
+                    {{'msg.storage.ui.dsource.create.file.row' | translate}}
+                  </div>
+                  <div class="ddp-data-form"
+                       *ngIf="selectedFileDetailData.fields">
+                    <strong class="ddp-cursor"
+                            (click)="typeShowFl = !typeShowFl"
+                            (clickOutside)="typeShowFl = false">{{typeList.length}}</strong>
+                    {{'msg.storage.ui.dsource.create.file.types' | translate}}
+                    <!-- 팝업 -->
+                    <div class="ddp-wrap-popup2 ddp-types" *ngIf="typeShowFl">
+                      <ul class="ddp-list-popup">
+                        <li *ngFor="let type of typeList">
+                          <a href="javascript:">
+                            <em class="{{getFieldTypeIconClass(type.label)}}"></em>
+                            {{type.value}} {{'msg.storage.th.row' | translate}}
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- //팝업 -->
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+            <!-- 그리드 영역 -->
+            <div class="ddp-wrap-grid">
+              <!-- 데이터 없는경우 -->
+              <div class="ddp-ui-empty" *ngIf="clearGrid">
+                {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+              </div>
+              <!-- //데이터 없는경우 -->
+              <!-- 데이터 있는경우 -->
+              <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
+              <!-- //데이터 있는경우 -->
+            </div>
+            <!-- //그리드 영역 -->
+
+          </div>
+          <!-- //sheet view -->
+        </div>
+        <!-- //wrap sheet -->
+      </div>
+      <div class="ddp-wrap-edit-form">
+        <ng-container *ngIf="isCsvFile()">
+          <div class="ddp-wrap-edit3 ddp-type"  [class.ddp-error]="isValidDelimiter === false">
+            <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.column.delimiter' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+              <!-- apply -->
+              <div class="ddp-input-apply">
+                <input type="text" class="ddp-input-txt"
+                       [(ngModel)]="delimiter"
+                       (ngModelChange)="isValidDelimiter = undefined; isValidFile = undefined"
+                       (keypress)="onChangeDelimiter($event)"
+                       placeholder="{{'msg.storage.ph.dsource.create.file.column.delimiter' | translate}}">
+                <em class="ddp-icon-apply" (click)="onChangeDelimiter()"></em>
+              </div>
+              <!-- //apply -->
+              <span class="ddp-ui-error" *ngIf="isValidDelimiter === false">{{getValidMessage}}</span>
+            </div>
+            <!-- //edit option -->
+          </div>
+          <div class="ddp-wrap-edit3 ddp-type"[class.ddp-error]="isValidSeparator === false">
+            <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.line.separator' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+              <!-- apply -->
+              <div class="ddp-input-apply">
+                <input type="text" class="ddp-input-txt"
+                       [(ngModel)]="separator"
+                       (ngModelChange)="isValidSeparator = undefined; isValidFile = undefined"
+                       (keypress)="onChangeSeparator($event)"
+                       placeholder="{{'msg.storage.ph.dsource.create.file.line.separator' | translate}}">
+                <em class="ddp-icon-apply" (click)="onChangeSeparator()"></em>
+              </div>
+              <!-- //apply -->
+              <span class="ddp-ui-error" *ngIf="isValidSeparator === false">{{getValidMessage}}</span>
+            </div>
+            <!-- //edit option -->
+          </div>
+        </ng-container>
+        <!-- 헤드컬럼 설정 -->
+        <div class="ddp-wrap-edit3 ddp-type">
+          <label class="ddp-label-checkbox" (click)="onChangeIsFirstHeaderRowFlag(); $event.preventDefault()">
+            <input type="checkbox" [checked]="isFirstHeaderRow">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.storage.ui.dsource.create.file.column.head.enable' | translate}}</span>
+          </label>
+        </div>
+      </div>
+      <!-- info message -->
+      <div class="ddp-wrap-message">
+        <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || (isCsvFile() ? (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid) : !fileResult.selectedSheet.valid)">
+          <div class="ddp-txt-synch">
+            <em class="ddp-icon-info"></em>
+            {{getErrorMessage}}
+          </div>
+        </div>
+        <div class="ddp-box-synch " *ngIf="ingestionStatus === 'overwrite' || ingestionStatus === 'newcolumn'">
+          <div class="ddp-txt-synch">
+            <em class="ddp-icon-info"></em>
+            {{getReingestionStatusMsg}}
+          </div>
+        </div>
+        <div class="ddp-box-synch type-info" *ngIf="ingestionStatus === 'append'">
+          <div class="ddp-txt-synch">
+            <em class="ddp-icon-info"></em>
+            {{getReingestionStatusMsg}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- //파일 선택한 후 -->
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="selectedFileDetailData === undefined" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>
+
+<app-confirm-modal></app-confirm-modal>
+
+<!-- popup -->
+<div class="ddp-wrap-layout-popup ddp-scroll-popup type-setting" *ngIf="ingestionPopup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popup ">
+        <a href="javascript:" class="ddp-btn-close" (click)="ingestionPopupCancel()"></a>
+        <!-- title -->
+        <div class="ddp-pop-title" [innerHTML]="'msg.storage.confirm.dsource.reingestion.desc1' | translate"></div>
+        <!-- //title -->
+        <div class="ddp-pop-detail">
+          {{'msg.storage.confirm.dsource.reingestion.desc2' | translate}}
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-wrap-advance" [class.ddp-selected]="advanceSetting">
+
+            <a href="javascript:" class="ddp-txt-setting" (click)="advanceSetting = !advanceSetting">{{'msg.storage.th.advanced.setting' | translate}}</a>
+            <div class="ddp-wrap-boxtype">
+
+              <table class="ddp-wrap-boxdata">
+                <colgroup>
+                  <col width="120px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <tr>
+                  <th>
+                    {{'msg.storage.th.time-column' | translate}}
+                  </th>
+                  <td>
+                    {{getSelectedTimeStampFieldName}}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.intervals' | translate}}
+                  </th>
+                  <td>
+                    <div class="ddp-sub-option ddp-clear">
+                      <div class="ddp-wrap-edit3 ddp-type ">
+                        <label class="ddp-label-type">{{'msg.storage.th.segment.gran' | translate}}</label>
+                        <!-- edit option -->
+                        <div class="ddp-ui-edit-option">
+                          <input type="text" class="ddp-input-typebasic" placeholder="{{getSelectedSegmentGranularity}}" disabled="disabled">
+
+                        </div>
+                        <!-- //edit option -->
+                      </div>
+
+                      <!-- calen -->
+                      <div class="ddp-ui-calen type-calen" *ngIf="selectedTimestampField">
+                        <!-- disabled 시 ddp-disabled 추가 -->
+                        <div class="ddp-box-calen ">
+                          <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkStartInterval()" [(ngModel)]="startIntervalText">
+                        </div>
+
+                        <span class="ddp-bar">~</span>
+                        <div class="ddp-box-calen ">
+                          <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkEndInterval()" [(ngModel)]="endIntervalText">
+                        </div>
+                      </div>
+                      <!-- //calen -->
+
+                      <!-- info -->
+                      <div class="ddp-wrap-info " *ngIf="selectedTimestampField">
+                        <div class="ddp-txt-info" *ngIf="intervalValid || granularityUnit > 10000">
+                          <em class="ddp-icon-info"></em>{{granularityUnit | numberCommas}} {{'msg.storage.ui.intervals.units' | translate}}
+                        </div>
+                        <div class="ddp-txt-info type-error type-hover" *ngIf="!intervalValid">
+                          <em class="ddp-icon-error"></em>{{granularityUnit | numberCommas}} {{'msg.storage.ui.intervals.units' | translate}}
+                          <!-- tooltip -->
+                          <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            {{intervalValid ? ('msg.storage.ui.intervals.valid.unit' | translate) : intervalValidMessage}}
+                          </div>
+                          <!-- //tooltip -->
+                        </div>
+                      </div>
+                      <!-- //info -->
+                    </div>
+
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- button -->
+        <div class="ddp-ui-buttons">
+          <a href="javascript:" class="ddp-btn-type-popup" (click)="ingestionPopupCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+          <!-- disabled 시 ddp-disabled 추가 -->
+          <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [class.ddp-disabled]="!intervalValid || granularityUnit > 10000" (click)="ingestionPopupConfirm()">{{'msg.storage.confirm.dsource.reingestion.done' | translate}}</a>
+        </div>
+        <!-- //button -->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- //popup -->

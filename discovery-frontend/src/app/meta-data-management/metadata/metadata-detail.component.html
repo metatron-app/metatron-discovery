@@ -11,82 +11,60 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<div class="ddp-layout-wrap page-datasource-detail">
+<!--  <app-metadata-management-metadata-detail-header ></app-metadata-management-metadata-detail-header>-->
+  <div class="ddp-type-contents2">
+    <app-metadata-management-metadata-detail-top *ngIf="metadata"></app-metadata-management-metadata-detail-top>
 
-<div class="ddp-type-contents2">
-  <div class="ddp-top-flow" *ngIf="metadataModelService.getMetadata()">
-    <!-- navi wrap -->
-    <div class="ddp-top-flow">
-      <!-- 수정 data -->
-      <div class="ddp-data-form">
-        <span class="ddp-txt-date">{{'msg.common.ui.updated' | translate: {modifiedTime: metadataModelService.getMetadata().modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName: metadataModelService.getMetadata().modifiedBy.username || metadataModelService.getMetadata().modifiedBy} }}</span>
-        <!-- more -->
-        <!-- more 버튼 클릭시 ddp-selected 추가 -->
-        <div class="ddp-ui-more" [class.ddp-selected]="isContextMenuShow">
-          <a href="javascript:" class="ddp-icon-more" (click)="showContextMenu($event)"></a>
-          <!-- popup -->
-          <div class="ddp-data-box" *ngIf="isContextMenuShow" (clickOutside)="isContextMenuShow = false">
-            <a *ngIf="metadataModelService.getMetadata().sourceType !== METADATA_SOURCE_TYPE.ENGINE" href="javascript:" class="ddp-list-link" (click)="confirmDelete($event)">
-              <em class="ddp-icon-delete"></em>
-              {{'msg.metadata.btn.delete.md' | translate}}
-            </a>
-            <span class="ddp-data-by">{{ 'msg.common.ui.created' | translate : {createdTime: metadataModelService.getMetadata().createdTime | mdate:'YYYY-MM-DD HH:mm', fullName: metadataModelService.getMetadata().createdBy.username || metadataModelService.getMetadata().createdBy} }}</span>
-          </div>
-          <!-- //popup -->
-        </div>
-        <!-- //more -->
+    <div class="ddp-wrap-datadetail ddp-wrap-datacolumn">
+      <!-- tab -->
+      <div class="ddp-wrap-tab ">
+        <ul class="ddp-ui-tab ddp-clear">
+          <li
+            (click)="changeTab('information')"
+            [ngClass]="{'ddp-selected': tab === 'information'}">
+            <a href="javascript:">{{'msg.metadata.metadata.detail.information' | translate}}</a>
+          </li>
+          <li
+            (click)="changeTab('data-grid')"
+            [ngClass]="{'ddp-selected': tab === 'data-grid'}">
+            <a href="javascript:">{{'msg.metadata.metadata.detail.data-grid' | translate}}</a>
+          </li>
+          <li
+            (click)="changeTab('column-details')"
+            [ngClass]="{'ddp-selected': tab === 'column-details'}">
+            <a href="javascript:">{{'msg.metadata.metadata.detail.column-details' | translate}}</a>
+          </li>
+          <!--
+          <li
+            (click)="changeTab('monitoring')"
+            [ngClass]="{'ddp-selected': tab === 'monitoring'}">
+            <a href="javascript:">{{'msg.metadata.metadata.detail.monitoring' | translate}}</a>
+          </li>
+          -->
+          <li
+            (click)="changeTab('lineage')"
+            [ngClass]="{'ddp-selected': tab === 'lineage'}" *ngIf="showLineageTab">
+            <a href="javascript:">{{'msg.metadata.metadata.detail.lineage' | translate}}</a>
+          </li>
+          <!--
+          <li
+            (click)="changeTab('dictionary')"
+            [ngClass]="{'ddp-selected': tab === 'dictionary'}">
+            <a href="javascript:">{{'msg.metadata.metadata.detail.dictionary' | translate}}</a>
+          </li>
+          -->
+        </ul>
+<!--  <a href="#" class="ddp-btn-bg ddp-config"><em class="ddp-icon-option"></em>Ingestion config.</a> -->
       </div>
-      <!-- //수정 data -->
-      <!-- navi wrap -->
-      <div class="ddp-wrap-navi">
-        <a href="javascript:" class="ddp-btn-back" (click)="goBack()"></a>
-        <!-- navi -->
-        <div class="ddp-ui-naviarea">
-          <!-- name -->
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-box-navi" [class.ddp-selected]="isNameEdit" (clickOutside)="cancelNameEdit()">
-            <div class="ddp-wrap-naviname" (click)="onNameEdit()">
-            <span class="ddp-data-naviname">{{metadataModelService.getMetadata()['name']}}
-              <em class="ddp-icon-edit2"></em>
-            </span>
-            </div>
-            <!-- 편집 input -->
-            <div class="ddp-wrap-input">
-              <component-input
-                [compType]="'default'"
-                [value]="editingName"
-                [placeHolder]="'msg.metadata.ui.name.ph' | translate"
-                [inputClass]="'ddp-input-navi'"
-                (changeValue)="editingName = $event; onNameChange();">
-              </component-input>
-              <span class="ddp-btn-check" (click)="onNameChange()"></span>
-            </div>
-            <!-- //편집 input -->
-          </div>
-          <!-- //name -->
-        </div>
-        <!-- //navi -->
+      <!-- //tab -->
+      <div class="ddp-wrap-tab-contents">
+        <app-metadata-management-metadata-detail-information
+            *ngIf="tab ==='information' && metadata"></app-metadata-management-metadata-detail-information>
+        <metadata-grid-component *ngIf="tab === 'data-grid'"></metadata-grid-component>
+        <app-metadata-detail-columnschema *ngIf="tab === 'column-details'" [isNameEdit]="isNameEdit" (chooseCodeTableEvent)="openCodeTable($event)" (chooseDictionaryEvent)="openDictionary($event)"></app-metadata-detail-columnschema>
+        <app-metadata-detail-lineageview *ngIf="tab === 'lineage'" [isNameEdit]="isNameEdit" [metadataLoaded]="metadataLoaded" ></app-metadata-detail-lineageview>
       </div>
-      <!-- //navi wrap -->
-    </div>
-    <!-- //navi wrap -->
-  </div>
-  <div class="ddp-wrap-datadetail ddp-wrap-datacolumn">
-    <!-- tab -->
-    <div class="ddp-wrap-tab">
-      <ul class="ddp-ui-tab ddp-clear">
-        <li (click)="tab = 'information'" [ngClass]="{'ddp-selected': tab === 'information'}">
-          <a href="javascript:">{{'msg.metadata.th.information' | translate}}</a>
-        </li>
-        <li (click)="tab = 'columnSchema'" [ngClass]="{'ddp-selected': tab === 'columnSchema'}">
-          <a href="javascript:">{{'msg.metadata.th.col-schema' | translate}}</a>
-        </li>
-      </ul>
-    </div>
-    <!-- //tab -->
-    <div class="ddp-wrap-tab-contents">
-      <app-metadata-detail-information *ngIf="tab === 'information'" [isNameEdit]="isNameEdit" (openAddCataglog)="openCatalog()"></app-metadata-detail-information>
-      <app-metadata-detail-columnschema *ngIf="tab === 'columnSchema'" [isNameEdit]="isNameEdit" (chooseCodeTableEvent)="openCodeTable($event)" (chooseDictionaryEvent)="openDictionary($event)"></app-metadata-detail-columnschema>
-    </div>
   </div>
 </div>
 

@@ -44,11 +44,11 @@
             <outputDirectory>conf</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>./plugins</directory>
+            <directory>./extensions</directory>
             <includes>
-                <include>*.zip</include>
+                <include>*.*</include>
             </includes>
-            <outputDirectory>plugins</outputDirectory>
+            <outputDirectory>extensions</outputDirectory>
         </fileSet>
     </fileSets>
 

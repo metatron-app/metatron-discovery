@@ -1,0 +1,182 @@
+<div class="ddp-wrap-tab-contents" *ngIf="metadataId">
+  <div class="ddp-ui-tab-contents">
+    <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScroll()">
+      <table class="ddp-table-form ddp-table-type2 ddp-table-details">
+        <colgroup>
+          <col [style.width]="'100px'" *ngIf="isDatasourceTypeMetadata()">
+          <col [style.width]="'180px'">
+          <col [style.width]="'180px'">
+          <col [style.width]="'180px'">
+          <col [style.width]="'150px'">
+          <col [style.width]="'150px'">
+          <col [style.width]="'150px'">
+          <col [style.width]="'*'">
+        </colgroup>
+        <thead>
+        <tr>
+          <!-- role (only datasource) -->
+          <th *ngIf="isDatasourceTypeMetadata()">
+            <div class="ddp-th-long">
+            <span class="ddp-th-txt">
+              {{'msg.comm.th.role' | translate}}
+            </span>
+            </div>
+          </th>
+          <!-- //role (only datasource) -->
+          <th (click)="exploreDataUtilService.toggleSortOption(columns, sortOptions, 'popularity', 'number')">
+            {{'msg.metadata.th.column.popularity' | translate}}
+            <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
+              <component-popularity-layer></component-popularity-layer>
+            </div>
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.popularity.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.popularity.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.popularity.option === 'desc'"></em>
+          </th>
+          <th (click)="exploreDataUtilService.toggleSortOption(columns, sortOptions, 'physicalName')">
+            {{'msg.metadata.th.physical.name' | translate}}
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.physicalName.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.physicalName.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.physicalName.option === 'desc'"></em>
+          </th>
+          <th (click)="exploreDataUtilService.toggleSortOption(columns, sortOptions, 'name')">
+            {{'msg.metadata.th.name' | translate}}
+            <div class="ddp-wrap-hover-info"><em class="ddp-icon-info3"></em>
+              <component-logical-name-layer></component-logical-name-layer>
+            </div>
+            <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
+          </th>
+          <th>
+            {{'msg.metadata.th.dictionary' | translate}}
+          </th>
+          <th>
+            {{'msg.metadata.th.logical.type'| translate}}
+          </th>
+          <th>
+            {{'msg.storage.ui.th.code.table' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.ui.th.description' | translate}}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let column of columns; let index=index">
+          <td *ngIf="isDatasourceTypeMetadata()">
+            <span class="ddp-box-tag-value"
+                  [class.ddp-measure]="column.role === ROLE.MEASURE"
+                  [class.ddp-dimension]="column.role === ROLE.DIMENSION || column.role === ROLE.TIMESTAMP">
+              {{column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+            </span>
+          </td>
+          <td class="">
+            <div class="ddp-bar">
+              <span [style.width]="column.popularity ? column.popularity + '%' : 0 + '%'" style="margin-bottom: 10px;"></span>
+            </div>
+          </td>
+          <td>
+            <div class="ddp-txt-long">
+              {{column.physicalName}}
+            </div>
+          </td>
+          <td title="{{column.name}}">
+            <div class="ddp-txt-long">
+              {{column.name}}
+            </div>
+          </td>
+          <td>
+            <div class="ddp-pop-select"
+                 [ngClass]="{'ddp-selected': column['isShowDictionary']}"
+                 (mouseenter)="onHoverOpenDictionary(column, index)"
+                 (mouseleave)="onHideDictionary(column)"
+                  #dictionary>
+              <a href="javascript:"
+                 class="ddp-txt-link type-underline-none ddp-txt-long">{{column.dictionary? column.dictionary.name : '-'}}</a>
+              <div class="ddp-box-layout4 ddp-pop-fix type-dictionary" #dictionaryPreview>
+                <div class="ddp-data-title ddp-txt-long" title="{{column.dictionary && column.dictionary.name}}">
+                  {{column.dictionary && column.dictionary.name}}
+                </div>
+                <div class="ddp-data-code">
+                  <table class="ddp-table-pop">
+                    <colgroup>
+                      <col width="100px">
+                      <col width="">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                      <th>{{'msg.metadata.th.column.full.name' | translate}}</th>
+                      <td>{{ column.dictionary && column.dictionary.name }}</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.metadata.th.column.short.name' | translate}}</th>
+                      <td>{{ column.dictionary && column.dictionary.suggestionShortName }}</td>
+                    </tr>
+                    <tr>
+                      <th>{{'msg.metadata.th.column.description' | translate}}</th>
+                      <td>{{ column.dictionary && column.dictionary.description }}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="ddp-inherit ddp-info">
+            <span class="ddp-txt-icon">
+             <em class="{{getFieldTypeIconClass(column.type)}}"></em>{{getConvertedType(column)}}
+            </span>
+            <div class="ddp-ui-info" *ngIf="isTimestampTypeField(column)" [class.ddp-selected]="column.format?.isShowTimestampValidPopup">
+              <em class="ddp-icon-sinfo2" (click)="onClickInfoIcon(column)"></em>
+              <!-- format layer -->
+              <datetime-valid-popup *ngIf="isTimestampTypeField(column)" [fieldFormat]="column?.format" [isReadOnly]="true"></datetime-valid-popup>
+              <!-- //format layer -->
+            </div>
+          </td>
+          <td>
+            <div
+                class=" ddp-select-search ddp-pop-select"
+                (mouseenter)="onHoverOpenCodeTable(column, index)"
+                (mouseleave)="onHideCodeTable(column)"
+                [ngClass]="{'ddp-selected': column['isShowCodeTable']}"
+                #codeTable>
+              <a href="javascript:" class="ddp-txt-link type-underline-none ddp-txt-long">{{column.codeTable? column.codeTable.name : '-'}}</a>
+              <div class="ddp-box-layout4 ddp-pop-fix"
+                   #codeTablePreview
+                   style="top: 343px; left: 1284px;">
+                <div class="ddp-data-title type-long ddp-txt-long"
+                     title="{{column.codeTable? column.codeTable.name : '-'}}">
+                  {{column.codeTable? column.codeTable.name : '-'}}
+                </div>
+                <div class="ddp-data-code ddp-size">
+                  <table class="ddp-table-code">
+                    <colgroup>
+                      <col style="width: 90px;">
+                      <col [style.width]="'*'">
+                    </colgroup>
+                    <tbody>
+                    <tr *ngFor="let item of codeTableDetailList | slice:0:10">
+                      <td>
+                        <span class="ddp-txt-long" title="{{item.code}}">{{item.code}}</span>
+                      </td>
+
+                      <td>
+                        <span class="ddp-txt-long" title="{{item.value}}">{{item.value}}</span>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          <td><div class="ddp-txt-long" title="{{column.description || '-'}}">{{column.description || '-'}}</div></td>
+        </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+  </div>
+</div>

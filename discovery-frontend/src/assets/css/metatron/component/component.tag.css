@@ -16,14 +16,6 @@
 .ddp-list-tags .ddp-tag-default:before {display:inline-block; position:absolute; top:5px; left:9px; content:'#'; color:#666fad; font-size:13px;}
 .ddp-list-tags .ddp-tag-default input {display:block; width:100%; border:none; background:none;color:#666fad; font-size:13px;}
 
-.ddp-list-tags .ddp-ui-add-button {display:inline-block; margin:3px 6px 3px 0;}
-.ddp-list-tags .ddp-ui-add-button .ddp-btn-add {display:inline-block; padding:5px 8px; border:1px solid #d0d1d7; border-radius:4px; color:#90969f; font-size:12px;}
-.ddp-list-tags .ddp-ui-add-button .ddp-btn-add:hover {border:1px solid #b7b9c1;color:#4b515b;}
-.ddp-list-tags .ddp-ui-add-button .ddp-btn-add em.ddp-icon-plus {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px; vertical-align:middle;}
-
-
-
-
 /**************************************************************
     box-tag
 **************************************************************/
@@ -35,15 +27,17 @@
 .ddp-box-tag.ddp-imported {min-width:54px; border:1px solid #50549a; color:#50549a; text-align:center;}
 .ddp-box-tag.ddp-personal {width:52px; border:1px solid #cd2287; color:#cd2287; text-align:center;}
 .ddp-box-tag.ddp-shared {width:52px; border:1px solid #3f72c1; color:#3f72c1; text-align:center;}
-
 .ddp-box-tag.ddp-wargled,
+.ddp-box-tag-value.ddp-database,
 .ddp-box-tag-value.ddp-datasource,
 .ddp-box-tag-value.ddp-hive,
-.ddp-box-tag-value.ddp-stagingdb {display:inline-block; min-width:61px; padding:0 3px; text-align:center; font-size:10px;}
-.ddp-box-tag-value.ddp-datasource {border:1px solid #50549a; color:#50549a;}
+.ddp-box-tag-value.ddp-stagingdb,
+.ddp-box-tag-value.ddp-dataset{display:inline-block; min-width:63px; padding:0 3px; text-align:center; font-size:10px; box-sizing:Border-box;}
+.ddp-box-tag-value.ddp-datasource {border:1px solid #313869; color:#313869;}
 .ddp-box-tag-value.ddp-hive {border:1px solid #f6a300; color:#f6a300;}
-.ddp-box-tag-value.ddp-stagingdb {border:1px solid #17a5ae; color:#17a5ae;}
-
+.ddp-box-tag-value.ddp-stagingdb {border:1px solid #8476df; color:#8476df;}
+.ddp-box-tag-value.ddp-database {border:1px solid #5b8fe4; color:#5b8fe4;}
+.ddp-box-tag-value.ddp-dataset {border:1px solid #46a8be; color:#46a8be;}
 .ddp-box-power {display:inline-block; padding:2px 4px 1px 4px; width:60px; border-radius:2px; color:#fff; font-size:10px; text-align:center; box-sizing:border-box; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-box-power.ddp-watcher {background-color:#b7b9c2;}
 .ddp-box-power.ddp-editor {background-color:#b7b9c2;}
@@ -76,7 +70,6 @@
 .ddp-data-state.ddp-running {font-size:11px; color:#ffba00; font-weight:bold;}
 .ddp-data-state.ddp-cancelled {font-size:11px; color:#90969f; font-weight:bold;}
 
-
 .ddp-data-state.ddp-scheduling {font-size:11px; color:#10bf83; font-weight:bold;}
 .ddp-data-state.ddp-creating {font-size:11px; color:#ffba00; font-weight:bold;}
 .ddp-data-state.ddp-unscheduled {font-size:11px; color:#b7b9c2; font-weight:bold;}
@@ -92,5 +85,11 @@
 .ddp-data-status.ddp-preparing{font-size:11px; color:#ffb700; font-weight:bold;}
 .ddp-data-status.ddp-disabled{font-size:11px; color:#b7b9c2; font-weight:bold;}
 
+.ddp-tag-status {display:inline-block; width:36px; padding:3px 0 2px 0; border-radius:3px;  background-color:rgba(120, 196, 164, 0.1); color:#58bb90; font-size:12px; text-align:center; box-sizing:border-box;}
+.ddp-tag-status.type-error {color:#fff; background-color:#dc494f;}
 
-
+.ddp-data-status.ddp-running {font-size:12px; color:#10bf83; font-weight:bold;}
+.ddp-data-status.ddp-pending {font-size:12px; color:#8c6dd2; font-weight:bold;}
+.ddp-data-status.ddp-waiting {font-size:12px; color:#ffba00; font-weight:bold;}
+.ddp-data-status.ddp-fail {font-size:12px; color:#dc494f; font-weight:bold;}
+.ddp-data-status.ddp-success {font-size:12px; color:#3f72c1; font-weight:bold;}

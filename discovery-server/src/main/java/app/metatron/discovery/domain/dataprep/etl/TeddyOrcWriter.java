@@ -43,9 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TeddyOrcWriter {
+
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyOrcWriter.class);
 
-  private byte[] toBytes(String inputData){
+  private byte[] toBytes(String inputData) {
     return (inputData == null) ? "".getBytes() : inputData.getBytes();
   }
 
@@ -84,32 +85,32 @@ public class TeddyOrcWriter {
 
       switch (subType) {
         case STRING:
-          if(!(obj instanceof  String)){    // MISMATCHED
+          if (!(obj instanceof String)) {    // MISMATCHED
             return false;
           }
           byte[] bytes = toBytes((String) obj);
           ((BytesColumnVector) colVector).setVal(pos, bytes, 0, bytes.length);
           break;
         case LONG:
-          if(!(obj instanceof  Long)){
+          if (!(obj instanceof Long)) {
             return false;
           }
           ((LongColumnVector) colVector).vector[pos] = (Long) obj;
           break;
         case DOUBLE:
-          if(!(obj instanceof  Double)){
+          if (!(obj instanceof Double)) {
             return false;
           }
           ((DoubleColumnVector) colVector).vector[pos] = (Double) obj;
           break;
         case BOOLEAN:
-          if(!(obj instanceof  Boolean)){
+          if (!(obj instanceof Boolean)) {
             return false;
           }
           ((LongColumnVector) colVector).vector[pos] = (Boolean) obj ? 1 : 0;
           break;
         case TIMESTAMP:
-          if(!(obj instanceof  DateTime)){
+          if (!(obj instanceof DateTime)) {
             return false;
           }
           ((TimestampColumnVector) colVector).time[pos] = ((DateTime) obj).getMillis();
@@ -124,38 +125,52 @@ public class TeddyOrcWriter {
 
   // TODO: distinguish MISMATCHED, MISSING, VALID
   private boolean setBatch(int pos, ColumnVector colVector, ColumnType colType, ColumnDescription colDesc, Object obj) {
-    //null check
-    if(obj == null)
-      return false;
+    if (obj == null) {
+      if (colVector.noNulls) {
+        colVector.noNulls = false;
+        for (int i = 0; i < pos; i++) {
+          colVector.isNull[i] = false;
+        }
+      }
+      colVector.isNull[pos] = true;
+      return true;
+    }
+
+    if (!colVector.noNulls) {
+      colVector.isNull[pos] = false;
+    }
 
     switch (colType) {
       case STRING:
-        if(!(obj instanceof  String)){
-          return false;
+        String str;
+        if (!(obj instanceof String)) {
+          str = obj.toString();
+        } else {
+          str = (String) obj;
         }
-        byte[] bytes = toBytes((String) obj);
+        byte[] bytes = toBytes(str);
         ((BytesColumnVector) colVector).setVal(pos, bytes, 0, bytes.length);
         break;
       case LONG:
-        if(!(obj instanceof  Long)){
+        if (!(obj instanceof Long)) {
           return false;
         }
         ((LongColumnVector) colVector).vector[pos] = (Long) obj;
         break;
       case DOUBLE:
-        if(!(obj instanceof  Double)){
+        if (!(obj instanceof Double)) {
           return false;
         }
         ((DoubleColumnVector) colVector).vector[pos] = (Double) obj;
         break;
       case BOOLEAN:
-        if(!(obj instanceof  Boolean)){
+        if (!(obj instanceof Boolean)) {
           return false;
         }
         ((LongColumnVector) colVector).vector[pos] = (Boolean) obj ? 1 : 0;
         break;
       case TIMESTAMP:
-        if(!(obj instanceof  DateTime)){
+        if (!(obj instanceof DateTime)) {
           return false;
         }
         ((TimestampColumnVector) colVector).time[pos] = ((DateTime) obj).getMillis();
@@ -189,7 +204,8 @@ public class TeddyOrcWriter {
     return true;
   }
 
-  private void addField(TypeDescription typeDescription, String colName, ColumnType colType, ColumnDescription colDesc) {
+  private void addField(TypeDescription typeDescription, String colName, ColumnType colType,
+          ColumnDescription colDesc) {
     switch (colType) {
       case STRING:
         typeDescription.addField(colName, TypeDescription.createString());
@@ -263,7 +279,8 @@ public class TeddyOrcWriter {
   }
 
   // 테스트를 위해 public이 되고, conf를 argument로 받음.
-  public Integer[] writeOrc(DataFrame df, Configuration conf, Path file, PrSnapshot.HIVE_FILE_COMPRESSION compression) throws IOException {
+  public Integer[] writeOrc(DataFrame df, Configuration conf, Path file, PrSnapshot.HIVE_FILE_COMPRESSION compression)
+          throws IOException {
     TypeDescription typeDescription = buildTypeDescription(df);
     Integer[] result = new Integer[2];
     int pos;    // batch상 position (0~1023)
@@ -287,13 +304,14 @@ public class TeddyOrcWriter {
 
       for (int colno = 0; colno < df.getColCnt(); colno++) {
         typeCheck = setBatch(pos, batch.cols[colno], df.getColType(colno), df.getColDesc(colno), row.get(colno));
-        if(typeCheck == false) {
-          LOGGER.warn("Row number {} was excluded caused by missing or mismatched value at column: {}, value: {}", rowno, df.getColName(colno), row.get(colno));
+        if (typeCheck == false) {
+          LOGGER.warn("Row number {} was excluded caused by missing or mismatched value at column: {}, value: {}",
+                  rowno, df.getColName(colno), row.get(colno));
           break;
         }
       }
 
-      if(typeCheck) {
+      if (typeCheck) {
         batch.size++;
       } else {
         skippedLines++;

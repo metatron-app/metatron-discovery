@@ -52,6 +52,7 @@
       </div>
       <!-- //wrap control -->
     </div>
+    <a *ngIf="'WIDGET' == mode" class="ddp-ui-button" href="javascript:" (click)="broadcastChange()">{{'msg.comm.ui.ok' | translate}}</a>
   </div>
   <!-- add -->
   <a *ngIf="'WIDGET' !== mode" (click)="addIntervalRange(targetFilter)"

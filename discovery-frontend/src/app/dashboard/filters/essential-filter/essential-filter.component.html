@@ -14,7 +14,7 @@
 
 <div class="ddp-layout-popuptype" >
   <em class="ddp-bg-popup"></em>
-  <div class="ddp-ui-popup ddp-ui-popup-join">
+  <div *ngIf="0 < essentialFilters.length" class="ddp-ui-popup ddp-ui-popup-join">
     <!-- 상단 제목/버튼 영역 -->
     <div class="ddp-ui-popup-title">
       <span class="ddp-txt-title-name">
@@ -74,7 +74,6 @@
   </div>
 </div>
 
-
 <!-- 데이터소스 생성 진행 프로그레스 표시 영역 -->
 <div *ngIf="isShowProgress" class="ddp-wrap-loading" style="z-index: 140;">
   <!-- 데이터 소스 상태 : Preparing 1. 계산중 -->
@@ -111,7 +110,7 @@
   <!-- box -->
   <div *ngIf="10 == ingestionStatus.step" class="ddp-box-loading ddp-box-s ddp-pop" >
     <div class="ddp-box-in">
-      <a (click)="isShowProgress = false" href="javascript:" class="ddp-btn-close"></a>
+      <a (click)="closeProgress()" href="javascript:" class="ddp-btn-close"></a>
       <em class="ddp-icon-success"></em>
       <span class="ddp-txt-success">{{ 'msg.board.filter.ui.success' | translate }}</span>
     </div>
@@ -121,7 +120,7 @@
   <!-- condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단 -->
   <div *ngIf="-1 === ingestionStatus.step" class="ddp-box-loading ddp-box-s ddp-pop" >
     <div class="ddp-box-in">
-      <a (click)="isShowProgress = false" href="javascript:" class="ddp-btn-close"></a>
+      <a (click)="closeProgress()" href="javascript:" class="ddp-btn-close"></a>
       <a (click)="ingest()" href="javascript:" class="ddp-btn-again"></a>
       <span class="ddp-txt-fail"> {{ 'msg.board.filter.ui.fail-retry' | translate }} </span>
     </div>

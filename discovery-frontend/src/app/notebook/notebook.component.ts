@@ -12,23 +12,23 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
-import { isUndefined } from 'util';
-import { Alert } from '../common/util/alert.util';
-import { Modal } from '../common/domain/modal';
-import { PopupService } from '../common/service/popup.service';
-import { NotebookModel } from '../domain/model-management/notebookModel';
-import { DeleteModalComponent } from '../common/component/modal/delete/delete.component';
-import { ActivatedRoute } from '@angular/router';
-import { AbstractComponent } from '../common/component/abstract.component';
-import { NotebookService } from './service/notebook.service';
-import { Subscription } from 'rxjs/Subscription';
-import { SubscribeArg } from '../common/domain/subscribe-arg';
-import { NoteBook } from '../domain/notebook/notebook';
-import { UserDetail } from '../domain/common/abstract-history-entity';
-import { CookieConstant } from '../common/constant/cookie.constant';
-import { WorkspaceService } from '../workspace/service/workspace.service';
-import { Workspace, PermissionChecker } from '../domain/workspace/workspace';
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {isUndefined} from 'util';
+import {Alert} from '../common/util/alert.util';
+import {Modal} from '../common/domain/modal';
+import {PopupService} from '../common/service/popup.service';
+import {NotebookModel} from '../domain/model-management/notebookModel';
+import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '../common/component/abstract.component';
+import {NotebookService} from './service/notebook.service';
+import {Subscription} from 'rxjs/Subscription';
+import {SubscribeArg} from '../common/domain/subscribe-arg';
+import {NoteBook} from '../domain/notebook/notebook';
+import {UserDetail} from '../domain/common/abstract-history-entity';
+import {CookieConstant} from '../common/constant/cookie.constant';
+import {WorkspaceService} from '../workspace/service/workspace.service';
+import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
 
 @Component({
   selector: 'app-notebook',
@@ -132,21 +132,26 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
           this.loadingShow();
           this.notebookService.getNotebook(this.selectedModelId).then((data) => {
 
-            // 관리 유저 여부 설정
-            this.isChangeAuthUser
-              = (permissionChecker.isManageNotebook()
-              || permissionChecker.isEditNotebook(data.createdBy.username));
+            if (data.connValid) {
+              // 관리 유저 여부 설정
+              this.isChangeAuthUser
+                = (permissionChecker.isManageNotebook()
+                || permissionChecker.isEditNotebook(data.createdBy.username));
 
-            this.resultData = data;
+              this.resultData = data;
 
-            // 노트북 API 조회
-            this.getNotebookApi();
+              // 노트북 API 조회
+              this.getNotebookApi();
 
-            this.setNotebookName();
-            this.setNotebookDescription();
+              this.setNotebookName();
+              this.setNotebookDescription();
 
-            // Send statistics data
-            this.sendViewActivityStream( this.selectedModelId, 'NOTEBOOK' );
+              // Send statistics data
+              this.sendViewActivityStream( this.selectedModelId, 'NOTEBOOK' );
+            } else {
+              this.loadingHide();
+              this.openAccessDeniedConfirm();
+            }
 
           }).catch((error) => {
             this.loadingHide();

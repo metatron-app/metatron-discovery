@@ -12,21 +12,25 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { AuditService } from '../service/audit.service';
-import { Alert } from '../../../common/util/alert.util';
-import { Audit } from '../../../domain/audit/audit';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
-import { isUndefined } from "util";
-import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { CommonConstant } from '../../../common/constant/common.constant';
-import { CookieService } from 'ng2-cookies';
-import { CommonUtil } from '../../../common/util/common.util';
-// 클래스 교체중
-//import { ElapsedTime } from '../../../domain/data-preparation/data-snapshot';
-import { ElapsedTime } from '../../../domain/data-preparation/pr-snapshot';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from "@angular/router";
+
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AuditService} from '../service/audit.service';
+import {Alert} from '../../../common/util/alert.util';
+import {Audit} from '../../../domain/audit/audit';
+import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
+import {CookieConstant} from '../../../common/constant/cookie.constant';
+import {CommonConstant} from '../../../common/constant/common.constant';
+import {CommonUtil} from '../../../common/util/common.util';
+import {PeriodData} from "../../../common/value/period.data.value";
+import {PeriodComponent} from "../../../common/component/period/period.component";
+
+import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
+
 declare let moment: any;
+
 
 @Component({
   selector: 'app-job-log',
@@ -38,9 +42,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 선택된 캘린더
-  private selectedDate: Date;
+  private _searchParams: { [key: string]: string };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -49,6 +51,11 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild(PeriodComponent)
+  public periodComponent: PeriodComponent;
+
+  // 선택된 캘린더
+  public selectedDate: PeriodData;
 
   // audit 리스트
   public auditList: Audit[] = [];
@@ -72,17 +79,20 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
   public selectedElapsedTime : any;
 
-  public elapsedTimeInput: any;
+  public CommonUtil = CommonUtil;
 
   @ViewChild('elapsedTime')
   public elapsedTime : ElementRef;
-  // public defaultElapsedSeconds : ElapsedSeconds = ElapsedSeconds.ALL;
+
+  public logTypeDefaultIndex: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(private auditService: AuditService,
+              private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -99,8 +109,82 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     // ui init
     this.initView();
 
-    // 리스트 조회
-    this.getAuditList();
+    this.subscriptions.push(
+      // Get query param from url
+      this.activatedRoute.queryParams.subscribe((params) => {
+
+        if (!_.isEmpty(params)) {
+
+          if (!isNullOrUndefined(params['size'])) {
+            this.page.size = params['size'];
+          }
+
+          if (!isNullOrUndefined(params['page'])) {
+            this.page.page = params['page'];
+          }
+
+          if (!isNullOrUndefined(params['searchKeyword'])) {
+            this.searchText = params['searchKeyword'];
+          }
+
+          // status
+          let index = 0;
+          if (!isNullOrUndefined(params['status'])) {
+            index = this.statusTypes.findIndex((item) => {
+              return item.value.toLowerCase() === params['status'].toLowerCase()
+            });
+          }
+          this.selectedStatus = this.statusTypes[index];
+
+          // log type
+          let idx = 0;
+          if (!isNullOrUndefined(params['type'])) {
+            idx = this.types.findIndex((item) => {
+              return item.value.toLowerCase() === params['type'].toLowerCase()
+            });
+          }
+          this.selectedType = this.types[idx];
+          this.logTypeDefaultIndex = idx;
+
+          // sort
+          const sort = params['sort'];
+          if (!isNullOrUndefined(sort)) {
+            const sortInfo = decodeURIComponent(sort).split(',');
+            this.selectedContentSort.key = sortInfo[0];
+            this.selectedContentSort.sort = sortInfo[1];
+          }
+
+          // elapsed time
+          if (!isNullOrUndefined(params['elapsedTime'])) {
+            const sec = ["10", "30", "60"];
+            this.selectedElapsedTime = Number(params['elapsedTime']);
+            if (sec.indexOf(params['elapsedTime']) === -1) {
+              this.elapsedTime.nativeElement.value = this.selectedElapsedTime;
+            }
+          } else {
+            this.selectedElapsedTime = 'ALL';
+          }
+
+          // Date
+          const from = params['from'];
+          const to = params['to'];
+          this.selectedDate = new PeriodData();
+          this.selectedDate.type = 'ALL';
+          if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+            this.selectedDate.startDate = from;
+            this.selectedDate.endDate = to;
+            this.selectedDate.dateType = 'CREATED';
+            this.selectedDate.startDateStr = decodeURIComponent(from);
+            this.selectedDate.endDateStr = decodeURIComponent(to);
+            this.selectedDate.type = params['dateType'];
+            this.safelyDetectChanges();
+          }
+        }
+
+        this.getAuditList();
+      })
+    )
+
   }
 
   ngOnDestroy() {
@@ -110,18 +194,33 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 워크스페이스 조회
+      this.reloadPage(false);
+    }
+  }
+
 
   /**
-   * 더 조회할 리스트가 있는지 여부
-   * @returns {boolean}
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
    */
-  public get checkMoreContents(): boolean {
-    if (this.pageResult.number < this.pageResult.totalPages - 1) {
-      return true;
-    }
-    return false;
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this.getAuditRequestParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
   }
+
 
   /**
    * audit 상세보기 오픈
@@ -130,21 +229,8 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   public auditDetailOpen(id: string) {
     // 페이지 이동
     this.router.navigateByUrl('/management/monitoring/audit/' + id);
-    // this.mode = 'detail-job-log';
-    // this.selectedId = id;
   }
 
-  /**
-   * 쿼리 리스트 컨텐츠 조회
-   */
-  public moreAuditList() {
-
-    // 페이지 초기화
-    this.pageResult.number += 1;
-
-    // 리스트 재조회
-    this.getAuditList();
-  }
 
   /**
    * 타입 필터링 변경 이벤트
@@ -154,11 +240,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     // type 변경
     this.selectedType = event;
 
-    // 페이지 초기화
-    this.pageResult.number = 0;
-
-    // 리스트 재조회
-    this.getAuditList();
+    this.reloadPage();
   }
 
   /**
@@ -167,13 +249,9 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    */
   public onChangeDate(event) {
 
-    // 페이지 초기화
-    this.pageResult.number = 0;
-
     this.selectedDate = event;
 
-    // 리스트 재조회
-    this.getAuditList();
+    this.reloadPage();
   }
 
   /**
@@ -181,10 +259,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    */
   public search() {
 
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 리스트 재조회
-    this.getAuditList();
+    this.reloadPage();
 
   }
 
@@ -194,13 +269,10 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    * @param status
    */
   public onChangeStatus(status) {
+
     this.selectedStatus = status;
 
-    // 페이지 초기화
-    this.pageResult.number = 0;
-
-    // 리스트 재조회
-    this.getAuditList();
+    this.reloadPage();
   }
 
 
@@ -231,138 +303,55 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
       }
     }
 
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 재조회
-    this.getAuditList();
+    this.reloadPage();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Refresh filters
+   */
+  public refreshFilters() {
 
-  private initView() {
+    // 정렬
+    this.selectedContentSort = new Order();
 
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    this.pageResult.size = 20;
+    // create date 초기화
+    this.selectedDate = null;
 
-    this.types = [
-      { label: 'All', value: 'all' },
-      { label: 'Workbench Query', value: 'QUERY' },
-      { label : 'Workbench Others', value : 'JOB'}
+    // 검색조건 초기화
+    this.searchText = '';
 
-    ];
+    this.periodComponent.setAll();
+
     this.selectedType = this.types[0];
+    this.logTypeDefaultIndex = 0;
 
-    this.statusTypes = [
-      { label: 'All', value: 'all' },
-      { label: 'Success', value: 'SUCCESS' },
-      { label: 'Running', value: 'RUNNING' },
-      { label: 'Cancelled', value: 'CANCELLED' },
-      { label: 'Fail', value: 'FAIL' }
-    ];
-    this.selectedStatus = this.statusTypes[0];
-    this.selectedElapsedTime = 'ALL';
-  }
+    this.onChangeStatus(this.statusTypes[0]);
 
+    this.onClickElapsedTime('ALL');
 
-  /**
-   * audit list request params
-   * @returns {page: number; size: number}
-   */
-  private getAuditRequestParams() {
-    const params = {
-      page: this.pageResult.number,
-      size: this.pageResult.size
-    };
-    // 이름
-    if (this.searchText !== '') {
-      params['searchKeyword'] = this.searchText;
-    }
-    // status
-    if (this.selectedStatus.value !== 'all') {
-      params['status'] = this.selectedStatus.value;
-    }
-    // type
-    if (this.selectedType.value !== 'all') {
-      params['type'] = this.selectedType.value;
-    }
-    // date
-    if (this.selectedDate && this.selectedDate.type !== 'ALL') {
-      if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-      }
-      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-    }
-    // sort
-    if (this.selectedContentSort.sort !== 'default') {
-      params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
-    }
+    this.reloadPage();
 
-    if (this.selectedElapsedTime !== 'ALL') {
-      params['elapsedTime'] = this.selectedElapsedTime;
-    }
-
-    return params;
   }
 
   /**
-   * audit 리스트 조회
+   * On click of elapsed time
+   * @param time
    */
-  private getAuditList() {
-    // 로딩 시작
-    this.loadingShow();
+  public onClickElapsedTime(time?: string|number) {
 
-    this.auditService.getAuditList(this.getAuditRequestParams())
-      .then((result) => {
-
-        // page
-        this.pageResult = result.page;
-
-        // 페이지가 첫번째면
-        if (result.page.number === 0) {
-          this.auditList = [];
-        }
-
-        // 리스트 존재 시
-        this.auditList = result['_embedded'] ? this.auditList.concat(result['_embedded'].audits) : [];
-
-        this.auditList.forEach((item: Audit, idx: number) => {
-          item.num = this.pageResult.totalElements - idx;
-        });
-
-        // 로딩 종료
-        this.loadingHide();
-      })
-      .catch((error) => {
-        Alert.error(error);
-        // 로딩 종료
-        this.loadingHide();
-      });
-  }
-
-  public applyElapsedTime(time?:any) {
     if(time) {
+
       this.elapsedTime.nativeElement.value = '';
       this.selectedElapsedTime = time;
 
-      // 페이지 초기화
-      this.pageResult.number = 0;
-      this.auditList = [];
-      this.getAuditList();
     } else {
+
       this.selectedElapsedTime = this.elapsedTime.nativeElement.value;
-      // 페이지 초기화
-      this.pageResult.number = 0;
-      this.auditList = [];
-      this.getAuditList();
+
     }
 
+    this.reloadPage();
   }
 
   /**
@@ -407,8 +396,6 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
       url += '?' + CommonUtil.objectToUrlString(params);
     }
 
-    // console.info('url --> ', url);
-
     try {
       const form = document.getElementsByTagName('form');
       const inputs = form[0].getElementsByTagName('input');
@@ -423,10 +410,123 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     }
   }
 
-  public elapsedTimeKeyup(event) {
+
+  /**
+   * Elapsed time keyup event
+   */
+  public elapsedTimeKeyup() {
+
+    // Remove selected btn
     this.selectedElapsedTime = '';
 
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Protected Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private initView() {
+
+    this.types = [
+      { label: 'All', value: 'all' },
+      { label: 'Workbench Query', value: 'QUERY' },
+      { label : 'Workbench Others', value : 'JOB'}
+
+    ];
+    this.selectedType = this.types[0];
+
+    this.statusTypes = [
+      { label: 'All', value: 'all' },
+      { label: 'Success', value: 'SUCCESS' },
+      { label: 'Running', value: 'RUNNING' },
+      { label: 'Cancelled', value: 'CANCELLED' },
+      { label: 'Fail', value: 'FAIL' }
+    ];
+    this.selectedStatus = this.statusTypes[0];
+    this.selectedElapsedTime = 'ALL';
+  }
+
+
+  /**
+   * audit list request params
+   * @returns {page: number; size: number}
+   */
+  private getAuditRequestParams() : any{
+    const params = {
+      page: this.page.page,
+      size: this.page.size,
+      pseudoParam : (new Date()).getTime()
+    };
+    // 이름
+    if (this.searchText !== '') {
+      params['searchKeyword'] = this.searchText;
+    }
+    // status
+    if (this.selectedStatus.value !== 'all') {
+      params['status'] = this.selectedStatus.value;
+    }
+    // type
+    if (this.selectedType.value !== 'all') {
+      params['type'] = this.selectedType.value;
+    }
+    // date
+    if (this.selectedDate && this.selectedDate.type !== 'ALL') {
+      params['dateType']= this.selectedDate.type;
+      if (this.selectedDate.startDateStr) {
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      }
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    }
+    // sort
+    if (this.selectedContentSort.sort !== 'default') {
+      params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
+    }
+
+    if (this.selectedElapsedTime !== 'ALL') {
+      params['elapsedTime'] = this.selectedElapsedTime;
+    }
+
+    return params;
+  }
+
+  /**
+   * audit 리스트 조회
+   */
+  private getAuditList() {
+    // 로딩 시작
+    this.loadingShow();
+
+    const params = this.getAuditRequestParams();
+
+    this.auditList = [];
+
+    this.auditService.getAuditList(params)
+      .then((result) => {
+
+        this._searchParams = params;
+
+        // page
+        this.pageResult = result.page;
+
+        // 리스트 존재 시
+        this.auditList = result['_embedded'] ? this.auditList.concat(result['_embedded'].audits) : [];
+
+        // 로딩 종료
+        this.loadingHide();
+      })
+      .catch((error) => {
+        Alert.error(error);
+        // 로딩 종료
+        this.loadingHide();
+      });
+  }
+
+
+
 }
 
 class Order {
@@ -434,9 +534,3 @@ class Order {
   sort: string = 'desc';
 }
 
-class Date {
-  // dateType : string;
-  endDateStr: string;
-  startDateStr: string;
-  type: string;
-}

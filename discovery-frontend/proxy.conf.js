@@ -2,7 +2,8 @@ const PROXY_CONFIG = [
   {
     context: [
       "/api",
-      "/oauth"
+      "/oauth",
+      "/extensions"
     ],
     target: "http://localhost:8180",
     secure: false

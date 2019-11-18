@@ -12,16 +12,15 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Modal } from '../../../../../common/domain/modal';
-import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
-import { PublicType, WorkspaceAdmin } from '../../../../../domain/workspace/workspace';
-import { Alert } from '../../../../../common/util/alert.util';
-import { WorkspaceService } from '../../../../../workspace/service/workspace.service';
-import {User} from '../../../../../domain/user/user';
-import {UserDetail} from '../../../../../domain/common/abstract-history-entity';
+import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Location} from "@angular/common";
+import {ActivatedRoute} from '@angular/router';
+import {Modal} from '../../../../../common/domain/modal';
+import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
+import {PublicType, WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
+import {Alert} from '../../../../../common/util/alert.util';
+import {WorkspaceService} from '../../../../../workspace/service/workspace.service';
 
 @Component({
   selector: 'app-detail-workspace',
@@ -48,8 +47,6 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public readonly UNKNOWN_USER = 'Unknown user';
-
   // 워크스페이스 객체
   public workspace: WorkspaceAdmin;
 
@@ -67,9 +64,10 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
   // 생성자
   constructor(private workspaceService: WorkspaceService,
               private activatedRoute: ActivatedRoute,
+              private _location:Location,
               protected element: ElementRef,
               protected injector: Injector) {
-   super(element, injector);
+    super(element, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -79,8 +77,9 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
   // Init
   public ngOnInit() {
 
-   // Init
-   super.ngOnInit();
+    // Init
+    super.ngOnInit();
+
     // url에서 workspaceId 받아오기
     this.activatedRoute.params.subscribe((params) => {
       // sourceId
@@ -95,8 +94,8 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
   // Destory
   public ngOnDestroy() {
 
-   // Destory
-   super.ngOnDestroy();
+    // Destory
+    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -146,9 +145,9 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
     const url = this.cookieService.get('PREV_ROUTER_URL');
     if (url) {
       this.cookieService.delete('PREV_ROUTER_URL');
-      this.router.navigate([url]);
+      this.router.navigate([url]).then();
     } else {
-      this.router.navigate(['/admin/workspaces/shared']);
+      this._location.back();
     }
   }
 
@@ -161,12 +160,11 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
 
   /**
    * 워크스페이스 status 변경 모달오픈
-   * @param {WorkspaceAdmin} WorkspaceAdmin
    * @param {string} status
    */
   public onOpenChangeStatus(status: string): void {
 
-    if( ( this.workspace.active ? 'active' : 'inactive' ) === status ) {
+    if ((this.workspace.active ? 'active' : 'inactive') === status) {
       return;
     }
 
@@ -204,15 +202,6 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
     modal.btnName = this.translateService.instant('msg.spaces.spaces.ui.delete.btn');
     // 팝업 창 오픈
     this._confirmModalComponent.init(modal);
-  }
-
-  /**
-   * Full name lookup for user
-   *
-   * @param user
-   */
-  public getUserFullName(user: User | UserDetail) {
-    return (user && '__UNKNOWN_USER' !== user.fullName) ? user.fullName : '';
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -300,8 +289,8 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
     this.workspace = new WorkspaceAdmin();
     // status
     this.statusList = [
-      { label: this.translateService.instant('msg.spaces.spaces.ui.active'), value: 'active' },
-      { label: this.translateService.instant('msg.spaces.spaces.ui.inactive'), value: 'inactive' },
+      {label: this.translateService.instant('msg.spaces.spaces.ui.active'), value: 'active'},
+      {label: this.translateService.instant('msg.spaces.spaces.ui.inactive'), value: 'inactive'},
     ];
     // TODO 선택된 status
     this.selectedStatus = this.statusList[0];

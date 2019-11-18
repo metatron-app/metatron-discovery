@@ -21,6 +21,7 @@ import java.util.List;
 // 1 Revision -> 1 Rule List -> N DataFrames
 // 1 DataFrame -> 1 Rule String
 public class RevisionSet {
+
   public List<Revision> revs;
   private int curRevIdx;
   private int resetRevIdx;

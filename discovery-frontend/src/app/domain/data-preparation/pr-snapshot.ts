@@ -62,7 +62,7 @@ public dsModifiedTime: Date;
 export class OriginDsInfo {
 public dsName: string;
 public qryStmt: string;
-public filePath: string;
+public storedUri: string;
 public createdTime: string;
 }
 
@@ -73,6 +73,7 @@ export class LineageInfo {
     public dsId: string;
     public dsName: string;
     public origDsName: string;
+    public origDsStoredUri: string;
     public origDsQueryStmt: string;
     public origDsCreatedTime: string;
 }
@@ -116,7 +117,8 @@ export enum StorageType {
 
 export enum UriFileFormat {
   CSV = <any>'CSV',
-  JSON = <any>'JSON'
+  JSON = <any>'JSON',
+  SQL = <any>'SQL'
 }
 
 export enum HiveFileFormat {
@@ -125,7 +127,8 @@ export enum HiveFileFormat {
 }
 
 export enum Engine {
-  EMBEDDED = <any>'EMBEDDED'
+  EMBEDDED = <any>'EMBEDDED',
+  SPARK = <any>'SPARK'
 }
 
 export enum Status {

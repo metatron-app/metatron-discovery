@@ -37,7 +37,8 @@
       <ul class="ddp-list-type ddp-list-popup" >
         <li *ngFor="let dsInfo of dataSources | baseFilter : ['name', searchText]"
             (click)="$event.stopPropagation();selectDataSource(dsInfo);"
-            [class.ddp-selected]="selectedDataSource?.id === dsInfo.id"
+            [class.ddp-selected]="dsInfo.valid && selectedDataSource?.id === dsInfo.id"
+            [class.ddp-disabled]="!dsInfo.valid"
             title="{{ dsInfo.name }}">
           <a href="javascript:">
             <em class="ddp-icon-database-s"></em>
@@ -46,7 +47,6 @@
           </a>
         </li>
       </ul>
-      <!--<a href="javascript:" class="ddp-btn-more">+ more</a>-->
     </div>
     <!-- // 목록 영역 -->
     <!-- 데이터소스 수정 링크 -->

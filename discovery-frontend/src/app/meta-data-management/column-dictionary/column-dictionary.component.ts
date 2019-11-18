@@ -14,7 +14,7 @@
 
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {isUndefined} from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
 import {Modal} from '../../common/domain/modal';
 import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
@@ -22,6 +22,12 @@ import {ColumnDictionaryService} from './service/column-dictionary.service';
 import {PeriodComponent} from '../../common/component/period/period.component';
 import {Alert} from '../../common/util/alert.util';
 import {CreateColumnDictionaryComponent} from './create-column-dictionary/create-column-dictionary.component';
+import {ActivatedRoute} from "@angular/router";
+import * as _ from 'lodash';
+import {PeriodData} from "../../common/value/period.data.value";
+import {Subscription} from "rxjs";
+import {Criteria} from "../../domain/datasource/criteria";
+import DateTimeType = Criteria.DateTimeType;
 
 declare let moment: any;
 
@@ -44,7 +50,10 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   private _deleteComp: DeleteModalComponent;
 
   // date
-  private _selectedDate: Date;
+  private _selectedDate: PeriodData;
+
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -62,16 +71,33 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   public columnDictionaryList: ColumnDictionary[] = [];
   // 검색어
   public searchText: string = '';
-  // 정렬
-  public selectedContentSort: Order = new Order();
+
+  public defaultDate: PeriodData;
+
+  public selectedType: DateTimeType;
+
+  startTime: string = '';
+  finishTime: string = '';
+  betweenPastTime = 'msg.storage.ui.criterion.time.past';
+  betweenCurrentTime = 'msg.storage.ui.criterion.time.current';
+
+  // sort
+  readonly sortList = [
+    {name: this.translateService.instant('msg.comm.ui.sort.name.asc'), value: 'logicalName,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.name.desc'), value: 'logicalName,desc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.asc'), value: 'modifiedTime,asc'},
+    {name: this.translateService.instant('msg.comm.ui.sort.updated.desc'), value: 'modifiedTime,desc'},
+  ];
+  selectedSort;
+
+  private _paginationSubscription$: Subscription;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     private _columnDictionaryService: ColumnDictionaryService,
+    private _activatedRoute: ActivatedRoute,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -81,35 +107,56 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-    // Init
-    super.ngOnInit();
-    // ui init
     this._initView();
-    // 목록 조회
-    this._getColumnDictionaryList();
+    // Get query param from url
+    this._paginationSubscription$ = this._activatedRoute.queryParams.subscribe((params) => {
+
+      if (!_.isEmpty(params)) {
+
+        if (!isNullOrUndefined(params['size'])) {
+          this.page.size = params['size'];
+        }
+
+        if (!isNullOrUndefined(params['page'])) {
+          this.page.page = params['page'];
+        }
+
+        if (!isNullOrUndefined(params['logicalNameContains'])) {
+          this.searchText = params['logicalNameContains'];
+        }
+
+        if (!_.isNil(params['sort'])) {
+          this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
+        }
+
+        const from = params['from'];
+        const to = params['to'];
+
+        this._selectedDate = new PeriodData;
+        this._selectedDate.startDate = from;
+        this._selectedDate.endDate = to;
+
+        this._selectedDate.startDateStr = decodeURIComponent(from);
+        this._selectedDate.endDateStr = decodeURIComponent(to);
+        this._selectedDate.type = params['type'];
+        this.defaultDate = this._selectedDate;
+        this.safelyDetectChanges();
+
+      }
+      this._getColumnDictionaryList();
+    });
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
+    if (!_.isNil(this._paginationSubscription$)) {
+      this._paginationSubscription$.unsubscribe();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 더 조회할 컨텐츠가 있는지
-   * @returns {boolean}
-   */
-  public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages - 1);
-  }
-
   /**
    * 컬럼 사전 제거
    * @param {Modal} modal
@@ -118,15 +165,28 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 제거
-    this._columnDictionaryService.deleteColumnDictionary(modal['dictionaryId']).then((result) => {
-      // alert
-      Alert.success(
-        this.translateService.instant('msg.metadata.ui.dictionary.delete.success', modal['dictionaryName']));
-      // 재조회
-      this.getColumnDictionaryListPageInit();
-    }).catch((error) => {
-      // 로딩 hide
+    this._columnDictionaryService.deleteColumnDictionary(modal['dictionaryId'])
+      .then(() => {
+
+        this.loadingHide();
+
+        // alert
+        Alert.success(this.translateService.instant(
+          'msg.metadata.ui.dictionary.delete.success',
+          { value: modal['dictionaryName'] }
+          )
+        );
+
+        if (this.page.page !== 0 && this.columnDictionaryList.length === 1) {
+          this.page.page = this.page.page - 1;
+        }
+        // 재조회
+        this.reloadPage(false);
+      }).catch((error) => {
+
       this.loadingHide();
+      this.commonExceptionHandler(error);
+
     });
   }
 
@@ -136,16 +196,6 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    */
   public get getTotalContentsCount(): number {
     return this.pageResult.totalElements;
-  }
-
-  /**
-   * 페이지 초기화 후 컬럼 사전 리스트 재조회
-   */
-  public getColumnDictionaryListPageInit(): void {
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    // 재조회
-    this._getColumnDictionaryList();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -165,12 +215,13 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    */
   public onClickDetailColumnDictionary(columnDictionaryId: string): void {
     // 상세화면으로 이동
-    this.router.navigate(['management/metadata/column-dictionary', columnDictionaryId]);
+    this.router.navigate(
+      ['management/metadata/column-dictionary', columnDictionaryId]).then();
   }
 
   /**
    * 컬럼 사전 삭제 클릭 이벤트
-   * @param {string} columnDictionaryId
+   * @param {ColumnDictionary} columnDictionary
    */
   public onClickDeleteColumnDictionary(columnDictionary: ColumnDictionary): void {
     // event stop
@@ -189,8 +240,8 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    * 필터링 초기화 버튼 클릭 이벤트
    */
   public onClickResetFilters(): void {
-    // 정렬
-    this.selectedContentSort = new Order();
+    // 정렬 초기화
+    this.selectedSort = this.sortList[SortMode.NAME_ASCENDING];
     // create date 초기화
     this._selectedDate = null;
     // date 필터 created update 설정 default created로 설정
@@ -201,42 +252,8 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     this.pageResult.number = 0;
     // date 필터 init
     this.periodComponent.setAll();
-  }
 
-  /**
-   * 더보기 버튼 클릭
-   */
-  public onClickMoreList(): void {
-    // page 증가
-    this.pageResult.number++;
-    // 리스트 조회
-    this._getColumnDictionaryList();
-  }
-
-  /**
-   * 정렬 버튼 클릭
-   * @param {string} key
-   */
-  public onClickSort(key: string): void {
-    // 정렬 정보 저장
-    this.selectedContentSort.key = key;
-    // 정렬 key와 일치하면
-    if (this.selectedContentSort.key === key) {
-      // asc, desc
-      switch (this.selectedContentSort.sort) {
-        case 'asc':
-          this.selectedContentSort.sort = 'desc';
-          break;
-        case 'desc':
-          this.selectedContentSort.sort = 'asc';
-          break;
-        case 'default':
-          this.selectedContentSort.sort = 'desc';
-          break;
-      }
-    }
-    // 페이지 초기화 후 재조회
-    this.getColumnDictionaryListPageInit();
+    this.reloadPage();
   }
 
   /**
@@ -257,11 +274,104 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    * 캘린더 선택 이벤트
    * @param event
    */
-  public onChangeData(event): void {
-    // 선택한 날짜
-    this._selectedDate = event;
+  public onChangeData(selectedDate): void {
+    this.selectedType = selectedDate.type;
+
+    const betweenFrom = selectedDate.startDate;
+    const betweenTo = selectedDate.endDate;
+
+    let startDate, endDate, type, startDateStr, endDateStr, dateType = null;
+
+    const returnFormat = 'YYYY-MM-DDTHH:mm';
+
+    // if filter type is between
+    if (this.selectedType === Criteria.DateTimeType.BETWEEN) {
+      if (betweenFrom !== undefined) {
+        this.betweenPastTime = betweenFrom;
+      }
+      if (betweenTo !== undefined) {
+        this.betweenCurrentTime = betweenTo;
+      }
+
+      // Only set params need to request api according to condition otherwise just leave it null
+      // if from and to is all exist
+      if (betweenFrom !== undefined && betweenTo !== undefined) {
+        startDate = betweenFrom;
+        endDate = betweenTo;
+        startDateStr = moment(betweenFrom).format(returnFormat);
+        endDateStr = moment(betweenTo).format(returnFormat);
+        // if only 'from' time is selected
+      } else if (betweenFrom && betweenTo === undefined) {
+        startDate = betweenFrom;
+        startDateStr = moment(betweenFrom).format(returnFormat);
+        // if only 'to' time is selected
+      } else if (betweenFrom === undefined && betweenTo) {
+        endDate = betweenTo;
+        endDateStr = moment(betweenTo).format(returnFormat);
+      }
+      // if filter type is not between
+    } else {
+      this.startTime = betweenFrom;
+      this.finishTime = betweenTo;
+
+      startDate = betweenFrom;
+      endDate = betweenTo;
+      type = this.selectedType;
+      startDateStr = moment(betweenFrom).format(returnFormat);
+      endDateStr = moment(betweenTo).format(returnFormat);
+    }
+
+    this._selectedDate = {
+      startDate: startDate,
+      endDate: endDate,
+      type: type,
+      startDateStr: startDateStr,
+      endDateStr: endDateStr,
+      dateType: dateType
+    };
+
     // 재조회
-    this.getColumnDictionaryListPageInit();
+    this.reloadPage();
+  }
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 워크스페이스 조회
+      this.reloadPage(false);
+    }
+  } // function - changePage
+
+  /**
+   * 페이지를 새로 불러온다.
+   * @param {boolean} isFirstPage
+   */
+  public reloadPage(isFirstPage: boolean = true) {
+    (isFirstPage) && (this.page.page = 0);
+    this._searchParams = this._getColumnDictionaryListParams();
+    this.router.navigate(
+      [this.router.url.replace(/\?.*/gi, '')],
+      {queryParams: this._searchParams, replaceUrl: true}
+    ).then();
+  } // function - reloadPage
+
+
+
+  /**
+   * After creating column dictionary
+   */
+  public onCreateComplete(dictionaryId: string) {
+    this.onClickDetailColumnDictionary(dictionaryId);
+  }
+
+  changeSort(sort) {
+    this.selectedSort = sort;
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -282,10 +392,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 검색어 초기화
     this.searchText = '';
     // 정렬 초기화
-    this.selectedContentSort = new Order();
-    // page 초기화
-    this.pageResult.size = 20;
-    this.pageResult.number = 0;
+    this.selectedSort = this.sortList[SortMode.NAME_ASCENDING];
   }
 
   /**
@@ -296,8 +403,9 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   private _searchText(keyword: string): void {
     // key word
     this.searchText = keyword;
+
     // 페이지 초기화 후 재조회
-    this.getColumnDictionaryListPageInit();
+    this.reloadPage();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -309,23 +417,40 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    * @private
    */
   private _getColumnDictionaryList(): void {
-    // 로딩 show
+
     this.loadingShow();
-    // 컬럼 사전 리스트 조회
-    this._columnDictionaryService.getColumnDictionaryList(this._getColumnDictionaryListParams()).then((result) => {
-      // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
-      this.pageResult.number === 0 && (this.columnDictionaryList = []);
-      // page 객체
+
+    const params = this._getColumnDictionaryListParams();
+
+    this.columnDictionaryList = [];
+
+    this._columnDictionaryService.getColumnDictionaryList(params).then((result) => {
+
+      // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
+      if (this.page.page > 0 &&
+        isNullOrUndefined(result['_embedded']) ||
+        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].dictionaries.length === 0))
+      {
+        this.page.page = result.page.number - 1;
+        this._getColumnDictionaryList();
+      }
+
+      this._searchParams = params;
+
       this.pageResult = result.page;
-      // 컬럼 사전 리스트
+
       this.columnDictionaryList = result['_embedded'] ?
         this.columnDictionaryList.concat(result['_embedded'].dictionaries) :
         [];
-      // 로딩 hide
+
       this.loadingHide();
+
     }).catch((error) => {
-      // 로딩 hide
+
+      this.commonExceptionHandler(error);
+
       this.loadingHide();
+
     });
   }
 
@@ -334,11 +459,12 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    * @returns {Object}
    * @private
    */
-  private _getColumnDictionaryListParams(): object {
+  private _getColumnDictionaryListParams(): any {
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
+      size: this.page.size,
+      page: this.page.page,
+      sort: this.selectedSort.value,
+      pseudoParam : (new Date()).getTime()
     };
     // 검색어
     if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {
@@ -346,27 +472,30 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
       params['logicalNameContains'] = this.searchText.trim();
     }
     // date
+    // update time - not All type
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = 'CREATED';
-      if (this._selectedDate.startDateStr) {
+      if (this._selectedDate.type !== 'NOT') {
+        params['type'] = this._selectedDate.type;
+      }
+      params['searchDateBy'] = 'UPDATED';
+      if (this._selectedDate.startDate) {
         params['from'] = moment(this._selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      if (this._selectedDate.endDateStr) {
+      if (this._selectedDate.endDate) {
         params['to'] = moment(this._selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
+    } else {
+      params['type'] = 'ALL';
     }
     return params;
   }
+
 }
 
-class Order {
-  key: string = 'logicalName';
-  sort: string = 'asc';
+enum SortMode {
+  NAME_ASCENDING = 0,
+  NAME_DESCENDING = 1,
+  UPDATE_ASCENDING = 2,
+  UPDATE_DESCENDING = 3
 }
 
-class Date {
-  dateType: string;
-  endDateStr: string;
-  startDateStr: string;
-  type: string;
-}

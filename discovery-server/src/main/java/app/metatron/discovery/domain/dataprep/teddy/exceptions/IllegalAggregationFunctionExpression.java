@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
 public class IllegalAggregationFunctionExpression extends TeddyException {
+
   public IllegalAggregationFunctionExpression(String message) {
     super(message);
   }

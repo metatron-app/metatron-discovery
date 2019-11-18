@@ -170,17 +170,17 @@ public class GeoJsonWriter {
     return new MultiPointGeometry(convert(multiPoint.getCoordinates()));
   }
 
-  LineGeometry convert(LineString lineString) {
-    return new LineGeometry(convert(lineString.getCoordinates()));
+  LineStringGeometry convert(LineString lineString) {
+    return new LineStringGeometry(convert(lineString.getCoordinates()));
   }
 
-  MultiLineGeometry convert(MultiLineString multiLineString) {
+  MultiLineStringGeometry convert(MultiLineString multiLineString) {
     int size = multiLineString.getNumGeometries();
     double[][][] lineStrings = new double[size][][];
     for (int i = 0; i < size; i++) {
       lineStrings[i] = convert(multiLineString.getGeometryN(i).getCoordinates());
     }
-    return new MultiLineGeometry(lineStrings);
+    return new MultiLineStringGeometry(lineStrings);
   }
 
   PolygonGeometry convert(Polygon polygon) {

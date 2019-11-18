@@ -32,6 +32,7 @@ import {Alert} from "../../../../common/util/alert.util";
 import {ShelveFieldType} from "../../../../common/component/chart/option/define/common";
 import {Field as AbstractField, Field} from "../../../../domain/workbook/configurations/field/field";
 import {ChartUtil} from "../../../../common/component/chart/option/util/chart-util";
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'map-spatial',
@@ -69,16 +70,17 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     {name: 'Meters', value: 'meters'}
     ,{name: 'Kilometers', value: 'kilometers'}
   ];
+  public unitIndex: number = 0;
+  public unitInput: string = '100';
+
+  // buffer
+  public isBufferOn: boolean = false;
   public bufferList: any = [
     {name: 'Meters', value: 'meters'}
     , {name: 'Kilometers', value: 'kilometers'}
   ];
-  public unitIndex: number = 0;
   public bufferIndex: number = 0;
-
-  public unitInput: string = '100';
   public bufferInput: string = '100';
-
   // choropleth 관련 사항 (Buffer를 선택시 choropleth를 true로 설정 후 백엔드에 호출)
   // public bufferList: any = [
   //   '100'
@@ -89,10 +91,6 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   //   , '700'
   //   , '1000'
   // ];
-  // public bufferIndex: number;
-
-  // buffer
-  public isBufferOn: boolean = false;
 
   // 단계구분도 보기
   public isChoroplethOn: boolean = false;
@@ -145,7 +143,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       && changes['uiOption']['currentValue']['analysis']['use'] == true
       && this.baseList.layers.length > 0) {
       return;
-    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) && this.baseList.layers.length <= 0) {
+    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) ) {
       this.uiOption = (<UIMapOption>changes['uiOption'].currentValue);
       this.mapSpatialChanges(this.uiOption, this.shelf);
     }
@@ -173,14 +171,24 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       this.shelf.layers.forEach(layer => {
         if (!_.isUndefined(layer.fields) && layer.fields.length > 0 && shelfIndex < 2) {
           layer.fields.forEach(field => {
-            if (!_.isUndefined(field) && !_.isUndefined(field.field) && !_.isUndefined(field.field.logicalType)
-              && (field.field.logicalType === LogicalType.GEO_POINT || field.field.logicalType === LogicalType.GEO_POLYGON || field.field.logicalType === LogicalType.GEO_LINE)) {
-              if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption.layers)
-                && this.uiOption.layers.length > 0 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
+            if (!_.isUndefined(field)
+              && !_.isUndefined(field.field)
+              && !_.isUndefined(field.field.logicalType)
+              && (field.field.logicalType === LogicalType.GEO_POINT
+                || field.field.logicalType === LogicalType.GEO_POLYGON
+                || field.field.logicalType === LogicalType.GEO_LINE)) {
+              if (!_.isUndefined(this.uiOption)
+                && !_.isUndefined(this.uiOption.layers)
+                && this.uiOption.layers.length > 0
+                && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
-                if (!isChanged) {
-                  this.baseList['selectedNum'] = shelfIndex;
-                  isChanged = true;
+                if (!isNullOrUndefined(this.uiOption) && !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis.selectedLayerNum)) {
+                  this.baseList['selectedNum'] = this.uiOption.analysis.selectedLayerNum;
+                } else {
+                  if (!isChanged) {
+                    this.baseList['selectedNum'] = shelfIndex;
+                    isChanged = true;
+                  }
                 }
               }
             }
@@ -200,11 +208,33 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         if( !_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] ){
           let operation = this.uiOption.analysis.operation;
           this.isBufferOn = (operation.buffer == 0 ? false : true);
-          (this.isBufferOn ? this.bufferInput = String(operation.buffer) : this.bufferInput);
+          if (this.isBufferOn) {
+            this.isBufferOn = true;
+            // buffer unit 설정
+            let tempBufferIndex = 0;
+            this.bufferList.forEach(buffer => {
+              if (buffer.value == operation['bufferUnit']) {
+                this.bufferIndex = tempBufferIndex;
+              }
+              tempBufferIndex++;
+            });
+            if (this.bufferList[this.bufferIndex].value == 'kilometers') {
+              this.bufferInput = (Number(operation.buffer) / 1000).toString();
+            } else {
+              this.bufferInput = operation.buffer.toString();
+            }
+          } else {
+            this.isBufferOn = false;
+            this.bufferIndex = 0;
+          }
           this.isChoroplethOn = operation.choropleth;
           if( this.isChoroplethOn ){
             let measureList = this.fieldList.measureList;
             for (let index = 0; index < measureList.length; index++) {
+              if (_.isUndefined(operation.aggregation.type)) {
+                this.colorByIndex = 0;
+                break;
+              }
               if( measureList[index].name == operation.aggregation.column ) {
                 this.colorByIndex = index;
                 break;
@@ -236,6 +266,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       return layer != value;
     });
     this.compareIndex = 0;
+    this.setMeasureList();
     this.changeDetect.detectChanges();
   }
 
@@ -270,16 +301,6 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     this.doEnableAnalysisBtn();
 
     this.bufferIndex = this.bufferList.findIndex((unitItem) => unitItem === value);
-    // let isNoneInBufferList = false;
-    // this.bufferList.forEach((buffer) => {
-    //   if (buffer.indexOf('Buffer') >= 0) {
-    //     isNoneInBufferList = true;
-    //   }
-    // });
-    // if (isNoneInBufferList == false) {
-    //   this.bufferList.unshift('Buffer');
-    // }
-    // this.bufferIndex = this.bufferList.findIndex((bufferItem) => bufferItem === value);
   }
 
   public choroplethBtn() {
@@ -324,7 +345,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public spatialAnalysisBtn() {
 
     // 공간연산 실행 체크 (Validation)
-    if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
+    if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true
+      && (isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) || (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) && this.uiOption.analysis['isReAnalysis'] == false))) {
       // Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.already'));
       return;
     }
@@ -375,7 +397,20 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         return;
     }
 
-    this.changeAnalysis.emit(mapUIOption);
+
+    let value = {
+      action: 'analysis',
+      uiOption: mapUIOption
+    };
+
+    if (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis'])
+      && this.uiOption.analysis['isReAnalysis'] == true
+      && this.uiOption.layers.length >= 3) {
+      value.action = 'reAnalysis';
+    }
+    delete this.uiOption.analysis['isReAnalysis'];
+
+    this.changeAnalysis.emit(value);
   }
 
   /**
@@ -446,8 +481,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       unitInputData = unitInputData * 1000;
     }
 
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+
     mapUIOption.analysis = {
       use: true,
+      isReAnalysis: tempReAnalysis,
       type: 'geo',
       // data를 위한 layer
       layerNum: 0,
@@ -481,8 +519,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       bufferDataValue = bufferDataValue * 1000;
     }
 
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+
     mapUIOption.analysis = {
       use: true,
+      isReAnalysis: tempReAnalysis,
       type: 'geo',
       // data를 위한 layer
       layerNum: 0,
@@ -501,6 +542,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     // compare layer index 를 찾기 위함 (layer 가 두개일 경우만 가능)
     let findCompareIndex = this.baseIndex == 0 ? 1 : 0;
     // buffer 설정
+    mapUIOption.analysis['operation']['bufferUnit'] = this.bufferList[this.bufferIndex].value;
     if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
     } else if(this.uiOption.layers[findCompareIndex].type.toString().toLowerCase().indexOf('polygon') != -1 && this.isBufferOn == false) {
@@ -525,8 +567,12 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    * symmetrical set data
    */
   private symmetricalSetData(baseData: string, compareData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
+
+    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+
     mapUIOption.analysis = {
       use: true,
+      isReAnalysis: tempReAnalysis,
       type: 'geo',
       layerNum: this.baseIndex,
       mainLayer: baseData,
@@ -576,14 +622,18 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       });
 
       measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-      // dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+      dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
       tempObj = {
         'measureList': measureList,
         'dimensionList': dimensionList
       };
-      if (measureList.length > 0)
+      if (measureList.length > 0) {
         this.fieldList = tempObj;
+      }
 
+      if (isNullOrUndefined(this.fieldList['measureList'][this.colorByIndex])) {
+        this.colorByIndex = 0;
+      }
     }
   }
 
@@ -592,8 +642,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private doEnableAnalysisBtn() {
     if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
-      setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 1000);
-
+      this.uiOption.analysis['isReAnalysis'] = true;
+      // setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 1000);
     }
   }
 

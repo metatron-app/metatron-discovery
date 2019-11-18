@@ -1,0 +1,24 @@
+<span class="ddp-list-option ddp-pad0" (clickOutside)="closeLayer()">
+  <!-- 클릭시 ddp-selected 추가 -->
+  <div class="ddp-ui-sort type-option" [class.ddp-selected]="isShowLayer" (click)="changeLayerState()">
+    <a href="javascript:" class="ddp-icon-sort"></a>
+    <!-- hover -->
+    <div class="ddp-ui-tooltip-info">
+      <em class="ddp-icon-view-top"></em>
+      {{'msg.comm.ui.soring.order' | translate}}
+    </div>
+    <!-- //hover -->
+    <!-- popup -->
+    <div class="ddp-wrap-popup2">
+      <ul class="ddp-list-popup">
+        <li [class.ddp-selected]="isSelectedSort(sort)" *ngFor="let sort of sortList">
+          <a href="javascript:" (click)="changeSort(sort, $event);">
+            {{sort.name}}
+            <em class="ddp-icon-check"></em>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!-- //popup -->
+  </div>
+</span>

@@ -25,7 +25,7 @@ import {
   SimpleChanges,
   SimpleChange, OnChanges
 } from '@angular/core';
-import { ConnectionType, Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, DataSourceSummary, Field, Status} from '../../../domain/datasource/datasource';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 import { GridComponent } from '../../../common/component/grid/grid.component';
@@ -242,6 +242,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    */
   public changeTab(tabName: Tab) {
     this.selectedTab = tabName;
+    this.safelyDetectChanges();
     (Tab.PREVIEW === tabName) && (this._loadGridData());
   } // function - changeTab
 
@@ -265,13 +266,15 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
 
   /**
    * Grid Row 설정
-   * @param {number} event
+   * @param {number} inputRowNum
    */
-  public setGridRow(event: number) {
-    // Row 설정
-    this.rowNum = event;
-    // 조회
-    this._loadGridData();
+  public setGridRow(inputRowNum: number) {
+    if( Number(inputRowNum) !== this.rowNum ) {
+      // Row 설정
+      this.rowNum = Number(inputRowNum);
+      // 조회
+      this._loadGridData();
+    }
   } // function - setGridRow
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -493,8 +496,12 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * @private
    */
   private _getCandidateDatasource() {
-    this.page.size = 100000;
-    this.datasourceService.getDatasources(this.workspaceId, this.page, 'forDetailView').then((data) => {
+    const params = {
+      size: 100000,
+      page: this.page.page,
+      status : Status.ENABLED
+    };
+    this.datasourceService.getDatasources(this.workspaceId, params, 'forDetailView').then((data) => {
       this._allDataSources = data['_embedded'].datasources;
       const candidateDataSources = this._allDataSources.filter((ds) => {
         if (ds.id === this.dataSource.id) {
@@ -521,7 +528,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
       });
       this.isEnableJoin = (candidateDataSources && 0 < candidateDataSources.length);
       this._candidateDataSources = candidateDataSources;
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
     }).catch((error) => {
       console.error(error);
       Alert.error(this.translateService.instant('msg.board.alert.fail.load.datasource'))

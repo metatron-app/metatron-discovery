@@ -15,17 +15,23 @@
 package app.metatron.discovery.domain.workbook;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.images.Image;
 import app.metatron.discovery.domain.images.ImageService;
 import app.metatron.discovery.domain.workbook.configurations.BoardConfiguration;
@@ -107,4 +113,24 @@ public class DashBoardService {
 
     return dashBoardRepository.save(copiedDashBoard);
   }
+
+  public Set<DataSource> backingDataSource(Set<DataSource> dataSources, WorkBook workbook) {
+    Set<DataSource> result = Sets.newHashSet();
+    for (DataSource dataSource : dataSources) {
+      if (BooleanUtils.isTrue(dataSource.getPublished()) || dataSource.getWorkspaces().contains(workbook.getWorkspace())) {
+        dataSource.setValid(true);
+      } else {
+        dataSource.setValid(false);
+      }
+      result.add(dataSource);
+    }
+
+    return result;
+  }
+
+  public Set<DataSource> backingDataSource(WorkBook workbook) {
+    List<DataSource> dataSources = dashBoardRepository.findAllDataSourceInDashboard(workbook.getId());
+    return backingDataSource(new HashSet<>(dataSources), workbook);
+  }
+
 }

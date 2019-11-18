@@ -13,7 +13,15 @@
  */
 
 import * as $ from 'jquery';
-import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
 import {Router} from '@angular/router';
 import {Loading} from '../util/loading.util';
 import {TranslateService} from '@ngx-translate/core';
@@ -34,10 +42,12 @@ import {Group} from '../../domain/user/group';
 import {UserDetail} from '../../domain/common/abstract-history-entity';
 import {StompService, StompState} from '@stomp/ng2-stompjs';
 import {Observable} from 'rxjs';
-import {filter, map} from 'rxjs/operators';
+import {filter} from 'rxjs/operators';
 import {isUndefined} from "util";
 import {ImplementorType} from "../../domain/dataconnection/dataconnection";
 import {LogicalType} from '../../domain/datasource/datasource';
+import {UsedCriteria} from "../value/used-criteria.data.value";
+import {LocalStorageConstant} from "../constant/local-storage.constant";
 
 declare let moment;
 
@@ -538,7 +548,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         icon: 'ddp-icon-type-float'
       },
       {
-        label: this.translateService.instant('msg.metadata.ui.dictionary.type.timestamp'),
+        label: this.translateService.instant('msg.storage.ui.list.date'),
         value: 'TIMESTAMP',
         icon: 'ddp-icon-type-calen'
       },
@@ -637,7 +647,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * @return {string}
    */
   public getUserFullName(user: User | UserDetail) {
-    return (user && '__UNKNOWN_USER' !== user.fullName) ? user.fullName : '';
+    return (user && 'Unknown user' !== user.fullName) ? user.fullName : '';
   } // function - getUserFullName
 
   /**
@@ -646,7 +656,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * @return {string}
    */
   public getGroupName(group: Group) {
-    return (group && '__UNKNOWN_GROUP' !== group.name) ? group.name : '';
+    return (group && 'Unknown group' !== group.name) ? group.name : '';
   } // function - getGroupName
 
   /**
@@ -659,7 +669,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
         break;
       case ImplementorType.HIVE:
         connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
@@ -681,16 +691,16 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   } // function - getConnImplementorImgUrl
 
   /**
-   * 커넥션 타입 이미지 URL 반환 ( Gray )
+   * 커넥션 타입 이미지 URL 반환 ( White )
    * @param {ImplementorType} impType
    * @param {string} imgResource
    * @return {string}
    */
-  public getConnImplementorGrayImgUrl(impType:ImplementorType, imgResource?:string ):string {
+  public getConnImplementorWhiteImgUrl(impType:ImplementorType, imgResource?:string ):string {
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql-w.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql_w.png';
         break;
       case ImplementorType.HIVE:
         connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_w.png';
@@ -709,7 +719,48 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         break;
     }
     return connImgUrl;
+  } // function - getConnImplementorWhiteImgUrl
+
+
+  /**
+   * 커넥션 타입 이미지 URL 반환 ( Gray )
+   * @param {ImplementorType} impType
+   * @param {string} imgResource
+   * @return {string}
+   */
+  public getConnImplementorGrayImgUrl(impType:ImplementorType, imgResource?:string ):string {
+    let connImgUrl = '';
+    switch (impType) {
+      case ImplementorType.MYSQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql_b.png';
+        break;
+      case ImplementorType.HIVE:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_b.png';
+        break;
+      case ImplementorType.DRUID:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid_b.png';
+        break;
+      case ImplementorType.POSTGRESQL:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post_b.png';
+        break;
+      case ImplementorType.PRESTO:
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto_b.png';
+        break;
+      default:
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_db_b.png';
+        break;
+    }
+    return connImgUrl;
   } // function - getConnImplementorGrayImgUrl
+
+  public getLanguage():string {
+    return this.translateService.currentLang;
+  }
+
+  public setLanguage(lang:string) {
+    this.translateService.use(lang);
+    // store language
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -909,18 +960,12 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * @param {string} errMessage
    */
   protected commonExceptionHandler(err: any, errMessage?: string) {
-    console.error(err);
-    const url: string = this.router.url;
-    if (-1 < url.indexOf('/management') || -1 < url.indexOf('/admin') || -1 < url.indexOf('/workbook')) {
+    if (err && err.details) {
       Alert.errorDetail(err.message, err.details);
+    } else if (errMessage) {
+      Alert.error(errMessage);
     } else {
-      if (err && err.details) {
-        Alert.error(err.details);
-      } else if (errMessage) {
-        Alert.error(errMessage);
-      } else {
-        Alert.error(this.translateService.instant('msg.alert.retrieve.fail'));
-      }
+      Alert.error(this.translateService.instant('msg.alert.retrieve.fail'));
     }
     this.loadingHide();
   } // function - commonExceptionHandler
@@ -945,6 +990,26 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       };
     }
   } // function - commonExceptionHandler
+
+  protected getUsedCriteriaFromLocalStorage(): UsedCriteria {
+    if(localStorage) {
+      const usedCriteria = CommonUtil.getLocalStorage(LocalStorageConstant.KEY.USED_CRITERIA);
+      let criteria : UsedCriteria;
+      if(usedCriteria) {
+        criteria = JSON.parse(usedCriteria);
+      } else {
+        criteria = new UsedCriteria();
+        this.setUsedCriteriaToLocalStorage(criteria);
+      }
+      return criteria;
+    } else {
+      return new UsedCriteria();
+    }
+  }
+
+  protected setUsedCriteriaToLocalStorage(criteria: UsedCriteria): void {
+    CommonUtil.setLocalStorage(LocalStorageConstant.KEY.USED_CRITERIA,  JSON.stringify(criteria));
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

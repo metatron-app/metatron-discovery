@@ -26,7 +26,7 @@ import java.util.Map;
 public class ExtensionProperties {
 
   public enum ExtensionType{
-    LNB, CONNECTION
+    LNB, CONNECTION, LINEAGE
   }
 
   List<String> pluginEnable;
@@ -65,9 +65,14 @@ public class ExtensionProperties {
     String name;
     String parent;
     Integer level;
+    List<String> permissions;
     Map<String, String> subContents;
 
     public Lnb() {
+    }
+
+    public Lnb(String name) {
+      this.name = name;
     }
 
     public String getName() {
@@ -93,6 +98,12 @@ public class ExtensionProperties {
     public void setLevel(Integer level) {
       this.level = level;
     }
+
+    public List<String> getPermissions() {
+      return permissions;
+    }
+
+    public void setPermissions(List<String> permissions) { this.permissions = permissions; }
 
     public Map<String, String> getSubContents() {
       return subContents;

@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -78,6 +79,7 @@ public class Workbench extends Book {
 		Map<String, Object> contents = Maps.newLinkedHashMap();
 		contents.put("connType", dataConnection.getImplementor());
 		contents.put("connName", dataConnection.getName());
+		contents.put("connValid", dataConnection.getWorkspaces().contains(workspace) || BooleanUtils.isTrue(dataConnection.getPublished()));
 
 		projection.put("contents", contents);
 

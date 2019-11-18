@@ -51,38 +51,43 @@
 <db-complete *ngIf="step=='db-complete'"
              [sourceData]="sourceData"
              [(step)]="step"
-             (dbComplete)="createComplete()"
+             (onComplete)="createComplete()"
              (close)="createClose()">
 </db-complete>
 
 
-
-
-<!-- file 선택 1/4 -->
-<file-select *ngIf="step=='file-select'"
+<!-- file 업로드 1/5 -->
+<file-upload *ngIf="step=='file-upload'"
+              [sourceData]="sourceData"
+              [(step)]="step"
+              (close)="createClose()">
+</file-upload>
+<!-- file 미리보기 2/5 -->
+<file-preview *ngIf="step=='file-preview'"
              [sourceData]="sourceData"
              [(step)]="step"
+             (onComplete)="createComplete()"
              (close)="createClose()">
-</file-select>
+</file-preview>
 
-<!-- file 스키마 설정 2/4 -->
+<!-- file 스키마 설정 3/5 -->
 <file-configure-schema *ngIf="step=='file-configure-schema'"
                        [sourceData]="sourceData"
                        [(step)]="step"
                        (close)="createClose()">
 </file-configure-schema>
 
-<!-- file ingestion, 권한 설정 3/4 -->
+<!-- file ingestion, 권한 설정 4/5 -->
 <file-ingestion *ngIf="step=='file-ingestion'"
                 [sourceData]="sourceData"
                 [(step)]="step"
                 (close)="createClose()">
 </file-ingestion>
-<!-- file complete 4/4 -->
+<!-- file complete 5/5 -->
 <file-complete *ngIf="step==='file-complete'"
                [sourceData]="sourceData"
                [(step)]="step"
-               (fileComplete)="createComplete()"
+               (onComplete)="createComplete()"
                (close)="createClose()">
 </file-complete>
 
@@ -112,7 +117,6 @@
 <staging-db-complete *ngIf="step==='staging-db-complete'"
                      [sourceData]="sourceData"
                      [(step)]="step"
-                     (stagingComplete)="createComplete()"
                      (close)="createClose()">
 
 </staging-db-complete>
@@ -148,6 +152,40 @@
 <create-snapshot-source-complete *ngIf="step==='snapshot-complete'"
                [sourceData]="sourceData"
                [(step)]="step"
-               (completed)="createComplete()"
                (close)="createClose()">
 </create-snapshot-source-complete>
+
+<!-- stream 업로드 1/5 -->
+<stream-select *ngIf="step=='stream-select'"
+             [sourceData]="sourceData"
+             [(step)]="step"
+             (close)="createClose()">
+</stream-select>
+<!-- stream 미리보기 2/5 -->
+<stream-preview *ngIf="step=='stream-preview'"
+              [sourceData]="sourceData"
+              [(step)]="step"
+              (onComplete)="createComplete()"
+              (close)="createClose()">
+</stream-preview>
+
+<!-- stream 스키마 설정 3/5 -->
+<stream-configure-schema *ngIf="step=='stream-configure-schema'"
+                       [sourceData]="sourceData"
+                       [(step)]="step"
+                       (close)="createClose()">
+</stream-configure-schema>
+
+<!-- stream ingestion, 권한 설정 4/5 -->
+<stream-ingestion *ngIf="step=='stream-ingestion'"
+                [sourceData]="sourceData"
+                [(step)]="step"
+                (close)="createClose()">
+</stream-ingestion>
+<!-- stream complete 5/5 -->
+<stream-complete *ngIf="step==='stream-complete'"
+               [sourceData]="sourceData"
+               [(step)]="step"
+               (onComplete)="createComplete()"
+               (close)="createClose()">
+</stream-complete>

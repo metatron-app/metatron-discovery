@@ -37,7 +37,7 @@
   <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
 
     <!-- filter -->
-    <selection-filter [showBtnWidget]="isManagementUser" ></selection-filter>
+    <selection-filter [dashboard]="dashboard" [showBtnWidget]="isManagementUser" ></selection-filter>
     <!-- //filter -->
 
     <!-- dashboard -->
@@ -118,7 +118,7 @@
   <div *ngIf="isError" class="ddp-div-table" >
     <div class="ddp-div-tablecell">
       <span class="ddp-txt-condition ddp-missing">{{ 'msg.board.unload.title' | translate }}</span>
-      <span class="ddp-detail" [innerHTML]="'msg.board.unload.desc' | translate"></span>
+      <span class="ddp-detail" [innerHTML]="errorMsg"></span>
       <a (click)="reloadBoard()" href="javascript:" class="ddp-btn-line"><em class="ddp-icon-refresh"></em> Reload
       </a>
     </div>

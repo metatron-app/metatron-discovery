@@ -13,11 +13,11 @@
   -->
 
 <em class="ddp-bg-back"></em>
-<div class="ddp-ui-contents-in ddp-scroll">
-  <!-- top -->
+<div class="ddp-ui-contents-in ddp-pad0 ddp-scroll">
+
   <div class="ddp-ui-contents-top">
     <div class="ddp-ui-title">
-      {{'msg.metadata.ui.title' | translate}}
+      {{'msg.comm.menu.manage.metadata' | translate}}
     </div>
     <!-- tab -->
     <ul class="ddp-list-top-tab">
@@ -30,13 +30,16 @@
       <li [class.ddp-selected]="tabId === 'code-table'">
         <a href="javascript:" (click)="gotoTab('code-table')">{{'msg.metadata.ui.codetable.title' | translate}}</a>
       </li>
+      <li [class.ddp-selected]="tabId === 'lineage'" *ngIf="showLineageTab">
+        <a href="javascript:" (click)="gotoTab('lineage')">{{'msg.metadata.ui.lineage.title' | translate}}</a>
+      </li>
       <li [class.ddp-selected]="tabId === 'catalog'">
         <a href="javascript:" (click)="gotoTab('catalog')">{{'msg.metadata.ui.catalog' | translate }}</a>
       </li>
     </ul>
     <!-- //tab -->
   </div>
-  <!-- //top -->
+
   <!-- metadata -->
   <app-metadata *ngIf="tabId === 'metadata'"></app-metadata>
   <!-- //metadatra -->
@@ -46,7 +49,12 @@
   <!-- code-table -->
   <app-code-table *ngIf="tabId === 'code-table'"></app-code-table>
   <!-- //code-table -->
+  <!-- code-table -->
+  <app-lineage *ngIf="tabId === 'lineage'"></app-lineage>
+  <!-- //code-table -->
   <!-- app-catalog -->
   <app-catalog *ngIf="tabId === 'catalog'"></app-catalog>
   <!-- //app-catalog -->
 </div>
+
+
