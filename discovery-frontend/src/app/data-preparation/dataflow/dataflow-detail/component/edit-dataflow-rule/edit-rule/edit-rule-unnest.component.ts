@@ -13,7 +13,7 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -35,6 +35,9 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input()
+  private firstRow: any = null;
+
   public selectedFields: Field[] = [];
 
   // 상태 저장용 T/F
@@ -84,6 +87,21 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
+    }
+
+    if (this.selVal==="" && this.firstRow) {
+      var theColumn = this.firstRow[this.selectedFields[0].name];
+      var jsonVal = JSON.parse(theColumn);
+      if(this.selectedFields[0].type==="MAP") {
+        var keys = Object.keys(jsonVal);
+        if(keys && keys.length!==0) {
+          this.selVal = Object.keys(jsonVal)[0];
+        }
+      } else if(this.selectedFields[0].type==="ARRAY") {
+        if( jsonVal && jsonVal.length!==0 ) {
+          this.selVal = "0";
+        }
+      }
     }
 
     // surround idx with single quotation
