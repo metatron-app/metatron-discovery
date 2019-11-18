@@ -45,6 +45,7 @@
                                   [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
           </component-explore-card>
         </li>
+        <span *ngIf="updatedMetadataList.length === 0" style="margin-left: 20px; margin-top: 10px;">No data</span>
       </ul>
     </div>
     <!--  /New or Update  -->
@@ -67,18 +68,19 @@
                                   [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">
           </component-explore-card>
         </li>
+        <span *ngIf="favoriteMetadataList.length === 0" style="margin-left: 20px; margin-top: 10px;">No data</span>
       </ul>
     </div>
     <!--  My favorite  -->
     <!--  Favorite creator  -->
     <div class="ddp-box-summary">
       <div class="ddp-type-label"> {{ 'msg.explore.ui.list.favorite.creator' | translate }}
-        <a *ngIf="favoriteCreatorMetadataList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
+        <a *ngIf="favoriteCreatorList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
       </div>
 
       <ul class="ddp-list-data">
 <!--        <ul class="ddp-list-summary">-->
-          <li *ngFor="let metadata of favoriteCreatorMetadataList| slice:0:4">
+          <li *ngFor="let metadata of favoriteCreatorList | slice:0:4">
             <a href="javascript:">
               <div class="ddp-wrap-data">
                 <span class="ddp-data-profile">
@@ -98,6 +100,7 @@
 <!--              [creator]="metadata?.createdBy?.fullName" (clickedCard)="onClickMetadata(metadata)">-->
 <!--            </component-explore-card>-->
           </li>
+        <span *ngIf="favoriteCreatorList.length === 0" style="margin-left: 20px; margin-top: 10px;">No data</span>
 <!--        </ul>-->
 
       </ul>

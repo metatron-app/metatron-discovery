@@ -51,7 +51,7 @@
               <a href="javascript:">
                 <em class="ddp-icon-folder-type"></em>
                 <div class="ddp-data-txt">
-                  <span class="ddp-data-navi">
+                  <span class="ddp-data-navi" *ngIf="favoriteCatalog.hasChild">
                       {{ getCatalogHierarchyLabel(favoriteCatalog) }}
                   </span>
                   <span class="ddp-data-name">
