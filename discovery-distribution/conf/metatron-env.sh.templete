@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # export JAVA_HOME=
-# export METATRON_JAVA_OPTS      		# Additional jvm options. for example, export METATRON_JAVA_OPTS="-Dspark.executor.memory=8g -Dspark.cores.max=16"
-# export METATRON_MEM            		# metatron jvm mem options Default -Xms1024m -Xmx1024m -XX:MaxMetaspaceSize=512m
+# export METATRON_JAVA_OPTS      		    # Additional jvm options. for example, "-Dprop1=val1 -Dprop2=value2"
+# export METATRON_MEM            		    # metatron jvm mem options Default "-Xms2048m -Xmx2048m"
 
 # export METATRON_ENV_MODE              # ENV mode, profile mode, default local
 # export METATRON_EXTRA_PROFILE         # Extra profile, comma seperated
-# export METATRON_LOG_DIR        		# Where log files are stored.  PWD by default.
-# export METATRON_PID_DIR        		# The pid files are stored. ${METATRON_HOME}/run by default.
-# export METATRON_IDENT_STRING   		# A string representing this instance of zeppelin. $USER by default.
-# export METATRON_NICENESS       		# The scheduling priority for daemons. Defaults to 0.
+# export METATRON_LOG_DIR        		    # Where log files are stored.  PWD by default.
+# export METATRON_PID_DIR        		    # The pid files are stored. ${METATRON_HOME}/run by default.
+# export METATRON_IDENT_STRING   		    # A string representing this instance of metatron. $USER by default.
+# export METATRON_NICENESS       		    # The scheduling priority for daemons. Defaults to 0.
 # export $METATRON_CLASSPATH_OVERRIDES  # additional classpath
 
 # export METATRON_DB_TYPE               # h2 or mysql. h2 by default
