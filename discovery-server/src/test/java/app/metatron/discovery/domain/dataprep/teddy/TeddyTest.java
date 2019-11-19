@@ -54,9 +54,11 @@ public class TeddyTest {
   }
 
   public static void assertRow(Row row, Object[] objs) {
+    assert row.size() == objs.length : String.format("row.size=%d objs.length=%d", row.size(), objs.length);
     for (int i = 0; i < row.size(); i++) {
       if (objs[i] == null) {
         assertNull(row.get(i));
+        continue;
       }
       assertEquals(objs[i], row.get(i));
     }
