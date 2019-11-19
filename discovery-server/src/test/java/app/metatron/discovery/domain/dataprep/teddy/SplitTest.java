@@ -115,14 +115,14 @@ public class SplitTest extends TeddyTest {
             {"SM TSP800 TSP847IIU Receipt Printer"},
             {"SM \"TSP100 TSP143LAN Receipt\" Printer"}
     };
-    DataFrame df = createByGrid(strGrid, new String[]{"text"});
+    DataFrame df = createByGrid(strGrid, new String[]{"desc"});
 
     // When the pattern is "/[\s\W\\"]+[^\s\d\W]+\d+/" (Words start with alphabets, end numeric chars after):
     // Nortel Networks T7316 "E Nt8 B27" -> [Nortel Networks ], [ "E ], [ ], ["], null
     // "SM TSP800 TSP847IIU Receipt Printer" -> [SM ], [ ], [ Receipt Printer], null, null
     // "SM \"TSP100 TSP143LAN Receipt\" Printer" -> [SM "], [ ], [ Receipt" Printer], null, null
 
-    df = apply_rule(df, "split col: text on: /[^\\s\\W]\\w+\\d+\\w*/ limit: 4");
+    df = apply_rule(df, "split col: desc on: /[^\\s\\W]\\w+\\d+\\w*/ limit: 4");
     assertRow(df.rows.get(0), new Object[]{"Nortel Networks ", " \"E ", " ", "\"", null});
     assertRow(df.rows.get(1), new Object[]{"SM ", " ", " Receipt Printer", null, null});
     assertRow(df.rows.get(2), new Object[]{"SM \"", " ", " Receipt\" Printer", null, null});
@@ -132,8 +132,8 @@ public class SplitTest extends TeddyTest {
     // "SM TSP800 TSP847IIU Receipt Printer" -> [SM ], [ ], [ Receipt Printer], null, null
     // "SM \"TSP100 TSP143LAN Receipt\" Printer" -> [SM "TSP100 TSP143LAN Receipt Printer"], null, null, null, null
 
-    df = createByGrid(strGrid, new String[]{"text"});
-    df = apply_rule(df, "split col: text on: /[^\\s\\W]\\w+\\d+\\w*/ limit: 4 quote: '\"'");
+    df = createByGrid(strGrid, new String[]{"desc"});
+    df = apply_rule(df, "split col: desc on: /[^\\s\\W]\\w+\\d+\\w*/ limit: 4 quote: '\"'");
 
     assertRow(df.rows.get(0), new Object[]{"Nortel Networks ", " \"E Nt8 B27\"", null, null, null});
     assertRow(df.rows.get(1), new Object[]{"SM ", " ", " Receipt Printer", null, null});

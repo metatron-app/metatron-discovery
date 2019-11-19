@@ -180,9 +180,13 @@ public class DfExtract extends DataFrame {
             newRow.add(prevDf.getColName(colno), row.get(colno));
 
             String targetStr = (String) row.get(colno);
+            if (targetStr == null) {
+              continue;
+            }
+
             Matcher matcher = pattern.matcher(targetStr);
 
-            // 새 컬럼들 추가
+            // New columns
             for (int i = 0; i < extract_limit; i++) {
               if (matcher.find()) {
                 String newColData = targetStr.substring(matcher.start(), matcher.end());
@@ -192,6 +196,7 @@ public class DfExtract extends DataFrame {
               }
             }
           } else {
+            // Leave irrelevant columns as they were
             newRow.add(prevDf.getColName(colno), row.get(colno));
           }
         }
@@ -207,15 +212,19 @@ public class DfExtract extends DataFrame {
           if (targetColNames.contains(prevDf.getColName(colno))) {
             newRow.add(prevDf.getColName(colno), row.get(colno));
 
-            // quote의 수가 홀수개 일 때 마지막 quote 이후의 문자열은 처리대상이 아님으로 날려버린다
             String targetStr = (String) row.get(colno);
+            if (targetStr == null) {
+              continue;
+            }
+
+            // When the count of quotes is odd, delete all after the last quote.
             if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 != 0) {
               targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
             }
 
             Matcher matcher = pattern.matcher(targetStr);
 
-            // 새 컬럼들 추가
+            // New columns
             for (int i = 0; i < extract_limit; i++) {
               if (matcher.find()) {
                 String newColData = targetStr.substring(matcher.start(), matcher.end());
@@ -225,6 +234,7 @@ public class DfExtract extends DataFrame {
               }
             }
           } else {
+            // Leave irrelevant columns as they were
             newRow.add(prevDf.getColName(colno), row.get(colno));
           }
         }
