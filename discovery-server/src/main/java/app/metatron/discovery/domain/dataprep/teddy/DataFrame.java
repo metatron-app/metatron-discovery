@@ -55,7 +55,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -1077,30 +1076,6 @@ public class DataFrame implements Serializable, Transformable {
     }
   }
 
-  protected String disableRegexSymbols(String str) {
-    String regExSymbols = "[\\<\\(\\[\\{\\\\\\^\\-\\=\\$\\!\\|\\]\\}\\)\\?\\*\\+\\.\\>]";
-    return str.replaceAll(regExSymbols, "\\\\$0");
-  }
-
-  protected String makeCaseInsensitive(String str) {
-    String ignorePatternStr = "";
-    for (int i = 0; i < str.length(); i++) {
-      String c = String.valueOf(str.charAt(i));
-
-      if (c.matches("[a-zA-Z]")) {
-        ignorePatternStr += "[" + c.toUpperCase() + c.toLowerCase() + "]";
-      } else {
-        ignorePatternStr += c;
-      }
-    }
-    return ignorePatternStr;
-  }
-
-  protected String compilePatternWithQuote(String patternStr, String quoteStr) {
-    return patternStr + "(?=([^" + quoteStr + "]*" + quoteStr + "[^" + quoteStr + "]*" + quoteStr + ")*[^" + quoteStr
-            + "]*$)";
-  }
-
   protected String getColNameAndColnoFromFunc(Expr.FunctionExpr funcExpr, List<Integer> targetAggrColnos)
           throws ColumnNotFoundException, InvalidAggregationValueExpressionTypeException {
     List<Expr> args = funcExpr.getArgs();
@@ -1451,19 +1426,6 @@ public class DataFrame implements Serializable, Transformable {
     for (String colName : colNames) {
       checkAlphaNumerical(colName);
     }
-  }
-
-  public void lowerColNames() throws IllegalColumnNameForHiveException {
-    List<String> lowerColNames = new ArrayList();
-    for (String colName : colNames) {
-      String lowerColName = colName.toLowerCase();
-      if (lowerColNames.contains(lowerColName)) {
-        throw new IllegalColumnNameForHiveException(
-                "Column names become duplicated while saving into a Hive table: " + colName);
-      }
-      lowerColNames.add(lowerColName);
-    }
-    colNames = lowerColNames;
   }
 
   protected String makeParsable(String colName) {

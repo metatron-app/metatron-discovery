@@ -40,7 +40,7 @@ public class SplitTest extends TeddyTest {
     String[][] strGrid = new String[][]{{"2017-01-12"}};
     DataFrame df = createByGrid(strGrid, new String[]{"dt"});
 
-    df = apply_rule(df, "split col: dt on: '-' limit: 3 quote: '\"' ignoreCase: false");
+    df = apply_rule(df, "split col: dt on: '-' limit: 3 ignoreCase: false");
     assertRow(df.rows.get(0), new Object[]{"2017", "01", "12", null});
   }
 

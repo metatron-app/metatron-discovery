@@ -14,8 +14,16 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
@@ -72,5 +80,113 @@ public class TeddyUtil {
 
   public static DateTime sqlTimestampToJodaDateTime(Timestamp timestamp) {
     return sqlTimestampToJodaLocalDateTime(timestamp).toDateTime();
+  }
+
+  private static String disableRegexSymbols(String str) {
+    String regExSymbols = "[\\<\\(\\[\\{\\\\\\^\\-\\=\\$\\!\\|\\]\\}\\)\\?\\*\\+\\.\\>]";
+    return str.replaceAll(regExSymbols, "\\\\$0");
+  }
+
+  private static String makeCaseInsensitive(String str) {
+    String ignorePatternStr = "";
+    for (int i = 0; i < str.length(); i++) {
+      String c = String.valueOf(str.charAt(i));
+
+      if (c.matches("[a-zA-Z]")) {
+        ignorePatternStr += "[" + c.toUpperCase() + c.toLowerCase() + "]";
+      } else {
+        ignorePatternStr += c;
+      }
+    }
+    return ignorePatternStr;
+  }
+
+  public static String getQuoteStr(Expression quoteExpr) throws IllegalPatternTypeException {
+    if (quoteExpr == null) {
+      return "";
+    }
+
+    if (!(quoteExpr instanceof Constant.StringExpr)) {
+      throw new IllegalPatternTypeException("illegal pattern type: " + quoteExpr);
+    }
+
+    return ((Constant.StringExpr) quoteExpr).getEscapedValue();
+  }
+
+  public static String modifyPatternStrWithQuote(String pattern, String quote) {
+    if (quote.isEmpty()) {
+      return pattern;
+    }
+    return String.format("%s(?=([^%s]*%s[^%s]*%s)*[^%s]*$)", pattern, quote, quote, quote, quote, quote);
+  }
+
+  public static String getPatternStr(Expression expr, Boolean ignoreCase) throws IllegalPatternTypeException {
+    String patternStr;
+
+    if (expr instanceof Constant.StringExpr) {
+      patternStr = ((Constant.StringExpr) expr).getEscapedValue();
+      patternStr = disableRegexSymbols(patternStr);
+
+      if (ignoreCase != null && ignoreCase) {
+        patternStr = makeCaseInsensitive(patternStr);
+      }
+    } else if (expr instanceof RegularExpr) {
+      patternStr = ((RegularExpr) expr).getEscapedValue();
+    } else {
+      throw new IllegalPatternTypeException("illegal pattern type: " + expr.toString());
+    }
+
+    return patternStr;
+  }
+
+  public static String[] split(String str, String pattern, String quoteStr, int limit) {
+    assert str != null;
+
+    if (StringUtils.countMatches(str, quoteStr) % 2 == 1) {
+      str = str.substring(0, str.lastIndexOf(quoteStr));
+    }
+
+    return str.split(pattern, limit);
+  }
+
+  public static List<String> match(String str, Pattern pattern, String quoteStr, int limit) {
+    assert str != null;
+
+    if (StringUtils.countMatches(str, quoteStr) % 2 == 1) {
+      str = str.substring(0, str.lastIndexOf(quoteStr));
+    }
+
+    List<String> tokens = new ArrayList();
+    Matcher m = pattern.matcher(str);
+    while (m.find()) {
+      tokens.add(m.group());
+      if (tokens.size() >= limit) {
+        break;
+      }
+    }
+
+    return tokens;
+  }
+
+  public static String replace(String str, String pattern, String replacement, String quoteStr, Boolean global) {
+    assert str != null;
+    String replaceTarget;
+    String restStr;
+
+    if (StringUtils.countMatches(str, quoteStr) % 2 == 1) {
+      replaceTarget = str.substring(0, str.lastIndexOf(quoteStr));
+      restStr = str.substring(str.lastIndexOf(quoteStr));
+    } else {
+      replaceTarget = str;
+      restStr = "";
+    }
+
+    if (global == null || global) {
+      replaceTarget = replaceTarget.replaceAll(pattern, replacement);
+    } else {
+      replaceTarget = replaceTarget.replaceFirst(pattern, replacement);
+    }
+
+    return replaceTarget + restStr;
   }
 }

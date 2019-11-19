@@ -14,20 +14,16 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +44,9 @@ public class DfCountPattern extends DataFrame {
     List<Integer> targetColnos = new ArrayList<>();
     Expression expr = countPattern.getOn();
     Expression quote = countPattern.getQuote();
-    Boolean isCaseIgnore = countPattern.getIgnoreCase();
+    Boolean ignoreCase = countPattern.getIgnoreCase();
     String patternStr;
-    String quoteStr = null;
+    String quoteStr;
     String regExQuoteStr = null;
     Pattern pattern;
 
@@ -66,6 +62,9 @@ public class DfCountPattern extends DataFrame {
 
     String newColName = "countpattern";
     for (String targetColName : targetColNames) {
+      if (prevDf.getColType(prevDf.getColnoByColName(targetColName)) != ColumnType.STRING) {
+        throw new WorksOnlyOnStringException("Countpattern should be applied only to string columns.");
+      }
       targetColnos.add(prevDf.getColnoByColName(targetColName));
       newColName += "_" + targetColName;
     }
@@ -77,60 +76,16 @@ public class DfCountPattern extends DataFrame {
 
     addColumnWithDfAll(prevDf);
 
-    newColName = addColumn(targetColnos.get(targetColnos.size() - 1) + 1, newColName,
-            ColumnType.LONG);  // 마지막 대상 컬럼 뒤로 삽입
+    newColName = addColumn(targetColnos.get(targetColnos.size() - 1) + 1, newColName, ColumnType.LONG);
     newColNames.add(newColName);
     interestedColNames.add(newColName);
 
     assert !(expr.toString().equals("''") || expr.toString().equals("//")) : "You can not count empty string!";
 
-    //quote 여부에 다른 처리
-
-    if (quote == null) {
-      if (expr instanceof Constant.StringExpr) {
-        patternStr = ((Constant.StringExpr) expr).getEscapedValue();
-
-        if (isCaseIgnore != null && isCaseIgnore) {
-          pattern = Pattern.compile(patternStr, Pattern.LITERAL + Pattern.CASE_INSENSITIVE);
-        } else {
-          pattern = Pattern.compile(patternStr, Pattern.LITERAL);
-        }
-
-      } else if (expr instanceof RegularExpr) {
-        patternStr = ((RegularExpr) expr).getEscapedValue();
-        pattern = Pattern.compile(patternStr);
-      } else {
-        throw new IllegalPatternTypeException("DfCountPattern.prepare(): illegal pattern type: " + expr.toString());
-      }
-
-    } else { //quote 문자가 있을 경우의 처리(정규식으로 quote를 처리해야 해서 Pattern.compile 사용 불가)
-
-      if (expr instanceof Constant.StringExpr) {
-        patternStr = ((Constant.StringExpr) expr).getEscapedValue();
-        patternStr = disableRegexSymbols(patternStr);
-
-        if (isCaseIgnore != null && isCaseIgnore) {
-          patternStr = makeCaseInsensitive(patternStr);
-        }
-
-      } else if (expr instanceof RegularExpr) {
-        patternStr = ((RegularExpr) expr).getEscapedValue();
-      } else {
-        throw new IllegalPatternTypeException("DfCountPattern.prepare(): illegal pattern type: " + expr.toString());
-      }
-
-      if (quote instanceof Constant.StringExpr) {
-        quoteStr = ((Constant.StringExpr) quote).getEscapedValue();
-        regExQuoteStr = disableRegexSymbols(quoteStr);
-      } else if (expr instanceof RegularExpr) {
-        regExQuoteStr = ((RegularExpr) quote).getEscapedValue();
-      } else {
-        throw new IllegalPatternTypeException("DfCountPattern.prepare(): illegal pattern type: " + quote.toString());
-      }
-
-      patternStr = compilePatternWithQuote(patternStr, quoteStr);
-      pattern = Pattern.compile(patternStr);
-    }
+    patternStr = TeddyUtil.getPatternStr(expr, ignoreCase);
+    quoteStr = TeddyUtil.getQuoteStr(quote);
+    patternStr = TeddyUtil.modifyPatternStrWithQuote(patternStr, quoteStr);
+    pattern = Pattern.compile(patternStr);
 
     preparedArgs.add(targetColnos);
     preparedArgs.add(pattern);
@@ -154,69 +109,37 @@ public class DfCountPattern extends DataFrame {
     LOGGER.trace("DfCountPattern.gather(): start: offset={} length={} pattern={} quoteStr={}",
             offset, length, pattern, quoteStr);
 
-    int lastTargetColno = targetColnos.get(targetColnos.size() - 1);
+    int lastColno = targetColnos.get(0);
+    for (int i = 1; i < targetColnos.size(); i++) {
+      lastColno = Math.max(lastColno, targetColnos.get(i));
+    }
 
-    if (quoteStr == null) {
-      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-        Row row = prevDf.rows.get(rowno);
-        Row newRow = new Row();
-        long count = 0;   // 각 행마다 count
+    for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
+      Row row = prevDf.rows.get(rowno);
+      Row newRow = new Row();
 
-        // 마지막 대상 컬럼까지만 추가
-        for (int colno = 0; colno <= lastTargetColno; colno++) {
-          newRow.add(prevDf.getColName(colno), row.get(colno));
+      // Count first
+      long count = 0;
+      for (int i = 0; i < targetColnos.size(); i++) {
+        int colno = targetColnos.get(i);
+        String coldata = (String) row.get(colno);
+        if (coldata == null) {
+          continue;
         }
 
-        // 새 컬럼 추가
-        for (int targetColno : targetColnos) {
-          Matcher matcher = pattern.matcher(row.get(targetColno).toString());
-          while (matcher.find()) {
-            count++;
-          }
-        }
-        newRow.add(newColName, count);
-
-        // 나머지 추가
-        for (int colno = lastTargetColno + 1; colno < prevDf.getColCnt(); colno++) {
-          newRow.add(prevDf.getColName(colno), row.get(colno));
-        }
-        rows.add(newRow);
+        count += TeddyUtil.match(coldata, pattern, originalQuoteStr, 1000).size();
       }
-    } else { //quote 문자가 있을 경우의 처리(정규식으로 quote를 처리해야 해서 Pattern.compile 사용 불가)
-      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-        Row row = prevDf.rows.get(rowno);
-        Row newRow = new Row();
-        long count = 0;   // 각 행마다 count
 
-        // 마지막 대상 컬럼까지만 추가
-        for (int colno = 0; colno <= lastTargetColno; colno++) {
-          newRow.add(prevDf.getColName(colno), row.get(colno));
+      for (int colno = 0; colno < row.size(); colno++) {
+        // Add the original columns anyway.
+        newRow.add(prevDf.getColName(colno), row.get(colno));
+
+        // Add count column after the last target.
+        if (colno == lastColno) {
+          newRow.add(newColName, count);
         }
-
-        // 새 컬럼 추가
-        for (int targetColno : targetColnos) {
-          String targetStr = (String) row.get(targetColno);
-          if (targetStr == null) {
-            continue;
-          }
-
-          if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 != 0) {
-            targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
-          }
-
-          Matcher matcher = pattern.matcher(targetStr);
-          while (matcher.find()) {
-            count++;
-          }
-        }
-        newRow.add(newColName, count);
-
-        // 나머지 추가
-        for (int colno = lastTargetColno + 1; colno < prevDf.getColCnt(); colno++) {
-          newRow.add(prevDf.getColName(colno), row.get(colno));
-        }
-        rows.add(newRow);
       }
+      rows.add(newRow);
     }
 
     LOGGER.trace("DfCountPattern.gather(): end: offset={} length={} pattern={} quoteStr={}",

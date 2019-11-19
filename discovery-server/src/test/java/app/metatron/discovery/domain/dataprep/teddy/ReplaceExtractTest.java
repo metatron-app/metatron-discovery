@@ -175,7 +175,6 @@ public class ReplaceExtractTest extends TeddyTest {
 
     df = apply_rule(df, "extract col: desc on: 'TSP' quote: '\"' limit: 3");
     assertRow(df.rows.get(0), new Object[]{"Nortel Networks T7316 \"E Nt8 B27\"", null, null, null});
-    assertRow(df.rows.get(0), new Object[]{"Nortel Networks T7316 \"E Nt8 B27\"", null, null, null});
     assertRow(df.rows.get(1), new Object[]{"SM \"TSP800 TSP847IIU Receipt Printer", null, null, null});
     assertRow(df.rows.get(2), new Object[]{"SM \"\"TSP100 TSP143LAN Receipt\" Printer", "TSP", "TSP", null});
     assertRow(df.rows.get(3), new Object[]{"SM \"\"TSP100\" TSP143LAN Receipt Printer", "TSP", null, null});

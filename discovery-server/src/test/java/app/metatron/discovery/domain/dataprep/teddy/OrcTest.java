@@ -410,15 +410,16 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "countpattern col: cdate, customer_id, detail_store_code on: '08'";
+    contract = apply_rule(contract, "settype col: detail_store_code type: string");
 
+    String ruleString = "countpattern col: cdate, customer_id, detail_store_code on: '08'";
     DataFrame newDf = apply_rule(contract, ruleString);
 
     ruleString = "sort order: countpattern_cdate_customer_id_detail_store_code type: 'desc'";
 
     newDf = apply_rule(newDf, ruleString);
 
-    newDf.show();
+    newDf.show(200);
   }
 
   @Test
