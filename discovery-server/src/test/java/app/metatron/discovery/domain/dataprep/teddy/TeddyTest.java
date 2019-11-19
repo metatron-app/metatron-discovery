@@ -14,71 +14,55 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TeddyTest {
 
-  public static Map<String, List<String[]>> grids = new HashMap<>();
-  static int limitRowCnt = 10000;
+  public static Map<String, PrepParseResult> grids = new HashMap<>();
 
-  static String getResourcePath(String relPath, boolean fromHdfs) {
+  private static String getResourcePath(String relPath, boolean fromHdfs) {
     if (fromHdfs) {
       throw new IllegalArgumentException("HDFS not supported yet");
     }
     URL url = DataFrameTest.class.getClassLoader().getResource(relPath);
-    return (new File(url.getFile())).getAbsolutePath();
+    return url.toString();
   }
 
   private static String getResourcePath(String relPath) {
     return getResourcePath(relPath, false);
   }
 
-  static public List<String[]> loadGridCsv(String alias, String path) {
-    List<String[]> grid = new ArrayList<>();
-
-    BufferedReader br = null;
-    String line;
-    String cvsSplitBy = ",";
-
-    try {
-      br = new BufferedReader(new InputStreamReader(new FileInputStream(getResourcePath(path))));
-      while ((line = br.readLine()) != null) {
-        String[] strCols = line.split(cvsSplitBy);
-        grid.add(strCols);
-        if (grid.size() == limitRowCnt) {
-          break;
-        }
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-
-    grids.put(alias, grid);
-    return grid;
+  public static void loadGridCsv(String alias, String path) {
+    grids.put(alias, PrepCsvUtil.DEFAULT.parse(getResourcePath(path)));
   }
 
-  static DataFrame prepare_sample(DataFrame df) throws TeddyException {
+  public static DataFrame createByGrid(String[][] strGrid, String[] colName) {
+    DataFrame df = new DataFrame();
+    df.setByGrid(new ArrayList(Arrays.asList(strGrid)), new ArrayList(Arrays.asList(colName)));
+    return df;
+  }
+
+  public static void assertRow(Row row, Object[] objs) {
+    for (int i = 0; i < row.size(); i++) {
+      if (objs[i] == null) {
+        assertNull(row.get(i));
+      }
+      assertEquals(objs[i], row.get(i));
+    }
+  }
+
+  public static DataFrame prepare_sample(DataFrame df) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
 
     ruleStrings.add("header rownum: 1");
@@ -89,7 +73,16 @@ public class TeddyTest {
     return apply_rules(df, ruleStrings);
   }
 
-  static DataFrame prepare_null_contained(DataFrame df) throws TeddyException {
+  public static DataFrame prepare_sales_regex_test(DataFrame df) throws TeddyException {
+    List<String> ruleStrings = new ArrayList<>();
+
+    ruleStrings.add("header rownum: 1");
+    ruleStrings.add("settype col: `lat`, `lon`, `price` type: Double");
+
+    return apply_rules(df, ruleStrings);
+  }
+
+  public static DataFrame prepare_null_contained(DataFrame df) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
 
     ruleStrings.add("header rownum: 1");
@@ -106,20 +99,20 @@ public class TeddyTest {
     //    return df;
   }
 
-  static DataFrame prepare_multi(DataFrame multi) throws TeddyException {
+  public static DataFrame prepare_multi(DataFrame multi) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     ruleStrings.add("settype col: measure type: long");
     return apply_rules(multi, ruleStrings);
   }
 
-  static DataFrame prepare_crime(DataFrame crime) throws TeddyException {
+  public static DataFrame prepare_crime(DataFrame crime) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     return apply_rules(crime, ruleStrings);
   }
 
-  static DataFrame prepare_crime_more(DataFrame crime) throws TeddyException {
+  public static DataFrame prepare_crime_more(DataFrame crime) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings
             .add("replace col: column3, column4, column5, column6, column7, column8, column9, column10, column11, column13, column12 with: '' on: /_$/ global: true");
@@ -133,13 +126,13 @@ public class TeddyTest {
     return apply_rules(crime, ruleStrings);
   }
 
-  static DataFrame prepare_timestamp(DataFrame dataFrame) throws TeddyException {
+  public static DataFrame prepare_timestamp(DataFrame dataFrame) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     return apply_rules(dataFrame, ruleStrings);
   }
 
-  static DataFrame prepare_timestamp2(DataFrame dataFrame) throws TeddyException {
+  public static DataFrame prepare_timestamp2(DataFrame dataFrame) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     ruleStrings.add("settype col: birth_date type: timestamp format: 'MM.dd.yyyy HH:mm:ss'");
@@ -148,7 +141,7 @@ public class TeddyTest {
     return apply_rules(dataFrame, ruleStrings);
   }
 
-  static DataFrame prepare_sale(DataFrame sale) throws TeddyException {
+  public static DataFrame prepare_sale(DataFrame sale) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     //    ruleStrings.add("rename col: column2 to: 'category'");
     //    ruleStrings.add("rename col: column3 to: 'city'");
@@ -162,7 +155,7 @@ public class TeddyTest {
     return apply_rules(sale, ruleStrings);
   }
 
-  static DataFrame prepare_contract(DataFrame contract) throws TeddyException {
+  public static DataFrame prepare_contract(DataFrame contract) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings
             .add("rename col: column8, column2, column3, column4, column5, column6, column7 to: 'cdate', 'pcode1', 'pcode2', 'pcode3', 'pcode4', 'customer_id', 'detail_store_code'");
@@ -177,7 +170,7 @@ public class TeddyTest {
     return apply_rules(contract, ruleStrings);
   }
 
-  static DataFrame prepare_product(DataFrame product) throws TeddyException {
+  public static DataFrame prepare_product(DataFrame product) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings
             .add("rename col: column1, column2, column3, column4, column5 to: 'pcode1', 'pcode2', 'pcode3', 'pcode4', 'pcode'");
@@ -189,14 +182,14 @@ public class TeddyTest {
     return apply_rules(product, ruleStrings);
   }
 
-  static DataFrame prepare_store(DataFrame store) throws TeddyException {
+  public static DataFrame prepare_store(DataFrame store) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     ruleStrings.add("settype col: detail_store_code type: long");
     return apply_rules(store, ruleStrings);
   }
 
-  static DataFrame apply_rule(DataFrame df, String ruleString) throws TeddyException {
+  public static DataFrame apply_rule(DataFrame df, String ruleString) throws TeddyException {
     DataFrameService dataFrameService = new DataFrameService();
 
     df = dataFrameService.applyRuleInternal(df, ruleString, null, 1, 10000, 10000);
@@ -204,7 +197,7 @@ public class TeddyTest {
     return df;
   }
 
-  static DataFrame apply_rule(DataFrame df, String ruleString, List<DataFrame> slaveDFs) throws TeddyException {
+  public static DataFrame apply_rule(DataFrame df, String ruleString, List<DataFrame> slaveDFs) throws TeddyException {
     DataFrameService dataFrameService = new DataFrameService();
 
     df = dataFrameService.applyRuleInternal(df, ruleString, slaveDFs, 1, 10000, 10000);
@@ -212,7 +205,7 @@ public class TeddyTest {
     return df;
   }
 
-  static DataFrame apply_rules(DataFrame df, List<String> ruleStrings) throws TeddyException {
+  public static DataFrame apply_rules(DataFrame df, List<String> ruleStrings) throws TeddyException {
     DataFrameService dataFrameService = new DataFrameService();
 
     for (String ruleString : ruleStrings) {

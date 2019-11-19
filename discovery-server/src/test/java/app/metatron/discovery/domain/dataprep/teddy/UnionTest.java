@@ -33,17 +33,17 @@ public class UnionTest extends TeddyTest {
   @Test
   public void testUnion1() throws IOException, TeddyException {
     DataFrame store1 = new DataFrame();
-    store1.setByGrid(grids.get("store1"), null);
+    store1.setByGrid(grids.get("store1"));
     store1 = DataFrameTest.prepare_store(store1);
     store1.show();
 
     DataFrame store2 = new DataFrame();
-    store2.setByGrid(grids.get("store2"), null);
+    store2.setByGrid(grids.get("store2"));
     store2 = DataFrameTest.prepare_store(store2);
     store2.show();
 
     DataFrame store3 = new DataFrame();
-    store3.setByGrid(grids.get("store3"), null);
+    store3.setByGrid(grids.get("store3"));
     store3 = DataFrameTest.prepare_store(store3);
     store3.show();
 

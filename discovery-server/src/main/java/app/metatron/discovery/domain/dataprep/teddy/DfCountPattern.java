@@ -195,7 +195,10 @@ public class DfCountPattern extends DataFrame {
 
         // 새 컬럼 추가
         for (int targetColno : targetColnos) {
-          String targetStr = row.get(targetColno).toString();
+          String targetStr = (String) row.get(targetColno);
+          if (targetStr == null) {
+            continue;
+          }
 
           if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 != 0) {
             targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));

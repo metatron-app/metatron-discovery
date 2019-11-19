@@ -166,6 +166,10 @@ public class DfSplit extends DataFrame {
       for (colno = 0; colno < prevDf.colCnt; colno++) {
         if (targetColNames.contains(prevDf.getColName(colno))) {
           String targetStr = (String) row.get(colno);
+          if (targetStr == null) {
+            newRow.add(prevDf.getColName(colno), null);
+            continue;
+          }
           String[] tokens = new String[splitLimit + 1];
           int index = 0;
 

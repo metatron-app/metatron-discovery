@@ -55,6 +55,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -433,6 +434,7 @@ public class DataFrame implements Serializable, Transformable {
     }
 
     for (String[] strRow : strGrid) {
+      assert strRow != null;  // Currently, CSV & JSON file dataset shouldn't generate null rows.
       Row row = new Row();
       for (int colno = 0; colno < colCnt; colno++) {
         row.add(getColName(colno), colno >= strRow.length ? null : strRow[colno]);
@@ -523,7 +525,7 @@ public class DataFrame implements Serializable, Transformable {
     for (int rowno = 0; rowno < limit; rowno++) {
       Row row = rows.get(rowno);
       for (int colno = 0; colno < row.size(); colno++) {
-        Object objCol = row.get(getColName(colno));
+        Object objCol = row.get(colno);
         int colLen = (objCol == null) ? 4 : objCol.toString().length();   // 4 for "null"
         if (colLen > widths.get(colno)) {
           widths.set(colno, colLen);
