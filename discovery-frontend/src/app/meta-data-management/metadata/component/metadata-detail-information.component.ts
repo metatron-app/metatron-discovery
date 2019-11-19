@@ -137,7 +137,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   public onUpdateSourceDescriptionClicked(): void {
     this.loadingShow();
     // Check text length
-    if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 450) {
+    if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 2000) {
       Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
       $(this._descInput.nativeElement).trigger('focus');
       this.loadingHide();
