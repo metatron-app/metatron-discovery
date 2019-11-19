@@ -14,7 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.ARRAY;
+import com.google.common.collect.Lists;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotUnnestEmptyColumnException;
@@ -24,15 +32,13 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayOrMapException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.ArrayExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.LongExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.StringExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.ARRAY;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.MAP;
 
 public class DfUnnest extends DataFrame {
 
@@ -90,22 +96,35 @@ public class DfUnnest extends DataFrame {
         throw new InvalidJsonException(e.getMessage());
       }
     } else {
-      if (!(idx instanceof StringExpr)) {
-        if (!(prevType == ARRAY && idx instanceof LongExpr)) {
-          throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
-        }
+      if( prevType!=MAP && prevType!=ARRAY ) {
+        throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
       }
 
-      Object idxObj = idx instanceof StringExpr ? ((StringExpr) idx).getEscapedValue() : ((LongExpr) idx).getValue();
-      switch (prevType) {
-        case MAP:
-          elemKeys.add((String) idxObj);
-          break;
-        case ARRAY:
-          elemIdxs.add(Integer.valueOf((String) idxObj));
-          break;
-        default:
-          throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
+      // everything is as string because ArrayExpr is using
+      List<String> listObj = Lists.newArrayList();
+      if( idx instanceof ArrayExpr ) {
+        for (Object obj : ((ArrayExpr) idx).getValue()) {
+          listObj.add( (new StringExpr((String)obj)).getEscapedValue() );
+        }
+      } else if ( prevType == MAP && idx instanceof StringExpr ) {
+        listObj.add( ((StringExpr) idx).getEscapedValue() );
+      } else if ( prevType == ARRAY && idx instanceof LongExpr ) {
+        listObj.add( ((LongExpr) idx).getValue().toString() );
+      } else {
+        throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
+      }
+
+      for(String idxObj : listObj) {
+        switch (prevType) {
+          case MAP:
+            elemKeys.add(idxObj);
+            break;
+          case ARRAY:
+            elemIdxs.add(Integer.valueOf(idxObj));
+            break;
+          default:
+            throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
+        }
       }
     }
 

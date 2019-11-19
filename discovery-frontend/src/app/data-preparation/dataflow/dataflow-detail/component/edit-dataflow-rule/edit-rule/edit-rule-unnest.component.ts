@@ -92,21 +92,19 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
     if (this.selVal==="" && this.firstRow) {
       var theColumn = this.firstRow[this.selectedFields[0].name];
       var jsonVal = JSON.parse(theColumn);
-      if(this.selectedFields[0].type==="MAP") {
-        var keys = Object.keys(jsonVal);
-        if(keys && keys.length!==0) {
-          this.selVal = Object.keys(jsonVal)[0];
-        }
-      } else if(this.selectedFields[0].type==="ARRAY") {
-        if( jsonVal && jsonVal.length!==0 ) {
-          this.selVal = "0";
+      var keys = Object.keys(jsonVal);
+      if( keys && keys.length ) {
+        if(this.selectedFields[0].type==="MAP") {
+          this.selVal = keys.map( (item) => "'"+ item +"'" ).join(',');
+        } else if(this.selectedFields[0].type==="ARRAY") {
+          this.selVal = keys.map( (item,idx) => "'"+ idx +"'" ).join(',');
         }
       }
     }
 
     // surround idx with single quotation
     let clonedSelVal:string;
-    let check = StringUtil.checkSingleQuote(this.selVal, { isWrapQuote: true });
+    let check = StringUtil.checkSingleQuote(this.selVal, { isPairQuote: true });
     if (check[0] === false && check[1] !== "" ) {
       Alert.warning(this.translateService.instant('Check element value'));
       return undefined;
