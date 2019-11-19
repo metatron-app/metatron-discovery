@@ -601,7 +601,7 @@ public class OrcTest extends TeddyTest {
     df = prepare_sample(df);
     df.show();
 
-    String ruleString = "split col: name on: 'e' limit: 2";
+    String ruleString = "split col: name on: 'e' limit: 3";
 
     DataFrame newDf = apply_rule(df, ruleString);
     newDf.show();

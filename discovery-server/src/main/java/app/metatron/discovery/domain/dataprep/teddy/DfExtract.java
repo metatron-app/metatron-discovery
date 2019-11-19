@@ -116,7 +116,7 @@ public class DfExtract extends DataFrame {
     List<String> targetColNames = (List<String>) preparedArgs.get(0);
     Pattern pattern = (Pattern) preparedArgs.get(1);
     String originalQuoteStr = (String) preparedArgs.get(2);
-    int extract_limit = (int) preparedArgs.get(3);
+    int extractLimit = (int) preparedArgs.get(3);
     Map<String, List<String>> extractedColNameList = (Map<String, List<String>>) preparedArgs.get(4);
     int colno;
 
@@ -133,7 +133,7 @@ public class DfExtract extends DataFrame {
             continue;
           }
 
-          List<String> tokens = TeddyUtil.match(coldata, pattern, originalQuoteStr, extract_limit);
+          List<String> tokens = TeddyUtil.match(coldata, pattern, originalQuoteStr, extractLimit);
 
           // The original columns is saved.
           newRow.add(prevDf.getColName(colno), row.get(colno));
@@ -143,7 +143,7 @@ public class DfExtract extends DataFrame {
           for (/* NOP */; i < tokens.size(); i++) {
             newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), tokens.get(i));
           }
-          for (/* NOP */; i < extract_limit; i++) {
+          for (/* NOP */; i < extractLimit; i++) {
             newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), null);
           }
         } else {

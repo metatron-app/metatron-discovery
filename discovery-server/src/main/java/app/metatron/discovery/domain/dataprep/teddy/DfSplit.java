@@ -53,7 +53,7 @@ public class DfSplit extends DataFrame {
     int targetColno;
 
     if (limit == null) {
-      limit = 0;
+      limit = 1;
     }
 
     if (targetColExpr instanceof Identifier.IdentifierExpr) {
@@ -83,7 +83,7 @@ public class DfSplit extends DataFrame {
       if (targetColNames.contains(targetColName)) {
         List<String> splitedColNames = new ArrayList<>();
 
-        for (int i = 1; i <= limit + 1; i++) {
+        for (int i = 1; i <= limit; i++) {
           String newColName = "split_" + targetColName + i;
           newColName = addColumn(colIndex++, newColName, ColumnType.STRING);  // Add in the middle
           splitedColNames.add(newColName);
@@ -134,14 +134,14 @@ public class DfSplit extends DataFrame {
           if (coldata == null) {
             continue;
           }
-          String[] tokens = TeddyUtil.split(coldata, patternStr, quoteStr, splitLimit + 1);
+          String[] tokens = TeddyUtil.split(coldata, patternStr, quoteStr, splitLimit);
 
           // Add new columns. The original columns is deleted.
           int i = 0;
           for (/* NOP */; i < tokens.length; i++) {
             newRow.add(splitedColNameList.get(prevDf.getColName(colno)).get(i), tokens[i]);
           }
-          for (/* NOP */; i <= splitLimit; i++) {
+          for (/* NOP */; i < splitLimit; i++) {
             newRow.add(splitedColNameList.get(prevDf.getColName(colno)).get(i), null);
           }
         } else {

@@ -58,11 +58,11 @@ public class SplitTest extends TeddyTest {
     String[][] strGrid = new String[][]{{"This is a sample line. IgnoreCase case."}};
     DataFrame df = createByGrid(strGrid, new String[]{"text"});
 
-    df = apply_rule(df, "split col: text on: 'i' limit: 4 ignoreCase: false");
+    df = apply_rule(df, "split col: text on: 'i' limit: 5 ignoreCase: false");
     assertRow(df.rows.get(0), new Object[]{"Th", "s ", "s a sample l", "ne. IgnoreCase case.", null});
 
     df = createByGrid(strGrid, new String[]{"text"});
-    df = apply_rule(df, "split col: text on: 'i' limit: 4 ignoreCase: true");
+    df = apply_rule(df, "split col: text on: 'i' limit: 5 ignoreCase: true");
     assertRow(df.rows.get(0), new Object[]{"Th", "s ", "s a sample l", "ne. ", "gnoreCase case."});
   }
 
@@ -102,7 +102,7 @@ public class SplitTest extends TeddyTest {
             {}
     };
     DataFrame df = createByGrid(strGrid, new String[]{"text"});
-    df = apply_rule(df, "split col: text on: /i\\w+/ limit: 3");
+    df = apply_rule(df, "split col: text on: /i\\w+/ limit: 4");
     assertRow(df.rows.get(0), new Object[]{"Th", " ", " a sample l", ". IgnoreCase case."});
     assertRow(df.rows.get(1), new Object[]{"", null, null, null});
     assertRow(df.rows.get(2), new Object[]{null, null, null, null});
