@@ -119,6 +119,7 @@ public class TeddyUtil {
       targetExprs = ((FunctionArrayExpr) expr).getFunctions();
     }
     return targetExprs;
+  }
 
   private static String disableRegexSymbols(String str) {
     String regExSymbols = "[\\<\\(\\[\\{\\\\\\^\\-\\=\\$\\!\\|\\]\\}\\)\\?\\*\\+\\.\\>]";

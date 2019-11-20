@@ -381,7 +381,7 @@ public class DataFrameTest extends TeddyTest {
 //  @Test
   public void test_nest_unnest_array_multi() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
