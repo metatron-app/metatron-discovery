@@ -100,6 +100,11 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
           this.selVal = keys.map( (item,idx) => "'"+ idx +"'" ).join(',');
         }
       }
+    } else if( this.selectedFields[0].type==="ARRAY" ) {
+      var isIntegerIndex = this.selVal.split(',').every( item => typeof parseInt(item)=='number' );
+      if ( isIntegerIndex ) {
+        this.selVal = this.selVal.split(',').map( item => "'"+ item +"'" ).join(',');
+      }
     }
 
     // surround idx with single quotation

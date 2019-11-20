@@ -106,7 +106,7 @@ public class DfUnnest extends DataFrame {
         for (Object obj : ((ArrayExpr) idx).getValue()) {
           listObj.add( (new StringExpr((String)obj)).getEscapedValue() );
         }
-      } else if ( prevType == MAP && idx instanceof StringExpr ) {
+      } else if ( idx instanceof StringExpr ) {
         listObj.add( ((StringExpr) idx).getEscapedValue() );
       } else if ( prevType == ARRAY && idx instanceof LongExpr ) {
         listObj.add( ((LongExpr) idx).getValue().toString() );
