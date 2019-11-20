@@ -790,13 +790,12 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Dashboard} dashboard
    */
   public changeDataSource(dashboard: Dashboard) {
-
     this.dashboard = dashboard;
 
     // 없어진 데이터소스에 대한 필터 제거
     this.dashboard.configuration.filters =
       _.cloneDeep(this.dashboard.configuration.filters).filter(filter => {
-        if (dashboard.dataSources.some(ds => ds.id === filter.dataSource)) {
+        if (dashboard.dataSources.some(ds => ds.engineName === filter.dataSource)) {
           return true;
         } else {
           const filterWidget: FilterWidget = DashboardUtil.getFilterWidgetByFilter(dashboard, filter);
@@ -825,10 +824,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         }
       }
     });
-
-    // 변경된 레이아웃 반영
-    this.dashboard.configuration.content = this.getLayoutContent();
-    this.dashboard.configuration.layout.content = this.getLayoutContent();
 
     this.dashboard.configuration.fields = [];
 

@@ -1517,6 +1517,7 @@
   "msg.board.custom.th.add.column": "컬럼 추가",
   "msg.board.custom.th.add.formula": "공식 추가",
   "msg.board.custom.ui.placeholder": "항목 찾기",
+  "msg.board.custom.ui.edit.association.join": "관계 설정 및 조인",
   "msg.board.custom.ui.create": "'{{name}}' 컬럼이 생성되었습니다",
   "msg.board.custom.ui.update": "'{{name}}' 컬럼이 수정되었습니다",
   "msg.board.custom.ui.content.placeholder": "컬럼 이름 또는 수식을 입력해 주세요",

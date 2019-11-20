@@ -16,7 +16,7 @@ import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
 import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {BoardDataSource, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
+import {BoardDataSource, JoinMapping, JoinMappingDataSource, QueryParam} from '../../../domain/dashboard/dashboard';
 import {GridComponent} from '../../../common/component/grid/grid.component';
 import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
 import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
@@ -71,7 +71,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   public logicalTypeMap: any = {};
 
   @Output('complete')
-  public completeEvent: EventEmitter<JoinMapping[]> = new EventEmitter();
+  public completeEvent: EventEmitter<JoinMappingDataSource> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -269,7 +269,9 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
     }
 
     if (this.editingJoin.tempJoinMappings) {
-      this.completeEvent.emit(this.editingJoin.tempJoinMappings);
+      this.completeEvent.emit(
+        new JoinMappingDataSource(this.editingJoin.tempJoinMappings, this._candidateDataSources)
+      );
     }
 
     this.closeJoinPopup();
