@@ -299,8 +299,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
     }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      return { error: error };
     });
 
   } // function - init
