@@ -20,7 +20,6 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Nest;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +70,42 @@ public class DfNest extends DataFrame {
     return preparedArgs;
   }
 
+  private String jsonize(Object obj) throws CannotSerializeIntoJsonException {
+    String jsonStr;
+    try {
+      jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      LOGGER.error("DfNest.gather():", e);
+      throw new CannotSerializeIntoJsonException(e.getMessage());
+    }
+    return jsonStr;
+  }
+
+  private String getJsonStrFromArray(Row row, List<String> targetColNames) throws CannotSerializeIntoJsonException {
+    List<Object> arr = new ArrayList();
+    for (String colName : targetColNames) {
+      arr.add(row.get(colName));
+    }
+    return jsonize(arr);
+  }
+
+  private String getJsonStrFromMap(Row row, List<String> targetColNames) throws CannotSerializeIntoJsonException {
+    Map<String, Object> map = new TreeMap();
+    for (String colName : targetColNames) {
+      map.put(colName, row.get(colName));
+    }
+    return jsonize(map);
+  }
+
+  private String getJsonStr(Row row, List<String> targetColNames, ColumnType colType)
+          throws CannotSerializeIntoJsonException {
+    if (colType == ColumnType.ARRAY) {
+      return getJsonStrFromArray(row, targetColNames);
+    } else {
+      return getJsonStrFromMap(row, targetColNames);
+    }
+  }
+
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
           throws InterruptedException, TeddyException {
@@ -84,43 +119,24 @@ public class DfNest extends DataFrame {
     LOGGER.trace("DfNest.gather(): start: offset={} length={} newColName={} newColType={}", offset, length, newColName,
             newColType);
 
-    try {
-      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-        Row row = prevDf.rows.get(rowno);
-        Row newRow = new Row();
+    for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
+      Row row = prevDf.rows.get(rowno);
+      Row newRow = new Row();
 
-        // Add until the last target column
-        for (colno = 0; colno < newColPos; colno++) {
-          newRow.add(prevDf.getColName(colno), row.get(colno));
-        }
-
-        // Add the new generated column
-        if (newColType == ColumnType.ARRAY) {
-          List<Object> arr = new ArrayList();
-          for (String colName : targetColNames) {
-            arr.add(row.get(colName));
-          }
-          String jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(arr);
-          newRow.add(newColName, jsonStr);
-        } else {
-          Map<String, Object> map = new TreeMap();
-          for (String colName : targetColNames) {
-            map.put(colName, row.get(colName));
-          }
-          String jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
-          newRow.add(newColName, jsonStr);
-        }
-
-        // Add the rest columns
-        for (colno = newColPos; colno < prevDf.getColCnt(); colno++) {
-          newRow.add(prevDf.getColName(colno), row.get(colno));
-        }
-
-        rows.add(newRow);
+      // Add until the last target column
+      for (colno = 0; colno < newColPos; colno++) {
+        newRow.add(prevDf.getColName(colno), row.get(colno));
       }
-    } catch (JsonProcessingException e) {
-      LOGGER.error("DfNest.gather():", e);
-      throw new CannotSerializeIntoJsonException(e.getMessage());
+
+      // Add the new generated column
+      newRow.add(newColName, getJsonStr(row, targetColNames, newColType));
+
+      // Add the rest columns
+      for (colno = newColPos; colno < prevDf.getColCnt(); colno++) {
+        newRow.add(prevDf.getColName(colno), row.get(colno));
+      }
+
+      rows.add(newRow);
     }
 
     LOGGER.debug("DfNest.gather(): end: offset={} length={} newColName={} newColType={}", offset, length, newColName,
