@@ -379,4 +379,58 @@ public class ReplaceExtractTest extends TeddyTest {
     assertEquals(3L, newDf.rows.get(0).get("countpattern_desc"));
     assertEquals(3L, newDf.rows.get(0).get("countpattern_desc"));
   }
+
+  // Old test cases
+
+  @Test
+  public void test_countpattern_2_columns() throws IOException, TeddyException {
+    DataFrame contract = new DataFrame();
+    contract.setByGrid(grids.get("contract"));
+    contract = prepare_contract(contract);
+    contract.show();
+
+    String ruleString = "countpattern col: cdate, customer_id on: '08'";
+
+    DataFrame newDf = apply_rule(contract, ruleString);
+    newDf.show();
+  }
+
+  @Test
+  public void test_countpattern_3_columns_with_casting() throws IOException, TeddyException {
+    DataFrame contract = new DataFrame();
+    contract.setByGrid(grids.get("contract"));
+    contract = prepare_contract(contract);
+    contract.show();
+
+    contract = apply_rule(contract, "settype col: detail_store_code type: string");
+
+    String ruleString = "countpattern col: cdate, customer_id, detail_store_code on: '08'";
+    DataFrame newDf = apply_rule(contract, ruleString);
+
+    ruleString = "sort order: countpattern_cdate_customer_id_detail_store_code type: 'desc'";
+
+    newDf = apply_rule(newDf, ruleString);
+
+    newDf.show(200);
+  }
+
+  @Test
+  public void test_countpattern_ignorecase() throws IOException, TeddyException {
+    DataFrame df = new DataFrame();
+    df.setByGrid(grids.get("sample"));
+    df = prepare_sample(df);
+    df.show();
+
+    String ruleString = "countpattern col: name on: 'm'";
+
+    DataFrame newDf = apply_rule(df, ruleString);
+    newDf.show();
+
+    ruleString = "countpattern col: name on: 'm' ignoreCase: true";
+
+    newDf = apply_rule(newDf, ruleString);
+    newDf.show();
+  }
+
+
 }

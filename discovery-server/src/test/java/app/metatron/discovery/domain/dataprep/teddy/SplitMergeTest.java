@@ -14,15 +14,19 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import static org.junit.Assert.assertEquals;
+
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SplitTest extends TeddyTest {
+public class SplitMergeTest extends TeddyTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
+    loadGridCsv("contract", "teddy/contract.csv");
+    loadGridCsv("sample", "teddy/sample.csv");
     loadGridCsv("sample_split", "teddy/sample_split.csv");
   }
 
@@ -139,4 +143,60 @@ public class SplitTest extends TeddyTest {
     assertRow(df.rows.get(1), new Object[]{"SM ", " ", " Receipt Printer", null, null});
     assertRow(df.rows.get(2), new Object[]{"SM \"TSP100 TSP143LAN Receipt\" Printer", null, null, null, null});
   }
+
+  @Test
+  public void test_merge() throws IOException, TeddyException {
+    DataFrame contract = new DataFrame();
+    contract.setByGrid(grids.get("contract"));
+    contract = prepare_contract(contract);
+    contract.show();
+
+    String ruleString = "merge col: pcode1, pcode2, pcode3, pcode4 with: '_' as: 'pcode'";
+
+    DataFrame newDf = apply_rule(contract, ruleString);
+    newDf.show();
+  }
+
+  @Test
+  public void test_merge_split() throws IOException, TeddyException {
+    DataFrame contract = new DataFrame();
+    contract.setByGrid(grids.get("contract"));
+    contract = prepare_contract(contract);
+    contract.show();
+
+    String ruleString = "merge col: pcode1, pcode2, pcode3, pcode4 with: '_' as: 'pcode'";
+
+    DataFrame newDf = apply_rule(contract, ruleString);
+    newDf.show();
+
+    ruleString = "split col: pcode on: '_' limit: 4";
+
+    newDf = apply_rule(newDf, ruleString);
+    newDf.show();
+  }
+
+  @Test
+  public void test_split_ignorecase() throws IOException, TeddyException {
+    DataFrame df = new DataFrame();
+    df.setByGrid(grids.get("sample"));
+    df = prepare_sample(df);
+    df.show();
+
+    String ruleString = "split col: name on: 'e' limit: 3";
+
+    DataFrame newDf = apply_rule(df, ruleString);
+    newDf.show();
+
+    assertEquals("rrari", newDf.rows.get(0).get("split_name2"));
+    assertEquals("rc", newDf.rows.get(2).get("split_name2"));
+
+    ruleString = "split col: name on: 'm' limit: 2 ignoreCase: true";
+
+    DataFrame newDf2 = apply_rule(df, ruleString);
+    newDf2.show();
+
+    assertEquals("ercedes", newDf2.rows.get(2).get("split_name2"));
+    assertEquals("borghini", newDf2.rows.get(4).get("split_name2"));
+  }
+
 }

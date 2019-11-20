@@ -361,55 +361,6 @@ public class DataFrameTest extends TeddyTest {
   }
 
   @Test
-  public void test_nest_unnest_array() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "nest col: pcode1, pcode2, pcode3, pcode4 into: array as: pcode";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-
-    ruleString = "unnest col: pcode idx: '0'";
-
-    newDf = apply_rule(newDf, ruleString);
-    newDf.show();
-  }
-
-//  @Test
-  public void test_nest_unnest_array_multi() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "nest col: pcode1, pcode2, pcode3, pcode4 into: array as: pcode";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-
-    ruleString = "unnest col: pcode idx: '0', '1', '2'";
-
-    newDf = apply_rule(newDf, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_nest_map() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "nest col: pcode1, pcode2, pcode3, pcode4 into: map as: pcode";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
   public void test_nest_unnest_map() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
     contract.setByGrid(grids.get("contract"));
@@ -425,79 +376,6 @@ public class DataFrameTest extends TeddyTest {
 
     newDf = apply_rule(newDf, ruleString);
     newDf.show();
-  }
-
-  @Test
-  public void test_flatten() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "nest col: pcode1, pcode2, pcode3, pcode4 into: array as: pcode";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-
-    ruleString = "flatten col: pcode";
-
-    newDf = apply_rule(newDf, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_merge() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "merge col: pcode1, pcode2, pcode3, pcode4 with: '_' as: 'pcode'";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_merge_split() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "merge col: pcode1, pcode2, pcode3, pcode4 with: '_' as: 'pcode'";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-
-    ruleString = "split col: pcode on: '_' limit: 4";
-
-    newDf = apply_rule(newDf, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_split_ignorecase() throws IOException, TeddyException {
-    DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"));
-    df = prepare_sample(df);
-    df.show();
-
-    String ruleString = "split col: name on: 'e' limit: 3";
-
-    DataFrame newDf = apply_rule(df, ruleString);
-    newDf.show();
-
-    assertEquals("rrari", newDf.rows.get(0).get("split_name2"));
-    assertEquals("rc", newDf.rows.get(2).get("split_name2"));
-
-    ruleString = "split col: name on: 'm' limit: 2 ignoreCase: true";
-
-    DataFrame newDf2 = apply_rule(df, ruleString);
-    newDf2.show();
-
-    assertEquals("ercedes", newDf2.rows.get(2).get("split_name2"));
-    assertEquals("borghini", newDf2.rows.get(4).get("split_name2"));
   }
 
   @Test
