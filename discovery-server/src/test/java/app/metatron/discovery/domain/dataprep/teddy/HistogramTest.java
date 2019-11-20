@@ -34,7 +34,7 @@ public class HistogramTest extends TeddyTest {
   @Test
   public void test_hist_string_raw() throws TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(DataFrameTest.grids.get("contract"), null);
+    contract.setByGrid(DataFrameTest.grids.get("contract"));
     contract.show();
 
     contract = DataFrameTest.prepare_contract(contract);
@@ -68,7 +68,7 @@ public class HistogramTest extends TeddyTest {
   @Test
   public void test_hist_string() throws TeddyException {
     DataFrame sale = new DataFrame();
-    sale.setByGrid(DataFrameTest.grids.get("sale"), null);
+    sale.setByGrid(DataFrameTest.grids.get("sale"));
     sale.show();
 
     sale = DataFrameTest.prepare_sale(sale);
@@ -82,7 +82,7 @@ public class HistogramTest extends TeddyTest {
   @Test
   public void test_hist_long() throws TeddyException {
     DataFrame sale = new DataFrame();
-    sale.setByGrid(DataFrameTest.grids.get("sale"), null);
+    sale.setByGrid(DataFrameTest.grids.get("sale"));
     sale.show();
 
     sale = DataFrameTest.prepare_sale(sale);
@@ -96,7 +96,7 @@ public class HistogramTest extends TeddyTest {
   @Test
   public void test_hist_long_coarse() throws TeddyException {
     DataFrame sale = new DataFrame();
-    sale.setByGrid(DataFrameTest.grids.get("sale"), null);
+    sale.setByGrid(DataFrameTest.grids.get("sale"));
     sale.show();
 
     sale = DataFrameTest.prepare_sale(sale);

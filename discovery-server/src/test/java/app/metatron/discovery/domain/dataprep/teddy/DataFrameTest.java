@@ -44,22 +44,22 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_show() {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df.show();
 
     df = new DataFrame();
-    df.setByGrid(grids.get("contract"), null);
+    df.setByGrid(grids.get("contract"));
     df.show();
 
     df = new DataFrame();
-    df.setByGrid(grids.get("store"), null);
+    df.setByGrid(grids.get("store"));
     df.show();
   }
 
   @Test
   public void test_drop() throws TeddyException, IOException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -72,7 +72,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_rename_settype() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
   }
@@ -80,7 +80,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_rename() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -98,7 +98,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_rename2() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -115,7 +115,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_plus() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -128,7 +128,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_plus_multi() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -141,7 +141,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_plus_multi_but_on_single_col() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -154,7 +154,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_minus() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -167,7 +167,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_mul() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df.show();
     df = prepare_sample(df);
 
@@ -180,7 +180,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_if() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df.show();
     df = prepare_sample(df);
 
@@ -193,7 +193,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_derive_mul() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -206,7 +206,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_div() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -219,7 +219,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_div_double() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -232,7 +232,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_set_type_mismatch() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
@@ -250,7 +250,7 @@ public class DataFrameTest extends TeddyTest {
     List<String> ruleStrings = new ArrayList<>();
 
     DataFrame store = new DataFrame();
-    store.setByGrid(grids.get("store"), null);
+    store.setByGrid(grids.get("store"));
     store.show();
 
     ruleStrings.clear();
@@ -262,14 +262,14 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_join_by_string() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract.show();
 
     contract = prepare_contract(contract);
     contract.show();
 
     DataFrame store = new DataFrame();
-    store.setByGrid(grids.get("store"), null);
+    store.setByGrid(grids.get("store"));
     store.show();
 
     store = prepare_store(store);
@@ -285,14 +285,14 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_join_multi_key() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract.show();
 
     contract = prepare_contract(contract);
     contract.show();
 
     DataFrame product = new DataFrame();
-    product.setByGrid(grids.get("product"), null);
+    product.setByGrid(grids.get("product"));
     product.show();
 
     product = prepare_product(product);
@@ -308,14 +308,14 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_join_by_long() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract.show();
 
     contract = prepare_contract(contract);
     contract.show();
 
     DataFrame store = new DataFrame();
-    store.setByGrid(grids.get("store"), null);
+    store.setByGrid(grids.get("store"));
     store.show();
 
     store = prepare_store(store);
@@ -335,10 +335,10 @@ public class DataFrameTest extends TeddyTest {
     DataFrame store3 = new DataFrame();
     DataFrame store4 = new DataFrame();
 
-    store1.setByGrid(grids.get("store1"), null);
-    store2.setByGrid(grids.get("store2"), null);
-    store3.setByGrid(grids.get("store3"), null);
-    store4.setByGrid(grids.get("store4"), null);
+    store1.setByGrid(grids.get("store1"));
+    store2.setByGrid(grids.get("store2"));
+    store3.setByGrid(grids.get("store3"));
+    store4.setByGrid(grids.get("store4"));
 
     store1.show();
 
@@ -361,153 +361,9 @@ public class DataFrameTest extends TeddyTest {
   }
 
   @Test
-  public void test_extract() throws IOException, TeddyException {
-    DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
-    df = prepare_sample(df);
-    df.show();
-
-    String ruleString = "extract col: name on: 'e' quote: '\"' limit: 3";
-
-    DataFrame newDf = apply_rule(df, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_extract_regex() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "extract col: cdate on: /\\w+/ quote: '\"' limit: 3";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_countpattern() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "countpattern col: cdate on: '2'";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_countpattern_2_columns() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "countpattern col: cdate, customer_id on: '08'";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_countpattern_3_columns_with_casting() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "countpattern col: cdate, customer_id, detail_store_code on: '08'";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-
-    ruleString = "sort order: countpattern_cdate_customer_id_detail_store_code type: 'desc'";
-
-    newDf = apply_rule(newDf, ruleString);
-
-    newDf.show();
-  }
-
-  @Test
-  public void test_countpattern_regex() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "countpattern col: cdate on: /0\\d+/";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_countpattern_ignorecase() throws IOException, TeddyException {
-    DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
-    df = prepare_sample(df);
-    df.show();
-
-    String ruleString = "countpattern col: name on: 'm'";
-
-    DataFrame newDf = apply_rule(df, ruleString);
-    newDf.show();
-
-    ruleString = "countpattern col: name on: 'm' ignoreCase: true";
-
-    newDf = apply_rule(newDf, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_replace() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
-    contract = prepare_contract(contract);
-    contract.show();
-
-    String ruleString = "replace col: cdate on: '0' with: 'X' global: false";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-
-    ruleString = "replace col: cdate on: '0' with: 'X' global: true";
-
-    newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_replace_multi() throws IOException, TeddyException {
-    DataFrame crime = new DataFrame();
-    crime.setByGrid(grids.get("crime"), null);
-    crime.show();
-
-    String ruleString = "replace col: column3, column5, column7, column8, column9, column10, column11, column12, column13 on: '_' with: '' global: true";
-
-    DataFrame newDf = apply_rule(crime, ruleString);
-    newDf.show();
-  }
-
-  @Test
-  public void test_replace_regex() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
-    contract = prepare_contract(contract);
-    contract.show(100);
-
-    String ruleString = "extract col: cdate on: /\\w+/ quote: '\"' limit: 3";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
-  }
-
-  @Test
   public void test_nest_unnest_array() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -543,7 +399,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_nest_map() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -556,7 +412,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_nest_unnest_map() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -574,7 +430,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_flatten() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -592,7 +448,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_merge() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -605,7 +461,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_merge_split() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -623,11 +479,11 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_split_ignorecase() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_sample(df);
     df.show();
 
-    String ruleString = "split col: name on: 'e' limit: 2";
+    String ruleString = "split col: name on: 'e' limit: 3";
 
     DataFrame newDf = apply_rule(df, ruleString);
     newDf.show();
@@ -647,7 +503,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_aggregate_sum() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -660,7 +516,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_aggregate_count() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -673,7 +529,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_aggregate_avg() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -686,7 +542,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_aggregate_min_max() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -699,7 +555,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_sort() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -712,7 +568,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_sort_multi() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -725,7 +581,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_sort_int() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -742,7 +598,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_pivot_sum() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -755,7 +611,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_pivot_avg() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -768,7 +624,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_unpivot_sum() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -786,7 +642,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_unpivot_sum_every() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -804,7 +660,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_keep() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -818,7 +674,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_keep_literal() throws IOException, TeddyException {
     DataFrame store = new DataFrame();
-    store.setByGrid(grids.get("store1"), null);
+    store.setByGrid(grids.get("store1"));
     store = prepare_store(store);
     store.show();
 
@@ -832,7 +688,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_delete() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -846,7 +702,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_delete2() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -863,7 +719,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_move_before() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -880,7 +736,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_move_after() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -892,7 +748,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_move_after_last() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -905,7 +761,7 @@ public class DataFrameTest extends TeddyTest {
 
   public void test_move_before_multi() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -921,7 +777,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_move_after_multi() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -933,7 +789,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_move_after_last_multi() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -945,7 +801,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_move_not_continuous_columns() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -962,7 +818,7 @@ public class DataFrameTest extends TeddyTest {
   @Test
   public void test_move_not_continuous_order() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"), null);
+    contract.setByGrid(grids.get("contract"));
     contract = prepare_contract(contract);
     contract.show();
 
@@ -979,7 +835,7 @@ public class DataFrameTest extends TeddyTest {
 
   private DataFrame newNullContainedDataFrame() throws IOException, TeddyException {
     DataFrame null_contained = new DataFrame();
-    null_contained.setByGrid(grids.get("null_contained"), null);
+    null_contained.setByGrid(grids.get("null_contained"));
     null_contained = DataFrameTest.prepare_null_contained(null_contained);
     null_contained.show();
     return null_contained;

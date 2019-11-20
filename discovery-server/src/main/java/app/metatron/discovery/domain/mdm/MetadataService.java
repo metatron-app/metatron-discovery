@@ -76,6 +76,7 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.favorite.Favorite;
@@ -299,6 +300,13 @@ public class MetadataService implements ApplicationEventPublisherAware {
       //2-2. SourceType=ENGINE, ConnectionType=LINK
       } else if (metadataSourceDetail.getConnType() == DataSource.ConnectionType.LINK) { //jdbc
         DataConnection jdbcDataConnection = metadataSourceDetail.getConnection();
+
+        //if jdbcDataConnection is not exist, check ingestion conf
+        if(jdbcDataConnection == null){
+          LinkIngestionInfo ingestionInfo = (LinkIngestionInfo) metadataSourceDetail.getIngestionInfo();
+          jdbcDataConnection = ingestionInfo.getConnection();
+        }
+
         String query = makeQueryStatementForPreview(metadata);
         MetadataJdbcDataPreview metadataJdbcDataPreview = new MetadataJdbcDataPreview(metadata);
         metadataJdbcDataPreview.setConnectInformation(jdbcDataConnection);

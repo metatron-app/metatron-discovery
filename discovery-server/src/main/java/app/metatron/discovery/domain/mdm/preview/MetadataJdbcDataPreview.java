@@ -100,6 +100,9 @@ public class MetadataJdbcDataPreview extends MetadataDataPreview {
 
   @Override
   protected void getDataGrid(Metadata metadata){
+    if(connectInformation == null){
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.DATASOURCE_CONNECTION_ERROR, "Connection Information is not exist.");
+    }
     JdbcAccessor dataAccessor = DataConnectionHelper.getAccessor(connectInformation);
     JdbcDialect jdbcDialect = dataAccessor.getDialect();
 
