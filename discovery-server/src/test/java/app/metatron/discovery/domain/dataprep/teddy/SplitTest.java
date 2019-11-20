@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import static org.junit.Assert.assertEquals;
-
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import java.io.IOException;
 import org.junit.BeforeClass;
@@ -25,327 +23,120 @@ public class SplitTest extends TeddyTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    loadGridCsv("sample", "teddy/sample_split.csv");
+    loadGridCsv("sample_split", "teddy/sample_split.csv");
   }
 
-  private DataFrame newNullContainedDataFrame() throws IOException, TeddyException {
-    DataFrame sample = new DataFrame();
-    sample.setByGrid(grids.get("sample"), null);
-    sample = prepare_null_contained(sample);
-    sample.show();
-    return sample;
+  private DataFrame prepare_sample_split() throws IOException, TeddyException {
+    DataFrame sample_split = new DataFrame();
+    sample_split.setByGrid(grids.get("sample_split"));
+    sample_split = prepare_null_contained(sample_split);
+    sample_split.show();
+    return sample_split;
+  }
+
+
+  @Test
+  public void testSplit() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{{"2017-01-12"}};
+    DataFrame df = createByGrid(strGrid, new String[]{"dt"});
+
+    df = apply_rule(df, "split col: dt on: '-' limit: 3 ignoreCase: false");
+    assertRow(df.rows.get(0), new Object[]{"2017", "01", "12", null});
   }
 
   @Test
-  public void testSplit1() throws IOException, TeddyException {
-    String ruleString = "split col: contract_date on: '-' limit: 10 quote: '\"' ignoreCase: true";
+  public void testSplitQuote() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{{"2017\"-01\"-12"}};
+    DataFrame df = createByGrid(strGrid, new String[]{"dt"});
 
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("\"2017-01\"", newDf.rows.get(0).get("split_contract_date1"));   // 1
-
+    df = apply_rule(df, "split col: dt on: '-' limit: 3 quote: '\"' ignoreCase: false");
+    assertRow(df.rows.get(0), new Object[]{"2017\"-01\"", "12", null, null});
   }
 
   @Test
-  public void testSplit2() throws IOException, TeddyException {
-    String ruleString = "split col: contract_date on: '-' limit: 2 quote: '\"' ignoreCase: false";
+  public void testSplitIgnoreCase() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{{"This is a sample line. IgnoreCase case."}};
+    DataFrame df = createByGrid(strGrid, new String[]{"text"});
 
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
+    df = apply_rule(df, "split col: text on: 'i' limit: 5 ignoreCase: false");
+    assertRow(df.rows.get(0), new Object[]{"Th", "s ", "s a sample l", "ne. IgnoreCase case.", null});
 
-    assertEquals("\"2017-01\"", newDf.rows.get(0).get("split_contract_date1"));   // 1
-
+    df = createByGrid(strGrid, new String[]{"text"});
+    df = apply_rule(df, "split col: text on: 'i' limit: 5 ignoreCase: true");
+    assertRow(df.rows.get(0), new Object[]{"Th", "s ", "s a sample l", "ne. ", "gnoreCase case."});
   }
 
   @Test
-  public void testSplit3() throws IOException, TeddyException {
-    String ruleString = "split col: birth_date on: '-' limit: 1 ignoreCase: false";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("2010", newDf.rows.get(0).get("split_birth_date1"));   // 1
-
+  public void testSplitEmptyOrNull() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{
+            {"This is a sample line. IgnoreCase case."},
+            {""},
+            {}
+    };
+    DataFrame df = createByGrid(strGrid, new String[]{"text"});
+    df = apply_rule(df, "split col: text on: 'i' limit: 4 ignoreCase: false");
+    assertRow(df.rows.get(0), new Object[]{"Th", "s ", "s a sample l", "ne. IgnoreCase case.", null});
+    assertRow(df.rows.get(1), new Object[]{"", null, null, null, null});
+    assertRow(df.rows.get(2), new Object[]{null, null, null, null, null});
   }
 
   @Test
-  public void testSplit4() throws IOException, TeddyException {
-    String ruleString = "split col: birth_date on: '-' limit: 1 ignoreCase: false";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("2010", newDf.rows.get(0).get("split_birth_date1"));   // 1
-
+  public void testSplitMultiChar() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{
+            {"This is a sample line. IgnoreCase case."},
+            {""},
+            {}
+    };
+    DataFrame df = createByGrid(strGrid, new String[]{"text"});
+    df = apply_rule(df, "split col: text on: 'is' limit: 4 ignoreCase: false");
+    assertRow(df.rows.get(0), new Object[]{"Th", " ", " a sample line. IgnoreCase case.", null, null});
+    assertRow(df.rows.get(1), new Object[]{"", null, null, null, null});
+    assertRow(df.rows.get(2), new Object[]{null, null, null, null, null});
   }
 
   @Test
-  public void testSplit5() throws IOException, TeddyException {
-    String ruleString = "split col: contract_date on: '-' limit: 2 ignoreCase: false";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("\"2017", newDf.rows.get(0).get("split_contract_date1"));   // 1
-
+  public void testSplitRegEx() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{
+            {"This is a sample line. IgnoreCase case."},
+            {""},
+            {}
+    };
+    DataFrame df = createByGrid(strGrid, new String[]{"text"});
+    df = apply_rule(df, "split col: text on: /i\\w+/ limit: 4");
+    assertRow(df.rows.get(0), new Object[]{"Th", " ", " a sample l", ". IgnoreCase case."});
+    assertRow(df.rows.get(1), new Object[]{"", null, null, null});
+    assertRow(df.rows.get(2), new Object[]{null, null, null, null});
   }
 
   @Test
-  public void testSplit6() throws IOException, TeddyException {
-    String ruleString = "split col: contract_date on: /-/ limit: 2 ignoreCase: false";
+  public void testSplitRegExQuote() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{
+            {"Nortel Networks T7316 \"E Nt8 B27\""},
+            {"SM TSP800 TSP847IIU Receipt Printer"},
+            {"SM \"TSP100 TSP143LAN Receipt\" Printer"}
+    };
+    DataFrame df = createByGrid(strGrid, new String[]{"desc"});
 
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
+    // When the pattern is "/[\s\W\\"]+[^\s\d\W]+\d+/" (Words start with alphabets, end numeric chars after):
+    // Nortel Networks T7316 "E Nt8 B27" -> [Nortel Networks ], [ "E ], [ ], ["], null
+    // "SM TSP800 TSP847IIU Receipt Printer" -> [SM ], [ ], [ Receipt Printer], null, null
+    // "SM \"TSP100 TSP143LAN Receipt\" Printer" -> [SM "], [ ], [ Receipt" Printer], null, null
 
-    assertEquals("\"2017", newDf.rows.get(0).get("split_contract_date1"));   // 1
+    df = apply_rule(df, "split col: desc on: /[^\\s\\W]\\w+\\d+\\w*/ limit: 4");
+    assertRow(df.rows.get(0), new Object[]{"Nortel Networks ", " \"E ", " ", "\"", null});
+    assertRow(df.rows.get(1), new Object[]{"SM ", " ", " Receipt Printer", null, null});
+    assertRow(df.rows.get(2), new Object[]{"SM \"", " ", " Receipt\" Printer", null, null});
 
+    // When a quote is used:
+    // Nortel Networks T7316 "E Nt8 B27" -> [Nortel Networks ], [ "E Nt8 B27"], null, null, null
+    // "SM TSP800 TSP847IIU Receipt Printer" -> [SM ], [ ], [ Receipt Printer], null, null
+    // "SM \"TSP100 TSP143LAN Receipt\" Printer" -> [SM "TSP100 TSP143LAN Receipt Printer"], null, null, null, null
+
+    df = createByGrid(strGrid, new String[]{"desc"});
+    df = apply_rule(df, "split col: desc on: /[^\\s\\W]\\w+\\d+\\w*/ limit: 4 quote: '\"'");
+
+    assertRow(df.rows.get(0), new Object[]{"Nortel Networks ", " \"E Nt8 B27\"", null, null, null});
+    assertRow(df.rows.get(1), new Object[]{"SM ", " ", " Receipt Printer", null, null});
+    assertRow(df.rows.get(2), new Object[]{"SM \"TSP100 TSP143LAN Receipt\" Printer", null, null, null, null});
   }
-
-  @Test
-  public void testSplit7() throws IOException, TeddyException {
-    String ruleString = "split col: name on: 'e' limit: 3 ignoreCase: false";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("F", newDf.rows.get(0).get("split_name1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit8() throws IOException, TeddyException {
-    String ruleString = "split col: name on: 'E' limit: 2 ignoreCase: true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("F", newDf.rows.get(0).get("split_name1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit9() throws IOException, TeddyException {
-    String ruleString = "split col: name on: 'ER' limit: 2 ignoreCase: false";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("Ferrari", newDf.rows.get(0).get("split_name1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit10() throws IOException, TeddyException {
-    String ruleString = "split col: name on: 'ER' limit: 2 ignoreCase: true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("F", newDf.rows.get(0).get("split_name1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit11() throws IOException, TeddyException {
-    String ruleString = "split col: name on: 'ER'";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("Ferrari", newDf.rows.get(0).get("split_name1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit12() throws IOException, TeddyException {
-    String ruleString = "split col: name on: 'er' limit: 0";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("Ferrari", newDf.rows.get(0).get("split_name1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit13() throws IOException, TeddyException {
-    String ruleString = "split col: contract_date on: '-' limit: 2 ignoreCase: true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("\"2017", newDf.rows.get(0).get("split_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit14() throws IOException, TeddyException {
-    String ruleString = "split col: contract_date on: '-' limit: 2 quote: '@|' ignoreCase: true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("\"2017", newDf.rows.get(0).get("split_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit15() throws IOException, TeddyException {
-    String ruleString = "split col: contract_date on: '-' limit: 7 quote: '\"' ignoreCase: true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("\"2017-01\"", newDf.rows.get(0).get("split_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void testSplit16() throws IOException, TeddyException {
-    String ruleString = "split col: name on: '0' quote: '-' limit: 5 ignoreCase: true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("22-12300", newDf.rows.get(11).get("split_name2"));   // 1
-
-  }
-
-  @Test
-  public void testSplit17() throws IOException, TeddyException {
-    String ruleString = "split col: name on: 'e' quote: '-' limit: 5 global:true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    //assertEquals("-", newDf.rows.get(0).get("extract_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void extractTest1() throws IOException, TeddyException {
-    String ruleString = "extract col: contract_date on: '-' quote: '\"' limit: 10";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("-", newDf.rows.get(0).get("extract_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void extractTest2() throws IOException, TeddyException {
-    String ruleString = "extract col: name on: /[a-zA-z]+/ quote: '\"' limit: 10";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("Ferrari", newDf.rows.get(0).get("extract_name1"));   // 1
-
-  }
-
-  @Test
-  public void extractTest3() throws IOException, TeddyException {
-    String ruleString = "extract col: name on: /[0-9]+/ quote: '-' limit: 10";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals("123022", newDf.rows.get(11).get("extract_name1"));   // 1
-
-  }
-
-  @Test
-  public void replace1() throws IOException, TeddyException {
-    String ruleString = "replace col: name on: '1' with: 'X' quote:'-' global:true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    //assertEquals("-", newDf.rows.get(0).get("extract_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void replace2() throws IOException, TeddyException {
-    String ruleString = "replace col: name on: 'e' with: 'E' quote:'\"' global:true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    //assertEquals("-", newDf.rows.get(0).get("extract_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void countPattern1() throws IOException, TeddyException {
-    String ruleString = "countpattern col: name on: '0' quote:'-' global:true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    //assertEquals("-", newDf.rows.get(0).get("extract_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void countPattern2() throws IOException, TeddyException {
-    String ruleString = "countpattern col: name on: /[0-9]/ quote:'-' global:true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    //assertEquals("-", newDf.rows.get(0).get("extract_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void countPattern3() throws IOException, TeddyException {
-    String ruleString = "countpattern col: name on: /[a-zA-Z]+/ quote:'-' global:true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    //assertEquals("-", newDf.rows.get(0).get("extract_contract_date1"));   // 1
-
-  }
-
-  @Test
-  public void countPattern4() throws IOException, TeddyException {
-    String ruleString = "countpattern col: name on: /[a-zA-Z]+/ quote:'\"' global:true";
-
-    DataFrame null_contained = newNullContainedDataFrame();
-    DataFrame newDf = apply_rule(null_contained, ruleString);
-    newDf.show();
-
-    assertEquals(3L, newDf.rows.get(9).get("countpattern_name"));   // 1
-
-  }
-
 }

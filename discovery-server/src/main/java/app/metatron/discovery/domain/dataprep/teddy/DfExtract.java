@@ -14,24 +14,19 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.NoLimitException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 import app.metatron.discovery.prep.parser.preparation.rule.Extract;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +49,9 @@ public class DfExtract extends DataFrame {
     int targetColno;
     Expression expr = extract.getOn();
     Expression quote = extract.getQuote();
-    Boolean isCaseIgnore = extract.getIgnoreCase();
+    Boolean ignoreCase = extract.getIgnoreCase();
     String patternStr;
-    String quoteStr = null;
+    String quoteStr;
     String regExQuoteStr = null;
     Pattern pattern;
 
@@ -100,55 +95,13 @@ public class DfExtract extends DataFrame {
 
     assert !(expr.toString().equals("''") || expr.toString().equals("//")) : "You can not extract empty string!";
 
-    //quote가 없을 때의 처리
-    if (quote == null) {
-      if (expr instanceof Constant.StringExpr) {
-        patternStr = ((Constant.StringExpr) expr).getEscapedValue();
-
-        if (isCaseIgnore != null && isCaseIgnore) {
-          pattern = Pattern.compile(patternStr, Pattern.LITERAL + Pattern.CASE_INSENSITIVE);
-        } else {
-          pattern = Pattern.compile(patternStr, Pattern.LITERAL);
-        }
-
-      } else if (expr instanceof RegularExpr) {
-        patternStr = ((RegularExpr) expr).getEscapedValue();
-        pattern = Pattern.compile(patternStr);
-      } else {
-        throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + expr.toString());
-      }
-    } else {
-
-      if (expr instanceof Constant.StringExpr) {
-        patternStr = ((Constant.StringExpr) expr).getEscapedValue();
-        patternStr = disableRegexSymbols(patternStr);
-
-        if (isCaseIgnore != null && isCaseIgnore) {
-          patternStr = makeCaseInsensitive(patternStr);
-        }
-
-      } else if (expr instanceof RegularExpr) {
-        patternStr = ((RegularExpr) expr).getEscapedValue();
-      } else {
-        throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + expr.toString());
-      }
-
-      if (quote instanceof Constant.StringExpr) {
-        quoteStr = ((Constant.StringExpr) quote).getEscapedValue();
-        regExQuoteStr = disableRegexSymbols(quoteStr);
-      } else if (expr instanceof RegularExpr) {
-        regExQuoteStr = ((RegularExpr) quote).getEscapedValue();
-      } else {
-        throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + quote.toString());
-      }
-
-      patternStr = compilePatternWithQuote(patternStr, quoteStr);
-      pattern = Pattern.compile(patternStr);
-    }
+    patternStr = TeddyUtil.getPatternStr(expr, ignoreCase);
+    quoteStr = TeddyUtil.getQuoteStr(quote);
+    patternStr = TeddyUtil.modifyPatternStrWithQuote(patternStr, quoteStr);
+    pattern = Pattern.compile(patternStr);
 
     preparedArgs.add(targetColNames);
     preparedArgs.add(pattern);
-    preparedArgs.add(regExQuoteStr);
     preparedArgs.add(quoteStr);
     preparedArgs.add(limit);
     preparedArgs.add(extractedColNameList);
@@ -162,75 +115,44 @@ public class DfExtract extends DataFrame {
 
     List<String> targetColNames = (List<String>) preparedArgs.get(0);
     Pattern pattern = (Pattern) preparedArgs.get(1);
-    String quoteStr = (String) preparedArgs.get(2);
-    String originalQuoteStr = (String) preparedArgs.get(3);
-    int extract_limit = (int) preparedArgs.get(4);
-    Map<String, List<String>> extractedColNameList = (Map<String, List<String>>) preparedArgs.get(5);
+    String originalQuoteStr = (String) preparedArgs.get(2);
+    int extractLimit = (int) preparedArgs.get(3);
+    Map<String, List<String>> extractedColNameList = (Map<String, List<String>>) preparedArgs.get(4);
     int colno;
 
     LOGGER.trace("DfExtract.gather(): start: offset={} length={} targetColno={}", offset, length, targetColNames);
 
-    if (quoteStr == null) {
-      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-        Row row = prevDf.rows.get(rowno);
-        Row newRow = new Row();
+    for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
+      Row row = prevDf.rows.get(rowno);
+      Row newRow = new Row();
 
-        for (colno = 0; colno < prevDf.colCnt; colno++) {
-          if (targetColNames.contains(prevDf.getColName(colno))) {
-            newRow.add(prevDf.getColName(colno), row.get(colno));
-
-            String targetStr = (String) row.get(colno);
-            Matcher matcher = pattern.matcher(targetStr);
-
-            // 새 컬럼들 추가
-            for (int i = 0; i < extract_limit; i++) {
-              if (matcher.find()) {
-                String newColData = targetStr.substring(matcher.start(), matcher.end());
-                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), newColData);
-              } else {
-                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), null);
-              }
-            }
-          } else {
-            newRow.add(prevDf.getColName(colno), row.get(colno));
+      for (colno = 0; colno < prevDf.colCnt; colno++) {
+        if (targetColNames.contains(prevDf.getColName(colno))) {
+          String coldata = (String) row.get(colno);
+          if (coldata == null) {
+            continue;
           }
-        }
 
-        rows.add(newRow);
-      }
-    } else {
-      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-        Row row = prevDf.rows.get(rowno);
-        Row newRow = new Row();
+          List<String> tokens = TeddyUtil.match(coldata, pattern, originalQuoteStr, extractLimit);
 
-        for (colno = 0; colno < prevDf.colCnt; colno++) {
-          if (targetColNames.contains(prevDf.getColName(colno))) {
-            newRow.add(prevDf.getColName(colno), row.get(colno));
+          // The original columns is saved.
+          newRow.add(prevDf.getColName(colno), row.get(colno));
 
-            // quote의 수가 홀수개 일 때 마지막 quote 이후의 문자열은 처리대상이 아님으로 날려버린다
-            String targetStr = (String) row.get(colno);
-            if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 != 0) {
-              targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
-            }
-
-            Matcher matcher = pattern.matcher(targetStr);
-
-            // 새 컬럼들 추가
-            for (int i = 0; i < extract_limit; i++) {
-              if (matcher.find()) {
-                String newColData = targetStr.substring(matcher.start(), matcher.end());
-                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), newColData);
-              } else {
-                newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), null);
-              }
-            }
-          } else {
-            newRow.add(prevDf.getColName(colno), row.get(colno));
+          // Add new columns.
+          int i = 0;
+          for (/* NOP */; i < tokens.size(); i++) {
+            newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), tokens.get(i));
           }
+          for (/* NOP */; i < extractLimit; i++) {
+            newRow.add(extractedColNameList.get(prevDf.getColName(colno)).get(i), null);
+          }
+        } else {
+          // Leave irrelevant columns as they were
+          newRow.add(prevDf.getColName(colno), row.get(colno));
         }
-
-        rows.add(newRow);
       }
+
+      rows.add(newRow);
     }
 
     LOGGER.trace("DfExtract.gather(): end: offset={} length={} targetColno={}", offset, length, targetColNames);

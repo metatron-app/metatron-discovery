@@ -59,10 +59,14 @@ public class Row implements Expr.NumericBinding {
 
   @Override
   public Object get(String colName) {
-    return objCols.get(nameIdxs.get(colName));
+    Integer colno = nameIdxs.get(colName);
+    if (colno == null) {
+      return null;
+    }
+    return objCols.get(colno);
   }
 
-  public Object get(int colNo) {
-    return objCols.get(colNo);
+  public Object get(int colno) {
+    return colno < objCols.size() ? objCols.get(colno) : null;
   }
 }
