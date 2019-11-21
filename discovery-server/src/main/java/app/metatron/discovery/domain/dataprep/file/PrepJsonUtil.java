@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -56,8 +57,17 @@ public class PrepJsonUtil {
           jsonRow = mapper.readValue(sb.toString(), new TypeReference<Map<String, Object>>() {
           });
           sb.delete(0, sb.length());
+        } catch (MismatchedInputException e) {
+          LOGGER.debug("Empty JSON string.", e);
+          sb.delete(0, sb.length());
+          continue;
         } catch (JsonParseException e) {
           LOGGER.debug("Incomplete JSON string.", e);
+          int bracket = sb.indexOf("{");
+          if(bracket<0) {
+            bracket = sb.length();
+          }
+          sb.delete(0, bracket);
           continue;
         }
 
