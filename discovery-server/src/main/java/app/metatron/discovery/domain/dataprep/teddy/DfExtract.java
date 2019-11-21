@@ -43,7 +43,6 @@ public class DfExtract extends DataFrame {
     List<Object> preparedArgs = new ArrayList<>();
     Extract extract = (Extract) rule;
 
-    List<String> targetColNames = new ArrayList<>();
     Map<String, List<String>> extractedColNameList = new HashMap<>();
     Expression targetColExpr = extract.getCol();
     int targetColno;
@@ -60,11 +59,8 @@ public class DfExtract extends DataFrame {
       throw new NoLimitException("doExtract(): limit should be >= 0: " + limit);
     }
 
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
-    } else {
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
       throw new WrongTargetColumnExpressionException(
               "DfExtract.prepare(): wrong target column expression: " + targetColExpr.toString());
     }

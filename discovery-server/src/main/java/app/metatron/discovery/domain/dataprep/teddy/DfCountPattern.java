@@ -20,7 +20,6 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumn
 import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -50,12 +49,8 @@ public class DfCountPattern extends DataFrame {
     String regExQuoteStr = null;
     Pattern pattern;
 
-    List<String> targetColNames = new ArrayList<>();
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
-    } else {
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
       throw new WrongTargetColumnExpressionException(
               "DfCountPattern(): wrong target column expression: " + targetColExpr.toString());
     }
@@ -67,11 +62,6 @@ public class DfCountPattern extends DataFrame {
       }
       targetColnos.add(prevDf.getColnoByColName(targetColName));
       newColName += "_" + targetColName;
-    }
-
-    if (targetColnos.size() == 0) {
-      throw new WrongTargetColumnExpressionException(
-              "doCountPattern(): no target column designated: " + targetColExpr.toString());
     }
 
     addColumnWithDfAll(prevDf);

@@ -36,18 +36,11 @@ public class DfDrop extends DataFrame {
   @Override
   public List<Object> prepare(DataFrame prevDf, Rule rule, List<DataFrame> slaveDfs) throws TeddyException {
     List<Object> preparedArgs = new ArrayList<>();
-    List<String> targetColNames = new ArrayList<>();
     List<Integer> survivedColNos = new ArrayList<>();
     Drop drop = (Drop) rule;
-
     Expr expr = (Expr) drop.getCol();
-    if (expr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) expr).getValue());
-    } else if (expr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) expr).getValue());
-    } else {
-      assert false : expr;
-    }
+    List<String> targetColNames = TeddyUtil.getIdentifierList(expr);
+    assert !targetColNames.isEmpty() : expr;
 
     for (String colName : targetColNames) {
       if (!prevDf.colsContains(colName)) {

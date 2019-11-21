@@ -16,7 +16,13 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.ArrayExpr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant.StringExpr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.FunctionArrayExpr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.FunctionExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier.IdentifierArrayExpr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier.IdentifierExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -80,6 +86,39 @@ public class TeddyUtil {
 
   public static DateTime sqlTimestampToJodaDateTime(Timestamp timestamp) {
     return sqlTimestampToJodaLocalDateTime(timestamp).toDateTime();
+  }
+
+  public static List<String> getIdentifierList(Expression expr) {
+    List<String> colNames = new ArrayList<>();
+
+    if (expr instanceof IdentifierExpr) {
+      colNames.add(((IdentifierExpr) expr).getValue());
+    } else if (expr instanceof IdentifierArrayExpr) {
+      colNames = ((IdentifierArrayExpr) expr).getValue();
+    }
+    return colNames;
+  }
+
+  public static List<String> getStringList(Expression expr) {
+    List<String> colNames = new ArrayList<>();
+
+    if (expr instanceof StringExpr) {
+      colNames.add(expr.toString());
+    } else if (expr instanceof ArrayExpr) {
+      colNames = ((ArrayExpr) expr).getValue();
+    }
+    return colNames;
+  }
+
+  public static List<FunctionExpr> getFuncExprList(Expression expr) {
+    List<FunctionExpr> targetExprs = new ArrayList();
+
+    if (expr instanceof FunctionExpr) {
+      targetExprs.add((FunctionExpr) expr);
+    } else if (expr instanceof FunctionArrayExpr) {
+      targetExprs = ((FunctionArrayExpr) expr).getFunctions();
+    }
+    return targetExprs;
   }
 
   private static String disableRegexSymbols(String str) {

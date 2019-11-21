@@ -20,7 +20,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Sort;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -40,19 +39,15 @@ public class DfSort extends DataFrame {
     Sort sort = (Sort) rule;
 
     Expression orderByColExpr = sort.getOrder();
-    List<String> orderByColNames = new ArrayList<>();
     Expression typeExpr = sort.getType();
     SortType sortType = SortType.ASCENDING;
 
     // order by expression -> order by colnames
-    if (orderByColExpr instanceof Identifier.IdentifierExpr) {
-      orderByColNames.add(((Identifier.IdentifierExpr) orderByColExpr).getValue());
-    } else if (orderByColExpr instanceof Identifier.IdentifierArrayExpr) {
-      orderByColNames.addAll(((Identifier.IdentifierArrayExpr) orderByColExpr).getValue());
-    } else {
-      throw new InvalidColumnExpressionTypeException(
-              "doSort(): invalid order by column expression type: " + orderByColExpr.toString());
+    List<String> orderByColNames = TeddyUtil.getIdentifierList(orderByColExpr);
+    if (orderByColNames.isEmpty()) {
+      throw new InvalidColumnExpressionTypeException("doSort(): invalid order by column expression: " + sort);
     }
+    interestedColNames.addAll(orderByColNames);
 
     // type절이 "DESC" 일 때는 내림차순. 기본은 오름차순.
     if (typeExpr != null) {
@@ -61,13 +56,8 @@ public class DfSort extends DataFrame {
           sortType = SortType.DESCENDING;
         }
       } else {
-        throw new InvalidColumnExpressionTypeException(
-                "doSort(): invalid sort type expression type: " + typeExpr.toString());
+        throw new InvalidColumnExpressionTypeException("doSort(): invalid sort type: " + sort);
       }
-    }
-
-    for (String orderByColName : orderByColNames) {
-      interestedColNames.add(orderByColName);
     }
 
     preparedArgs.add(orderByColNames);

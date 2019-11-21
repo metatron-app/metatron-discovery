@@ -13,7 +13,7 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -35,6 +35,9 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input()
+  private firstRow: any = null;
+
   public selectedFields: Field[] = [];
 
   // 상태 저장용 T/F
@@ -86,9 +89,27 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       return undefined;
     }
 
+    if (this.selVal==="" && this.firstRow) {
+      var theColumn = this.firstRow[this.selectedFields[0].name];
+      var jsonVal = JSON.parse(theColumn);
+      var keys = Object.keys(jsonVal);
+      if( keys && keys.length ) {
+        if(this.selectedFields[0].type==="MAP") {
+          this.selVal = keys.map( (item) => "'"+ item +"'" ).join(',');
+        } else if(this.selectedFields[0].type==="ARRAY") {
+          this.selVal = keys.map( (item,idx) => "'"+ idx +"'" ).join(',');
+        }
+      }
+    } else if( this.selectedFields[0].type==="ARRAY" ) {
+      var isIntegerIndex = this.selVal.split(',').every( item => typeof parseInt(item)=='number' );
+      if ( isIntegerIndex ) {
+        this.selVal = this.selVal.split(',').map( item => "'"+ item +"'" ).join(',');
+      }
+    }
+
     // surround idx with single quotation
     let clonedSelVal:string;
-    let check = StringUtil.checkSingleQuote(this.selVal, { isWrapQuote: true });
+    let check = StringUtil.checkSingleQuote(this.selVal, { isPairQuote: true });
     if (check[0] === false && check[1] !== "" ) {
       Alert.warning(this.translateService.instant('Check element value'));
       return undefined;
