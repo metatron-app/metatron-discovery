@@ -1,16 +1,15 @@
 package app.metatron.discovery.domain.dataprep.file;
 
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON;
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
+import com.google.common.collect.Lists;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
+
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -21,10 +20,17 @@ import java.sql.ResultSetMetaData;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.ServletOutputStream;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON_FOR_EMPTY;
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getWriter;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
 
 public class PrepJsonUtil {
 
@@ -40,7 +46,7 @@ public class PrepJsonUtil {
     BufferedReader br = new BufferedReader(reader);
 
     try {
-      result.colNames = Lists.newArrayList();
+      result.colNames = null;
       StringBuffer sb = new StringBuffer();
       while ((line = br.readLine()) != null && result.totalRows < limitRows) {
         Map<String, Object> jsonRow = null;
@@ -60,14 +66,30 @@ public class PrepJsonUtil {
           continue;
         }
 
-        for (String jsonKey : jsonRow.keySet()) {
-          if (result.colNames.contains(jsonKey) == false) {
-            result.colNames.add(jsonKey);
+        if( result.colNames==null ) {
+          result.colNames = Lists.newArrayList();
+          for (String jsonKey : jsonRow.keySet()) {
+            if (result.colNames.contains(jsonKey) == false) {
+              result.colNames.add(jsonKey);
+            }
           }
-        }
 
-        if (colCnt == null) {
-          colCnt = result.colNames.size();
+          if (colCnt == null) {
+            colCnt = result.colNames.size();
+          } else {
+            int createIndex = 0;
+            while(result.colNames.size()<colCnt) {
+              String colName = null;
+              while( colName==null || result.colNames.contains(colName) ) {
+                colName = "column_"+String.valueOf(createIndex++);
+              }
+              result.colNames.add(colName);
+            }
+          }
+
+          if(colCnt==0) {
+            throw datasetError(MSG_DP_ALERT_FAILED_TO_PARSE_JSON_FOR_EMPTY);
+          }
         }
 
         String[] row = new String[colCnt];

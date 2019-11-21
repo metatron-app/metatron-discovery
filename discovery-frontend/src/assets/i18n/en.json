@@ -803,6 +803,7 @@
   "msg.dp.alert.failed.to.write.csv": "IOException while writing a CSV file.",
   "msg.dp.alert.failed.to.close.csv": "IOException while closing a CSV file.",
   "msg.dp.alert.failed.to.parse.json": "IOException while parsing a JSON file.",
+  "msg.dp.alert.failed.to.parse.json.for.empty": "Parsed 0 columns. check out your JSON file.",
   "msg.dp.alert.failed.to.delete.snapshot": "IOException while deleting a snapshot",
   "msg.dp.alert.invalid.snapshot.name": "Invalid snapshot name (null or empty)",
   "msg.dp.alert.snapshot.type.not.supported.yet": "Snapshot type not supported",
