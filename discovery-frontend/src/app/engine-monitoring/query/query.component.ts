@@ -33,8 +33,7 @@ import {ActivatedRoute} from "@angular/router";
 import * as _ from "lodash";
 import {PageResult} from "../../domain/common/page";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
-
-declare let moment: any;
+import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
 
 @Component({
   selector: '[query]',
@@ -127,7 +126,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   public isEmptyList(): boolean {
-    return this.pageResult.totalElements === 0;
+    return this.pageResult.totalElements === 0 || this.queryTotalList === undefined;
   }
 
   public reloadPage(isFirstPage: boolean = true) {
@@ -159,11 +158,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   public highlightSearchText(name, searchText): string {
-    if (_.isNil(searchText) || searchText.trim() === '') {
-      return name;
-    } else {
-      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
-    }
+    return EngineMonitoringUtil.highlightSearchText(name, searchText);
   } // function - highlightSearchText
 
   /**
@@ -269,9 +264,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
       this.loadingHide();
       this.queryTotalList = data;
       this._getQueryPagingList();
-    }).catch(() => {
-      this.loadingHide();
-    })
+    }).catch((error) => this.commonExceptionHandler(error));
   }
 
   private _getQueryParams() {

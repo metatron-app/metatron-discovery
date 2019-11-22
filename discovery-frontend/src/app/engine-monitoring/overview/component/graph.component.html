@@ -23,14 +23,18 @@
     error 일때 : type-error 추가
 -->
 <div class="ddp-box-graph type-memory ">
-  <div class="ddp-box-label">Usage Memory</div>
+  <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.MEM)">Usage Memory</a></div>
   <!-- 아이콘 -->
   <div class="ddp-icon-status">
     <em class="ddp-icon-warning"></em>
     <em class="ddp-icon-error"></em>
   </div>
   <!-- //아이콘 -->
-  <div #usageMemory style="position: absolute; bottom: 0; left: 0; right: 0; top:0; width: 100%; display: block;"></div>
+  <div #usageMemory style="position: absolute; bottom: 0; left: 0; right: 0; top:0; width: 100%; display: block;">
+    <div class="ddp-data-empty" *ngIf="memoryEmpty">
+      <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+    </div>
+  </div>
   <!-- 그래프 영역 -->
   <div class="ddp-graph-round" >
     <div class="ddp-graph-in">
@@ -45,27 +49,35 @@
 <div class="ddp-wrap-line-graph">
   <!-- box graph -->
   <div class="ddp-box-graph type-count">
-    <div class="ddp-box-label">GC Count</div>
+    <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.GC_COUNT)">GC Count</a></div>
     <!-- 아이콘 -->
     <div class="ddp-icon-status">
       <em class="ddp-icon-error"></em>
     </div>
     <!-- //아이콘 -->
     <!-- 그래프 영역 -->
-    <div #gcCount class="ddp-graph-line" style="width:100%;display: block;" ></div>
+    <div #gcCount class="ddp-graph-line" style="width:100%;display: block;" >
+      <div class="ddp-data-empty" *ngIf="gcCountEmpty">
+        <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+      </div>
+    </div>
     <!-- //그래프 영역 -->
   </div>
   <!-- //box graph -->
   <!-- box graph -->
   <div class="ddp-box-graph type-count">
-    <div class="ddp-box-label">Avg Query Time</div>
+    <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.QUERY_TIME)">Avg Query Time</a></div>
     <!-- 아이콘 -->
     <div class="ddp-icon-status">
       <em class="ddp-icon-error"></em>
     </div>
     <!-- //아이콘 -->
     <!-- 그래프 영역 -->
-    <div #avgQueryTime class="ddp-graph-line" style="width:100%;display: block;" ></div>
+    <div #avgQueryTime class="ddp-graph-line" style="width:100%;display: block;" >
+      <div class="ddp-data-empty" *ngIf="avgQueryTimeEmpty">
+        <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+      </div>
+    </div>
     <!-- //그래프 영역 -->
   </div>
   <!-- //box graph -->
@@ -76,7 +88,7 @@
      warning 일때 : type-warning 추가
  -->
   <div class="ddp-box-graph type-count-num ">
-    <div class="ddp-box-label">Query Count</div>
+    <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.QUERY_COUNT)">Query Count</a></div>
     <!-- 아이콘 -->
     <!--
     <div class="ddp-icon-status2">
@@ -144,3 +156,4 @@
   </div>
   <!-- //box graph -->
 </div>
+

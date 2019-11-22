@@ -14,11 +14,11 @@
 
 import {
   Component,
-  ElementRef,
+  ElementRef, EventEmitter,
   HostListener,
   Injector,
   OnDestroy,
-  OnInit,
+  OnInit, Output,
   ViewChild
 } from '@angular/core';
 import {AbstractComponent} from '../../../common/component/abstract.component';
@@ -33,7 +33,8 @@ declare let moment: any;
 
 @Component({
   selector: '[overview-graph-view]',
-  templateUrl: './graph.component.html'
+  templateUrl: './graph.component.html',
+  styles: ['.ddp-box-label a {color:#fff;}', '.type-memory .ddp-box-label {z-index:2; position:absolute}', '.ddp-wrap-line-graph .ddp-data-empty {position:relative; top:-10px}']
 })
 export class GraphComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -42,6 +43,11 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   @ViewChild('gcCount') private _gcCountChartElmRef: ElementRef;
   @ViewChild('avgQueryTime') private _avgQueryTimeChartElmRef: ElementRef;
 
+  @Output('changeValue')
+  private readonly changeEvent: EventEmitter<Engine.MonitoringTarget> = new EventEmitter();
+
+  public monitoringTarget = Engine.MonitoringTarget;
+
   public heapMemory:string = '';
   public queryCount:number = 0;
   public runningTaskCount:number = 0;
@@ -49,8 +55,11 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   public segmentCount:number = 0;
 
   public duration:string;
-
   public fromDate:string;
+
+  public memoryEmpty:boolean;
+  public gcCountEmpty:boolean;
+  public avgQueryTimeEmpty:boolean;
 
   private _memoryChart: any;
   private _gcCountChart: any;
@@ -99,6 +108,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._init();
   }
 
+  public showKpiChart(monitoringTarget:Engine.MonitoringTarget) {
+    this.changeEvent.emit(monitoringTarget);
+  }
+
   private _init() {
     this.loadingShow();
     this._getUsageMemory();
@@ -106,7 +119,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._getAvgQueryTime();
     this._getQueryCounts();
     this._getRunningTasks();
-    this._getDatasourceList();
+    this._getDatasourceCount();
     this._getSegmentCount();
     setTimeout(() => {
       this.loadingHide();
@@ -125,6 +138,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       };
 
     this._engineSvc.getMemory(queryParam).then((data) => {
+      this.memoryEmpty = undefined;
       const seriesData = data.map( item => {
         ( 'useMem' === item.name ) && ( this.heapMemory = (typeof item.percentage === "number") ? item.percentage.toFixed(0) + '%' : '0%');
         item['itemStyle'] = {
@@ -163,7 +177,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         this._memoryChart = echarts.init(this._usageMemoryChartElmRef.nativeElement, 'exntu');
       }
       this._memoryChart.setOption(chartOpts, false);
-    });
+    }).catch(() => this.memoryEmpty = true);
   } // function - _getUsageMemory
 
   /**
@@ -181,6 +195,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       };
 
     this._engineSvc.getMonitoringData(queryParam).then((data) => {
+      this.gcCountEmpty = undefined;
       const chartOps: any = {
         type: 'line',
         tooltip: {
@@ -239,7 +254,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         this._gcCountChart = echarts.init(this._gcCountChartElmRef.nativeElement, 'exntu');
       }
       this._gcCountChart.setOption(chartOps, false);
-    });
+    }).catch(() => this.gcCountEmpty = true);
 
   } // function - _getGcCount
 
@@ -259,6 +274,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       };
 
     this._engineSvc.getMonitoringData(queryParam).then((data) => {
+      this.avgQueryTimeEmpty = undefined;
       const chartOps: any = {
         type: 'line',
         tooltip: {
@@ -317,7 +333,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
         this._avgQueryTimeChart = echarts.init(this._avgQueryTimeChartElmRef.nativeElement, 'exntu');
       }
       this._avgQueryTimeChart.setOption(chartOps, false);
-    });
+    }).catch(() => this.avgQueryTimeEmpty = true);
   } // function - _getAvgQueryTime
 
   /**
@@ -352,16 +368,14 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   } // function - _getRunningTasks
 
   /**
-   * get Datasource List
+   * get Datasource Count
    * @private
    */
-  private _getDatasourceList() {
-    this._engineSvc.getDatasourceList().then( result => {
-      if( result ) {
-       this.datasourceCount = result.length;
-      }
+  private _getDatasourceCount() {
+    this._engineSvc.getDatasourceCount().then( result => {
+      this.datasourceCount = result[0].count;
     });
-  } // function - _getDatasourceList
+  } // function - _getDatasourceCount
 
   /**
    * get Segment Count

@@ -19,8 +19,7 @@ import {PageResult} from "../../../../domain/common/page";
 import {EngineService} from "../../../service/engine.service";
 import {StringUtil} from "../../../../common/util/string.util";
 import {ActivatedRoute} from "@angular/router";
-
-declare let moment: any;
+import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
 
 @Component({
   selector: 'ingestion-supervisor',
@@ -86,7 +85,7 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
   }
 
   public isEmptyList(): boolean {
-    return this.pageResult.totalElements === 0;
+    return this.pageResult.totalElements === 0 || this.supervisorTotalList === undefined;
   }
 
   public reloadPage(isFirstPage: boolean = true) {
@@ -122,11 +121,7 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
   }
 
   public highlightSearchText(name, searchText): string {
-    if (_.isNil(searchText) || searchText.trim() === '') {
-      return name;
-    } else {
-      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
-    }
+    return EngineMonitoringUtil.highlightSearchText(name, searchText);
   } // function - highlightSearchText
 
   private _filteringSupervisorList(): any[] {
@@ -153,7 +148,7 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
       this.engineService.getSupervisorList().then((data) => {
         this.supervisorTotalList = data;
         this._getSupervisorPagingList();
-      })
+      }).catch((error) => this.commonExceptionHandler(error));
     } else {
       this._getSupervisorPagingList();
     }
