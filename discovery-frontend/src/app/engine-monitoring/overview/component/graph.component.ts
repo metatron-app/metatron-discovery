@@ -373,7 +373,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
    */
   private _getDatasourceCount() {
     this._engineSvc.getDatasourceCount().then( result => {
-      this.datasourceCount = result[0].count;
+      this.datasourceCount = result;
     });
   } // function - _getDatasourceCount
 

@@ -251,6 +251,10 @@ public class EngineMonitoringService {
   }
 
   public List getMemory(EngineMonitoringRequest queryRequest) {
+    List memList = Lists.newArrayList();
+    Map<String, Object> useMemMap = Maps.newHashMap();
+    Map<String, Object> maxMemMap = Maps.newHashMap();
+
     if (queryRequest.getMonitoringTarget() == null) {
       queryRequest.setMonitoringTarget(new EngineMonitoringTarget());
     }
@@ -263,15 +267,12 @@ public class EngineMonitoringService {
     List maxMemList = (List) result.get("maxMem");
     float useMem = new Float(String.valueOf(usedMemList.get(usedMemList.size()-1)));
     float maxMem = new Float(String.valueOf(maxMemList.get(maxMemList.size()-1)));
-
     float percentage = 100 * useMem / maxMem;
-    List memList = Lists.newArrayList();
-    Map<String, Object> useMemMap = Maps.newHashMap();
+
     useMemMap.put("name", "useMem");
     useMemMap.put("value", useMem);
     useMemMap.put("percentage", percentage);
 
-    Map<String, Object> maxMemMap = Maps.newHashMap();
     maxMemMap.put("name", "maxMem");
     maxMemMap.put("value", maxMem);
     maxMemMap.put("percentage", 100 - percentage);
@@ -303,9 +304,13 @@ public class EngineMonitoringService {
     return sizeMap;
   }
 
-  public List getDatasourceCount() {
-    Optional<List> results = engineRepository.sql("SELECT datasource FROM sys.segments GROUP BY 1");
-    return results.get();
+  public int getDatasourceCount() {
+    try {
+      Optional<List> results = engineRepository.sql("SELECT datasource FROM sys.segments GROUP BY 1");
+      return results.get().size();
+    } catch (Exception e) {
+      return 0;
+    }
   }
 
   public List getSegmentCount() {
