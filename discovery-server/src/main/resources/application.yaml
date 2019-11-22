@@ -222,6 +222,26 @@ polaris:
         target: overlord
         method: GET
         uri: /druid/indexer/v1/supervisor?full
+      getDatasourceIncludeDisabled:
+          target: coordinator
+          method: GET
+          uri: /druid/coordinator/v1/metadata/datasources?includeDisabled
+      datasourceRules:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/rules
+      datasourceRule:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/rules/{datasourceId}
+      datasourceIntervals:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/datasources/{datasourceId}/intervals?simple
+      datasourceIntervalStatus:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/datasources/{datasourceId}/intervals/{interval}?full
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
 #  cors:

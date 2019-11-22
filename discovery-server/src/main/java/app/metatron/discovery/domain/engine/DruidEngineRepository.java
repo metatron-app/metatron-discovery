@@ -99,6 +99,39 @@ public class DruidEngineRepository extends AbstractEngineRepository {
     return call(GET_CONFIGS, paramMap, clazz);
   }
 
+  public Optional<List> getDatasourceListIncludeDisabled(){
+    return call(GET_DATASOURCE_LIST_INCLUDE_DISABLED, Maps.newHashMap(), List.class);
+  }
+
+  public Optional<Map> getDatasourceRules(){
+    return call(GET_DATASOURCE_RULES, Maps.newHashMap(), Map.class);
+  }
+
+  public Optional<Map> getDatasourceStatus(String datasourceId){
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("datasourceId", datasourceId);
+    return call(GET_DATASOURCE_STATUS, paramMap, Map.class);
+  }
+
+  public Optional<List> getDatasourceRule(String datasourceId){
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("datasourceId", datasourceId);
+    return call(GET_DATASOURCE_RULE, paramMap, List.class);
+  }
+
+  public Optional<Map> getDatasourceIntervals(String datasourceId){
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("datasourceId", datasourceId);
+    return call(GET_DATASOURCE_INTERVAL_LIST, paramMap, Map.class);
+  }
+
+  public Optional<Map> getDatasourceIntervalStatus(String datasourceId, String interval){
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("datasourceId", datasourceId);
+    paramMap.put("interval", interval);
+    return call(GET_DATASOURCE_INTERVALS_STATUS, paramMap, Map.class);
+  }
+
   public Optional<List> sql(String sql) {
     Map paramMap = Maps.newHashMap();
     paramMap.put("query", sql);

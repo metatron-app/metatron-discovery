@@ -4337,5 +4337,9 @@
   "msg.engine.monitoring.ui.criterion.result": "Result",
   "msg.engine.monitoring.ui.criterion.host": "Host",
   "msg.engine.monitoring.ui.criterion.started-time": "Started time",
-  "msg.engine.monitoring.ph.query.search": "Search query ID or datasource name"
+  "msg.engine.monitoring.ph.query.search": "Search query ID or datasource name",
+  "msg.engine.monitoring.ph.datasource.search": "Search datasource name",
+  "msg.engine.monitoring.ui.criterion.fully": "Fully available",
+  "msg.engine.monitoring.ui.criterion.partially": "Partially available",
+  "msg.engine.monitoring.ui.criterion.disabled": "Disabled"
 }

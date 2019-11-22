@@ -43,6 +43,7 @@ import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListCriterionType;
 import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
@@ -711,6 +712,89 @@ public class EngineMonitoringService {
       default:
         break;
     }
+  }
+
+  public List getDatasource() {
+    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments GROUP BY 1");
+    return results.get();
+  }
+
+  public List getDatasourceListIncludeDisabled() {
+    Optional<List> results = engineRepository.getDatasourceListIncludeDisabled();
+    return results.get();
+  }
+
+  public Map getDatasourceRules() {
+    Optional<Map> results = engineRepository.getDatasourceRules();
+    return results.get();
+  }
+
+  public Object getDatasourceDetail(String datasourceId) {
+    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments WHERE \"datasource\" = '" + datasourceId + "' GROUP BY 1");
+    if (CollectionUtils.isNotEmpty(results.get())) {
+      return results.get().get(0);
+    } else {
+      throw new ResourceNotFoundException(datasourceId);
+    }
+  }
+
+  public Map getDatasourceStatus(String datasourceId) {
+    Optional<Map> results = engineRepository.getDatasourceStatus(datasourceId);
+    return results.get();
+  }
+
+  public List getDatasourceRule(String datasourceId) {
+    List ruleList = Lists.newArrayList();
+    Optional<List> defaultRule = engineRepository.getDatasourceRule("_default");
+    Optional<List> results = engineRepository.getDatasourceRule(datasourceId);
+    if (CollectionUtils.isNotEmpty(results.get())) {
+      ruleList.addAll(results.get());
+    }
+    if (CollectionUtils.isNotEmpty(defaultRule.get())) {
+      ruleList.addAll(defaultRule.get());
+    }
+    return ruleList;
+  }
+
+  public Map getDatasourceIntervals(String datasourceId) {
+    Optional<Map> results = engineRepository.getDatasourceIntervals(datasourceId);
+    return results.get();
+  }
+
+  public Map getDatasourceIntervalStatus(String datasourceId, String interval) {
+    Optional<Map> results = engineRepository.getDatasourceIntervalStatus(datasourceId, interval);
+    return results.get();
+  }
+
+  public List<ListCriterion> getListCriterionInDatasource() {
+
+    List<ListCriterion> criteria = new ArrayList<>();
+
+    //Status
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.AVAILABILITY,
+                                   ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.status"));
+
+    return criteria;
+  }
+
+  public ListCriterion getListCriterionInDatasourceByKey(EngineMonitoringCriterionKey criterionKey) {
+    ListCriterion criterion = new ListCriterion();
+    criterion.setCriterionKey(criterionKey);
+
+    switch (criterionKey) {
+      case AVAILABILITY:
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "fully", "msg.engine.monitoring.ui.criterion.fully"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "partially", "msg.engine.monitoring.ui.criterion.partially"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "disabled", "msg.engine.monitoring.ui.criterion.disabled"));
+        break;
+      default:
+        break;
+    }
+
+    return criterion;
   }
 
   private String getDruidName(String configName) {

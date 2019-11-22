@@ -310,4 +310,50 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(criterion);
   }
 
+  @RequestMapping(value = "/monitoring/datasources/list", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasource() {
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("datasourceList", monitoringQueryService.getDatasource());
+    response.put("datasourceListIncludeDisabled", monitoringQueryService.getDatasourceListIncludeDisabled());
+    response.put("datasourceRules", monitoringQueryService.getDatasourceRules());
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasource(@PathVariable String datasource) {
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("datasource", monitoringQueryService.getDatasourceDetail(datasource));
+    response.put("datasourceRule", monitoringQueryService.getDatasourceRule(datasource));
+    response.put("datasourceStatus", monitoringQueryService.getDatasourceStatus(datasource));
+    response.put("datasourceIntervals", monitoringQueryService.getDatasourceIntervals(datasource));
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}/{interval}", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasourceIntervalStatus(@PathVariable String datasource, @PathVariable String interval) {
+    return ResponseEntity.ok(monitoringQueryService.getDatasourceIntervalStatus(datasource, interval));
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteriaInDatasource() {
+    List<ListCriterion> listCriteria = monitoringQueryService.getListCriterionInDatasource();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetailInDatasource(@PathVariable(value = "criterionKey") String criterionKey) {
+    EngineMonitoringCriterionKey criterionKeyEnum = EngineMonitoringCriterionKey.valueOf(criterionKey);
+
+    if (criterionKeyEnum == null) {
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = monitoringQueryService.getListCriterionInDatasourceByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
+
 }

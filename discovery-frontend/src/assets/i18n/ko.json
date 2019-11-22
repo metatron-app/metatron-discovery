@@ -4305,5 +4305,9 @@
   "msg.engine.monitoring.ui.criterion.result": "결과",
   "msg.engine.monitoring.ui.criterion.host": "호스트",
   "msg.engine.monitoring.ui.criterion.started-time": "시작 시간",
-  "msg.engine.monitoring.ph.query.search": "Query ID 혹은 데이터 소스 이름으로 검색"
+  "msg.engine.monitoring.ph.query.search": "Query ID 혹은 데이터 소스 이름으로 검색",
+  "msg.engine.monitoring.ph.datasource.search": "데이터 소스 이름으로 검색",
+  "msg.engine.monitoring.ui.criterion.fully": "Fully available",
+  "msg.engine.monitoring.ui.criterion.partially": "Partially available",
+  "msg.engine.monitoring.ui.criterion.disabled": "Disabled"
 }
