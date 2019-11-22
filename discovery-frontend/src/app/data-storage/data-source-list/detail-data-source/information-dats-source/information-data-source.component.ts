@@ -60,16 +60,12 @@ declare let echarts: any;
   selector: 'information-data-source',
   templateUrl: './information-data-source.component.html',
   providers: [MomentDatePipe],
-  entryComponents: [ConfirmRefModalComponent]
 })
 export class InformationDataSourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  // Confirm Modal
-  @ViewChild('component_confirm', {read: ViewContainerRef}) readonly confirmModalEntry: ViewContainerRef;
-  confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
 
   // 워크스페이스 지정 페이지
   @ViewChild(SetWorkspacePublishedComponent)
@@ -300,9 +296,13 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * Link meta data click event
    */
   public onClickLinkMetadata(): void {
-    this._showConfirmComponent()
-      .then(() => this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]))
-      .catch(e => this.commonExceptionHandler(e));
+    const modal: Modal = new Modal();
+    modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+    modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+    modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
+    modal.afterConfirm = () => this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]).then();
+
+    CommonUtil.confirm(modal);
   }
 
   /**
@@ -995,26 +995,5 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         }
       ]
     };
-  }
-
-  private _showConfirmComponent() {
-    return new Promise((resolve, reject) => {
-      // show confirm modal
-      this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
-      const modal: Modal = new Modal();
-      modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
-      modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
-      modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
-      this.confirmModalEntryRef.instance.init(modal);
-      this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
-        // destroy confirm component
-        this.confirmModalEntryRef.destroy();
-      });
-      this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
-        // destroy confirm component
-        this.confirmModalEntryRef.destroy();
-        resolve(result);
-      });
-    });
   }
 }
