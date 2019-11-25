@@ -263,7 +263,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
     });
 
     series.forEach((obj, idx) => {
-      if( 0 < idx ) {
+      if (0 < idx) {
         obj.data.forEach(item => {
           this.clearSelectSeriesData(item);
         });
@@ -426,13 +426,13 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    */
   protected apply(initFl: boolean = true): void {
 
-    if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customChartOption') ) {
+    if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
       let strScript = '(' + this.userCustomFunction + ')';
       // ( new Function( 'return ' + strScript ) )();
       try {
-        this.chartOption = eval( strScript )(this.chartOption);
+        this.chartOption = eval(strScript)({name: 'InitWidgetEvent', data: this.chartOption});
       } catch (e) {
-        console.error( e );
+        console.error(e);
       }
     }
 

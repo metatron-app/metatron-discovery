@@ -102,7 +102,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   private _dataDownComp: DataDownloadComponent;
 
   @ViewChild('userFuncInput')
-  private _userFuncInput:ElementRef;
+  private _userFuncInput: ElementRef;
+
+  @ViewChild('userFuncInputContainer')
+  private _userFuncInputContainer: ElementRef;
 
   // 프로세스 실행 여부
   private _isDuringProcess: boolean = false;
@@ -156,7 +159,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
-  public isShowEvtTriggerEditor:boolean = false;
+  public isShowEvtTriggerEditor: boolean = false;
 
   // Limit 정보
   public limitInfo: ChartLimitInfo = {id: '', isShow: false, currentCnt: 0, maxCnt: 0};
@@ -326,9 +329,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     // 선택 필터 설정
     this.subscriptions.push(
       this.broadCaster.on<any>('SET_SELECTION_FILTER').subscribe(data => {
-        if (data.widgetId && data.widgetId === this.widget.id) {
-          this._search(null, data.filters);
-        } else if (data.excludeWidgetId !== this.widget.id) {
+        if ((data.widgetId && data.widgetId === this.widget.id) || (data.excludeWidgetId !== this.widget.id)) {
+          if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
+            let strScript = '(' + this.userCustomFunction + ')';
+            // ( new Function( 'return ' + strScript ) )();
+            try {
+              if (eval(strScript)({name: 'SelectionFilterEvent', data: data.filters})) {
+                return;
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
           this._search(null, data.filters);
         }
 
@@ -755,11 +767,85 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public openUserFuncInput() {
+    this.isShowEvtTriggerEditor = true;
+    this.safelyDetectChanges();
+    let aniRotateDeg: number = 0;
+    let aniScale: number = 0;
+    let $inputContainer = $(this._userFuncInputContainer.nativeElement);
+    $inputContainer.animate(
+      {deg: 180},
+      {
+        duration: 1,
+        step: function (val, prop) {
+          $(this).css({transform: 'rotate(' + val + 'deg)'});
+        },  // func - step
+        complete: () => {
+          $inputContainer.animate(
+            {deg: 360, scale: 1},
+            {
+              duration: 600,
+              step: function (val, prop) {
+                if (prop) {
+                  if ('deg' === prop.prop) {
+                    aniRotateDeg = val;
+                  } else {
+                    aniScale = val;
+                  }
+                }
+                $(this).css({transform: 'rotate(' + aniRotateDeg + 'deg) scale(' + aniScale + ')'});
+              }
+            }
+          );
+        } // func - complete
+      }
+    );
+  } // function - openUserFuncInput
+
   public saveUserFunc() {
-    this.userCustomFunction = $( this._userFuncInput.nativeElement ).val();
-    this.isShowEvtTriggerEditor = false;
-    this._search();
+    this.userCustomFunction = $(this._userFuncInput.nativeElement).val();
+
+    // 스펙 변경
+    this.loadingShow();
+    this.widget.configuration.customFunction = this.userCustomFunction;
+    const param = {configuration: _.cloneDeep(this.widget.configuration)};
+    param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
+    this.widgetService.updateWidget( this.widget.id, param )
+      .then((widget) => {
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        this.closeUserFuncInput();
+        this.loadingHide();
+        this._search();
+      })
+      .catch(err => this.commonExceptionHandler(err));
   } // function - saveUserFunc
+
+  public closeUserFuncInput() {
+    this.isShowEvtTriggerEditor = true;
+    this.safelyDetectChanges();
+    let aniRotateDeg: number = 0;
+    let aniScale: number = 0;
+    let $inputContainer = $(this._userFuncInputContainer.nativeElement);
+    $inputContainer.animate(
+      {deg: 180, scale: 0},
+      {
+        duration: 600,
+        step: function (val, prop) {
+          if (prop) {
+            if ('deg' === prop.prop) {
+              aniRotateDeg = val;
+            } else {
+              aniScale = val;
+            }
+          }
+          $(this).css({transform: 'rotate(' + aniRotateDeg + 'deg) scale(' + aniScale + ')'});
+        },  // func - step
+        complete: () => {
+          this.isShowEvtTriggerEditor = false;
+        } // func - complete
+      }
+    );
+  } // function - closeUserFuncInput
 
   /**
    * 데이터소스 이름 조회
@@ -1158,6 +1244,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.chartType = this.widgetConfiguration.chart.type.toString();
     this.parentWidget = null;
     if (widget.dashBoard.configuration) {
+
+      if( this.widgetConfiguration.customFunction && '' !== this.widgetConfiguration.customFunction ) {
+        this.userCustomFunction = this.widgetConfiguration.customFunction;
+      }
 
       if (ChartType.MAP === (<PageWidgetConfiguration>this.widget.configuration).chart.type) {
 

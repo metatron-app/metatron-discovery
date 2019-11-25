@@ -28,8 +28,8 @@
     <div class="ddp-ui-buttons" >
 
       <!-- Event Trigger -->
-      <div class="ddp-box-btn2">
-        <em (click)="isShowEvtTriggerEditor = true" class="ddp-icon-widget-trigger "></em>
+      <div  *ngIf="isAuthMgmtViewMode" class="ddp-box-btn2">
+        <em (click)="openUserFuncInput()" class="ddp-icon-widget-trigger "></em>
         <div class="ddp-ui-tooltip-info">
           <em class="ddp-icon-view-down"></em>
           {{ 'msg.board.ui.custom-action' | translate }}
@@ -554,29 +554,32 @@
   </div>
   <!-- //미리보기 팝업 -->
 
-  <div *ngIf="isShowEvtTriggerEditor" class="ddp-top-control ddp-clear">
-    <!-- buttons -->
-    <div class="ddp-ui-buttons">
-      <!-- <span class="ddp-txt-event">Event trigger</span> -->
-      <a (click)="saveUserFunc()" href="javascript:" class="ddp-btn-solid-type">{{ 'msg.comm.btn.save' | translate }}</a>
-      <div class="ddp-box-btn2">
-        <em (click)="isShowEvtTriggerEditor = false" class="ddp-icon-widget-cut-w ddp-hover-tooltip">
-          <!-- tooltip -->
-          <div class="ddp-ui-tooltip-info ddp-down">
-            <em class="ddp-icon-view-top"></em>
-            {{ 'msg.comm.ui.del' | translate }}
-          </div>
-          <!-- //tooltip -->
-        </em>
+  <div *ngIf="isShowEvtTriggerEditor" #userFuncInputContainer
+       style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;">
+    <div class="ddp-top-control ddp-clear">
+      <!-- buttons -->
+      <div class="ddp-ui-buttons">
+        <!-- <span class="ddp-txt-event">Event trigger</span> -->
+        <a (click)="saveUserFunc()" href="javascript:" class="ddp-btn-solid-type">{{ 'msg.comm.btn.save' | translate }}</a>
+        <div class="ddp-box-btn2">
+          <em (click)="closeUserFuncInput()" class="ddp-icon-widget-cut-w ddp-hover-tooltip">
+            <!-- tooltip -->
+            <div class="ddp-ui-tooltip-info ddp-down">
+              <em class="ddp-icon-view-top"></em>
+              {{ 'msg.comm.ui.del' | translate }}
+            </div>
+            <!-- //tooltip -->
+          </em>
+        </div>
       </div>
+      <!-- //buttons -->
+      <div *ngIf="isShowWidgetName()" class="ddp-top-label">{{widget.name}}</div>
     </div>
-    <!-- //buttons -->
-    <div *ngIf="isShowWidgetName()" class="ddp-top-label">{{widget.name}}</div>
-  </div>
-  <div *ngIf="isShowEvtTriggerEditor" class="ddp-view-widget" style="padding:25px 0 0 0;">
-    <textarea #userFuncInput [ngModel]="userCustomFunction"
-              class="ddp-textarea-widget" placeholder="P.H Event trigger script"
-              style="background:white;"></textarea>
+    <div class="ddp-view-widget" style="padding:25px 0 0 0;">
+      <textarea #userFuncInput [ngModel]="userCustomFunction"
+                class="ddp-textarea-widget" placeholder="P.H Event trigger script"
+                style="background:white;"></textarea>
+    </div>
   </div>
 
 </div>

@@ -16,9 +16,9 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
-import { BaseOption } from '../option/base-option';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
 import {
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -33,16 +33,16 @@ import {
   TriggerType,
   UIChartDataLabelDisplayType
 } from '../option/define/common';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import { OptionGenerator } from '../option/util/option-generator';
-import { Legend } from '../option/define/legend';
-import { Field } from '../../../../domain/workbook/configurations/field/field';
-import { FormatOptionConverter } from '../option/converter/format-option-converter';
-import { ColorOptionConverter } from '../option/converter/color-option-converter';
-import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../option/ui-option';
-import { LegendOptionConverter } from '../option/converter/legend-option-converter';
-import { LabelOptionConverter } from '../option/converter/label-option-converter';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Legend} from '../option/define/legend';
+import {Field} from '../../../../domain/workbook/configurations/field/field';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {ColorOptionConverter} from '../option/converter/color-option-converter';
+import {UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption} from '../option/ui-option';
+import {LegendOptionConverter} from '../option/converter/legend-option-converter';
+import {LabelOptionConverter} from '../option/converter/label-option-converter';
 
 declare let echarts: any;
 
@@ -71,7 +71,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -300,8 +300,12 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     ////////////////////////////////////////////////////////
 
     // 하위 호환을위해 Label정보 없이 저장된 데이터는 Show를 true로 변경해준다.
-    if( !this.uiOption.dataLabel ) { this.uiOption.dataLabel = {showValue: true}; }
-    if( _.eq(typeof this.uiOption.dataLabel.showValue, "undefined") ) { this.uiOption.dataLabel.showValue = true; }
+    if (!this.uiOption.dataLabel) {
+      this.uiOption.dataLabel = {showValue: true};
+    }
+    if (_.eq(typeof this.uiOption.dataLabel.showValue, "undefined")) {
+      this.uiOption.dataLabel.showValue = true;
+    }
 
     // 레이블 설정
     this.chartOption = LabelOptionConverter.convertLabel(this.chartOption, this.uiOption);
@@ -330,7 +334,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     if (-1 !== this.uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE)) {
 
       showFl = true;
-    // link value가 없는경우
+      // link value가 없는경우
     } else {
       showFl = false;
     }
@@ -384,8 +388,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
         if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.DIMENSION) || _.eq(column.type, ShelveFieldType.TIMESTAMP))) {
           sourceColorField = fieldName;
-        }
-        else if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.MEASURE) || _.eq(column.type, ShelveFieldType.CALCULATED))) {
+        } else if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.MEASURE) || _.eq(column.type, ShelveFieldType.CALCULATED))) {
           sourceSizeField = fieldName;
         }
 
@@ -404,8 +407,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
         if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.DIMENSION) || _.eq(row.type, ShelveFieldType.TIMESTAMP))) {
           targetColorField = fieldName;
-        }
-        else if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.MEASURE) || _.eq(row.type, ShelveFieldType.CALCULATED))) {
+        } else if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.MEASURE) || _.eq(row.type, ShelveFieldType.CALCULATED))) {
           targetSizeField = fieldName;
         }
       });
@@ -560,7 +562,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
    */
   private getFormatNetworkValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, uiData?: any): string {
 
-    if( params.data.value ) {
+    if (params.data.value) {
       // UI 데이터 정보가 있을경우
       if (!uiOption.toolTip) uiOption.toolTip = {};
       if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
@@ -569,7 +571,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       let result: string[] = [];
 
       // set link tooltip
-      if ( undefined !== params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
+      if (undefined !== params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME)) {
 
         // 주체 노드
         result = FormatOptionConverter.getTooltipName([params.data.originalSource], this.pivot.columns, result, true, this.pivot);
@@ -577,7 +579,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         result = FormatOptionConverter.getTooltipName([params.data.originalTarget], this.pivot.rows, result, true, this.pivot);
       }
       // set node tooltip
-      else if ( undefined == params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
+      else if (undefined == params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME)) {
 
         // set fields
         if (params.data.fields && params.data.fields.length > 0) {
@@ -586,12 +588,12 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
           for (const field of params.data.fields) {
 
             // find column value by field name
-            columnField = _.find(this.pivot.columns, {'alias' : field});
+            columnField = _.find(this.pivot.columns, {'alias': field});
             result = FormatOptionConverter.getTooltipName([params.data.originalName], (!columnField ? this.pivot.rows : this.pivot.columns), result, true, this.pivot);
           }
         }
       }
-      if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE) ) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE)) {
 
         let value = FormatOptionConverter.getTooltipValue(this.pivot.aggregations[0].alias, this.pivot.aggregations, format, params.data.value);
 
@@ -621,16 +623,15 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     this.chart.off('click');
     this.chart.on('click', (params) => {
 
-      if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customClick') ) {
+      if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
         let strScript = '(' + this.userCustomFunction + ')';
-        strScript = strScript.replace( /\[item.name\]/gi, '"'+ params.name +'"' );
         // ( new Function( 'return ' + strScript ) )();
         try {
-          if( eval( strScript )(params.name) ) {
+          if (eval(strScript)({name: 'SelectionEvent', data: params ? params.name : ''})) {
             return;
           }
         } catch (e) {
-          console.error( e );
+          console.error(e);
         }
       }
 
@@ -703,7 +704,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
             }
           }
 
-        // when it's node
+          // when it's node
         } else {
 
           if (!isNaN(selectedData.selectCnt)) {
@@ -722,10 +723,14 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
             const rowCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && targetLinkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
 
             // when it's substract mode, only the last data is removed in filter
-            const colMatchPivot = colCondition ? this.pivot.columns.filter((item) => {return -1 !== params.data.fields.indexOf(item.name)}) : [];
+            const colMatchPivot = colCondition ? this.pivot.columns.filter((item) => {
+              return -1 !== params.data.fields.indexOf(item.name)
+            }) : [];
             selectedColValues = colMatchPivot.length > 0 ? [params.data.originalName] : [];
 
-            const rowMatchPivot = rowCondition ? this.pivot.rows.filter((item) => {return -1 !== params.data.fields.indexOf(item.name)}) : [];
+            const rowMatchPivot = rowCondition ? this.pivot.rows.filter((item) => {
+              return -1 !== params.data.fields.indexOf(item.name)
+            }) : [];
             selectedRowValues = rowMatchPivot.length > 0 ? [params.data.originalName] : [];
           }
         }
@@ -773,7 +778,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       // set series links (lineStyle)
       const seriesLink = selectedSeries.links[params.dataIndex];
 
-      if (!seriesLink.lineStyle) seriesLink.lineStyle = {normal : {}};
+      if (!seriesLink.lineStyle) seriesLink.lineStyle = {normal: {}};
       seriesLink.lineStyle.normal['opacity'] = 0.7;
       seriesLink.linkCnt = undefined == seriesLink.linkCnt ? 1 : seriesLink.linkCnt + 1;
 
@@ -788,24 +793,24 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       const source = sourceTarget['source'];
       const target = sourceTarget['target'];
 
-      if (!source.itemStyle) source.itemStyle = {normal : {}};
+      if (!source.itemStyle) source.itemStyle = {normal: {}};
       source.itemStyle.normal['opacity'] = 0.7;
       // set select count
       // source.selectCnt = undefined == source.selectCnt ? 1 : source.selectCnt + 1;
 
-      if (!target.itemStyle) target.itemStyle = {normal : {}};
+      if (!target.itemStyle) target.itemStyle = {normal: {}};
       target.itemStyle.normal['opacity'] = 0.7;
       // target.selectCnt = undefined == target.selectCnt ? 1 : target.selectCnt + 1;
 
       // set other values dimmed
       if (selectedSeries.itemStyle && selectedSeries.itemStyle.normal) selectedSeries.itemStyle.normal.opacity = 0.2;
 
-    // when it's node
+      // when it's node
     } else {
       // set series data style (itemStyle)
       const seriesData = selectedSeries.data[params.dataIndex];
 
-      if (!seriesData.itemStyle) seriesData.itemStyle = {normal : {}};
+      if (!seriesData.itemStyle) seriesData.itemStyle = {normal: {}};
       seriesData.itemStyle.normal['opacity'] = 0.7;
 
       // set other values dimmed
@@ -819,7 +824,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     return option;
   }
 
-  private getSourceTarget(data : any[], params: any) {
+  private getSourceTarget(data: any[], params: any) {
 
     const sourceIndex = _.findIndex(data, (item) => {
       return item.name === params.data.source;
@@ -830,7 +835,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       return item.name === params.data.target;
     });
 
-    return {source: data[sourceIndex], target : data[targetIndex]};
+    return {source: data[sourceIndex], target: data[targetIndex]};
   }
 
   /**
@@ -923,7 +928,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         selectedSeries.lineStyle.normal['opacity'] = 0.7;
       }
 
-    // when it's node
+      // when it's node
     } else {
 
       if (isNaN(selectedData.selectCnt - 1) || selectedData.selectCnt <= 0) return option;

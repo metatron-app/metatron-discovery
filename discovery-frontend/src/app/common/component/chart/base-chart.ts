@@ -1408,22 +1408,22 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.chart = this.echarts.init(this.$element.find('.chartCanvas')[0], 'exntu');
     }
 
-    if( this.chartOption.legend && this.chartOption.legend.textStyle ) {
-      const isWidget = ( 0 < this.$element.closest( 'page-widget' ).length );
-      if( isWidget && $('body').hasClass(Theme.DARK) ) {
+    if (this.chartOption.legend && this.chartOption.legend.textStyle) {
+      const isWidget = (0 < this.$element.closest('page-widget').length);
+      if (isWidget && $('body').hasClass(Theme.DARK)) {
         this.chartOption.legend.textStyle.color = '#fff';
       } else {
         this.chartOption.legend.textStyle.color = '#333';
       }
     }
 
-    if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customChartOption') ) {
+    if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
       let strScript = '(' + this.userCustomFunction + ')';
       // ( new Function( 'return ' + strScript ) )();
       try {
-        this.chartOption = eval( strScript )(this.chartOption);
+        this.chartOption = eval(strScript)({name: 'InitWidgetEvent', data: this.chartOption});
       } catch (e) {
-        console.error( e );
+        console.error(e);
       }
     }
 
@@ -2460,16 +2460,15 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.chart.off('click');
     this.chart.on('click', (params) => {
 
-      if( this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('customClick') ) {
+      if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
         let strScript = '(' + this.userCustomFunction + ')';
-        strScript = strScript.replace( /\[item.name\]/gi, '"'+ params.name +'"' );
         // ( new Function( 'return ' + strScript ) )();
         try {
-          if( eval( strScript )(params.name) ) {
+          if (eval(strScript)({name: 'SelectionEvent', data: params ? params.name : '' })) {
             return;
           }
         } catch (e) {
-          console.error( e );
+          console.error(e);
         }
       }
 
