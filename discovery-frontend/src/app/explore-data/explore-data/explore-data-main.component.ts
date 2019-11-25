@@ -33,7 +33,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
   popularMetadataList: Metadata[] = [];
   updatedMetadataList: Metadata[] = [];
   favoriteMetadataList: Metadata[] = [];
-  favoriteCreatorList: any[] = [];
+  favoriteCreatorList: Metadata[] = [];
 
   favoriteMetadataTotalCount: number = -1;
 
@@ -153,7 +153,9 @@ export class ExploreDataMainComponent extends AbstractComponent {
     if (!_.isNil(result._embedded)) {
       this.favoriteMetadataList = result._embedded.metadatas;
       this.favoriteMetadataTotalCount = result.page.totalElements;
-
+    } else {
+      this.favoriteMetadataList = [];
+      this.favoriteMetadataTotalCount = result.page.totalElements;
     }
   }
 
