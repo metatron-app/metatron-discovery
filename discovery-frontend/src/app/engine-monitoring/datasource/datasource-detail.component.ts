@@ -26,8 +26,10 @@ import {Location} from "@angular/common";
 import {AbstractComponent} from "../../common/component/abstract.component";
 import {EngineService} from "../service/engine.service";
 import {CommonUtil} from "../../common/util/common.util";
-import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
 import * as _ from "lodash";
+import {DeleteModalComponent} from "../../common/component/modal/delete/delete.component";
+import {Alert} from "../../common/util/alert.util";
+import {Modal} from "../../common/domain/modal";
 
 declare let echarts: any;
 declare let moment: any;
@@ -48,17 +50,20 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     super(elementRef, injector);
   }
 
+  public showDisable: boolean;
   public datasource: any
   public datasourceRule: any[];
   public datasourceStatus: any;
   public datasourceIntervals: any;
   public intervalStatus: any;
   public shardKey: any[];
-
   public datasourceIntervalKey: any[];
 
   private _datasourceName: string;
   private _histogramChart: any
+
+  @ViewChild(DeleteModalComponent)
+  private disableModalComponent: DeleteModalComponent;
 
   @ViewChild('histogram')
   private histogram: ElementRef;
@@ -97,7 +102,10 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
   }
 
   public getDatasourceStatusLabel(datasource): string {
-    if (datasource.num_segments === datasource.num_available_segments) {
+    const datasourceStatus = this._getDatasourceStatus(datasource);
+    if (datasourceStatus === 'indexing') {
+      return this.translateService.instant('msg.engine.monitoring.ui.criterion.indexing');
+    } else if (datasourceStatus === 'fully') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.fully');
     } else {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.partially') + ' (' + (Math.floor((datasource.num_available_segments / datasource.num_segments) * 1000) / 10).toFixed(1) + '%)';
@@ -108,7 +116,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     return CommonUtil.formatBytes(size, 2);
   }
 
-  public getInterval(interval: string) {
+  public onClickInterval(interval: string) {
     this.engineService.getDatasourceIntervalStatus(this._datasourceName, interval.replace('/', '_')).then((data) => {
       this.intervalStatus = data[interval];
       this.shardKey = Object.keys(this.intervalStatus);
@@ -133,7 +141,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     }
   }
 
-  public getRetientionTier(rule) {
+  public getRetentionTier(rule) {
     if (rule.type.indexOf('load') > -1) {
       return rule.tieredReplicants[Object.keys(rule.tieredReplicants)[0]] + ' in ' + Object.keys(rule.tieredReplicants)[0];
     } else {
@@ -145,6 +153,35 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     return moment.duration(moment(startDate).diff(moment(endDate))).locale("en").humanize();
   }
 
+  public disableDatasource(): void {
+    // 로딩 show
+    this.loadingShow();
+    this.engineService.disableDatasource(this._datasourceName)
+      .then((result) => {
+        // alert
+        Alert.success(this.translateService.instant('msg.engine.monitoring.alert.ds.disable.success'));
+        // 로딩 hide
+        this.loadingHide();
+        // 뒤로가기
+        this.prevDatasourceList();
+      })
+      .catch((error) => {
+        // alert
+        Alert.warning(error);
+        // 로딩 hide
+        this.loadingHide();
+      });
+  }
+
+  public disableModalOpen() {
+    // 모달 오픈
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.engine.monitoring.ui.ds.disable.title');
+    modal.description = this.translateService.instant('msg.engine.monitoring.ui.ds.disable.description');
+    modal.btnName = this.translateService.instant('msg.engine.monitoring.btn.ds.disable');
+    this.disableModalComponent.init(modal);
+  }
+
   private _getDatasourceDetail(): void {
     this.loadingShow();
     this.engineService.getDatasourceDetail(this._datasourceName).then((data) => {
@@ -154,7 +191,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
       this.datasourceIntervals = data.datasourceIntervals;
       this.datasourceIntervalKey = Object.keys(this.datasourceIntervals);
       this._getHistogramChart();
-      this.getInterval(this.datasourceIntervalKey[0]);
+      this.onClickInterval(this.datasourceIntervalKey[0]);
       this.loadingHide();
     }).catch((error) => this.commonExceptionHandler(error));
   }
@@ -231,6 +268,22 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
     // chart
     this._histogramChart.setOption(barOption, false);
+    this._histogramChart.off('click');
+    this._histogramChart.on('click', (params) => {
+      if (params != null) {
+        this.onClickInterval(this.datasourceIntervalKey[params.dataIndex]);
+      }
+    });
+  }
+
+  private _getDatasourceStatus(datasource): string {
+    if (datasource.status < 0) {
+      return 'indexing';
+    } else if (datasource.num_segments === datasource.num_available_segments) {
+      return 'fully';
+    } else {
+      return 'partially';
+    }
   }
 
 }

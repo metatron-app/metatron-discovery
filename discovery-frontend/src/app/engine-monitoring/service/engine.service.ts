@@ -186,4 +186,8 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + `/datasource/${datasource}/${interval}`);
   }
 
+  public disableDatasource(datasource) {
+    return this.delete(this.URL_MONITORING + `/datasource/${datasource}`);
+  }
+
 }

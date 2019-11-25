@@ -4309,5 +4309,10 @@
   "msg.engine.monitoring.ph.datasource.search": "데이터 소스 이름으로 검색",
   "msg.engine.monitoring.ui.criterion.fully": "Fully available",
   "msg.engine.monitoring.ui.criterion.partially": "Partially available",
-  "msg.engine.monitoring.ui.criterion.disabled": "Disabled"
+  "msg.engine.monitoring.ui.criterion.disabled": "Disabled",
+  "msg.engine.monitoring.ui.criterion.indexing": "actively indexing",
+  "msg.engine.monitoring.alert.ds.disable.success" : "데이터 소스가 비활성화되었습니다.",
+  "msg.engine.monitoring.ui.ds.disable.title" : "비활성화 하시겠습니까?",
+  "msg.engine.monitoring.ui.ds.disable.description" : "데이터 소스가 비활성화됩니다.",
+  "msg.engine.monitoring.btn.ds.disable" : "데이터 소스 비활성화"
 }

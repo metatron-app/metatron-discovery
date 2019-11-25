@@ -189,6 +189,8 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     const datasourceStatus = this._getDatasourceStatus(datasource);
     if (datasourceStatus === 'disabled') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.disabled');
+    } else if (datasourceStatus === 'indexing') {
+      return this.translateService.instant('msg.engine.monitoring.ui.criterion.indexing');
     } else if (datasourceStatus === 'fully') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.fully');
     } else {
@@ -197,7 +199,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   }
 
   public getDatasourceSize(datasource) {
-    return CommonUtil.formatBytes(datasource.size, 2);
+    return CommonUtil.formatBytes(datasource.segments.size, 2);
   }
 
   private _filteringDatasourceList(): any[] {
@@ -236,10 +238,12 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
           }
 
           return comparison;
-
         });
         const datasourceListIncludeDisabled = data.datasourceListIncludeDisabled;
         const disabled: string[] = datasourceListIncludeDisabled.filter((d: string) => datasourceList.find(item => item.datasource === d) == null);
+        datasourceList.forEach(d =>
+          data.datasourceLoadStatus[d.datasource] != undefined ? d['status'] = data.datasourceLoadStatus[d.datasource] : d['status'] = -1
+        );
         this.datasourceTotalList = datasourceList.concat(disabled.map(d => ({
           datasource: d,
           disabled: true
@@ -285,6 +289,8 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   private _getDatasourceStatus(datasource): string {
     if (datasource.disabled) {
       return 'disabled';
+    } else if (datasource.status < 0) {
+      return 'indexing';
     } else if (datasource.num_segments === datasource.num_available_segments) {
       return 'fully';
     } else {

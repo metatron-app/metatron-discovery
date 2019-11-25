@@ -76,11 +76,13 @@ public class EngineProperties {
   public final static String GET_WAITING_TASKS = "getWaitingTasks";
   public final static String GET_COMPLETE_TASKS = "getCompleteTasks";
   public final static String GET_SUPERVISOR_LIST = "getSupervisorList";
-  public final static String GET_DATASOURCE_LIST_INCLUDE_DISABLED = "getDatasourceIncludeDisabled";
+  public final static String GET_DATASOURCE_META = "getMetaDatasource";
   public final static String GET_DATASOURCE_RULES = "datasourceRules";
   public final static String GET_DATASOURCE_RULE = "datasourceRule";
   public final static String GET_DATASOURCE_INTERVAL_LIST = "datasourceIntervals";
   public final static String GET_DATASOURCE_INTERVALS_STATUS = "datasourceIntervalStatus";
+  public final static String GET_DATASOURCE_LOAD_STATUS = "datasourceLoadStatus";
+  public final static String GET_RUNNING_IDS = "getRunningIds";
   public final static String SQL = "sql";
 
   public final static String TEMP_CSV_PREFIX = "temp_ds_";

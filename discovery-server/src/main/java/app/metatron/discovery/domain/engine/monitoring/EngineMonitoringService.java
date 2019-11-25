@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -673,6 +674,11 @@ public class EngineMonitoringService {
     return results.get();
   }
 
+  public List getRunningIds() {
+    Optional<List> results = engineRepository.getRunningIds();
+    return results.get();
+  }
+
   private void setFiltersByType(List<Filter> filters, EngineMonitoringTarget monitoringTarget) {
     if ( monitoringTarget.getHost() != null ) {
       filters.add(new SelectorFilter("host", monitoringTarget.getHost()));
@@ -715,7 +721,26 @@ public class EngineMonitoringService {
   }
 
   public List getDatasource() {
+    List datasourceMeta = getDatasourceMeta();
     Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments GROUP BY 1");
+    List datasourceList = results.get();
+    for (Object result : datasourceList) {
+      Map datasource = GlobalObjectMapper.getDefaultMapper().convertValue(result, Map.class);
+      for (Object meta : datasourceMeta) {
+        Map metaDatasource = GlobalObjectMapper.getDefaultMapper().convertValue(meta, Map.class);
+        if (metaDatasource.get("name").equals(datasource.get("datasource"))) {
+          datasource.put("segments", MapUtils.getMap(MapUtils.getMap(metaDatasource, "properties"), "segments"));
+          break;
+        }
+      }
+    }
+    return datasourceList;
+  }
+
+  public List getDatasourceMeta() {
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("simple", null);
+    Optional<List> results = engineRepository.meta(paramMap);
     return results.get();
   }
 
@@ -724,15 +749,20 @@ public class EngineMonitoringService {
     return results.get();
   }
 
+  public Map getDatasourceLoadStatus() {
+    Optional<Map> results = engineRepository.getDatasourceLoadStatus();
+    return results.get();
+  }
+
   public Map getDatasourceRules() {
     Optional<Map> results = engineRepository.getDatasourceRules();
     return results.get();
   }
 
-  public Object getDatasourceDetail(String datasourceId) {
+  public Map getDatasourceDetail(String datasourceId) {
     Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments WHERE \"datasource\" = '" + datasourceId + "' GROUP BY 1");
     if (CollectionUtils.isNotEmpty(results.get())) {
-      return results.get().get(0);
+      return GlobalObjectMapper.getDefaultMapper().convertValue(results.get().get(0), Map.class);
     } else {
       throw new ResourceNotFoundException(datasourceId);
     }
@@ -766,6 +796,10 @@ public class EngineMonitoringService {
     return results.get();
   }
 
+  public void disableDatasource(String datasourceId) {
+    engineMetaRepository.disableDataSource(datasourceId);
+  }
+
   public List<ListCriterion> getListCriterionInDatasource() {
 
     List<ListCriterion> criteria = new ArrayList<>();
@@ -787,6 +821,8 @@ public class EngineMonitoringService {
                                            "fully", "msg.engine.monitoring.ui.criterion.fully"));
         criterion.addFilter(new ListFilter(criterionKey, "availability",
                                            "partially", "msg.engine.monitoring.ui.criterion.partially"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "indexing", "msg.engine.monitoring.ui.criterion.indexing"));
         criterion.addFilter(new ListFilter(criterionKey, "availability",
                                            "disabled", "msg.engine.monitoring.ui.criterion.disabled"));
         break;

@@ -315,6 +315,7 @@ public class EngineMonitoringController {
     HashMap<String, Object> response = new HashMap<>();
     response.put("datasourceList", monitoringQueryService.getDatasource());
     response.put("datasourceListIncludeDisabled", monitoringQueryService.getDatasourceListIncludeDisabled());
+    response.put("datasourceLoadStatus", monitoringQueryService.getDatasourceLoadStatus());
     response.put("datasourceRules", monitoringQueryService.getDatasourceRules());
     return ResponseEntity.ok(response);
   }
@@ -322,7 +323,14 @@ public class EngineMonitoringController {
   @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.GET)
   public ResponseEntity<?> getDatasource(@PathVariable String datasource) {
     HashMap<String, Object> response = new HashMap<>();
-    response.put("datasource", monitoringQueryService.getDatasourceDetail(datasource));
+    Map result = monitoringQueryService.getDatasourceDetail(datasource);
+    Map datasourceLoadStatus = monitoringQueryService.getDatasourceLoadStatus();
+    if (datasourceLoadStatus.containsKey(datasource)) {
+      result.put("status", datasourceLoadStatus.get(datasource));
+    } else {
+      result.put("status", -1);
+    }
+    response.put("datasource", result);
     response.put("datasourceRule", monitoringQueryService.getDatasourceRule(datasource));
     response.put("datasourceStatus", monitoringQueryService.getDatasourceStatus(datasource));
     response.put("datasourceIntervals", monitoringQueryService.getDatasourceIntervals(datasource));
@@ -354,6 +362,12 @@ public class EngineMonitoringController {
 
     ListCriterion criterion = monitoringQueryService.getListCriterionInDatasourceByKey(criterionKeyEnum);
     return ResponseEntity.ok(criterion);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.DELETE)
+  public ResponseEntity<?> disableDatasource(@PathVariable(value = "datasource") String datasource) {
+    monitoringQueryService.disableDatasource(datasource);
+    return ResponseEntity.noContent().build();
   }
 
 }

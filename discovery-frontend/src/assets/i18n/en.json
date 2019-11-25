@@ -4341,5 +4341,10 @@
   "msg.engine.monitoring.ph.datasource.search": "Search datasource name",
   "msg.engine.monitoring.ui.criterion.fully": "Fully available",
   "msg.engine.monitoring.ui.criterion.partially": "Partially available",
-  "msg.engine.monitoring.ui.criterion.disabled": "Disabled"
+  "msg.engine.monitoring.ui.criterion.disabled": "Disabled",
+  "msg.engine.monitoring.ui.criterion.indexing": "Actively indexing",
+  "msg.engine.monitoring.alert.ds.disable.success" : "Datasource is disabled",
+  "msg.engine.monitoring.ui.ds.disable.title" : "Are you sure you want to disable it?",
+  "msg.engine.monitoring.ui.ds.disable.description" : "Datasource will be disabled.",
+  "msg.engine.monitoring.btn.ds.disable" : "Disable datasource"
 }

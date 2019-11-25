@@ -88,7 +88,9 @@ public class DruidEngineRepository extends AbstractEngineRepository {
   }
 
   public Optional<List> getHistoricalNodes(){
-    return call(GET_HISTORICAL_NODE, Maps.newHashMap(), List.class);
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("simple", null);
+    return call(GET_HISTORICAL_NODE, paramMap, List.class);
   }
 
   public Optional<List> getMiddleManagerNodes(){
@@ -100,7 +102,13 @@ public class DruidEngineRepository extends AbstractEngineRepository {
   }
 
   public Optional<List> getDatasourceListIncludeDisabled(){
-    return call(GET_DATASOURCE_LIST_INCLUDE_DISABLED, Maps.newHashMap(), List.class);
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("includeDisabled", null);
+    return call(GET_DATASOURCE_META, paramMap, List.class);
+  }
+
+  public Optional<Map> getDatasourceLoadStatus(){
+    return call(GET_DATASOURCE_LOAD_STATUS, Maps.newHashMap(), Map.class);
   }
 
   public Optional<Map> getDatasourceRules(){
@@ -121,15 +129,21 @@ public class DruidEngineRepository extends AbstractEngineRepository {
 
   public Optional<Map> getDatasourceIntervals(String datasourceId){
     Map paramMap = Maps.newHashMap();
+    paramMap.put("simple", null);
     paramMap.put("datasourceId", datasourceId);
     return call(GET_DATASOURCE_INTERVAL_LIST, paramMap, Map.class);
   }
 
   public Optional<Map> getDatasourceIntervalStatus(String datasourceId, String interval){
     Map paramMap = Maps.newHashMap();
+    paramMap.put("full", null);
     paramMap.put("datasourceId", datasourceId);
     paramMap.put("interval", interval);
     return call(GET_DATASOURCE_INTERVALS_STATUS, paramMap, Map.class);
+  }
+
+  public Optional<List> getRunningIds() {
+    return call(GET_RUNNING_IDS, Maps.newHashMap(), Maps.newHashMap(), List.class);
   }
 
   public Optional<List> sql(String sql) {
@@ -155,7 +169,9 @@ public class DruidEngineRepository extends AbstractEngineRepository {
   }
 
   public Optional<List> getSupervisorList() {
-    return call(GET_SUPERVISOR_LIST, Maps.newHashMap(), List.class);
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("full", null);
+    return call(GET_SUPERVISOR_LIST, paramMap, List.class);
   }
 
   private class QueryResponseErrorHandler implements ResponseErrorHandler {

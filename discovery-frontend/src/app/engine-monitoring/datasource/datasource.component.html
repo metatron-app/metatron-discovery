@@ -45,7 +45,8 @@
   <table class="ddp-table-form ddp-table-type3">
     <colgroup>
       <col width="*">
-      <col width="200px">
+      <col width="150px">
+      <col width="250px">
       <col width="150px">
       <col width="150px">
       <col width="150px">
@@ -57,6 +58,9 @@
       </th>
       <th>
         Status
+      </th>
+      <th>
+        Time
       </th>
       <th>
         Size
@@ -76,6 +80,9 @@
       </td>
       <td>
         {{getDatasourceStatusLabel(datasource)}}
+      </td>
+      <td>
+        {{datasource.segments.minTime | date : 'yyyy-MM-ddTHH' : 'UTC'}} ~ {{datasource.segments.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC'}}
       </td>
       <td>
         {{datasource.disabled ? '' : getDatasourceSize(datasource)}}
