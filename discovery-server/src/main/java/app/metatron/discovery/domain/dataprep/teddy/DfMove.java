@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotContinuousException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.NeedBeforeOrAfterException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
@@ -23,8 +22,8 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetPositi
 import app.metatron.discovery.prep.parser.preparation.rule.Move;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,45 +65,28 @@ public class DfMove extends DataFrame {
         }
       }
     } else {
-      throw new NeedBeforeOrAfterException(
-              "DfMove.prepare(): \"before:\" or \"after:\" clause is needed: " + move.toString());
+      throw new NeedBeforeOrAfterException("DfMove.prepare(): \"before:\" or \"after:\" clause is needed: " + move);
     }
 
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      String targetColName = ((Identifier.IdentifierExpr) targetColExpr).getValue();
-      Integer colno = prevDf.getColnoByColName(targetColName);
-      if (colno == null) {
-        throw new ColumnNotFoundException("DfMove.prepare(): column not found: " + targetColName);
-      }
-      targetColnos.add(colno);
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      List<String> targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
-      Integer lastColno = null;
-      for (String targetColName : targetColNames) {
-        Integer colno = prevDf.getColnoByColName(targetColName);
-        if (colno == null) {
-          throw new ColumnNotFoundException("DfMove.prepare(): column not found: " + targetColName);
-        }
-        if (lastColno != null && colno != lastColno + 1) {
-          throw new ColumnNotContinuousException(
-                  "DfMove.prepare(): columns are not countinuous: " + targetColExpr.toString());
-        }
-        targetColnos.add(colno);
-        lastColno = colno;
-      }
-    } else {
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
       throw new WrongTargetColumnExpressionException(
               "DfMove.prepare(): wrong target column expression: " + targetColExpr.toString());
     }
 
-    if (targetColnos.size() == 0) {
-      throw new WrongTargetColumnExpressionException(
-              "DfMove.prepare(): no target column designated: " + targetColExpr.toString());
+    for (String targetColName : targetColNames) {
+      targetColnos.add(prevDf.getColnoByColName(targetColName));
+    }
+    Collections.sort(targetColnos);
+
+    for (int i = 1; i < targetColnos.size(); i++) {
+      if (targetColnos.get(i) != targetColnos.get(i - 1) + 1) {
+        throw new ColumnNotContinuousException("DfMove.prepare(): columns are not continuous: " + targetColExpr);
+      }
     }
 
     if (targetColnos.get(0) == destColno) {
-      throw new WrongTargetPositionException(
-              "DfMove.prepare(): target position is same to current position: " + move.toString());
+      throw new WrongTargetPositionException("DfMove.prepare(): target position is same to current position: " + move);
     }
 
     List<Integer> targetOrder = new ArrayList<>();

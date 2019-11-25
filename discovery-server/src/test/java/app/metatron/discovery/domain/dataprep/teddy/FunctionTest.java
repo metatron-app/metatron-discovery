@@ -34,7 +34,7 @@ public class FunctionTest extends TeddyTest {
 
   private DataFrame newSampleDataFrame() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_timestamp2(df);
     df.show();
     return df;

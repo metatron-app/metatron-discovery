@@ -7,8 +7,8 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongWindowFuncti
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Window;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.FunctionExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,42 +75,29 @@ public class DfWindow extends DataFrame {
     Expression valueExpr = window.getValue();
     Expression groupExpr = window.getGroup();
     Expression orderExpr = window.getOrder();
-    List<Expr.FunctionExpr> funcExprs = new ArrayList<>();
-    List<String> groupColNames = new ArrayList<>();
-    List<String> orderColNames = new ArrayList<>();
 
     // values
-    if (valueExpr instanceof Expr.FunctionExpr) {
-      funcExprs.add((Expr.FunctionExpr) valueExpr);
-    } else if (valueExpr instanceof Expr.FunctionArrayExpr) {
-      funcExprs.addAll(((Expr.FunctionArrayExpr) valueExpr).getFunctions());
-    } else {
-      throw new InvalidAggregationValueExpressionTypeException(
-              "doPivot(): invalid aggregation value expression type: " + valueExpr.toString());
+    List<FunctionExpr> funcExprs = TeddyUtil.getFuncExprList(valueExpr);
+    if (funcExprs.isEmpty()) {
+      throw new InvalidAggregationValueExpressionTypeException("doPivot(): invalid aggregation value: " + window);
     }
 
     // partition colnames
-    if (groupExpr instanceof Identifier.IdentifierExpr) {
-      groupColNames.add(((Identifier.IdentifierExpr) groupExpr).getValue());
-    } else if (groupExpr instanceof Identifier.IdentifierArrayExpr) {
-      groupColNames.addAll(((Identifier.IdentifierArrayExpr) groupExpr).getValue());
-    } else if (groupExpr == null) {
-      groupColNames.clear();
-    } else {
-      throw new InvalidColumnExpressionTypeException(
-              "doPivot(): invalid pivot column expression type: " + groupExpr.toString());
+    List<String> groupColNames = new ArrayList();
+    if (groupExpr != null) {
+      groupColNames = TeddyUtil.getIdentifierList(groupExpr);
+      if (groupColNames.isEmpty()) {
+        throw new InvalidColumnExpressionTypeException("doWindow(): invalid group by column type: " + window);
+      }
     }
 
     // orderby colnames
-    if (orderExpr instanceof Identifier.IdentifierExpr) {
-      orderColNames.add(((Identifier.IdentifierExpr) orderExpr).getValue());
-    } else if (orderExpr instanceof Identifier.IdentifierArrayExpr) {
-      orderColNames.addAll(((Identifier.IdentifierArrayExpr) orderExpr).getValue());
-    } else if (orderExpr == null) {
-      orderColNames.clear();
-    } else {
-      throw new InvalidColumnExpressionTypeException(
-              "doPivot(): invalid pivot column expression type: " + orderExpr.toString());
+    List<String> orderColNames = new ArrayList();
+    if (orderExpr != null) {
+      orderColNames = TeddyUtil.getIdentifierList(orderExpr);
+      if (orderColNames.isEmpty()) {
+        throw new InvalidColumnExpressionTypeException("doWindow(): invalid order by column type: " + window);
+      }
     }
 
     preparedArgs.add(funcExprs);
@@ -122,9 +109,9 @@ public class DfWindow extends DataFrame {
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit)
           throws InterruptedException, TeddyException {
-    List<Expr.FunctionExpr> funcExprs = (List<Expr.FunctionExpr>) preparedArgs.get(0);
-    List<Expr.FunctionExpr> aggrExprs = new ArrayList<>();
-    HashMap<String, Expr.FunctionExpr> newColNameAndFunctions = new HashMap<>();
+    List<FunctionExpr> funcExprs = (List<FunctionExpr>) preparedArgs.get(0);
+    List<FunctionExpr> aggrExprs = new ArrayList<>();
+    HashMap<String, FunctionExpr> newColNameAndFunctions = new HashMap<>();
     List<String> groupByColNames = (List<String>) preparedArgs.get(1);
     List<String> orderColNames = (List<String>) preparedArgs.get(2);
     List<Row> newRows = new ArrayList<>();
@@ -154,7 +141,7 @@ public class DfWindow extends DataFrame {
     }
 
     //Aggregation Function과 Window Function 나눠담기.
-    for (Expr.FunctionExpr funcExpr : funcExprs) {
+    for (FunctionExpr funcExpr : funcExprs) {
       switch (funcExpr.getName()) {
         case "avg":
         case "count":
@@ -175,7 +162,7 @@ public class DfWindow extends DataFrame {
     }
 
     //새로운 column들을 추가한다.
-    for (Expr.FunctionExpr funcExpr : funcExprs) {
+    for (FunctionExpr funcExpr : funcExprs) {
       int i = funcExprs.indexOf(funcExpr) + 1;
       int newColPosition = 0;
 
@@ -287,7 +274,7 @@ public class DfWindow extends DataFrame {
         if (!newColNameAndFunctions.containsKey(getColName(j))) {
           newRow.add(getColName(j), row.get(getColName(j)));
         } else {
-          Expr.FunctionExpr funcExpr = newColNameAndFunctions.get(getColName(j));
+          FunctionExpr funcExpr = newColNameAndFunctions.get(getColName(j));
           List<Expr> args = funcExpr.getArgs();
           String targetColName;
           int start;

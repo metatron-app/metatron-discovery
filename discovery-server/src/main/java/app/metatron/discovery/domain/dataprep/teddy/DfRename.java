@@ -21,7 +21,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rename;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,30 +43,18 @@ public class DfRename extends DataFrame {
 
     Expression targetColExpr = rename.getCol();
     Expression newColNameExpr = rename.getTo();
-    List<String> targetColNames = new ArrayList<>();
-    List<String> newColNames = new ArrayList<>();
     List<String> oldColNames = new ArrayList<>();
     Map<Integer, String> newColnoAndColName = new HashMap<>();
 
-    //타깃 컬럼/컬럼리스트 처리
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
-    } else {
-      throw new WrongTargetColumnExpressionException(
-              "doRename(): wrong target column expression: " + targetColExpr.toString());
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
+      throw new WrongTargetColumnExpressionException("doRename(): wrong target column expression: " + rename);
     }
 
-    //타깃 컬럼의 새로운 컬럼이름 처리
-    if (newColNameExpr instanceof Constant.StringExpr) {
-      newColNames.add(newColNameExpr.toString());
-    } else if (newColNameExpr instanceof Constant.ArrayExpr) {
-      newColNames = ((Constant.ArrayExpr) newColNameExpr).getValue();
-    } else {
+    List<String> newColNames = TeddyUtil.getStringList(newColNameExpr);
+    if (newColNames.isEmpty()) {
       throw new IllegalColumnNameExpressionException(
-              "doRename(): the new column name expression is not an appropriate expression type: " + newColNameExpr
-                      .toString());
+              "doRename(): the new column name expression is not an appropriate expression" + rename);
     }
 
     //새로운 컬럼이름의 중복/특수문자 처리

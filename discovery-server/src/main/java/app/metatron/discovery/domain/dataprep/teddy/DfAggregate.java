@@ -21,7 +21,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.Aggregate;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -45,25 +44,18 @@ public class DfAggregate extends DataFrame {
     List<String> groupByColNames = new ArrayList<>();
     List<Expr.FunctionExpr> targetExprs;
 
-    // group by expression -> group by colnames
-    if (groupByColExpr == null) {
-      /* NOP */
-    } else if (groupByColExpr instanceof Identifier.IdentifierExpr) {
-      groupByColNames.add(((Identifier.IdentifierExpr) groupByColExpr).getValue());
-    } else if (groupByColExpr instanceof Identifier.IdentifierArrayExpr) {
-      groupByColNames.addAll(((Identifier.IdentifierArrayExpr) groupByColExpr).getValue());
-    } else {
-      throw new InvalidColumnExpressionTypeException(
-              "DfAggregate.prepare(): invalid group by column expression type: " + groupByColExpr.toString());
+    // group by expression -> group by colnames (group by can be null)
+    if (groupByColExpr != null) {
+      groupByColNames = TeddyUtil.getIdentifierList(groupByColExpr);
+      if (groupByColNames.isEmpty()) {
+        throw new InvalidColumnExpressionTypeException(
+                "DfAggregate.prepare(): invalid group by column expression type: " + groupByColExpr.toString());
+      }
     }
 
     // aggregation value expression is not string literals any more.
-    if (aggrValueExpr instanceof Expr.FunctionExpr) {
-      targetExprs = new ArrayList(1);
-      targetExprs.add((Expr.FunctionExpr) aggrValueExpr);
-    } else if (aggrValueExpr instanceof Expr.FunctionArrayExpr) {
-      targetExprs = ((Expr.FunctionArrayExpr) aggrValueExpr).getFunctions();
-    } else {
+    targetExprs = TeddyUtil.getFuncExprList(aggrValueExpr);
+    if (targetExprs.isEmpty()) {
       throw new InvalidAggregationValueExpressionTypeException(
               "DfAggregate.prepare(): invalid aggregation value expression type: " + aggrValueExpr.toString());
     }

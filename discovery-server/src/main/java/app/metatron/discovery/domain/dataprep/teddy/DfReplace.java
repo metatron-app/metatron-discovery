@@ -24,7 +24,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,24 +56,20 @@ public class DfReplace extends DataFrame {
     List<Object> preparedArgs = new ArrayList<>();
     Replace replace = (Replace) rule;
 
-    List<String> targetColNames = new ArrayList<>();
     Map<String, Expr> replacedConditionExprs = new HashMap<>();
     Expression targetColExpr = replace.getCol();
     Expression expr = replace.getOn();
     Expression withExpr = replace.getWith();
     Expression quote = replace.getQuote();
     Boolean globalReplace = replace.getGlobal();
-    Boolean isCaseIgnore = replace.getIgnoreCase();
+    Boolean ignoreCase = replace.getIgnoreCase();
     String patternStr;
     String quoteStr = null;
     String regExQuoteStr = null;
     Pattern pattern;
 
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
-    } else {
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
       throw new WrongTargetColumnExpressionException(
               "DfReplace.prepare(): wrong target column expression: " + targetColExpr.toString());
     }
@@ -97,55 +92,12 @@ public class DfReplace extends DataFrame {
 
     assert !(expr.toString().equals("''") || expr.toString().equals("//")) : "You can not replace empty string!";
 
-    //quote 문자가 없을 경우의 처리.
-
-    if (quote == null) {
-      if (expr instanceof Constant.StringExpr) {
-        patternStr = ((Constant.StringExpr) expr).getEscapedValue();
-
-        if (isCaseIgnore != null && isCaseIgnore) {
-          pattern = Pattern.compile(patternStr, Pattern.LITERAL + Pattern.CASE_INSENSITIVE);
-        } else {
-          pattern = Pattern.compile(patternStr, Pattern.LITERAL);
-        }
-
-      } else if (expr instanceof RegularExpr) {
-        patternStr = ((RegularExpr) expr).getEscapedValue();
-        pattern = Pattern.compile(patternStr);
-      } else {
-        throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + expr.toString());
-      }
-
-    } else { //quote 문자가 있을 경우의 처리(정규식으로 quote를 처리해야 해서 Pattern.compile 사용 불가)
-      if (expr instanceof Constant.StringExpr) {
-        patternStr = ((Constant.StringExpr) expr).getEscapedValue();
-        patternStr = disableRegexSymbols(patternStr);
-
-        if (isCaseIgnore != null && isCaseIgnore) {
-          patternStr = makeCaseInsensitive(patternStr);
-        }
-
-      } else if (expr instanceof RegularExpr) {
-        patternStr = ((RegularExpr) expr).getEscapedValue();
-      } else {
-        throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + expr.toString());
-      }
-
-      if (quote instanceof Constant.StringExpr) {
-        quoteStr = ((Constant.StringExpr) quote).getEscapedValue();
-        regExQuoteStr = disableRegexSymbols(quoteStr);
-      } else if (expr instanceof RegularExpr) {
-        regExQuoteStr = ((RegularExpr) quote).getEscapedValue();
-      } else {
-        throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + quote.toString());
-      }
-
-      patternStr = compilePatternWithQuote(patternStr, regExQuoteStr);
-      pattern = Pattern.compile(patternStr);
-    }
+    patternStr = TeddyUtil.getPatternStr(expr, ignoreCase);
+    quoteStr = TeddyUtil.getQuoteStr(quote);
+    patternStr = TeddyUtil.modifyPatternStrWithQuote(patternStr, quoteStr);
 
     preparedArgs.add(targetColNames);
-    preparedArgs.add(pattern);
+    preparedArgs.add(patternStr);
     preparedArgs.add(withExpr);
     preparedArgs.add(globalReplace);
     preparedArgs.add(regExQuoteStr);
@@ -161,7 +113,7 @@ public class DfReplace extends DataFrame {
     List<Row> rows = new ArrayList<>();
 
     List<String> targetColNames = (List<String>) preparedArgs.get(0);
-    Pattern pattern = (Pattern) preparedArgs.get(1);
+    String patternStr = (String) preparedArgs.get(1);
     Expression withExpr = (Expression) preparedArgs.get(2);
     Boolean globalReplace = (Boolean) preparedArgs.get(3);
     String quoteStr = (String) preparedArgs.get(4);
@@ -170,73 +122,23 @@ public class DfReplace extends DataFrame {
 
     LOGGER.trace("DfReplace.gather(): start: offset={} length={}", offset, length);
 
-    if (quoteStr == null) {
-      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-        Row row = prevDf.rows.get(rowno);
-        Row newRow = new Row();
-        for (int colno = 0; colno < getColCnt(); colno++) {
-          String columnName = getColName(colno);
-          if (targetColNames.contains(columnName) && row.get(colno) != null && checkCondition(
-                  replacedConditionExprs.get(columnName), row)) {
-            String targetStr = (String) row.get(colno);
-            Matcher matcher = pattern.matcher(targetStr);
-            if (matcher.find()) {
-              if (globalReplace) {
-                newRow.add(columnName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()));
-              } else {
-                newRow.add(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
-              }
-            } else {
-              newRow.add(columnName, row.get(colno));
-            }
-          } else {
-            newRow.add(columnName, row.get(colno));
-          }
-        }
-        rows.add(newRow);
-      }
-    } else { //quote 문자가 있을 경우의 처리(정규식으로 quote를 처리해야 해서 Pattern.compile 사용 불가)
-      for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
-        Row row = prevDf.rows.get(rowno);
-        Row newRow = new Row();
-        for (int colno = 0; colno < getColCnt(); colno++) {
-          String columnName = getColName(colno);
-          if (targetColNames.contains(columnName) && row.get(colno) != null && checkCondition(
-                  replacedConditionExprs.get(columnName), row)) {
-            String targetStr = (String) row.get(colno);
-            if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 == 0) {
-              Matcher matcher = pattern.matcher(targetStr);
-              if (matcher.find()) {
-                if (globalReplace) {
-                  newRow.add(columnName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()));
-                } else {
-                  newRow.set(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
-                }
-              } else {
-                newRow.add(columnName, row.get(colno));
-              }
-            } else {//quote가 홀수개일 때는 마지막 quote 이후의 문자열은 처리 하지 않는다.
-              String targetStr2 = targetStr.substring(targetStr.lastIndexOf(originalQuoteStr));
-              targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
+    for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
+      Row row = prevDf.rows.get(rowno);
+      Row newRow = new Row();
+      for (int colno = 0; colno < getColCnt(); colno++) {
+        String colName = getColName(colno);
+        if (targetColNames.contains(colName) && row.get(colno) != null && checkCondition(
+                replacedConditionExprs.get(colName), row)) {
+          String coldata = (String) row.get(colno);
 
-              Matcher matcher = pattern.matcher(targetStr);
-              if (matcher.find()) {
-                if (globalReplace) {
-                  newRow.add(columnName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
-                } else {
-                  newRow.add(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
-                }
-              } else {
-                newRow.add(columnName, row.get(colno));
-              }
-            }
-          } else {
-            newRow.add(columnName, row.get(colno));
-          }
+          String replacement = ((Expr) withExpr).eval(row).stringValue();
+          coldata = TeddyUtil.replace(coldata, patternStr, replacement, quoteStr, globalReplace);
+          newRow.add(colName, coldata);
+        } else {
+          newRow.add(colName, row.get(colno));
         }
-
-        rows.add(newRow);
       }
+      rows.add(newRow);
     }
 
     LOGGER.trace("DfReplace.gather(): done: offset={} length={}", offset, length);

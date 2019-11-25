@@ -33,7 +33,7 @@ public class DeriveTest extends TeddyTest {
 
   private DataFrame newNullContainedDataFrame() throws IOException, TeddyException {
     DataFrame null_contained = new DataFrame();
-    null_contained.setByGrid(grids.get("null_contained"), null);
+    null_contained.setByGrid(grids.get("null_contained"));
     null_contained = prepare_null_contained(null_contained);
     null_contained.show();
     return null_contained;
