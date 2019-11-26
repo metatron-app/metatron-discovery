@@ -671,6 +671,7 @@ export class CreateSourceCompleteData {
 export class KafkaData {
   public bootstrapServer: string;
   public topic: string;
+  public type: string;
   public fieldList: Field[];
   public fieldData: Field[];
   public totalRows: number;

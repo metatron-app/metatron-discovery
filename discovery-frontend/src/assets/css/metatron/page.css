@@ -10791,3 +10791,18 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-type-dataset  .ddp-wrap-grid {height:100%; padding-bottom:44px; box-sizing:border-box;}
 .ddp-type-dataset .ddp-wrap-viewtable {height:100%;}
 
+/**********************************************************************************
+     pop stream
+**********************************************************************************/
+
+.page-storage-create .form-check {display:flex;}
+.page-storage-create .form-check .ddp-btn-pop {min-width:auto; margin-left:4px; white-space:nowrap;}
+.page-storage-create .ddp-wrap-edit2.type-url {margin-top:0;}
+.page-storage-create .ddp-wrap-edit2.type-url .ddp-ui-buttons {padding-top:6px;}
+.page-storage-create .ddp-radio-inline {padding-top:5px; overflow:hidden;}
+.page-storage-create .ddp-radio-inline li {float:left; margin-right:20px;}
+.page-storage-create .ddp-wrap-update { margin-top:17px; margin-bottom:6px;}
+.page-storage-create .ddp-wrap-update .ddp-txt-update {color:#666eb2; font-size:14px; float:left;}
+.page-storage-create .ddp-wrap-update .ddp-btn-line {float:right; margin-top:-7px;}
+.page-storage-create .ddp-wrap-update .ddp-btn-line .ddp-icon-reload {display:inline-block; width:12px; height:12px; margin-right:4px; background:url(../../images/btn_refresh.png) no-repeat; background-position:left -76px; vertical-align:middle;}
+.page-storage-create .ddp-txt-error.type-inline {position:relative; top:-5px; margin-left:5px;}

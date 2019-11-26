@@ -120,6 +120,8 @@ export class UploaderComponent extends AbstractComponent {
         return /^.*\.xls$/.test(file.name);
       case 'xlsx':
         return /^.*\.xlsx$/.test(file.name);
+      case 'json':
+        return /^.*\.json$/.test(file.name);
     }
   }
 
