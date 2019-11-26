@@ -139,12 +139,16 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
       }
     }
 
+    console.info( '>>>>>> format', format );
+
     // 공통적용 포맷
     this.format = format;
   }
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
+
+    console.info( '>>>>>> uiOption', uiOption );
 
     // Set
     this.uiOption = uiOption;

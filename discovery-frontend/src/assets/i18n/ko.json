@@ -3419,6 +3419,7 @@
   "msg.page.li.line": "라인",
   "msg.page.li.bar": "바",
   "msg.page.th.exponential.form": "지수",
+  "msg.page.li.origin" : "원본",
   "msg.page.li.num": "숫자",
   "msg.page.li.currency": "통화",
   "msg.page.li.percent": "퍼센트",

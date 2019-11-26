@@ -3442,6 +3442,7 @@
   "msg.page.li.line" : "Line",
   "msg.page.li.bar" : "Bar",
   "msg.page.th.exponential.form" : "Exponential form",
+  "msg.page.li.origin" : "Origin",
   "msg.page.li.num" : "Number",
   "msg.page.li.currency" : "Currency",
   "msg.page.li.percent" : "Percent",
