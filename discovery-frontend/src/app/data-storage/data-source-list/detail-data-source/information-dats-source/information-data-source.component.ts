@@ -94,8 +94,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
 
-  @Input()
-  public isShowModifiedGuideMessage: boolean;
+  public isShowModifiedGuideMessage: boolean = true;
 
   // scope types
   private ingestionScopeTypeList: any[];

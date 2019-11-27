@@ -4171,7 +4171,7 @@
   "msg.metadata.metadata.detail.data-grid": "데이터 그리드",
   "msg.metadata.metadata.detail.column-details": "열 상세정보",
   "msg.metadata.metadata.detail.monitoring": "모니터링",
-  "msg.metadata.metadata.detail.lineage": "혈통",
+  "msg.metadata.metadata.detail.lineage": "리니지",
   "msg.metadata.metadata.detail.dictionary": "사전",
   "msg.metadata.metadata.detail.ui.description": "상세정보",
   "msg.metadata.metadata.detail.ui.no.description": "상세정보 없음",

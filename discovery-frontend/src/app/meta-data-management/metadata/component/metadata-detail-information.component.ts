@@ -33,6 +33,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public isEditDescription: boolean = false;
   public descriptionChangeText: string = '';
+  public isShowMetadataGuide: boolean = true;
 
   public metadata: Metadata;
   public sourceType = SourceType;
