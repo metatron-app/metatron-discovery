@@ -42,7 +42,7 @@ import {CreateSourceCompleteData} from "../../service/data-source-create.service
 @Component({
   selector: 'app-detail-datasource',
   templateUrl: './detail-data-source.component.html',
-  providers: [MomentDatePipe]
+  providers: [MomentDatePipe],
 })
 export class DetailDataSourceComponent extends AbstractComponent implements OnInit {
 
