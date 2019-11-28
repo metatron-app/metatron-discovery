@@ -37,10 +37,10 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  myFavoriteCreatorList: DataCreator[] = [];
+  dataCreatorList: DataCreator[] = [];
 
   // search
-  searchRange = {name: 'All', value: ExploreDataConstant.SearchRange.ALL};
+  searchRange = {name: 'DATA_NAME', value: ExploreDataConstant.SearchRange.DATA_NAME};
   searchedKeyword: string = '';
 
   selectedSort = 'modifiedTime, desc';
@@ -83,7 +83,7 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
           } else if (key === 'page') {
             this.page.page = params['page'];
           } else if (key === 'sort') {
-            this.selectedSort = params['sort'].split(',');
+            // this.selectedSort = params['sort'].split(',');
           }
         });
         // TODO 추후 criterion component로 이동
@@ -91,7 +91,7 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
         // init criterion search param
       }
 
-      this.getCreatorList(this.getMyFavoriteCreatorListParams()).then();
+      this.getCreatorList(this.getDataCreatorListParams()).then();
 
       // set datasource list
     }));
@@ -108,14 +108,31 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
    */
   reloadPage(isFirstPage: boolean = true) {
     (isFirstPage) && (this.page.page = 0);
-    this.searchParams = this.getMyFavoriteCreatorListParams();
+    this.searchParams = this.getDataCreatorListParams();
     this.router.navigate(
       [this.router.url.replace(/\?.*/gi, '')],
       {queryParams: this.searchParams, replaceUrl: true}
     ).then();
   } // function - reloadPage
 
-  getMyFavoriteCreatorListParams() {
+  async getCreatorList(params) {
+    this.loadingShow();
+    const result = await this.metadataService.getCreatorList(params).catch((e) => this.commonExceptionHandler(e));
+
+    if (!_.isNil(result)) {
+      // add ddp-scroll class to layout
+      this.pageResult = result.page;
+      // set metadata list
+      if (result) {
+        this.dataCreatorList = result;
+      } else {
+        this.dataCreatorList = [];
+      }
+      this.loadingHide();
+    }
+  }
+
+  getDataCreatorListParams() {
     let params;
     params = {
       page: this.page.page,
@@ -127,6 +144,7 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
       params[this.searchRange.value] = this.searchedKeyword.trim();
     }
+
     return params;
   }
 
@@ -138,39 +156,30 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
     this.router.navigate(['exploredata/favorite/creator', username]).then();
   }
 
-  async getCreatorList(params) {
-    this.loadingShow();
-    const result = await this.metadataService.getCreatorList({size: 20, page: 0, projection: 'forListView', sort: 'modifiedTime,desc'}).catch((e) => this.commonExceptionHandler(e));
-
-    if (!_.isNil(result)) {
-      // add ddp-scroll class to layout
-      this.pageResult = result.page;
-      // set metadata list
-      if (result) {
-        this.myFavoriteCreatorList = result;
-        console.log(this.myFavoriteCreatorList);
-      } else {
-        this.myFavoriteCreatorList = [];
-      }
-      this.loadingHide();
-    }
+  /**
+   * Search connection keypress event
+   * @param {string} keyword
+   */
+  public onChangedSearchKeyword(keyword: string): void {
+    // set search keyword
+    this.searchedKeyword = keyword;
+    // reload page
+    this.reloadPage(true);
   }
-
 
   onClickFavoriteInCard(selectedCreator: any) {
     event.stopPropagation();
     event.stopImmediatePropagation();
 
     this.metadataService.toggleCreatorFavorite(selectedCreator.creator.id, selectedCreator.favorite).then().catch(e => this.commonExceptionHandler(e));
-    const index = this.myFavoriteCreatorList.findIndex(creator => {
+    const index = this.dataCreatorList.findIndex(creator => {
       return creator.creator.id = selectedCreator.creator.id;
     });
 
     if (index !== -1) {
-      this.myFavoriteCreatorList[index].favorite = !this.myFavoriteCreatorList[index].favorite;
+      this.dataCreatorList[index].favorite = !this.dataCreatorList[index].favorite;
     }
   }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
