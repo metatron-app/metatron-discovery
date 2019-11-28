@@ -76,7 +76,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   metadataList: Metadata[] = [];
 
   // search
-  searchRange = {name: 'All', value: ExploreDataConstant.SearchRange.ALL};
+  searchRange = {name: 'NAME_CONTAINS', value: ExploreDataConstant.SearchRange.DATA_NAME};
   searchedKeyword: string = '';
 
   // sort
@@ -190,6 +190,10 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     // source type
     if (this.selectedSourceTypeFilter !== undefined) {
       params['sourceType'] = this.selectedSourceTypeFilter;
+    }
+
+    if (this.selectedSourceTypeFilter === 'ALL') {
+      delete params['sourceType'];
     }
     return params;
   }

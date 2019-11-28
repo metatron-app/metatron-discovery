@@ -15,36 +15,36 @@
     <div class="ddp-wrap-data-list">
       <!-- top option -->
       <div class="ddp-type-top-option ddp-clear ">
-        <!-- 검색 -->
-        <div class="ddp-type-search ddp-fleft ">
-          <component-input
-            [autoFocus]="false"
-            [isEnableDelete]="true"
-            [value]="searchedKeyword"
-            [placeHolder]="'msg.storage.ph.source.search' | translate"
-            (changeValue)="onChangedSearchKeyword($event)">
-          </component-input>
-          <a href="javascript:" class="ddp-btn-delete"></a>
-        </div>
-        <!-- //검색 -->
+<!--        &lt;!&ndash; 검색 &ndash;&gt;-->
+<!--        <div class="ddp-type-search ddp-fleft ">-->
+<!--          <component-input-->
+<!--            [autoFocus]="false"-->
+<!--            [isEnableDelete]="true"-->
+<!--            [value]="searchedKeyword"-->
+<!--            [placeHolder]="'msg.storage.ph.source.search' | translate"-->
+<!--            (changeValue)="onChangedSearchKeyword($event)">-->
+<!--          </component-input>-->
+<!--          <a href="javascript:" class="ddp-btn-delete"></a>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; //검색 &ndash;&gt;-->
 
-        <div class="ddp-ui-rightoption">
-          <!-- form -->
-          <div class="ddp-form-label2">
-            <label class="ddp-label-type">{{'msg.metadata.md.ui.data.type' | translate}}</label>
-            <div class="ddp-wrap-dropdown">
-              <!-- select box -->
-              <component-select
-                [defaultIndex]="0"
-                [array]="sourceTypeList"
-                [viewKey]="'label'"
-                (onSelected)="onSelectSourceType($event)">
-              </component-select>
-              <!-- //select box -->
-            </div>
-          </div>
-          <!-- //form -->
-        </div>
+<!--        <div class="ddp-ui-rightoption">-->
+<!--          &lt;!&ndash; form &ndash;&gt;-->
+<!--          <div class="ddp-form-label2">-->
+<!--            <label class="ddp-label-type">{{'msg.metadata.md.ui.data.type' | translate}}</label>-->
+<!--            <div class="ddp-wrap-dropdown">-->
+<!--              &lt;!&ndash; select box &ndash;&gt;-->
+<!--              <component-select-->
+<!--                [defaultIndex]="0"-->
+<!--                [array]="sourceTypeList"-->
+<!--                [viewKey]="'label'"-->
+<!--                (onSelected)="onSelectSourceType($event)">-->
+<!--              </component-select>-->
+<!--              &lt;!&ndash; //select box &ndash;&gt;-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          &lt;!&ndash; //form &ndash;&gt;-->
+<!--        </div>-->
       </div>
       <!-- //top option -->
       <div class="ddp-meta-list">
@@ -75,9 +75,9 @@
               </th>
               <th (click)="toggleSortOption('name')">
                 {{ 'msg.comm.ui.name' | translate }}
-                <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
-                <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
-                <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
+<!--                <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>-->
+<!--                <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>-->
+<!--                <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>-->
               </th>
               <th>
                 {{ 'msg.metadata.md.ui.tags' | translate }}
@@ -111,9 +111,9 @@
               </th>
               <th (click)="toggleSortOption('modifiedTime')">
                 {{'msg.comm.ui.list.updated' | translate}}
-                <em class="ddp-icon-array-default2" *ngIf="sortOptions.modifiedTime.option === 'default'"></em>
-                <em class="ddp-icon-array-asc2" *ngIf="sortOptions.modifiedTime.option === 'asc'"></em>
-                <em class="ddp-icon-array-des2" *ngIf="sortOptions.modifiedTime.option === 'desc'"></em>
+<!--                <em class="ddp-icon-array-default2" *ngIf="sortOptions.modifiedTime.option === 'default'"></em>-->
+<!--                <em class="ddp-icon-array-asc2" *ngIf="sortOptions.modifiedTime.option === 'asc'"></em>-->
+<!--                <em class="ddp-icon-array-des2" *ngIf="sortOptions.modifiedTime.option === 'desc'"></em>-->
               </th>
               <th></th>
             </tr>
