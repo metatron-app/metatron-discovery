@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.mdm;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.DateTimePath;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -37,11 +38,20 @@ public class CodeTablePredicate {
     BooleanBuilder builder = new BooleanBuilder();
     QCodeTable codeTable = QCodeTable.codeTable;
 
-    if(from != null && to != null) {
-      if(StringUtils.isNotEmpty(searchDateBy) && "CREATED".equalsIgnoreCase(searchDateBy)) {
-        builder = builder.and(codeTable.createdTime.between(from, to));
+    if(StringUtils.isNotEmpty(searchDateBy)) {
+      DateTimePath searchDateTimePath;
+      if("UPDATED".equalsIgnoreCase(searchDateBy)){
+        searchDateTimePath = codeTable.modifiedTime;
       } else {
-        builder = builder.and(codeTable.modifiedTime.between(from, to));
+        searchDateTimePath = codeTable.createdTime;
+      }
+
+      if (from != null && to != null) {
+        builder = builder.and(searchDateTimePath.between(from, to));
+      } else if (from != null) {
+        builder = builder.and(searchDateTimePath.goe(from));
+      } else if (to != null) {
+        builder = builder.and(searchDateTimePath.loe(to));
       }
     }
 

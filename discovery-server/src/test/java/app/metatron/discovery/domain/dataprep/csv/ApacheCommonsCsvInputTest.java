@@ -1,12 +1,13 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ApacheCommonsCsvInputTest {
 
@@ -19,7 +20,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_with_df() {
     String strUri = buildStrUrlFromResourceDir("csv/sale.csv");
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -28,7 +29,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_bom() {
     String strUri = buildStrUrlFromResourceDir("csv/sale_bom16.csv");
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -37,7 +38,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_bom_and_header() {
     String strUri = buildStrUrlFromResourceDir("csv/sale_bom16.csv");
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, true);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.withHeader(true).parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -46,7 +47,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_unstructured() {
     String strUri = buildStrUrlFromResourceDir("csv/unstructured.csv");
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show(50);
@@ -55,7 +56,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line.csv");
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -66,7 +67,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line_escape() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.withEscape('\\').parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -78,7 +79,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line_unmatched() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null, null, true, false);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.withEscape('\\').withHeader(true).parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();

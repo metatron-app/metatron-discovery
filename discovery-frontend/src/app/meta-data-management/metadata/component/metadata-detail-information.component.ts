@@ -1,4 +1,4 @@
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {Component, ComponentFactoryResolver, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {MetadataService} from "../service/metadata.service";
 import {ActivatedRoute} from "@angular/router";
@@ -10,17 +10,19 @@ import {Datasource} from "../../../domain/datasource/datasource";
 import {CatalogService} from "../../catalog/service/catalog.service";
 import {isUndefined} from "util";
 import {StringUtil} from "../../../common/util/string.util";
+import {Modal} from "../../../common/domain/modal";
 
 @Component(
   {
     selector: 'app-metadata-management-metadata-detail-information',
-    templateUrl: './metadata-detail-information.component.html'
+    templateUrl: './metadata-detail-information.component.html',
   }
 )
 export class MetadataDetailInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   @ViewChild('descInput')
   private _descInput: ElementRef;
 
@@ -33,6 +35,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public isEditDescription: boolean = false;
   public descriptionChangeText: string = '';
+  public isShowMetadataGuide: boolean = true;
 
   public metadata: Metadata;
   public sourceType = SourceType;
@@ -57,6 +60,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
     protected element: ElementRef,
+    private resolver: ComponentFactoryResolver,
     protected metadataService: MetadataService,
     protected activatedRoute: ActivatedRoute,
     private metadataModelService: MetadataModelService,
@@ -159,7 +163,14 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   public onClickGoToDatasourceButton() {
-    this.router.navigate(['/management/storage/datasource/', this.metadata.source.source.id]).then();
+
+    const modal: Modal = new Modal();
+    modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+    modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+    modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
+    modal.afterConfirm = () => this.router.navigate(['/management/storage/datasource/', this.metadata.source.source.id]).then()
+
+    CommonUtil.confirm(modal);
   }
 
   private _getMetadataTags() {
@@ -356,5 +367,4 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       this.loadingHide();
     });
   }
-
 }

@@ -723,6 +723,11 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
           datasetFile.delimiter = ',';
         }
 
+        const quoteCharWithCommaDel = ['CSV', 'TXT'];
+        if(-1 !== quoteCharWithCommaDel.indexOf(datasetFile.fileFormat.toString())) {
+          datasetFile.quoteChar = '\"';
+        }
+
         datasetFile.fileName = this.upFiles[i].fileName;
         datasetFile.fileExtension = this.upFiles[i].fileExtension;
 

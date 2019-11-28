@@ -542,7 +542,6 @@ public class PrepDatasetStagingDbService {
 
         if (fileType.equalsIgnoreCase("JSON")) {
           PrepJsonUtil.writeHiveTableAsJSON(rs, outputStream, dbName);
-
         } else {
           PrepCsvUtil.writeHiveTableAsCSV(rs, outputStream, dbName);
         }

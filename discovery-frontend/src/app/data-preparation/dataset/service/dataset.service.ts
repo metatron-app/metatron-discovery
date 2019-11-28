@@ -89,12 +89,15 @@ export class DatasetService extends AbstractService {
    * @param param {storedUri :string, fileType : string, delimiter? : string}
    * @returns {Promise<any>}
    */
-  public getFileGridInfo(param : {storedUri :string, delimiter? : string, manualColumnCount? : number}) {
+  public getFileGridInfo(param : {storedUri :string, delimiter? : string, quoteChar? :string, manualColumnCount? : number}) {
 
     let url = this.API_URL + 'preparationdatasets/file_grid?storedUri=' + encodeURI(param.storedUri);
 
     if (param.delimiter) {
       url += `&delimiterCol=${encodeURI(param.delimiter)}`;
+    }
+    if (param.quoteChar!==undefined) {
+      url += `&quoteChar=${encodeURI(param.quoteChar)}`;
     }
     if (param.manualColumnCount){
       url += `&manualColumnCount=${param.manualColumnCount}`;

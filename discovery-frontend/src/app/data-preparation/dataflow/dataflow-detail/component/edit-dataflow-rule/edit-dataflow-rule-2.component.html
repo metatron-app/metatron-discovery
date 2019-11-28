@@ -259,7 +259,7 @@
                 <!--//endNest-->
 
                 <!--startUnnest-->
-                <edit-rule-unnest #editRule *ngIf="'unnest' === ruleVO.command"></edit-rule-unnest>
+                <edit-rule-unnest #editRule *ngIf="'unnest' === ruleVO.command" [firstRow]="selectedDataSet.gridData.data?selectedDataSet.gridData.data[0]:null"></edit-rule-unnest>
                 <!--//endUnnest-->
 
                 <!--startSetformat-->

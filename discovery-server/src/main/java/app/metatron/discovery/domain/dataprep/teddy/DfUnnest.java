@@ -14,20 +14,30 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IdxOnMapTypeShouldBeStringException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidIndexTypeException;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.ARRAY;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.BOOLEAN;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.DOUBLE;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.LONG;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.MAP;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.STRING;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.TIMESTAMP;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayOrMapException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongArrayIndexException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongMapKeyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ser.std.StdArraySerializers.FloatArraySerializer;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,70 +53,103 @@ public class DfUnnest extends DataFrame {
   public List<Object> prepare(DataFrame prevDf, Rule rule, List<DataFrame> slaveDfs) throws TeddyException {
     List<Object> preparedArgs = new ArrayList<>();
     Unnest unnest = (Unnest) rule;
-
     String targetColName = unnest.getCol();
-    int targetColno;
-    Expression idx = unnest.getIdx(); // constant numeric, literal, numeric as literal  --> 정작 array가 필요
+    Expression idxExpr = unnest.getIdx();
+    List<String> newColNames = new ArrayList();
 
-    targetColno = prevDf.getColnoByColName(targetColName);
-    if (prevDf.getColType(targetColno) != ColumnType.ARRAY && prevDf.getColType(targetColno) != ColumnType.MAP) {
-      throw new WorksOnlyOnArrayOrMapException(
-              "doUnnest(): works only on ARRAY/MAP: " + prevDf.getColType(targetColno));
-    }
+    int targetColno = prevDf.getColnoByColName(targetColName);
+    ColumnType prevType = prevDf.getColType(targetColno);
 
-    int arrayIdx = -1;
-    String mapKey = null;   // if null -> array
-    String newColName;
-    ColumnDescription colDesc = prevDf.getColDesc(targetColno);
-    ColumnDescription newColDesc;
-
-    if (prevDf.getColType(targetColno) == ColumnType.ARRAY) {
-      // 컬럼이름은 언제나 unnest_0
-      // row별로 fetch는 arrayIdx로
-      if (idx instanceof Constant.StringExpr) {   // supports StringExpr for backward-compatability
-        arrayIdx = Integer.valueOf(((Constant.StringExpr) idx).getEscapedValue());
-      } else if (idx instanceof Constant.LongExpr) {
-        arrayIdx = ((Long) ((Constant.LongExpr) idx).getValue()).intValue();
-      } else {
-        throw new InvalidIndexTypeException("doUnnest(): invalid index type: " + idx.toString());
-      }
-      newColName = modifyDuplicatedColName("unnest_" + arrayIdx);
-    } else {
-      // row별로 fetch는 mapKey로, 컬럼이름은 mapKey를 기존컬럼과 안겹치게 변형한 것
-      if (idx instanceof Identifier.IdentifierExpr) {
-        throw new IdxOnMapTypeShouldBeStringException(
-                "doUnnest(): idx on MAP type should be STRING (maybe, this is a column name): "
-                        + ((Identifier.IdentifierExpr) idx).getValue());
-      } else if (idx instanceof Constant.StringExpr) {
-        mapKey = ((Constant.StringExpr) idx).getEscapedValue();
-        if (mapKey.startsWith("`") && mapKey.endsWith("`")) {
-          mapKey = mapKey.substring(1, mapKey.length() - 1);
-        }
-        newColName = modifyDuplicatedColName("unnest_" + mapKey);
-      } else {
-        throw new IdxOnMapTypeShouldBeStringException(
-                "doUnnest(): idx on MAP type should be STRING: " + idx.toString());
-      }
+    if (prevType != MAP && prevType != ARRAY) {
+      throw new WorksOnlyOnArrayOrMapException("doUnnest(): works only on ARRAY/MAP: " + prevType);
     }
 
     addColumnWithDfAll(prevDf);
 
-    if (mapKey == null) {
-      newColDesc = colDesc.getArrColDesc().get(arrayIdx);
-    } else {
-      newColDesc = colDesc.getMapColDesc().get(mapKey);
-    }
-    assert newColDesc != null : prevDf.getColName(targetColno);
-    newColName = addColumn(targetColno + 1, newColName, newColDesc);
+    List<String> idxs = TeddyUtil.getStringList(idxExpr);
 
-    newColNames.add(newColName);
-    interestedColNames.add(newColName);
+    for (int i = 0; i < idxs.size(); i++) {
+      String idx = idxs.get(i);
+      String newColName;
+      if (prevType == MAP) {
+        newColName = modifyDuplicatedColName(idx);
+      } else {
+        newColName = modifyDuplicatedColName(targetColName + "_" + idx);
+      }
+      newColNames.add(newColName);
+      addColumn(targetColno + 1 + i, newColName, ColumnType.STRING);  // Later, will be converted into a proper type
+    }
+
+    interestedColNames.addAll(newColNames);
 
     preparedArgs.add(targetColno);
-    preparedArgs.add(mapKey);
-    preparedArgs.add(arrayIdx);
-    preparedArgs.add(newColName);
+    preparedArgs.add(prevType);
+    preparedArgs.add(idxs);
+    preparedArgs.add(newColNames);
     return preparedArgs;
+  }
+
+  private Object getElem(String jsonStr, String idx, ColumnType colType) throws InvalidJsonException {
+    try {
+      if (colType == MAP) {
+        Map<String, Object> map = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, Map.class);
+        Object obj = map.get(idx);
+        return obj == null ? null : obj;
+      } else {
+        List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, List.class);
+        int i = Integer.valueOf(idx);
+        assert i >= 0 : i;
+        return i >= list.size() ? null
+                : GlobalObjectMapper.getDefaultMapper().writeValueAsString(list.get(Integer.valueOf(idx)));
+      }
+    } catch (IOException e) {
+      LOGGER.warn("DfUnnest.gather(): cannot deserialize array/map type value", e);
+      throw new InvalidJsonException(e.getMessage());
+    }
+  }
+
+  private Object convertColTypeByValue(int colno, Object obj)
+          throws ColumnNotFoundException, CannotSerializeIntoJsonException {
+    if (obj == null) {
+      return null;
+    }
+
+    if (obj instanceof Map) {
+      setColType(colno, MAP);
+      /* need to jsonize */
+    } else if (obj instanceof List) {
+      setColType(colno, ARRAY);
+      /* need to jsonize */
+    } else if (obj instanceof Integer) {
+      setColType(colno, LONG);
+      return ((Integer) obj).longValue();
+    } else if (obj instanceof Long) {
+      setColType(colno, LONG);
+      return obj;
+    } else if (obj instanceof Float) {
+      setColType(colno, DOUBLE);
+      return ((Float) obj).doubleValue();
+    } else if (obj instanceof Double) {
+      setColType(colno, DOUBLE);
+      return obj;
+    } else if (obj instanceof DateTime) {
+      setColType(colno, TIMESTAMP);
+      return obj;
+    } else if (obj instanceof Boolean) {
+      setColType(colno, BOOLEAN);
+      return obj;
+    } else {
+      setColType(colno, STRING);
+      return obj;
+    }
+
+    String jsonStr;
+    try {
+      jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      throw new CannotSerializeIntoJsonException(e.getMessage());
+    }
+    return jsonStr;
   }
 
   @Override
@@ -114,42 +157,33 @@ public class DfUnnest extends DataFrame {
           throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
     int targetColno = (int) preparedArgs.get(0);
-    String mapKey = (String) preparedArgs.get(1);
-    int arrayIdx = (int) preparedArgs.get(2);
-    String newColName = (String) preparedArgs.get(3);
-    int colno;
+    ColumnType prevType = (ColumnType) preparedArgs.get(1);
+    List<String> idxs = (List<String>) preparedArgs.get(2);
+    List<String> newColNames = (List<String>) preparedArgs.get(3);
 
-    LOGGER.trace("DfUnnest.gather(): start: offset={} length={} newColName={}", offset, length, newColName);
+    LOGGER.debug("DfUnnest.gather(): start: offset={} length={} newColName={}", offset, length, newColNames);
 
     for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
       Row row = prevDf.rows.get(rowno);
       Row newRow = new Row();
 
-      // 목적 컬럼까지만 추가
-      for (colno = 0; colno <= targetColno; colno++) {
+      // Add until the new column
+      int colno = 0;
+      for (/* NOP */; colno <= targetColno; colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 
-      // 새 컬럼 추가
-      if (mapKey == null) {
-        List arr = (List) row.get(targetColno);
-        if (arrayIdx >= arr.size()) {
-          throw new WrongArrayIndexException(
-                  String.format("doUnnest(): arrayIdx > array length: idx=%d len=%d rowno=%d", arrayIdx, arr.size(),
-                          rowno));
-        }
-        Object obj = arr.get(arrayIdx);
-        newRow.add(newColName, obj);
-      } else {
-        Map<String, Object> map = (Map<String, Object>) row.get(targetColno);
-        if (!map.containsKey(mapKey)) {
-          throw new WrongMapKeyException("doUnnest(): the map value does not have the requested key: " + mapKey);
-        }
-        Object obj = map.get(mapKey);
-        newRow.add(newColName, obj);
+      String jsonStr = (String) row.get(targetColno);
+
+      // Add new generated columns
+      for (int i = 0; i < idxs.size(); i++) {
+        String idx = idxs.get(i);
+        String newColName = newColNames.get(i);
+        Object elem = getElem(jsonStr, idx, prevType);
+        newRow.add(newColName, convertColTypeByValue(colno + i, elem));
       }
 
-      // 나머지 추가
+      // Add the rest.
       for (colno = targetColno + 1; colno < prevDf.getColCnt(); colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
@@ -157,8 +191,7 @@ public class DfUnnest extends DataFrame {
       rows.add(newRow);
     }
 
-    LOGGER.trace("DfUnnest.gather(): end: offset={} length={} newColName={}", offset, length, newColName);
+    LOGGER.debug("DfUnnest.gather(): end: offset={} length={} newColName={}", offset, length, newColNames);
     return rows;
   }
 }
-

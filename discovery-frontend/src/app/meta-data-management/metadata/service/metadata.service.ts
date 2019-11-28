@@ -34,6 +34,8 @@ export class MetadataService extends AbstractService {
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  metadataDetailSelectedTab: string = 'information';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -366,5 +368,9 @@ export class MetadataService extends AbstractService {
 
   public isShowLineage(): Promise<any> {
     return this.get(this.API_URL + `extensions/lineage`)
+  }
+
+  public onSelectMetadataDetailTab(selectedTab: string) {
+    this.metadataDetailSelectedTab = selectedTab;
   }
 }

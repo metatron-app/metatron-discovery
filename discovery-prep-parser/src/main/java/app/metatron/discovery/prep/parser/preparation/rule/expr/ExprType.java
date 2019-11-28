@@ -14,33 +14,6 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
-import org.apache.commons.lang3.StringUtils;
-
 public enum ExprType {
   DOUBLE, LONG, STRING, BOOLEAN, TIMESTAMP;
-
-  public static ExprType bestEffortOf(String name) {
-    if (StringUtils.isEmpty(name)) {
-      return STRING;
-    }
-    switch (name.toUpperCase()) {
-      case "FLOAT":
-      case "DOUBLE":
-        return DOUBLE;
-      case "BYTE":
-      case "SHORT":
-      case "INT":
-      case "INTEGER":
-      case "LONG":
-      case "BIGINT":
-        return LONG;
-      case "BOOLEAN":
-        return BOOLEAN;
-      case "TIMESTAMP":
-      case "DATETIME":
-        return TIMESTAMP;
-      default:
-        return STRING;
-    }
-  }
 }

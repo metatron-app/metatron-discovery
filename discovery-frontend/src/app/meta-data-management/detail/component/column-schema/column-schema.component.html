@@ -14,8 +14,15 @@
 
 <!-- tab contents -->
 <div [ngClass]="['ddp-ui-tab-contents']">
-  <div class="ddp-box-message" *ngIf="'ENGINE' === metadata.sourceType?.toString() && !isSaveInvalid">
-    <div top-info></div>
+  <div class="ddp-box-message"
+       *ngIf="'ENGINE' === metadata.sourceType?.toString() && !isSaveInvalid && isShowMetadataGuide">
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{ "msg.metadata.ui.notice" | translate }}
+        <a href="javascript:" class="ddp-btn-info-close" (click)="isShowMetadataGuide = false"></a>
+      </div>
+    </div>
   </div>
   <div class="ddp-box-message" *ngIf="isSaveInvalid">
     <div class="ddp-box-synch type-error">
@@ -119,10 +126,11 @@
   </div>
 
   <div class="ddp-data-details ddp-ui-preview-contents ddp-info"
+       [ngStyle]="{top : !isShowMetadataGuide ? '246px' : '265px'}"
        [class.ddp-info2]="isSaveInvalid"
        (scroll)="onScrollColumnView()">
     <!-- header -->
-    <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-inherit" >
+    <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-inherit">
       <colgroup>
         <col [style.width]="'100px'" *ngIf="hasMetadataColumnInDatasource()">
         <col [style.width]="'160px'">
@@ -282,7 +290,9 @@
           </div>
         </td>
         <td class="ddp-disabled">
-          {{column.physicalName}}
+          <div class="ddp-txt-long">
+            {{column.physicalName}}
+          </div>
         </td>
         <td [ngClass]="['ddp-input-form']"
             #metadataColumnSchemaNameTds
@@ -295,21 +305,56 @@
                  (ngModelChange)="column.name = $event; column.nameChangeFl = true; column.replaceFl = true">
         </td>
         <td [ngClass]="{'ddp-disabled': isGeoType(column.type)}">
-          <div class="ddp-select-search ddp-hover-tooltip">
+          <div class="ddp-select-search ddp-pop-select"
+               #dictionary
+               [class.ddp-selected]="column['isShowDictionary']"
+               (mouseleave)="onHideDictionary(column)"
+               (mouseenter)="onHoverDictionary(column, index)">
             <a href="javascript:"
                class="ddp-ui-search2"
-               (click)="onClickDictionary(column.dictionary)">
+               (click)="onClickSearchDictionary(column)">
               {{column.dictionary ? column.dictionary.logicalName : ''}}
-              <span class="ddp-icon-search"
-                    (click)="onClickSearchDictionary(column)">
+              <span class="ddp-icon-search">
               </span>
             </a>
+            <div class="ddp-box-layout4 ddp-pop-fix type-dictionary" #dictionaryPreview>
+              <div class="ddp-data-title ddp-txt-long" title="{{column.dictionary && column.dictionary.name}}">
+                {{column.dictionary && column.dictionary.name}}
+              </div>
+              <div class="ddp-data-code">
+                <table class="ddp-table-pop">
+                  <colgroup>
+                    <col width="100px">
+                    <col width="">
+                  </colgroup>
+                  <tbody>
+                  <tr>
+                    <th>Full Name</th>
+                    <td>{{ column.dictionary && column.dictionary.name }}</td>
+                  </tr>
+                  <tr>
+                    <th>Short Name</th>
+                    <td>{{ column.dictionary && column.dictionary.suggestionShortName }}</td>
+                  </tr>
+                  <tr>
+                    <th>Description</th>
+                    <td>{{ (column.dictionary && column.dictionary.description) || '-' }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+                <a href="javascript:"
+                   class="ddp-link-detail"
+                   (click)="onClickDictionary(column.dictionary)">
+                  {{'msg.storage.btn.detail' | translate}}
+                </a>
+              </div>
+            </div>
           </div>
-          <div class="ddp-ui-tooltip-info"
-               *ngIf="column.dictionary">
-            <em class="ddp-icon-view-top"></em>
-            {{column.dictionary.logicalName}}
-          </div>
+          <!--          <div class="ddp-ui-tooltip-info"-->
+          <!--               *ngIf="column.dictionary">-->
+          <!--            <em class="ddp-icon-view-top"></em>-->
+          <!--            {{column.dictionary.logicalName}}-->
+          <!--          </div>-->
         </td>
         <td class="ddp-inherit ddp-info"
             [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
@@ -427,29 +472,30 @@
             <!-- //format layer -->
           </div>
         </td>
-        <td [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
+        <td>
           <div class=" ddp-select-search ddp-hover-tooltip"
                #codeTable
                [ngClass]="['ddp-pop-select']"
                [class.ddp-selected]="column['codeTableShowFl']"
+               (mouseleave)="onHideCodeTable(column)"
+               (mouseenter)="onHoverCodeTable(column, index)"
                (clickOutside)="column['codeTableShowFl'] = false">
-            <a href="javascript:"
-               class="ddp-ui-search2"
-               (click)="onClickCodeTable(column, index)">
+            <a
+              href="javascript:"
+              (click)="onClickSearchCodeTable(column)"
+              class="ddp-ui-search2"
+              [class.type-underline-none]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
               {{column.codeTable ? column.codeTable.name : ''}}
               <span class="ddp-icon-search"
-                    (click)="onClickSearchCodeTable(column)">
+                    [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)">
               </span>
             </a>
             <!-- hover -->
             <!--suppress JSUnusedGlobalSymbols -->
             <div class="ddp-box-layout4 ddp-pop-fix"
                  #codeTablePreview>
-              <a href="javascript:"
-                 class="ddp-btn-close"
-                 (click)="column['codeTableShowFl'] = false"></a>
-              <div class="ddp-data-title">
-                {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
+              <div class="ddp-data-title ddp-txt-long" title="{{ column.codeTable && column.codeTable.name }}">
+                {{ column.codeTable && column.codeTable.name }}
               </div>
               <div class="ddp-data-code ddp-size"
                    *ngIf="column.codeTable">
@@ -462,22 +508,10 @@
                   <tbody>
                   <tr *ngFor="let pair of getTableCodePair(column.codeTable.id)">
                     <td>
-                      <span class="ddp-txt-long">{{pair.code}}</span>
-                      <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info">
-                        <em class="ddp-icon-view-top"></em>
-                        {{pair.code}}
-                      </div>
-                      <!-- //tooltip -->
+                      <span class="ddp-txt-long" title="{{pair.code}}">{{pair.code}}</span>
                     </td>
                     <td>
-                      <span class="ddp-txt-long">{{pair.value}}</span>
-                      <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info">
-                        <em class="ddp-icon-view-top"></em>
-                        {{pair.value}}
-                      </div>
-                      <!-- //tooltip -->
+                      <span class="ddp-txt-long" title="{{pair.value}}">{{pair.value}}</span>
                     </td>
                   </tr>
                   </tbody>
@@ -491,11 +525,11 @@
             </div>
             <!-- //hover -->
           </div>
-          <div class="ddp-ui-tooltip-info"
-               *ngIf="column.codeTable && !column['codeTableShowFl']">
-            <em class="ddp-icon-view-top"></em>
-            {{column.codeTable.name}}
-          </div>
+          <!--          <div class="ddp-ui-tooltip-info"-->
+          <!--               *ngIf="column.codeTable && !column['codeTableShowFl']">-->
+          <!--            <em class="ddp-icon-view-top"></em>-->
+          <!--            {{column.codeTable.name}}-->
+          <!--          </div>-->
         </td>
         <td [ngClass]="['ddp-input-form']"
             #metadataColumnSchemaDescriptionTds

@@ -16,6 +16,8 @@ spring:
     admin:
       client:
         enabled: false
+liquibase:
+  change-log: classpath:db/changelog/db.changelog-master.xml
 server:
   port: 8180
   display-name: polaris
@@ -231,18 +233,18 @@ polaris:
 #      exposedHeaders: "*"
 #      allowCredentials: false
 #      maxAge: 3600
----
-spring:
-  profiles: initial
-  datasource:
-    initialize: true
-  jpa:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: create
-          import_files: /scripts/default.sql,/scripts/default_expressions.sql,/scripts/default_datasource_ingestion_options.sql
-          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
+#---
+#spring:
+#  profiles: initial
+#  datasource:
+#    initialize: true
+#  jpa:
+#    properties:
+#      hibernate:
+#        hbm2ddl:
+#          auto: create
+#          import_files: /scripts/default.sql,/scripts/default_expressions.sql,/scripts/default_datasource_ingestion_options.sql
+#          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
 ---
 spring:
   profiles: local
@@ -354,7 +356,7 @@ spring:
         order_inserts: true
         order_updates: true
         hbm2ddl:
-          auto: update
+          auto: validate
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
         connection:
@@ -385,7 +387,7 @@ spring:
         order_inserts: true
         order_updates: true
         hbm2ddl:
-          auto: update
+          auto: none
         dialect: org.hibernate.dialect.H2Dialect
         naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
   h2:

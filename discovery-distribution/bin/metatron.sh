@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="-e Usage: metatron.sh\n\t
-        [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}"
+        [--config=directory] [--management] [--debug=port] {start|stop|restart|status}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -14,9 +14,6 @@ while [ $# -gt 0 ]; do
       else
         export METATRON_CONF_DIR="${conf_dir}"
       fi
-      ;;
-    --init)
-      METATRON_INIT_MODE=",initial"
       ;;
     --management)
       METATRON_MGMT_MODE=",management"
@@ -89,7 +86,7 @@ else
 fi
 
 
-METATRON_APP_PROFILE="${METATRON_DB_TYPE}-default-db,logging-console-debug,scheduling${METATRON_MGMT_MODE}${METATRON_PREP_MODE}${METATRON_EXTRA_PROFILE}${METATRON_INIT_MODE}"
+METATRON_APP_PROFILE="${METATRON_DB_TYPE}-default-db,logging-console-debug,scheduling${METATRON_MGMT_MODE}${METATRON_PREP_MODE}${METATRON_EXTRA_PROFILE}"
 METATRON_OPTION="--loader.system=true --spring.config.location=classpath:application.yaml${METATRON_CONF_FILE}"
 METATRON_OPTION="${METATRON_OPTION} --spring.profiles.active=${METATRON_APP_PROFILE}"
 

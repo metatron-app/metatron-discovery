@@ -1,10 +1,11 @@
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents" >
-  <div class="ddp-box-message" *ngIf="'ENGINE' === metadata.sourceType?.toString()">
+  <div class="ddp-box-message" *ngIf="'ENGINE' === metadata.sourceType?.toString() && isShowMetadataGuide">
     <div class="ddp-box-synch type-info">
       <div class="ddp-txt-synch">
         <em class="ddp-icon-info"></em>
         {{ "msg.metadata.ui.notice" | translate }}
+        <a href="javascript:" class="ddp-btn-info-close" (click)="isShowMetadataGuide = false"></a>
       </div>
     </div>
   </div>
@@ -85,7 +86,7 @@
               </span>
             </div>
           </div>
-          <div class="ddp-apply ddp-clear type-catalog" style="margin-top:6px;">
+          <div class="ddp-apply ddp-clear type-catalog">
             <div *ngIf="isSearchCatalog; else catalogAddButton"
                  (clickOutside)="isSearchCatalog = false"
                  [class.ddp-selected]="showCatalogs" class="ddp-type-search type-box" >

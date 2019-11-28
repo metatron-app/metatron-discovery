@@ -26,7 +26,11 @@ public enum EngineMonitoringCriterionKey implements ListCriterionKey {
   CREATED_TIME("CREATE_TIME"),
   CAPACITY("CAPACITY"),
   VERSION("VERSION"),
-  COMPLETED_TIME("COMPLETED_TIME");
+  COMPLETED_TIME("COMPLETED_TIME"),
+  SERVICE("SERVICE"),
+  RESULT("RESULT"),
+  HOST("HOST"),
+  STARTED_TIME("STARTED_TIME");
 
   String criterionKey;
   EngineMonitoringCriterionKey(String s){

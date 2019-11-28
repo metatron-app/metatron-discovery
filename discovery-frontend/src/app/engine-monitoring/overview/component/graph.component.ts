@@ -26,6 +26,7 @@ import {DatasourceService} from '../../../datasource/service/datasource.service'
 import {EngineService} from "../../service/engine.service";
 import {Engine} from "../../../domain/engine-monitoring/engine";
 import * as _ from 'lodash';
+import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
 
 declare let echarts: any;
 declare let moment: any;
@@ -186,6 +187,9 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
           trigger: 'axis',
           axisPointer: {
             type: 'line'
+          },
+          formatter: (params) => {
+            return EngineMonitoringUtil.tooltipFormatter(params);
           }
         },
         grid: [
@@ -261,6 +265,9 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
           trigger: 'axis',
           axisPointer: {
             type: 'line'
+          },
+          formatter: (params) => {
+            return EngineMonitoringUtil.tooltipFormatter(params);
           }
         },
         grid: [
@@ -365,4 +372,5 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
       this.segmentCount = result[0].count;
     });
   } // function - _getSegmentCount
+
 }

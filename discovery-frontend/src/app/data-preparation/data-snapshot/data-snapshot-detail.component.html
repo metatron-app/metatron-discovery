@@ -74,6 +74,13 @@
             <em class="ddp-icon-spin-loading"></em>
             {{'msg.dp.btn.json.download' | translate}}
           </a>
+          <a href="javascript:" class="ddp-btn-bg "
+             (click)="downloadSnapshot('sql')"
+             *ngIf="snapshotUriFileFormat === 'sql' || selectedDataSnapshot.ssType === ssType.STAGING_DB">
+            <em class="ddp-icon-link-down"></em>
+            <em class="ddp-icon-spin-loading"></em>
+            {{'msg.dp.btn.sql.download' | translate}}
+          </a>
         </div>
         <!-- //요약 -->
         <!-- grid -->

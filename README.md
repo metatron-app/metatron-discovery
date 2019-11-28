@@ -113,13 +113,11 @@ export METATRON_DB_TYPE=mysql
 ```
 
 #### Run Metatron Discovery
-Initialize and run with the following command.
-<pre><code>$ bin/metatron.sh --init start</code></pre>
-> :warning: Cautions! `--init` option initialize whole data.  
-> Add this argument only the first time or when you want to reset your development environment.
+Run with the following command.
+<pre><code>$ bin/metatron.sh start</code></pre>
 
 Running options are provided as well.
-<pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
+<pre><code>$ bin/metatron.sh [--config=directory] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
 To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as Username: admin, PW: admin.)
 
 ### Using REST API

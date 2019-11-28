@@ -14,9 +14,13 @@
     <!-- 폴딩 -->
     <a href="javascript:" class="ddp-btn-folding ddp-hover-tooltip" (click)="onChangeFoldingNavigation()">
       <!-- tooltip -->
-      <div class="ddp-ui-tooltip-info ddp-down">
+      <div *ngIf="isFoldingNavigation" class="ddp-ui-tooltip-info ddp-down">
+        <em  class="ddp-icon-view-top"></em>
+        {{'msg.explore.ui.lnb.unfold'| translate}}
+      </div>
+      <div *ngIf="!isFoldingNavigation" class="ddp-ui-tooltip-info ddp-down">
         <em class="ddp-icon-view-top"></em>
-        {{'msg.explore.ui.lnb.folding'| translate}}
+        {{'msg.explore.ui.lnb.fold'| translate}}
       </div>
       <!-- //tooltip -->
     </a>

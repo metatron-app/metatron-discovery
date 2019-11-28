@@ -16,7 +16,7 @@ import {
   Component,
   ComponentFactoryResolver,
   ComponentRef,
-  ElementRef,
+  ElementRef, HostListener,
   Injector,
   OnDestroy,
   OnInit,
@@ -88,6 +88,12 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     super(element, injector);
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    const height = $('.ddp-ui-contents-list').outerHeight() + 190 + 54;
+    this.$layoutContentsClass.css('height', height);
+  }
+
   // Init
   public ngOnInit() {
     super.ngOnInit();
@@ -110,7 +116,10 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.$layoutContentsClass.addClass( 'ddp-layout-meta' );
+    this.$layoutContentsClass.addClass( 'ddp-layout-meta');
+
+    const height = this.$layoutContentsClass.outerHeight() + 190 + 54;
+    this.$layoutContentsClass.css('height', height);
   }
 
   // Destroy
@@ -119,6 +128,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     this.$layoutContentsClass.removeClass( 'ddp-layout-meta' );
     this.subscription.unsubscribe();
   }
+
 
   goToExploreMain(): void {
     this.mode = ExploreMode.MAIN;

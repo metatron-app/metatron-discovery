@@ -27,9 +27,7 @@ public class TestLocalHdfs {
   final static String localHdfsSuperUser = "yooyoungmo";
   final Configuration configuration;
 
-  public TestLocalHdfs() {
-    String hdfsConfLocalPath = Paths.get("src/test/hdfs-conf").toAbsolutePath().toString();
-
+  public TestLocalHdfs(String hdfsConfLocalPath) {
     Configuration conf = new Configuration();
     conf.addResource(new Path(String.format("%s/core-site.xml", hdfsConfLocalPath)));
     conf.addResource(new Path(String.format("%s/hdfs-site.xml", hdfsConfLocalPath)));

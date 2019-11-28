@@ -14,7 +14,29 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
+import com.facebook.presto.jdbc.internal.guava.collect.Maps;
+import com.facebook.presto.jdbc.internal.joda.time.DateTime;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -34,27 +56,8 @@ import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
-import com.facebook.presto.jdbc.internal.guava.collect.Maps;
-import com.facebook.presto.jdbc.internal.joda.time.DateTime;
-import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
-import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
 
 @Component
 public class TeddyImpl {
@@ -246,24 +249,18 @@ public class TeddyImpl {
     return revisionSetCache.get(dsId).isRedoable();
   }
 
-  public void delete(String dsId, int stageIdx)
-          throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
-    Revision rev = getCurRev(
-            dsId);     // rule apply == revision generate, so always use the last one.
-    Revision newRev = new Revision(rev,
-            stageIdx);   // apply previous rules until the delete target.
+  public void delete(String dsId, int stageIdx) throws TransformExecutionFailedException, TransformTimeoutException {
+    Revision rev = getCurRev(dsId);                 // rule apply == revision generate, so always use the last one.
+    Revision newRev = new Revision(rev, stageIdx);  // apply previous rules until the delete target.
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
     addRev(dsId, newRev);
   }
 
-  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString)
-          throws TeddyException {    // used in DELETE only
-    Revision rev = getCurRev(
-            dsId);     // rule apply == revision generate, so always use the last one.
-    Revision newRev = new Revision(rev,
-            stageIdx);   // apply previous rules until the update target.
+  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString) throws TeddyException {
+    Revision rev = getCurRev(dsId);                 // rule apply == revision generate, so always use the last one.
+    Revision newRev = new Revision(rev, stageIdx);  // apply previous rules until the update target.
 
     // replace with the new, updated DF
     DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString, jsonRuleString);
@@ -272,13 +269,12 @@ public class TeddyImpl {
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
-    newRev.saveSlaveDsNameMap(
-            getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
+    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
 
     addRev(dsId, newRev);
   }
 
-  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter,
+  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String quoteChar,
           Integer columnCount, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
@@ -290,7 +286,13 @@ public class TeddyImpl {
         df.setByGrid(PrepJsonUtil.parse(strUri, samplingRows, columnCount, hadoopConf));
         break;
       default: // csv
-        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, samplingRows, columnCount, hadoopConf));
+        PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+                .withDelim(delimiter)
+                .withQuoteChar(quoteChar)
+                .withLimitRows(samplingRows)
+                .withManualColCnt(columnCount)
+                .withHadoopConf(hadoopConf);
+        df.setByGrid(csvUtil.parse(strUri));
     }
 
     return createStage0(dsId, df);
@@ -327,7 +329,7 @@ public class TeddyImpl {
       throw PrepException.create(PREP_TEDDY_ERROR_CODE, e);
     }
 
-    DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    DataFrame df = new DataFrame(dsName);   // dsName is for join/union to display the dataset name instead of id)
 
     try {
       df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
@@ -339,8 +341,7 @@ public class TeddyImpl {
     return createStage0(dsId, df);
   }
 
-  public DataFrame loadJdbcDataFrame(DataConnection dataConnection, String sql, int limit,
-          String dsName) {
+  public DataFrame loadJdbcDataFrame(DataConnection dataConnection, String sql, int limit, String dsName) {
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(dataConnection);
     Connection conn;
     Statement stmt = null;

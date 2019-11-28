@@ -33,7 +33,7 @@ public class PivotTest extends TeddyTest {
 
   private DataFrame newMultiDataFrame() throws IOException, TeddyException {
     DataFrame multi = new DataFrame();
-    multi.setByGrid(grids.get("multi"), null);
+    multi.setByGrid(grids.get("multi"));
     multi = prepare_multi(multi);
     multi.show();
     return multi;

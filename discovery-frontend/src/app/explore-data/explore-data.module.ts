@@ -75,7 +75,6 @@ import {DataCreatorDetailComponent} from "./favorite/data-creator-detail.compone
     DataStorageCriteriaModule,
   ],
   declarations: [
-    ConfirmRefModalComponent,
     ExploreDataInformationComponent,
     ExploreDataUserCardComponent,
     MetadataTypeBoxTagComponent,

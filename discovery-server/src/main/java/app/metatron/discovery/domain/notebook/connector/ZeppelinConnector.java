@@ -119,7 +119,7 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
             return response
                     .map(zeppelinResponse -> (String) zeppelinResponse.getBody())
                     .orElseThrow(() -> new RuntimeException("Fail to create notebook of zeppelin from " + getUrl()));
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Fail to create notebook of zeppelin from " + getUrl());
         }
     }

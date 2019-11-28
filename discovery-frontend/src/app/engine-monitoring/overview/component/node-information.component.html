@@ -117,22 +117,11 @@
                   <ok-icon></ok-icon>
                 </ng-template>
                 <ng-template [ngIf]="!monitoring.status">
-                  <div class="ddp-type-status-error">
+                  <div class="ddp-datasource">
                     <error-icon></error-icon>
-                    <span class="ddp-txt-error">
-                  <em class="ddp-icon-error"></em>{{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
-                      <!--suppress HtmlUnknownTag -->
-                    <div class="ddp-box-layout4">
-                      <div class="ddp-data-title">
-                        {{ 'msg.engine.monotoring.error.label' | translate }}
-                        <span class="ddp-sub-title">({{ monitoring.errorDuration }})</span>
-                      </div>
-                      <div class="ddp-data-det">
-                        {{ monitoring.hostname }}:{{ monitoring.port }} {{ monitoring.type }} {{ 'msg.engine.monotoring.overview.error.layer.prefix' | translate }}<br>
-                        {{ 'msg.engine.monotoring.failure.time.label' | translate }} : {{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
+                    <div class="ddp-txt-info type-error">
+                      <em class="ddp-icon-error"></em>{{ 'msg.engine.monotoring.failure.time.label' | translate }} : {{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
                     </div>
-                    </div>
-                  </span>
                   </div>
                 </ng-template>
               </td>

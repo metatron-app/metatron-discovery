@@ -28,54 +28,14 @@
 
 package app.metatron.discovery.domain.engine;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
-import com.facebook.presto.jdbc.internal.guava.collect.Maps;
-import com.facebook.presto.jdbc.internal.guava.collect.Sets;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.RawJsonString;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.QueryHistoryTeller;
-import app.metatron.discovery.domain.datasource.SimilarityQueryRequest;
-import app.metatron.discovery.domain.datasource.SimilarityResponse;
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.data.CovarianceQueryRequest;
-import app.metatron.discovery.domain.datasource.data.DataQueryController;
-import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.data.SummaryQueryRequest;
+import app.metatron.discovery.domain.datasource.*;
+import app.metatron.discovery.domain.datasource.data.*;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.GeoJsonResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.GraphResultFormat;
@@ -97,15 +57,35 @@ import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapVie
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.meta.AnalysisType;
 import app.metatron.discovery.query.druid.queries.*;
+import com.facebook.presto.jdbc.internal.guava.collect.Maps;
+import com.facebook.presto.jdbc.internal.guava.collect.Sets;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSourceQueryHistory.EngineQueryType.*;
 import static app.metatron.discovery.query.druid.AbstractQueryBuilder.GEOMETRY_BOUNDARY_COLUMN_NAME;
 import static app.metatron.discovery.query.druid.AbstractQueryBuilder.GEOMETRY_COLUMN_NAME;
-import static app.metatron.discovery.query.druid.meta.AnalysisType.CARDINALITY;
-import static app.metatron.discovery.query.druid.meta.AnalysisType.INGESTED_NUMROW;
-import static app.metatron.discovery.query.druid.meta.AnalysisType.QUERYGRANULARITY;
-import static app.metatron.discovery.query.druid.meta.AnalysisType.SERIALIZED_SIZE;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.*;
 
 /**
  * Created by kyungtaak on 2016. 8. 25..
@@ -128,10 +108,10 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     QueryHistoryTeller.setEngineQueryType(SELECT); // for history
     stopWatch.start("Query Generation Time");
     Query query = SelectQuery.builder(request.getDataSource())
-                             .limit(request.getLimits())
-                             .fields(request.getProjections())
-                             .forward(request.getResultForward())
-                             .build();
+            .limit(request.getLimits())
+            .fields(request.getProjections())
+            .forward(request.getResultForward())
+            .build();
 
     if (request.getResultFormat() == null) {
       request.setResultFormat(new ObjectResultFormat(ENGINE));
@@ -139,7 +119,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
     stopWatch.stop();
-    LOGGER.debug("[{}] Query Generation Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+    LOGGER.debug("[{}] Query Generation Time : {}", CommonLocalVariable.getQueryId(),
+            stopWatch.getLastTaskTimeMillis());
 
     QueryHistoryTeller.setEngineQuery(queryString); // for history
     LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
@@ -156,12 +137,13 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     stopWatch.start("Result Processing Time");
     // 결과 정의
     Object result = request.getResultFormat()
-                           .makeResult(
-                               engineResult.orElseGet(
-                                   () -> GlobalObjectMapper.getDefaultMapper().createArrayNode())
-                           );
+            .makeResult(
+                    engineResult.orElseGet(
+                            () -> GlobalObjectMapper.getDefaultMapper().createArrayNode())
+            );
     stopWatch.stop();
-    LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+    LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(),
+            stopWatch.getLastTaskTimeMillis());
 
     return result;
 
@@ -201,47 +183,40 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       if (request.getMetaQuery()) {
         QueryHistoryTeller.setEngineQueryType(SELECTMETA); // for history
         query = new SelectMetaQueryBuilder(request.getDataSource())
-            .initVirtualColumns(request.getUserFields())
-            .fields(request.getProjections())
-            .filters(filters)
-            .limit(request.getLimits())
-            .forward(request.getResultForward())
-            .build();
+                .initVirtualColumns(request.getUserFields())
+                .fields(request.getProjections())
+                .filters(filters)
+                .limit(request.getLimits())
+                .forward(request.getResultForward())
+                .build();
       } else {
 
         QueryHistoryTeller.setEngineQueryType(SELECT); // for history
-        if (BooleanUtils.isTrue(request.getContextValue(SearchQueryRequest.CXT_KEY_USE_STREAM))) {
-          query = SelectStreamQuery.builder(request.getDataSource())
-                                   .initVirtualColumns(request.getUserFields())
-                                   .fields(request.getProjections())
-                                   .filters(filters)
-                                   .limit(request.getLimits())
-                                   .forward(request.getResultForward())
-                                   .build();
-          request.setResultFieldMapper(((SelectStreamQuery) query).getFieldMapper());
-        } else {
-          query = SelectQuery.builder(request.getDataSource())
-                             .initVirtualColumns(request.getUserFields())
-                             .fields(request.getProjections())
-                             .filters(filters)
-                             .limit(request.getLimits())
-                             .forward(request.getResultForward())
-                             .build();
-        }
+
+        query = SelectStreamQuery.builder(request.getDataSource())
+                .initVirtualColumns(request.getUserFields())
+                .fields(request.getProjections())
+                .filters(filters)
+                .limit(request.getLimits())
+                .forward(request.getResultForward())
+                .build();
+
+        request.setResultFieldMapper(((SelectStreamQuery) query).getFieldMapper());
+
       }
     } else {
 
       QueryHistoryTeller.setEngineQueryType(GROUPBY); // for history
       query = GroupByQuery.builder(request.getDataSource())
-                          .initVirtualColumns(request.getUserFields())
-                          .fields(request.getProjections())
-                          .filters(filters)
-                          .analysis(request.getAnalysis(), request.getProjections())
-                          .limit(request.getLimits())
-                          .groupingSet(request.getGroupingSets())
-                          .forward(request.getResultForward())
-                          .format(request.getResultFormat())
-                          .build();
+              .initVirtualColumns(request.getUserFields())
+              .fields(request.getProjections())
+              .filters(filters)
+              .analysis(request.getAnalysis(), request.getProjections())
+              .limit(request.getLimits())
+              .groupingSet(request.getGroupingSets())
+              .forward(request.getResultForward())
+              .format(request.getResultFormat())
+              .build();
 
       if (request.getMetaQuery()) {
         QueryHistoryTeller.setEngineQueryType(GROUPBYMETA);// for history
@@ -253,7 +228,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     }
     String queryString = GlobalObjectMapper.writeValueAsString(query);
     stopWatch.stop();
-    LOGGER.debug("[{}] Query Generation Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+    LOGGER.debug("[{}] Query Generation Time : {}", CommonLocalVariable.getQueryId(),
+            stopWatch.getLastTaskTimeMillis());
 
     QueryHistoryTeller.setEngineQuery(queryString); // for history
     LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
@@ -270,12 +246,13 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     stopWatch.start("Result Processing Time");
     // 결과 정의
     Object result = request.getResultFormat()
-                           .makeResult(
-                               engineResult.orElseGet(
-                                   () -> GlobalObjectMapper.getDefaultMapper().createArrayNode())
-                           );
+            .makeResult(
+                    engineResult.orElseGet(
+                            () -> GlobalObjectMapper.getDefaultMapper().createArrayNode())
+            );
     stopWatch.stop();
-    LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+    LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(),
+            stopWatch.getLastTaskTimeMillis());
 
     return result;
 
@@ -292,16 +269,16 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     if (request.getAnalysis() != null && request.getAnalysis() instanceof GeoSpatialAnalysis) {
       GeoSpatialAnalysis geoSpatialAnalysis = (GeoSpatialAnalysis) request.getAnalysis();
       MapViewLayer mainLayer = geoShelf.getLayerByName(geoSpatialAnalysis.getMainLayer())
-                                       .orElseThrow(() -> new IllegalArgumentException("Invalid name of main layer"));
+              .orElseThrow(() -> new IllegalArgumentException("Invalid name of main layer"));
       MapViewLayer compareLayer = geoShelf.getLayerByName(geoSpatialAnalysis.getCompareLayer())
-                                          .orElseThrow(() -> new IllegalArgumentException("Invalid name of compare layer"));
+              .orElseThrow(() -> new IllegalArgumentException("Invalid name of compare layer"));
 
       SelectStreamQuery compareLayerQuery = SelectStreamQuery.builder(request.getDataSource())
-                                                             .layer(compareLayer)
-                                                             .filters(request.getFilters())
-                                                             .compareLayer(compareLayer.getFields(), geoSpatialAnalysis.getOperation())
-                                                             .emptyQueryId()
-                                                             .build();
+              .layer(compareLayer)
+              .filters(request.getFilters())
+              .compareLayer(compareLayer.getFields(), geoSpatialAnalysis.getOperation())
+              .emptyQueryId()
+              .build();
 
       if (geoSpatialAnalysis.isIncludeCompareLayer()) {
 
@@ -319,20 +296,20 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       Query operationQuery = null;
       if (geoSpatialAnalysis.enableChoropleth()) {
         GroupByQuery mainLayerQuery = GroupByQuery.builder(request.getDataSource())
-                                                  .layer(mainLayer)
-                                                  .fields(mainLayer.getFields())
-                                                  .filters(request.getFilters())
-                                                  .limit(request.getLimits())
-                                                  .enableChropoleth(geoSpatialAnalysis.getOperation().getAggregation())
-                                                  .emptyQueryId()
-                                                  .build();
+                .layer(mainLayer)
+                .fields(mainLayer.getFields())
+                .filters(request.getFilters())
+                .limit(request.getLimits())
+                .enableChropoleth(geoSpatialAnalysis.getOperation().getAggregation())
+                .emptyQueryId()
+                .build();
 
         operationQuery = GeoBoundaryFilterQuery.builder()
-                                               .query(mainLayerQuery)
-                                               .geometry(mainLayerQuery.getGeometry())
-                                               .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME, true)
-                                               .operation(geoSpatialAnalysis.getOperation())
-                                               .build();
+                .query(mainLayerQuery)
+                .geometry(mainLayerQuery.getGeometry())
+                .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME, true)
+                .operation(geoSpatialAnalysis.getOperation())
+                .build();
 
         Map<String, String> mapper = Maps.newLinkedHashMap();
         for (String outputColumn : mainLayerQuery.getOutputColumns()) {
@@ -351,22 +328,21 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
       } else {
         SelectStreamQuery mainLayerQuery = SelectStreamQuery.builder(request.getDataSource())
-                                                            .layer(mainLayer)
-                                                            .fields(mainLayer.getFields())
-                                                            .filters(request.getFilters())
-                                                            .limit(request.getLimits())
-                                                            .emptyQueryId()
-                                                            .build();
+                .layer(mainLayer)
+                .fields(mainLayer.getFields())
+                .filters(request.getFilters())
+                .limit(request.getLimits())
+                .emptyQueryId()
+                .build();
 
         operationQuery = GeoBoundaryFilterQuery.builder()
-                                               .query(mainLayerQuery)
-                                               .geometry(mainLayerQuery.getGeometry())
-                                               .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME, false)
-                                               .operation(geoSpatialAnalysis.getOperation())
-                                               .build();
+                .query(mainLayerQuery)
+                .geometry(mainLayerQuery.getGeometry())
+                .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME, false)
+                .operation(geoSpatialAnalysis.getOperation())
+                .build();
         request.setResultFieldMapper(mainLayerQuery.getFieldMapper());
       }
-
 
       queryString = GlobalObjectMapper.writeValueAsString(operationQuery);
 
@@ -388,23 +364,23 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
         if (layer.getView().needAggregation()) {
           GroupByQuery groupByQuery = GroupByQuery.builder(request.getDataSource())
-                                                  .layer(layer)
-                                                  .initVirtualColumns(request.getUserFields())
-                                                  .fields(layer.getFields())
-                                                  .filters(request.getFilters())
-                                                  .limit(request.getLimits())
-                                                  .build();
+                  .layer(layer)
+                  .initVirtualColumns(request.getUserFields())
+                  .fields(layer.getFields())
+                  .filters(request.getFilters())
+                  .limit(request.getLimits())
+                  .build();
 
           queryString = GlobalObjectMapper.writeValueAsString(groupByQuery);
 
         } else {
           SelectStreamQuery streamQuery = SelectStreamQuery.builder(request.getDataSource())
-                                                           .layer(layer)
-                                                           .initVirtualColumns(request.getUserFields())
-                                                           .fields(layer.getFields())
-                                                           .filters(request.getFilters())
-                                                           .limit(request.getLimits())
-                                                           .build();
+                  .layer(layer)
+                  .initVirtualColumns(request.getUserFields())
+                  .fields(layer.getFields())
+                  .filters(request.getFilters())
+                  .limit(request.getLimits())
+                  .build();
 
           request.setResultFieldMapper(streamQuery.getFieldMapper());
 
@@ -432,21 +408,21 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     // 차원값 추출
     List<app.metatron.discovery.domain.workbook.configurations.field.Field> dimFields =
-        fields.stream()
-              .filter(field -> field instanceof DimensionField)
-              .collect(Collectors.toList());
+            fields.stream()
+                    .filter(field -> field instanceof DimensionField)
+                    .collect(Collectors.toList());
 
     // 측정값 추출, 1개만 처리 및 Alias를 value로 변경
     MeasureField measureField = (MeasureField) fields.stream()
-                                                     .filter(field -> field instanceof MeasureField)
-                                                     .findFirst().get();
+            .filter(field -> field instanceof MeasureField)
+            .findFirst().get();
     measureField.setAlias("value");
 
     /* Node Size 지정 */
     SearchQueryRequest sizeRequest = request.copyOf();
     final List<List<String>> groupingSets = Lists.newArrayList();
     dimFields.forEach(field ->
-                          groupingSets.add(Lists.newArrayList(field.getAlias()))
+            groupingSets.add(Lists.newArrayList(field.getAlias()))
     );
     sizeRequest.setGroupingSets(groupingSets);
     sizeRequest.setResultFormat(new ObjectResultFormat());
@@ -463,7 +439,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       List<app.metatron.discovery.domain.workbook.configurations.field.Field> newProjection = Lists.newArrayList();
 
       // source 필드 지정
-      app.metatron.discovery.domain.workbook.configurations.field.Field source = SerializationUtils.clone(fields.get(i));
+      app.metatron.discovery.domain.workbook.configurations.field.Field source = SerializationUtils
+              .clone(fields.get(i));
       String originalFieldName = source.getAlias();
       source.setAlias("source");
       newProjection.add(source);
@@ -472,7 +449,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       newProjection.add(new DimensionField("sourceField", "sourceField", UserDefinedField.REF_NAME, null));
 
       // target 필드 지정
-      app.metatron.discovery.domain.workbook.configurations.field.Field target = SerializationUtils.clone(fields.get(i + 1));
+      app.metatron.discovery.domain.workbook.configurations.field.Field target = SerializationUtils
+              .clone(fields.get(i + 1));
       originalFieldName = target.getAlias();
       target.setAlias("target");
       newProjection.add(target);
@@ -515,8 +493,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
       // 조회할 Regex 작성
       PartitionRegexQuery regexQuery = PartitionRegexQuery.builder(request.getDataSource())
-                                                          .filters(request.getFilters())
-                                                          .build();
+              .filters(request.getFilters())
+              .build();
 
       // 코디네이터 호출
       Map<String, Object> paramMap = Maps.newHashMap();
@@ -524,7 +502,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       Optional<List> metaResult = engineRepository.meta(paramMap);
 
       LOGGER.debug("[{}] Successfully call candidation for partition field. Request: {}, Response: {}",
-                   CommonLocalVariable.getQueryId(), regexQuery.toCommaExprs(), metaResult);
+              CommonLocalVariable.getQueryId(), regexQuery.toCommaExprs(), metaResult);
 
       // 결과값 처리
       stopWatch.start("Result Processing Time");
@@ -550,7 +528,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
         }
       }
       stopWatch.stop();
-      LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+      LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(),
+              stopWatch.getLastTaskTimeMillis());
 
       return result;
     }
@@ -559,36 +538,37 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     Query query;
     List<Filter> advancedFilters = request.getAvailableFilters().stream()
-                                          .filter(filter -> filter instanceof AdvancedFilter)
-                                          .collect(Collectors.toList());
+            .filter(filter -> filter instanceof AdvancedFilter)
+            .collect(Collectors.toList());
 
     // for workbook measure filter
     if (CollectionUtils.isNotEmpty(advancedFilters)) {
 
       List<Filter> commonFilters = request.getAvailableFilters().stream()
-                                          .filter(filter -> !(filter instanceof AdvancedFilter))
-                                          .collect(Collectors.toList());
+              .filter(filter -> !(filter instanceof AdvancedFilter))
+              .collect(Collectors.toList());
 
       query = GroupByQuery.builder(request.getDataSource())
-                          .initVirtualColumns(request.getUserFields())
-                          .fields(Lists.newArrayList(request.getTargetField()))
-                          .filters(commonFilters)
-                          .advancedFilters(advancedFilters)
-                          .build();
+              .initVirtualColumns(request.getUserFields())
+              .fields(Lists.newArrayList(request.getTargetField()))
+              .filters(commonFilters)
+              .advancedFilters(advancedFilters)
+              .build();
 
     } else {
 
       app.metatron.discovery.domain.workbook.configurations.field.Field targetField = request.getTargetField();
       app.metatron.discovery.domain.datasource.Field metaField = metaDataSource.getMetaFieldMap(false, "")
-                                                                               .get(targetField.getName());
+              .get(targetField.getName());
 
       Field.FieldRole fieldRole = metaField == null ? null : metaField.getRole();
       LogicalType metaDataType = metaField == null ? null : metaField.getLogicalType();
 
       if (fieldRole == Field.FieldRole.TIMESTAMP) {
         if (targetField.getFormat() != null
-            && targetField.getFormat() instanceof TimeFieldFormat
-            && ((TimeFieldFormat) targetField.getFormat()).getFilteringType() == TimeFieldFormat.FilteringType.LIST) {
+                && targetField.getFormat() instanceof TimeFieldFormat
+                && ((TimeFieldFormat) targetField.getFormat()).getFilteringType()
+                == TimeFieldFormat.FilteringType.LIST) {
           QueryHistoryTeller.setEngineQueryType(GROUPBY);  // for history
 
           Limit limit;
@@ -599,24 +579,25 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
           }
 
           query = GroupByQuery.builder(request.getDataSource())
-                              .initVirtualColumns(request.getUserFields())
-                              .fields(Lists.newArrayList(request.getTargetField()))
-                              .filters(request.getAvailableFilters())
-                              .count("count")
-                              .limit(limit)
-                              .build();
+                  .initVirtualColumns(request.getUserFields())
+                  .fields(Lists.newArrayList(request.getTargetField()))
+                  .filters(request.getAvailableFilters())
+                  .count("count")
+                  .limit(limit)
+                  .build();
         } else {
           QueryHistoryTeller.setEngineQueryType(TIMEBOUNDARY);  // for history
           query = TimeBoundaryQuery.builder(request.getDataSource())
-                                   .filters(request.getAvailableFilters())
-                                   .build();
+                  .filters(request.getAvailableFilters())
+                  .build();
         }
       } else if (metaDataType == LogicalType.TIMESTAMP || fieldRole == Field.FieldRole.MEASURE ||
-          UserDefinedField.REF_NAME.equalsIgnoreCase(targetField.getRef()) && targetField instanceof MeasureField) {
+              UserDefinedField.REF_NAME.equalsIgnoreCase(targetField.getRef()) && targetField instanceof MeasureField) {
         // Timestamp Type 처리시, 체크해야할 사항
         if (targetField.getFormat() != null
-            && targetField.getFormat() instanceof TimeFieldFormat
-            && ((TimeFieldFormat) targetField.getFormat()).getFilteringType() == TimeFieldFormat.FilteringType.LIST) {
+                && targetField.getFormat() instanceof TimeFieldFormat
+                && ((TimeFieldFormat) targetField.getFormat()).getFilteringType()
+                == TimeFieldFormat.FilteringType.LIST) {
           QueryHistoryTeller.setEngineQueryType(GROUPBY);  // for history
 
           Limit limit;
@@ -627,39 +608,40 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
           }
 
           query = GroupByQuery.builder(request.getDataSource())
-                              .initVirtualColumns(request.getUserFields())
-                              .fields(Lists.newArrayList(request.getTargetField()))
-                              .filters(request.getAvailableFilters())
-                              .count("count")
-                              .limit(limit)
-                              .build();
+                  .initVirtualColumns(request.getUserFields())
+                  .fields(Lists.newArrayList(request.getTargetField()))
+                  .filters(request.getAvailableFilters())
+                  .count("count")
+                  .limit(limit)
+                  .build();
         } else {
           QueryHistoryTeller.setEngineQueryType(SEGMENTMETA);
           query = SegmentMetaDataQuery.builder(request.getDataSource())
-                                      .initVirtualColumns(request.getUserFields())
-                                      .fields(Arrays.asList(request.getTargetField()))
-                                      .types("minmax")
-                                      .filters(request.getAvailableFilters())
-                                      .merge(true)
-                                      .build();
+                  .initVirtualColumns(request.getUserFields())
+                  .fields(Arrays.asList(request.getTargetField()))
+                  .types("minmax")
+                  .filters(request.getAvailableFilters())
+                  .merge(true)
+                  .build();
         }
       } else {
         QueryHistoryTeller.setEngineQueryType(SEARCH); // for history
 
         query = SearchQuery.builder(request.getDataSource())
-                           .initVirtualColumns(request.getUserFields())
-                           .fields(Lists.newArrayList(request.getTargetField()))
-                           .filters(request.getAvailableFilters())
-                           .query(request.getSearchWord())
-                           .sort(request.getSortBy())
-                           .limit(request.getLimit())
-                           .build();
+                .initVirtualColumns(request.getUserFields())
+                .fields(Lists.newArrayList(request.getTargetField()))
+                .filters(request.getAvailableFilters())
+                .query(request.getSearchWord())
+                .sort(request.getSortBy())
+                .limit(request.getLimit())
+                .build();
       }
     }
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
     stopWatch.stop();
-    LOGGER.debug("[{}] Query Generation Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+    LOGGER.debug("[{}] Query Generation Time : {}", CommonLocalVariable.getQueryId(),
+            stopWatch.getLastTaskTimeMillis());
 
     QueryHistoryTeller.setEngineQuery(queryString); // for history
     LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
@@ -669,13 +651,13 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     stopWatch.start("Result Processing Time");
     Object result = request.makeResult(engineResult.get());
     stopWatch.stop();
-    LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(), stopWatch.getLastTaskTimeMillis());
+    LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(),
+            stopWatch.getLastTaskTimeMillis());
 
     return result;
   }
 
   /**
-   *
    * @param request
    * @return
    */
@@ -684,9 +666,9 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     QueryHistoryTeller.setEngineQueryType(SUMMARY);
     Query query = SummaryQuery.builder(request.getDataSource())
-                              .initVirtualColumns(request.getUserFields())
-                              .field(request.getFields())
-                              .build();
+            .initVirtualColumns(request.getUserFields())
+            .field(request.getFields())
+            .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
 
@@ -697,7 +679,6 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
   }
 
   /**
-   *
    * @param request
    * @return
    */
@@ -706,9 +687,9 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     QueryHistoryTeller.setEngineQueryType(COVARIANCE);
     Query query = CovarianceQuery.builder(request.getDataSource())
-                                 .initVirtualColumns(request.getUserFields())
-                                 .column(request.getFieldName())
-                                 .build();
+            .initVirtualColumns(request.getUserFields())
+            .column(request.getFieldName())
+            .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
 
@@ -726,8 +707,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     QueryHistoryTeller.setEngineQueryType(SIMILARITY);
     UnionAllQuery query = UnionAllQuery.builder()
-                                       .similarityQuery(queryRequest.getDataSources())
-                                       .build();
+            .similarityQuery(queryRequest.getDataSources())
+            .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
 
@@ -755,27 +736,28 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
   public DataType guessTypeForExpr(DataQueryController.CheckExprRequest exprRequest) {
 
     List<UserDefinedField> userDefinedFields = exprRequest.getUserFields() == null ?
-        Lists.newArrayList() : exprRequest.getUserFields();
+            Lists.newArrayList() : exprRequest.getUserFields();
     userDefinedFields.add(new ExpressionField(EXPR_TEMP_NAME, exprRequest.getExpr()));
 
     SelectMetaQuery query = new SelectMetaQueryBuilder(exprRequest.getDataSource())
-        .initVirtualColumns(userDefinedFields)
-        .fields(Lists.newArrayList(new DimensionField(EXPR_TEMP_NAME, UserDefinedField.REF_NAME)))
-        .schemaOnly(true)
-        .build();
+            .initVirtualColumns(userDefinedFields)
+            .fields(Lists.newArrayList(new DimensionField(EXPR_TEMP_NAME, UserDefinedField.REF_NAME)))
+            .schemaOnly(true)
+            .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
 
     LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
 
     JsonNode result = engineRepository.query(queryString, JsonNode.class)
-                                      .orElseGet(() -> GlobalObjectMapper.getDefaultMapper().createArrayNode());
+            .orElseGet(() -> GlobalObjectMapper.getDefaultMapper().createArrayNode());
 
     if (!result.isArray() && result.size() != 1) {
       return DataType.UNKNOWN;
     }
 
-    return DataType.engineToFieldDataType(result.get(0).get("result").get("schema").get("columnTypes").get(0).textValue());
+    return DataType
+            .engineToFieldDataType(result.get(0).get("result").get("schema").get("columnTypes").get(0).textValue());
   }
 
 
@@ -791,19 +773,21 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     }
 
     SegmentMetaDataQuery query = new SegmentMetaDataQueryBuilder(new DefaultDataSource(dataSourceName))
-        .types(analysisTypes)
-        .merge(true)
-        .build();
+            .types(analysisTypes)
+            .merge(true)
+            .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
     LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
 
     String result = engineRepository.query(queryString, String.class).orElseThrow(
-        () -> new ResourceNotFoundException(dataSourceName));
+            () -> new ResourceNotFoundException(dataSourceName));
 
     List<SegmentMetaDataResponse> metaData = null;
     try {
-      metaData = GlobalObjectMapper.getDefaultMapper().readValue(result, new TypeReference<List<SegmentMetaDataResponse>>() {});
+      metaData = GlobalObjectMapper.getDefaultMapper()
+              .readValue(result, new TypeReference<List<SegmentMetaDataResponse>>() {
+              });
     } catch (IOException e) {
       LOGGER.error("Result is not matched : {}", e.getMessage());
       throw new QueryTimeExcetpion("Result is not matched : " + e.getMessage());
@@ -826,8 +810,8 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     Field geoField = geoFields.get(0);
 
     TimeseriesQuery timeseriesQuery = TimeseriesQuery.builder(new DefaultDataSource(dataSourceName))
-                                                     .geoBoundary(geoField.getName(), geoField.getLogicalType().isShape())
-                                                     .build();
+            .geoBoundary(geoField.getName(), geoField.getLogicalType().isShape())
+            .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(timeseriesQuery);
     LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);

@@ -27,6 +27,7 @@ import {EngineService} from "../../service/engine.service";
 import {Engine} from "../../../domain/engine-monitoring/engine";
 import {CommonUtil} from "../../../common/util/common.util";
 import * as _ from "lodash";
+import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
 
 declare let echarts: any;
 
@@ -86,6 +87,15 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
   }
 
   public selfHide() {
+    if (!_.isNil(this._gcCountChart)) {
+      this._gcCountChart.clear();
+      this._gcCountChart = undefined;
+    }
+    if (!_.isNil(this._memoryChart)) {
+      this._memoryChart.clear();
+      this._memoryChart = undefined;
+    }
+
     this.isShow = false;
   }
 
@@ -132,6 +142,9 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
           trigger: 'axis',
           axisPointer: {
             type: 'line'
+          },
+          formatter: (params) => {
+            return EngineMonitoringUtil.tooltipFormatter(params);
           }
         },
         grid: [
@@ -200,6 +213,10 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
           trigger: 'axis',
           axisPointer: {
             type: 'line'
+          },
+          formatter: (params) => {
+            return EngineMonitoringUtil.convertLocalTime(params[0].axisValue) + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + CommonUtil.formatBytes(params[0].data, 2)
+              + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + CommonUtil.formatBytes(params[1].data, 2);
           }
         },
         grid: [
@@ -260,10 +277,6 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
           }
         ]
       };
-      chartOps.tooltip.formatter = ((params): any => {
-        return params[0].axisValue + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + CommonUtil.formatBytes(params[0].data, 2)
-          + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + CommonUtil.formatBytes(params[1].data, 2);
-      });
       if (_.isNil(this._memoryChart)) {
         this._memoryChart = echarts.init(this._memoryChartElmRef.nativeElement, 'exntu');
       }

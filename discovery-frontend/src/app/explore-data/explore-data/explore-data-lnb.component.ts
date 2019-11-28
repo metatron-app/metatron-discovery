@@ -39,7 +39,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   tagList: Tag.Tree[];
   catalogSearchKeyword: string;
   tagSearchKeyword: string;
-  isFoldingNavigation: boolean;
+  isFoldingNavigation: boolean = false;
 
   // Dummy data before api
   favoriteCatalogList = [];

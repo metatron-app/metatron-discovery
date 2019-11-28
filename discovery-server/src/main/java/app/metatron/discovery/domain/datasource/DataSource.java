@@ -323,6 +323,9 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   @Transient
   Boolean valid;
 
+  @Transient
+  Boolean append;
+
   public DataSource() {
   }
 
@@ -953,6 +956,16 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   public Boolean getValid() { return valid; }
 
   public void setValid(Boolean valid) { this.valid = valid; }
+
+  public Boolean getAppend() {
+    if (BooleanUtils.isTrue(append)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public void setAppend(Boolean append) { this.append = append; }
 
   public boolean isFieldMatchedByNames(final List<String> matchingFieldNames) {
     if (this.getFields() == null || this.getFields().isEmpty()) {

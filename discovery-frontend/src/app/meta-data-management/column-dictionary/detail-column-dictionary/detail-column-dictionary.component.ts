@@ -230,7 +230,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onClickPrevButton(): void {
     // 컬럼 사전 목록 화면으로 이동
-    this._location.back();
+    this.router.navigate(['management/metadata/column-dictionary']).then();
   }
 
   /**

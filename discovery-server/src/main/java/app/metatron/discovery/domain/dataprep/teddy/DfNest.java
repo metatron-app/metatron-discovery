@@ -14,15 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Nest;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,20 +42,13 @@ public class DfNest extends DataFrame {
     Nest nest = (Nest) rule;
 
     Expression targetExpr = nest.getCol();
-    List<String> targetColNames = new ArrayList<>();
     String into = nest.getInto();
     String newColName = nest.getAs().replaceAll("'", "");
-    int colno;
 
-    if (targetExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetExpr).getValue());
-    } else if (targetExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetExpr).getValue());
-    } else {
-      assert false : targetExpr;
-    }
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetExpr);
+    assert !targetColNames.isEmpty() : nest;
 
-    // 마지막 목적 컬럼까지만 추가 하기 위해
+    // The new column is located the last related column.
     int newColPos = 0;
     for (String colName : targetColNames) {
       newColPos = prevDf.getColnoByColName(colName) > newColPos ? prevDf.getColnoByColName(colName) : newColPos;
@@ -63,24 +58,9 @@ public class DfNest extends DataFrame {
     addColumnWithDfAll(prevDf);
 
     ColumnType newColType = into.equalsIgnoreCase("ARRAY") ? ColumnType.ARRAY : ColumnType.MAP;
-    ColumnDescription newColDesc = new ColumnDescription(newColType, null); // array, map 자체엔 timestamp style이 없다.
+    ColumnDescription newColDesc = new ColumnDescription(newColType, null);
 
-    if (newColType == ColumnType.ARRAY) {
-      List<ColumnDescription> arrColDesc = new ArrayList<>();
-      for (String targetColName : targetColNames) {
-        ColumnDescription colDesc = prevDf.getColDescByColName(targetColName);
-        arrColDesc.add(colDesc);
-      }
-      newColDesc.setArrColDesc(arrColDesc);
-    } else {
-      Map<String, ColumnDescription> mapColDesc = new HashMap<>();
-      for (String targetColName : targetColNames) {
-        ColumnDescription colDesc = prevDf.getColDescByColName(targetColName);
-        mapColDesc.put(targetColName, colDesc);
-      }
-      newColDesc.setMapColDesc(mapColDesc);
-    }
-    newColName = addColumn(newColPos, newColName, newColDesc);  // 중간 삽입 (이후 컬럼들은 뒤로 밀림)
+    newColName = addColumn(newColPos, newColName, newColDesc);  // Add into middle (Afterwards move right)
     interestedColNames.add(newColName);
 
     preparedArgs.add(newColPos);
@@ -88,6 +68,42 @@ public class DfNest extends DataFrame {
     preparedArgs.add(newColName);
     preparedArgs.add(newColType);
     return preparedArgs;
+  }
+
+  private String jsonize(Object obj) throws CannotSerializeIntoJsonException {
+    String jsonStr;
+    try {
+      jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      LOGGER.error("DfNest.gather():", e);
+      throw new CannotSerializeIntoJsonException(e.getMessage());
+    }
+    return jsonStr;
+  }
+
+  private String getJsonStrFromArray(Row row, List<String> targetColNames) throws CannotSerializeIntoJsonException {
+    List<Object> arr = new ArrayList();
+    for (String colName : targetColNames) {
+      arr.add(row.get(colName));
+    }
+    return jsonize(arr);
+  }
+
+  private String getJsonStrFromMap(Row row, List<String> targetColNames) throws CannotSerializeIntoJsonException {
+    Map<String, Object> map = new TreeMap();
+    for (String colName : targetColNames) {
+      map.put(colName, row.get(colName));
+    }
+    return jsonize(map);
+  }
+
+  private String getJsonStr(Row row, List<String> targetColNames, ColumnType colType)
+          throws CannotSerializeIntoJsonException {
+    if (colType == ColumnType.ARRAY) {
+      return getJsonStrFromArray(row, targetColNames);
+    } else {
+      return getJsonStrFromMap(row, targetColNames);
+    }
   }
 
   @Override
@@ -107,27 +123,15 @@ public class DfNest extends DataFrame {
       Row row = prevDf.rows.get(rowno);
       Row newRow = new Row();
 
-      // 마지막 목적 컬럼까지만 추가
+      // Add until the last target column
       for (colno = 0; colno < newColPos; colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 
-      // 새 컬럼 추가
-      if (newColType == ColumnType.ARRAY) {
-        List<Object> arr = new ArrayList();
-        for (String colName : targetColNames) {
-          arr.add(row.get(colName));
-        }
-        newRow.add(newColName, arr);
-      } else {
-        Map<String, Object> map = new HashMap();
-        for (String colName : targetColNames) {
-          map.put(colName, row.get(colName));
-        }
-        newRow.add(newColName, map);
-      }
+      // Add the new generated column
+      newRow.add(newColName, getJsonStr(row, targetColNames, newColType));
 
-      // 나머지 추가
+      // Add the rest columns
       for (colno = newColPos; colno < prevDf.getColCnt(); colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
@@ -135,7 +139,7 @@ public class DfNest extends DataFrame {
       rows.add(newRow);
     }
 
-    LOGGER.trace("DfNest.gather(): end: offset={} length={} newColName={} newColType={}", offset, length, newColName,
+    LOGGER.debug("DfNest.gather(): end: offset={} length={} newColName={} newColType={}", offset, length, newColName,
             newColType);
     return rows;
   }

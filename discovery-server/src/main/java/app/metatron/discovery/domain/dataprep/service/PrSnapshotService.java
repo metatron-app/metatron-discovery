@@ -14,36 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
-import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.util.PrepUtil;
-import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CancellationException;
-import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -58,6 +32,38 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CancellationException;
+
+import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
+import app.metatron.discovery.domain.dataprep.file.PrepSqlUtil;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 
 @Service
 public class PrSnapshotService {
@@ -484,17 +490,23 @@ public class PrSnapshotService {
                             errorMsg);
           }
 
+          String custom = snapshot.getCustom();
+
           // We generated JSON snapshots to have ".json" at the end of the URI.
           Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
           if (storedUri.endsWith(".json")) {
             PrepParseResult result = PrepJsonUtil.parse(snapshot.getStoredUri(), 10000, null, hadoopConf);
             gridResponse.setByGrid(result);
+          } else if (storedUri.endsWith(".sql")) {
+            PrepParseResult result = PrepSqlUtil.parse(snapshot.getStoredUri(), 10000, null, hadoopConf);
+            gridResponse.setByGrid(result);
+            custom = "{'colDescs':[\"type\":\"STRING\"]}";
           } else {
-            PrepParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, null, hadoopConf, true);
+            PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT.withHeader(true).withHadoopConf(hadoopConf);
+            PrepParseResult result = csvUtil.parse(snapshot.getStoredUri());
             gridResponse.setByGrid(result);
           }
 
-          String custom = snapshot.getCustom();
           setColumnInfo(gridResponse, custom);
 
           responseMap.put("offset", gridResponse.rows.size());

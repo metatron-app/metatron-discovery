@@ -34,7 +34,7 @@ public class AggregateTest extends TeddyTest {
   @Test
   public void test_aggregate1() throws IOException, TeddyException {
     DataFrame multi = new DataFrame();
-    multi.setByGrid(grids.get("multi"), null);
+    multi.setByGrid(grids.get("multi"));
     multi = prepare_multi(multi);
     multi.show();
 
@@ -55,7 +55,7 @@ public class AggregateTest extends TeddyTest {
   @Test
   public void test_aggregate2() throws TeddyException {
     DataFrame multi = new DataFrame();
-    multi.setByGrid(grids.get("multi"), null);
+    multi.setByGrid(grids.get("multi"));
     multi = prepare_multi(multi);
     multi.show();
 
@@ -75,7 +75,7 @@ public class AggregateTest extends TeddyTest {
   @Test
   public void test_aggregate3() throws TeddyException {
     DataFrame multi = new DataFrame();
-    multi.setByGrid(grids.get("multi"), null);
+    multi.setByGrid(grids.get("multi"));
     multi = prepare_multi(multi);
     multi.show();
 

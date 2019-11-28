@@ -14,10 +14,12 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'color-template',
-  templateUrl: './color-template.component.html'
+  templateUrl: './color-template.component.html',
+  styles: ['.sys-inverted {transform: scaleX(-1);}']
 })
 export class ColorTemplateComponent extends AbstractComponent {
 
@@ -91,6 +93,8 @@ export class ColorTemplateComponent extends AbstractComponent {
     { index: 7, colorNum: 'HC7' }
   ];
 
+  public isTemplateColorInverted: boolean = undefined;
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -102,7 +106,44 @@ export class ColorTemplateComponent extends AbstractComponent {
    * @param {Object} colorObj
    */
   public changeColor(colorObj: Object) {
+    const color = _.cloneDeep(colorObj);
+    if ($('input#invertColor').is(':checked')) {
+      color['colorNum'] = 'R' + color['colorNum'];
+    }
 
-    this.notiChangeColor.emit(colorObj);
+    this.notiChangeColor.emit(color);
   }
+
+  public invertColor() {
+    event.stopPropagation();
+
+    if ($('input#invertColor').is(':checked')) {
+      this.isTemplateColorInverted = true;
+    } else {
+      this.isTemplateColorInverted = false;
+    }
+
+    let colorList: Object[] = [];
+
+    // measure color list 합치기
+    colorList = colorList.concat(this.measureColorList);
+    colorList = colorList.concat(this.measureReverseColorList);
+
+    // 컬러리스트에서 같은 코드값을 가지는경우
+    for (const item of colorList) {
+      // 코드값이 같은경우
+      if (this.isChartColorSelected(item)) {
+        this.changeColor(item);
+      }
+    }
+  }
+
+  public isChartColorInverted() {
+    return this.schema.indexOf('R') === 0;
+  }
+
+  public isChartColorSelected(item) {
+    return this.schema.endsWith(item['colorNum']);
+  }
+
 }

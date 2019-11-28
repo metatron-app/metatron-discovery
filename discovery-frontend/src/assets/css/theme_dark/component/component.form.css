@@ -1669,7 +1669,7 @@
 }
 
 .theme-dark .ddp-box-layout4 .ddp-data-title + .ddp-data-code {
-    padding-top: 0;
+  padding-top: 0; white-space:normal;
 }
 
 .theme-dark .ddp-box-layout4 .ddp-table-code {
@@ -1677,7 +1677,7 @@
 }
 
 .theme-dark .ddp-box-layout4 .ddp-data-code.ddp-size {
-    max-height: inherit;
+    max-height: initial;
     overflow: inherit;
 }
 

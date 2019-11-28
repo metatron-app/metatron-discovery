@@ -142,4 +142,12 @@ public class EngineMonitoring extends AbstractHistoryEntity implements MetatronD
     INDEX, KAFKA, HADOOP
   }
 
+  public enum SERVICE {
+    BROKER, COORDINATOR, HISTORICAL, OVERLORD, MIDDLEMANAGER
+  }
+
+  public enum QueryResult {
+    SUCCESS, FAIL
+  }
+
 }

@@ -180,7 +180,7 @@ export class CriterionComponent extends AbstractComponent {
   public onChangeFilter(data: {label: Criteria.ListCriterionKey, value}): void {
     const filters = Object.keys(data.value);
     // remove prev DATETIME property
-    if (data.label === Criteria.ListCriterionKey.MODIFIED_TIME || data.label === Criteria.ListCriterionKey.CREATED_TIME || data.label === Criteria.ListCriterionKey.COMPLETED_TIME) {
+    if (data.label === Criteria.ListCriterionKey.MODIFIED_TIME || data.label === Criteria.ListCriterionKey.CREATED_TIME || data.label === Criteria.ListCriterionKey.COMPLETED_TIME || data.label === Criteria.ListCriterionKey.STARTED_TIME) {
       // DATETIME type
       const type = data.value[Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
       filters.forEach((key) => {
@@ -287,8 +287,21 @@ export class CriterionComponent extends AbstractComponent {
         searchParams['completedTimeTo'] = this.getDateTimeEndParamInToday();
       }
     }
+    if (!_.isNil(param[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX])) {
+      const type = param[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX][0];
+      if (type === Criteria.DateTimeType.BETWEEN) {
+        searchParams['startedTimeFrom'] = param[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + 'startedTimeFrom'] ? param[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + 'startedTimeFrom'][0] : undefined;
+        searchParams['startedTimeTo'] = param[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + 'startedTimeTo'] ? param[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + 'startedTimeTo'][0] : undefined;
+      } else if (type === Criteria.DateTimeType.TODAY) {
+        searchParams['startedTimeFrom'] = this.getDateTimeStartParamInToday();
+        searchParams['startedTimeTo'] = this.getDateTimeEndParamInToday();
+      } else if (type === Criteria.DateTimeType.SEVEN_DAYS) {
+        searchParams['startedTimeFrom'] = this.getDateTimeStartParamInSevenDay();
+        searchParams['startedTimeTo'] = this.getDateTimeEndParamInToday();
+      }
+    }
     // others
-    Object.keys(param).filter(key => key !== Criteria.KEY_EXTENSIONS && key.indexOf(Criteria.ListCriterionKey.MODIFIED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.CREATED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.COMPLETED_TIME) === -1).forEach((key) => {
+    Object.keys(param).filter(key => key !== Criteria.KEY_EXTENSIONS && key.indexOf(Criteria.ListCriterionKey.MODIFIED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.CREATED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.COMPLETED_TIME) === -1 && key.indexOf(Criteria.ListCriterionKey.STARTED_TIME) === -1).forEach((key) => {
       if (!_.isNil(param[key]) && param[key].length > 0 && param[key].every(value => StringUtil.isNotEmpty(value))) {
         searchParams[key.slice(key.indexOf(Criteria.QUERY_DELIMITER) + 1)] = param[key];
       }

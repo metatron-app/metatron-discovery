@@ -3378,7 +3378,7 @@
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox {
     float: left;
     position: relative;
-    margin-top: 11px;
+    margin-top: 9px;
     padding-left: 15px;
     color: #a2a9c1;
     cursor: pointer;
@@ -3409,6 +3409,11 @@
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox ul.ddp-list-popup {
     width: 170px;
 }
+.theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox ul.ddp-list-popup .ddp-label-checkbox {
+  max-width:100%;
+  box-sizing:border-box;
+}
+.theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-wrap-selectbox ul.ddp-list-popup .ddp-label-checkbox span.ddp-txt-checkbox {max-width:100%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-ui-datalink .ddp-wrap-popup2 {
     display: none;
@@ -3427,7 +3432,7 @@
 
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-label-checkbox.ddp-type-show {
     float: left;
-    margin: 10px 0 0 10px;
+    margin: 8px 0 0 10px;
 }
 
 .theme-dark .ddp-wrap-tab-dashboard .ddp-ui-setting .ddp-label-checkbox.ddp-type-show span.ddp-txt-checkbox {
@@ -21204,7 +21209,7 @@
 .theme-dark button[class*="ddp-btn-color-"] {
     display: inline-block;
     position: relative;
-    width: 235px;
+    width: 100%;
     height: 25px;
     cursor: pointer;
 }
@@ -21212,7 +21217,7 @@
 .theme-dark button[class*="ddp-btn-color2-series"] {
     display: inline-block;
     position: relative;
-    width: 235px;
+    width: 100%;
     height: 25px;
     cursor: pointer;
 }
@@ -24422,7 +24427,7 @@
     top: 0;
     left: 0;
     margin-top: 0;
-    margin-right: px;
+    margin-right: 5px;
 }
 
 .theme-dark .ddp-top-flow .ddp-wrap-navi {
@@ -29243,7 +29248,7 @@
     font-size: 13px;
     text-align: left;
 }
-
+.theme-dark table.ddp-table-detail tbody tr th.type-line-height {line-height:30px;}
 .theme-dark table.ddp-table-detail tbody tr th .ddp-wrap-hover-info {
     display: inline-block;
     position: relative;
@@ -29321,7 +29326,7 @@
 }
 
 .theme-dark table.ddp-table-detail tr td .ddp-apply {
-    margin: -6px 0;
+  margin: -6px 0;
     margin-bottom: 6px;
 }
 
@@ -43323,21 +43328,11 @@
     padding: 20px 25px 0 0;
 }
 
-.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log {
-    width: 15px;
-    height: 15px;
-    float: left;
-    margin-left: 15px;
-    background: url(../../../images/btn_log.png) no-repeat;
-}
-
-.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-down {
-    background-position-y: -15px;
-}
-
-.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-newwindow {
-    background-position-y: -29px;
-}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log {float:left; margin-left:15px; background:url(../../../images/btn_log.png) no-repeat;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-refresh {width:14px; height:14px;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-down {width:13px; height:13px; background-position-y:-15px;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-newwindow {width:14px; height:12px; background-position-y:-29px;}
+.theme-dark .ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-btn-log.type-newtab {width:13px; height:13px;background-position-y:-43px;}
 
 .theme-dark .ddp-ui-datadetail.type-detail .ddp-box-graph {
     height: 250px;
@@ -46040,6 +46035,8 @@
     content: '';
 }
 
+.theme-dark .ddp-view-catalog.ddp-close .ddp-wrap-catalogs .ddp-btn-folding:before {background-position-y:-14px;}
+
 .theme-dark .ddp-wrap-catalogs .ddp-btn-folding:hover:before {
     background-position-x: -45px;
 }
@@ -46239,10 +46236,6 @@
 
 .theme-dark .ddp-ui-tree ul.ddp-list-tree li a .ddp-txt-link {
     display: block;
-}
-
-.theme-dark .ddp-ui-tree ul.ddp-list-tree li.ddp-open > a .ddp-txt-link {
-    font-weight: bold;
 }
 
 .theme-dark .ddp-ui-tree ul.ddp-list-tree li a .ddp-txt-link:hover {
@@ -46541,9 +46534,9 @@
 }
 
 .theme-dark .ddp-wrap-catalogs2 {
-    margin: -7px 0;
+  margin: -7px 0 0 0;
 }
-
+.theme-dark .ddp-wrap-catalogs2 + .ddp-apply.type-catalog {margin-top:6px !important;}
 .theme-dark .ddp-wrap-catalogs2 .ddp-ui-catalogs2 {
     padding: 7px 0 7px 20px;
     color: #4e5368;
@@ -46716,7 +46709,7 @@
 .theme-dark table.ddp-table-detail tr td .ddp-tag-default {
     display: inline-block;
     position: relative;
-    padding: 5px 5px 5px 20px;
+    padding: 3px 5px 3px 20px;
     margin: 3px 6px 3px 0;
     border-radius: 4px;
     color: #666fad;
@@ -46727,7 +46720,7 @@
 .theme-dark table.ddp-table-detail tr td .ddp-tag-default:before {
     display: inline-block;
     position: absolute;
-    top: 5px;
+    top: 3px;
     left: 9px;
     content: '#';
     color: #666fad;
@@ -47168,7 +47161,7 @@
     display: inline-block;
     float: left;
     position: relative;
-    width: 515px;
+    width: 516px;
     padding: 0 0 0 40px;
     box-sizing: border-box;
 }
@@ -47248,7 +47241,8 @@
 .theme-dark .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top .ddp-ui-title {
     float: left;
     text-align: left;
-    padding: 20px 20px 5px 24px;
+    padding:26px 15px 5px 25px;
+    font-size:22px;
 }
 
 .theme-dark .ddp-layout-meta.ddp-scroll .ddp-ui-contents-top .ddp-ui-tag {
@@ -47274,7 +47268,7 @@
 }
 
 .theme-dark .ddp-layout-meta .ddp-wrap-catalogs {
-    top: 245px;
+    top: 245px; z-index:20;
     border-top: 1px solid rgba(44, 34, 141, 0.1);
     border-right: 1px solid rgba(44, 34, 141, 0.1);
     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
@@ -47338,6 +47332,7 @@
     border-left: 1px solid #ddd;
 }
 
+.theme-dark .ddp-layout-meta .ddp-view-catalog.ddp-close .ddp-wrap-catalogs .ddp-wrap-folding {border-left:none;}
 .theme-dark .ddp-layout-meta .ddp-wrap-catalogs .ddp-wrap-folding .ddp-btn-folding:hover * {
     display: block;
 }
@@ -47388,7 +47383,7 @@
     top: 190px;
     padding-left: 296px;
     padding-right: 0;
-    overflow: hidden;
+  overflow: initial;
 }
 
 .theme-dark .ddp-layout-meta .ddp-ui-contents-list.ddp-type.ddp-close {

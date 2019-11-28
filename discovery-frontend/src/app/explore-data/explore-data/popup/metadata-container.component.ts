@@ -103,7 +103,9 @@ export class MetadataContainerComponent extends AbstractComponent {
    * Move to management > metadata detail
    */
   public onClickEditData() {
-    this.router.navigate(['management/metadata/metadata', this.metadataId]).then();
+    this._showConfirmComponent()
+      .then(() => this.router.navigate(['management/metadata/metadata', this.metadataId]).then())
+      .catch(e => this.commonExceptionHandler(e));
   }
 
   onClickCreateWorkbench(): void {
@@ -156,9 +158,9 @@ export class MetadataContainerComponent extends AbstractComponent {
       // show confirm modal
       this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
       const modal: Modal = new Modal();
-      modal.name = this.translateService.instant('msg.explore.ui.confirm.title');
-      modal.description = this.translateService.instant('msg.explore.ui.confirm.description');
-      modal.btnName = this.translateService.instant('msg.explore.btn.confirm.done');
+      modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+      modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+      modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
       this.confirmModalEntryRef.instance.init(modal);
       this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
         // destroy confirm component

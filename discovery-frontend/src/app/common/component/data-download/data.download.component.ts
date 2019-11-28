@@ -150,15 +150,21 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {string} widgetId
    * @param {boolean} isOriginDown
    */
-  public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown: boolean = true) {
+  public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown: boolean = true, query: SearchQueryRequest = null) {
     this._openComponent(event, 'RIGHT');
     this._downloadId = widgetId;
     this.mode = 'WIDGET';
     this.isOriginDown = isOriginDown;
     this.preview = undefined;
+    this.query = query;
+
+    let param = null;
+    if (query) {
+      param = query.getDownloadFilters();
+    }
 
     if (isOriginDown) {
-      this.widgetService.previewWidget(widgetId, isOriginDown, true).then(result => {
+      this.widgetService.previewWidget(widgetId, isOriginDown, true, param).then(result => {
         if (result) {
           this.preview = new PreviewResult(result.estimatedSize, result.totalCount);
         }
