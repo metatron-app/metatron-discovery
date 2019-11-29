@@ -127,6 +127,12 @@ public class DruidEngineRepository extends AbstractEngineRepository {
     return call(GET_DATASOURCE_RULE, paramMap, List.class);
   }
 
+  public void setDatasourceRule(String datasourceId, List retention){
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("datasourceId", datasourceId);
+    call(SET_DATASOURCE_RULE, paramMap, retention, String.class);
+  }
+
   public Optional<Map> getDatasourceIntervals(String datasourceId){
     Map paramMap = Maps.newHashMap();
     paramMap.put("simple", null);
@@ -143,7 +149,7 @@ public class DruidEngineRepository extends AbstractEngineRepository {
   }
 
   public Optional<List> getRunningIds() {
-    return call(GET_RUNNING_IDS, Maps.newHashMap(), Maps.newHashMap(), List.class);
+    return call(GET_RUNNING_IDS, Maps.newHashMap(),List.class);
   }
 
   public Optional<List> sql(String sql) {

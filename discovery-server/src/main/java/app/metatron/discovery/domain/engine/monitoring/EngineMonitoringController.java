@@ -332,6 +332,7 @@ public class EngineMonitoringController {
     }
     response.put("datasource", result);
     response.put("datasourceRule", monitoringQueryService.getDatasourceRule(datasource));
+    response.put("datasourceDefaultRule", monitoringQueryService.getDatasourceRule("_default"));
     response.put("datasourceStatus", monitoringQueryService.getDatasourceStatus(datasource));
     response.put("datasourceIntervals", monitoringQueryService.getDatasourceIntervals(datasource));
     return ResponseEntity.ok(response);
@@ -340,6 +341,17 @@ public class EngineMonitoringController {
   @RequestMapping(value = "/monitoring/datasource/{datasource}/{interval}", method = RequestMethod.GET)
   public ResponseEntity<?> getDatasourceIntervalStatus(@PathVariable String datasource, @PathVariable String interval) {
     return ResponseEntity.ok(monitoringQueryService.getDatasourceIntervalStatus(datasource, interval));
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}/rule", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasourceRule(@PathVariable String datasource) {
+    return ResponseEntity.ok(monitoringQueryService.getDatasourceRule(datasource));
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}/rule", method = RequestMethod.POST)
+  public ResponseEntity<?> setDatasourceRule(@PathVariable String datasource, @RequestBody List<Object> retentionRequest) {
+    monitoringQueryService.setDatasourceRule(datasource, retentionRequest);
+    return ResponseEntity.noContent().build();
   }
 
   @RequestMapping(value = "/monitoring/datasource/criteria", method = RequestMethod.GET)

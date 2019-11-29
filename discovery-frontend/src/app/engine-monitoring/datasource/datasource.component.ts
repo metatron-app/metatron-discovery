@@ -186,7 +186,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   }
 
   public getDatasourceStatusLabel(datasource): string {
-    const datasourceStatus = this._getDatasourceStatus(datasource);
+    const datasourceStatus = this.getDatasourceStatus(datasource);
     if (datasourceStatus === 'disabled') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.disabled');
     } else if (datasourceStatus === 'indexing') {
@@ -198,6 +198,18 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     }
   }
 
+  public getDatasourceStatus(datasource): string {
+    if (datasource.disabled) {
+      return 'disabled';
+    } else if (datasource.status < 0) {
+      return 'indexing';
+    } else if (datasource.num_segments === datasource.num_available_segments) {
+      return 'fully';
+    } else {
+      return 'partially';
+    }
+  }
+
   public getDatasourceSize(datasource) {
     return CommonUtil.formatBytes(datasource.segments.size, 2);
   }
@@ -206,7 +218,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     const filterParam = this._getDatasourceParams();
     return _.cloneDeep(this.datasourceTotalList).filter(item => {
       const matchSearchWord = !filterParam['containsText'] || item.datasource.indexOf(filterParam['containsText']) > -1;
-      const matchAvailability = !filterParam['availability'] || filterParam['availability'].length == 0 || filterParam['availability'].some(availability => this._getDatasourceStatus(item) == availability);
+      const matchAvailability = !filterParam['availability'] || filterParam['availability'].length == 0 || filterParam['availability'].some(availability => this.getDatasourceStatus(item) === availability);
       return matchSearchWord && matchAvailability;
     })
   }
@@ -284,18 +296,6 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
       params['containsText'] = this.searchKeyword.trim();
     }
     return params;
-  }
-
-  private _getDatasourceStatus(datasource): string {
-    if (datasource.disabled) {
-      return 'disabled';
-    } else if (datasource.status < 0) {
-      return 'indexing';
-    } else if (datasource.num_segments === datasource.num_available_segments) {
-      return 'fully';
-    } else {
-      return 'partially';
-    }
   }
 
   private _changeTab(contentType: Engine.ContentType) {

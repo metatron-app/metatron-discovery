@@ -26,8 +26,6 @@
           (changeValue)="onChangedSearchKeyword($event)">
         </component-input>
       </div>
-      <!-- form -->
-      <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
     </div>
     <!-- //filter search -->
     <!-- filters -->
@@ -69,7 +67,7 @@
         Available Segment
       </th>
       <th>
-        Num Rows
+        Num of Rows
       </th>
     </tr>
     </thead>
@@ -79,10 +77,10 @@
         {{datasource.datasource}}
       </td>
       <td>
-        {{getDatasourceStatusLabel(datasource)}}
+        <span class="ddp-txt-status type-{{getDatasourceStatus(datasource)}}">{{getDatasourceStatusLabel(datasource)}}</span>
       </td>
       <td>
-        {{datasource.segments.minTime | date : 'yyyy-MM-ddTHH' : 'UTC'}} ~ {{datasource.segments.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC'}}
+        {{datasource.disabled ? '' : (datasource.segments.minTime | date : 'yyyy-MM-ddTHH' : 'UTC') + ' ~ ' + (datasource.segments.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC')}}
       </td>
       <td>
         {{datasource.disabled ? '' : getDatasourceSize(datasource)}}

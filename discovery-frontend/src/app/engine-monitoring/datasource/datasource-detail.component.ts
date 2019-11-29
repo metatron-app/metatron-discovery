@@ -30,6 +30,7 @@ import * as _ from "lodash";
 import {DeleteModalComponent} from "../../common/component/modal/delete/delete.component";
 import {Alert} from "../../common/util/alert.util";
 import {Modal} from "../../common/domain/modal";
+import {DatasourceRuleComponent} from "./datasource-rule.component";
 
 declare let echarts: any;
 declare let moment: any;
@@ -37,7 +38,11 @@ declare let moment: any;
 @Component({
   selector: 'app-detail-datasource',
   templateUrl: './datasource-detail.component.html',
-  styles: ['.ddp-ui-info-detail .wrap-data-detail .wrap-info-table.type-left {min-width:330px;}']
+  styles: ['.ddp-ui-info-detail .wrap-data-detail .wrap-info-table.type-left {min-width:330px;}'
+          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status {font-size:12px; font-weight:bold;}'
+          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-partially {color:#ffba00;}'
+          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-fully {color:#10bf83;}'
+          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-indexing {color:#666eb2;}']
 })
 export class DatasourceDetailComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -51,8 +56,9 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
   }
 
   public showDisable: boolean;
-  public datasource: any
+  public datasource: any;
   public datasourceRule: any[];
+  public datasourceDefaultRule: any[];
   public datasourceStatus: any;
   public datasourceIntervals: any;
   public intervalStatus: any;
@@ -60,10 +66,13 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
   public datasourceIntervalKey: any[];
 
   private _datasourceName: string;
-  private _histogramChart: any
+  private _histogramChart: any;
 
   @ViewChild(DeleteModalComponent)
   private disableModalComponent: DeleteModalComponent;
+
+  @ViewChild(DatasourceRuleComponent)
+  private datasourceRuleComponent: DatasourceRuleComponent;
 
   @ViewChild('histogram')
   private histogram: ElementRef;
@@ -102,13 +111,23 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
   }
 
   public getDatasourceStatusLabel(datasource): string {
-    const datasourceStatus = this._getDatasourceStatus(datasource);
+    const datasourceStatus = this.getDatasourceStatus(datasource);
     if (datasourceStatus === 'indexing') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.indexing');
     } else if (datasourceStatus === 'fully') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.fully');
     } else {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.partially') + ' (' + (Math.floor((datasource.num_available_segments / datasource.num_segments) * 1000) / 10).toFixed(1) + '%)';
+    }
+  }
+
+  public getDatasourceStatus(datasource): string {
+    if (datasource.status < 0) {
+      return 'indexing';
+    } else if (datasource.num_segments === datasource.num_available_segments) {
+      return 'fully';
+    } else {
+      return 'partially';
     }
   }
 
@@ -182,11 +201,22 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     this.disableModalComponent.init(modal);
   }
 
+  public openRule() {
+    this.datasourceRuleComponent.open();
+  }
+
+  public onChangedRetention() {
+    this.engineService.getDatasourceRule(this._datasourceName).then((data) => {
+      this.datasourceRule = data;
+    });
+  }
+
   private _getDatasourceDetail(): void {
     this.loadingShow();
     this.engineService.getDatasourceDetail(this._datasourceName).then((data) => {
       this.datasource = data.datasource;
       this.datasourceRule = data.datasourceRule;
+      this.datasourceDefaultRule = data.datasourceDefaultRule;
       this.datasourceStatus = data.datasourceStatus;
       this.datasourceIntervals = data.datasourceIntervals;
       this.datasourceIntervalKey = Object.keys(this.datasourceIntervals);
@@ -274,16 +304,6 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
         this.onClickInterval(this.datasourceIntervalKey[params.dataIndex]);
       }
     });
-  }
-
-  private _getDatasourceStatus(datasource): string {
-    if (datasource.status < 0) {
-      return 'indexing';
-    } else if (datasource.num_segments === datasource.num_available_segments) {
-      return 'fully';
-    } else {
-      return 'partially';
-    }
   }
 
 }

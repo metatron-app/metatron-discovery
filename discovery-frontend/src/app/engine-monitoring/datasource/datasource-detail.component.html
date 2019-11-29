@@ -52,7 +52,7 @@
             Status
           </th>
           <td *ngIf="datasource">
-            {{getDatasourceStatusLabel(datasource)}}
+            <span class="ddp-txt-status type-{{getDatasourceStatus(datasource)}}">{{getDatasourceStatusLabel(datasource)}}</span>
           </td>
         </tr>
         <tr>
@@ -118,7 +118,21 @@
           <tbody>
           <tr *ngFor="let rule of datasourceRule; let i = index">
             <td>
-              Rule #{{i+1}} {{i === datasourceRule.length -1 ? '(default rule)' : ''}}
+              Rule #{{i+1}}
+            </td>
+            <td>
+              {{rule.type}}
+            </td>
+            <td>
+              {{getRetentionDuration(rule)}}
+            </td>
+            <td>
+              {{getRetentionTier(rule)}}
+            </td>
+          </tr>
+          <tr *ngFor="let rule of datasourceDefaultRule; let i = index">
+            <td>
+              Rule #{{i+ datasourceRule.length + 1}} (default rule)
             </td>
             <td>
               {{rule.type}}
@@ -238,8 +252,9 @@
                 <col width="*">
                 <!--<col width="15%">
                 <col width="17%">-->
-                <col width="100px">
                 <col width="220px">
+                <col width="100px">
+                <col width="120px">
               </colgroup>
               <thead>
               <tr>
@@ -255,11 +270,14 @@
                 <th>
                   Version
                 </th>-->
+                <th>
+                  Server
+                </th>
                 <th class="ddp-txt-right">
                   Size
                 </th>
                 <th class="ddp-txt-right">
-                  Server
+                  Dimension / Measure (count)
                 </th>
               </tr>
               </thead>
@@ -277,10 +295,13 @@
                 <td>
                   {{intervalStatus[key].metadata.version}}
                 </td>-->
+                <td [innerHTML]="intervalStatus[key].servers.join('<br/>')">
+                </td>
                 <td class="ddp-txt-right">
                   {{convertSize(intervalStatus[key].metadata.size)}}
                 </td>
-                <td class="ddp-txt-right" [innerHTML]="intervalStatus[key].servers.join('<br/>')">
+                <td class="ddp-txt-right">
+                  {{intervalStatus[key].metadata.dimensions === '' ? 0 : intervalStatus[key].metadata.dimensions.split(',').length}} / {{intervalStatus[key].metadata.metrics === '' ? 0 : intervalStatus[key].metadata.metrics.split(',').length}}
                 </td>
               </tr>
 
@@ -296,4 +317,5 @@
     <!-- //detail -->
   </div>
 </div>
+<app-rule-datasource [datasourceId]="datasource ? datasource.datasource : ''" [datasourceRule]="datasourceRule" (changeRetention)="onChangedRetention();"></app-rule-datasource>
 <app-delete-modal (deleteConfirm)="disableDatasource()"></app-delete-modal>

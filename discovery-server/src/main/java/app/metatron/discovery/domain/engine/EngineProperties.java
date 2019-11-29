@@ -79,6 +79,7 @@ public class EngineProperties {
   public final static String GET_DATASOURCE_META = "getMetaDatasource";
   public final static String GET_DATASOURCE_RULES = "datasourceRules";
   public final static String GET_DATASOURCE_RULE = "datasourceRule";
+  public final static String SET_DATASOURCE_RULE = "setDatasourceRule";
   public final static String GET_DATASOURCE_INTERVAL_LIST = "datasourceIntervals";
   public final static String GET_DATASOURCE_INTERVALS_STATUS = "datasourceIntervalStatus";
   public final static String GET_DATASOURCE_LOAD_STATUS = "datasourceLoadStatus";

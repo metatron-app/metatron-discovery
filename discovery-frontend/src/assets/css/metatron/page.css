@@ -9115,6 +9115,7 @@ ul.ddp-list-owner li {padding:6px 0;}
 
 .ddp-wrap-contents-det {margin-top:-54px; padding:54px 0 0 0; height:100%; box-sizing:Border-box;}
 .ddp-wrap-contents-det .ddp-ui-contents-det {height:100%; padding:10px 80px 18px 80px; overflow:auto; box-sizing:border-box;}
+.ddp-wrap-contents-det .ddp-ui-contents-det .ddp-wrap-top-filtering {background-color:#fff;}
 
 /**********************************************************************************
         모니터링

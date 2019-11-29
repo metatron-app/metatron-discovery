@@ -36,6 +36,7 @@ import {QueryComponent} from "./query/query.component";
 import {DatasourceManagementGuard} from "../common/gaurd/datasource-management.guard";
 import {DatasourceComponent} from "./datasource/datasource.component";
 import {DatasourceDetailComponent} from "./datasource/datasource-detail.component";
+import {DatasourceRuleComponent} from "./datasource/datasource-rule.component";
 
 const _routes = [
   {
@@ -113,7 +114,8 @@ const _routes = [
     TaskDetailComponent,
     SupervisorDetailComponent,
     DatasourceComponent,
-    DatasourceDetailComponent
+    DatasourceDetailComponent,
+    DatasourceRuleComponent
   ],
   providers: [
     EngineService

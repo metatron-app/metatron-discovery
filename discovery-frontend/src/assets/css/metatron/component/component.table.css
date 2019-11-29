@@ -206,6 +206,16 @@ table.ddp-table-type3 tbody tr td.ddp-hover-tooltip {display:table-cell; overflo
 
 table.ddp-table-type3 tbody tr td .ddp-link {text-decoration: underline; color:#4c92e0;}
 table.ddp-table-type3 tbody tr td.ddp-border-right {border-right:1px solid #d0d1d8;}
+table.ddp-table-type3 tbody tr td [class*="ddp-icon-status-"].ddp-hover-tooltip {margin-right:4px;}
+table.ddp-table-type3 tbody tr td [class*="ddp-icon-status-"].ddp-hover-tooltip .ddp-ui-tooltip-info {top:auto; bottom:100%; left:-10px; margin-bottom:5px;}
+table.ddp-table-type3 tbody tr td [class*="ddp-icon-status-"].ddp-hover-tooltip .ddp-ui-tooltip-info .ddp-icon-view-down {left:19px; right:auto; margin:0;}
+table.ddp-table-type3 tbody tr td .ddp-txt-status {font-size:12px; font-weight:bold;}
+table.ddp-table-type3 tbody tr td .ddp-txt-status.type-disabled {color:#dc494f;}
+table.ddp-table-type3 tbody tr td .ddp-txt-status.type-partially {color:#ffba00;}
+table.ddp-table-type3 tbody tr td .ddp-txt-status.type-fully {color:#10bf83;}
+table.ddp-table-type3 tbody tr td .ddp-txt-status.type-indexing {color:#666eb2;}
+
+
 /**************************************************************
 	Table select
 **************************************************************/
@@ -213,7 +223,7 @@ table.ddp-table-select tbody tr td {position:relative; cursor:pointer;}
 table.ddp-table-select tbody tr:hover td {background-color:#f1f1f1; cursor:pointer;}
 table.ddp-table-select tbody tr.ddp-selected td {background-color:#f2f1f8;}
 /*table.ddp-table-select tbody tr.ddp-selected td:before {position:absolute; top:0; left:0; right:0; bottom:0; border:1px solid Red; border-left:none; border-right:none; content:'';}*/
-table.ddp-table-select tbody tr.ddp-selected td {border-top:1px solid #666eb2; border-bottom:1px solid #666eb2;;}
+table.ddp-table-select tbody tr.ddp-selected td {border-top:1px solid #666eb2; border-bottom:1px solid #666eb2;}
 table.ddp-table-select tbody tr.ddp-selected td:first-of-type {border-left:1px solid #666eb2;}
 table.ddp-table-select tbody tr.ddp-selected td:last-of-type {border-right:1px solid #666eb2;}
 table.ddp-table-select tbody tr td .ddp-box-tag {position:relative; top:2px;}

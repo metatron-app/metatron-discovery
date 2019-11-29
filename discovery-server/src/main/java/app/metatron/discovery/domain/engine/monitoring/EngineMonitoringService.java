@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.engine.monitoring;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -774,16 +775,12 @@ public class EngineMonitoringService {
   }
 
   public List getDatasourceRule(String datasourceId) {
-    List ruleList = Lists.newArrayList();
-    Optional<List> defaultRule = engineRepository.getDatasourceRule("_default");
     Optional<List> results = engineRepository.getDatasourceRule(datasourceId);
-    if (CollectionUtils.isNotEmpty(results.get())) {
-      ruleList.addAll(results.get());
-    }
-    if (CollectionUtils.isNotEmpty(defaultRule.get())) {
-      ruleList.addAll(defaultRule.get());
-    }
-    return ruleList;
+    return results.get();
+  }
+
+  public void setDatasourceRule(String datasourceId, List retention) {
+    engineRepository.setDatasourceRule(datasourceId, retention);
   }
 
   public Map getDatasourceIntervals(String datasourceId) {
