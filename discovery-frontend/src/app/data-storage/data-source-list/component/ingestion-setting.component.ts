@@ -816,7 +816,15 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _setDefaultIngestionOption(): void {
     // loading show
     this.loadingShow();
-    this._dataSourceService.getDefaultIngestionOptions(this.createType === 'STAGING' ? 'hadoop' : 'batch')
+    let ingestionType;
+    if (this.createType === 'STAGING') {
+      ingestionType = 'hadoop';
+    } else if (this.createType === 'REALTIME') {
+      ingestionType = 'realtime';
+    } else {
+      ingestionType = 'batch';
+    }
+    this._dataSourceService.getDefaultIngestionOptions(ingestionType)
       .then((result) => {
         // result
         this.tuningConfig = result.filter(item => item.type === 'TUNING').map((item) => {
