@@ -76,6 +76,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
 
   // show flag
   public isShowPopup: boolean;
+  public isShowMetadataGuide: boolean = true;
 
   // enum variable
   public readonly FIELD_ROLE: any = FieldRole;
@@ -183,6 +184,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * cancel
    */
   public cancel(): void {
+    this.isShowMetadataGuide = true;
     this.isShowPopup = undefined;
     this.selectedLogicalTypeFilter = undefined;
     this.selectedRoleTypeFilter = undefined;

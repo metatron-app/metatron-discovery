@@ -123,7 +123,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   String findIdByEngineName(@Param("engineName") String engineName);
 
   @RestResource(exported = false)
-  @Query("SELECT ds.engineName FROM DataSource ds WHERE ds.status = 'ENABLED'")
+  @Query("SELECT ds.engineName FROM DataSource ds")
   List<String> findEngineNameByAll();
 
   @RestResource(exported = false)

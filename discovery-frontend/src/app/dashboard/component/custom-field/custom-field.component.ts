@@ -248,7 +248,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     this._$calculationInput.attr('placeholder', this.translateService.instant('msg.board.custom.ui.content.placeholder'));
 
     // 계산식 에디터 변경 감지
-    this._$calculationInput.bind('input', () => {
+    this._$calculationInput.on('input', () => {
       this.calValidButtonCheck();
       this.isCalFuncSuccess = null;
     });

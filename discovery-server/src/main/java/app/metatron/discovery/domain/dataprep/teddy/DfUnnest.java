@@ -15,19 +15,29 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.ARRAY;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.BOOLEAN;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.DOUBLE;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.LONG;
 import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.MAP;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.STRING;
+import static app.metatron.discovery.domain.dataprep.teddy.ColumnType.TIMESTAMP;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayOrMapException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ser.std.StdArraySerializers.FloatArraySerializer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +66,7 @@ public class DfUnnest extends DataFrame {
 
     addColumnWithDfAll(prevDf);
 
-    List<String> idxs = TeddyUtil.getIdentifierList(idxExpr);
+    List<String> idxs = TeddyUtil.getStringList(idxExpr);
 
     for (int i = 0; i < idxs.size(); i++) {
       String idx = idxs.get(i);
@@ -79,22 +89,67 @@ public class DfUnnest extends DataFrame {
     return preparedArgs;
   }
 
-  private String getElem(String jsonStr, String idx, ColumnType colType) throws InvalidJsonException {
+  private Object getElem(String jsonStr, String idx, ColumnType colType) throws InvalidJsonException {
     try {
       if (colType == MAP) {
         Map<String, Object> map = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, Map.class);
         Object obj = map.get(idx);
-        return obj == null ? null : obj.toString();
+        return obj == null ? null : obj;
       } else {
         List<Object> list = GlobalObjectMapper.getDefaultMapper().readValue(jsonStr, List.class);
         int i = Integer.valueOf(idx);
         assert i >= 0 : i;
-        return i >= list.size() ? null : list.get(Integer.valueOf(idx)).toString();
+        return i >= list.size() ? null
+                : GlobalObjectMapper.getDefaultMapper().writeValueAsString(list.get(Integer.valueOf(idx)));
       }
     } catch (IOException e) {
       LOGGER.warn("DfUnnest.gather(): cannot deserialize array/map type value", e);
       throw new InvalidJsonException(e.getMessage());
     }
+  }
+
+  private Object convertColTypeByValue(int colno, Object obj)
+          throws ColumnNotFoundException, CannotSerializeIntoJsonException {
+    if (obj == null) {
+      return null;
+    }
+
+    if (obj instanceof Map) {
+      setColType(colno, MAP);
+      /* need to jsonize */
+    } else if (obj instanceof List) {
+      setColType(colno, ARRAY);
+      /* need to jsonize */
+    } else if (obj instanceof Integer) {
+      setColType(colno, LONG);
+      return ((Integer) obj).longValue();
+    } else if (obj instanceof Long) {
+      setColType(colno, LONG);
+      return obj;
+    } else if (obj instanceof Float) {
+      setColType(colno, DOUBLE);
+      return ((Float) obj).doubleValue();
+    } else if (obj instanceof Double) {
+      setColType(colno, DOUBLE);
+      return obj;
+    } else if (obj instanceof DateTime) {
+      setColType(colno, TIMESTAMP);
+      return obj;
+    } else if (obj instanceof Boolean) {
+      setColType(colno, BOOLEAN);
+      return obj;
+    } else {
+      setColType(colno, STRING);
+      return obj;
+    }
+
+    String jsonStr;
+    try {
+      jsonStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      throw new CannotSerializeIntoJsonException(e.getMessage());
+    }
+    return jsonStr;
   }
 
   @Override
@@ -113,7 +168,8 @@ public class DfUnnest extends DataFrame {
       Row newRow = new Row();
 
       // Add until the new column
-      for (int colno = 0; colno <= targetColno; colno++) {
+      int colno = 0;
+      for (/* NOP */; colno <= targetColno; colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 
@@ -123,11 +179,12 @@ public class DfUnnest extends DataFrame {
       for (int i = 0; i < idxs.size(); i++) {
         String idx = idxs.get(i);
         String newColName = newColNames.get(i);
-        newRow.add(newColName, getElem(jsonStr, idx, prevType));
+        Object elem = getElem(jsonStr, idx, prevType);
+        newRow.add(newColName, convertColTypeByValue(colno + i, elem));
       }
 
       // Add the rest.
-      for (int colno = targetColno + 1; colno < prevDf.getColCnt(); colno++) {
+      for (colno = targetColno + 1; colno < prevDf.getColCnt(); colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 

@@ -321,7 +321,7 @@ public class DataFrameTest extends TeddyTest {
     store = prepare_store(store);
     store.show();
 
-    String ruleString = "join leftSelectCol: cdate,pcode1,pcode2,pcode3,pcode4,customer_id,detail_store_code rightSelectCol: detail_store_code,customer_id condition: detail_store_code=detail_store_code joinType: 'inner' dataset2: '88888888-4444-4444-4444-121212121212'";
+    String ruleString = "join leftSelectCol: cdate,pcode1,pcode2,pcode3,pcode4,customer_id,code_sum rightSelectCol: detail_store_code,customer_id condition: code_sum=detail_store_code joinType: 'inner' dataset2: '88888888-4444-4444-4444-121212121212'";
     ArrayList<DataFrame> slaveDFs = new ArrayList<>(Arrays.asList(store));
 
     DataFrame newDf = apply_rule(contract, ruleString, slaveDFs);
@@ -424,7 +424,7 @@ public class DataFrameTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: min(detail_store_code), max(detail_store_code) group: pcode1, pcode2";
+    String ruleString = "aggregate value: min(code_sum), max(code_sum) group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -463,13 +463,7 @@ public class DataFrameTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "settype col: detail_store_code type: long";
-
-    DataFrame newDf = apply_rule(contract, ruleString);
-
-    ruleString = "sort order: detail_store_code type: 'desc'";
-
-    newDf = apply_rule(newDf, ruleString);
+    DataFrame newDf = apply_rule(contract, "sort order: code_sum type: 'desc'");
     newDf.show(100);
   }
 
@@ -480,7 +474,7 @@ public class DataFrameTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1, pcode2 value: sum(detail_store_code), count() group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1, pcode2 value: sum(code_sum), count() group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -493,7 +487,7 @@ public class DataFrameTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1, pcode2 value: avg(detail_store_code) group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1, pcode2 value: avg(code_sum) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show(100);
@@ -506,11 +500,11 @@ public class DataFrameTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1 value: sum(detail_store_code) group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1 value: sum(code_sum) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
 
-    ruleString = "unpivot col: sum_detail_store_code_1, sum_detail_store_code_2, sum_detail_store_code_3, sum_detail_store_code_4 groupEvery: 1";
+    ruleString = "unpivot col: sum_code_sum_1, sum_code_sum_2, sum_code_sum_3, sum_code_sum_4 groupEvery: 1";
 
     newDf = apply_rule(newDf, ruleString);
 
@@ -524,11 +518,11 @@ public class DataFrameTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1 value: sum(detail_store_code) group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1 value: sum(code_sum) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
 
-    ruleString = "unpivot col: sum_detail_store_code_1, sum_detail_store_code_2, sum_detail_store_code_3, sum_detail_store_code_4 groupEvery: 4";
+    ruleString = "unpivot col: sum_code_sum_1, sum_code_sum_2, sum_code_sum_3, sum_code_sum_4 groupEvery: 4";
 
     newDf = apply_rule(newDf, ruleString);
 

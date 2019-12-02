@@ -1,0 +1,168 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-pop-meta-detail" *ngIf="isShow">
+  <!-- popup -->
+  <div class="ddp-box-meta type-form">
+    <a href="javascript:" class="ddp-btn-close" (click)="selfHide()"></a>
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <!-- title -->
+      <div class="ddp-ui-title">
+
+        <span class="ddp-label-title ">{{convertLabel(selectedMonitoringTarget)}}</span>
+
+      </div>
+      <!-- //title -->
+
+
+    </div>
+    <!-- //top -->
+
+    <div class="ddp-detail-contents type-form">
+      <!-- option -->
+      <div class="ddp-option-type">
+        <!-- selectbox -->
+        <div class="ddp-type-selectbox" [class.ddp-selected]="isShowIntervalList" (click)="isShowIntervalList = !isShowIntervalList" (clickOutside)="isShowIntervalList=false">
+          <span class="ddp-txt-selectbox">{{getDurationLabel()}}</span>
+          <ul class="ddp-list-selectbox ddp-selectdown">
+            <li>
+              <a href="javascript:" (click)="setDate('1HOUR');">
+                Last 1 hour
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="setDate('1DAY');">
+                Last 1 day
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="setDate('7DAYS');">
+                Last 7 days
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="setDate('30DAYS');">
+                Last 30 days
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!-- //selectbox -->
+      </div>
+      <!-- //option -->
+      <!-- tab -->
+      <div class="ddp-wrap-tab">
+        <ul class="ddp-ui-tab ddp-clear">
+          <li [class.ddp-selected]="selectedTab === ''">
+            <a href="javascript:" (click)="selectTab('');">Total</a>
+          </li>
+          <li [class.ddp-selected]="selectedTab === 'broker'">
+            <a href="javascript:" (click)="selectTab('broker');">Broker</a>
+          </li>
+          <li [class.ddp-selected]="selectedTab === 'historical'">
+            <a href="javascript:" (click)="selectTab('historical');">Historical</a>
+          </li>
+          <li [class.ddp-selected]="selectedTab === 'middleManager'">
+            <a href="javascript:" (click)="selectTab('middleManager');">Middle Manager</a>
+          </li>
+        </ul>
+
+      </div>
+      <!-- //tab -->
+
+      <div class="ddp-wrap-tab-contents">
+        <div class="ddp-ui-tab-contents">
+          <!-- 그래프 영역 -->
+          <div class="ddp-wrap-monitoring" #chart>
+            <div class="ddp-data-empty" *ngIf="chartEmpty">
+              <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+            </div>
+          </div>
+          <!-- //그래프 영역 -->
+          <!-- detail -->
+          <div class="ddp-detail-overview" *ngIf="convertLabel(selectedMonitoringTarget) === 'Avg Query Time'">
+            <div class="ddp-label">Max Slow Broker Queries</div>
+            <div class="ddp-box-viewtable">
+
+
+              <table class="ddp-table-form ddp-table-type2 ">
+                <colgroup>
+                  <col width="50px">
+                  <col width="360px">
+                  <col width="160px">
+                  <col width="260px">
+                  <col width="260px">
+                  <col width="190px">
+                </colgroup>
+                <thead>
+                <tr>
+                  <th class="ddp-txt-center">
+                    No.
+                  </th>
+                  <th>
+                    Query ID
+                  </th>
+                  <th>
+                    Query Time(ms)
+                  </th>
+                  <th>
+                    Service
+                  </th>
+                  <th>
+                    Host
+                  </th>
+                  <th>
+                    Started time
+                  </th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let query of queryList; let i = index">
+                  <td class="ddp-txt-center">
+                    {{i + 1}}
+                  </td>
+                  <td>
+                    {{query.queryId}}
+                  </td>
+                  <td>
+                    {{query.duration | numberCommas}}ms
+                  </td>
+                  <td>
+                    {{query.service}}
+                  </td>
+                  <td>
+                    {{query.host}}
+                  </td>
+                  <td>
+                    {{query.startedTime | date : 'yyyy-MM-dd HH:mm:ss.SSS' : getTimezone}}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+          <!-- //detail -->
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- //popup -->
+
+</div>

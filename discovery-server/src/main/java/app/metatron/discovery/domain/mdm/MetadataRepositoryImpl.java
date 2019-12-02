@@ -162,4 +162,22 @@ public class MetadataRepositoryImpl extends QueryDslRepositorySupport implements
             .groupBy(qMetadata.sourceType)
             .fetch();
   }
+
+  @Override
+  public List<DataCreatorDTO> findDistinctCreatorByName(String nameContains) {
+    NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "count");
+    QMetadata qMetadata = QMetadata.metadata;
+    JPQLQuery query;
+    if(nameContains != null){
+      query = from(qMetadata)
+                .select(Projections.constructor(DataCreatorDTO.class, qMetadata.createdBy, qMetadata.createdBy.count().as(aliasCount)))
+                .groupBy(qMetadata.createdBy)
+                .where(qMetadata.createdBy.containsIgnoreCase(nameContains));
+    } else {
+      query = from(qMetadata)
+                .select(Projections.constructor(DataCreatorDTO.class, qMetadata.createdBy, qMetadata.createdBy.count().as(aliasCount)))
+                .groupBy(qMetadata.createdBy);
+    }
+    return query.fetch();
+  }
 }

@@ -32,4 +32,6 @@ public interface MetadataRepository extends JpaRepository<Metadata, String>,
   List<Metadata> findTop10ByOrderByCreatedTimeDesc();
 
   List<Metadata> findByIdIn(List<String> ids);
+
+  <T> List<T> findTop5ByCreatedByOrderByCreatedTimeDesc(String createdBy, Class<T> type);
 }
