@@ -1128,7 +1128,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * redraw chart
    */
   public changeDraw() {
-    this._search();
+    this._search(null, this._currentSelectionFilters);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
