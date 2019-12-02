@@ -14,82 +14,83 @@
 <div class="ddp-layout-popuptype" *ngIf="isShow">
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup">
+    <!-- title -->
     <div class="ddp-ui-popup-title">
-      <span class="ddp-txt-title-name">Edit Rule</span>
+      <span class="ddp-txt-title-name">
+           {{'msg.dp.ui.btn.edit.rule' | translate}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{ 'msg.comm.btn.cancl' | translate }}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{ 'msg.comm.btn.done' | translate }}</a>
+      </div>
+      <!-- det -->
     </div>
-    <div class="ddp-pop-schema">
-      <div class="ddp-pop-in">
-        <!-- Contents Title -->
-        <div class="ddp-pop-head">
-          <span class="ddp-pop-name">Rule ({{datasourceCopyRule.length}})</span>
-          <div class="ddp-ui-pop-buttons">
-            <a href="javascript:" class="ddp-btn-pop ddp-dark" (click)="addRule()">Add rule</a>
-            <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{ 'msg.comm.btn.cancl' | translate }}</a>
-            <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{ 'msg.comm.btn.done' | translate }}</a>
-          </div>
+    <!-- //title -->
+
+    <div class="ddp-ui-popup-contents ">
+      <!-- top option -->
+      <div class="ddp-type-top-option ddp-clear">
+        <div class="ddp-fleft">
+          <div class="ddp-top-title">{{'msg.dp.btn.tab.rule' | translate}} ({{datasourceCopyRule.length}})</div>
         </div>
-        <!-- // Contents Title -->
-        <div class="ddp-form-table" >
-          <!-- Select Role -->
-          <table class="ddp-table-list2" *ngFor="let rule of datasourceCopyRule; let i = index;">
-            <colgroup>
-              <col width="20%">
-              <col width="60%">
-              <col width="20%">
-            </colgroup>
-            <thead>
-            <tr>
-              <th colspan="3">
-                Rule #{{i + 1}}
-                <a href="javascript:" class="ddp-link-edit" (click)="deleteRule(i)">
-                  <em class="ddp-icon-edit"></em>Delete
-                </a>
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>
-                <span class="ddp-name">Type</span>
-              </td>
-              <td colspan="2">
-                <!-- selectbox -->
-                <div class="ddp-type-selectbox" [class.ddp-selected]="rule.selectBox"
-                     (click)="rule.selectBox = !rule.selectBox">
-                  <span class="ddp-txt-selectbox">{{ rule.type ? rule.type : 'Select Type'}}</span>
-                  <div class="ddp-wrap-popup2">
-                    <ul class="ddp-list-popup">
-                      <li *ngFor="let selectRule of ruleTypeList"
-                          [class.ddp-selected]="rule.type && rule.type === selectRule"
-                          (click)="onClickRule(selectRule, rule)">
-                        <a href="javascript:">{{selectRule}}<em class="ddp-icon-check"></em></a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <!-- //selectbox -->
-              </td>
-            </tr>
-            <tr *ngIf="rule.type && rule.type.indexOf('Forever') < 0">
-              <td>
-                <span class="ddp-name">{{rule.type.indexOf('Period') > -1 ? 'Period' : 'Interval'}}</span>
-              </td>
-              <td>
-                <component-input
-                [value]="rule.type.indexOf('Period') > -1 ? rule.period : rule.interval"
-                [inputClass]="'ddp-input-typebasic'"
-                [immediately]="true"
-                (changeValue)="onChangedDuration($event, rule);"></component-input>
-              </td>
-              <td>
-                {{rule.durationString}}
-              </td>
-            </tr>
-            </tbody>
-          </table>
-          <!-- // Select Role -->
+        <div class="ddp-ui-rightoption">
+          <!-- //setting 버튼 -->
+          <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="addRule()"><em class="ddp-icon-plus"></em>{{'msg.dp.ui.btn.add.rule' | translate}}</a>
         </div>
       </div>
+      <!-- //top option -->
+
+      <!-- wrap rule -->
+      <div class="ddp-wrap-rule-edit">
+        <ul class="ddp-list-rule">
+          <li *ngFor="let rule of datasourceCopyRule; let i = index;">
+            <div class="ddp-box-rule" [class.type-add]="rule.isNew">
+              <!-- button -->
+              <div class="ddp-btn-control" (click)="deleteRule(i)">
+                <em class="ddp-icon-control-cut"></em>
+              </div>
+              <!-- //button -->
+              <div class="ddp-data-name">{{'msg.dp.btn.tab.rule' | translate}} #{{i + 1}}</div>  <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option ">
+                  <div class="ddp-type-selectbox type-full" [class.ddp-selected]="rule.selectBox"
+                       (click)="rule.selectBox = !rule.selectBox">
+                    <span class="ddp-txt-selectbox">{{ rule.type ? rule.type : 'Select Type'}}</span>
+                    <div class="ddp-wrap-popup2">
+                      <ul class="ddp-list-popup">
+                        <li *ngFor="let selectRule of ruleTypeList"
+                            [class.ddp-selected]="rule.type && rule.type === selectRule"
+                            (click)="onClickRule(selectRule, rule)">
+                          <a href="javascript:">{{selectRule}}<em class="ddp-icon-check"></em></a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type" *ngIf="rule.type && rule.type.indexOf('Forever') < 0">
+                <label class="ddp-label-type">{{rule.type.indexOf('Period') > -1 ? 'Period' : 'Interval'}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option ">
+                  <component-input
+                    [value]="rule.type.indexOf('Period') > -1 ? rule.period : rule.interval"
+                    [inputClass]="'ddp-input-typebasic'"
+                    [immediately]="true"
+                    (changeValue)="onChangedDuration($event, rule);"></component-input>
+                </div>
+              </div>
+              <!-- //edit -->
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- //wrap rule -->
     </div>
+
   </div>
 </div>

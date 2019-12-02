@@ -4314,5 +4314,6 @@
   "msg.engine.monitoring.alert.ds.disable.success" : "데이터 소스가 비활성화되었습니다.",
   "msg.engine.monitoring.ui.ds.disable.title" : "비활성화 하시겠습니까?",
   "msg.engine.monitoring.ui.ds.disable.description" : "데이터 소스가 비활성화됩니다.",
-  "msg.engine.monitoring.btn.ds.disable" : "데이터 소스 비활성화"
+  "msg.engine.monitoring.btn.ds.disable" : "데이터 소스 비활성화",
+  "msg.engine.monitoring.ui.datasource.numrows": "행의 수"
 }

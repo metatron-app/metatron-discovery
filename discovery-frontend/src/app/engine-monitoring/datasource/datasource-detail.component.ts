@@ -31,6 +31,7 @@ import {DeleteModalComponent} from "../../common/component/modal/delete/delete.c
 import {Alert} from "../../common/util/alert.util";
 import {Modal} from "../../common/domain/modal";
 import {DatasourceRuleComponent} from "./datasource-rule.component";
+import {DatasourceColumnComponent} from "./datasource-column.component";
 
 declare let echarts: any;
 declare let moment: any;
@@ -73,6 +74,9 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   @ViewChild(DatasourceRuleComponent)
   private datasourceRuleComponent: DatasourceRuleComponent;
+
+  @ViewChild(DatasourceColumnComponent)
+  private datasourceColumnComponent: DatasourceColumnComponent;
 
   @ViewChild('histogram')
   private histogram: ElementRef;
@@ -203,6 +207,10 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   public openRule() {
     this.datasourceRuleComponent.open();
+  }
+
+  public openColumn(dimensions, metrics) {
+    this.datasourceColumnComponent.open(dimensions, metrics);
   }
 
   public onChangedRetention() {

@@ -16,6 +16,9 @@ table.ddp-table-form thead tr th .ddp-wrap-type-filter .ddp-wrap-popup2 {display
 table.ddp-table-form thead tr th .ddp-wrap-type-filter.ddp-selected .ddp-wrap-popup2 {display:block;}
 table.ddp-table-form tbody tr td {position:relative; padding:5px 10px; border-right:1px solid #eaeaed; color:#4b525b; font-size:12px;}
 
+table.ddp-table-form.type-line-none thead tr th {border-bottom:1px solid #d0d1d8; color:#90969f; font-size:12px;}
+table.ddp-table-form.type-line-none tbody tr td {border-right:none;}
+
 table.ddp-table-form tbody tr:nth-child(odd) td {background-color:#fafafa;}
 
 table.ddp-table-form tbody tr td.ddp-inherit {overflow:inherit;}
@@ -114,6 +117,8 @@ table.ddp-table-form tbody tr.type-disabled td .ddp-ui-disabled:hover .ddp-ui-to
 .ddp-ui-gridbody2 {position:absolute; top:35px; left:0; right:0; bottom:0; overflow-y:scroll;}
 
 .ddp-box-viewtable {position:relative; min-height:293px; border:1px solid #b7b9c2; background-color:#fff;}
+.ddp-box-viewtable.type-height-none {min-height:auto;}
+.ddp-box-viewtable.type-height-none table.ddp-table-form {border-bottom:none;}
 .ddp-wrap-viewtable .ddp-box-add-link {margin-top:-1px; padding:13px 0; border:1px solid #b7b9c2;}
 .ddp-wrap-viewtable.ddp-type {padding-bottom:43px;}
 .ddp-box-viewtable.ddp-selected .ddp-ui-gridbody {bottom:45px;}

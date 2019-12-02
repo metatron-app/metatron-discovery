@@ -81,44 +81,17 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
   }
 
   public done() {
-    console.log(this.datasourceCopyRule);
-    this.datasourceCopyRule.forEach((rule, idx) => {
-      if (_.isNil(rule.type)) {
-        Alert.warning('Retention Type을 선택하세요.');
-        return false;
-      }
-      if (rule.type.indexOf('Period') > -1) {
-        if (!_.isNil(rule['period'])) {
-          if (rule['period'] != moment.duration(rule['period']).toISOString()) {
-            setTimeout(() => {
-              $('table.ddp-table-list2 input')[idx].focus();
-            }, 400);
-            Alert.warning('Retention Period를 확인하세요.');
-            return false;
-          }
-        }
-      } else if (rule.type.indexOf('Interval') > -1) {
-        const interval = rule['interval'];
-        if (interval.split('/').length == 2) {
-          if (moment.duration(moment(interval.split('/')[1]).diff(interval.split('/')[0])).asMilliseconds() > 0) {
-            return;
-          }
-        }
-        setTimeout(() => {
-          $('table.ddp-table-list2 input')[idx].focus();
-        }, 400);
-        Alert.warning('Retention Interval을 확인하세요.');
-      }
-    });
-    const paramRule = _.cloneDeep(this.datasourceCopyRule);
-    paramRule.forEach(rule => {
-      delete rule['selectBox'];
-      delete rule['durationString'];
-    });
-    this.engineService.setDatasourceRule(this.datasourceId, paramRule).then(() => {
-      this.changeEvent.emit();
-    });
-    console.log(this.datasourceCopyRule);
+    if (this._isEnableDone()) {
+      const paramRule = _.cloneDeep(this.datasourceCopyRule);
+      paramRule.forEach(rule => {
+        delete rule['selectBox'];
+        delete rule['durationString'];
+      });
+      this.engineService.setDatasourceRule(this.datasourceId, paramRule).then(() => {
+        this.changeEvent.emit();
+        this.close();
+      });
+    }
   }
 
   public onClickRule(type, rule) {
@@ -140,7 +113,7 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
   }
 
   public addRule() {
-    this.datasourceCopyRule.push({selectBox : false, durationString : ''});
+    this.datasourceCopyRule.push({selectBox : false, durationString : '', isNew : true});
   }
 
   public deleteRule(idx) {
@@ -162,6 +135,44 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
         }
       }
     }
+  }
+
+  private _isEnableDone(): boolean {
+    let result = true;
+    for (let idx=0; idx<this.datasourceCopyRule.length; idx++) {
+      const rule = this.datasourceCopyRule[idx];
+      if (_.isNil(rule.type)) {
+        Alert.warning('Retention Type을 선택하세요.');
+        result = false;
+        break;
+      }
+      if (rule.type.indexOf('Period') > -1) {
+        if (!_.isNil(rule['period'])) {
+          if (rule['period'] != moment.duration(rule['period']).toISOString()) {
+            setTimeout(() => {
+              $('table.ddp-table-list2 input')[idx].focus();
+            }, 400);
+            Alert.warning('Retention Period를 확인하세요.');
+            result = false;
+            break;
+          }
+        }
+      } else if (rule.type.indexOf('Interval') > -1) {
+        const interval = rule['interval'];
+        if (interval.split('/').length == 2) {
+          if (moment.duration(moment(interval.split('/')[1]).diff(interval.split('/')[0])).asMilliseconds() > 0) {
+            continue;
+          }
+        }
+        setTimeout(() => {
+          $('table.ddp-table-list2 input')[idx].focus();
+        }, 400);
+        Alert.warning('Retention Interval을 확인하세요.');
+        result = false;
+        break;
+      }
+    }
+    return result;
   }
 
 }

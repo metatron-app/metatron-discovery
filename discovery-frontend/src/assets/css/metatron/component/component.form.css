@@ -39,6 +39,8 @@
 /* wrap edit */
 .ddp-wrap-edit .ddp-label-type {float:left; padding-right:24px; color:#90969f; font-size:13px; line-height:30px;}
 .ddp-wrap-edit .ddp-label-type + .ddp-ui-edit-option.ddp-inline {position:relative; top:8px;}
+.ddp-wrap-edit .ddp-label-type + .ddp-ui-edit-option.ddp-inline.type-tag {top:6px;}
+
 .ddp-wrap-edit .ddp-ui-edit-option {float:left;}
 .ddp-wrap-edit .ddp-ui-edit-option .ddp-data-txt {line-height:30px; color:#4b515b; font-size:13px;}
 .ddp-wrap-edit .ddp-ui-edit-option .ddp-data-txt .ddp-bar {color:#90969f;}
