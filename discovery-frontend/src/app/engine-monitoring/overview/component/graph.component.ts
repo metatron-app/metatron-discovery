@@ -34,7 +34,7 @@ declare let moment: any;
 @Component({
   selector: '[overview-graph-view]',
   templateUrl: './graph.component.html',
-  styles: ['.ddp-box-label a {color:#fff;}', '.type-memory .ddp-box-label {z-index:2; position:absolute}', '.ddp-wrap-line-graph .ddp-data-empty {position:relative; top:-10px}']
+  styles: ['.type-memory .ddp-btn-link-go {z-index:2}', '.ddp-wrap-line-graph .ddp-data-empty {position:relative; top:-10px}']
 })
 export class GraphComponent extends AbstractComponent implements OnInit, OnDestroy {
 

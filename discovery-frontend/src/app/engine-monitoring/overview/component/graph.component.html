@@ -23,7 +23,10 @@
     error 일때 : type-error 추가
 -->
 <div class="ddp-box-graph type-memory ">
-  <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.MEM)">Usage Memory</a></div>
+  <div class="ddp-icon-status2">
+    <a href="javascript:" class="ddp-btn-link-go" (click)="showKpiChart(monitoringTarget.MEM)"></a>
+  </div>
+  <div class="ddp-box-label">Usage Memory</div>
   <!-- 아이콘 -->
   <div class="ddp-icon-status">
     <em class="ddp-icon-warning"></em>
@@ -49,10 +52,10 @@
 <div class="ddp-wrap-line-graph">
   <!-- box graph -->
   <div class="ddp-box-graph type-count">
-    <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.GC_COUNT)">GC Count</a></div>
+    <div class="ddp-box-label">GC Count</div>
     <!-- 아이콘 -->
     <div class="ddp-icon-status">
-      <em class="ddp-icon-error"></em>
+      <a href="javascript:" class="ddp-btn-link-go" (click)="showKpiChart(monitoringTarget.GC_COUNT)"></a>
     </div>
     <!-- //아이콘 -->
     <!-- 그래프 영역 -->
@@ -66,10 +69,10 @@
   <!-- //box graph -->
   <!-- box graph -->
   <div class="ddp-box-graph type-count">
-    <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.QUERY_TIME)">Avg Query Time</a></div>
+    <div class="ddp-box-label">Avg Query Time</div>
     <!-- 아이콘 -->
     <div class="ddp-icon-status">
-      <em class="ddp-icon-error"></em>
+      <a href="javascript:" class="ddp-btn-link-go" (click)="showKpiChart(monitoringTarget.QUERY_TIME)"></a>
     </div>
     <!-- //아이콘 -->
     <!-- 그래프 영역 -->
@@ -88,14 +91,11 @@
      warning 일때 : type-warning 추가
  -->
   <div class="ddp-box-graph type-count-num ">
-    <div class="ddp-box-label"><a href="javascript:" (click)="showKpiChart(monitoringTarget.QUERY_COUNT)">Query Count</a></div>
+    <div class="ddp-box-label">Query Count</div>
     <!-- 아이콘 -->
-    <!--
     <div class="ddp-icon-status2">
-      <em class="ddp-icon-warning"></em>
-      <span class="ddp-data-per"><em class="ddp-icon-down"></em>10%</span>
+      <a href="javascript:" class="ddp-btn-link-go" (click)="showKpiChart(monitoringTarget.QUERY_COUNT)"></a>
     </div>
-    -->
     <!-- //아이콘 -->
 
     <!-- 그래프 영역 -->
