@@ -33,9 +33,7 @@ import {StringUtil} from "../../../../../common/util/string.util";
 
 @Component({
   selector: 'stream-select',
-  templateUrl: './stream-select.component.html',
-  styles: ['.ddp-box-sub .ddp-wrap-edit2:first-of-type {margin-top:0;}',
-          '.sys-txt-info {font-size: 13px;color: #36393e;vertical-align: bottom;word-break: break-all;margin: 5px 0 10px 0;}']
+  templateUrl: './stream-select.component.html'
 })
 export class StreamSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -90,8 +88,7 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
       delete this.sourceData.kafkaData;
     }
     if (this.sourceData.hasOwnProperty('uploadData')) {
-      // init data
-      this._initData(_.cloneDeep(this.sourceData.uploadData));
+      delete this.sourceData.uploadData;
     }
   }
 
@@ -138,7 +135,7 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
    */
   public isEnableNext(): boolean {
     return this.isEnableConnection() && StringUtil.isNotEmpty(this.selectedKafkaTopic)
-            && (this.isKafkaDataResult || !_.isNil(this.fileResult));
+            && ((this.isUseKafkaScheme && this.isKafkaDataResult) || (!this.isUseKafkaScheme && !_.isNil(this.fileResult)));
   }
 
   /**
@@ -186,7 +183,7 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
     this.datasourceService.getKafkaTopicData(this.url, topic).then((result) => {
       this.loadingHide();
       this.selectedKafkaTopic = topic;
-      if (result.totalRows == 0) {
+      if (_.isNil(result.type)) {
         this.isKafkaDataResult = false;
         this.isUseKafkaScheme = false;
       } else {
@@ -196,11 +193,12 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
         this.sourceData.kafkaData = new KafkaData();
         this.sourceData.kafkaData.bootstrapServer = this.url;
         this.sourceData.kafkaData.topic = this.selectedKafkaTopic;
-        this.sourceData.kafkaData.fieldList = result.fields;
-        this.sourceData.kafkaData.fieldData = result.data;
-        this.sourceData.kafkaData.totalRows = result.totalRows;
+        this.sourceData.kafkaData.type = result.type;
+        this.sourceData.kafkaData.fieldList = result.resultResponse.fields;
+        this.sourceData.kafkaData.fieldData = result.resultResponse.data;
+        this.sourceData.kafkaData.totalRows = result.resultResponse.totalRows;
       }
-    }).catch((data) => {
+    }).catch(() => {
       this.loadingHide();
       this.selectedKafkaTopic = topic;
       this.isKafkaDataResult = false;
@@ -266,6 +264,10 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
     return this.selectedKafkaTopic === undefined ? this.translateService.instant('msg.comm.btn.none') : this.selectedKafkaTopic;
   }
 
+  public get searchTopicPlaceholder() {
+    return this.translateService.instant('msg.comm.btn.search');
+  }
+
   /**
    * 데이터가 변경이 일어났는지 확인
    * @return {boolean}
@@ -305,16 +307,6 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
       fileResult: this.fileResult
     };
     sourceData.uploadData = uploadData;
-  }
-
-  /**
-   * init source file data
-   * @param uploadData
-   * @private
-   */
-  private _initData(uploadData) {
-    this.uploadedFile = uploadData.uploadedFile;
-    this.fileResult = uploadData.fileResult;
   }
 
 }

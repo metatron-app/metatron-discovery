@@ -454,7 +454,8 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
   private _getFileParams(): any {
     const params = {
       limit: this.rowNum,
-      };
+      firstHeaderRow: false
+     };
     return params;
   }
 

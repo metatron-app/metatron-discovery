@@ -169,7 +169,7 @@ export class StreamUploaderComponent extends AbstractComponent {
       .ChunkSize(0)
       .BrowseButton(buttonElement)
       .DropElement(dropElement)
-      .Url(CommonConstant.API_CONSTANT.API_URL + 'datasources/stream/upload')
+      .Url(CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload?stream')
       .Headers({
         'Accept': 'application/json, text/plain, */*',
         'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
@@ -177,7 +177,7 @@ export class StreamUploaderComponent extends AbstractComponent {
       .MultiSelection(false)
       .Filters(new Pluploader.Builder.FileFiltersBuilder()
         .MimeTypes([
-          {title: "files", extensions: "json"}
+          {title: "files", extensions: "csv,json"}
         ])
         .MaxFileSize(0)
         .builder()
@@ -207,7 +207,6 @@ export class StreamUploaderComponent extends AbstractComponent {
         },
         // 파일 추가시
         FilesAdded: (up: Pluploader.Uploader, files) => {
-          console.log('FilesAdded', files);
           // upload started
           this.uploadStarted.emit();
           // set guide message
