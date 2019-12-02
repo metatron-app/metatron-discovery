@@ -36,7 +36,7 @@ import app.metatron.discovery.domain.workspace.WorkspaceProjections;
  */
 public enum  DomainType {
 
-  COMMON, METADATA, DATASOURCE, WORKSPACE, WORKBOOK, DASHBOARD, WORKBENCH, NOTEBOOK, GROUP, CATALOG, CREATOR;
+  COMMON, METADATA, DATASOURCE, WORKSPACE, WORKBOOK, DASHBOARD, WORKBENCH, NOTEBOOK, GROUP, CATALOG, METADATA_CREATOR;
 
   public BaseProjections getProjection() {
 

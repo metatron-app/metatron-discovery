@@ -112,8 +112,8 @@
         <tr>
           <th>
 
-            </th>
-            <th>
+          </th>
+          <th>
             {{'msg.metadata.md.ui.data.type' | translate}}
           </th>
           <th (click)="toggleSortOption('name')">
@@ -162,11 +162,11 @@
         </thead>
         <tbody>
         <tr *ngFor="let metadata of metadataList" (click)="onClickMetadata(metadata)">
-            <td>
-              <em class="ddp-icon-control-fav"
-                  [class.ddp-selected]="metadata.favorite"
-                  (click)="onClickFavoriteIconInList(metadata)"></em>
-            </td>
+          <td>
+            <em class="ddp-icon-control-fav"
+                [class.ddp-selected]="metadata.favorite"
+                (click)="onClickFavoriteIconInList(metadata)"></em>
+          </td>
           <td>
             <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
           </td>
