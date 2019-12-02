@@ -2316,7 +2316,7 @@
   "msg.storage.ui.stream.exist.kafka.data": "Kafka '{{topic}}' topic has stream data.",
   "msg.storage.ui.stream.not.exist.kafka.data": "Kafka '{{topic}}' topic has no data.",
   "msg.storage.ui.stream.upload.description": ".csv, .json formats are allowed.",
-  "msg.storage.ui.stream.upload.data.description": "Plase, upload new schema information",
+  "msg.storage.ui.stream.upload.data.description": "Please, upload new schema information",
   "msg.storage.ui.stream.data.reload": "Data Reload",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
