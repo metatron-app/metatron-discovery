@@ -7253,6 +7253,9 @@ dl.ddp-dl-store dd {display:block; padding:28px 0 0 0; overflow:hidden;}
 .ddp-wrap-snapshot .ddp-data-log {position:absolute; top:0 ;left:0; right:0; bottom:255px; padding:10px 17px 10px 16px;}
 .ddp-wrap-snapshot .ddp-grid-label .ddp-txt-label {position:relative; top:9px; margin-left:16px;color:#36393f; font-weight:bold;}
 .ddp-wrap-snapshot .ddp-btn-bg {float:right; margin-right:16px;}
+.ddp-wrap-snapshot .ddp-wrap-warning {position:absolute; top:0px; left:0px; right:0px; padding: 3px 17px 9px 16px; overflow:hidden;}
+.ddp-wrap-snapshot .ddp-wrap-warning .type-error {color:#dc494f; background-color:rgba(237, 57, 73, 0.1); border:solid; border-width:1px;}
+.ddp-wrap-snapshot .ddp-wrap-warning .ddp-icon-info {display:inline-block; width:15px; height:15px; margin-left:1px; background:url(../../images/icon_info.png) no-repeat; background-position:left 0px;}
 .ddp-wrap-snapshot .ddp-wrap-summary {padding:23px 34px 10px 34px;; overflow:Hidden;}
 .ddp-wrap-snapshot .ddp-wrap-summary .ddp-data-summary {float:left; margin-right:50px;}
 .ddp-wrap-snapshot .ddp-wrap-summary .ddp-data-summary .ddp-txt-label {color:#4c92e0; font-size:13px;}
