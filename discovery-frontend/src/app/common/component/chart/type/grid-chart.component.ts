@@ -316,9 +316,20 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     let rows: any = this.fieldInfo.rows.map((name) => {
       return {name};
     });
-    let aggregations: any = this.fieldInfo.aggs.map((name) => {
-      return {name, digits: 2};
-    });
+    let aggregations: any;
+    if( this.pivot && this.pivot.aggregations && 0 < this.pivot.aggregations.length ) {
+      aggregations = this.pivot.aggregations.map((pivot) => {
+        if( pivot.field && pivot.field.logicalType ) {
+          return {name : pivot.name, digits: 2, type : pivot.field.logicalType };
+        } else {
+          return {name : pivot.name, digits: 2 };
+        }
+      });
+    } else {
+      aggregations = this.fieldInfo.aggs.map((name) => {
+        return {name, digits: 2};
+      });
+    }
 
     // 원본보기데이터 초기화
     this.originData = [];
@@ -368,6 +379,12 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       rows = [{"name": "&nbsp;"}];
       originAggregations = [{name: "VALUE"}];
 
+      this.pivot.aggregations.map((pivot) => {
+        if( pivot.field && pivot.field.logicalType ) {
+          ( originAggregations[0].type ) || ( originAggregations[0].type = {} );
+          originAggregations[0].type[ pivot.name ] = pivot.field.logicalType;
+        }
+      });
       aggregations = originAggregations;
 
       // 원본보기 데이터에 설정

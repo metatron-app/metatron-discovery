@@ -9078,26 +9078,32 @@ var pivot =
 	     * @return {*}
 	     */
 	    common.roundFloat = function (value, format) {
-	        if (format.type !== 'exponent10') {
-	            return Math.round(Number(value) * Math.pow(10, format.decimal)) / Math.pow(10, format.decimal);
-	        } else {
-	            return value;
-	        }
+	      let result = value;
+        if (format.type !== 'exponent10') {
+          result = Math.round(Number(value) * Math.pow(10, format.decimal)) / Math.pow(10, format.decimal);
+        }
+        return result.toFixed(format.decimal);
 	    };
 
 	    /**
 	     * 포맷 옵션에 해당하는 값으로 변환한다.
 	     * @param value
-	     * @param format
+	     * @param paramFormat
+       * @param fieldType {Optional}
 	     * @returns {*}
 	     */
-	    common.numberFormat = function (value, format) {
+	    common.numberFormat = function (value, paramFormat, fieldType ) {
 
-	        if (undefined === value || null === value || !format) return;
+	        if (undefined === value || null === value || !paramFormat) return;
 
 	        if (typeof value !== 'number') {
 	            return value;
 	        }
+
+          let format = JSON.parse( JSON.stringify(paramFormat));
+	        if( fieldType && 'INTEGER' === fieldType.toUpperCase() ) {
+	          format.decimal = 0;
+          }
 
 	        var customSymbol = format.customSymbol;
 	        var originalValue = _.cloneDeep(value);
@@ -27130,6 +27136,9 @@ var pivot =
 	                        for (var idx = 0, nMax = xProps.length; idx < nMax; idx++) {
 	                            var itemKey = xProps[idx].name;
 	                            var itemValue = colNameList[idx];
+
+                              ( '' === itemValue ) && ( itemValue = '$$empty$$' );
+
 	                            item[itemKey] = itemValue;
 	                            arrSummaryKeys.push(itemValue);
 
@@ -28032,14 +28041,11 @@ var pivot =
 	                        var xItem = _this2._xItems[xii];
 	                        var propertyName = _this2._settings.xProperties[_xpi].name;
 	                        var value = common.format(xItem[propertyName], _this2._settings.xProperties[_xpi].digits);
-	                        if (prevValue === value) {
-	                            return "continue";
-	                        }
 	                        columnAttributes = {};
 
 	                        // Add Property by eltriny
 	                        columnAttributes["class"] = pivotStyle.cssClass.headCell + ' ' + pivotStyle.cssClass.axisX;
-	                        columnAttributes["title"] = value;
+	                        columnAttributes["title"] = ( '$$empty$$' === value ? '' : value );
 	                        columnAttributes["data-key"] = propertyName;
 	                        // columnAttributes[ "data-colIdx" ] = ( xii - range.left );		// colIdx 가 무조건 0부터 시작
 	                        columnAttributes["data-colIdx"] = xii; // colIdx 가 인덱스 번호대로 시작
@@ -28056,6 +28062,10 @@ var pivot =
 	                            columnAttributes["data-parent-vals"] = arrVals.join("||");
 	                        }
 	                        // #20161229-01 : 축 선택 시 상위 축 정보 포함 제공 - End
+
+                          if (prevValue === value) {
+                            return "continue";
+                          }
 
 	                        columnStyles = {};
 	                        columnStyles["height"] = cellHeight + "px";
@@ -28094,7 +28104,7 @@ var pivot =
 	                        }, 0) + "px";
 	                        // 20180807 : Koo : Resize Column - E
 	                        html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                        html.push(value);
+	                        html.push( '$$empty$$' === value ? '' : value );
 	                        // 20180807 : Koo : Resize Column - S
 	                        // if (_xpi === xPropMax - 1) {
 	                            columnAttributes = {};
@@ -28107,7 +28117,7 @@ var pivot =
 	                        html.push("</div>");
 
 	                        // 프로퍼티 이름 갱신 ( 중복된 프러퍼티를 생성하지 않기 위해 )
-	                        prevValue = value;
+	                        prevValue = columnAttributes["data-parent-vals"];
 	                    };
 
 	                    for (var xii = range.left; xii <= range.right; xii++) {
@@ -28176,7 +28186,7 @@ var pivot =
 	                                columnAttributes = {};
 	                                // Add Property by eltriny
 	                                columnAttributes["class"] = pivotStyle.cssClass.headCell + ' ' + pivotStyle.cssClass.axisY;
-	                                columnAttributes["title"] = value;
+	                                columnAttributes["title"] = ( '$$empty$$' === value ? '' : value );
 	                                columnAttributes["data-key"] = propertyName;
 
 	                                if (1 === zPropMax) {
@@ -28206,7 +28216,7 @@ var pivot =
 	                                columnStyles["color"] = this._settings.header.font.color;
 	                                columnStyles["background-color"] = this._settings.header.backgroundColor;
 	                                html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                                html.push(value);
+	                                html.push('$$empty$$' === value ? '' : value);
 	                                html.push("</div>");
 
 	                                frozenColumnStylesLeft += leafFrozenColWidth[propertyName];
@@ -28462,7 +28472,19 @@ var pivot =
 	                                    // }
 
 	                                    html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                                    html.push(common.numberFormat(itemData, _this2._settings.format));
+	                                    if( zpiProp.type && 'origin' === _this2._settings.format.type && !_this2._isPivot ) {
+	                                      if( context.item.COLUMNS ) {
+	                                        if( zpiProp.type[context.item.COLUMNS] ) {
+                                            html.push(common.numberFormat(itemData, _this2._settings.format, zpiProp.type[context.item.COLUMNS]));
+                                          } else {
+                                            html.push(common.numberFormat(itemData, _this2._settings.format));
+                                          }
+                                        } else {
+                                          html.push(common.numberFormat(itemData, _this2._settings.format, zpiProp.type));
+                                        }
+                                      } else {
+                                        html.push(common.numberFormat(itemData, _this2._settings.format));
+                                      }
 	                                    html.push("</div>");
 	                                    contains = true;
 	                                } // end if - context is valid
@@ -28541,7 +28563,11 @@ var pivot =
 
 	                                var summaryKey = '' === leafColName ? _zpiProp.name : leafColName + '||' + _zpiProp.name;
 	                                html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                                html.push(common.numberFormat(_this2.getSummaryValue(_this.summaryMap[summaryKey]), _this2._settings.format));
+                                  if( zpiProp.type && 'origin' === _this2._settings.format.type && !_this2._isPivot ) {
+                                    html.push(common.numberFormat(_this2.getSummaryValue(_this._settings.totalValueStyle, _this.summaryMap[summaryKey]), _this2._settings.format, zpiProp.type));
+                                  } else {
+	                                  html.push(common.numberFormat(_this2.getSummaryValue(_this._settings.totalValueStyle, _this.summaryMap[summaryKey]), _this2._settings.format));
+                                  }
 	                                html.push("</div>");
 	                            };
 
@@ -28799,14 +28825,11 @@ var pivot =
 	                        var xItem = _this3._xItems[xii];
 	                        var propertyName = _this3._settings.xProperties[_xpi2].name;
 	                        var value = common.format(xItem[propertyName], _this3._settings.xProperties[_xpi2].digits);
-	                        if (prevValue === value) {
-	                            return "continue";
-	                        }
 	                        columnAttributes = {};
 
 	                        // Add Property by eltriny
 	                        columnAttributes["class"] = pivotStyle.cssClass.headCell + ' ' + pivotStyle.cssClass.axisX;
-	                        columnAttributes["title"] = value;
+	                        columnAttributes["title"] = ( '$$empty$$' === value ? '' : value );
 	                        columnAttributes["data-key"] = propertyName;
 
 	                        if (1 === zPropMax) {
@@ -28826,6 +28849,10 @@ var pivot =
 	                            columnAttributes["data-parent-vals"] = arrVals.join("||");
 	                        }
 	                        // #20161229-01 : 축 선택 시 상위 축 정보 포함 제공 - End
+
+                          if (prevValue === value) {
+                            return "continue";
+                          }
 
 	                        columnStyles = {};
 	                        columnStyles["height"] = cellHeight + "px";
@@ -28864,7 +28891,7 @@ var pivot =
 	                        }, 0) + "px";
 	                        // 20180807 : Koo : Resize Column - E
 	                        html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                        html.push(value);
+	                        html.push('$$empty$$' === value ? '' : value);
 	                        // 20180807 : Koo : Resize Column - E
 	                        if (!_this3._settings.body.showAxisZ && _xpi2 === xPropMax - 1) {
 	                            columnAttributes = {};
@@ -28877,7 +28904,7 @@ var pivot =
 	                        html.push("</div>");
 
 	                        // 프로퍼티 이름 갱신 ( 중복된 프러퍼티를 생성하지 않기 위해 )
-	                        prevValue = value;
+	                        prevValue = columnAttributes["data-parent-vals"];
 	                    };
 
 	                    for (var xii = range.left; xii <= range.right; xii++) {
@@ -29044,7 +29071,7 @@ var pivot =
 	                        columnAttributes = {};
 	                        // Add Property by eltriny
 	                        columnAttributes["class"] = pivotStyle.cssClass.headCell + ' ' + pivotStyle.cssClass.axisY;
-	                        columnAttributes["title"] = value;
+	                        columnAttributes["title"] = ( '$$empty$$' === value ? '' : value );
 	                        columnAttributes["data-key"] = propertyName;
 	                        columnAttributes["data-rowIdx"] = rowIdx;
 
@@ -29072,7 +29099,7 @@ var pivot =
 	                        columnStyles["color"] = this._settings.header.font.color;
 	                        columnStyles["background-color"] = this._settings.header.backgroundColor;
 	                        html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                        html.push(value);
+	                        html.push('$$empty$$' === value ? '' : value);
 	                        html.push("</div>");
 
 	                        frozenColumnStylesLeft += leafFrozenColWidth[propertyName];
@@ -29290,7 +29317,11 @@ var pivot =
 	                                    // }
 
 	                                    html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                                    html.push(common.numberFormat(itemData, _this3._settings.format));
+                                      if( zpiProp.type && 'origin' === _this3._settings.format.type && !_this3._isPivot ) {
+                                        html.push(common.numberFormat(itemData, _this3._settings.format, zpiProp.type));
+                                      } else {
+                                        html.push(common.numberFormat(itemData, _this3._settings.format));
+                                      }
 	                                    html.push("</div>");
 	                                    contains = true;
 	                                } // end if - context is valid
@@ -29371,7 +29402,11 @@ var pivot =
 	                                // 20180807 : Koo : Resize Column - E
 
 	                                html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
-	                                html.push(common.numberFormat(_this3.getSummaryValue(_this.summaryMap[summaryKey]), _this3._settings.format));
+                                  if( zpiProp.type && 'origin' === _this3._settings.format.type && !_this3._isPivot ) {
+                                    html.push(common.numberFormat(_this3.getSummaryValue(_this._settings.totalValueStyle, _this.summaryMap[summaryKey]), _this3._settings.format, zpiProp.type));
+                                  } else {
+	                                  html.push(common.numberFormat(_this3.getSummaryValue(_this._settings.totalValueStyle, _this.summaryMap[summaryKey]), _this3._settings.format));
+                                  }
 	                                html.push("</div>");
 	                            };
 

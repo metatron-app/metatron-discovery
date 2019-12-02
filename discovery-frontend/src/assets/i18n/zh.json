@@ -2493,6 +2493,7 @@
   "msg.page.li.line": "线",
   "msg.page.li.bar": "条形",
   "msg.page.th.exponential.form": "指数",
+  "msg.page.li.origin" : "Origin",
   "msg.page.li.num": "数字",
   "msg.page.li.currency": "货币",
   "msg.page.li.percent": "百分比",
