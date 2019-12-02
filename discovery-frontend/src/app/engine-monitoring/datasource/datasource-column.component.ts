@@ -26,7 +26,8 @@ import * as _ from "lodash";
 
 @Component({
   selector: 'app-column-datasource',
-  templateUrl: './datasource-column.component.html'
+  templateUrl: './datasource-column.component.html',
+  styles: ['.ddp-ui-flex-popup.type-scheme .ddp-pop-contents {height:663px;}']
 })
 export class DatasourceColumnComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

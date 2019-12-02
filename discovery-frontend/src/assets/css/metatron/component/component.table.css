@@ -15,6 +15,7 @@ table.ddp-table-form thead tr th .ddp-wrap-type-filter.ddp-selected a.ddp-icon-t
 table.ddp-table-form thead tr th .ddp-wrap-type-filter .ddp-wrap-popup2 {display:none; position:absolute; left:-21px; top:100%;}
 table.ddp-table-form thead tr th .ddp-wrap-type-filter.ddp-selected .ddp-wrap-popup2 {display:block;}
 table.ddp-table-form tbody tr td {position:relative; padding:5px 10px; border-right:1px solid #eaeaed; color:#4b525b; font-size:12px;}
+table.ddp-table-form tbody tr td .ddp-txt-highlight {background-color: rgba(210, 204, 255, 0.4); color:#666eb2; font-weight:bold;}
 
 table.ddp-table-form.type-line-none thead tr th {border-bottom:1px solid #d0d1d8; color:#90969f; font-size:12px;}
 table.ddp-table-form.type-line-none tbody tr td {border-right:none;}
@@ -218,7 +219,7 @@ table.ddp-table-type3 tbody tr td .ddp-txt-status {font-size:12px; font-weight:b
 table.ddp-table-type3 tbody tr td .ddp-txt-status.type-disabled {color:#dc494f;}
 table.ddp-table-type3 tbody tr td .ddp-txt-status.type-partially {color:#ffba00;}
 table.ddp-table-type3 tbody tr td .ddp-txt-status.type-fully {color:#10bf83;}
-table.ddp-table-type3 tbody tr td .ddp-txt-status.type-indexing {color:#666eb2;}
+table.ddp-table-type3 tbody tr td .ddp-txt-status.type-actively {color:#3F72C1;}
 
 
 /**************************************************************

@@ -30,7 +30,9 @@ declare let moment: any;
 @Component({
   selector: 'app-rule-datasource',
   templateUrl: './datasource-rule.component.html',
-  styles: ['.ddp-pop-schema .ddp-form-table {min-height: 100%}']
+  styles: ['.ddp-pop-schema .ddp-form-table {min-height: 100%}',
+          '.ddp-icon-new {display: none;}',
+          '.type-add .ddp-icon-new {display: inline-block;}']
 })
 export class DatasourceRuleComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

@@ -189,7 +189,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     const datasourceStatus = this.getDatasourceStatus(datasource);
     if (datasourceStatus === 'disabled') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.disabled');
-    } else if (datasourceStatus === 'indexing') {
+    } else if (datasourceStatus === 'actively') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.indexing');
     } else if (datasourceStatus === 'fully') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.fully');
@@ -202,7 +202,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     if (datasource.disabled) {
       return 'disabled';
     } else if (datasource.status < 0) {
-      return 'indexing';
+      return 'actively';
     } else if (datasource.num_segments === datasource.num_available_segments) {
       return 'fully';
     } else {

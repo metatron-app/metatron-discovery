@@ -43,7 +43,7 @@ declare let moment: any;
           , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status {font-size:12px; font-weight:bold;}'
           , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-partially {color:#ffba00;}'
           , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-fully {color:#10bf83;}'
-          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-indexing {color:#666eb2;}']
+          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-actively {color:#3F72C1;}']
 })
 export class DatasourceDetailComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -116,7 +116,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   public getDatasourceStatusLabel(datasource): string {
     const datasourceStatus = this.getDatasourceStatus(datasource);
-    if (datasourceStatus === 'indexing') {
+    if (datasourceStatus === 'actively') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.indexing');
     } else if (datasourceStatus === 'fully') {
       return this.translateService.instant('msg.engine.monitoring.ui.criterion.fully');
@@ -127,7 +127,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   public getDatasourceStatus(datasource): string {
     if (datasource.status < 0) {
-      return 'indexing';
+      return 'actively';
     } else if (datasource.num_segments === datasource.num_available_segments) {
       return 'fully';
     } else {
