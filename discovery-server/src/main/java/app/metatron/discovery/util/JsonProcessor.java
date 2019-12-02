@@ -128,7 +128,6 @@ public class JsonProcessor {
       BufferedReader br = new BufferedReader(inputStreamReader);
       while ((line = br.readLine()) != null) {
         Map<String, Object> jsonRow = null;
-        System.out.println(line);
         try {
           sb.append(line);
           jsonRow = mapper.readValue(sb.toString(), new TypeReference<Map<String, Object>>() {});

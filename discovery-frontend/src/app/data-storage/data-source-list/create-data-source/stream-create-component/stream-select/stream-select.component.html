@@ -70,14 +70,14 @@
               <label class="ddp-label-radio">
                 <input type="radio" name="kafkaData" [checked]="isUseKafkaScheme" [disabled]="!isKafkaDataResult" (change)="isUseKafkaScheme = true">
                 <i class="ddp-icon-radio"></i>
-                <span class="ddp-txt-radio">{{'msg.storage.ui.stream.use.kafka.data' | translate}}</span>
+                <span class="ddp-txt-radio">{{'msg.storage.ui.stream.use.kafka.schema' | translate}}</span>
               </label>
             </li>
             <li>
               <label class="ddp-label-radio">
                 <input type="radio" name="kafkaData" [checked]="!isUseKafkaScheme"  (change)="isUseKafkaScheme = false">
                 <i class="ddp-icon-radio"></i>
-                <span class="ddp-txt-radio">{{'msg.storage.ui.stream.upload.data' | translate}}</span>
+                <span class="ddp-txt-radio">{{'msg.storage.ui.stream.create.schema' | translate}}</span>
               </label>
 
             </li>
@@ -87,10 +87,10 @@
       <!-- //topic -->
 
       <div class="ddp-wrap-update ddp-clear" *ngIf="showFileUpload()">
-        <!--<div class="ddp-txt-update">
+        <div class="ddp-txt-update">
           {{'msg.storage.ui.stream.upload.data.description' | translate}}
-        </div>-->
-        <a href="javascript:" class="ddp-btn-line" (click)="selectTopic(selectedKafkaTopic);"><em class="ddp-icon-reload"></em>Data Reload</a>
+        </div>
+        <a href="javascript:" class="ddp-btn-line" (click)="selectTopic(selectedKafkaTopic);"><em class="ddp-icon-reload"></em>{{'msg.storage.ui.stream.data.reload'| translate}}</a>
       </div>
 
       <div class="ddp-wrap-variable" *ngIf="showFileUpload()">
