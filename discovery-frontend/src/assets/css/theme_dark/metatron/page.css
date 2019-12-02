@@ -31596,6 +31596,23 @@
     padding-top: 0;
 }
 
+.theme-dark .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll .ddp-view-detail .ddp-ui-copy-and-paste {
+    display:inline-block;
+}
+
+.theme-dark .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll span.ddp-btn-copy:before {
+    display: inline-block;
+    float: right;
+    width: 16px;
+    height: 18px;
+    margin-lef: 1px;
+    background: url(../../../images/icon_copy_clipboard.png) no-repeat;
+    background-size: 16px 18px;
+    background-position: 0px 0px;
+    content: '';
+    vertical-align: middle;
+}
+
 .theme-dark .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons {
     position: absolute;
     bottom: 0;

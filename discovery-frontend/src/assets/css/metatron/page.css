@@ -6786,6 +6786,8 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll {position:absolute; top:83px; left:0; right:0; bottom:70px; overflow-y:auto;}
 
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll  .ddp-view-detail {padding-top:0;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll  .ddp-view-detail .ddp-ui-copy-and-paste {display:inline-block;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll  span.ddp-btn-copy:after {display:inline-block; float:right; width:16px; height:18px; margin-left:1px; background:url(../../images/icon_copy_clipboard.png) no-repeat; background-size: 16px 18px; background-position:0px 0px; content:''; vertical-align: middle; }
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons {position:absolute; bottom:0; left:0; right:0; padding:20px;  background-color:#fff;}
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons a.ddp-btn-pop {width:100%;}
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-box-info dl.ddp-dl-detail2 {padding-bottom:20px;}

@@ -210,8 +210,11 @@
             <dt>
               {{item.label}}
             </dt>
-            <dd *ngIf="item.isFileUri; else notFile" title="{{item.value}}" (click)="copyToClipboard(item.value);">
-              {{item.value}}
+            <dd *ngIf="item.isFileUri; else notFile" title="{{item.value}}">
+              <div class="ddp-ui-copy-and-paste">
+                <span class="ddp-btn-copy" (click)="copyToClipboard(item.value);"></span>
+                <input type="text" value="{{item.value}}">
+              </div>
             </dd>
             <ng-template #notFile>
               <dd>
@@ -247,7 +250,7 @@
                 <span class="ddp-data-sub">{{'msg.dp.th.query.stmt' | translate}} <em class="ddp-data-result">{{ originDsInfo.qryStmt }}</em></span>
               </div>
               <div class="ddp-ui-sub" *ngIf="originDsInfo.storedUri">
-                <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result">{{ originDsInfo.storedUri }}</em> <a href="javascript:" class="ddp-copy-clipboard" (click)="copyToClipboard(originDsInfo.storedUri);">[]</a></span>
+                <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result"><span class="ddp-btn-copy" (click)="copyToClipboard(originDsInfo.storedUri);">{{ originDsInfo.storedUri }}</span></em></span>
               </div>
               <div class="ddp-ui-sub" *ngIf="originDsInfo.createdTime">
                 <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{originDsInfo.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
