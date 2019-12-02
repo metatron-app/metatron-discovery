@@ -316,7 +316,6 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     let rows: any = this.fieldInfo.rows.map((name) => {
       return {name};
     });
-    console.info( this.pivot.aggregations );
     let aggregations: any;
     if( this.pivot && this.pivot.aggregations && 0 < this.pivot.aggregations.length ) {
       aggregations = this.pivot.aggregations.map((pivot) => {
