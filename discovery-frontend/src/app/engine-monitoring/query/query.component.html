@@ -107,7 +107,7 @@
             <span class="ddp-data-status" [ngClass]="[getStatusClass(query.result)]">{{query.result === 'true' ? 'Success' : 'Fail'}}</span>
           </td>
           <td>
-            {{query.service}}
+            {{query.serviceName}}
           </td>
           <td>
             {{query.host}}
@@ -140,8 +140,7 @@
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
-      Query Information
-
+      {{ 'msg.comm.menu.manage.engine.monitoring.query' | translate }} {{'msg.comm.ui.info' | translate}}
     </div>
     <em class="ddp-btn-popup-close" (click)="closeDetail()"></em>
   </div>
@@ -177,7 +176,7 @@
               Service
             </th>
             <td>
-              {{queryDetail.service}}
+              {{queryDetail.serviceName}}
             </td>
           </tr>
           <tr>

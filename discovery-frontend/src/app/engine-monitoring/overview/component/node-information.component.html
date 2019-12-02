@@ -66,7 +66,11 @@
 
           <label class="ddp-label-detail">GC Count</label>
           <!-- graph 영역 -->
-          <div class="ddp-wrap-graph type-info" #gcCount></div>
+          <div class="ddp-wrap-graph type-info" #gcCount>
+            <div class="ddp-data-empty" *ngIf="gcCountEmpty">
+              <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+            </div>
+          </div>
           <!-- //graph 영역 -->
         </div>
 
@@ -76,7 +80,11 @@
 
           <label class="ddp-label-detail">Memory</label>
           <!-- graph 영역 -->
-          <div class="ddp-wrap-graph type-info" #memory></div>
+          <div class="ddp-wrap-graph type-info" #memory>
+            <div class="ddp-data-empty" *ngIf="memoryEmpty">
+              <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+            </div>
+          </div>
           <!-- //graph 영역 -->
         </div>
 
@@ -84,7 +92,7 @@
         <!-- detail -->
         <div class="ddp-ui-datadetail type-detail">
 
-          <label class="ddp-label-detail">information</label>
+          <label class="ddp-label-detail">{{'msg.comm.ui.info' | translate}}</label>
 
           <table class="ddp-table-detail">
             <colgroup>

@@ -151,27 +151,11 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
   }
 
   public getDurationLabel(duration:string) {
-    if ('1DAY' === duration) {
-      return 'Last 1 day';
-    } else if ('7DAYS' === duration) {
-      return 'Last 7 days';
-    } else if ('30DAYS' === duration) {
-      return 'Last 30 days';
-    } else {
-      return 'Last 1 hour';
-    }
+    return EngineMonitoringUtil.getDurationLabel(duration);
   }
 
   public getTypeTranslate(taskType: TaskType): string {
-    if (TaskType.INDEX === taskType) {
-      return 'index';
-    } else if (TaskType.KAFKA === taskType) {
-      return 'kafka';
-    } else if (TaskType.HADOOP === taskType) {
-      return 'hadoop';
-    } else {
-      return '';
-    }
+    return EngineMonitoringUtil.getTaskTypeTranslate(taskType);
   }
 
   public showTaskPopup(taskId: string) {
@@ -223,27 +207,36 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
         },
         grid: [
           {
-            top: 0,
+            top: 30,
             bottom: 0,
-            left: 0,
-            right: 0
+            left: 5,
+            right: 20,
+            containLabel: true
           }
         ],
         xAxis: [
           {
             type: 'category',
-            show: false,
             data: data.time,
             name: 'SECOND(event_time)',
-            axisName: 'SECOND(event_time)'
+            axisName: 'SECOND(event_time)',
+            axisLine: {
+              lineStyle: {
+                color: '#f2f1f8'
+              }
+            }
           }
         ],
         yAxis: [
           {
             type: 'value',
-            show: false,
             name: 'Value',
-            axisName: 'Value'
+            axisName: 'Value',
+            axisLine: {
+              lineStyle: {
+                color: '#f2f1f8'
+              }
+            }
           }
         ],
         series: [

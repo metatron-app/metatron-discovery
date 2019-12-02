@@ -9162,9 +9162,12 @@ table.ddp-table-list tr td .ddp-txt-sql {
 .ddp-ui-contents-det .ddp-view-setting .ddp-label-name .ddp-wrap-info .ddp-bar-size .ddp-data-line {position:absolute; top:0; bottom:0; right:10px; border-left:1px solid #dc494f}
 .ddp-wrap-engine-graph {display:flex; margin-left:-6px;}
 .ddp-wrap-engine-graph .ddp-box-graph {position:relative; margin-left:6px;border-radius:3px;}
+.ddp-wrap-engine-graph .ddp-box-graph .ddp-btn-link-go {display:inline-block; position:relative; top:4px; margin-left:5px; width:12px; height:13px; background:url(../../images/icon_buttons.png) no-repeat; background-position:left -376px; opacity:0.7;}
+.ddp-wrap-engine-graph .ddp-box-graph .ddp-btn-link-go:hover {opacity:1;}
 .ddp-wrap-engine-graph .ddp-box-graph.type-cpu,
 .ddp-wrap-engine-graph .ddp-box-graph.type-memory {position:relative; width:250px; height:250px; background-color:#5373c6;}
 .ddp-wrap-engine-graph .ddp-box-graph.type-memory {background-color:#5373c6;}
+.ddp-wrap-engine-graph .ddp-box-graph.type-memory .ddp-icon-status2 {position:absolute; top:16px; right:10px;}
 .ddp-wrap-engine-graph .ddp-box-graph .ddp-box-label {padding:19px 18px 0 18px; color:#fff; font-size:14px;}
 .ddp-wrap-engine-graph .ddp-box-graph .ddp-graph-round {display:table; position:absolute; bottom:30px; left:50%; margin-left:-77px; width:154px; height:154px;}
 .ddp-wrap-engine-graph .ddp-box-graph .ddp-graph-round .ddp-graph-in {display:table-cell; vertical-align:middle; text-align:center;}
@@ -9186,7 +9189,7 @@ table.ddp-table-list tr td .ddp-txt-sql {
 .ddp-wrap-engine-graph .ddp-box-graph.type-warning .ddp-icon-status .ddp-icon-warning {display:block;}
 .ddp-wrap-engine-graph .ddp-box-graph.type-warning .ddp-graph-round .ddp-graph-in .ddp-data-per {background-color:#c28d0d;}
 .ddp-wrap-engine-graph .ddp-box-graph.type-error {background-color:#ba363a;}
-.ddp-wrap-engine-graph .ddp-box-graph.type-error .ddp-icon-status .ddp-icon-error {display:block;}
+.ddp-wrap-engine-graph .ddp-box-graph.type-error .ddp-icon-status .ddp-icon-error {display:inline-block;}
 .ddp-wrap-engine-graph .ddp-box-graph.type-error .ddp-graph-round .ddp-graph-in .ddp-data-per {background-color:#952a2e;}
 .ddp-wrap-engine-graph .ddp-wrap-line-graph {flex:auto; display:flex; flex-direction: column;}
 .ddp-wrap-engine-graph .ddp-box-graph.type-count {margin-bottom:6px; height:122px; background-color:#383f49;}

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -85,6 +86,8 @@ public class EngineMonitoringService {
   String datasourceName;
 
   private Map<String, String> druidNameMap = new HashMap();
+
+  private final List<String> SERVICE_KEY_LIST = Lists.newArrayList("broker", "historical", "middleManager");
 
   public Object query(Object query) {
     EngineMonitoringRequest request = new EngineMonitoringRequest();
@@ -204,15 +207,16 @@ public class EngineMonitoringService {
 
           for (JsonNode rowNode : engineData) {
             Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
-            timeList.add(String.valueOf(row.get("event_time")));
             metric = String.valueOf(row.get("metric"));
             if ("jvm/mem/max".equals(metric)) {
+              timeList.add(String.valueOf(row.get("event_time")));
               maxMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
             } else if ("jvm/mem/used".equals(metric)) {
               usedMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
             }
           }
 
+          result.put("time", timeList);
           result.put("maxMem", maxMemList);
           result.put("usedMem", usedMemList);
           break;
@@ -247,6 +251,10 @@ public class EngineMonitoringService {
   }
 
   public List getMemory(EngineMonitoringRequest queryRequest) {
+    List memList = Lists.newArrayList();
+    Map<String, Object> useMemMap = Maps.newHashMap();
+    Map<String, Object> maxMemMap = Maps.newHashMap();
+
     if (queryRequest.getMonitoringTarget() == null) {
       queryRequest.setMonitoringTarget(new EngineMonitoringTarget());
     }
@@ -259,15 +267,12 @@ public class EngineMonitoringService {
     List maxMemList = (List) result.get("maxMem");
     float useMem = new Float(String.valueOf(usedMemList.get(usedMemList.size()-1)));
     float maxMem = new Float(String.valueOf(maxMemList.get(maxMemList.size()-1)));
-
     float percentage = 100 * useMem / maxMem;
-    List memList = Lists.newArrayList();
-    Map<String, Object> useMemMap = Maps.newHashMap();
+
     useMemMap.put("name", "useMem");
     useMemMap.put("value", useMem);
     useMemMap.put("percentage", percentage);
 
-    Map<String, Object> maxMemMap = Maps.newHashMap();
     maxMemMap.put("name", "maxMem");
     maxMemMap.put("value", maxMem);
     maxMemMap.put("percentage", 100 - percentage);
@@ -299,9 +304,13 @@ public class EngineMonitoringService {
     return sizeMap;
   }
 
-  public List getDatasourceList() {
-    Optional<List> results = engineRepository.sql("SELECT datasource FROM sys.segments GROUP BY 1");
-    return results.get();
+  public int getDatasourceCount() {
+    try {
+      Optional<List> results = engineRepository.sql("SELECT datasource FROM sys.segments GROUP BY 1");
+      return results.get().size();
+    } catch (Exception e) {
+      return 0;
+    }
   }
 
   public List getSegmentCount() {
@@ -446,17 +455,12 @@ public class EngineMonitoringService {
                                            "msg.engine.monitoring.ui.criterion.duration"));
         break;
       case TYPE:
-        EngineMonitoring.TaskType[] taskTypes = {
-            EngineMonitoring.TaskType.INDEX,
-            EngineMonitoring.TaskType.KAFKA,
-            EngineMonitoring.TaskType.HADOOP
-        };
-
-        for (EngineMonitoring.TaskType taskType : taskTypes) {
-          String filterName = taskType.toString();
-          criterion.addFilter(new ListFilter(criterionKey, "taskType",
-                                             taskType.toString(), filterName));
-        }
+        criterion.addFilter(new ListFilter(criterionKey, "taskType",
+                                           "index", "index"));
+        criterion.addFilter(new ListFilter(criterionKey, "taskType",
+                                           "kafka", "kafka"));
+        criterion.addFilter(new ListFilter(criterionKey, "taskType",
+                                           "hadoop", "hadoop"));
         break;
       case CREATED_TIME:
         //created_time
@@ -576,17 +580,17 @@ public class EngineMonitoringService {
     switch (criterionKey) {
       case RESULT:
         criterion.addFilter(new ListFilter(criterionKey, "result",
-                                           "true", EngineMonitoring.QueryResult.SUCCESS.toString()));
+                                           "true", "Success"));
         criterion.addFilter(new ListFilter(criterionKey, "result",
-                                           "false", EngineMonitoring.QueryResult.FAIL.toString()));
+                                           "false", "Fail"));
         break;
       case SERVICE:
         criterion.addFilter(new ListFilter(criterionKey, "service",
-                                           getDruidName("broker"), EngineMonitoring.SERVICE.BROKER.toString()));
+                                           "broker", "Broker"));
         criterion.addFilter(new ListFilter(criterionKey, "service",
-                                           getDruidName("historical"), EngineMonitoring.SERVICE.HISTORICAL.toString()));
+                                           "historical", "Historical"));
         criterion.addFilter(new ListFilter(criterionKey, "service",
-                                           getDruidName("middleManager"), EngineMonitoring.SERVICE.MIDDLEMANAGER.toString()));
+                                           "middleManager", "Middle Manager"));
         break;
       case TYPE:
         criterion.addFilter(new ListFilter(criterionKey, "type",
@@ -632,15 +636,29 @@ public class EngineMonitoringService {
 
   public List getQueryList(EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
     StringBuffer sb = new StringBuffer();
-    sb.append("SELECT \"context.queryId\" AS \"queryId\", \"success\" AS \"result\", \"service\", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"druid-metric\" WHERE metric = 'query/time'");
+    sb.append("SELECT \"context.queryId\" AS \"queryId\", \"success\" AS \"result\", \"service\", CASE WHEN \"service\" = '");
+    sb.append(getDruidName("broker"));
+    sb.append("' THEN 'Broker' WHEN \"service\" = '");
+    sb.append(getDruidName("historical"));
+    sb.append("' THEN 'Historical' WHEN \"service\" = '");
+    sb.append(getDruidName("middleManager"));
+    sb.append("' THEN 'Middle Manager' END AS \"serviceName\"");
+    sb.append(", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"druid-metric\" WHERE metric = 'query/time'");
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getResult())) {
       sb.append(" AND \"success\" IN ('");
       sb.append(String.join("', '", engineMonitoringQueryRequest.getResult()));
       sb.append("') ");
     }
+
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getService())) {
+      List<String> serviceList = (List<String>)CollectionUtils.collect(engineMonitoringQueryRequest.getService(), new Transformer<String, String>() {
+        @Override
+        public String transform(String service) {
+          return getDruidName(service);
+        }
+      });
       sb.append(" AND \"service\" IN ('");
-      sb.append(String.join("', '", engineMonitoringQueryRequest.getService()));
+      sb.append(String.join("', '", serviceList));
       sb.append("') ");
     }
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getType())) {
@@ -666,22 +684,27 @@ public class EngineMonitoringService {
     sb.append(engineMonitoringQueryRequest.getKey());
     sb.append("\" ");
     sb.append(engineMonitoringQueryRequest.getSort().toUpperCase());
-    sb.append(" LIMIT 1000");
+    sb.append(" LIMIT ");
+    if (engineMonitoringQueryRequest.getLimit() != null) {
+      sb.append(engineMonitoringQueryRequest.getLimit());
+    } else {
+      sb.append("1000");
+    }
     LOGGER.debug("query = {}", sb.toString());
     Optional<List> results = engineRepository.sql(sb.toString());
     return results.get();
   }
 
   private void setFiltersByType(List<Filter> filters, EngineMonitoringTarget monitoringTarget) {
-    if ( monitoringTarget.getHost() != null ) {
+    if (StringUtils.isNotEmpty(monitoringTarget.getHost())) {
       filters.add(new SelectorFilter("host", monitoringTarget.getHost()));
     }
 
-    if ( monitoringTarget.getService() != null ) {
-      filters.add(new SelectorFilter("service", monitoringTarget.getService()));
+    if (StringUtils.isNotEmpty(monitoringTarget.getService())) {
+      filters.add(new SelectorFilter("service", getDruidName(monitoringTarget.getService())));
     }
 
-    if ( monitoringTarget.getTaskId() != null ) {
+    if (StringUtils.isNotEmpty(monitoringTarget.getTaskId())) {
       filters.add(new SelectorFilter("taskId", monitoringTarget.getTaskId()));
     }
 
@@ -700,7 +723,9 @@ public class EngineMonitoringService {
         break;
       case QUERY_COUNT:
         filters.add(new SelectorFilter("metric", "query/time"));
-        filters.add(new SelectorFilter("service", getDruidName("broker")));
+        if (monitoringTarget.getService() == null) {
+          filters.add(new SelectorFilter("service", getDruidName("broker")));
+        }
         break;
       case SUPERVISOR_LAG:
         filters.add(new SelectorFilter("metric", "ingest/kafka/lag"));
@@ -714,13 +739,18 @@ public class EngineMonitoringService {
   }
 
   private String getDruidName(String configName) {
-    String druidName = druidNameMap.get(configName);
-    if (StringUtils.isEmpty(druidName)) {
-      HashMap configs = getConfigs(configName);
-      druidName = String.valueOf(configs.get("druid.service"));
-      druidNameMap.put(configName, druidName);
+    if (SERVICE_KEY_LIST.contains(configName)) {
+      String druidName = druidNameMap.get(configName);
+      if (StringUtils.isEmpty(druidName)) {
+        HashMap configs = getConfigs(configName);
+        druidName = String.valueOf(configs.get("druid.service"));
+        druidNameMap.put(configName, druidName);
+      }
+      return druidName;
+    } else {
+      return configName;
     }
-    return druidName;
+
   }
 
 }

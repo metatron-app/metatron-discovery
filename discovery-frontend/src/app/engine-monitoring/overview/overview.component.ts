@@ -31,6 +31,8 @@ import {filter} from 'rxjs/operators';
 import {NodeInformationComponent} from "./component/node-information.component";
 import {GraphComponent} from "./component/graph.component";
 import {NodeTooltipComponent} from "./component/node-tooltip.component";
+import {KpiPopupComponent} from "./component/kpi-popup.component";
+import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
 
 @Component({
   selector: '[overview]',
@@ -52,6 +54,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   public selectedNodeType: Engine.NodeType[] = [Engine.NodeType.ALL];
   public tableSortProperty: string = '';
   public tableSortDirection: Engine.TableSortDirection = this.TABLE_SORT_DIRECTION.NONE;
+  public duration: string;
 
   public readonly MONITORING_NODETYPE = Engine.NodeType;
   public readonly VIEW_MODE = Engine.ViewMode;
@@ -75,6 +78,9 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   @ViewChild(NodeTooltipComponent)
   private readonly _nodeTooltipComponent: NodeTooltipComponent;
+
+  @ViewChild(KpiPopupComponent)
+  private readonly _kpiPopupComponent: KpiPopupComponent;
 
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
@@ -115,30 +121,18 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   private _initializeView() {
     Promise.resolve()
       .then(() => this.loadingShow())
-      .then(() => this.engineService.getMonitoringServersHealth().then(result => this.clusterStatus = result))
-      .then(() => {
-        return this.engineService.getMonitorings(Engine.Monitoring.ofEmpty(), this.pageResult, 'forDetailView')
+      .then(() => this.engineService.getMonitorings(Engine.Monitoring.ofEmpty(), this.pageResult, 'forDetailView')
           .then(result => this.monitorings = result._embedded.monitorings)
-      })
+      )
+      .then(() => this.engineService.getMonitoringServersHealth().then(result => this.clusterStatus = result))
       .then(() => this.engineService.getSize().then(result => this.clusterSize = result))
       .then(() => {
         this._graphComponent.onResize(event);
         this.loadingHide();
       })
       .catch(error => {
-        this.clusterStatus = new Engine.Cluster.Status();
-        this.monitorings = [];
         this.commonExceptionHandler(error);
       });
-  }
-
-  /**
-   * Pagenation processing is not available on this screen
-   * create a Pageable parameter for importing a complete list
-   */
-  private _createPageableParameter() {
-    this.pageResult.number = 0;
-    this.pageResult.size = 5000;
   }
 
   public sortTable(column: string) {
@@ -159,20 +153,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
    *  - broker, coordinator, historical, overlord, middleManager
    */
   public convertTypeLabel(type: Engine.NodeType) {
-    switch (type) {
-      case Engine.NodeType.BROKER:
-        return this._toCamelCase(type);
-      case Engine.NodeType.COORDINATOR:
-        return this._toCamelCase(type);
-      case Engine.NodeType.HISTORICAL:
-        return this._toCamelCase(type);
-      case Engine.NodeType.OVERLORD:
-        return this._toCamelCase(type);
-      case Engine.NodeType.MIDDLE_MANAGER:
-        return this._toCamelCase(type);
-      default:
-        return type;
-    }
+    return EngineMonitoringUtil.convertTypeLabel(type);
   }
 
   public getTypeStatusClass(clusterStatus: Engine.Cluster.Code) {
@@ -205,20 +186,8 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     this._nodeInformationComponent.show(monitoring);
   }
 
-  /**
-   * Utility function to change only the first letter to uppercase
-   */
-  private _toCamelCase(type: Engine.NodeType) {
-
-    if (_.isNil(type)) {
-      return '';
-    }
-
-    if (type.length === 0) {
-      return type;
-    }
-
-    return `${type.charAt(0).toLocaleUpperCase()}${type.substring(1, type.length)}`;
+  public showKpiChart(monitoringTarget:Engine.MonitoringTarget) {
+    this._kpiPopupComponent.show(monitoringTarget, this.duration);
   }
 
   public searchByHostnameColumn(keyword: string) {
@@ -273,6 +242,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   public changeDuration(duration: string) {
+    this.duration = duration;
     this._initializeView();
     this._graphComponent.setDate(duration);
   }
@@ -327,6 +297,15 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   private _initTableSortDirection() {
     this.tableSortDirection = this.TABLE_SORT_DIRECTION.NONE;
+  }
+
+  /**
+   * Pagenation processing is not available on this screen
+   * create a Pageable parameter for importing a complete list
+   */
+  private _createPageableParameter() {
+    this.pageResult.number = 0;
+    this.pageResult.size = 5000;
   }
 
 }

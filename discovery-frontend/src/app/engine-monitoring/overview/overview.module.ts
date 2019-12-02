@@ -28,6 +28,7 @@ import {DatasourceService} from "../../datasource/service/datasource.service";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {NodeInformationComponent} from "./component/node-information.component";
 import {NodeTooltipComponent} from "./component/node-tooltip.component";
+import {KpiPopupComponent} from "./component/kpi-popup.component";
 
 @NgModule({
   imports: [
@@ -44,7 +45,9 @@ import {NodeTooltipComponent} from "./component/node-tooltip.component";
     TableFilterPipe,
     TableSortPipe,
     NodeInformationComponent,
-    NodeTooltipComponent
+    NodeTooltipComponent,
+    KpiPopupComponent,
+    KpiPopupComponent
   ],
   providers: [
     EngineService,
