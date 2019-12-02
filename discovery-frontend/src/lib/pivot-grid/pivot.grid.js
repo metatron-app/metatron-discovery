@@ -28083,9 +28083,6 @@ var pivot =
 	                        var xItem = _this2._xItems[xii];
 	                        var propertyName = _this2._settings.xProperties[_xpi].name;
 	                        var value = common.format(xItem[propertyName], _this2._settings.xProperties[_xpi].digits);
-	                        if (prevValue === value) {
-	                            return "continue";
-	                        }
 	                        columnAttributes = {};
 
 	                        // Add Property by eltriny
@@ -28107,6 +28104,10 @@ var pivot =
 	                            columnAttributes["data-parent-vals"] = arrVals.join("||");
 	                        }
 	                        // #20161229-01 : 축 선택 시 상위 축 정보 포함 제공 - End
+
+                          if (prevValue === value) {
+                            return "continue";
+                          }
 
 	                        columnStyles = {};
 	                        columnStyles["height"] = cellHeight + "px";
@@ -28158,7 +28159,7 @@ var pivot =
 	                        html.push("</div>");
 
 	                        // 프로퍼티 이름 갱신 ( 중복된 프러퍼티를 생성하지 않기 위해 )
-	                        prevValue = value;
+	                        prevValue = columnAttributes["data-parent-vals"];
 	                    };
 
 	                    for (var xii = range.left; xii <= range.right; xii++) {
@@ -28900,9 +28901,6 @@ var pivot =
 	                        var xItem = _this3._xItems[xii];
 	                        var propertyName = _this3._settings.xProperties[_xpi2].name;
 	                        var value = common.format(xItem[propertyName], _this3._settings.xProperties[_xpi2].digits);
-	                        if (prevValue === value) {
-	                            return "continue";
-	                        }
 	                        columnAttributes = {};
 
 	                        // Add Property by eltriny
@@ -28927,6 +28925,10 @@ var pivot =
 	                            columnAttributes["data-parent-vals"] = arrVals.join("||");
 	                        }
 	                        // #20161229-01 : 축 선택 시 상위 축 정보 포함 제공 - End
+
+                          if (prevValue === value) {
+                            return "continue";
+                          }
 
 	                        columnStyles = {};
 	                        columnStyles["height"] = cellHeight + "px";
@@ -28978,7 +28980,7 @@ var pivot =
 	                        html.push("</div>");
 
 	                        // 프로퍼티 이름 갱신 ( 중복된 프러퍼티를 생성하지 않기 위해 )
-	                        prevValue = value;
+	                        prevValue = columnAttributes["data-parent-vals"];
 	                    };
 
 	                    for (var xii = range.left; xii <= range.right; xii++) {
