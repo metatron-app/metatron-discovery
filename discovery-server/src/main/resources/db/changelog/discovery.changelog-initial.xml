@@ -68,7 +68,7 @@
             </not>
         </preConditions>
         <createTable tableName="REVINFO">
-            <column name="id" type="${bigint.type}">
+            <column name="id" type="${bigint.type}" autoIncrement="true">
                 <constraints primaryKey="true" />
             </column>
             <column name="timestamp" type="${bigint.type}" />
