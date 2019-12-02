@@ -33,9 +33,7 @@ import {StringUtil} from "../../../../../common/util/string.util";
 
 @Component({
   selector: 'stream-select',
-  templateUrl: './stream-select.component.html',
-  styles: ['.page-storage-create .ddp-type-topic .ddp-txt-info {top:-10px;margin-left:10px;}',
-          '.page-storage-create .ddp-type-topic .ddp-txt-error {top:-10px;margin-left:10px;}']
+  templateUrl: './stream-select.component.html'
 })
 export class StreamSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
