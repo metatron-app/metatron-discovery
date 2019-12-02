@@ -289,7 +289,7 @@ public class DataFrame implements Serializable, Transformable {
     return colDescs.get(colno).getType();
   }
 
-  private void setColType(int colno, ColumnType colType) {
+  public void setColType(int colno, ColumnType colType) {
     colDescs.get(colno).setType(colType);
   }
 

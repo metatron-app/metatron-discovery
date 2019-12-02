@@ -146,4 +146,20 @@ public class MetadataProjections extends BaseProjections {
     Object getColumns();
   }
 
+  @Projection(types = Metadata.class, name = "forMetadataCreatorList")
+  public interface ForMetadataCreatorList {
+
+    String getId();
+
+    String getName();
+
+    String getDescription();
+
+    Metadata.SourceType getSourceType();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+  }
+
 }

@@ -167,7 +167,7 @@ public class TeddyTest {
     ruleStrings.add("settype col: pcode2 type: long");
     ruleStrings.add("settype col: pcode3 type: long");
     ruleStrings.add("settype col: pcode4 type: long");
-    ruleStrings.add("settype col: detail_store_code type: long");
+    ruleStrings.add("derive value: pcode3 + pcode2 + pcode3 + pcode4 as: 'code_sum'");
 
     return apply_rules(contract, ruleStrings);
   }

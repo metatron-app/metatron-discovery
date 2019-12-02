@@ -14,7 +14,7 @@
 
 import {
   ChangeDetectorRef,
-  Component,
+  Component, ComponentFactoryResolver, ComponentRef,
   ElementRef,
   EventEmitter,
   Injector,
@@ -23,7 +23,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild
+  ViewChild, ViewContainerRef
 } from '@angular/core';
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {
@@ -52,13 +52,14 @@ import {DataStorageConstant} from "../../../constant/data-storage-constant";
 import * as moment from 'moment';
 import {Segments} from "../../../../domain/datasource/stats";
 import {SchedulingService} from "../../../service/scheduling.service";
+import {ConfirmRefModalComponent} from "../../../../common/component/modal/confirm/confirm-ref.component";
 
 declare let echarts: any;
 
 @Component({
   selector: 'information-data-source',
   templateUrl: './information-data-source.component.html',
-  providers: [MomentDatePipe]
+  providers: [MomentDatePipe],
 })
 export class InformationDataSourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -94,8 +95,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
 
-  @Input()
-  public isShowModifiedGuideMessage: boolean;
+  public isShowModifiedGuideMessage: boolean = true;
 
   // scope types
   private ingestionScopeTypeList: any[];
@@ -180,6 +180,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
+              private resolver: ComponentFactoryResolver,
               private schedulingService: SchedulingService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -294,7 +295,13 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * Link meta data click event
    */
   public onClickLinkMetadata(): void {
-    this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]).then();
+    const modal: Modal = new Modal();
+    modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+    modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+    modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
+    modal.afterConfirm = () => this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]).then();
+
+    CommonUtil.confirm(modal);
   }
 
   /**
@@ -987,6 +994,5 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         }
       ]
     };
-
   }
 }

@@ -13,17 +13,31 @@
  */
 
 import {
-  Component, ElementRef, Injector, OnDestroy, OnInit, Input, ViewChild, Output,
-  EventEmitter
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {SelectComponent} from "../../../common/component/select/select.component";
 import {Format} from "../../../domain/workbook/configurations/format";
-import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
-import {UIFormatSymbolPosition, UIFormatNumericAliasType} from '../../../common/component/chart/option/define/common';
-import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
+import {Field as AbstractField} from '../../../domain/workbook/configurations/field/field';
+import {
+  ChartType,
+  GridViewType,
+  UIFormatNumericAliasType,
+  UIFormatSymbolPosition
+} from '../../../common/component/chart/option/define/common';
+import {FormatOptionConverter} from '../../../common/component/chart/option/converter/format-option-converter';
 import {CustomSymbol} from "../../../common/component/chart/option/ui-option/ui-format";
-import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
+import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
+import {UIOption} from "../../../common/component/chart/option/ui-option";
+import {UIGridChart} from "../../../common/component/chart/option/ui-option/ui-grid-chart";
 import UI = OptionGenerator.UI;
 
 @Component({
@@ -44,6 +58,14 @@ export class FormatItemComponent extends AbstractComponent implements OnInit, On
   @ViewChild('numericAliasListSelect')
   private numericAliasListComp: SelectComponent;
 
+  // 타입 목록
+  private _orgTypeList: Object[] = [
+    {name: this.translateService.instant('msg.page.li.num'), value: 'number'},
+    {name: this.translateService.instant('msg.page.li.currency'), value: 'currency'},
+    {name: this.translateService.instant('msg.page.li.percent'), value: 'percent'},
+    {name: this.translateService.instant('msg.page.li.exponent'), value: 'exponent10'}
+  ];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -59,6 +81,8 @@ export class FormatItemComponent extends AbstractComponent implements OnInit, On
   // 필드
   @Input()
   public field: AbstractField;
+
+  public uiOption: UIOption;
 
   // 포맷정보
   public format: Format;
@@ -123,6 +147,14 @@ export class FormatItemComponent extends AbstractComponent implements OnInit, On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Getter & Setter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input('uiOption')
+  public set setUiOption(uiOption : UIOption) {
+    this.uiOption = uiOption;
+    this.typeList = JSON.parse(JSON.stringify(this._orgTypeList));
+    if( uiOption.type === ChartType.GRID && (uiOption as UIGridChart).dataType === GridViewType.MASTER ) {
+      this.typeList.push({name: this.translateService.instant('msg.page.li.origin'), value: 'origin'});
+    }
+  }
 
   @Input('format')
   public set setFormat(format: Format) {
@@ -211,8 +243,8 @@ export class FormatItemComponent extends AbstractComponent implements OnInit, On
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
+    this.typeList = JSON.parse(JSON.stringify(this._orgTypeList));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

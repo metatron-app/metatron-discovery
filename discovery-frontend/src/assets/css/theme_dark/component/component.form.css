@@ -1474,7 +1474,7 @@
     font-size: 12px;
     font-style: italic;
 }
-
+.theme-dark .ddp-txt-error.type-font-normal {font-weight:normal;}
 .theme-dark .ddp-txt-error.ddp-size {
     font-size: 12px;
     color: #eb5f58;

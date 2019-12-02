@@ -30,4 +30,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, String> {
   List<Favorite> findByDomainTypeAndTargetIdIn(DomainType domainType, List<String> targetIds);
   List<Favorite> findByCreatedByAndDomainType(String createdBy, DomainType domainType);
   Page<Favorite> findByCreatedByAndDomainType(String createdBy, DomainType domainType, Pageable pageable);
+
+  List<Favorite> findByTargetIdAndDomainType(String targetId, DomainType domainType);
 }

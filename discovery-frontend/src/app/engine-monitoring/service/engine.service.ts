@@ -82,8 +82,8 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + '/information/' + name);
   }
 
-  public getDatasourceList() {
-    return this.get(this.URL_MONITORING + '/datasource/list');
+  public getDatasourceCount() {
+    return this.get(this.URL_MONITORING + '/datasource/count');
   }
 
   public getSegmentCount() {

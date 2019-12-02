@@ -16,7 +16,7 @@
  * Created by Dolkkok on 2017. 9. 5..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnInit} from '@angular/core';
 import {
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -30,19 +30,19 @@ import {
   UIChartDataLabelDisplayType,
   UIPosition
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
+import {OptionGenerator} from '../option/util/option-generator';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
-import { BaseOption } from '../option/base-option';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
-import { UIChartFormat } from '../option/ui-option/ui-format';
-import { UIChartColorBySeries, UIOption } from '../option/ui-option';
-import { FormatOptionConverter } from '../option/converter/format-option-converter';
-import { Series } from '../option/define/series';
-import { UIChartDataLabel } from '../option/ui-option/ui-datalabel';
-import { Field } from '../../../../domain/workbook/configurations/field/field';
-import { UIChartColor, UIChartColorByValue, UIChartColorGradationByValue } from '../option/ui-option/ui-color';
-import { ColorOptionConverter } from '../option/converter/color-option-converter';
+import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {BaseOption} from '../option/base-option';
+import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
+import {UIChartFormat} from '../option/ui-option/ui-format';
+import {UIChartColorBySeries, UIOption} from '../option/ui-option';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {Series} from '../option/define/series';
+import {UIChartDataLabel} from '../option/ui-option/ui-datalabel';
+import {Field} from '../../../../domain/workbook/configurations/field/field';
+import {UIChartColor, UIChartColorByValue, UIChartColorGradationByValue} from '../option/ui-option/ui-color';
+import {ColorOptionConverter} from '../option/converter/color-option-converter';
 import Tooltip = OptionGenerator.Tooltip;
 
 @Component({
@@ -54,7 +54,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private _prevTreePath:string[] = [];
+  private _prevTreePath: string[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -71,7 +71,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -109,7 +109,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
    * @param shelve
    */
   public isValid(shelve: Pivot): boolean {
-    return (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) == 1 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) == 0 )
+    return (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) == 1 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) == 0)
       && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) == 1)
       && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
       && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED) == 0)
@@ -140,6 +140,18 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     this.chart.off('click');
     this.chart.on('click', (params) => {
 
+      if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
+        let strScript = '(' + this.userCustomFunction + ')';
+        // ( new Function( 'return ' + strScript ) )();
+        try {
+          if (eval(strScript)({name: 'SelectionEvent', data: params ? params.name : ''})) {
+            return;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       let selectMode: ChartSelectMode;
       let selectedColValues: string[] = [];
       let selectedRowValues: string[] = [];
@@ -150,15 +162,15 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         selectMode = ChartSelectMode.CLEAR;
       } else if (params !== null) {
         // UI에 전송할 선택정보 설정
-        const currTreePath = params.treePathInfo.map( item => item.name );
+        const currTreePath = params.treePathInfo.map(item => item.name);
         if (this._prevTreePath.length < currTreePath.length) {
           // 선택 처리
           selectMode = ChartSelectMode.ADD;
-          currTreePath.forEach( (item,idx) => {
-            if( idx >= this._prevTreePath.length ) {
-              if( 1 === idx ) {
+          currTreePath.forEach((item, idx) => {
+            if (idx >= this._prevTreePath.length) {
+              if (1 === idx) {
                 selectedColValues = [item];
-              } else if( 2 === idx ) {
+              } else if (2 === idx) {
                 selectedRowValues = [item];
               }
             }
@@ -166,11 +178,11 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         } else {
           // 선택 해제 처리
           selectMode = ChartSelectMode.SUBTRACT;
-          this._prevTreePath.forEach( (item,idx) => {
-            if( idx >= currTreePath.length ) {
-              if( 1 === idx ) {
+          this._prevTreePath.forEach((item, idx) => {
+            if (idx >= currTreePath.length) {
+              if (1 === idx) {
                 selectedColValues = [item];
-              } else if( 2 === idx ) {
+              } else if (2 === idx) {
                 selectedRowValues = [item];
               }
             }
@@ -193,6 +205,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
 
     });
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -318,7 +331,9 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     _.each(series, (option) => {
 
       // 적용
-      if( _.isUndefined(option.label) ) { option.label = {normal: {}} }
+      if (_.isUndefined(option.label)) {
+        option.label = {normal: {}}
+      }
 
       option.label.normal.position = <any>align;
     });
@@ -366,7 +381,9 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption }
+    if (_.isUndefined(format)) {
+      return chartOption
+    }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = FormatOptionConverter.getlabelAxisScaleFormat(uiOption);
@@ -383,8 +400,12 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     // 적용
     _.each(series, (option) => {
 
-      if( _.isUndefined(option.label) ) { option.label = { normal: {} }; }
-      if( _.isUndefined(option.label.normal) ) { option.label.normal = {} }
+      if (_.isUndefined(option.label)) {
+        option.label = {normal: {}};
+      }
+      if (_.isUndefined(option.label.normal)) {
+        option.label.normal = {}
+      }
 
       // 적용
       option.label.normal.formatter = ((params): any => {
@@ -413,49 +434,48 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   private getFormatTreemapValueSeries(params: any, format: UIChartFormat, uiOption?: UIOption, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.dataLabel || !uiOption.dataLabel.displayTypes) return '';
 
       // UI 데이터 가공
       let isUiData: boolean = false;
       let result: string[] = [];
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
         result.push(params.name);
         isUiData = true;
       }
-      if ( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ) {
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
         result.push(FormatOptionConverter.getFormatValue(params.value, format));
         isUiData = true;
       }
 
-      if ( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ) {
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
         let value = params.data.percentage;
         value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
-        result.push(value +'%');
+        result.push(value + '%');
         isUiData = true;
       }
 
       let label: string = "";
 
       // UI 데이터기반 레이블 반환
-      if( isUiData ) {
-        for( let num: number = 0 ; num < result.length ; num++ ) {
-          if( num > 0 ) {
+      if (isUiData) {
+        for (let num: number = 0; num < result.length; num++) {
+          if (num > 0) {
             label += "\n";
           }
-          if(series.label && series.label.normal && series.label.normal.rich) {
-            label += '{align|'+ result[num] +'}';
+          if (series.label && series.label.normal && series.label.normal.rich) {
+            label += '{align|' + result[num] + '}';
             // label += '{treemapAlign|'+ result[num] +'}';
-          }
-          else {
+          } else {
             label += result[num];
           }
         }
         return label;
 
-      // 선택된 display label이 없는경우 빈값 리턴
+        // 선택된 display label이 없는경우 빈값 리턴
       } else {
         return label;
       }
@@ -476,14 +496,14 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   private getFormatTreemapValueTooltip(params: any, uiOption: UIOption, fieldInfo: PivotTableInfo, format: UIChartFormat, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.toolTip) uiOption.toolTip = {};
       if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
 
       // UI 데이터 가공
       let result: string[] = [];
-      if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
         let pivotTarget: Field[] = [];
 
@@ -491,14 +511,14 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         if (1 == params.data.depth) {
           pivotTarget = this.pivot.columns;
 
-        // 2depth이후의 경우 rows에서 선반 target 설정
+          // 2depth이후의 경우 rows에서 선반 target 설정
         } else {
           pivotTarget = this.pivot.rows;
         }
 
         result = FormatOptionConverter.getTooltipName([params.name], pivotTarget, result, true);
       }
-      if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         let seriesValueName = this.pivot.aggregations[0].alias;
         let seriesValue = FormatOptionConverter.getTooltipValue(seriesValueName, this.pivot.aggregations, format, params.value);
@@ -513,7 +533,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         result.push(seriesValue);
       }
 
-      if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
 
         // series value가 선택된지 않은경우
         if (-1 == uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {

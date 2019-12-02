@@ -942,7 +942,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
       (<UIGridChart>this.uiOption).measureLayout = UIOrient.VERTICAL;
       (<UIGridChart>this.uiOption).contentStyle = (<UIGridChart>this.uiOption).contentStyle ? (<UIGridChart>this.uiOption).contentStyle : {};
       (<UIGridChart>this.uiOption).contentStyle.showHeader = false;
+    } else {
+      if( 'origin' === (<UIGridChart>this.uiOption).valueFormat.type ) {
+        (<UIGridChart>this.uiOption).valueFormat.type = 'number';
+      }
     }
+
 
     this.uiOption['dataType'] = dataType;
     this.update({type: EventType.GRID_ORIGINAL});

@@ -154,9 +154,9 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(monitoringQueryService.getSize());
   }
 
-  @RequestMapping(value = "/monitoring/datasource/list", method = RequestMethod.GET)
-  public ResponseEntity<?> getDatasourceList() {
-    return ResponseEntity.ok(monitoringQueryService.getDatasourceList());
+  @RequestMapping(value = "/monitoring/datasource/count", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasourceCount() {
+    return ResponseEntity.ok(monitoringQueryService.getDatasourceCount());
   }
 
   @RequestMapping(value = "/monitoring/segment/count", method = RequestMethod.GET)

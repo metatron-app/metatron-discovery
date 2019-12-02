@@ -1,7 +1,7 @@
 import {
-  Component, ComponentFactoryResolver, ComponentRef, ElementRef, Injector,
+  Component, ComponentFactoryResolver, ComponentRef, ElementRef, EventEmitter, Injector,
   Input, OnDestroy,
-  OnInit,
+  OnInit, Output,
   ViewChild, ViewContainerRef,
 } from '@angular/core';
 import {RecentQueriesComponent} from "./recent-queries.component";
@@ -10,6 +10,8 @@ import {Alert} from "../../../common/util/alert.util";
 import {ClipboardService} from "ngx-clipboard";
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
+import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
+import {DataCreator} from "../../../domain/meta-data-management/data-creator";
 
 @Component({
   selector: 'explore-metadata-overview',
@@ -30,6 +32,8 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
   @Input() readonly recentlyQueriesForDataBase = [];
   @Input() readonly recentlyUsedDashboardList = [];
 
+  @Output() clickedTopUser = new EventEmitter();
+
   public isShowMoreCatalogs: boolean = false;
 
   // Dashboard util for get dashboard image
@@ -37,6 +41,7 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
 
   constructor(
     private clipboardService: ClipboardService,
+    private metadataService: MetadataService,
     protected element: ElementRef,
     protected injector: Injector,
     private resolver: ComponentFactoryResolver) {
@@ -86,6 +91,10 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
     const popUrl = `workbook/${recentlyUsedDashboard.workbook.id}/${recentlyUsedDashboard.id}`;
     //open in new tab
     window.open(popUrl, '_blank');
+  }
+
+  async onClickUser(username: string) {
+    this.clickedTopUser.emit(username);
   }
 
   /**

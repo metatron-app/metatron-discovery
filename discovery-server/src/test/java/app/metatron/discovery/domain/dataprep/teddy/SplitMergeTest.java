@@ -28,6 +28,7 @@ public class SplitMergeTest extends TeddyTest {
     loadGridCsv("contract", "teddy/contract.csv");
     loadGridCsv("sample", "teddy/sample.csv");
     loadGridCsv("sample_split", "teddy/sample_split.csv");
+    loadGridCsv("contract", "teddy/contract.csv");
   }
 
   private DataFrame prepare_sample_split() throws IOException, TeddyException {
@@ -199,4 +200,22 @@ public class SplitMergeTest extends TeddyTest {
     assertEquals("borghini", newDf2.rows.get(4).get("split_name2"));
   }
 
+  @Test
+  public void test_merge_null() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{
+            {"Nortel Networks", "T7316 \"E Nt8 B27\""},
+            {"SM", "TSP800", "TSP847IIU", "Receipt Printer"},
+            {"SM", "\"TSP100", "TSP143LAN", "Receipt\" Printer"},
+            {null, null, null},
+            {}
+    };
+    DataFrame df = createByGrid(strGrid, new String[]{"manufacturer", "model1", "model2", "etc"});
+
+    df = apply_rule(df, "merge col: manufacturer, model1, model2, etc with: ',' as 'altogether'");
+    assertRow(df.rows.get(0), new Object[]{"Nortel Networks,T7316 \"E Nt8 B27\""});
+    assertRow(df.rows.get(1), new Object[]{"SM,TSP800,TSP847IIU,Receipt Printer"});
+    assertRow(df.rows.get(2), new Object[]{"SM,\"TSP100,TSP143LAN,Receipt\" Printer"});
+    assertRow(df.rows.get(3), new Object[]{""});
+    assertRow(df.rows.get(4), new Object[]{""});
+  }
 }

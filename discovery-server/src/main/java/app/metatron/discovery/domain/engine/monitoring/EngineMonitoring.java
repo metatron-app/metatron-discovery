@@ -138,16 +138,4 @@ public class EngineMonitoring extends AbstractHistoryEntity implements MetatronD
     PENDING, WAITING, RUNNING, SUCCESS, FAILED
   }
 
-  public enum TaskType {
-    INDEX, KAFKA, HADOOP
-  }
-
-  public enum SERVICE {
-    BROKER, COORDINATOR, HISTORICAL, OVERLORD, MIDDLEMANAGER
-  }
-
-  public enum QueryResult {
-    SUCCESS, FAIL
-  }
-
 }
