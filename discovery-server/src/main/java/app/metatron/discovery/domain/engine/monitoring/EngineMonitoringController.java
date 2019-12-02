@@ -313,7 +313,7 @@ public class EngineMonitoringController {
   @RequestMapping(value = "/monitoring/datasources/list", method = RequestMethod.GET)
   public ResponseEntity<?> getDatasource() {
     HashMap<String, Object> response = new HashMap<>();
-    response.put("datasourceList", monitoringQueryService.getDatasource());
+    response.put("datasourceList", monitoringQueryService.getDatasourceList());
     response.put("datasourceListIncludeDisabled", monitoringQueryService.getDatasourceListIncludeDisabled());
     response.put("datasourceLoadStatus", monitoringQueryService.getDatasourceLoadStatus());
     response.put("datasourceRules", monitoringQueryService.getDatasourceRules());

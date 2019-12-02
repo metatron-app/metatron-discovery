@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -208,9 +209,9 @@ public class EngineMonitoringService {
 
           for (JsonNode rowNode : engineData) {
             Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
-            timeList.add(String.valueOf(row.get("event_time")));
             metric = String.valueOf(row.get("metric"));
             if ("jvm/mem/max".equals(metric)) {
+              timeList.add(String.valueOf(row.get("event_time")));
               maxMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
             } else if ("jvm/mem/used".equals(metric)) {
               usedMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
@@ -744,7 +745,7 @@ public class EngineMonitoringService {
     }
   }
 
-  public List getDatasource() {
+  public List getDatasourceList() {
     List datasourceMeta = getDatasourceMeta();
     Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments GROUP BY 1");
     List datasourceList = results.get();
