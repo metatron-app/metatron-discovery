@@ -101,6 +101,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   @ViewChild(DataDownloadComponent)
   private _dataDownComp: DataDownloadComponent;
 
+  @ViewChild('userFuncInput')
+  private _userFuncInput: ElementRef;
+
+  @ViewChild('userFuncInputContainer')
+  private _userFuncInputContainer: ElementRef;
+
   // 프로세스 실행 여부
   private _isDuringProcess: boolean = false;
 
@@ -133,6 +139,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public userCustomFunction: string;
 
   public widget: PageWidget = new PageWidget();
   public parentWidget: Widget;
@@ -152,6 +159,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
+  public isShowEvtTriggerEditor: boolean = false;
 
   // Limit 정보
   public limitInfo: ChartLimitInfo = {id: '', isShow: false, currentCnt: 0, maxCnt: 0};
@@ -321,9 +329,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     // 선택 필터 설정
     this.subscriptions.push(
       this.broadCaster.on<any>('SET_SELECTION_FILTER').subscribe(data => {
-        if (data.widgetId && data.widgetId === this.widget.id) {
-          this._search(null, data.filters);
-        } else if (data.excludeWidgetId !== this.widget.id) {
+        if ((data.widgetId && data.widgetId === this.widget.id) || (data.excludeWidgetId !== this.widget.id)) {
+          if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
+            let strScript = '(' + this.userCustomFunction + ')';
+            // ( new Function( 'return ' + strScript ) )();
+            try {
+              if (eval(strScript)({name: 'SelectionFilterEvent', data: data.filters})) {
+                return;
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
           this._search(null, data.filters);
         }
 
@@ -750,6 +767,35 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public openUserFuncInput() {
+    this.isShowEvtTriggerEditor = true;
+    this.safelyDetectChanges();
+    $(this._userFuncInput.nativeElement).trigger('focus');
+  } // function - openUserFuncInput
+
+  public saveUserFunc() {
+    this.userCustomFunction = $(this._userFuncInput.nativeElement).val();
+
+    // 스펙 변경
+    this.loadingShow();
+    this.widget.configuration.customFunction = this.userCustomFunction;
+    const param = {configuration: _.cloneDeep(this.widget.configuration)};
+    param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
+    this.widgetService.updateWidget( this.widget.id, param )
+      .then((widget) => {
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        this.closeUserFuncInput();
+        this.loadingHide();
+        this._search();
+      })
+      .catch(err => this.commonExceptionHandler(err));
+  } // function - saveUserFunc
+
+  public closeUserFuncInput() {
+    this.isShowEvtTriggerEditor = false;
+    this.safelyDetectChanges();
+  } // function - closeUserFuncInput
+
   /**
    * 데이터소스 이름 조회
    * @return {string}
@@ -1147,6 +1193,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.chartType = this.widgetConfiguration.chart.type.toString();
     this.parentWidget = null;
     if (widget.dashBoard.configuration) {
+
+      if( this.widgetConfiguration.customFunction && '' !== this.widgetConfiguration.customFunction ) {
+        this.userCustomFunction = this.widgetConfiguration.customFunction;
+      }
 
       if (ChartType.MAP === (<PageWidgetConfiguration>this.widget.configuration).chart.type) {
 

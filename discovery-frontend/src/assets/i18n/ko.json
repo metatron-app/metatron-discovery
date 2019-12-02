@@ -1709,6 +1709,7 @@
   "msg.board.unload.desc": "알수없는 이유로 대시보드를 불러올 수 없습니다.<br>다시 시도해주세요",
   "msg.board.ui.cant-not-down-aggregate": "집계함수가 포함된 컬림이 있어서 원본보기를 지원할 수 없습니다.",
   "msg.board.error.deny-datasource": "데이터소스({{datasource}}) 사용이 허용되지 않았습니다.",
+  "msg.board.ui.custom-action" : "Event Trigger",
   "msg.storage.btn.create.dsource": "새로운 데이터소스 생성",
   "msg.storage.ui.dsource.search.description": "데이터소스 이름으로 검색해 주세요",
   "msg.storage.th.allowance": "허용여부",
