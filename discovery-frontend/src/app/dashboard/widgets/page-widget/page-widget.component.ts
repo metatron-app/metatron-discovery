@@ -770,6 +770,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public openUserFuncInput() {
     this.isShowEvtTriggerEditor = true;
     this.safelyDetectChanges();
+    $(this._userFuncInput.nativeElement).trigger('focus');
   } // function - openUserFuncInput
 
   public saveUserFunc() {
