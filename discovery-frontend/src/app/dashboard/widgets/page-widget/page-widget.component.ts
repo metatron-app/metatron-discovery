@@ -770,36 +770,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public openUserFuncInput() {
     this.isShowEvtTriggerEditor = true;
     this.safelyDetectChanges();
-    let aniRotateDeg: number = 0;
-    let aniScale: number = 0;
-    let $inputContainer = $(this._userFuncInputContainer.nativeElement);
-    $inputContainer.animate(
-      {deg: 180},
-      {
-        duration: 1,
-        step: function (val, prop) {
-          $(this).css({transform: 'rotate(' + val + 'deg)'});
-        },  // func - step
-        complete: () => {
-          $inputContainer.animate(
-            {deg: 360, scale: 1},
-            {
-              duration: 600,
-              step: function (val, prop) {
-                if (prop) {
-                  if ('deg' === prop.prop) {
-                    aniRotateDeg = val;
-                  } else {
-                    aniScale = val;
-                  }
-                }
-                $(this).css({transform: 'rotate(' + aniRotateDeg + 'deg) scale(' + aniScale + ')'});
-              }
-            }
-          );
-        } // func - complete
-      }
-    );
   } // function - openUserFuncInput
 
   public saveUserFunc() {
@@ -821,30 +791,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   } // function - saveUserFunc
 
   public closeUserFuncInput() {
-    this.isShowEvtTriggerEditor = true;
+    this.isShowEvtTriggerEditor = false;
     this.safelyDetectChanges();
-    let aniRotateDeg: number = 0;
-    let aniScale: number = 0;
-    let $inputContainer = $(this._userFuncInputContainer.nativeElement);
-    $inputContainer.animate(
-      {deg: 180, scale: 0},
-      {
-        duration: 600,
-        step: function (val, prop) {
-          if (prop) {
-            if ('deg' === prop.prop) {
-              aniRotateDeg = val;
-            } else {
-              aniScale = val;
-            }
-          }
-          $(this).css({transform: 'rotate(' + aniRotateDeg + 'deg) scale(' + aniScale + ')'});
-        },  // func - step
-        complete: () => {
-          this.isShowEvtTriggerEditor = false;
-        } // func - complete
-      }
-    );
   } // function - closeUserFuncInput
 
   /**
