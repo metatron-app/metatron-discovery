@@ -68,7 +68,7 @@
             </not>
         </preConditions>
         <createTable tableName="REVINFO">
-            <column name="id" type="${bigint.type}" autoIncrement="true">
+            <column name="id" type="${bigint.type}">
                 <constraints primaryKey="true" />
             </column>
             <column name="timestamp" type="${bigint.type}" />
@@ -3851,5 +3851,13 @@
             </not>
         </preConditions>
         <addForeignKeyConstraint baseColumnNames="book_id" baseTableName="queryeditor" constraintName="FKxo9cgi0sqay1s92b1d6mxare" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="book_workbench" validate="true" />
+    </changeSet>
+    <changeSet author="initial (generated)" id="1571037633789-225">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="REVINFO" />
+            </not>
+        </preConditions>
+        <addAutoIncrement tableName="REVINFO" columnName="id" columnDataType="${bigint.type}" />
     </changeSet>
 </databaseChangeLog>
