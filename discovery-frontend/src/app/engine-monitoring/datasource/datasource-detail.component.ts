@@ -65,6 +65,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
   public intervalStatus: any;
   public shardKey: any[];
   public datasourceIntervalKey: any[];
+  public selectedInterval: any;
 
   private _datasourceName: string;
   private _histogramChart: any;
@@ -141,6 +142,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   public onClickInterval(interval: string) {
     this.engineService.getDatasourceIntervalStatus(this._datasourceName, interval.replace('/', '_')).then((data) => {
+      this.selectedInterval = interval;
       this.intervalStatus = data[interval];
       this.shardKey = Object.keys(this.intervalStatus);
     });
@@ -309,6 +311,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     this._histogramChart.off('click');
     this._histogramChart.on('click', (params) => {
       if (params != null) {
+        $('.ddp-table-form.ddp-table-type2.type-cursor tr')[params.dataIndex].scrollIntoView({ behavior: 'smooth' });
         this.onClickInterval(this.datasourceIntervalKey[params.dataIndex]);
       }
     });

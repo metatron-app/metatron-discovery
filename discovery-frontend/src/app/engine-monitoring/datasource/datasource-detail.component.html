@@ -202,7 +202,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let key of datasourceIntervalKey" (click)="onClickInterval(key)">
+            <tr *ngFor="let key of datasourceIntervalKey" (click)="onClickInterval(key)" [class.ddp-selected]="selectedInterval === key">
               <td>
                 {{ key.substring(0,10) }}<span class="sep">T</span>{{ key.substring(11,13) }}
               </td>
