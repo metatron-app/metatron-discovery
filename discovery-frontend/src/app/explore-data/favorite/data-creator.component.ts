@@ -173,7 +173,7 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
 
     this.metadataService.toggleCreatorFavorite(selectedCreator.creator.id, selectedCreator.favorite).then().catch(e => this.commonExceptionHandler(e));
     const index = this.dataCreatorList.findIndex(creator => {
-      return creator.creator.id = selectedCreator.creator.id;
+      return creator.creator.id === selectedCreator.creator.id;
     });
 
     if (index !== -1) {

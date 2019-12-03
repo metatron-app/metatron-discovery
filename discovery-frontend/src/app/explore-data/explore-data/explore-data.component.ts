@@ -69,6 +69,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   stagingTypeCount: number = 0;
   databaseTypeCount: number = 0;
   datasetTypeCount: number = 0;
+  originalHeight: number = 0;
 
   subscription: Subscription;
 
@@ -97,6 +98,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
+
+
     let broadCastSuccessCount: number = 0;
     // subscribe
     this.subscription = this.broadcaster.on(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL).subscribe(() => {
@@ -118,14 +121,17 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     super.ngAfterViewInit();
     this.$layoutContentsClass.addClass( 'ddp-layout-meta');
 
+    this.originalHeight = this.$layoutContentsClass.outerHeight();
     const height = this.$layoutContentsClass.outerHeight() + 190 + 54;
     this.$layoutContentsClass.css('height', height);
+
   }
 
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
     this.$layoutContentsClass.removeClass( 'ddp-layout-meta' );
+    this.$layoutContentsClass.css('height', this.originalHeight);
     this.subscription.unsubscribe();
   }
 
