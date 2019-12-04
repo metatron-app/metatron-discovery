@@ -217,8 +217,8 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public done() {
-    if (this.getDoneValidation()) {
+  public save() {
+    if (this.getSaveValidation()) {
       if(this.validateColumnNames() == false) {
         Alert.error(this.translateService.instant('msg.bench.alert.invalid-hive-name-rule', {
           value: 'Column'
@@ -261,7 +261,6 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
           this.loadingHide();
           Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
           this.importSucceed.emit();
-          this.close();
         }).catch((error) => {
         this.loadingHide();
         console.log(error);
@@ -347,7 +346,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
    * 다음페이지로 가기위한 validation
    * @returns {boolean}
    */
-  public getDoneValidation(): boolean {
+  public getSaveValidation(): boolean {
     if(this.selectedImportType === ImportType.NEW) {
       if (StringUtil.isEmpty(this.importingTableName)) {
         this.isInvalidImportingTableName = true;

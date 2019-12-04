@@ -237,9 +237,9 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !getDoneValidation()}" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.close' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !getSaveValidation()}" (click)="save()">{{'msg.comm.btn.save' | translate}}</a>
   </div>
   <!-- //buttons -->
 
