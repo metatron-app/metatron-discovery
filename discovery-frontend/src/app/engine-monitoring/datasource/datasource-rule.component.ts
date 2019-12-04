@@ -102,12 +102,18 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
       delete rule['tieredReplicants'];
     }
 
-    if (type.indexOf('Forever') > -1 || type.indexOf('Period') > -1) {
+    if (type.indexOf('Period') > -1 && !_.isNil(rule['interval'])) {
+      rule['period'] = rule['interval'];
+      delete rule['interval'];
+    }
+    if (type.indexOf('Interval') > -1 && !_.isNil(rule['period'])) {
+      rule['interval'] = rule['period'];
+      delete rule['period'];
+    }
+    if (type.indexOf('Forever') > -1) {
       if (!_.isNil(rule['interval'])) {
         delete rule['interval'];
       }
-    }
-    if (type.indexOf('Forever') > -1 || type.indexOf('Interval') > -1) {
       if (!_.isNil(rule['period'])) {
         delete rule['period'];
       }
@@ -144,7 +150,7 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
     for (let idx=0; idx<this.datasourceCopyRule.length; idx++) {
       const rule = this.datasourceCopyRule[idx];
       if (_.isNil(rule.type)) {
-        Alert.warning('Retention Type을 선택하세요.');
+        Alert.warning(this.translateService.instant('msg.engine.monitoring.alert.ds.retention.type'));
         result = false;
         break;
       }
@@ -152,9 +158,9 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
         if (!_.isNil(rule['period'])) {
           if (rule['period'] != moment.duration(rule['period']).toISOString()) {
             setTimeout(() => {
-              $('table.ddp-table-list2 input')[idx].focus();
+              $('input.ddp-input-typebasic')[idx].focus();
             }, 400);
-            Alert.warning('Retention Period를 확인하세요.');
+            Alert.warning(this.translateService.instant('msg.engine.monitoring.alert.ds.retention.period'));
             result = false;
             break;
           }
@@ -167,9 +173,9 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
           }
         }
         setTimeout(() => {
-          $('table.ddp-table-list2 input')[idx].focus();
+          $('input.ddp-input-typebasic')[idx].focus();
         }, 400);
-        Alert.warning('Retention Interval을 확인하세요.');
+        Alert.warning(this.translateService.instant('msg.engine.monitoring.alert.ds.retention.interval'));
         result = false;
         break;
       }

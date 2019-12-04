@@ -194,6 +194,14 @@ export class EngineService extends AbstractService {
     return this.post(this.URL_MONITORING + `/datasource/${datasource}/rule`, rules);
   }
 
+  public enableDatasource(datasource) {
+    return this.post(this.URL_MONITORING + `/datasource/${datasource}`, null);
+  }
+
+  public permanentlyDeleteDataSource(datasource) {
+    return this.delete(this.URL_MONITORING + `/datasource/${datasource}` + '?kill=true');
+  }
+
   public disableDatasource(datasource) {
     return this.delete(this.URL_MONITORING + `/datasource/${datasource}`);
   }

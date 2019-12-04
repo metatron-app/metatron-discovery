@@ -178,6 +178,10 @@ polaris:
         target: coordinator
         method: GET
         uri: /druid/coordinator/v1/datasources/{datasourceId}
+      datasourceEnable:
+        target: coordinator
+        method: POST
+        uri: /druid/coordinator/v1/datasources/{datasourceId}
       datasourceDisable:
         target: coordinator
         method: DELETE

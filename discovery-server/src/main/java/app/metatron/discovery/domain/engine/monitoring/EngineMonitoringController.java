@@ -376,9 +376,19 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(criterion);
   }
 
+  @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.POST)
+  public ResponseEntity<?> enableDatasource(@PathVariable(value = "datasource") String datasource) {
+    monitoringQueryService.enableDatasource(datasource);
+    return ResponseEntity.noContent().build();
+  }
+
   @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.DELETE)
-  public ResponseEntity<?> disableDatasource(@PathVariable(value = "datasource") String datasource) {
-    monitoringQueryService.disableDatasource(datasource);
+  public ResponseEntity<?> deleteDatasource(@PathVariable(value = "datasource") String datasource, @RequestParam(value = "kill") Boolean kill) {
+    if (BooleanUtils.isTrue(kill)) {
+      monitoringQueryService.permanentlyDeleteDataSource(datasource);
+    } else {
+      monitoringQueryService.disableDatasource(datasource);
+    }
     return ResponseEntity.noContent().build();
   }
 

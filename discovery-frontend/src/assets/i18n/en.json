@@ -4358,6 +4358,9 @@
   "msg.engine.monitoring.ui.ds.disable.title" : "Are you sure you want to disable it?",
   "msg.engine.monitoring.ui.ds.disable.description" : "Datasource will be disabled.",
   "msg.engine.monitoring.btn.ds.disable" : "Disable datasource",
-  "msg.engine.monitoring.ui.datasource.numrows": "Num of Rows",
-  "msg.engine.monitoring.ui.datasource.columns": "There are <strong>{{count}}</strong> columns."
+  "msg.engine.monitoring.ui.ds.numrows": "Num of Rows",
+  "msg.engine.monitoring.ui.ds.columns": "There are <strong>{{count}}</strong> columns",
+  "msg.engine.monitoring.alert.ds.retention.type": "Choose a Retention Type",
+  "msg.engine.monitoring.alert.ds.retention.interval": "Check the Retention Interval",
+  "msg.engine.monitoring.alert.ds.retention.period": "Check the Retention Period"
 }

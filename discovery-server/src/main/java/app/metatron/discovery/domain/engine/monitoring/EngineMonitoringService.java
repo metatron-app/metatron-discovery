@@ -817,8 +817,16 @@ public class EngineMonitoringService {
     return results.get();
   }
 
+  public void enableDatasource(String datasourceId) {
+    engineMetaRepository.enableDataSource(datasourceId);
+  }
+
   public void disableDatasource(String datasourceId) {
     engineMetaRepository.disableDataSource(datasourceId);
+  }
+
+  public void permanentlyDeleteDataSource(String datasourceId) {
+    engineMetaRepository.permanentlyDeleteDataSource(datasourceId);
   }
 
   public List<ListCriterion> getListCriterionInDatasource() {

@@ -66,6 +66,7 @@ public class EngineProperties {
   public final static String GET_WORKER_STATUS = "workerStatus";
   public final static String GET_DATASOURCE_LIST = "getDatasources";
   public final static String GET_DATASOURCE_STATUS = "datasourceStatus";
+  public final static String ENABLE_DATASOURCE = "datasourceEnable";
   public final static String DISABLE_DATASOURCE = "datasourceDisable";
   public final static String PURGE_DATASOURCE = "datasourcePurge";
   public final static String GET_HISTORICAL_NODE = "getHistoricalNode";
