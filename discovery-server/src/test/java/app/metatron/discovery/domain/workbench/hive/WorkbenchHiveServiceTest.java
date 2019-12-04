@@ -51,7 +51,7 @@ public class WorkbenchHiveServiceTest {
     final String savedFilePath = String.format("/tmp/metatron/%s.dat", UUID.randomUUID().toString());
 
     HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource("/tmp/hdfs-conf", "hive_admin", "1111", "private");
-    when(mockDataTableHiveRepository.saveToHdfs(eq(hivePersonalDatasource), anyObject(), anyObject())).thenReturn(savedFilePath);
+    when(mockDataTableHiveRepository.saveToHdfs(eq(hivePersonalDatasource), anyObject(), anyObject(), "")).thenReturn(savedFilePath);
     workbenchHiveService.setDataTableHiveRepository(mockDataTableHiveRepository);
 
     JdbcConnectionService mockJdbcConnectionService = mock(JdbcConnectionService.class);
@@ -74,7 +74,7 @@ public class WorkbenchHiveServiceTest {
     // saveToHdfs
     ArgumentCaptor<Path> argPath = ArgumentCaptor.forClass(Path.class);
     ArgumentCaptor<DataTable> argDataTable = ArgumentCaptor.forClass(DataTable.class);
-    verify(mockDataTableHiveRepository).saveToHdfs(eq(hivePersonalDatasource), argPath.capture(), argDataTable.capture());
+    verify(mockDataTableHiveRepository).saveToHdfs(eq(hivePersonalDatasource), argPath.capture(), argDataTable.capture(), "");
     assertThat(argPath.getValue().toString()).isEqualTo("/tmp/metatron");
     assertThat(argDataTable.getValue().getFields()).hasSize(5);
     assertThat(argDataTable.getValue().getFields()).contains("time", "order_id", "amount", "product_id", "sale_count");

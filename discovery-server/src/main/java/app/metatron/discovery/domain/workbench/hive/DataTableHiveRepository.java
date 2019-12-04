@@ -33,7 +33,7 @@ import app.metatron.discovery.common.exception.MetatronException;
 @Repository
 public class DataTableHiveRepository {
 
-  public String saveToHdfs(HivePersonalDatasource hivePersonalDataSource, Path path, DataTable dataTable) {
+  public String saveToHdfs(HivePersonalDatasource hivePersonalDataSource, Path path, DataTable dataTable, String tablePartitionColumn) {
     final String hiveAdminUser = hivePersonalDataSource.getAdminName();
     FileSystem fs = null;
     try {
@@ -52,8 +52,13 @@ public class DataTableHiveRepository {
       try (OutputStream out = fs.create(recordsFile)) {
         for (Map<String, Object> record : dataTable.getRecords()) {
           String newRecord = dataTable.getFields().stream()
-              .map(field -> Optional.ofNullable(String.valueOf(record.get(field))).orElse(""))
-              .collect(Collectors.joining("\001")) + "\n";
+              .map(field ->  {
+                if(field.equalsIgnoreCase(tablePartitionColumn)) {
+                  return Optional.ofNullable(String.valueOf(record.get(field))).orElse("").trim().replaceAll(" ", "_");
+                } else {
+                  return Optional.ofNullable(String.valueOf(record.get(field))).orElse("");
+                }
+              }).collect(Collectors.joining("\001")) + "\n";
 
           out.write(newRecord.getBytes());
         }

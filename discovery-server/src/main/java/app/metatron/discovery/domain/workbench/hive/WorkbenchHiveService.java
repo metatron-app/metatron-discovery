@@ -113,7 +113,7 @@ public class WorkbenchHiveService {
       validateTableSchema(hiveConnection, importFile.getDatabaseName(), importFile.getTableName(), dataTable.getFields());
     }
 
-    final String savedHDFSDataFilePath = dataTableHiveRepository.saveToHdfs(hivePersonalDataSource, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable);
+    final String savedHDFSDataFilePath = dataTableHiveRepository.saveToHdfs(hivePersonalDataSource, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable, importFile.getTablePartitionColumn());
 
     SavingHiveTable savingHiveTable = new SavingHiveTable(importFile, savedHDFSDataFilePath, dataTable);
     saveAsHiveTableFromHdfsDataTable(importFile.getWebSocketId(), hiveConnection, hivePersonalDataSource, savingHiveTable);

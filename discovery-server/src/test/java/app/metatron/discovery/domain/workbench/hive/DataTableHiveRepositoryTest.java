@@ -60,7 +60,7 @@ public class DataTableHiveRepositoryTest {
     final DataTableHiveRepository dataTableHiveRepository = new DataTableHiveRepository();
 
     HivePersonalDatasource hivePersonalDatasource = new HivePersonalDatasource("/tmp/hdfs-conf", "hive_admin", "1111", "private");
-    String filePath = dataTableHiveRepository.saveToHdfs(hivePersonalDatasource, new Path("/tmp/metatron/test"), dataTable);
+    String filePath = dataTableHiveRepository.saveToHdfs(hivePersonalDatasource, new Path("/tmp/metatron/test"), dataTable, "");
 
     // then
     assertThat(testLocalHdfs.exists(new Path(filePath))).isTrue();
