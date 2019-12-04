@@ -383,7 +383,7 @@ public class EngineMonitoringController {
   }
 
   @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.DELETE)
-  public ResponseEntity<?> deleteDatasource(@PathVariable(value = "datasource") String datasource, @RequestParam(value = "kill") Boolean kill) {
+  public ResponseEntity<?> deleteDatasource(@PathVariable(value = "datasource") String datasource, @RequestParam(value = "kill", required = false) Boolean kill) {
     if (BooleanUtils.isTrue(kill)) {
       monitoringQueryService.permanentlyDeleteDataSource(datasource);
     } else {
