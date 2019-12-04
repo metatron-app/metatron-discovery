@@ -166,4 +166,44 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + `/query/criteria/${criterionKey}`);
   }
 
+  public getDatasource() {
+    return this.get(this.URL_MONITORING + '/datasources/list');
+  }
+
+  public getCriterionListInDatasource() {
+    return this.get(this.URL_MONITORING + '/datasource/criteria');
+  }
+
+  public getCriterionInDatasource(criterionKey: Criteria.ListCriterionKey) {
+    return this.get(this.URL_MONITORING + `/datasource/criteria/${criterionKey}`);
+  }
+
+  public getDatasourceDetail(datasource) {
+    return this.get(this.URL_MONITORING + `/datasource/${datasource}`);
+  }
+
+  public getDatasourceIntervalStatus(datasource, interval) {
+    return this.get(this.URL_MONITORING + `/datasource/${datasource}/${interval}`);
+  }
+
+  public getDatasourceRule(datasource) {
+    return this.get(this.URL_MONITORING + `/datasource/${datasource}/rule`);
+  }
+
+  public setDatasourceRule(datasource, rules) {
+    return this.post(this.URL_MONITORING + `/datasource/${datasource}/rule`, rules);
+  }
+
+  public enableDatasource(datasource) {
+    return this.post(this.URL_MONITORING + `/datasource/${datasource}`, null);
+  }
+
+  public permanentlyDeleteDataSource(datasource) {
+    return this.delete(this.URL_MONITORING + `/datasource/${datasource}` + '?kill=true');
+  }
+
+  public disableDatasource(datasource) {
+    return this.delete(this.URL_MONITORING + `/datasource/${datasource}`);
+  }
+
 }

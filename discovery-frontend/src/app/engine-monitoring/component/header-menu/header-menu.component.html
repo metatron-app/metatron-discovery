@@ -23,4 +23,7 @@
   <li [class.ddp-selected]="content.isQuery()">
     <a href="javascript:" (click)="changeTab(CONTENT_TYPE.QUERY)">{{ 'msg.comm.menu.manage.engine.monitoring.query' | translate }}</a>
   </li>
+  <li [class.ddp-selected]="content.isDatasource()">
+    <a href="javascript:" (click)="changeTab(CONTENT_TYPE.DATASOURCE)">{{ 'msg.comm.menu.manage.storage.ds' | translate }}</a>
+  </li>
 </ul>

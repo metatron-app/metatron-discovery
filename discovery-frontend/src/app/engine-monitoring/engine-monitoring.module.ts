@@ -34,6 +34,10 @@ import {TaskDetailComponent} from "./ingestion/component/task/task-detail.compon
 import {SupervisorDetailComponent} from "./ingestion/component/supervisor/supervisor-detail.component";
 import {QueryComponent} from "./query/query.component";
 import {DatasourceManagementGuard} from "../common/gaurd/datasource-management.guard";
+import {DatasourceComponent} from "./datasource/datasource.component";
+import {DatasourceDetailComponent} from "./datasource/datasource-detail.component";
+import {DatasourceRuleComponent} from "./datasource/datasource-rule.component";
+import {DatasourceColumnComponent} from "./datasource/datasource-column.component";
 
 const _routes = [
   {
@@ -76,9 +80,16 @@ const _routes = [
   {
     path: Engine.ContentType.QUERY,
     component: EngineMonitoringComponent,
-    data: { 'type': Engine.ContentType.QUERY,
-      canActivate: [DatasourceManagementGuard]}
-  }
+    data: {'type': Engine.ContentType.QUERY},
+    canActivate: [DatasourceManagementGuard]
+  },
+  {
+    path: Engine.ContentType.DATASOURCE,
+    component: EngineMonitoringComponent,
+    data: {'type': Engine.ContentType.DATASOURCE},
+    canActivate: [DatasourceManagementGuard]
+  },
+  { path: 'datasource/:datasource', component: DatasourceDetailComponent, canActivate: [DatasourceManagementGuard]},
 ];
 
 @NgModule({
@@ -102,7 +113,11 @@ const _routes = [
     WorkerComponent,
     WorkerDetailComponent,
     TaskDetailComponent,
-    SupervisorDetailComponent
+    SupervisorDetailComponent,
+    DatasourceComponent,
+    DatasourceDetailComponent,
+    DatasourceRuleComponent,
+    DatasourceColumnComponent
   ],
   providers: [
     EngineService

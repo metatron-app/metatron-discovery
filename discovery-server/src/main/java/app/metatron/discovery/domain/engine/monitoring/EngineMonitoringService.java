@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -44,6 +45,7 @@ import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListCriterionType;
 import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
@@ -695,6 +697,11 @@ public class EngineMonitoringService {
     return results.get();
   }
 
+  public List getRunningIds() {
+    Optional<List> results = engineRepository.getRunningIds();
+    return results.get();
+  }
+
   private void setFiltersByType(List<Filter> filters, EngineMonitoringTarget monitoringTarget) {
     if (StringUtils.isNotEmpty(monitoringTarget.getHost())) {
       filters.add(new SelectorFilter("host", monitoringTarget.getHost()));
@@ -736,6 +743,123 @@ public class EngineMonitoringService {
       default:
         break;
     }
+  }
+
+  public List getDatasourceList() {
+    List datasourceMeta = getDatasourceMeta();
+    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments GROUP BY 1");
+    List datasourceList = results.get();
+    for (Object result : datasourceList) {
+      Map datasource = GlobalObjectMapper.getDefaultMapper().convertValue(result, Map.class);
+      for (Object meta : datasourceMeta) {
+        Map metaDatasource = GlobalObjectMapper.getDefaultMapper().convertValue(meta, Map.class);
+        if (metaDatasource.get("name").equals(datasource.get("datasource"))) {
+          datasource.put("segments", MapUtils.getMap(MapUtils.getMap(metaDatasource, "properties"), "segments"));
+          break;
+        }
+      }
+    }
+    return datasourceList;
+  }
+
+  public List getDatasourceMeta() {
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("simple", null);
+    Optional<List> results = engineRepository.meta(paramMap);
+    return results.get();
+  }
+
+  public List getDatasourceListIncludeDisabled() {
+    Optional<List> results = engineRepository.getDatasourceListIncludeDisabled();
+    return results.get();
+  }
+
+  public Map getDatasourceLoadStatus() {
+    Optional<Map> results = engineRepository.getDatasourceLoadStatus();
+    return results.get();
+  }
+
+  public Map getDatasourceRules() {
+    Optional<Map> results = engineRepository.getDatasourceRules();
+    return results.get();
+  }
+
+  public Map getDatasourceDetail(String datasourceId) {
+    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments WHERE \"datasource\" = '" + datasourceId + "' GROUP BY 1");
+    if (CollectionUtils.isNotEmpty(results.get())) {
+      return GlobalObjectMapper.getDefaultMapper().convertValue(results.get().get(0), Map.class);
+    } else {
+      throw new ResourceNotFoundException(datasourceId);
+    }
+  }
+
+  public Map getDatasourceStatus(String datasourceId) {
+    Optional<Map> results = engineRepository.getDatasourceStatus(datasourceId);
+    return results.get();
+  }
+
+  public List getDatasourceRule(String datasourceId) {
+    Optional<List> results = engineRepository.getDatasourceRule(datasourceId);
+    return results.get();
+  }
+
+  public void setDatasourceRule(String datasourceId, List retention) {
+    engineRepository.setDatasourceRule(datasourceId, retention);
+  }
+
+  public Map getDatasourceIntervals(String datasourceId) {
+    Optional<Map> results = engineRepository.getDatasourceIntervals(datasourceId);
+    return results.get();
+  }
+
+  public Map getDatasourceIntervalStatus(String datasourceId, String interval) {
+    Optional<Map> results = engineRepository.getDatasourceIntervalStatus(datasourceId, interval);
+    return results.get();
+  }
+
+  public void enableDatasource(String datasourceId) {
+    engineMetaRepository.enableDataSource(datasourceId);
+  }
+
+  public void disableDatasource(String datasourceId) {
+    engineMetaRepository.disableDataSource(datasourceId);
+  }
+
+  public void permanentlyDeleteDataSource(String datasourceId) {
+    engineMetaRepository.permanentlyDeleteDataSource(datasourceId);
+  }
+
+  public List<ListCriterion> getListCriterionInDatasource() {
+
+    List<ListCriterion> criteria = new ArrayList<>();
+
+    //Status
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.AVAILABILITY,
+                                   ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.status"));
+
+    return criteria;
+  }
+
+  public ListCriterion getListCriterionInDatasourceByKey(EngineMonitoringCriterionKey criterionKey) {
+    ListCriterion criterion = new ListCriterion();
+    criterion.setCriterionKey(criterionKey);
+
+    switch (criterionKey) {
+      case AVAILABILITY:
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "fully", "msg.engine.monitoring.ui.criterion.fully"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "partially", "msg.engine.monitoring.ui.criterion.partially"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "indexing", "msg.engine.monitoring.ui.criterion.indexing"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "disabled", "msg.engine.monitoring.ui.criterion.disabled"));
+        break;
+      default:
+        break;
+    }
+
+    return criterion;
   }
 
   private String getDruidName(String configName) {

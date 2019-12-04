@@ -4348,5 +4348,19 @@
   "msg.engine.monitoring.ui.criterion.result": "Result",
   "msg.engine.monitoring.ui.criterion.host": "Host",
   "msg.engine.monitoring.ui.criterion.started-time": "Started time",
-  "msg.engine.monitoring.ph.query.search": "Search query ID or datasource name"
+  "msg.engine.monitoring.ph.query.search": "Search query ID or datasource name",
+  "msg.engine.monitoring.ph.datasource.search": "Search datasource name",
+  "msg.engine.monitoring.ui.criterion.fully": "Fully available",
+  "msg.engine.monitoring.ui.criterion.partially": "Partially available",
+  "msg.engine.monitoring.ui.criterion.disabled": "Disabled",
+  "msg.engine.monitoring.ui.criterion.indexing": "Actively indexing",
+  "msg.engine.monitoring.alert.ds.disable.success" : "Datasource is disabled",
+  "msg.engine.monitoring.ui.ds.disable.title" : "Are you sure you want to disable it?",
+  "msg.engine.monitoring.ui.ds.disable.description" : "Datasource will be disabled.",
+  "msg.engine.monitoring.btn.ds.disable" : "Disable datasource",
+  "msg.engine.monitoring.ui.ds.numrows": "Num of Rows",
+  "msg.engine.monitoring.ui.ds.columns": "There are <strong>{{count}}</strong> columns",
+  "msg.engine.monitoring.alert.ds.retention.type": "Choose a Retention Type",
+  "msg.engine.monitoring.alert.ds.retention.interval": "Check the Retention Interval",
+  "msg.engine.monitoring.alert.ds.retention.period": "Check the Retention Period"
 }

@@ -178,6 +178,10 @@ polaris:
         target: coordinator
         method: GET
         uri: /druid/coordinator/v1/datasources/{datasourceId}
+      datasourceEnable:
+        target: coordinator
+        method: POST
+        uri: /druid/coordinator/v1/datasources/{datasourceId}
       datasourceDisable:
         target: coordinator
         method: DELETE
@@ -189,7 +193,7 @@ polaris:
       getHistoricalNode:
         target: coordinator
         method: GET
-        uri: /druid/coordinator/v1/servers?simple
+        uri: /druid/coordinator/v1/servers
       getMiddleMgmtNode:
         target: overlord
         method: GET
@@ -221,7 +225,40 @@ polaris:
       getSupervisorList:
         target: overlord
         method: GET
-        uri: /druid/indexer/v1/supervisor?full
+        uri: /druid/indexer/v1/supervisor
+      getMetaDatasource:
+          target: coordinator
+          method: GET
+          uri: /druid/coordinator/v1/metadata/datasources
+      datasourceRules:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/rules
+      datasourceRule:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/rules/{datasourceId}
+      setDatasourceRule:
+        target: coordinator
+        method: POST
+        uri: /druid/coordinator/v1/rules/{datasourceId}
+      datasourceIntervals:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/datasources/{datasourceId}/intervals
+      datasourceIntervalStatus:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/datasources/{datasourceId}/intervals/{interval}
+      datasourceLoadStatus:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/loadstatus
+      getRunningIds:
+        target: broker
+        method: GET
+        uri: /druid/v2/running
+
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
 #  cors:

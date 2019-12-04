@@ -215,7 +215,45 @@
 .page-multidata .ddp-box-resultdata .ddp-type-top-option .ddp-link-unlink:hover {color:#4b515b;}
 .page-multidata .ddp-box-resultdata .ddp-type-top-option .ddp-link-unlink:before {display:inline-block; width:15px; height:10px; margin-right:3px; background:url(../../images/icon_unlink.png) no-repeat; content:'';}
 .page-multidata .ddp-box-resultdata .ddp-type-top-option .ddp-link-unlink:hover:before {background-position-x:-16px;}
+/**************************************************************
+  Page : 데이터소스 상세
+**************************************************************/
+.ddp-wrap-info-detail {padding:0 80px;}
+.ddp-ui-info-detail .ddp-label-detail {color:#4e5368; font-size:13px; font-weight:bold;}
+.ddp-ui-info-detail .ddp-label-detail .ddp-ui-buttons {padding:4px 0 0 0;}
+.ddp-ui-info-detail .ddp-label-detail .ddp-btn-box-edit {display:inline-block; padding:2px 5px 3px 5px; border-radius:2px; background-color: rgba(231, 231, 234, 0.5); font-size:12px; color:#4b515b; font-weight:normal; font-style:italic;}
+.ddp-ui-info-detail {padding:30px 0 0 0;}
 
+.ddp-ui-info-detail table.ddp-table-detail {margin-top:9px;}
+
+.ddp-ui-info-detail .ddp-label-detail.type-inline {float:left; display:inline-block; width:135px;}
+.ddp-ui-info-detail .wrap-info-table {display:block; height:240px; overflow:auto; border-radius:3px;border:1px solid #d0d1d8; box-sizing:border-box;}
+.ddp-ui-info-detail .wrap-info-table .ddp-table-form tr th {border:none; text-align:left;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2 {border-bottom:none;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2 tbody tr > td {padding:7px 10px 7px 10px; word-break:break-all;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2 tbody tr > td .ddp-btn-box-edit {display:inline-block; padding:3px 5px 4px 5px; border-radius:2px; background-color: rgba(231, 231, 234, 0.5); color:#4b515b; font-size:12px; font-style:italic;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr td {cursor:pointer;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr td .ddp-icon-view {display:none; width:8px; height:13px; background:url(../../images/data_arrow.png) no-repeat; background-position:left -14px; transform:rotate(180deg);}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr.ddp-selected td .ddp-icon-view,
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr:hover td .ddp-icon-view {display:block;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr.ddp-selected td,
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr:hover td {background-color:#f2f1f8; border-top:1px solid #9ca2cc; border-bottom:1px solid #9ca2cc;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr.ddp-selected td,
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr:hover td {padding:6px 10px 6px 10px}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr.ddp-selected td:first-of-type,
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr:hover td:first-of-type {border-left:1px solid #9ca2cc; padding-left:9px;}
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr.ddp-selected td:last-of-type,
+.ddp-ui-info-detail .wrap-info-table table.ddp-table-type2.type-cursor tr:hover td:last-of-type {border-right:1px solid #9ca2cc; padding-right:9px;}
+.ddp-ui-info-detail .box-graph {display:block; height:110px; border:1px solid #d0d1d8; border-radius:3px; overflow:hidden;}
+.ddp-ui-info-detail .ddp-data-num:first-of-type {margin-left:15px; padding-left:0;}
+.ddp-ui-info-detail .ddp-data-num:first-of-type:before {display:none;}
+.ddp-ui-info-detail .ddp-data-num {position:relative; padding-left:7px; margin-left:7px; font-weight:normal;}
+.ddp-ui-info-detail .ddp-data-num:before {position:absolute; top:0; left:0;height:15px; border-left:1px solid #4b515b; content:'';}
+.ddp-ui-info-detail .wrap-data-detail {display:flex; height:452px; padding-top:10px; margin-bottom:40px;}
+.ddp-ui-info-detail .wrap-data-detail .wrap-info-table.type-left {height:100%; min-width:315px; width:315px; overflow:auto;}
+.ddp-ui-info-detail .wrap-data-detail .wrap-info-table-detail {flex:auto; padding:15px 20px; height:100%; border:1px solid #d0d1d8; box-sizing:border-box; overflow:auto;}
+.ddp-ui-info-detail .wrap-data-detail .wrap-info-table-detail .data-interval {font-size:16px; color:#4b515b; font-weight:bold;}
+.ddp-ui-info-detail .wrap-data-detail .wrap-info-table-detail .wrap-info-table {margin-top:12px; height:auto;}
 /**************************************************************
   Page : 05_매니지먼트_00데이터저장소_02데이터소스상세
 **************************************************************/
@@ -272,6 +310,7 @@
 .ddp-popup-dashboard .ddp-wrap-grid .ddp-box-viewtable {min-height:425px; box-sizing:border-box;}
 
 .ddp-type-top-option {padding-bottom:13px;}
+.ddp-type-top-option .ddp-top-title {line-height:30px;font-size:13px; color:#90969f; font-weight:bold;}
 .ddp-type-top-option .ddp-ui-rightoption {float:right;}
 .ddp-type-top-option .ddp-ui-rightoption .ddp-btn-box-close {display:inline-block; position:relative; float:left; width:33px; height:32px; border-left:1px solid #d7d8dd;}
 .ddp-type-top-option .ddp-ui-rightoption .ddp-btn-box-close:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-8px 0 0 -8px; width:16px; height:16px; background:url(../../images/btn_close.png) no-repeat; content:'';}
@@ -9116,6 +9155,7 @@ ul.ddp-list-owner li {padding:6px 0;}
 
 .ddp-wrap-contents-det {margin-top:-54px; padding:54px 0 0 0; height:100%; box-sizing:Border-box;}
 .ddp-wrap-contents-det .ddp-ui-contents-det {height:100%; padding:10px 80px 18px 80px; overflow:auto; box-sizing:border-box;}
+.ddp-wrap-contents-det .ddp-ui-contents-det .ddp-wrap-top-filtering {background-color:#fff;}
 
 /**********************************************************************************
         모니터링
@@ -9698,7 +9738,7 @@ table.ddp-table-detail .ddp-box-slider {width:505px;}
 table.ddp-table-detail .ddp-box-slider .ddp-checkbox-slide.ddp-checkbox-automatic2 {padding-left:30px; margin-bottom:10px}
 
 table.ddp-table-form span.ddp-box-tag-value {display:inline-block; min-width:80px; padding:2px 3px 1px 3px; border-radius:1px; font-size:12px; box-sizing:border-box;text-align:center;}
-table.ddp-table-form span.ddp-box-tag-value.ddp-dimension {color:#439fe5; border:1px solid #439fe5;}
+table.ddp-table-form span.ddp-box-tag-value.ddp-dimension { color:#439fe5; border:1px solid #439fe5;}
 table.ddp-table-form span.ddp-box-tag-value.ddp-measure {color:#5fd7a5; border:1px solid #5fd7a5;}
 table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-table-pop tr th {text-align:left; border-bottom:none;}
 table.ddp-table-type2 tbody tr td .ddp-pop-select .ddp-table-pop tr td,
@@ -10861,3 +10901,27 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-box-meta .ddp-detail-contents .ddp-no-data {padding:42px 0; color:#b5b9c2; border-top:1px solid #e7e7ea; text-align:center;}
 .ddp-box-meta .ddp-detail-contents.type-manager .ddp-type-top-option {min-width:846px;}
 .ddp-box-meta .ddp-detail-contents.type-manager .ddp-box-page {}
+
+/**********************************************************************************
+     pop EngineMonitoring datasource detail
+**********************************************************************************/
+.pop-detail .ddp-wrap-option .ddp-data-total {position:relative; top:6px; color:#90969f; font-size:12px;}
+.pop-detail .ddp-wrap-option .ddp-ui-edit-option .ddp-box-tag-value {min-width:52px; padding:0 5px;text-align:center;}
+
+/**********************************************************************************
+     pop EngineMonitoring rule edit
+**********************************************************************************/
+.ddp-wrap-rule-edit {padding-bottom:50px;}
+.ddp-wrap-rule-edit .ddp-list-rule {}
+.ddp-wrap-rule-edit .ddp-list-rule li {padding-top:10px;}
+.ddp-wrap-rule-edit .ddp-list-rule li:first-of-type {padding-top:0;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule {position:relative; padding:20px; background-color: rgba(246, 246, 247, 0.5); cursor:pointer;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule.type-add {background-color:#eff0fb;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule:hover .ddp-btn-control {display:block;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-btn-control {display:none; position:absolute; top:20px; right:20px;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-data-name {padding-bottom:10px; color:#4b515b; font-size:13px; font-weight:bold;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-data-name .ddp-icon-new {position:relative; top:-1px; font-weight:normal; margin-left:7px;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-wrap-edit3 {padding:0 0 0 20px; margin-top:10px; margin-bottom:0;width:615px;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-wrap-edit3.ddp-type .ddp-label-type {width:80px;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-wrap-edit3 .type-full {width:100%;}
+.ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-wrap-edit3 .type-input-size {width:300px;}

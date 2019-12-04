@@ -1,0 +1,90 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-layout-popuptype type-flex" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-flex-popup type-scheme">
+    <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+    <div class="ddp-pop-title">{{'msg.storage.ui.list.schema' | translate}}</div>
+    <!-- contents -->
+    <div class="ddp-pop-contents pop-detail">
+      <!-- option -->
+      <div class="ddp-wrap-option ddp-clear">
+        <!-- left -->
+        <div class="ddp-fleft">
+          <span class="ddp-data-total ddp-only" [innerHTML]="'msg.engine.monitoring.ui.ds.columns' | translate : { count : totalCount }"></span>
+        </div>
+        <!-- left -->
+        <!-- right -->
+        <div class="ddp-fright ddp-radio-inline" style="visibility: hidden">
+          <div class="ddp-wrap-edit">
+            <label class="ddp-label-type">Role</label>
+            <div class="ddp-ui-edit-option ddp-inline type-tag">
+              <label class="ddp-label-radio" (change)="showRole = 'dimension';">
+                <input type="radio" name="role">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio"><span class="ddp-box-tag-value ddp-dimension">{{'msg.comm.name.dim' | translate}}</span></span>
+              </label>
+              <label class="ddp-label-radio" (change)="showRole = 'metric';">
+                <input type="radio" name="role">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio"><span class="ddp-box-tag-value ddp-measure">{{'msg.comm.name.mea' | translate}}</span></span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+        <!-- //right -->
+
+      </div>
+      <!-- //option -->
+      <div class="ddp-box-viewtable type-height-none">
+        <table class="ddp-table-form type-line-none">
+          <colgroup>
+            <col width="51px">
+            <col width="120px">
+            <col width="*">
+          </colgroup>
+          <thead>
+          <tr>
+            <th class="ddp-txt-center">
+              No
+            </th>
+            <th>
+              {{'msg.comm.th.role' | translate}}
+            </th>
+            <th>
+              {{'msg.storage.ui.th.column.name' | translate}}
+            </th>
+          </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let column of columns; let i = index">
+              <td class="ddp-txt-center">
+                {{i + 1}}
+              </td>
+              <td>
+                <span class="ddp-box-tag-value" [class.ddp-dimension]="column.type === 'dimension'" [class.ddp-measure]="column.type === 'metric'">{{getColumnTypeLabel(column.type)}}</span>
+              </td>
+              <td>
+                {{column.value}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- //contents -->
+  </div>
+</div>
