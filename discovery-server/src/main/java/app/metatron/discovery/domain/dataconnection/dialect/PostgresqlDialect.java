@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataconnection.dialect;
 
 import org.apache.commons.lang3.StringUtils;
 import org.postgresql.jdbc.PgArray;
+import org.postgresql.jdbc.PgSQLXML;
 import org.postgresql.util.PGobject;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -415,7 +416,7 @@ public class PostgresqlDialect implements JdbcDialect {
     return originalObj -> {
       if(originalObj instanceof Timestamp){
         return originalObj.toString();
-      } else if (originalObj instanceof PgArray || originalObj instanceof PGobject) {
+      } else if (originalObj instanceof PgArray || originalObj instanceof PGobject || originalObj instanceof PgSQLXML) {
         return originalObj.toString();
       } else {
         return originalObj;
