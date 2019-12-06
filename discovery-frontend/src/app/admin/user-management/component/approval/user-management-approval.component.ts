@@ -220,7 +220,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
 
     }).catch((error) => {
       this.loadingHide();
-      Alert.warning(error.details);
+      // Alert.warning(error.details);
     });
   }
 

@@ -57,7 +57,7 @@ table.ddp-table-form tbody tr td .ddp-txt-long em.ddp-tag-global {position:absol
 
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global .ddp-icon-global {display:block;}
 
-table.ddp-table-form tbody tr td .ddp-txt-long .ddp-tag-global.type-tag {float:right; position:relative; margin-top:-2px; right:0; margin-left:5px; width:auto; min-width:60px;}
+table.ddp-table-form tbody tr td .ddp-txt-long .ddp-tag-global.type-tag {float:right; position:relative; margin-top:0px; right:0; margin-left:5px; width:auto; min-width:60px;}
 table.ddp-table-form tbody tr td .ddp-txt-long .ddp-data-long {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-type {overflow:initial;}
 table.ddp-table-form tr td .ddp-wrap-long .ddp-box-tag {position:relative; top:3px; margin-right:13px;}
