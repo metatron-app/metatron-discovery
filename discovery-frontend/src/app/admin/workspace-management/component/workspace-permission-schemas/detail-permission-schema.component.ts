@@ -318,6 +318,7 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
    * @param {Workspace} workspace
    */
   public onClickWorkspace(workspace:Workspace) {
+    this.cookieService.set('PREV_ROUTER_URL', '/admin/workspaces/shared');
     this.router.navigate([`/admin/workspaces/shared/${workspace.id}`]).then();
   } // function - onClickWorkspace
 
