@@ -30,7 +30,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -119,7 +118,7 @@ public class ZeppelinConnector extends NotebookConnector implements NotebookActi
             return response
                     .map(zeppelinResponse -> (String) zeppelinResponse.getBody())
                     .orElseThrow(() -> new RuntimeException("Fail to create notebook of zeppelin from " + getUrl()));
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Fail to create notebook of zeppelin from " + getUrl());
         }
     }
