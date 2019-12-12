@@ -31,6 +31,7 @@ import {WorkbenchLoginComponent} from './component/detail-workbench/workbench-lo
 import {DetailWorkbenchTabComponent} from './component/detail-workbench/detail-workbench-tab/detail-workbench-tab.component';
 import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
 import {RenameTableComponent} from "./component/detail-workbench/detail-workbench-table/rename-table/rename-table.component";
+import {CreationTableComponent} from "../plugins/hive-personal-database/component/creation-table/creation-table.component";
 
 
 @NgModule({
@@ -54,7 +55,8 @@ import {RenameTableComponent} from "./component/detail-workbench/detail-workbenc
     WorkbenchLoginComponent,
     DetailWorkbenchTabComponent,
     DetailWorkbenchSchemaBrowserComponent,
-    RenameTableComponent
+    RenameTableComponent,
+    CreationTableComponent,
   ],
   // 서비스
   providers: [
@@ -76,7 +78,8 @@ import {RenameTableComponent} from "./component/detail-workbench/detail-workbenc
     DetailWorkbenchTableInfoDesc,
     WorkbenchLoginComponent,
     DetailWorkbenchTabComponent,
-    DetailWorkbenchSchemaBrowserComponent
+    DetailWorkbenchSchemaBrowserComponent,
+    CreationTableComponent
   ]
 })
 export class WorkbenchShareModule { }

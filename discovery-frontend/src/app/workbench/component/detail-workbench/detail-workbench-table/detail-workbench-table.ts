@@ -35,6 +35,7 @@ import {DeleteModalComponent} from "../../../../common/component/modal/delete/de
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
 import {ImplementorType} from "../../../../domain/dataconnection/dataconnection";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
 
 @Component({
   selector: 'detail-workbench-table',
@@ -124,9 +125,12 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   public tableSortType : string = 'DEFAULT';
 
   public isPersonalDatabase: boolean = false;
+  public isSupportPersonalDatabase: boolean = false;
 
   public showRenameTableModal: boolean = false;
   public renameTable: string = '';
+
+  public showCreationTableModal: boolean = false;
 
   public webSocketId: string = '';
   public dataConnectionId: string = '';
@@ -140,7 +144,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   constructor(protected workbenchService: WorkbenchService,
               protected dataconnectionService: DataconnectionService,
               protected element: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected broadCaster: EventBroadcaster) {
     super(workbenchService, element, injector);
   }
 
@@ -159,6 +164,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     this.isPersonalDatabase = false;
     if(this.inputParams && this.inputParams.dataconnection
       && this.inputParams.dataconnection.database && this.inputParams.dataconnection.hivePersonalDatasourceInformation['supportPersonalDatabase']) {
+      this.isSupportPersonalDatabase = true;
       const personalDatabasePrefix = this.inputParams.dataconnection.hivePersonalDatasourceInformation['personalDatabasePrefix'];
       if(this.inputParams.dataconnection.database.startsWith(personalDatabasePrefix)) {
         this.isPersonalDatabase = true;
@@ -522,6 +528,11 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   public renameTableSucceed() {
     this.getTables();
+  }
+
+  public openModalCreateTableInPersonalDatabase() {
+    this.showCreationTableModal = true;
+    this.broadCaster.broadcast('SHOW_HIVE_PERSONAL_DATABASE_CREATION_TABLE_MODAL');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

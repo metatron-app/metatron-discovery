@@ -66,6 +66,8 @@ import {
   InputMandatory,
   InputSpec
 } from "../domain/dataconnection/dataconnection";
+import {CreationTableComponent} from "../plugins/hive-personal-database/component/creation-table/creation-table.component";
+import {EventBroadcaster} from "../common/event/event.broadcaster";
 
 declare let moment: any;
 declare let Split;
@@ -136,6 +138,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   @ViewChild(DetailWorkbenchDatabase)
   private detailWorkbenchDatabase: DetailWorkbenchDatabase;
+
+  @ViewChild(CreationTableComponent)
+  private creationTableComponent: CreationTableComponent;
 
   private _executeSqlReconnectCnt: number = 0;
   private _checkQueryStatusReconnectCnt: number = 0;
@@ -315,12 +320,20 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               protected connectionService: DataconnectionService,
               protected datasourceService: DatasourceService,
               protected element: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected broadCaster: EventBroadcaster) {
     super(element, injector);
   }
 
   public ngOnInit() {
     super.ngOnInit();
+
+    this.subscriptions.push(
+      this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_CREATION_TABLE_MODAL').subscribe(() => {
+        this.creationTableComponent.init(this.workbench.id, this.workbench.dataConnection, this.websocketId);
+      })
+    );
+
 
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) === '') {
       this.router.navigate(['/user/login']).then();

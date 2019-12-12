@@ -16,6 +16,7 @@
 <div class="ddp-wrap-tablelist">
   <!-- search -->
   <div class="ddp-wrap-list-search">
+    <a *ngIf="isSupportPersonalDatabase" class="ddp-btn-refresh" href="javascript:" style="background:none;top:16px"><em class="ddp-icon-control-plus" (click)="openModalCreateTableInPersonalDatabase()"></em></a>
     <a href="javascript:" class="ddp-btn-refresh" (click)="searchTableTextInit()"></a>
     <div class="ddp-ui-list-search">
       <input type="text" placeholder="{{'msg.bench.ui.search'|translate}}" [(ngModel)]="searchText"
