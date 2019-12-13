@@ -18,7 +18,7 @@
     <label class="ddp-label-detail">{{ 'msg.metadata.ui.info' | translate }}</label>
     <!-- info -->
     <div class="ddp-ui-information">
-      <div class="ddp-data-name">{{ metadata.name }} - {{ metadata.sourceType }}</div>
+      <div class="ddp-data-name"> <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag> {{ metadata.name }}</div>
       <div class="ddp-ui-popularity">
         <em class="ddp-icon-popularity"></em>
         <span class="ddp-txt-label">{{ 'msg.storage.ui.th.popularity' | translate }}</span>

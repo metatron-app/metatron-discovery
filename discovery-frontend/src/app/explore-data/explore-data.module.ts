@@ -99,7 +99,6 @@ import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.m
     ExploreDataListComponent,
     ExploreDataSearchComponent,
     ExploreDataLnbComponent,
-    MetadataTypeBoxTagComponent
   ],
   providers: [
     MetadataService,
