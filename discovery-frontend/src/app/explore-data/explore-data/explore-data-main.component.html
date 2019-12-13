@@ -33,7 +33,7 @@
     <!--  New or Update  -->
     <div class="ddp-box-summary">
       <div class="ddp-type-label">{{ 'msg.explore.ui.list.updated' | translate }}</div>
-      <span *ngIf="updatedMetadataList.length === 0">No data</span>
+      <div class="ddp-data-nodata" *ngIf="updatedMetadataList.length === 0">No data</div>
       <ul class="ddp-list-summary" *ngIf="updatedMetadataList.length > 0">
         <li *ngFor="let metadata of updatedMetadataList| slice:0:4">
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
@@ -56,7 +56,7 @@
 <!--           href="javascript:"-->
 <!--           class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>-->
       </div>
-      <span *ngIf="favoriteMetadataList.length === 0">No data</span>
+      <div class="ddp-data-nodata" *ngIf="favoriteMetadataList.length === 0">No data</div>
       <ul class="ddp-list-summary" *ngIf="favoriteMetadataList.length > 0">
         <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
@@ -76,7 +76,7 @@
       <div class="ddp-type-label"> {{ 'msg.explore.ui.list.favorite.creator' | translate }}
         <a *ngIf="favoriteCreatorList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
       </div>
-      <span *ngIf="favoriteCreatorList.length === 0">No data</span>
+      <div class="ddp-data-nodata" *ngIf="favoriteCreatorList.length === 0">No data</div>
       <ul class="ddp-list-data" *ngIf="favoriteCreatorList.length > 0">
 <!--        <ul class="ddp-list-summary">-->
           <li *ngFor="let metadata of favoriteCreatorList| slice:0:4">
