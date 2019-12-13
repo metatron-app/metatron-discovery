@@ -193,7 +193,7 @@ table.ddp-table-type3 thead tr th:last-of-type {border-right:1px solid #d2d3d9;}
 table.ddp-table-type3 thead tr th .ddp-txt-colortype {color:#b7b9c2;}
 table.ddp-table-type3 thead tr th.ddp-border-right {border-right:1px solid #d0d1d8;}
 table.ddp-table-type3.ddp-cursor-none tbody tr td {cursor: default;}
-table.ddp-table-type3 tbody tr td {position:relative; padding:10px 10px 11px 10px; font-size:13px; border:none; border-bottom:1px solid #ddd; background-color:#fff; cursor: pointer; cursor:pointer; overflow:inherit; white-space:normal;}
+table.ddp-table-type3 tbody tr td {position:relative; padding:10px 10px 11px 10px; font-size:13px; border:none; border-bottom:1px solid #ddd; background-color:#fff; cursor: pointer; cursor:pointer; overflow:inherit;word-break:break-all; white-space:normal;}
 table.ddp-table-type3 tbody tr td.ddp-txt-center:first-of-type {padding-left:10px;}
 table.ddp-table-type3 tbody tr td:first-of-type {padding-left:20px; border-left:1px solid #ddd;}
 table.ddp-table-type3 tbody tr td:last-of-type {border-right:1px solid #ddd;}
