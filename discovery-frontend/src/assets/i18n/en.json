@@ -1536,6 +1536,7 @@
   "msg.board.custom.th.add.column" : "Add column",
   "msg.board.custom.th.add.formula" : "Add formula",
   "msg.board.custom.ui.placeholder" : "Search",
+  "msg.board.custom.ui.edit.association.join" : "Associations & Join",
   "msg.board.custom.ui.create" : "The column '{{name}}' has been created",
   "msg.board.custom.ui.update" : "The column '{{name}}' has been updated",
   "msg.board.custom.ui.content.placeholder" : "Please enter column name or formula",
