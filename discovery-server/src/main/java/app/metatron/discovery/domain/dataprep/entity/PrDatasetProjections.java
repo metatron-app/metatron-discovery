@@ -94,10 +94,6 @@ public class PrDatasetProjections {
 
     String getSheetName();
 
-    /*willberemoved
-    PrDataset.FILE_FORMAT getFileFormat();
-    */
-
     String getDelimiter();
 
     Integer getManualColumnCount();

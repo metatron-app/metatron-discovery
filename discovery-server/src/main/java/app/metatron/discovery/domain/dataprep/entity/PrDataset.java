@@ -81,7 +81,6 @@ public class PrDataset extends AbstractHistoryEntity {
     }
   }
 
-  /*willberemoved
   @JsonFormat(shape = JsonFormat.Shape.OBJECT)
   public enum FILE_FORMAT {
     CSV,
@@ -93,7 +92,6 @@ public class PrDataset extends AbstractHistoryEntity {
       return name();
     }
   }
-  */
 
   @JsonFormat(shape = JsonFormat.Shape.OBJECT)
   public enum RS_TYPE {
@@ -234,11 +232,9 @@ public class PrDataset extends AbstractHistoryEntity {
   @Column(name = "sheet_name")
   private String sheetName;
 
-  /*willberemoved
   @Column(name = "file_format")
   @Enumerated(EnumType.STRING)
   private PrDataset.FILE_FORMAT fileFormat;
-  */
 
   @Column(name = "delimiter")
   private String delimiter;
@@ -560,7 +556,6 @@ public class PrDataset extends AbstractHistoryEntity {
     this.sheetName = sheetName;
   }
 
-  /*willberemoved
   public FILE_FORMAT getFileFormat() {
     return fileFormat;
   }
@@ -568,7 +563,6 @@ public class PrDataset extends AbstractHistoryEntity {
   public void setFileFormat(FILE_FORMAT fileFormat) {
     this.fileFormat = fileFormat;
   }
-  */
 
   public String getDelimiter() {
     return delimiter;
