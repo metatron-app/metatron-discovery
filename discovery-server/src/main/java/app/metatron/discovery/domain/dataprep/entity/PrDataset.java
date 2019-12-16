@@ -14,25 +14,32 @@
 
 package app.metatron.discovery.domain.dataprep.entity;
 
+import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.Size;
 import org.hibernate.annotations.GenericGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-
-import app.metatron.discovery.domain.AbstractHistoryEntity;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
@@ -557,10 +564,12 @@ public class PrDataset extends AbstractHistoryEntity {
   }
 
   public FILE_FORMAT getFileFormat() {
+    LOGGER.error("fileFormat is deprecated.");
     return fileFormat;
   }
 
   public void setFileFormat(FILE_FORMAT fileFormat) {
+    LOGGER.error("fileFormat is deprecated.");
     this.fileFormat = fileFormat;
   }
 

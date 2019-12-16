@@ -60,7 +60,7 @@ public class PrepPreviewLineService {
   Integer limit;
 
   PrepPreviewLineService() {
-    this.limit = 200;
+    limit = 200;
   }
 
   private String getPreviewPath() {
@@ -82,11 +82,11 @@ public class PrepPreviewLineService {
   }
 
   public int putPreviewLines(String dsId, DataFrame gridResponse) {
-    int size = 0;
+    int size;
 
     LOGGER.trace("putPreviewLines(): start");
-    PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
-    assert (dataset != null);
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    assert dataset != null;
 
     DataFrame previewGrid = new DataFrame();
     previewGrid.colCnt = gridResponse.colCnt;
@@ -101,8 +101,8 @@ public class PrepPreviewLineService {
     previewGrid.ruleString = gridResponse.ruleString;
 
     size = gridResponse.rows.size();
-    if (this.limit < size) {
-      previewGrid.rows = gridResponse.rows.subList(0, this.limit);
+    if (limit < size) {
+      previewGrid.rows = gridResponse.rows.subList(0, limit);
     } else {
       previewGrid.rows = gridResponse.rows;
     }
@@ -125,16 +125,16 @@ public class PrepPreviewLineService {
     DataFrame dataFrame;
 
     try {
-      PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
       assert (dataset != null);
 
       ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
       String filepath = getPreviewPath() + File.separator + dataset.getDsId() + ".df";
       File theFile = new File(filepath);
-      if (true == theFile.exists()) {
+      if (theFile.exists()) {
         dataFrame = mapper.readValue(theFile, DataFrame.class);
       } else {
-        dataFrame = this.remakePreviewLines(dsId);
+        dataFrame = savePreviewLines(dsId);
       }
       assert dataFrame != null;
 
@@ -159,7 +159,7 @@ public class PrepPreviewLineService {
         colIdx++;
       }
 
-      if (0 < colNos.size()) {
+      if (colNos.size() > 0) {
         for (Row row : dataFrame.rows) {
           for (Integer colNo : colNos) {
             Object jodaTime = row.get(colNo);
@@ -183,18 +183,18 @@ public class PrepPreviewLineService {
     return dataFrame;
   }
 
-  public DataFrame remakePreviewLines(String dsId) throws IOException, SQLException, TeddyException {
+  public DataFrame savePreviewLines(String dsId) throws IOException, SQLException, TeddyException {
     DataFrame dataFrame = null;
 
-    PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     assert (dataset != null);
 
     switch (dataset.getDsType()) {
       case IMPORTED:
-        dataFrame = this.datasetService.getImportedPreview(dataset);
+        dataFrame = datasetService.getImportedPreview(dataset);
         break;
       case WRANGLED:
-        PrepTransformResponse transformResponse = this.transformService.fetch(dsId, null);
+        PrepTransformResponse transformResponse = transformService.fetch(dsId, null);
         dataFrame = transformResponse.getGridResponse();
         break;
     }

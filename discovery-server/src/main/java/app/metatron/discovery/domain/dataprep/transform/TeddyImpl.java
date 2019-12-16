@@ -14,29 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import com.facebook.presto.jdbc.internal.guava.collect.Maps;
-import com.facebook.presto.jdbc.internal.joda.time.DateTime;
-import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
-import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
 
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -56,8 +34,27 @@ import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
-
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
+import com.facebook.presto.jdbc.internal.guava.collect.Maps;
+import com.facebook.presto.jdbc.internal.joda.time.DateTime;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TeddyImpl {
@@ -276,7 +273,7 @@ public class TeddyImpl {
 
   public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String quoteChar,
           Integer columnCount, String dsName) {
-    DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    DataFrame df = new DataFrame(dsName);   // to provide dataset name in join, union
     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
     int samplingRows = prepProperties.getSamplingLimitRows();
 
