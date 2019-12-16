@@ -76,8 +76,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let datasource of datasourceList" (click)="onClickDatasource(datasource)">
-        <td>
-          {{datasource.datasource}}
+        <td [innerHTML]="highlightSearchText( datasource.datasource, searchKeyword )">
         </td>
         <td>
           <span class="ddp-txt-status type-{{getDatasourceStatus(datasource)}}">{{getDatasourceStatusLabel(datasource)}}</span>
