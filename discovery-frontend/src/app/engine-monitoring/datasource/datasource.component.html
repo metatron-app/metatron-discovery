@@ -48,51 +48,78 @@
       <col width="150px">
       <col width="150px">
       <col width="150px">
+      <col width="100px">
     </colgroup>
     <thead>
-    <tr>
-      <th>
-        Datasource name
-      </th>
-      <th>
-        Status
-      </th>
-      <th>
-        Time
-      </th>
-      <th>
-        Size
-      </th>
-      <th>
-        Available Segment
-      </th>
-      <th>
-        Num of Rows
-      </th>
-    </tr>
+      <tr>
+        <th>
+          Datasource name
+        </th>
+        <th>
+          Status
+        </th>
+        <th>
+          Time
+        </th>
+        <th>
+          Size
+        </th>
+        <th>
+          Available Segment
+        </th>
+        <th>
+          Num of Rows
+        </th>
+        <th>
+        </th>
+      </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let datasource of datasourceList" [class.ddp-disabled]="datasource.disabled" (click)="onClickDatasource(datasource)">
-      <td>
-        {{datasource.datasource}}
-      </td>
-      <td>
-        <span class="ddp-txt-status type-{{getDatasourceStatus(datasource)}}">{{getDatasourceStatusLabel(datasource)}}</span>
-      </td>
-      <td>
-        {{datasource.disabled ? '' : (datasource.segments.minTime | date : 'yyyy-MM-ddTHH' : 'UTC') + ' ~ ' + (datasource.segments.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC')}}
-      </td>
-      <td>
-        {{datasource.disabled ? '' : getDatasourceSize(datasource)}}
-      </td>
-      <td>
-        {{datasource.disabled ? '' : datasource.num_available_segments | numberCommas}}
-      </td>
-      <td>
-        {{datasource.disabled ? '' : datasource.num_rows | numberCommas}}
-      </td>
-    </tr>
+      <tr *ngFor="let datasource of datasourceList" (click)="onClickDatasource(datasource)">
+        <td>
+          {{datasource.datasource}}
+        </td>
+        <td>
+          <span class="ddp-txt-status type-{{getDatasourceStatus(datasource)}}">{{getDatasourceStatusLabel(datasource)}}</span>
+        </td>
+        <td>
+          {{datasource.disabled ? '' : (datasource.segments.minTime | date : 'yyyy-MM-ddTHH' : 'UTC') + ' ~ ' + (datasource.segments.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC')}}
+        </td>
+        <td>
+          {{datasource.disabled ? '' : getDatasourceSize(datasource)}}
+        </td>
+        <td>
+          {{datasource.disabled ? '' : datasource.num_available_segments | numberCommas}}
+        </td>
+        <td>
+          {{datasource.disabled ? '' : datasource.num_rows | numberCommas}}
+        </td>
+        <td>
+          <a href="javascript:" class="ddp-box-btn-able" (click)="$event.stopPropagation(); onClickConfirmDatasource(datasource, 'disable');" *ngIf="!datasource.disabled">
+            <em class="ddp-icon-disable"></em>
 
+            <!-- tooltip -->
+            <div class="ddp-ui-tooltip-info ddp-top" >
+              <em class="ddp-icon-view-top"></em>
+              Disable
+            </div>
+            <!-- //tooltip -->
+          </a>
+          <a href="javascript:" class="ddp-box-btn-able" (click)="$event.stopPropagation(); onClickConfirmDatasource(datasource, 'enable');" *ngIf="datasource.disabled">
+            <em class="ddp-icon-enable"></em>
+            <!-- tooltip -->
+            <div class="ddp-ui-tooltip-info ddp-top" >
+              <em class="ddp-icon-view-top"></em>
+              Enable
+            </div>
+            <!-- //tooltip -->
+          </a>
+
+          <div class="ddp-btn-control">
+            <em class="ddp-icon-control-cut" (click)="$event.stopPropagation(); onClickConfirmDatasource(datasource, 'delete');"></em>
+          </div>
+        </td>
+      </tr>
     </tbody>
 
   </table>
@@ -101,3 +128,5 @@
   <!-- // Pagination -->
   </ng-template>
 </div>
+
+<app-delete-modal (deleteConfirm)="confirmDatasource($event)"></app-delete-modal>

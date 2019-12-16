@@ -9381,7 +9381,15 @@ table.ddp-table-detail3 tr td .ddp-type-status-error .ddp-box-layout4 .ddp-data-
 table.ddp-table-detail3 tr td .ddp-type-status-error .ddp-box-layout4 {display:none; position:absolute; top:100%; left:0; margin-top:5px;width:auto; }
 table.ddp-table-detail3 tr td .ddp-type-status-error .ddp-box-layout4 .ddp-data-det {white-space:nowrap;}
 table.ddp-table-detail3 tr td .ddp-type-status-error:hover .ddp-box-layout4 {display:block;}
-
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able {display:inline-block; position:relative; width:30px; height:30px; border-radius:2px;box-sizing:border-box;}
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able:hover { border:1px solid #ddd; background-color:#f6f6f7; }
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able:hover .ddp-ui-tooltip-info {display:block;}
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able .ddp-ui-tooltip-info {display:none; position:absolute; right:-10px; left:auto;}
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able .ddp-ui-tooltip-info .ddp-icon-view-top {right:25px; margin-left:0; left:auto;}
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able .ddp-icon-enable,
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able .ddp-icon-disable {display:inline-block; position:absolute; top:50%; left:50%; background:url(../../images/icon_buttons.png) no-repeat;}
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able .ddp-icon-enable {width:15px; height:9px; margin:-5px 0 0 -7px; background-position:-32px -163px}
+table.ddp-table-type3 tbody tr td .ddp-box-btn-able .ddp-icon-disable {width:16px; height:16px; margin:-7px 0 0 -8px; background-position:left -390px}
 
 /**************************************************************
   Page : 05_06EngineMonitoring_02Ingestion_01List

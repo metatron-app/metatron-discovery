@@ -3457,5 +3457,13 @@
   "msg.engine.monitoring.ui.ds.columns": "There are <strong>{{count}}</strong> columns",
   "msg.engine.monitoring.alert.ds.retention.type": "Choose a Retention Type",
   "msg.engine.monitoring.alert.ds.retention.interval": "Check the Retention Interval",
-  "msg.engine.monitoring.alert.ds.retention.period": "Check the Retention Period"
+  "msg.engine.monitoring.alert.ds.retention.period": "Check the Retention Period",
+  "msg.engine.monitoring.confirm.ds.del.description": "Do you want to permanently delete the datasource?",
+  "msg.engine.monitoring.alert.ds.del.success": "Datasource permanently deleted",
+  "msg.engine.monitoring.confirm.ds.enable.title": "Enable Datasource",
+  "msg.engine.monitoring.confirm.ds.enable.description": "Do you want to enable the datasource?",
+  "msg.engine.monitoring.btn.ds.enable": "Enable",
+  "msg.engine.monitoring.alert.ds.enable.success": "Datasource enabled",
+  "msg.engine.monitoring.confirm.ds.list.disable.description": "Do you want to disable the datasource?",
+  "msg.engine.monitoring.btn.ds.list.disable": "Disable"
 }
