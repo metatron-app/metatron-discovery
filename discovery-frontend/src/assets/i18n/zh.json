@@ -1651,6 +1651,7 @@
   "msg.board.ui.missing_datasource": "Datasource is missing",
   "msg.board.ui.missing_datasource.detail": "数据源已到期，无法使用",
   "msg.board.ui.tryagain_ds": "更新数据源后，请重试",
+  "msg.board.ui.sync": "数据同步",
   "msg.board.ui.sync_interval": "数据同步周期",
   "msg.board.ui.card.view": "卡视图",
   "msg.board.ui.view-chart-data": "chart数据",

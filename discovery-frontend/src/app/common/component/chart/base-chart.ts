@@ -278,7 +278,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 차트 표현
       if (this.chart) {
-        console.log('== map draw ==');
         this.draw();
       }
 

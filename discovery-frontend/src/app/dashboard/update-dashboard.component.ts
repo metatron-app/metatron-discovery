@@ -247,10 +247,18 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       })
     );
 
-    // 미니맵 표시 변경
     this.subscriptions.push(
       this.broadCaster.on<any>('TOGGLE_MINIMAP').subscribe(() => {
         this.dashboard.configuration.options.widget.showMinimap = WidgetShowType.BY_WIDGET;
+      })
+    );
+
+    this.subscriptions.push(
+      this.broadCaster.on<any>('TOGGLE_SYNC').subscribe((data) => {
+        const widgetInfo = DashboardUtil.getWidget(this.dashboard, data.widgetId);
+        const widgetConf = ( widgetInfo.configuration as PageWidgetConfiguration );
+        widgetConf.sync = ( false === widgetConf.sync );
+        DashboardUtil.updateWidget(this.dashboard, widgetInfo);
       })
     );
 
