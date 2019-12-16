@@ -35,7 +35,6 @@ import {filter} from "rxjs/operators";
 import {StateService} from "../service/state.service";
 import {Engine} from "../../domain/engine-monitoring/engine";
 import {Alert} from "../../common/util/alert.util";
-import {Datasource} from "../../domain/datasource/datasource";
 import {Modal} from "../../common/domain/modal";
 import {DeleteModalComponent} from "../../common/component/modal/delete/delete.component";
 
@@ -197,7 +196,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     } else if (type === 'delete') {
       modal.name = this.translateService.instant('msg.storage.btn.dsource.del');
       modal.description = this.translateService.instant('msg.engine.monitoring.confirm.ds.del.description');
-      modal.btnName = this.translateService.instant('msg.engine.monitoring.btn.ds.del');
+      modal.btnName = this.translateService.instant('msg.comm.btn.del');
     }
     modal.data = {
       datasource : datasource.datasource,
@@ -217,11 +216,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   }
 
   public highlightSearchText(name, searchText): string {
-    if (_.isNil(searchText) || searchText.trim() === '') {
-      return name;
-    } else {
-      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
-    }
+    return EngineMonitoringUtil.highlightSearchText(name, searchText);
   }
 
   public getDatasourceStatusLabel(datasource): string {
