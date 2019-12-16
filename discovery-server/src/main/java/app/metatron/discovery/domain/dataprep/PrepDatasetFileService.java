@@ -15,64 +15,12 @@
 package app.metatron.discovery.domain.dataprep;
 
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.dataflowError;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
-
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
-import app.metatron.discovery.domain.dataprep.util.PrepUtil;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.util.ExcelProcessor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import com.monitorjbl.xlsx.StreamingReader;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.ConnectException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -90,6 +38,44 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.file.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.util.ExcelProcessor;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.*;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.configError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.dataflowError;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
 
 @Service
 public class PrepDatasetFileService {
@@ -265,6 +251,29 @@ public class PrepDatasetFileService {
 
     String pathStr = fileDatasetUploadLocalPath + File.separator + filename;
     return pathStr;
+  }
+
+  public String getFileFormat(PrDataset dataset) {
+    String fileFormat = "CSV";
+    String extension = FilenameUtils.getExtension(dataset.getFilenameBeforeUpload()).toLowerCase();
+    if(extension!=null) {
+      switch (extension) {
+        case "csv":
+          fileFormat = "CSV";
+          break;
+        case "txt":
+          fileFormat = "TXT";
+          break;
+        case "json":
+          fileFormat = "JSON";
+          break;
+        case "xls":
+        case "xlsx":
+          fileFormat = "EXCEL";
+          break;
+      }
+    }
+    return fileFormat;
   }
 
   private List<String[]> getGridFromExcel(Sheet sheet, int limitRows, Integer columnCount) {

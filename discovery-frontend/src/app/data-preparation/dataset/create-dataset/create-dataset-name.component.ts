@@ -735,6 +735,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     params.storedUri = file.storedUri;
     params.manualColumnCount = file.manualColumnCount;
 
+    /*willberemoved
     const filenameBeforeUpload = file.filenameBeforeUpload.toLowerCase();
     if( filenameBeforeUpload.endsWith("xls") || filenameBeforeUpload.endsWith("xlsx") ) {
 
@@ -749,6 +750,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       params.fileFormat = "JSON";
 
     }
+    */
 
     return params
   }

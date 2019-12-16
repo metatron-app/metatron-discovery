@@ -14,6 +14,23 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import com.google.common.collect.Lists;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
@@ -27,19 +44,6 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -120,11 +124,11 @@ public class PrDatasetService {
     if (storedUri == null) {
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING,
               String.format("dsName=%s fileFormat=%s storedUri=%s", dataset.getDsName(),
-                      dataset.getFileFormat(), storedUri));
+                      this.datasetFilePreviewService.getFileFormat(dataset), storedUri));
     }
 
     String csvStrUri = null;
-    if (dataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL) {
+    if ( this.datasetFilePreviewService.getFileFormat(dataset).equals("EXCEL") ) {
       Integer columnCount = dataset.getManualColumnCount();
 
       PrDataset.IMPORT_TYPE importType = dataset.getImportType();
