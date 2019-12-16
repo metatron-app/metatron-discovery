@@ -14,29 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import com.facebook.presto.jdbc.internal.guava.collect.Maps;
-import com.facebook.presto.jdbc.internal.joda.time.DateTime;
-import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
-import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
 
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
@@ -56,15 +34,34 @@ import app.metatron.discovery.domain.dataprep.util.PrepUtil;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
-
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.PREP_TEDDY_ERROR_CODE;
+import com.facebook.presto.jdbc.internal.guava.collect.Maps;
+import com.facebook.presto.jdbc.internal.joda.time.DateTime;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TeddyImpl {
 
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyImpl.class);
 
-  Map<String, RevisionSet> revisionSetCache = Maps.newHashMap();
+  Map<String, RevisionSet> revisionSetCache = Maps.newLinkedHashMap();
 
   @Autowired(required = false)
   PrepTransformService transformService;
@@ -616,5 +613,23 @@ public class TeddyImpl {
     }
 
     return df;
+  }
+
+  public void datasetCacheOut() {
+    int curSize = revisionSetCache.size();
+    int targetSize = prepProperties.getSamplingCacheSize();
+    int idleTime = prepProperties.getSamplingIdleTime();
+    LOGGER.debug("datasetCacheOut(): curSize={} targetSize()={} idleTime={}", curSize, targetSize, idleTime);
+
+    for (String key : revisionSetCache.keySet()) {
+      if (curSize <= targetSize) {
+        return;
+      }
+
+      RevisionSet rs = revisionSetCache.get(key);
+      if (rs.isIdle(idleTime)) {
+        revisionSetCache.remove(key);
+      }
+    }
   }
 }
