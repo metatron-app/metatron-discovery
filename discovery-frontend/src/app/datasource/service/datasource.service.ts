@@ -71,6 +71,8 @@ export class DatasourceService extends AbstractService {
 
   private _translateSvc: TranslateService;
 
+  private _searchHistory: { query: string, result: any }[] = [];
+
   constructor(protected injector: Injector) {
     super(injector);
     this._timezoneSvc = this.injector.get(TimezoneService);
@@ -137,8 +139,19 @@ export class DatasourceService extends AbstractService {
     // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
 
     // query.filters.push(params);
-
-    return this.post(this.API_URL + 'datasources/query/search', query);
+    let stringifyQuery = JSON.stringify(query);
+    let historyItem = this._searchHistory.find(history => history.query === stringifyQuery);
+    if (historyItem) {
+      return new Promise((resolve, reject) => {
+        resolve(historyItem.result);
+      });
+    } else {
+      return this.post(this.API_URL + 'datasources/query/search', query)
+        .then(result => {
+          this._searchHistory.push({query: stringifyQuery, result: result});
+          return result;
+        });
+    }
   } // function - searchQuery
 
   /**
@@ -589,7 +602,7 @@ export class DatasourceService extends AbstractService {
 
                 // clustering
                 let chart = (<UIMapOption>pageConf.chart);
-                if ( chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering'] ) {
+                if (chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering']) {
                   // cluster 값 변경
                   let clusterPrecision: number = 6;
                   if (chart['layers'][idx]['changeCoverage']) {
@@ -611,9 +624,9 @@ export class DatasourceService extends AbstractService {
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   };
 
-                } else if ( chart.layers[idx].type == MapLayerType.SYMBOL ) {
+                } else if (chart.layers[idx].type == MapLayerType.SYMBOL) {
 
-                  let precision : number = 12;
+                  let precision: number = 12;
                   query.shelf.layers[idx].view = <GeoHashFormat>{
                     type: 'abbr',
                     method: "h3",
@@ -713,7 +726,7 @@ export class DatasourceService extends AbstractService {
       };
       let uiOption = <UIMapOption>pageConf.chart;
       uiOption.layers.forEach((layer) => {
-        if(layer.type == MapLayerType.SYMBOL || layer.type == MapLayerType.HEATMAP) {
+        if (layer.type == MapLayerType.SYMBOL || layer.type == MapLayerType.HEATMAP) {
           query.limits.limit = 20000;
         }
       });
