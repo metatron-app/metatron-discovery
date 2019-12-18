@@ -1185,16 +1185,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public toggleSync() {
     this.isRealTimeWidget = !this.isRealTimeWidget;
     this.widget.configuration.sync = this.isRealTimeWidget;
-    const param = {configuration: _.cloneDeep(this.widget.configuration)};
-    param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
-    this.widgetService.updateWidget(this.widget.id, param)
-      .then((widget) => {
-        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-        this.loadingHide();
-        this._setSync();
-        this.safelyDetectChanges();
-      })
-      .catch(err => this.commonExceptionHandler(err));
+    this._setSync();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

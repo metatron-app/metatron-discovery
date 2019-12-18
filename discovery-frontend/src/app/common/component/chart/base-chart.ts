@@ -2459,7 +2459,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.chart.off('click');
     this.chart.on('click', (params) => {
 
-      if ('series' !== params.componentType) {
+      if (params && 'series' !== params.componentType) {
         return;
       }
 
