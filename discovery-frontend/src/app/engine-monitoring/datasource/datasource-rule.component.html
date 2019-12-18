@@ -80,6 +80,7 @@
                   <component-input
                     [value]="rule.type.indexOf('Period') > -1 ? rule.period : rule.interval"
                     [inputClass]="'ddp-input-typebasic'"
+                    [placeHolder]="rule.type.indexOf('Period') > -1 ? 'ISO-8601 Periods' : 'ISO-8601 Intervals'"
                     [immediately]="true"
                     (changeValue)="onChangedDuration($event, rule);"></component-input>
                 </div>

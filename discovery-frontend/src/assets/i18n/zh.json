@@ -3464,6 +3464,6 @@
   "msg.engine.monitoring.confirm.ds.enable.description": "Do you want to enable the datasource?",
   "msg.engine.monitoring.btn.ds.enable": "Enable",
   "msg.engine.monitoring.alert.ds.enable.success": "Datasource enabled",
-  "msg.engine.monitoring.confirm.ds.list.disable.description": "Do you want to disable the datasource?",
+  "msg.engine.monitoring.confirm.ds.list.disable.description": "Do you want disable the datasource?",
   "msg.engine.monitoring.btn.ds.list.disable": "Disable"
 }
