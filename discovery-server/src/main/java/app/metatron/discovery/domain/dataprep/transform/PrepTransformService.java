@@ -306,7 +306,7 @@ public class PrepTransformService {
 
     PrepTransformResponse response = new PrepTransformResponse(wrangledDsId);
     response.setWrangledDsId(wrangledDsId);
-    this.putAddedInfo(response, wrangledDataset);
+    putAddedInfo(response, wrangledDataset);
 
     // Auto type detection and conversion (except cloning case)
     if (cloningDsName == null && prepProperties.isAutoTypingEnabled()) {
@@ -429,9 +429,7 @@ public class PrepTransformService {
   @Transactional(rollbackFor = Exception.class)
   public void after_swap(List<String> affectedDsIds) throws Exception {
     for (String affectedDsId : affectedDsIds) {
-      PrepTransformResponse response = this.fetch(affectedDsId, null);
-      DataFrame dataFrame = response.getGridResponse();
-      this.previewLineService.putPreviewLines(affectedDsId, dataFrame);
+      previewLineService.savePreviewLines(affectedDsId);
     }
   }
 
@@ -671,7 +669,7 @@ public class PrepTransformService {
         updateTransformRules(dsId);
         response = fetch_internal(dsId, dataset.getRuleCurIdx());
         dataset.setTotalLines((long) response.getGridResponse().rows.size());
-        this.previewLineService.putPreviewLines(dsId, response.getGridResponse());
+        previewLineService.putPreviewLines(dsId, response.getGridResponse());
         break;
       case JUMP:
         response = fetch_internal(dsId, dataset.getRuleCurIdx());
@@ -852,7 +850,7 @@ public class PrepTransformService {
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             String dcId = upstreamDataset.getDcId();
             datasetInfo.put("dcId", dcId);
-            DataConnection dataConnection = this.connectionRepository.getOne(dcId);
+            DataConnection dataConnection = connectionRepository.getOne(dcId);
 
             datasetInfo.put("implementor", dataConnection.getImplementor());
             datasetInfo.put("connectUri", DataConnectionHelper.getConnectionUrl(dataConnection));
@@ -945,7 +943,7 @@ public class PrepTransformService {
       return serverPort;
     }
 
-    return ((StandardEnvironment) this.env).getPropertySources().get("server.ports")
+    return ((StandardEnvironment) env).getPropertySources().get("server.ports")
             .getProperty("local.server.port").toString();
   }
 
@@ -1259,21 +1257,10 @@ public class PrepTransformService {
       case UPLOAD:
       case URI:
         String storedUri = importedDataset.getStoredUri();
-        LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
+        LOGGER.debug("storedUri={}", storedUri);
 
-        if (importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.CSV ||
-                importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL ||
-                importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
-          Integer columnCount = importedDataset.getManualColumnCount();
-          gridResponse = teddyImpl
-                  .loadFileDataset(wrangledDsId, storedUri,
-                          importedDataset.getDelimiter(), importedDataset.getQuoteChar(),
-                          columnCount, wrangledDataset.getDsName());
-        } else {
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
-                  "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
-        }
+        gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(),
+                importedDataset.getQuoteChar(), importedDataset.getManualColumnCount(), wrangledDataset.getDsName());
         break;
 
       case DATABASE:
@@ -1282,15 +1269,14 @@ public class PrepTransformService {
           queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
         }
 
-        DataConnection dataConnection = this.connectionRepository.getOne(importedDataset.getDcId());
+        DataConnection dataConnection = connectionRepository.getOne(importedDataset.getDcId());
         Hibernate.initialize(dataConnection);
         if (dataConnection instanceof HibernateProxy) {
           dataConnection = (DataConnection) ((HibernateProxy) dataConnection)
                   .getHibernateLazyInitializer().getImplementation();
         }
 
-        gridResponse = teddyImpl
-                .loadJdbcDataset(wrangledDsId, dataConnection, queryStmt, wrangledDataset.getDsName());
+        gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, queryStmt, wrangledDataset.getDsName());
         break;
 
       case STAGING_DB:
@@ -1327,20 +1313,20 @@ public class PrepTransformService {
       PrDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
       assert (null != wrangledDataset);
       DateTime launchTime = DateTime.now(DateTimeZone.UTC);
-      String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(), launchTime);
+      String ssName = snapshotService.makeSnapshotName(wrangledDataset.getDsName(), launchTime);
       configuration.put("ss_name", ssName);
 
       if (prepProperties.isFileSnapshotEnabled()) {
         Map<String, Object> fileUri = Maps.newHashMap();
 
         // TODO: "LOCAL", "HDFS" will be replaced by location presets from application.yaml (later)
-        String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
-        localDir = this.snapshotService.escapeUri(localDir);
+        String localDir = snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
+        localDir = snapshotService.escapeUri(localDir);
         fileUri.put("LOCAL", "file://" + localDir);
 
         try {
-          String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
-          hdfsDir = this.snapshotService.escapeUri(hdfsDir);
+          String hdfsDir = snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
+          hdfsDir = snapshotService.escapeUri(hdfsDir);
           fileUri.put("HDFS", hdfsDir);
         } catch (Exception e) {
           // Suppress

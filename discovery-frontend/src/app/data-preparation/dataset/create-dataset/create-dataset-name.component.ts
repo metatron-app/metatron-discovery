@@ -735,21 +735,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     params.storedUri = file.storedUri;
     params.manualColumnCount = file.manualColumnCount;
 
-    const filenameBeforeUpload = file.filenameBeforeUpload.toLowerCase();
-    if( filenameBeforeUpload.endsWith("xls") || filenameBeforeUpload.endsWith("xlsx") ) {
-
-      params.fileFormat = "EXCEL";
-
-    } else if(filenameBeforeUpload.endsWith("csv") || filenameBeforeUpload.endsWith("txt") ) {
-
-      params.fileFormat = "CSV";
-
-    } else if(filenameBeforeUpload.endsWith("json") ) {
-
-      params.fileFormat = "JSON";
-
-    }
-
     return params
   }
 

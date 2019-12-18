@@ -137,8 +137,7 @@ public class PrepDatasetFileService {
           case "xlsx":
           case "xls":
             assert false : "Excel files are treated as CSV";
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                    MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
+            throw datasetError(MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
           case "json":
             Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
             result = PrepJsonUtil.countJson(storedUri, limitRows, hadoopConf);
@@ -193,16 +192,14 @@ public class PrepDatasetFileService {
       uri = new URI(dirUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, MSG_DP_ALERT_MALFORMED_URI_SYNTAX, dirUri);
+      throw datasetError(MSG_DP_ALERT_MALFORMED_URI_SYNTAX, dirUri);
     }
 
     switch (uri.getScheme()) {
       case "hdfs":
         Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
         if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                  MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+          throw configError(MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
         }
         Path path = new Path(uri);
 
@@ -215,8 +212,7 @@ public class PrepDatasetFileService {
           hdfsFs.close();
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, dirUri);
+          throw datasetError(MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, dirUri);
         }
         break;
 
@@ -228,9 +224,7 @@ public class PrepDatasetFileService {
         break;
 
       default:
-        throw PrepException
-                .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME,
-                        dirUri);
+        throw datasetError(MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, dirUri);
     }
   }
 
@@ -331,7 +325,7 @@ public class PrepDatasetFileService {
     List<DataFrame> gridResponses = Lists.newArrayList();
     Workbook workbook;
 
-    URI uri = null;
+    URI uri;
     try {
       uri = new URI(storedUri);
     } catch (URISyntaxException e) {
@@ -339,7 +333,7 @@ public class PrepDatasetFileService {
       throw datasetError(MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
     }
 
-    InputStream is = null;
+    InputStream is;
     switch (uri.getScheme()) {
       case "hdfs":
         Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
@@ -432,9 +426,8 @@ public class PrepDatasetFileService {
     return responseMap;
   }
 
-  private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows,
-                                                    String delimiterCol, String quoteChar,
-                                                    Integer columnCount, boolean autoTyping) throws TeddyException {
+  private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol,
+          String quoteChar, Integer columnCount, boolean autoTyping) throws TeddyException {
     Map<String, Object> responseMap = Maps.newHashMap();
     List<DataFrame> gridResponses = Lists.newArrayList();
     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
@@ -459,8 +452,7 @@ public class PrepDatasetFileService {
   }
 
   public void checkStoredUri(String storedUri) {
-
-    URI uri = null;
+    URI uri;
     try {
       uri = new URI(storedUri);
     } catch (URISyntaxException e) {
@@ -483,24 +475,8 @@ public class PrepDatasetFileService {
 
   }
 
-  /*
-   * Response contains:
-   *   success    FIXME: do not use   -> 200 or 500
-   *   message    FIXME: do not use   -> error message in the exception
-   *   sheets     List<String> sheet names    (Excel only)
-   *   grid[]
-   *     headers  FIXME: do not use   -> empty[] (CSV, Excel) or null (JSON)
-   *     field[]  FIXME: only name & type is needed
-   *       column name
-   *       column type
-   *       is dimension?
-   *       column#
-   *     data     List<Map<String, String>
-   *     totalRows    FIXME: is this needed?
-   *     sheetName    (Excel only)
-   *   totalBytes     FIXME: is this needed?
-   */
-  public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, String quoteChar, Integer columnCount,
+  public Map<String, Object> makeFileGrid(String storedUri, Integer size, String delimiterCol, String quoteChar,
+          Integer columnCount,
           boolean autoTyping) {
 
     Map<String, Object> responseMap;

@@ -14,6 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.IMPORT_TYPE.UPLOAD;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
+import static org.apache.commons.io.FilenameUtils.getExtension;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
@@ -22,9 +28,7 @@ import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
 import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +55,7 @@ public class PrDatasetService {
   PrepPreviewLineService previewLineService;
 
   @Autowired
-  private PrepDatasetFileService datasetFilePreviewService;
+  private PrepDatasetFileService prepDatasetFileService;
 
   @Autowired
   private PrepDatasetStagingDbService datasetStagingDbPreviewService;
@@ -71,75 +75,43 @@ public class PrDatasetService {
 
     assert dataset.getDsType() == PrDataset.DS_TYPE.IMPORTED : dataset.getDsType();
 
-    PrDataset.IMPORT_TYPE importType = dataset.getImportType();
-    if (importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
-      dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, this.filePreviewSize);
-    } else if (importType == PrDataset.IMPORT_TYPE.DATABASE) {
-      dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
-    } else if (importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
-      dataFrame = this.datasetStagingDbPreviewService
-              .getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
-    } else {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-              PrepMessageKey.MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG, importType.toString());
+    switch (dataset.getImportType()) {
+      case UPLOAD:
+      case URI:
+        dataFrame = prepDatasetFileService.getPreviewLinesFromFileForDataFrame(dataset, filePreviewSize);
+        break;
+      case DATABASE:
+        dataFrame = datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, jdbcPreviewSize);
+        break;
+      case STAGING_DB:
+        dataFrame = datasetStagingDbPreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, hivePreviewSize);
+        break;
+      default:
+        throw datasetError(MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG, dataset.getImportType().name());
     }
 
     return dataFrame;
-  }
-
-  // This function is only for imported datasets!
-  public void savePreview(PrDataset dataset) throws Exception {
-    DataFrame dataFrame = null;
-
-    assert dataset.getDsType() == PrDataset.DS_TYPE.IMPORTED : dataset.getDsType();
-
-    PrDataset.IMPORT_TYPE importType = dataset.getImportType();
-    if (importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
-      dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, this.filePreviewSize);
-    } else if (importType == PrDataset.IMPORT_TYPE.DATABASE) {
-      dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
-    } else if (importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
-      dataFrame = this.datasetStagingDbPreviewService
-              .getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
-    } else {
-      throw PrepException
-              .create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG,
-                      importType.name());
-    }
-
-    if (dataFrame != null) {
-      int size = this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
-    }
   }
 
   public void changeFileFormatToCsv(PrDataset dataset) throws Exception {
     String storedUri = dataset.getStoredUri();
     String sheetName = dataset.getSheetName();
     String delimiter = dataset.getDelimiter();
+    String csvStrUri;
 
     if (storedUri == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING,
-              String.format("dsName=%s fileFormat=%s storedUri=%s", dataset.getDsName(),
-                      dataset.getFileFormat(), storedUri));
+      throw datasetError(MSG_DP_ALERT_FILE_KEY_MISSING, "dsName=" + dataset.getDsName());
     }
 
-    String csvStrUri = null;
-    if (dataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL) {
-      Integer columnCount = dataset.getManualColumnCount();
-
-      PrDataset.IMPORT_TYPE importType = dataset.getImportType();
-      if (importType == PrDataset.IMPORT_TYPE.UPLOAD) {
-        csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
+    if (getExtension(storedUri).equals("xls") || getExtension(storedUri).equals("xlsx")) {
+      if (dataset.getImportType() == UPLOAD) {
+        csvStrUri = prepDatasetFileService.moveExcelToCsv(storedUri, sheetName, delimiter);
       } else {
-        csvStrUri = this.datasetFilePreviewService.getPathLocalBase(dataset.getDsId() + ".csv");
-        csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(csvStrUri, storedUri, sheetName, delimiter);
+        csvStrUri = prepDatasetFileService.getPathLocalBase(dataset.getDsId() + ".csv");
+        csvStrUri = prepDatasetFileService.moveExcelToCsv(csvStrUri, storedUri, sheetName, delimiter);
       }
-    }
-    if (csvStrUri != null) {
       dataset.setStoredUri(csvStrUri);
     }
-
-    return;
   }
 
   public DataConnection findRealDataConnection(DataConnection lazyOne) {
@@ -156,8 +128,8 @@ public class PrDatasetService {
 
   public void setConnectionInfo(PrDataset dataset) throws PrepException {
     String dcId = dataset.getDcId();
-    if (null != dcId) {
-      DataConnection dataConnection = findRealDataConnection(this.dataConnectionRepository.getOne(dcId));
+    if (dcId != null) {
+      DataConnection dataConnection = findRealDataConnection(dataConnectionRepository.getOne(dcId));
 
       dataset.setDcName(dataConnection.getName());
       dataset.setDcDesc(dataConnection.getDescription());
@@ -208,11 +180,11 @@ public class PrDatasetService {
     ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
     Map<String, Object> mapDataset = objectMapper.convertValue(patchDataset, Map.class);
     for (String key : mapDataset.keySet()) {
-      if (false == ignoreKeys.contains(key)) {
+      if (!ignoreKeys.contains(key)) {
         continue;
       }
 
-      if (false == allowKeys.contains(key)) {
+      if (!allowKeys.contains(key)) {
         LOGGER.debug("'" + key + "' of pr-dataset is an attribute to which patch is not applied");
       }
     }
