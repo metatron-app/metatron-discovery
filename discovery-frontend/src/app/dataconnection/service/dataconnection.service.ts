@@ -391,19 +391,4 @@ export class DataconnectionService extends AbstractService {
   public getEnabledConnectionTypes(): Promise<any> {
     return this.get(this.URL_CONNECTIONS + '/connections/types');
   }
-  public deleteTable(connectionId: string, database: string, table: string, webSocketId: string): Promise<any> {
-    const url = this.API_URL + `connections/${connectionId}/databases/${database}/tables/${table}?webSocketId=${webSocketId}`;
-    return this.delete(url);
-  }
-
-  public renameTable(connectionId: string, database: string, fromTable: string, toTable: string, webSocketId: string): Promise<any> {
-    const url = this.API_URL + `connections/${connectionId}/databases/${database}/tables/${fromTable}`;
-
-    const params = {
-      webSocketId: webSocketId,
-      table: toTable
-    };
-
-    return this.put(url, params);
-  }
 }

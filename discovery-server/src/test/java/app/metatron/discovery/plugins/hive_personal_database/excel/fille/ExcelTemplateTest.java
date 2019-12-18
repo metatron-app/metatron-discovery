@@ -1,5 +1,6 @@
-package app.metatron.discovery.util.excel;
+package app.metatron.discovery.plugins.hive_personal_database.excel.fille;
 
+import app.metatron.discovery.plugins.hive_personal_database.file.excel.ExcelTemplate;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 public class ExcelTemplateTest {
 

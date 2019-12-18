@@ -2,6 +2,7 @@ package app.metatron.discovery.plugins.hive_personal_database;
 
 import app.metatron.discovery.plugins.hive_personal_database.dto.CreateColumnInformation;
 import app.metatron.discovery.plugins.hive_personal_database.dto.CreateTableInformation;
+import app.metatron.discovery.plugins.hive_personal_database.script.ScriptGenerator;
 import org.junit.Test;
 
 import java.util.Arrays;

@@ -1,6 +1,7 @@
-package app.metatron.discovery.domain.workbench.hive.scriptgenerator;
+package app.metatron.discovery.plugins.hive_personal_database.script;
 
-import app.metatron.discovery.domain.workbench.hive.SavingHiveTable;
+
+import app.metatron.discovery.plugins.hive_personal_database.dto.SavingHiveTable;
 
 import java.util.UUID;
 import java.util.stream.Collectors;

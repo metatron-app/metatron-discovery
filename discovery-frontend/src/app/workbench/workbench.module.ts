@@ -31,10 +31,8 @@ import { CodemirrorComponent } from '../workbench/component/editor-workbench/cod
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
-import {FileModule} from "../common/file.module";
-import {ImportFileComponent} from "./component/import-file/import-file.component";
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
-import {HivePersonalDatabaseService} from "../plugins/hive-personal-database/service/plugins.hive-personal-database.service";
+import {PluginHivePersonalDatabaseModule} from "../plugins/hive-personal-database/plugin.hive-personal-database.module";
 
 // 라우트
 const workbenchRoutes: Routes = [
@@ -52,14 +50,13 @@ const workbenchRoutes: Routes = [
     DataSourceCreateModule,
     PageShareModule,
     RouterModule.forChild(workbenchRoutes),
-    FileModule,
+    PluginHivePersonalDatabaseModule
   ],
   // 컴포넌트
   declarations: [
     WorkbenchComponent,
     CodemirrorComponent,
-    SaveAsHiveTableComponent,
-    ImportFileComponent
+    SaveAsHiveTableComponent
   ],
   // 서비스
   providers: [
@@ -69,8 +66,7 @@ const workbenchRoutes: Routes = [
     StompService,
     DataconnectionService,
     AnalysisPredictionService,
-    MetadataService,
-    HivePersonalDatabaseService
+    MetadataService
   ]
 })
 export class WorkbenchModule {

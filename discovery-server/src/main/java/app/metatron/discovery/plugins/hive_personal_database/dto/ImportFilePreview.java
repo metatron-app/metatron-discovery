@@ -1,4 +1,4 @@
-package app.metatron.discovery.domain.workbench.dto;
+package app.metatron.discovery.plugins.hive_personal_database.dto;
 
 import java.util.List;
 import java.util.Map;

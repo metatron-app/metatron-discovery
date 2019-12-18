@@ -241,23 +241,7 @@ export class WorkbenchService extends AbstractService {
   }
 
   public importFile(workbenchId: string, params: any) {
-    return this.post(this.API_URL + `workbenchs/${workbenchId}/import/files`, params);
-  }
-
-  public getPreviewImportFile(workbenchId: string, fileKey: string, params: any): Promise<any> {
-    let url = this.API_URL + 'workbenchs/' + workbenchId + '/import/files/' + fileKey + "/preview";
-    if (params) {
-      // 주요 이스케이프 시퀀스에 대한 replace 처리 ( \n, \r, \t )
-      const replaceParams = {};
-      for (const key in params) {
-        if (params.hasOwnProperty(key)) {
-          replaceParams[key] = (params[key] + '').replace(/\\n/gi, '\n').replace(/\\r/gi, '\r').replace(/\\t/gi, '\t');
-        }
-      }
-      url += '?' + CommonUtil.objectToUrlString(replaceParams);
-    }
-
-    return this.get(url);
+    return this.post(this.API_URL + `workbenchs/${workbenchId}/import`, params);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

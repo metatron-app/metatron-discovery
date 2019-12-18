@@ -68,6 +68,9 @@ import {
 } from "../domain/dataconnection/dataconnection";
 import {CreationTableComponent} from "../plugins/hive-personal-database/component/creation-table/creation-table.component";
 import {EventBroadcaster} from "../common/event/event.broadcaster";
+import {ImportFileComponent} from "../plugins/hive-personal-database/component/import-file/import-file.component";
+import {RenameTableComponent} from "../plugins/hive-personal-database/component/rename-table/rename-table.component";
+import {DeleteTableComponent} from "../plugins/hive-personal-database/component/delete-table/delete-table.component";
 
 declare let moment: any;
 declare let Split;
@@ -141,6 +144,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   @ViewChild(CreationTableComponent)
   private creationTableComponent: CreationTableComponent;
+
+  @ViewChild(RenameTableComponent)
+  private renameTableComponent: RenameTableComponent;
+
+  @ViewChild(ImportFileComponent)
+  private importFileComponent: ImportFileComponent;
+
+  @ViewChild(DeleteTableComponent)
+  private deleteTableComponent: DeleteTableComponent;
 
   private _executeSqlReconnectCnt: number = 0;
   private _checkQueryStatusReconnectCnt: number = 0;
@@ -312,8 +324,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public hideResultButtons: boolean = false;
 
-  public importFile: boolean = false;
-
   constructor(private workspaceService: WorkspaceService,
               protected activatedRoute: ActivatedRoute,
               protected workbenchService: WorkbenchService,
@@ -331,9 +341,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.subscriptions.push(
       this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_CREATION_TABLE_MODAL').subscribe(() => {
         this.creationTableComponent.init(this.workbench.id, this.workbench.dataConnection, this.websocketId);
+      }),
+      this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_RENAME_TABLE_MODAL').subscribe((data) => {
+        this.renameTableComponent.init(this.websocketId, this.workbench.id, this.workbench.dataConnection.database, data.selectedTable);
+      }),
+      this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_DELETE_TABLE_MODAL').subscribe((data) => {
+        this.deleteTableComponent.init(this.websocketId, this.workbench.id, this.workbench.dataConnection.database, data.selectedTable);
+      }),
+      this.broadCaster.on<any>('WORKBENCH_REFRESH_DATABASE_TABLE').subscribe(() => {
+        this.detailWorkbenchDatabase.refreshDatabases();
       })
     );
-
 
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) === '') {
       this.router.navigate(['/user/login']).then();
@@ -1559,8 +1577,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               fields: queryResult.fields,
               filePath: queryResult.filePath,
               defaultNumRows: queryResult.defaultNumRows,
-              numRows: queryResult.numRows,
-              fileAbsolutePath: queryResult.fileAbsolutePath
+              numRows: queryResult.numRows
             }
           };
           queryResultPromises.push(promise);
@@ -1593,7 +1610,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             queryResult.fields = metadata.queryResult.fields;
             queryResult.data = result;
             queryResult.csvFilePath = metadata.queryResult.filePath;
-            queryResult.csvFileAbsolutePath = metadata.queryResult.fileAbsolutePath;
             queryResult.defaultNumRows = metadata.queryResult.defaultNumRows;
             queryResult.numRows = metadata.queryResult.numRows;
             tab.result = queryResult;
@@ -2246,10 +2262,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   }
 
-  public importFileSucceed() {
-    this.detailWorkbenchDatabase.refreshDatabases();
-  }
-
   public createDatasourceComplete() {
     this.useUnloadConfirm = false;
   }
@@ -2486,11 +2498,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public saveAsHiveTable() {
     const currentTab: ResultTab = this._getCurrentResultTab();
-    this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFileAbsolutePath, this.websocketId, this.workbench.dataConnection);
+    this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFilePath, this.websocketId);
   }
 
   public saveAsHiveTableSucceed() {
     this.detailWorkbenchDatabase.refreshDatabases();
+  }
+
+  public openImportFileModal() {
+    this.importFileComponent.init(this.workbench.dataConnection, this.workbenchId, this.websocketId);
   }
 
   private _toggleHorizontalSlider() {
@@ -2734,7 +2750,6 @@ class ResultTab {
 
 class QueryResult {
   public csvFilePath: string;
-  public csvFileAbsolutePath: string;
   public data: any[];
   public fields: Field[];
   public numRows: number;

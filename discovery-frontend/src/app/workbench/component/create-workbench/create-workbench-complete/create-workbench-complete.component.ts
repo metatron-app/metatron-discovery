@@ -91,6 +91,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
     if (this.workbench.hasOwnProperty('createData')) {
       this.initCreateData(this.workbench['createData']);
     }
+
   }
 
   // Destory
@@ -163,7 +164,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
   }
 
   /**
-   * 커넥션이 default 타입인지 
+   * 커넥션이 default 타입인지
    * @returns {boolean}
    */
   public isDefaultType(): boolean {

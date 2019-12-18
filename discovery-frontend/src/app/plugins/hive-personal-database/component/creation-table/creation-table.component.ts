@@ -205,14 +205,14 @@ export class CreationTableComponent extends AbstractPopupComponent implements On
         columnDataType: column.columnDataType
       }));
 
+      const database = (StringUtil.isEmpty(databaseName) || databaseName == PERSONAL_DATABASE_NAME) ? this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'] : this.databaseName.trim();
       const createTableRequest = {
-        database: (StringUtil.isEmpty(databaseName) || databaseName == PERSONAL_DATABASE_NAME) ? this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'] : this.databaseName.trim(),
         table: tableName.trim(),
         webSocketId: this.webSocketId,
         columns: columns
       };
 
-      this.hivePersonalDatabaseService.createTable(this.workbenchId, createTableRequest).then((res) => {
+      this.hivePersonalDatabaseService.createTable(this.workbenchId, database, createTableRequest).then((res) => {
         this.loadingHide();
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
         this.close();

@@ -1,4 +1,4 @@
-package app.metatron.discovery.plugins.hive_personal_database;
+package app.metatron.discovery.plugins.hive_personal_database.script;
 
 import app.metatron.discovery.plugins.hive_personal_database.dto.CreateTableInformation;
 import org.apache.commons.lang.StringUtils;

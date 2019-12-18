@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.workbench.dto;
+package app.metatron.discovery.plugins.hive_personal_database.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -23,26 +23,20 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = ImportCsvFile.class, name = "csv"),
 })
 public abstract class ImportFile {
+  private String importType = "new";
   private Boolean firstRowHeadColumnUsed = false;
   private String tableName;
-  private String uploadedFile;
-  private String loginUserId;
+  private String filePath;
   private String webSocketId;
+  private String tablePartitionColumn;
+  private String databaseName;
 
-  public String getUploadedFile() {
-    return uploadedFile;
+  public String getFilePath() {
+    return filePath;
   }
 
-  public void setUploadedFile(String uploadedFile) {
-    this.uploadedFile = uploadedFile;
-  }
-
-  public String getLoginUserId() {
-    return loginUserId;
-  }
-
-  public void setLoginUserId(String loginUserId) {
-    this.loginUserId = loginUserId;
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
   }
 
   public String getWebSocketId() {
@@ -68,4 +62,33 @@ public abstract class ImportFile {
   public void setFirstRowHeadColumnUsed(Boolean firstRowHeadColumnUsed) {
     this.firstRowHeadColumnUsed = firstRowHeadColumnUsed;
   }
+
+  public String getTablePartitionColumn() {
+    return tablePartitionColumn;
+  }
+
+  public void setTablePartitionColumn(String tablePartitionColumn) {
+    this.tablePartitionColumn = tablePartitionColumn;
+  }
+
+  public String getDatabaseName() {
+    return databaseName;
+  }
+
+  public void setDatabaseName(String databaseName) {
+    this.databaseName = databaseName;
+  }
+
+  public String getImportType() {
+    return importType;
+  }
+
+  public void setImportType(String importType) {
+    this.importType = importType;
+  }
+
+  public boolean isTableOverwrite() {
+    return importType.equalsIgnoreCase("overwrite");
+  }
+
 }

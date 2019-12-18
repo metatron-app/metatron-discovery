@@ -27,7 +27,7 @@
         <div class="ddp-wrap-popup2 ddp-types">
           <ul class="ddp-list-popup">
             <li *ngIf="supportPersonalDatabase">
-              <a href="javascript:" (click)="importFile = true;">
+              <a href="javascript:" (click)="openImportFileModal()">
                 <em class="ddp-icon-drop-generate"></em>
                 {{'msg.bench.ui.import-file.title' | translate}}
               </a>
@@ -775,11 +775,7 @@
 
 <app-save-as-hive-table (saveSucceed)="saveAsHiveTableSucceed()"></app-save-as-hive-table>
 
-<app-import-file *ngIf="importFile"
-                 [dataConnection]="this.workbench.dataConnection"
-                 [workbenchId]="workbenchId"
-                 [webSocketId]="websocketId"
-                 (close)="importFile = false"
-                 (importSucceed)="importFileSucceed()"></app-import-file>
-
+<plugin-hive-personal-database-import-file></plugin-hive-personal-database-import-file>
 <plugin-hive-personal-database-creation-table></plugin-hive-personal-database-creation-table>
+<plugin-hive-personal-database-rename-table></plugin-hive-personal-database-rename-table>
+<plugin-hive-personal-database-delete-table></plugin-hive-personal-database-delete-table>

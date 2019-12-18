@@ -12,57 +12,39 @@
  * limitations under the License.
  */
 
-import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as pixelWidth from 'string-pixel-width';
-import {AbstractPopupComponent} from "../../../common/component/abstract-popup.component";
-import {GridComponent} from "../../../common/component/grid/grid.component";
+import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
+import {GridComponent} from "../../../../common/component/grid/grid.component";
 import {FileLikeObject, FileUploader} from "ng2-file-upload";
-import {CommonConstant} from "../../../common/constant/common.constant";
-import {CookieConstant} from "../../../common/constant/cookie.constant";
-import {Alert} from "../../../common/util/alert.util";
+import {CommonConstant} from "../../../../common/constant/common.constant";
+import {CookieConstant} from "../../../../common/constant/cookie.constant";
+import {Alert} from "../../../../common/util/alert.util";
 import {isUndefined} from "util";
-import {GridOption} from "../../../common/component/grid/grid.option";
-import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
-import {WorkbenchService} from "../../service/workbench.service";
-import {CommonUtil} from "../../../common/util/common.util";
-import {StringUtil} from "../../../common/util/string.util";
-import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
-import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
+import {GridOption} from "../../../../common/component/grid/grid.option";
+import {header, SlickGridHeader} from "../../../../common/component/grid/grid.header";
+import {CommonUtil} from "../../../../common/util/common.util";
+import {StringUtil} from "../../../../common/util/string.util";
+import {SYSTEM_PERMISSION} from "../../../../common/permission/permission";
+import {DataconnectionService} from "../../../../dataconnection/service/dataconnection.service";
+import {Dataconnection} from "../../../../domain/dataconnection/dataconnection";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
+import {HivePersonalDatabaseService} from "../../service/plugins.hive-personal-database.service";
 
 const PERSONAL_DATABASE_NAME = "개인데이터베이스";
 
 @Component({
-  selector: 'app-import-file',
+  selector: 'plugin-hive-personal-database-import-file',
   templateUrl: './import-file.component.html',
 })
 export class ImportFileComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @Input()
   public dataConnection: Dataconnection;
-
-  @Input()
   public workbenchId: string = '';
-
-  @Input()
   public webSocketId: string = '';
-
-  @Output()
-  importSucceed = new EventEmitter<void>();
+  public isShow: boolean = false;
 
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
@@ -125,16 +107,17 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private workbenchService: WorkbenchService,
-              private dataconnectionService: DataconnectionService,
+  constructor(private dataconnectionService: DataconnectionService,
+              protected hivePersonalDatabaseService: HivePersonalDatabaseService,
               protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected broadCaster: EventBroadcaster) {
 
     super(elementRef, injector);
 
     this.uploader = new FileUploader(
       {
-        url: CommonConstant.API_CONSTANT.API_URL + 'common/file',
+        url: CommonConstant.API_CONSTANT.API_URL + 'plugins/hive-personal-database/file-upload',
         //allowedFileType: this.allowFileType
       }
     );
@@ -145,7 +128,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
     // set option
     this.uploader.setOptions({
       url: CommonConstant.API_CONSTANT.API_URL
-      + 'common/file',
+      + 'plugins/hive-personal-database/file-upload',
       headers: [
         { name: 'Accept', value: 'application/json, text/plain, */*' },
         {
@@ -189,7 +172,15 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
       this.loadingShow();
       this.uploader.uploadAll();
     };
+  }
 
+  public init(dataConnection: Dataconnection, workbenchId: string, webSocketId: string) {
+    this.dataConnection = dataConnection;
+    this.workbenchId = workbenchId;
+    this.webSocketId = webSocketId;
+    this.isShow = true;
+    this.importFile = new ImportFile();
+    this.initView();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -226,9 +217,9 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
         return;
       }
 
+      const databaseName = (StringUtil.isEmpty(this.selectedDatabaseName) || this.selectedDatabaseName == PERSONAL_DATABASE_NAME)  ? this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'] : this.selectedDatabaseName.trim();
       const params = {
         importType: this.selectedImportType,
-        databaseName: (StringUtil.isEmpty(this.selectedDatabaseName) || this.selectedDatabaseName == PERSONAL_DATABASE_NAME)  ? this.dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName'] : this.selectedDatabaseName.trim(),
         webSocketId: this.webSocketId,
         firstRowHeadColumnUsed: !this.createHeadColumnFl,
         filePath: this.importFile.filepath,
@@ -256,11 +247,11 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
       }
 
       this.loadingShow();
-      this.workbenchService.importFile(this.workbenchId, params)
+      this.hivePersonalDatabaseService.createTableFromFile(this.workbenchId, databaseName, params)
         .then((response) => {
           this.loadingHide();
+          this.broadCaster.broadcast('WORKBENCH_REFRESH_DATABASE_TABLE');
           Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-          this.importSucceed.emit();
         }).catch((error) => {
         this.loadingHide();
         console.log(error);
@@ -529,6 +520,10 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
     this.selectedTableName = tableName;
   }
 
+  public close() {
+    super.close();
+    this.isShow = false;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -628,7 +623,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 파일 조회
-    this.workbenchService.getPreviewImportFile(this.workbenchId, JSON.parse(this.uploadResult.response).filekey, this.getDatasourceFileParams(this.isCsvFile()))
+    this.hivePersonalDatabaseService.getPreviewImportFile(this.workbenchId, JSON.parse(this.uploadResult.response).filekey, this.getDatasourceFileParams(this.isCsvFile()))
       .then((result) => {
         // 로딩 hide
         this.loadingHide();
@@ -743,6 +738,7 @@ export class ImportFileComponent extends AbstractPopupComponent implements OnIni
     this.allowFileType = ['csv', 'text/csv', 'xls', 'xlsx', 'application/vnd.ms-excel'];
     this.selectedImportType = ImportType.NEW;
   }
+
 }
 
 class ImportFile {

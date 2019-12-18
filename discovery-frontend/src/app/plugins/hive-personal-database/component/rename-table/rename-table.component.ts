@@ -12,13 +12,15 @@
  * limitations under the License.
  */
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {DataconnectionService} from "../../../../../dataconnection/service/dataconnection.service";
-import {StringUtil} from "../../../../../common/util/string.util";
-import {AbstractPopupComponent} from "../../../../../common/component/abstract-popup.component";
-import {Alert} from "../../../../../common/util/alert.util";
+import {DataconnectionService} from "../../../../dataconnection/service/dataconnection.service";
+import {StringUtil} from "../../../../common/util/string.util";
+import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
+import {Alert} from "../../../../common/util/alert.util";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
+import {HivePersonalDatabaseService} from "../../service/plugins.hive-personal-database.service";
 
 @Component({
-  selector: 'app-rename-table',
+  selector: 'plugin-hive-personal-database-rename-table',
   templateUrl: './rename-table.component.html',
 })
 export class RenameTableComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
@@ -27,25 +29,16 @@ export class RenameTableComponent extends AbstractPopupComponent implements OnIn
 
   public tableName: string = '';
 
-  @Input()
   public webSocketId: string = '';
-
-  @Input()
-  public dataConnectionId: string = '';
-
-  @Input()
+  public workbenchId: string = '';
   public database: string = '';
-
-  @Input()
   public renameTable: string = '';
-
-  @Output()
-  renameSucceed = new EventEmitter<string>();
-
+  public isShow: boolean = false;
   // 생성자
-  constructor(private dataconnectionService: DataconnectionService,
-              protected elementRef: ElementRef,
-              protected injector: Injector) {
+  constructor(protected elementRef: ElementRef,
+              protected injector: Injector,
+              protected hivePersonalDatabaseService: HivePersonalDatabaseService,
+              protected broadCaster: EventBroadcaster) {
     super(elementRef, injector);
   }
 
@@ -57,8 +50,15 @@ export class RenameTableComponent extends AbstractPopupComponent implements OnIn
   public ngOnInit() {
     // Init
     super.ngOnInit();
+  }
 
+  public init(webSocketId: string, workbenchId: string, database: string, renameTable: string) {
+    this.webSocketId = webSocketId;
+    this.workbenchId = workbenchId;
+    this.database = database;
+    this.renameTable = renameTable;
     this.tableName = this.renameTable;
+    this.isShow = true;
   }
 
   // Destory
@@ -93,17 +93,23 @@ export class RenameTableComponent extends AbstractPopupComponent implements OnIn
   public saveToHive() {
     if (this.validation()) {
       this.loadingShow();
-      this.dataconnectionService.renameTable(this.dataConnectionId, this.database, this.renameTable, this.tableName, this.webSocketId)
+      this.hivePersonalDatabaseService.renameTable(this.workbenchId, this.database, this.renameTable, this.tableName, this.webSocketId)
         .then((response) => {
           this.loadingHide();
           Alert.success(this.translateService.instant('msg.comm.alert.modify.success'));
-          this.renameSucceed.emit();
+          this.broadCaster.broadcast('WORKBENCH_REFRESH_DATABASE_TABLE');
           this.close();
         }).catch((error) => {
         this.loadingHide();
         console.log(error);
         Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
       });
+
     }
+  }
+
+  public close() {
+    super.close();
+    this.isShow = false;
   }
 }

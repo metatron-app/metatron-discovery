@@ -22,20 +22,14 @@ import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.workbench.ImportExcelFileRowMapper;
 import app.metatron.discovery.domain.workbench.WorkbenchErrorCodes;
 import app.metatron.discovery.domain.workbench.WorkbenchException;
 import app.metatron.discovery.domain.workbench.WorkbenchProperties;
 import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
-import app.metatron.discovery.domain.workbench.dto.ImportExcelFile;
 import app.metatron.discovery.domain.workbench.dto.ImportFile;
-import app.metatron.discovery.domain.workbench.hive.scriptgenerator.AbstractSaveAsTableScriptGenerator;
-import app.metatron.discovery.domain.workbench.hive.scriptgenerator.SaveAsDefaultTableScriptGenerator;
-import app.metatron.discovery.domain.workbench.hive.scriptgenerator.SaveAsPartitionTableScriptGenerator;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 import app.metatron.discovery.util.csv.CsvTemplate;
-import app.metatron.discovery.util.excel.ExcelTemplate;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.Path;
@@ -45,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -68,8 +61,6 @@ public class WorkbenchHiveService {
   private JdbcConnectionService jdbcConnectionService;
 
   private MetatronProperties metatronProperties;
-
-  private JdbcConnectionService connectionService;
 
   private ConnectionConfigProperties connectionConfigProperties;
 
@@ -94,29 +85,26 @@ public class WorkbenchHiveService {
   }
 
   @Autowired
-  public void setConnectionService(JdbcConnectionService connectionService) {
-    this.connectionService = connectionService;
-  }
-
-  @Autowired
   public void setConnectionConfigProperties(ConnectionConfigProperties connectionConfigProperties) {
     this.connectionConfigProperties = connectionConfigProperties;
   }
 
-  public void importFileToDatabase(DataConnection hiveConnection, ImportFile importFile) {
-    final DataTable dataTable = convertUploadFileToDataTable(importFile);
+  public void importFileToPersonalDatabase(DataConnection hiveConnection, ImportFile importFile) {
+    DataTable dataTable = convertUploadFileToDataTable(importFile);
 
     final String hivePersonalDataSourceName = hiveConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PROPERTY_GROUP_NAME);
     HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSourceByName(hivePersonalDataSourceName);
 
-    if(importFile.isTableOverwrite()) {
-      validateTableSchema(hiveConnection, importFile.getDatabaseName(), importFile.getTableName(), dataTable.getFields());
-    }
+    String hdfsDataFilePath = dataTableHiveRepository.saveToHdfs(hivePersonalDataSource, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable, "");
 
-    final String savedHDFSDataFilePath = dataTableHiveRepository.saveToHdfs(hivePersonalDataSource, new Path(workbenchProperties.getTempDataTableHdfsPath()), dataTable, importFile.getTablePartitionColumn());
+    SavingHiveTable savingHiveTable = new SavingHiveTable();
+    savingHiveTable.setTableName(importFile.getTableName());
+    savingHiveTable.setDataTable(dataTable);
+    savingHiveTable.setHdfsDataFilePath(hdfsDataFilePath);
+    savingHiveTable.setWebSocketId(importFile.getWebSocketId());
+    savingHiveTable.setLoginUserId(importFile.getLoginUserId());
 
-    SavingHiveTable savingHiveTable = new SavingHiveTable(importFile, savedHDFSDataFilePath, dataTable);
-    saveAsHiveTableFromHdfsDataTable(importFile.getWebSocketId(), hiveConnection, hivePersonalDataSource, savingHiveTable);
+    saveAsHiveTableFromHdfsDataTable(hiveConnection, hivePersonalDataSource, savingHiveTable);
   }
 
   private HivePersonalDatasource findHivePersonalDataSourceByName(String dataSourceName) {
@@ -134,35 +122,10 @@ public class WorkbenchHiveService {
     }
   }
 
-  private void validateTableSchema(DataConnection hiveConnection, String database, String table, List<String> fields) {
-    List<Map<String, Object>> columns = connectionService.getTableColumnNames(hiveConnection, null, database, table, null, null);
-    List<String> columnNames = columns.stream().map(col -> (String)col.get("columnName")).collect(Collectors.toList());
+  private void saveAsHiveTableFromHdfsDataTable(DataConnection hiveConnection, HivePersonalDatasource hivePersonalDataSource, SavingHiveTable savingHiveTable) {
+    String saveAsTableScript = generateSaveAsTableScript(hivePersonalDataSource, savingHiveTable);
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(savingHiveTable.getWebSocketId());
 
-    columnNames.forEach(col -> {
-      if(fields.contains(col) == false) {
-        throw new WorkbenchException(WorkbenchErrorCodes.TABLE_SCHEMA_DOES_NOT_MATCH, "Table schema does not match.");
-      }
-    });
-  }
-
-  private void saveAsHiveTableFromHdfsDataTable(String webSocketId, DataConnection hiveConnection, HivePersonalDatasource hivePersonalDataSource, SavingHiveTable savingHiveTable) {
-    if(savingHiveTable.isTableOverwrite()) {
-      final String tablePartitionColumn = findTablePartitionColumn(hiveConnection, savingHiveTable.getDatabaseName(), savingHiveTable.getTableName());
-      if(StringUtils.isNotEmpty(tablePartitionColumn)) {
-        savingHiveTable.setTablePartitionColumn(tablePartitionColumn);
-      }
-    }
-
-    AbstractSaveAsTableScriptGenerator tableScriptGenerator;
-    if(savingHiveTable.isPartitioningTable()) {
-      tableScriptGenerator = new SaveAsPartitionTableScriptGenerator(savingHiveTable);
-    } else {
-      tableScriptGenerator = new SaveAsDefaultTableScriptGenerator(savingHiveTable);
-    }
-    final String saveAsTableScript = tableScriptGenerator.generate();
-    LOGGER.info("Generated Save as Hive Table script : " + saveAsTableScript);
-
-    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
     Connection secondaryConnection = dataSourceInfo.getSecondaryConnection(hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword());
 
     List<String> queryList = Arrays.asList(saveAsTableScript.split(";"));
@@ -170,19 +133,6 @@ public class WorkbenchHiveService {
       try {
         jdbcConnectionService.executeUpdate(hiveConnection, secondaryConnection, query);
       } catch(Exception e) {
-
-        String rollbackScript = tableScriptGenerator.rollbackScript();
-        if(StringUtils.isNotEmpty(rollbackScript)) {
-          List<String> rollbackQueries = Arrays.asList(rollbackScript.split(";"));
-          rollbackQueries.forEach(rollbackQuery -> {
-            try {
-              jdbcConnectionService.executeUpdate(hiveConnection, secondaryConnection, rollbackQuery);
-            } catch(Exception re) {
-              LOGGER.error("rollback error", re);
-            }
-          });
-        }
-
         if(e.getMessage().indexOf("AlreadyExistsException") > -1) {
           throw new WorkbenchException(WorkbenchErrorCodes.TABLE_ALREADY_EXISTS, "Table already exists.");
         }
@@ -191,17 +141,45 @@ public class WorkbenchHiveService {
     }
   }
 
+  private String generateSaveAsTableScript(HivePersonalDatasource hivePersonalDataSource, SavingHiveTable savingHiveTable) {
+    StringBuffer script = new StringBuffer();
+    // 1. Create Database
+    final String personalDatabaseName = String.format("%s_%s", hivePersonalDataSource.getPersonalDatabasePrefix(),
+        HiveNamingRule.replaceNotAllowedCharacters(savingHiveTable.getLoginUserId()));
+    script.append(String.format("CREATE DATABASE IF NOT EXISTS %s;", personalDatabaseName));
+
+    // 2. Create Table
+    List<String> fields = savingHiveTable.getDataTable().getFields();
+    String storedDataFilePath = savingHiveTable.getHdfsDataFilePath();
+
+    String columns = fields.stream().map(header -> {
+      if(header.contains(".")) {
+        return String.format("`%s`", header.substring(header.indexOf(".") + 1, header.length()));
+      } else {
+        return String.format("`%s`", header);
+      }
+    }).collect(Collectors.joining(" STRING, ", "", " STRING"));
+    script.append(String.format("CREATE TABLE %s.%s (%s) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\001' LINES TERMINATED BY '\\n';",
+        personalDatabaseName, savingHiveTable.getTableName(), columns));
+
+    // 3. Load Data to Table
+    script.append(String.format("LOAD DATA INPATH '%s' OVERWRITE INTO TABLE %s.%s;", storedDataFilePath, personalDatabaseName, savingHiveTable.getTableName()));
+
+    LOGGER.info("Save as Hive Table Query : " + script.toString());
+    return script.toString();
+  }
+
   private DataTable convertUploadFileToDataTable(ImportFile importFile) {
-    if(Files.notExists((Paths.get(importFile.getFilePath())))) {
-      throw new BadRequestException(String.format("File not found : %s", importFile.getFilePath()));
+    final String filePath = String.format("%s/%s", workbenchProperties.getTempCSVPath(), importFile.getUploadedFile());
+
+    if(Files.notExists((Paths.get(filePath)))) {
+      throw new BadRequestException(String.format("File not found : %s", filePath));
     }
 
-    File uploadedFile = new File(importFile.getFilePath());
+    File uploadedFile = new File(filePath);
     if(importFile instanceof ImportCsvFile){
       return convertCsvFileToDataTable(uploadedFile, importFile.getFirstRowHeadColumnUsed(),
           ((ImportCsvFile)importFile).getDelimiter(), ((ImportCsvFile)importFile).getLineSep());
-    } else if(importFile instanceof ImportExcelFile) {
-      return convertExcelFileToDataTable(uploadedFile, ((ImportExcelFile)importFile).getSheetName(), importFile.getFirstRowHeadColumnUsed());
     } else {
       throw new BadRequestException("Not supported file type");
     }
@@ -239,41 +217,4 @@ public class WorkbenchHiveService {
     List<String> fields = headers.values().stream().collect(Collectors.toList());
     return new DataTable(fields, records);
   }
-
-  private DataTable convertExcelFileToDataTable(File uploadedFile, String sheetName, Boolean firstRowHeadColumnUsed) {
-    ExcelTemplate excelTemplate = null;
-    try {
-      excelTemplate = new ExcelTemplate(uploadedFile);
-    } catch (IOException e) {
-      throw new MetatronException("Invalid Excel file");
-    }
-
-    Map<Integer, String> headers = Maps.newTreeMap();
-    List<Map<String, Object>> records = excelTemplate.getRows(sheetName,
-        new ImportExcelFileRowMapper(headers, firstRowHeadColumnUsed, excelTemplate.getFormulaEvaluator()));
-
-    List<String> fields = headers.values().stream().collect(Collectors.toList());
-    return new DataTable(fields, records);
-  }
-
-  private String findTablePartitionColumn(DataConnection dataConnection, String database, String table) {
-    Map<String, Object> tableInfoMap = connectionService.showTableDescription(dataConnection, null, database, table);
-
-    boolean partitionInfoStartFlag = false;
-    String partitionColumn = "";
-    for ( Map.Entry<String, Object> entry : tableInfoMap.entrySet() ) {
-      if(entry.getKey().contains("# Partition Information")) {
-        partitionInfoStartFlag = true;
-        continue;
-      }
-
-      if(partitionInfoStartFlag == true) {
-        partitionColumn = entry.getKey();
-        break;
-      }
-    }
-
-    return partitionColumn;
-  }
-
 }

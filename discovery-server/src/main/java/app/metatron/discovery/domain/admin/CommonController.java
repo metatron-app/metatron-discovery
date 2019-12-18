@@ -14,14 +14,12 @@
 
 package app.metatron.discovery.domain.admin;
 
-import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
-import com.google.common.collect.Maps;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -29,19 +27,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.CommonProperties;
 import app.metatron.discovery.common.exception.MetatronException;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/common")
 public class CommonController {
-  private static Logger LOGGER = LoggerFactory.getLogger(CommonController.class);
 
   @Autowired
   CommonProperties commonProperties;
@@ -91,35 +85,4 @@ public class CommonController {
 
     FileCopyUtils.copy(inputStream, response.getOutputStream());
   }
-
-  /**
-   * 파일 업로드
-   */
-  @PostMapping("/file")
-  public Map<String, Object> uploadTempFile(@RequestParam("file") MultipartFile file) {
-    // 파일명 가져오기
-    String fileName = file.getOriginalFilename();
-
-    // 파일명을 통해 확장자 정보 얻기
-    String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
-
-    // Upload 파일 처리
-    String tempFileName = "TEMP_FILE_" + UUID.randomUUID().toString() + "." + extensionType;
-    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
-
-    Map<String, Object> responseMap = Maps.newHashMap();
-    responseMap.put("filekey", tempFileName);
-    responseMap.put("filePath", tempFilePath);
-
-    try {
-      File tempFile = new File(tempFilePath);
-      file.transferTo(tempFile);
-    } catch (IOException e) {
-      LOGGER.error("Failed to upload file : {}", e.getMessage());
-      throw new DataSourceIngestionException("Fail to upload file.", e.getCause());
-    }
-
-    return responseMap;
-  }
-
 }

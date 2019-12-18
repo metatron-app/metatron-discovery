@@ -8,22 +8,22 @@ import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.workbench.ImportExcelFileRowMapper;
 import app.metatron.discovery.domain.workbench.WorkbenchErrorCodes;
 import app.metatron.discovery.domain.workbench.WorkbenchException;
 import app.metatron.discovery.domain.workbench.WorkbenchProperties;
-import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
-import app.metatron.discovery.domain.workbench.dto.ImportExcelFile;
-import app.metatron.discovery.domain.workbench.dto.ImportFile;
-import app.metatron.discovery.domain.workbench.hive.*;
-import app.metatron.discovery.domain.workbench.hive.scriptgenerator.AbstractSaveAsTableScriptGenerator;
-import app.metatron.discovery.domain.workbench.hive.scriptgenerator.SaveAsDefaultTableScriptGenerator;
-import app.metatron.discovery.domain.workbench.hive.scriptgenerator.SaveAsPartitionTableScriptGenerator;
+import app.metatron.discovery.domain.workbench.hive.DataTable;
+import app.metatron.discovery.domain.workbench.hive.DataTableHiveRepository;
+import app.metatron.discovery.domain.workbench.hive.HivePersonalDatasource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
-import app.metatron.discovery.plugins.hive_personal_database.dto.CreateTableInformation;
+import app.metatron.discovery.plugins.hive_personal_database.dto.*;
+import app.metatron.discovery.plugins.hive_personal_database.file.ImportExcelFileRowMapper;
+import app.metatron.discovery.plugins.hive_personal_database.file.excel.ExcelTemplate;
+import app.metatron.discovery.plugins.hive_personal_database.script.AbstractSaveAsTableScriptGenerator;
+import app.metatron.discovery.plugins.hive_personal_database.script.SaveAsDefaultTableScriptGenerator;
+import app.metatron.discovery.plugins.hive_personal_database.script.SaveAsPartitionTableScriptGenerator;
+import app.metatron.discovery.plugins.hive_personal_database.script.ScriptGenerator;
 import app.metatron.discovery.util.csv.CsvTemplate;
-import app.metatron.discovery.util.excel.ExcelTemplate;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.Path;
@@ -46,8 +46,7 @@ import java.util.stream.Collectors;
 public class HivePersonalDatabaseService {
   private static Logger LOGGER = LoggerFactory.getLogger(HivePersonalDatabaseService.class);
 
-  @Autowired
-  public WorkbenchDataSourceManager workbenchDataSourceManager;
+  private WorkbenchDataSourceManager workbenchDataSourceManager;
 
   private DataTableHiveRepository dataTableHiveRepository;
 
@@ -89,6 +88,11 @@ public class HivePersonalDatabaseService {
   @Autowired
   public void setConnectionConfigProperties(ConnectionConfigProperties connectionConfigProperties) {
     this.connectionConfigProperties = connectionConfigProperties;
+  }
+
+  @Autowired
+  public void setWorkbenchDataSourceManager(WorkbenchDataSourceManager workbenchDataSourceManager) {
+    this.workbenchDataSourceManager = workbenchDataSourceManager;
   }
 
   public void importFileToDatabase(DataConnection hiveConnection, ImportFile importFile) {
@@ -285,6 +289,36 @@ public class HivePersonalDatabaseService {
         }
         throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed create hive table.", e);
       }
+    }
+  }
+
+  public void deleteTable(DataConnection dataConnection, String database, String table, String webSocketId) {
+    final String query = String.format("DROP TABLE IF EXISTS %s.%s", database, table);
+
+    final String hivePersonalDataSourceName = dataConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PROPERTY_GROUP_NAME);
+    HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSourceByName(hivePersonalDataSourceName);
+
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
+    Connection secondaryConnection = dataSourceInfo.getSecondaryConnection(hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword());
+    try {
+      jdbcConnectionService.executeUpdate(dataConnection, secondaryConnection, query);
+    } catch(Exception e) {
+      throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed delete hive table.", e);
+    }
+  }
+
+  public void renameTable(DataConnection dataConnection, String database, String table, String renameTable, String webSocketId) {
+    final String query = String.format("ALTER TABLE %s.%s RENAME TO %s.%s", database, table, database, renameTable);
+
+    final String hivePersonalDataSourceName = dataConnection.getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PROPERTY_GROUP_NAME);
+    HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSourceByName(hivePersonalDataSourceName);
+
+    WorkbenchDataSource dataSourceInfo = workbenchDataSourceManager.findDataSourceInfo(webSocketId);
+    Connection secondaryConnection = dataSourceInfo.getSecondaryConnection(hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword());
+    try {
+      jdbcConnectionService.executeUpdate(dataConnection, secondaryConnection, query);
+    } catch(Exception e) {
+      throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed rename hive table.", e);
     }
   }
 }

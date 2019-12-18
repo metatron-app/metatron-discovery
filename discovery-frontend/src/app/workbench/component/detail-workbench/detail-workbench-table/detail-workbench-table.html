@@ -106,12 +106,3 @@
   [exclude]="'.ddp-icon-info'">
 </detail-workbench-table-info-desc>
 
-<app-delete-modal (deleteConfirm)="deleteTableInPersonalDatabase()"></app-delete-modal>
-
-<app-rename-table *ngIf="showRenameTableModal"
-                  [webSocketId]="webSocketId"
-                  [dataConnectionId]="dataConnectionId"
-                  [database]="database"
-                  [renameTable]="renameTable"
-                  (close)="showRenameTableModal = false"
-                  (renameSucceed)="renameTableSucceed()"></app-rename-table>
