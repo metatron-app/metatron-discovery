@@ -18,6 +18,7 @@ import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -563,13 +564,14 @@ public class PrDataset extends AbstractHistoryEntity {
     this.sheetName = sheetName;
   }
 
+  @JsonIgnore
   public FILE_FORMAT getFileFormat() {
-    LOGGER.error("fileFormat is deprecated.");
+    LOGGER.error("getFileFormat(): fileFormat is deprecated.");
     return fileFormat;
   }
 
   public void setFileFormat(FILE_FORMAT fileFormat) {
-    LOGGER.error("fileFormat is deprecated.");
+    LOGGER.error("setFileFormat(): fileFormat is deprecated.");
     this.fileFormat = fileFormat;
   }
 
