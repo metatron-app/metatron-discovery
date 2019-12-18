@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.joda.time.DateTime;
 
 // 1 Wrangled Dataset -> 1 RevisionSet  -> N Revisions
 // 1 Revision -> 1 Rule List -> N DataFrames
@@ -25,6 +26,7 @@ public class RevisionSet {
   public List<Revision> revs;
   private int curRevIdx;
   private int resetRevIdx;
+  private DateTime lastAccess;
 
   // exposed only for logging (otherwise, do not call)
   public int getCurRevIdx() {
@@ -35,7 +37,12 @@ public class RevisionSet {
     return revs.size();
   }
 
+  public RevisionSet() {
+    touch();
+  }
+
   public RevisionSet(Revision rev) {
+    this();
     revs = new ArrayList<>();
     revs.add(rev);
     curRevIdx = 0;
@@ -43,38 +50,45 @@ public class RevisionSet {
   }
 
   public void add(Revision rev) {
+    touch();
     trim();
     revs.add(rev);
     curRevIdx++;
   }
 
   public Revision undo() {
+    touch();
     return revs.get(--curRevIdx);
   }
 
   public Revision redo() {
+    touch();
     return revs.get(++curRevIdx);
   }
 
   public Revision get(int idx) {
+    touch();
     return revs.get(idx);
   }
 
   public Revision get() {
-    return revs.get(curRevIdx);
+    return get(curRevIdx);
   }
 
   public int size() {
+    touch();
     return revs.size();
   }
 
   private void trim() {
+    touch();
     for (int i = revs.size() - 1; i > curRevIdx; i--) {
       revs.remove(i);
     }
   }
 
   public void reset() {
+    touch();
     trim();
     resetRevIdx = curRevIdx;
   }
@@ -85,5 +99,14 @@ public class RevisionSet {
 
   public boolean isRedoable() {
     return (curRevIdx < revs.size() - 1);
+  }
+
+  private void touch() {
+    lastAccess = DateTime.now();
+  }
+
+  public boolean isIdle(int sec) {
+    long diffInMillis = DateTime.now().getMillis() - lastAccess.getMillis();
+    return diffInMillis / 1000 > sec;
   }
 }

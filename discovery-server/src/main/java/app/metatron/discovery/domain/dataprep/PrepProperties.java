@@ -122,6 +122,14 @@ public class PrepProperties {
     return sampling.getAutoTyping();
   }
 
+  public Integer getSamplingCacheSize() {
+    return sampling.getCacheSize();
+  }
+
+  public Integer getSamplingIdleTime() {
+    return sampling.getIdleTime();
+  }
+
   public Integer getEtlCores() {
     return etl.getCores();
   }
@@ -223,6 +231,8 @@ public class PrepProperties {
     public Integer limitRows;
     public Integer maxFetchSize;
     public Boolean autoTyping;
+    public Integer cacheSize;
+    public Integer idleTime;
 
     public SamplingInfo() {
     }
@@ -262,6 +272,20 @@ public class PrepProperties {
       return autoTyping;
     }
 
+    public Integer getCacheSize() {
+      if (cacheSize == null) {
+        cacheSize = 2;
+      }
+      return cacheSize;
+    }
+
+    public Integer getIdleTime() {
+      if (idleTime == null) {
+        idleTime = 3 * 3600;
+      }
+      return idleTime;
+    }
+
     public void setCores(Integer cores) {
       this.cores = cores;
     }
@@ -280,6 +304,14 @@ public class PrepProperties {
 
     public void setAutoTyping(Boolean autoTyping) {
       this.autoTyping = autoTyping;
+    }
+
+    public void setCacheSize(Integer cacheSize) {
+      this.cacheSize = cacheSize;
+    }
+
+    public void setIdleTime(Integer idleTime) {
+      this.idleTime = idleTime;
     }
 
     @Override

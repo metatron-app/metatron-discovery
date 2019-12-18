@@ -61,7 +61,7 @@ public class TeddyImpl {
 
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyImpl.class);
 
-  Map<String, RevisionSet> revisionSetCache = Maps.newHashMap();
+  Map<String, RevisionSet> revisionSetCache = Maps.newLinkedHashMap();
 
   @Autowired(required = false)
   PrepTransformService transformService;
@@ -613,5 +613,23 @@ public class TeddyImpl {
     }
 
     return df;
+  }
+
+  public void datasetCacheOut() {
+    int curSize = revisionSetCache.size();
+    int targetSize = prepProperties.getSamplingCacheSize();
+    int idleTime = prepProperties.getSamplingIdleTime();
+    LOGGER.debug("datasetCacheOut(): curSize={} targetSize()={} idleTime={}", curSize, targetSize, idleTime);
+
+    for (String key : revisionSetCache.keySet()) {
+      if (curSize <= targetSize) {
+        return;
+      }
+
+      RevisionSet rs = revisionSetCache.get(key);
+      if (rs.isIdle(idleTime)) {
+        revisionSetCache.remove(key);
+      }
+    }
   }
 }
