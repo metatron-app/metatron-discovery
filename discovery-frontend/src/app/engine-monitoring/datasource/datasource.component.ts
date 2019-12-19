@@ -34,6 +34,9 @@ import {CommonUtil} from "../../common/util/common.util";
 import {filter} from "rxjs/operators";
 import {StateService} from "../service/state.service";
 import {Engine} from "../../domain/engine-monitoring/engine";
+import {Alert} from "../../common/util/alert.util";
+import {Modal} from "../../common/domain/modal";
+import {DeleteModalComponent} from "../../common/component/modal/delete/delete.component";
 
 @Component({
   selector: '[datasource]',
@@ -52,6 +55,9 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
               private engineService: EngineService) {
     super(elementRef, injector);
   }
+
+  @ViewChild(DeleteModalComponent)
+  private deleteModalComponent: DeleteModalComponent;
 
   @ViewChild(CriterionComponent)
   private readonly criterionComponent: CriterionComponent;
@@ -177,12 +183,40 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     return this.injector.get(EngineService).getCriterionInDatasource(criterionKey);
   }
 
-  public highlightSearchText(name, searchText): string {
-    if (_.isNil(searchText) || searchText.trim() === '') {
-      return name;
-    } else {
-      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
+  public onClickConfirmDatasource(datasource, type): void {
+    const modal = new Modal();
+    if (type === 'enable') {
+      modal.name = this.translateService.instant('msg.engine.monitoring.confirm.ds.enable.title');
+      modal.description = this.translateService.instant('msg.engine.monitoring.confirm.ds.enable.description');
+      modal.btnName = this.translateService.instant('msg.engine.monitoring.btn.ds.enable');
+    } else if (type === 'disable') {
+      modal.name = this.translateService.instant('msg.engine.monitoring.btn.ds.disable');
+      modal.description = this.translateService.instant('msg.engine.monitoring.confirm.ds.list.disable.description');
+      modal.btnName = this.translateService.instant('msg.engine.monitoring.btn.ds.list.disable');
+    } else if (type === 'delete') {
+      modal.name = this.translateService.instant('msg.storage.btn.dsource.del');
+      modal.description = this.translateService.instant('msg.engine.monitoring.confirm.ds.del.description');
+      modal.btnName = this.translateService.instant('msg.comm.btn.del');
     }
+    modal.data = {
+      datasource : datasource.datasource,
+      type: type
+    };
+    this.deleteModalComponent.init(modal);
+  }
+
+  public confirmDatasource(modal: Modal) {
+    if (modal.data.type === 'enable') {
+      this._enableDatasource(modal.data.datasource);
+    } else if (modal.data.type === 'disable') {
+      this._disableDatasource(modal.data.datasource);
+    } else if (modal.data.type === 'delete') {
+      this._permanentlyDeleteDataSource(modal.data.datasource);
+    }
+  }
+
+  public highlightSearchText(name, searchText): string {
+    return EngineMonitoringUtil.highlightSearchText(name, searchText);
   }
 
   public getDatasourceStatusLabel(datasource): string {
@@ -300,6 +334,24 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
 
   private _changeTab(contentType: Engine.ContentType) {
     this.router.navigate([ `${Engine.Constant.ROUTE_PREFIX}${contentType}` ]);
+  }
+
+  private _enableDatasource(datasource) {
+    this.engineService.enableDatasource(datasource).then(() => {
+      Alert.success(this.translateService.instant('msg.engine.monitoring.alert.ds.enable.success'));
+    });
+  }
+
+  private _disableDatasource(datasource) {
+    this.engineService.disableDatasource(datasource).then(() => {
+      Alert.success(this.translateService.instant('msg.engine.monitoring.alert.ds.disable.success'));
+    });
+  }
+
+  private _permanentlyDeleteDataSource(datasource) {
+    this.engineService.permanentlyDeleteDataSource(datasource).then(() => {
+      Alert.success(this.translateService.instant('msg.engine.monitoring.alert.ds.del.success'));
+    });
   }
 
 }

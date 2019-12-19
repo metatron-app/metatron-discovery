@@ -645,7 +645,9 @@ public class EngineMonitoringService {
     sb.append("' THEN 'Historical' WHEN \"service\" = '");
     sb.append(getDruidName("middleManager"));
     sb.append("' THEN 'Middle Manager' END AS \"serviceName\"");
-    sb.append(", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"druid-metric\" WHERE metric = 'query/time'");
+    sb.append(", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"");
+    sb.append(datasourceName);
+    sb.append("\" WHERE metric = 'query/time'");
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getResult())) {
       sb.append(" AND \"success\" IN ('");
       sb.append(String.join("', '", engineMonitoringQueryRequest.getResult()));

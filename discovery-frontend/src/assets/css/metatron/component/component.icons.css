@@ -570,7 +570,9 @@ a.ddp-icon-board-edit:hover:before {background-position:-21px -19px;}
 .ddp-icon-drop-guide,
 .ddp-icon-drop-select,
 .ddp-icon-drop-sort,
-.ddp-icon-drop-unit{display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../../../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-unit,
+.ddp-icon-drop-disabled {display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../../../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-disabled {width:11px; height:11px; margin-top:-6px; background-position:-315px top;}
 .ddp-icon-drop-unit {width:11px; height:11px; background-position:-303px top;}
 .ddp-icon-drop-select {width:12px; height:9px; background-position:-277px top;}
 .ddp-icon-drop-sort {width:12px; height:10px; background-position:-290px top;}
