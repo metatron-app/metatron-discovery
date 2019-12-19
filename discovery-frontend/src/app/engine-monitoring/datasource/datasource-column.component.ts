@@ -23,6 +23,7 @@ import {
 import {AbstractComponent} from "../../common/component/abstract.component";
 import {EngineService} from "../service/engine.service";
 import * as _ from "lodash";
+import {StringUtil} from "../../common/util/string.util";
 
 @Component({
   selector: 'app-column-datasource',
@@ -64,13 +65,18 @@ export class DatasourceColumnComponent extends AbstractComponent implements OnIn
   }
 
   public open(dimensions, metrics) {
+    this.totalColumns = [];
     this.dimensions = dimensions.split(',');
     this.metrics = metrics.split(',');
     this.dimensions.forEach(dimension => {
-      this.totalColumns.push({value: dimension, type: 'dimension'});
+      if (StringUtil.isNotEmpty(dimension)) {
+        this.totalColumns.push({value: dimension, type: 'dimension'});
+      }
     });
     this.metrics.forEach(metric => {
-      this.totalColumns.push({value: metric, type: 'metric'});
+      if (StringUtil.isNotEmpty(metric)) {
+        this.totalColumns.push({value: metric, type: 'metric'});
+      }
     });
 
     this.columns = _.cloneDeep(this.totalColumns);
