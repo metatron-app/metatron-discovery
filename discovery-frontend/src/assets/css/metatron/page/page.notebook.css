@@ -1,0 +1,141 @@
+@charset "utf-8";
+
+/**********************************************************************************
+	노트북 생성
+**********************************************************************************/
+.ddp-wrap-file-navi {border:1px solid #bec0c8; width:100%; height:100%; overflow-y:hidden; overflow-x:auto; box-sizing:border-box;}
+.ddp-ui-file-navi {height:100%; white-space:nowrap;}
+.ddp-box-filelist {display:inline-block; width:240px; height:100%; border-right:1px solid #e9e9ec; overflow-y:auto;vertical-align:top;}
+.ddp-box-filelist ul.ddp-list-file li a {display:block; position:relative; padding:5px 36px 5px 46px; color:#4b515b; font-size:12px;}
+.ddp-box-filelist ul.ddp-list-file li:nth-child(odd) a {background-color:#fafafa;}
+.ddp-box-filelist ul.ddp-list-file li a:hover {background-color:#f0f0f2;}
+.ddp-box-filelist ul.ddp-list-file li.ddp-selected a {background-color:#f0f0f2;}
+.ddp-box-filelist ul.ddp-list-file li.ddp-list-parent a:after {display:inline-block; content:''; position:absolute; top:50%; right:13px; width:4px; height:7px; margin-top:-4px; background:url(../../../images/icon_dataview.png) no-repeat; background-position:left -19px;}
+
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-folder,
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-workbook,
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-dashboard3,
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-chart3 {position:absolute;}
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-folder {left:17px; top:50%; margin-top:-7px;}
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-workbook {left:18px; top:50%; margin-top:-7px;}
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-dashboard3 {left:16px; top:50%; margin-top:-7px;}
+.ddp-box-filelist ul.ddp-list-file li a .ddp-icon-chart3 {left:16px; top:50%; margin-top:-7px;}
+
+.ddp-box-filelist:last-of-type ul.ddp-list-file li.ddp-selected a {position:relative;background-color:#f2f1f8;}
+.ddp-box-filelist:last-of-type ul.ddp-list-file li.ddp-selected a:before {position:absolute; top:0; left:0; right:0; bottom:0; border:1px solid #666eb2; content:'';}
+.ddp-box-filelist:last-of-type ul.ddp-list-file li.ddp-selected a:after {display:inline-block; position:absolute; top:50%; right:10px; width:11px; height:8px; margin-top:-6px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-15px top; content:'';}
+
+.ddp-box-filelist:last-of-type ul.ddp-list-file li.ddp-list-parent.ddp-selected a {background-color:#f0f0f2; color:#4b515b}
+.ddp-box-filelist:last-of-type ul.ddp-list-file li.ddp-list-parent.ddp-selected a:after{display:inline-block; content:''; position:absolute; top:50%; right:13px; width:4px; height:7px; margin-top:-4px; background:url(../../../images/icon_dataview.png) no-repeat; background-position:left -19px;}
+
+.ddp-box-filelist:last-of-type ul.ddp-list-file li.ddp-list-parent.ddp-selected a .ddp-icon-dashboard3 { background-position:left -16px;}
+.ddp-box-filelist:last-of-type ul.ddp-list-file li.ddp-list-parent.ddp-selected a .ddp-icon-chart3 {background-position:left -28px;}
+
+
+/**********************************************************************************
+	노트북 상세
+**********************************************************************************/
+.ddp-wrap-table2 {overflow:hidden;}
+.ddp-wrap-table2 .ddp-ui-table {overflow:hidden;}
+.ddp-wrap-table2 .ddp-ui-table  table.ddp-table-form.ddp-table-type3 {width:100%;}
+.ddp-wrap-table2 .ddp-label-table {float:left;padding:7px 0; color:#b7bac1; font-size:13px;}
+.ddp-wrap-table2 table.ddp-table-form {display:block;  overflow:hidden;}
+.ddp-wrap-datadetail.ddp-type {height:100%; margin-top:-48px; padding:88px 45px 0 45px; box-sizing:border-box;}
+.ddp-wrap-datadetail {padding:15px 45px;}
+.ddp-wrap-datadetail table.ddp-table-detail:first-of-type {margin-top:20px;}
+.ddp-wrap-datadetail .ddp-wrap-detail-sub table.ddp-table-detail {margin-bottom:30px;}
+.ddp-wrap-datadetail .ddp-info-left {display:inline-block; float:left; width:350px; height:100%; border-right:1px dotted #ccc;}
+.ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail {padding:0; height:100%; border-top:none; overflow:auto;}
+.ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail table.ddp-table-detail tbody tr td {padding-right:20px;}
+.ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail .ddp-data-none {color:#b7bac1; font-size:13px;}
+
+.ddp-wrap-datadetail.ddp-type .ddp-wrap-rules-flow.ddp-snapshot {position:relative;right:0;height:auto; padding:50px 35px 50px 0;}
+.ddp-wrap-datadetail.ddp-type .ddp-ui-rule-flow {position:relative; top:0; overflow:inherit}
+.ddp-wrap-datadetail.ddp-type .ddp-wrap-rules-flow.ddp-snapshot ul.ddp-list-rule2 li {padding:6px 0;}
+.ddp-wrap-datadetail.ddp-type .ddp-wrap-rules-flow.ddp-snapshot .ddp-box-title {font-size:16px; font-weight:normal; vertical-align:middle;}
+.ddp-wrap-datadetail.ddp-type .ddp-wrap-rules-flow.ddp-snapshot .ddp-data-num {position:relative; top:-1px;}
+.ddp-wrap-datadetail.ddp-type .ddp-form-box {height:350px; border:1px solid #d0d1d8;}
+.ddp-wrap-datadetail .ddp-info-right {display:block; padding-left:50px; overflow:hidden;}
+table.ddp-table-detail.type-sub {padding-left:27px;}
+table.ddp-table-detail {table-layout:fixed; width:100%; margin-top:30px;}
+table.ddp-table-detail.ddp-mgt20 {margin-top:20px;}
+table.ddp-table-detail tbody tr > th,
+table.ddp-table-detail tbody tr > td {padding:7px 0; vertical-align: top; font-weight:normal;}
+table.ddp-table-detail tbody tr th {color:#91969e; font-size:13px; text-align:left;}
+table.ddp-table-detail tbody tr th.type-line-height {line-height:30px;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info {display:inline-block; position:relative; cursor:pointer;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; width:11px; height:11px; background:url(../../../images/icon_que.png) no-repeat; background-position:left -12px;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; bottom:-30px; left:100%; margin-left:5px;width:350px;}
+table.ddp-table-detail tbody tr th .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block;}
+table.ddp-table-detail tbody tr td .ddp-data-status.type-queryable {color:#10bf83; font-size:12px; font-weight:bold;}
+table.ddp-table-detail tbody tr td {padding-right:40px;color:#4b515b; font-size:13px; word-break:break-all;}
+table.ddp-table-detail tbody tr td.ddp-line {line-height:30px;}
+table.ddp-table-detail tbody tr td > .ddp-box-det {width:500px; margin-top:7px;padding:10px 20px; background-color:#f6f6f7; border-radius:2px;}
+table.ddp-table-detail tbody tr td > .ddp-box-det .ddp-list-det li {padding:6px 0; font-size:13px;}
+table.ddp-table-detail tbody tr td > .ddp-box-det .ddp-list-det li:before {display:inline-block; margin-right:7px; vertical-align:middle; content:'•'}
+table.ddp-table-detail tr td .ddp-data-total {padding:15px 0 10px 0; color:#b7b9c2;}
+table.ddp-table-detail tr td .ddp-btn-pop {margin-top:-7px;}
+table.ddp-table-detail tr td .ddp-btn-pop.ddp-bg-black {border:1px solid #90969f; background-color:#90969f;}
+table.ddp-table-detail tr td .ddp-btn-pop.ddp-bg-black:hover {border:1px solid #4b515b; background-color:#4b515b;}
+table.ddp-table-detail tr td .ddp-apply {margin:-6px 0; margin-bottom:6px;}
+table.ddp-table-detail tr td .ddp-apply .ddp-btn-add  {display:inline-block; padding:7px 14px; margin-left:4px;border-radius:2px; color:#fff; font-size:13px; background-color:#b7b9c2;}
+table.ddp-table-detail tr td .ddp-apply .ddp-btn-add .ddp-icon-plus {display:inline-block; margin-right:6px;}
+table.ddp-table-detail tr td .ddp-apply .ddp-btn-add:hover {background-color:#90969f;}
+table.ddp-table-detail tr td .ddp-apply .ddp-form-search {float:left;width:400px;}
+ul.ddp-list-detail {border-top:1px solid #b7b9c2; border-bottom:1px solid #b7b9c2;}
+ul.ddp-list-detail li {position:relative; padding:12px 0 8px 25px; height:40px; border-bottom:1px solid #e7e7ea; overflow:hidden; box-sizing:border-box;}
+ul.ddp-list-detail li:last-of-type {border-bottom:none;}
+ul.ddp-list-detail li .ddp-wrap-detailinfo {float:right; padding-left:10px; background-color:#fff;}
+ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-wrap-detaildata {float:left;}
+ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-wrap-detaildata .ddp-data-num {margin-left:15px;}
+ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-by2 {float:left; margin-left:40px; padding-right:10px;}
+ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-by2 .ddp-icon-by {color:#b7bac1;}
+ul.ddp-list-detail li .ddp-box-tag2 {display:inline-block; position:relative; float:left; margin-right:7px; padding:1px 3px 0 3px;border:1px solid #656eb2; border-radius:1px; line-height:1.2em; color:#656eb2; font-size:10px;}
+ul.ddp-list-detail li .ddp-wrap-detailname {display:block; max-width:100%; overflow:hidden; white-space:nowrap; word-wrap:normal; text-overflow:ellipsis;}
+ul.ddp-list-detail li .ddp-wrap-detailname span.ddp-data-detailname {display:inline-block; color:#4c515a; font-size:14px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; vertical-align: middle;}
+ul.ddp-list-detail li .ddp-wrap-detailname span.ddp-data-detailname span.ddp-data-in {display:inline-block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+ul.ddp-list-detail li .ddp-wrap-detailname span.ddp-data-summary  {color:#b7bac1; font-size:14px; vertical-align: middle;}
+ul.ddp-list-detail li .ddp-data-no {float:left; width:45px; margin-left:-25px; text-align:center;}
+ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-type-lang {float:left; min-width:60px; color:#4c515a;}
+ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-state {float:left; min-width:65px; }
+ul.ddp-list-detail.ddp-list-notebook li {padding-right:450px;}
+ul.ddp-list-detail.ddp-list-model {margin-top:10px;}
+ul.ddp-list-detail.ddp-list-model li .ddp-wrap-detailname {text-overflow:ellipsis;}
+
+
+
+/**********************************************************************************
+	PAGE : 노트북 서버 set
+**********************************************************************************/
+ul.ddp-ui-tab li a em.ddp-icon-jupyter,
+ul.ddp-ui-tab li a em.ddp-icon-zepplin {display:inline-block; margin-right:9px; background:url(../../../images/icon_server.png) no-repeat; vertical-align: middle;}
+ul.ddp-ui-tab li a em.ddp-icon-jupyter {width:12px; height:16px; background-position:-13px top;}
+ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-jupyter {background-position:left top;}
+ul.ddp-ui-tab li a em.ddp-icon-zepplin {width:18px; height:10px; background-position:-19px -17px;}
+ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -17px;}
+.ddp-ui-notebook-server {position:absolute; top:120px; left:50px; right:50px; bottom:0; box-sizing:border-box;}
+.ddp-ui-notebook-server .ddp-ui-sublabel {padding:15px 0 15px 0; color:#4b515b; font-size:14px; }
+.ddp-ui-notebook-server .ddp-ui-sublabel em {display:inline-block; padding:0 4px;}
+.ddp-ui-notebook-server .ddp-type-top-option {position:relative;}
+.ddp-ui-notebook-server .ddp-type-top-option a.ddp-btn-switch {position:absolute; top:10px; right:10px;}
+.ddp-ui-notebook-server .ddp-type-top-option a.ddp-btn-switch .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {right:12px;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right {position:absolute; top:0; right:0;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection {color:#90969f}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection:hover {color:#4b515b;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection .ddp-btn-reset3 {margin-right:6px; vertical-align:middle;}
+.ddp-ui-notebook-server .ddp-type-top-option .ddp-option-right .ddp-btn-selection:hover .ddp-btn-reset3 {background-position:-15px -34px;}
+.ddp-ui-notebook-server .ddp-wrap-viewtable {position:absolute; top:146px; left:0; right:0; bottom:24px; padding-bottom:45px;}
+
+/**********************************************************************************
+	PAGE : 노트북 api
+**********************************************************************************/
+.ddp-wrap-label {position:relative; display:inline-block;}
+.ddp-wrap-label .ddp-wrap-hover-info {display:inline-block; position:relative; top:-3px; margin-left:5px; cursor: pointer;}
+.ddp-wrap-label .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block;}
+
+.ddp-wrap-label .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; top:-10px; left:20px;}
+.ddp-wrap-label .ddp-wrap-hover-info .ddp-box-layout4 .ddp-data-det {padding:18px 20px; color:#90969f; font-weight:normal; font-size:12px; line-height:18px;}
+.ddp-wrap-label .ddp-wrap-hover-info .ddp-box-layout4 .ddp-data-det .ddp-txt-tip {padding:18px 0 0 0; color:#35393f; font-size:12px;}
+.ddp-wrap-label .ddp-wrap-hover-info em.ddp-icon-info3 {display:inline-block; width:11px; height:11px; text-align:center; border-radius:50%; border:1px solid #5d636c; font-size:14px;}
+.ddp-wrap-edit3.ddp-type .ddp-wrap-label .ddp-wrap-hover-info em.ddp-icon-info3 {top:1px; background:none;}
+.ddp-wrap-label .ddp-wrap-hover-info em.ddp-icon-info3:before {display:inline-block; content:'?'; position:absolute; top:50%; left:50%; margin:-10px 0 0 -2px; color:#4b515b; font-size:9px;}

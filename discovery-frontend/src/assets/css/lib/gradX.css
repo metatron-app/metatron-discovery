@@ -1,0 +1,352 @@
+.gradx_hide {
+  display: none;
+
+}
+
+.gradx {
+  position: relative;
+  background: #FAFAFA;
+  background: -moz-linear-gradient(top, #FAFAFA 0%, #DFDFDF 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FAFAFA), color-stop(100%,#DFDFDF));
+  background: -webkit-linear-gradient(top, #FAFAFA 0%,#DFDFDF 100%);
+  background: -o-linear-gradient(top, #FAFAFA 0%,#DFDFDF 100%);
+  background: -ms-linear-gradient(top, #FAFAFA 0%,#DFDFDF 100%);
+  background: linear-gradient(to bottom, #FAFAFA 0%,#DFDFDF 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fafafa', endColorstr='#dfdfdf',GradientType=0 );
+  border: 4px solid #dfdfdf;
+  padding: 10px;
+  font-weight: normal;
+  /*width: 444px;*/
+  width: 100%;
+  font-size: 12px;
+}
+
+.gradx textarea,input,select {
+  font-size: 12px;
+}
+
+.gradx_container {
+  padding: 10px;
+  background: white;
+  padding-left: 16px;
+  border: 5px solid #e5e5e5;
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -o-border-radius: 2px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+}
+
+.gradx_panel {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #ccc;
+}
+
+.gradx_start_sliders {
+  width: 102%;
+  margin-top: 8px;
+  margin-left: -0.4em;
+  background: whitesmoke;
+  height: 12px;
+  box-shadow: 5px 9px 30px rgba(0, 0, 0, .5) inset;
+  -webkit-box-shadow: 5px 9px 30px rgba(0, 0, 0, .5) inset;
+  -moz-box-shadow: 5px 9px 30px rgba(0, 0, 0, .5) inset;
+  -o-box-shadow: 5px 9px 30px rgba(0, 0, 0, .5) inset;
+
+  border: 1px solid #f1f1f1;
+}
+
+.gradx_slider {
+  position: absolute;
+  left: 0px;
+
+  width: 10px;
+  height: 10px;
+  background: red;
+  border: 1px solid black;
+  display: inline-block;
+  opacity: 0.6;
+}
+
+.gradx_slider:hover {
+  opacity: 1;
+  cursor: move;
+}
+
+.gradx_slectboxes select {
+  color: black;
+  vertical-align: baseline;
+}
+
+
+.gradx_slider:after {
+  content: "";
+  position: absolute;
+  bottom: 10px;
+  left: 4px;
+  border-style: solid;
+  border-width: 70px 1px 0px 0px;
+  border-color: transparent #000;
+  display: block;
+  width: 0;
+  z-index: 1;
+}
+
+.gradx_code, gradx_code:focus {
+  padding: 8px;
+  color: #111;
+  text-shadow: #eee 0 1px;
+  background: #bba;
+  margin-top: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: none;
+  overflow: auto;
+  width: 100%;
+  min-height: 200px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font-family: 'Maven Pro', sans-serif;
+  border: 0;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  -o-box-shadow: none !important;
+  line-height: 14px;
+
+  /* the long awaited dream of 100% width comes true */
+  /* All hail CSS3 */
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+
+
+}
+
+#gradx_slider_info {
+  display: none;
+  border: 1px solid #ccc;
+  padding: 2px;
+  background: #f1f1f1;
+}
+
+#gradx_slider_controls {
+  margin-left: 15px;
+  padding-top:4px;
+  padding-bottom: 4px;
+}
+
+.gradx_add_slider {
+  border: 1px solid black;
+  width: 50px;
+  margin-bottom: 4px;
+}
+
+
+.gradx_slectboxes {
+  display: inline;
+}
+
+.gradx_gradient_type {
+  height: 25px;
+  background: #efefef;
+  border: 1px solid #ccc;
+  padding-right: 2px;
+  width: 115px;
+  margin: 0;
+}
+
+.gradx_btn > .icon {
+  position: relative;
+  left: -3px;
+  background-size: 12px 12px;
+  top: 2px;
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+  background-position: 0 0;
+}
+
+.gradx_btn > .icon-add {
+  background-image: url("icons/plus.png");
+  left: -10px;
+}
+
+.gradx_btn > .icon-remove {
+  background-image: url("icons/remove.png");
+}
+
+
+.gradx_btn > .icon-file-css {
+  background-image: url("icons/file-css.png");
+}
+
+.gradx_btn > .icon-preset {
+  background-image: url("icons/preset.png");
+}
+
+
+/* Common stuff */
+.picker-wrapper,
+.slide-wrapper {
+  position: relative;
+  float: left;
+}
+.picker-indicator,
+.slide-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+.picker,
+.slide {
+  cursor: crosshair;
+  float: left;
+}
+
+/* Default skin */
+
+.cp-default {
+  border-radius: 6px;
+  float: left;
+  margin-top: 13px;
+  margin-left: -96px;
+  position: absolute;
+  z-index: 10000;
+}
+
+.cp-default .picker {
+  width: 200px;
+  height: 200px;
+}
+.cp-default .slide {
+  width: 30px;
+  height: 200px;
+}
+.cp-default .slide-wrapper {
+  margin-left: 10px;
+}
+.cp-default .picker-indicator {
+  width: 5px;
+  height: 5px;
+  border: 2px solid darkblue;
+  -moz-border-radius: 4px;
+  -o-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  opacity: .5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  filter: alpha(opacity=50);
+  background-color: white;
+}
+.cp-default .slide-indicator {
+  width: 100%;
+  height: 10px;
+  left: -4px;
+  opacity: .6;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
+  filter: alpha(opacity=60);
+  border: 4px solid black;
+  -moz-border-radius: 4px;
+  -o-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  background-color: #333;
+}
+
+/* some bootstrap styles */
+
+.gradx_btn {
+  display: inline-block;
+  padding: 4px 10px 4px;
+  font-size: 13px;
+  line-height: 18px;
+  color: #333333;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  background-image: -ms-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+  background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  background-repeat: repeat-x;
+  border: 1px solid #cccccc;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+  border-bottom-color: #b3b3b3;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.gradx_btn:hover,
+.gradx_btn:active,
+.gradx_btn.active,
+.gradx_btn.disabled,
+.gradx_btn[disabled] {
+  background-color: #e6e6e6;
+}
+
+.gradx_btn:active,
+.gradx_btn.active {
+  background-color: #cccccc \9;
+}
+
+.gradx_btn:hover {
+  color: #333333;
+  text-decoration: none;
+  background-color: #e6e6e6;
+  /* Buttons in IE7 don't get borders, so darken on hover */
+
+  background-position: 0 -15px;
+  -webkit-transition: background-position 0.1s linear;
+  -moz-transition: background-position 0.1s linear;
+  -ms-transition: background-position 0.1s linear;
+  -o-transition: background-position 0.1s linear;
+  transition: background-position 0.1s linear;
+}
+
+.gradx_btn:focus {
+  outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+.gradx_btn.active,
+.gradx_btn:active {
+  background-color: #e6e6e6;
+  background-color: #d9d9d9 \9;
+  background-image: none;
+  outline: 0;
+  -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.gradx_btn.disabled,
+.gradx_btn[disabled] {
+  cursor: default;
+  background-color: #e6e6e6;
+  background-image: none;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}

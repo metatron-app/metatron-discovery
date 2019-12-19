@@ -130,17 +130,23 @@
 .ddp-wrap-edit3 .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; position:relative; top:-1px; width:11px; height:11px; background:url(../../../images/icon_que.png) no-repeat; background-position:left -12px;}
 .ddp-wrap-edit3 .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; top:-15px; left:20px; width:320px;}
 .ddp-wrap-edit3 .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block;}
-.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply.type-catalog .ddp-type-search {position:relative;}
-.ddp-apply.type-catalog .ddp-type-search.ddp-selected .ddp-box-layout4 {display:block;}
-.ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 {display:none; position:absolute; top:100%; left:0; right:0; margin-top:2px; width:auto;}
-.ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 .ddp-data-title + ul.ddp-wrap-catalogs2 {margin-top:-6px;}
-.ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 ul.ddp-wrap-catalogs2.ddp-scroll {}
-.ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 ul.ddp-wrap-catalogs2 {margin:9px 0 9px 0; padding:0;}
-.ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 ul.ddp-wrap-catalogs2 li a .ddp-ui-catalogs2 {padding:0 0 0 20px}
-.ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4.type-button {padding-bottom:40px;}
-.ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 .ddp-btn-bottom {position:absolute; bottom:0; left:0; right:0; padding:9px 0; border-top:1px solid #e7e7ea; text-align:center; background-color:#fff;}
+
+.ddp-apply.type-catalog .ddp-form-search.ddp-selected .ddp-box-layout4 {display:block;}
+.ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4 {display:none; position:absolute; top:100%; left:0; right:0; margin-top:2px; width:auto;}
+.ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4 .ddp-data-title + ul.ddp-wrap-catalogs2 {margin-top:-6px;}
+.ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4 ul.ddp-wrap-catalogs2.ddp-scroll {}
+.ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4 ul.ddp-wrap-catalogs2 {margin:9px 0 9px 0; padding:0;}
+.ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4 ul.ddp-wrap-catalogs2 li a .ddp-ui-catalogs2 {padding:0 0 0 20px}
+.ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4.type-button {padding-bottom:40px;}
+.ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4 .ddp-btn-bottom {position:absolute; bottom:0; left:0; right:0; padding:9px 0; border-top:1px solid #e7e7ea; text-align:center; background-color:#fff;}
+
+
+
+
+
+
 .ddp-apply.type-catalog .ddp-box-layout4 .ddp-data-title {color:#b5b9c2; font-size:12px; padding:15px 14px 13px 14px}
-.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-type-search {float:left;}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-form-search {float:left;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-btn-add  {display:inline-block; padding:7px 14px; margin-left:4px;border-radius:2px; color:#fff; font-size:13px; background-color:#b7b9c2;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-btn-add .ddp-icon-plus {display:inline-block; margin-right:6px;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-btn-add:hover {background-color:#90969f;}
@@ -386,7 +392,6 @@ ul.ddp-list-value li.ddp-data-none {background:none; color:#b7b9c3;}
 /* table code */
 .ddp-box-layout4 .ddp-data-code {padding:14px 15px 20px 15px; max-height:250px; overflow:auto; box-sizing:border-box;}
 .ddp-box-layout4 .ddp-data-title +.ddp-data-code {padding-top:0; white-space:normal;}
-.ddp-box-layout4 .ddp-data-title +.ddp-data-code {padding-top:0;}
 .ddp-box-layout4 .ddp-table-code {width:100%;}
 .ddp-box-layout4 .ddp-data-code.ddp-size {max-height:initial; overflow:inherit;}
 .ddp-box-layout4 .ddp-data-code .ddp-link-detail {display:inline-block; padding:20px 0 0 0; text-decoration:underline; font-style:italic; color:#4b515b; font-size:12px;}
@@ -442,7 +447,7 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date .ddp-txt-time {width:72px;}
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date.ddp-full {width:100%; }
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date.ddp-full .ddp-txt-calen {width:100%;}
-.ddp-ui-dateinfo .ddp-txt-date {position:absolute; top:6px; left:0; color:#90969f; font-size:12px;}
+.ddp-ui-dateinfo .ddp-txt-date {position:absolute; top:8px; left:0; color:#90969f; font-size:12px;}
 .ddp-ui-dateinfo.ddp-to .ddp-txt-date {left:15px;}
 
 

@@ -1,0 +1,762 @@
+@charset "utf-8";
+
+/***********************************************************************************************************
+	로그인
+************************************************************************************************************/
+.theme-dark .ddp-wrap-login {
+    height: 100%;
+    min-height: 800px;
+    background: url(../../../../images/login.jpg) no-repeat center center fixed;
+    background-size: cover;
+}
+
+.theme-dark .ddp-wrap-login.let-it-snow {
+    height: 100%;
+    min-height: auto;
+    overflow: hidden;
+    background: url(../../../../images/login_christmas.jpg) no-repeat center center fixed;
+    background-size: cover;
+}
+
+.theme-dark .ddp-wrap-login.let-it-snow .ddp-bg-login,
+.theme-dark .ddp-wrap-login.let-it-snow .ddp-blur2 {
+    display: none;
+}
+
+.theme-dark .ddp-ui-login {
+    position: relative;
+    width: 410px;
+    height: 100%;
+    padding: 192px 0 0 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-wrap-login .ddp-blur2 {
+    display: block;
+    background: url(../../../../images/login.jpg) no-repeat fixed;
+    background-size: cover;
+    overflow: hidden;
+    content: '';
+    filter: blur(5px);
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 100%;
+    width: 410px;
+}
+
+.theme-dark .ddp-ui-login .ddp-box-login {
+    width: 278px;
+    margin: 0 auto;
+}
+
+.theme-dark .ddp-ui-login .ddp-ui-logo {
+    height: 36px;
+    padding-bottom: 20px;
+}
+
+.theme-dark .ddp-ui-login .ddp-ui-logo .st0 {
+    fill: #1A274B;
+}
+
+.theme-dark .ddp-ui-login .ddp-ui-logo .st1 {
+    fill: #272950;
+}
+
+.theme-dark .ddp-ui-login .ddp-ui-logo .st2 {
+    fill: #47DBF4;
+}
+
+.theme-dark .ddp-ui-login .ddp-ui-logo .st3 {
+    fill: #7575EA;
+}
+
+.theme-dark .ddp-form-login .ddp-form-input {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-form-login .ddp-form-input label {
+    display: block;
+    padding: 30px 0 0 0;
+    color: rgba(39, 41, 80, 0.7);
+    font-size: 13px;
+}
+
+.theme-dark .ddp-form-login .ddp-form-input span.ddp-input-type {
+    display: block;
+    width: 100%;
+    border: none;
+    background: transparent;
+}
+
+.theme-dark .ddp-form-login .ddp-form-input span.ddp-input-type input {
+    width: 100%;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1px solid #b5b5cc;
+    background-color: transparent;
+    color: #272950;
+    font-size: 18px;
+}
+
+.theme-dark .ddp-form-login .ddp-form-input span.ddp-input-type input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset;
+}
+
+.theme-dark .ddp-form-login .ddp-form-input span.ddp-input-type input:focus {
+    border-bottom: 1px solid #272950;
+}
+
+.theme-dark .ddp-form-login .ddp-ui-login-option {
+    min-width: 360px;
+    max-width: fit-content;
+    margin: 26px 0 40px 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.theme-dark .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox {
+    position: relative;
+    float: left;
+    margin-right: 20px;
+    padding-left: 20px;
+}
+
+.theme-dark .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox label {
+    position: relative;
+    font-size: 14px;
+    color: #272950;
+}
+
+.theme-dark .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox input[type="checkbox"] {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -6px;
+    opacity: 0;
+    z-index: 1;
+}
+
+.theme-dark .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox i {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -6px;
+    background: url(../../../../images/icon_checkbox2.png) no-repeat;
+}
+
+.theme-dark .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox input[type="checkbox"]:checked + i {
+    background-position: -26px -13px;
+}
+
+.theme-dark .ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox input[type="checkbox"]:checked + i + label {
+    font-weight: bold;
+}
+
+.theme-dark .ddp-form-login a.ddp-link-search {
+    color: #272950;
+    font-size: 13px;
+    font-weight: 300;
+}
+
+.theme-dark .ddp-form-login a.ddp-link-sign {
+    position: relative;
+    margin-left: 12px;
+    padding-left: 12px;
+    color: #272950;
+    font-size: 13px;
+    font-weight: 300;
+}
+
+.theme-dark .ddp-form-login a.ddp-link-sign:before {
+    display: inline-block;
+    height: 13px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -7px;
+    border-left: 1px solid #585879;
+    content: '';
+}
+
+.theme-dark .ddp-form-login a.ddp-link-search:hover {
+    text-decoration: underline;
+}
+
+.theme-dark .ddp-form-login a.ddp-link-sign:hover {
+    text-decoration: underline;
+}
+
+.theme-dark .ddp-ui-login a.ddp-link-request {
+    color: #fff;
+    font-size: 14px;
+    text-decoration: underline;
+}
+
+.theme-dark .ddp-ui-login-buttons {
+    padding-bottom: 15px;
+}
+
+.theme-dark .ddp-ui-login-buttons a.ddp-btn {
+    display: inline-block;
+    width: 100%;
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    line-height: 38px;
+    font-weight: bold;
+    border-radius: 3px;
+    background-color: #272950;
+}
+
+.theme-dark .ddp-ui-login-buttons a.ddp-btn:hover {
+    background-color: #7575ea;
+}
+
+.theme-dark .metatron-login .ddp-bg-login {
+    display: inline-block;
+    background: url(../../../../images/login.jpg) no-repeat;
+    background-size: 100% 100%;
+}
+
+
+/***********************************************************************************************************
+	로그인 footer
+************************************************************************************************************/
+.theme-dark .ddp-layout-footer {
+    position: absolute;
+    left: 66px;
+    bottom: 30px;
+    width: 278px;
+    text-align: center;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.theme-dark .ddp-ui-footer {
+    display: inline-block;
+    position: relative;
+    text-align: left;
+}
+
+.theme-dark .ddp-ui-footer img.ddp-logo-sk {
+    position: absolute;
+    top: 30px;
+    left: 0;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer {
+    float: left;
+    overflow: hidden;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer li {
+    float: left;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer li a {
+    display: block;
+    position: relative;
+    padding: 0 7px 0 6px;
+    color: #272950;
+    font-weight: 300;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer li a:hover {
+    text-decoration: underline;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer li a em {
+    display: none;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer li:first-of-type a:after {
+    display: none;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer li a:after {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -7px;
+    content: '';
+    height: 13px;
+    border-right: 1px solid #909090;
+}
+
+.theme-dark .ddp-ui-footer ul.ddp-list-footer li:first-child a {
+    padding-left: 0;
+}
+
+.theme-dark .ddp-ui-footer span.ddp-ui-copy {
+    float: left;
+    padding: 3px 0 0 0;
+    color: rgba(39, 41, 80, 0.6);
+    font-size: 12px;
+    letter-spacing: -1px;
+}
+
+/***********************************************************************************************************
+	로그인 팝업
+************************************************************************************************************/
+.theme-dark .ddp-wrap-popup {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 126;
+}
+
+.theme-dark .ddp-ui-popup-in {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    overflow: auto;
+}
+
+.theme-dark .ddp-wrap-popup em.ddp-bg-popup {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background-color: rgba(208, 209, 216, 0.5);
+}
+
+.theme-dark .ddp-ui-popup-table {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-ui-popup {
+    position: relative;
+    left: 50%;
+    width: 600px;
+    margin: 98px 0 98px -300px;
+    padding: 100px 0 60px 0;
+    background-color: #fff;
+    z-index: 91;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-ui-popup a.ddp-btn-close {
+    display: inline-block;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 23px;
+    height: 23px;
+    background: url(../../../../images/btn_popclose.png) no-repeat;
+    z-index: 1;
+}
+
+.theme-dark .ddp-popup-table-cell {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-popup-table-cell .ddp-ui-popup {
+    display: inline-block;
+    padding-bottom: 100px;
+    position: relative;
+    margin: 0;
+    left: 0;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-ui-popup span.ddp-ui-pop-title {
+    display: block;
+    padding-bottom: 28px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 300;
+    color: #222;
+}
+
+.theme-dark .ddp-ui-popup ul.ddp-list-tab {
+    display: block;
+    padding: 20px 0 0 0;
+    text-align: center;
+}
+
+.theme-dark .ddp-ui-popup ul.ddp-list-tab li {
+    display: inline-block;
+    padding: 0 12px 0 12px;
+}
+
+.theme-dark .ddp-ui-popup ul.ddp-list-tab li a {
+    display: block;
+    padding-bottom: 10px;
+    color: #444;
+    font-size: 14px;
+    border-bottom: 2px solid #fff;
+}
+
+.theme-dark .ddp-ui-popup ul.ddp-list-tab li.ddp-selected a {
+    border-bottom: 2px solid #ff8b00;
+    font-weight: bold;
+}
+
+.theme-dark .ddp-ui-popup .ddp-ui-buttons2 {
+    padding-top: 55px;
+}
+
+.theme-dark .ddp-ui-popup .ddp-ui-buttons2 .ddp-btn-type-popup {
+    margin: 0 4px;
+}
+
+.theme-dark .ddp-ui-popup .ddp-txt-pop-info {
+    padding: 36px 68px 0 68px;
+    color: #90969f;
+    font-size: 14px;
+    text-align: center;
+}
+
+.theme-dark .ddp-ui-search-contet {
+    padding: 27px 68px 0 68px;
+}
+
+.theme-dark .ddp-ui-search-contet.ddp-ui-id-content {
+    padding-top: 55px;
+}
+
+.theme-dark .ddp-ui-search-contet .ddp-ui-input-form {
+    padding-bottom: 45px;
+}
+
+.theme-dark .ddp-ui-search-contet .ddp-ui-input-form .ddp-ui-error {
+    display: block;
+    padding: 10px 0 0 0;
+    color: #ff3324;
+    font-size: 14px;
+}
+
+.theme-dark .ddp-ui-search-contet .ddp-ui-input-form .ddp-ui-error em.ddp-icon-error {
+    display: inline-block;
+    position: relative;
+    top: -1px;
+    margin-right: 5px;
+    width: 15px;
+    height: 15px;
+    background: url(../../../../images/icon_info.png) no-repeat;
+    vertical-align: middle;
+}
+
+.theme-dark .ddp-ui-search-id {
+    padding: 106px 68px 117px 68px;
+}
+
+.theme-dark .ddp-ui-search-id span.ddp-txt-data {
+    display: block;
+    padding: 0 0 10px 0;
+    border-bottom: 1px solid #ddd;
+    color: #444;
+    font-size: 16px;
+    text-align: center;
+}
+
+.theme-dark .ddp-ui-search-id span.ddp-txt-data em.ddp-data-id {
+    color: #ff8b00;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-ui-popup.ddp-box-user-popup {
+    margin-top: 98px;
+    margin-bottom: 40px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-ui-popup.ddp-box-user-popup .ddp-ui-buttons2 {
+    padding-top: 0;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-ui-popup.ddp-box-user-popup .ddp-ui-user-contet {
+    padding-top: 30px;
+}
+
+.theme-dark .ddp-ui-user-contet {
+    padding: 45px 68px 0 68px;
+}
+
+.theme-dark .ddp-ui-input-form {
+    position: relative;
+    padding-bottom: 35px;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-ui-error {
+    display: block;
+    position: absolute;
+    bottom: 15px;
+    color: #eb5f58;
+    font-size: 12px;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-ui-error em.ddp-icon-error {
+    display: none;
+    position: relative;
+    top: -1px;
+    margin-right: 5px;
+    width: 11px;
+    height: 11px;
+    background: url(../../../../images/icon_info.png) no-repeat;
+    background-position: -16px 0;
+    vertical-align: middle;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-input-check {
+    position: relative;
+    padding-right: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-input-check input {
+    border-bottom: none;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-input-check em.ddp-icon-ok,
+.theme-dark .ddp-ui-input-form .ddp-input-check em.ddp-icon-error {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    background: url(../../../../images/icon_message.png) no-repeat;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-input-check em.ddp-icon-error {
+    display: none;
+    width: 9px;
+    height: 9px;
+    margin-top: -5px;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-input-check em.ddp-icon-ok {
+    display: none;
+    width: 11px;
+    height: 8px;
+    margin-top: -4px;
+    background-position: left -10px;
+}
+
+.theme-dark .ddp-ui-input-form.ddp-type-ok .ddp-input-check .ddp-icon-ok {
+    display: block;
+}
+
+.theme-dark .ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-error {
+    display: block;
+}
+
+.theme-dark .ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-ok {
+    display: none;
+}
+
+.theme-dark .ddp-input-clear {
+    margin: 0 -5px;
+}
+
+.theme-dark .ddp-ui-input-form.ddp-col-6 {
+    padding: 0  5px 35px 5px;
+}
+
+.theme-dark .ddp-ui-user-contet .ddp-wrap-overflow {
+    margin: 0 -10px;
+}
+
+.theme-dark .ddp-ui-user-contet .ddp-wrap-overflow .ddp-ui-fleft {
+    float: left;
+    width: 50%;
+    padding: 0 5px;
+    box-sizing: Border-box;
+}
+
+.theme-dark .ddp-ui-user-contet .ddp-wrap-overflow .ddp-ui-fright {
+    float: right;
+    width: 50%;
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-ui-user-contet .ddp-wrap-overflow .ddp-ui-input-form {
+    padding: 0 5px 35px 5px;
+}
+
+.theme-dark .ddp-ui-user-contet .ddp-ui-input-form .ddp-input-check .ddp-icon-error {
+    background-position: left -28px;
+}
+
+.theme-dark .ddp-ui-user-contet .ddp-ui-input-form .ddp-input-check .ddp-icon-ok {
+    background-position: left -38px;
+}
+
+.theme-dark .ddp-ui-input-form .ddp-ui-error {
+    visibility: hidden;
+}
+
+.theme-dark .ddp-ui-input-form.ddp-type-error .ddp-ui-error {
+    visibility: inherit;
+}
+
+.theme-dark .ddp-ui-info .ddp-txt-info {
+    display: block;
+    padding-bottom: 15px;
+}
+
+.theme-dark .ddp-ui-info .ddp-txt-info em.ddp-icon-info {
+    position: relative;
+    top: -1px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.theme-dark .ddp-ui-file-select {
+    position: relative;
+    padding-bottom: 65px;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-ui-buttons {
+    padding: 31px 0 31px 0;
+    margin-top: 14px;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-ui-buttons .ddp-btn-sbutton {
+    float: left;
+    position: relative;
+    min-width: 90px;
+    padding: 6px 10px;
+    margin: 0 2px;
+    color: #444;
+    font-size: 13px;
+    text-align: center;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-ui-buttons .ddp-btn-sbutton:hover {
+    border: 1px solid #b7b9c1;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-ui-buttons .ddp-btn-sbutton input[type="file"] {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    opacity: 0;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-ui-buttons .ddp-btn-sbutton.ddp-bg-gray {
+    color: #fff;
+    border: 1px solid #7e8aa5;
+    background-color: #7e8aa5;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-ui-buttons .ddp-btn-sbutton.ddp-bg-gray:hover {
+    background-color: #4e5368;
+}
+
+.theme-dark .ddp-ui-file-select span.ddp-txt-file-det {
+    display: block;
+    color: #9c9c9c;
+    font-size: 12px;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-data-photo {
+    float: left;
+    width: 90px;
+    height: 90px;
+    margin-top: 14px;
+    margin-right: 25px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.theme-dark .ddp-ui-file-select .ddp-data-photo img {
+    width: 100%;
+    height: 100%;
+}
+
+.theme-dark .ddp-ui-popup .ddp-ui-buttons2 {
+    display: block;
+    padding-top: 55px;
+    text-align: center;
+    overflow: hidden;
+}
+
+
+/***********************************************************************************************************
+	PAGE : 로그인 privacy
+************************************************************************************************************/
+.theme-dark .ddp-wrap-popup .ddp-ui-popup.ddp-box-policy-popup {
+    margin-top: 40px;
+}
+
+.theme-dark .ddp-wrap-popup .ddp-ui-popup.ddp-box-policy-popup span.ddp-ui-pop-title {
+    padding-bottom: 0;
+    font-weight: normal;
+    font-size: 28px;
+}
+
+.theme-dark .ddp-ui-policy-contet {
+    padding: 50px 70px;
+}
+
+.theme-dark .ddp-ui-policy-contet p.ddp-ui-p {
+    padding-bottom: 40px;
+    color: #4e5368;
+    font-size: 18px;
+}
+
+.theme-dark .ddp-ui-policy-contet p.ddp-ui-p2 strong {
+    display: block;
+}
+
+.theme-dark .ddp-ui-policy-contet dl.ddp-ui-dl {
+    padding-bottom: 40px;
+}
+
+.theme-dark .ddp-ui-policy-contet dl.ddp-ui-dl * {
+    line-height: 1.5em;
+    font-size: 13px;
+}
+
+.theme-dark .ddp-ui-policy-contet dl.ddp-ui-dl dt {
+    padding-bottom: 10px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #4e5368;
+}
+
+.theme-dark .ddp-ui-policy-contet dl.ddp-ui-dl dd {
+    font-size: 13px;
+    color: #4e5368;
+}
+
+.theme-dark .ddp-ui-policy-contet dl.ddp-ui-dl dd ol li {
+    padding-bottom: 10px;
+}
+
+.theme-dark .ddp-ui-policy-contet dl.ddp-ui-dl dd ol li ul {
+    padding-top: 10px;
+}
+
+.theme-dark .ddp-ui-policy-contet dl.ddp-ui-dl dd ol li ul li {
+    padding-left: 20px;
+    padding-bottom: 0;
+}
+
+
+
+

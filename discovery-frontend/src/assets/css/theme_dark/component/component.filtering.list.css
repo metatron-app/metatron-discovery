@@ -6,7 +6,7 @@
 
 .theme-dark .ddp-wrap-top-filtering {
     position: relative;
-    min-height: 54px;
+    min-height: 48px;
     margin: 0 -80px;
     padding: 0 80px;
     background-color: #fff;
@@ -63,7 +63,7 @@
 }
 
 .theme-dark .ddp-wrap-top-filtering .ddp-wrap-form-filtering {
-    padding: 14px 0 15px 0;
+    padding: 10px 0 10px 0;
     box-sizing: border-box;
 }
 
@@ -201,87 +201,14 @@
     background-position: left -12px;
     content: '';
 }
-
+.theme-dark .ddp-wrap-top-filtering .ddp-wrap-type-search {margin:9px 0 0 0;}
+.theme-dark .ddp-wrap-top-filtering .ddp-form-search {width:210px;}
+.theme-dark .ddp-wrap-top-filtering .ddp-form-search .ddp-btn-search-close {background-position-x:-16px;}
+.theme-dark .ddp-wrap-top-filtering .ddp-form-search input::placeholder {color:#90969f;}
 .theme-dark .ddp-wrap-top-filtering .ddp-ui-dateinfo .ddp-box-dateinfo input.ddp-full {
     width: 100%;
 }
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {
-    float: left;
-    position: relative;
-    padding-left: 25px;
-    padding-right: 20px;
-    margin-right: 10px;
-    width: 195px;
-    box-sizing: border-box;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto {
-    width: auto;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto span.ddp-text-placeholder {
-    display: inline-block;
-    opacity: 0;
-    line-height: 15px;
-    margin-bottom: -15px;
-    font-family: sans-serif;
-    font-size: 13px;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto input:focus + .ddp-text-placeholder {
-    width: 175px;
-    white-space: nowrap;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto input:focus + .ddp-text-placeholder + .ddp-btn-delete {
-    display: block;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search input {
-    display: block;
-    padding: 18px 0;
-    width: 100%;
-    font-size: 13px;
-    box-sizing: border-box;
-    background: none;
-    border: none;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search:before {
-    display: inline-block;
-    position: absolute;
-    top: 50%;
-    left: 0;
-    margin-top: -7px;
-    width: 14px;
-    height: 14px;
-    background: url(../../../images/icon_search.png) no-repeat;
-    background-position: -15px -12px;
-    content: '';
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-btn-delete {
-    display: none;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    margin-top: -7px;
-    width: 14px;
-    height: 14px;
-    background: url(../../../images/btn_sclose.png) no-repeat;
-    background-position: left -131px;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-type-search {
-    width: 195px;
-    float: left;
-}
-
-.theme-dark .ddp-wrap-top-filtering .ddp-filter-search .ddp-btn-selection {
-    float: left;
-    margin: 10px 0 0 0;
-}
+.theme-dark .ddp-wrap-top-filtering .ddp-form-search {width:210px;}
 
 .theme-dark .ddp-filter-option {
     padding: 18px 0 11px 0;

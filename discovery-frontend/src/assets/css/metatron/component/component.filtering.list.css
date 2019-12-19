@@ -3,7 +3,7 @@
 /**************************************************************
   top Filtering
 **************************************************************/
-.ddp-wrap-top-filtering {position:relative; min-height:54px; margin:0 -80px; padding:0 80px;background-color:#dbdce0; z-index:10;}
+.ddp-wrap-top-filtering {position:relative; min-height:48px; margin:0 -80px; padding:0 80px;background-color:#dbdce0; z-index:10;}
 
 .ddp-wrap-top-filtering .ddp-filter-more {position:relative; float:left; margin-right:-7px;}
 .ddp-wrap-top-filtering .ddp-filter-more .ddp-wrap-popup2 {display:none; position:absolute; top:45px; left:0; min-width:134px;}
@@ -14,9 +14,11 @@
 .ddp-wrap-top-filtering .ddp-btn-filter-more:hover:before {background-position-x:-13px;}
 .ddp-wrap-top-filtering .ddp-form-filtering {display:inline-block; position:relative; vertical-align:top; margin-left: 20px;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering { margin-left:20px; padding:5px 0; cursor:pointer;}
-.ddp-wrap-top-filtering .ddp-wrap-form-filtering {padding:14px 0 15px 0; box-sizing:border-box;}
+.ddp-wrap-top-filtering .ddp-wrap-form-filtering {padding:10px 0 10px 0; box-sizing:border-box;}
 /*.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering.ddp-selected .ddp-txt-label {visibility:hidden;}*/
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-txt-label {display:inline-block; color:#90969f; font-size:13px;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-edit-option.ddp-inline {display:inline-block; vertical-align:middle;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-edit-option.ddp-inline .ddp-label-checkbox {margin-right:10px;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-result {display:inline-block; vertical-align:top;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-result + .ddp-ui-result {margin-left:20px;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-btn-del {display:inline-block; width:14px; height:14px; margin-left:4px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -131px;}
@@ -40,22 +42,11 @@
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-wrap-popup2 {}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-wrap-popup2 .ddp-pop-search input {display:block; padding:13px 0; width:100%; border:none; background:none; box-sizing:border-box;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-wrap-popup2 .ddp-pop-search:before {display:Inline-block; position:absolute; top:50%; left:10px; margin-top:-7px;width:14px; height:14px; background:url(../../../images/icon_search.png) no-repeat; background-position:left -12px; content:'';}
-
+.ddp-wrap-top-filtering .ddp-wrap-type-search {margin:9px 0 0 0;}
+.ddp-wrap-top-filtering .ddp-form-search {width:210px;}
+.ddp-wrap-top-filtering .ddp-form-search .ddp-btn-search-close {background-position-x:-16px;}
+.ddp-wrap-top-filtering .ddp-form-search input::placeholder {color:#90969f;}
 .ddp-wrap-top-filtering .ddp-ui-dateinfo .ddp-box-dateinfo input.ddp-full {width:100%}
-
-
-.ddp-wrap-top-filtering .ddp-filter-search {}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {float:left; position:relative; padding-left:25px; padding-right:20px; margin-right:10px; width:195px; box-sizing:border-box;}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto {width:auto;}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto span.ddp-text-placeholder {display:inline-block; opacity:0; line-height:15px; margin-bottom:-15px; font-family: sans-serif; font-size:13px;}
-
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto input:focus + .ddp-text-placeholder {width:175px; white-space:nowrap;}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search.type-auto input:focus + .ddp-text-placeholder + .ddp-btn-delete {display:block;}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search input {display:block; padding:18px 0; width:100%; font-size:13px; box-sizing:border-box; background:none; border:none;}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search:before {display:inline-block; position:absolute; top:50%; left:0; margin-top:-7px; width:14px; height:14px; background:url(../../../images/icon_search.png) no-repeat; background-position:-15px -12px; content:'';}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-btn-delete {display:none; position:absolute; top:50%; right:0; margin-top:-7px; width:14px; height:14px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -131px;}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-type-search { width:195px;float:left;}
-.ddp-wrap-top-filtering .ddp-filter-search .ddp-btn-selection {float:left; margin:10px 0 0 0;}
 .ddp-filter-option {padding:18px 0 11px 0; text-align:right;}
 .ddp-filter-option .ddp-btn-pop {padding:8px 9px;}
 .ddp-filter-option .ddp-data-total {position:relative; top:8px; float:left;}

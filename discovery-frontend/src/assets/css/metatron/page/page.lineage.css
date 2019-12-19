@@ -1,0 +1,73 @@
+@charset "utf-8";
+
+/**********************************************************************************
+	lineage
+**********************************************************************************/
+.ddp-pop-contents .ddp-top-option {display:inline-table; position:relative; padding-bottom:29px;  margin-bottom:20px;border-bottom:1px dotted #ccc; overflow:hidden;}
+.ddp-pop-contents .ddp-top-option > .ddp-wrap-edit3:first-of-type {margin-top:0;}
+
+.ddp-pop-contents .ddp-top-option .ddp-ui-edit-option dl.ddp-dl-option dt { margin-left:0;}
+.ddp-pop-contents .ddp-top-option .ddp-ui-edit-option dl.ddp-dl-option dd {margin-right:45px;}
+.ddp-pop-contents .ddp-top-option .ddp-ui-link {position:absolute; top:0; right:0;}
+
+.ddp-pop-contents .ddp-box-edit {clear:both; padding:20px; background-color:#f6f6f7;}
+.ddp-pop-contents .ddp-box-edit .ddp-txt-title {display:block; padding-bottom:10px; color:#4b515b; font-size:13px;}
+.ddp-pop-contents .ddp-box-edit textarea {display:block; width:100%; height:90px; padding:17px 10px; border-radius:2px; background-color:#fff; border:1px solid #d0d1d8; box-sizing:border-box;}
+
+
+/**********************************************************************************
+	메타데이터 (Admin_lineage)
+**********************************************************************************/
+.ddp-tag-type {display:inline-block; min-width:50px; text-align:center; border-radius:2px; padding:1px; color:#fff; font-size:10px; line-height:16px; }
+.ddp-tag-type.type-column {background-color:#93a3ba; opacity:0.8;}
+.ddp-tag-type.type-metadata {background-color:#566b8a;}
+.ddp-wrap-grid.type-information {position:relative; padding-bottom:30px;}
+.ddp-wrap-grid.type-information .ddp-icon-view {display:inline-block; position:absolute; top:0; left:50%; margin-left:-20px; width:40px; height:26px; border:2px solid #4b515b; border-radius:4px; background-color:#f6f6f7; box-sizing:border-box;}
+.ddp-wrap-grid.type-information .ddp-icon-view:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -7px; width:14px; height:12px; background:url(../../../images/icon_move.png) no-repeat; background-position:left -28px; content:'';}
+.ddp-wrap-grid.type-information .ddp-chart-grid {border:none;}
+.ddp-wrap-grid.type-information .ddp-chart-grid .ddp-top-title {padding:5px 0; font-size:13px; font-weight:normal;}
+.ddp-wrap-grid.type-information .ddp-chart-grid .ddp-wrap-edit3 {margin-top:8px;}
+.ddp-wrap-grid.type-information .ddp-chart-grid .ddp-view-edit {padding:0 16px 0 17px; margin-top:22px;}
+
+
+.ddp-box-popupcontents.type-file {box-sizing:border-box;}
+.ddp-box-synch a.ddp-link {float:right; font-size:12px; text-decoration:underline; color:rgba(75, 81, 91, 0.8);}
+.ddp-box-synch a.ddp-link em.ddp-icon-download2 {margin-right:4px;}
+.ddp-wrap-file-create2 {width:1192px; height:100%; margin:0 auto; display:flex; flex-direction: column;}
+.ddp-wrap-variable.type-total {padding-top:22px !important; position:relative;}
+.ddp-wrap-variable.type-total .ddp-txt-total {position:absolute; top:0; left:0; color:#4b515b; font-size:12px;}
+.ddp-wrap-variable.type-vertical .ddp-wrap-sheet {display:flex; flex:auto; flex-direction: column; justify-content:center; align-items:center;}
+.ddp-wrap-variable.type-vertical .ddp-wrap-sheet .ddp-txt-result {display:flex; color:#90969f; font-size:18px;}
+.ddp-wrap-variable.type-vertical .ddp-wrap-sheet .ddp-btn-selection {margin-top:15px;}
+.ddp-wrap-variable.type-vertical .ddp-wrap-sheet .ddp-btn-selection .ddp-icon-download2 {margin-right:6px; vertical-align:middle;}
+.ddp-wrap-variable.type-vertical .ddp-wrap-sheet .ddp-txt-result.type-error {color:#dc494f;}
+.ddp-wrap-variable .ddp-grid-detail {border:1px solid #d0d1d8; height:100%; overflow:auto; box-sizing:border-box;}
+.ddp-wrap-variable .ddp-grid-detail .ddp-table-form {white-space:nowrap;}
+
+.ddp-type-top-option .ddp-form-search.type-edit-search {width:240px; position:relative;}
+.ddp-configure-schema .ddp-flex .ddp-type-top-option {padding-bottom:5px;}
+.ddp-configure-schema .ddp-flex {display:flex; flex-direction: column;width:100%; height:100%; padding-bottom:32px; box-sizing:border-box;}
+.ddp-configure-schema .ddp-flex .ddp-data-details.ddp-ui-preview-contents {position:relative; flex:auto; top:0; left:0; right:0; bottom:0;}
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details.ddp-cursor tbody tr td .ddp-btn-control {display:none; position:absolute; top:50%; right:13px; margin-top:-10px;}
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details.ddp-cursor tbody tr:hover td {background-color:#f6f6f7;}
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details.ddp-cursor tbody tr:hover td .ddp-btn-control {display:block; }
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details.ddp-cursor tbody tr.ddp-add td {background-color:#f2f1f8; border-bottom:1px solid #dddddd;}
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details.ddp-cursor tbody tr.ddp-add td.ddp-selected {border-bottom:1px solid #9ca2cc; }
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details.ddp-cursor tbody tr.ddp-add .ddp-btn-control {display:block;}
+.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details.ddp-cursor tbody tr td.ddp-input-form:hover {background:#f2f1f8 !important}
+
+.ddp-create-option {padding:12px 0;}
+.ddp-create-option .ddp-radio-inline .ddp-label-radio {margin-left:20px;}
+.ddp-create-option .ddp-radio-inline .ddp-label-radio:first-of-type {margin-left:0;}
+.ddp-create-option .ddp-type-info {color:#e9b017; font-size:12px;}
+.ddp-create-option .ddp-type-info .ddp-icon-info {position:relative; top:2px;float:left; width:13px; height:12px; margin-right:4px; background:url(../../../images/icon_info3.png) no-repeat left -67px; vertical-align:middle;}
+
+
+table.ddp-table-type2 tbody tr > td .ddp-icon-success-r,
+table.ddp-table-type2 tbody tr > td .ddp-icon-warning-r,
+table.ddp-table-type2 tbody tr > td .ddp-icon-block-r{display:inline-block; background:url(../../../images/icon_confidence.png) no-repeat; vertical-align:middle;}
+table.ddp-table-type2 tbody tr > td .ddp-icon-success-r {width:20px; height:20px; }
+table.ddp-table-type2 tbody tr > td .ddp-icon-warning-r {width:20px; height:18px; background-position:left -21px;}
+table.ddp-table-type2 tbody tr > td .ddp-icon-block-r {width:20px; height:20px; background-position:left -57px;}
+table.ddp-table-type2 tbody tr > td .ddp-wrap-catalogs2 .ddp-ui-catalogs2 {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+table.ddp-table-type2 tbody tr > td .ddp-wrap-catalogs2 span {float:inherit;}

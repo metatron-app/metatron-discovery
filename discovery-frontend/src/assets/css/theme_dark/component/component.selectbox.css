@@ -1050,25 +1050,25 @@
 }
 
 .theme-dark .ddp-wrap-drop-search .ddp-ui-drop-search ul.ddp-list-selectbox2 {
-  max-height: 175px;
-  padding: 3px 0;
-  border-top: 1px solid #ddd;
-  box-sizing: border-box;
-  overflow-y: auto;
-  white-space: nowrap;
+    max-height: 175px;
+    padding: 3px 0;
+    border-top: 1px solid #ddd;
+    box-sizing: border-box;
+    overflow-y: auto;
+    white-space: nowrap;
 }
 .theme-dark .ddp-wrap-drop-search .ddp-ui-drop-search ul.ddp-list-selectbox2.type-border {
-  border-top:none;
+    border-top:none;
 }
 .theme-dark .ddp-wrap-drop-search .ddp-ui-drop-search ul.ddp-list-selectbox2.type-scroll-none {max-height:none;}
 .theme-dark .ddp-wrap-drop-search .ddp-ui-drop-search ul.ddp-list-selectbox2 li {
-  padding: 5px 13px;
-  font-size: 13px;
-  cursor: pointer;
+    padding: 5px 13px;
+    font-size: 13px;
+    cursor: pointer;
 }
 
 .theme-dark .ddp-wrap-drop-search .ddp-ui-drop-search ul.ddp-list-selectbox2 li:hover {
-  background-color: #f4f6fc;
+    background-color: #f4f6fc;
 }
 
 .theme-dark .ddp-wrap-drop-search .ddp-ui-drop-search ul.ddp-list-selectbox2 li a {

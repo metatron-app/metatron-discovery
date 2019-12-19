@@ -1,0 +1,61 @@
+@charset "utf-8";
+
+/***********************************************************************************************************
+	PAGE : 대시보드 생성 팝업 (조인)
+************************************************************************************************************/
+.ddp-box-join-option {height:259px; padding:19px 11px; background-color:#ececee; text-align:left; box-sizing:border-box; overflow-y:auto;}
+.ddp-box-join-option a.ddp-data-name {display:block; float:left; position:relative; padding:10px 21px 9px 22px; width:270px; border-radius:4px; background-color:#4b515b; color:#fff; font-size:14px; box-sizing:border-box; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+
+.ddp-box-join-option a.ddp-data-name .ddp-icon-database-w {margin-right:8px;}
+.ddp-box-join-option a.ddp-data-name em.ddp-icon-view{display:inline-block; width:4px; height:7px; position:absolute; top:50%; right:13px; margin-top:-4px; background:url(../../../images/icon_subview.png) no-repeat; background-position:left -10px;}
+.ddp-box-join-option .ddp-view-join {margin-bottom:20px; overflow:hidden;}
+.ddp-box-lookup {float:left; margin-left:-270px; padding-left:294px;}
+.ddp-box-lookup ul.ddp-list-lookup li {position:relative; margin-top:20px;}
+.ddp-box-lookup ul.ddp-list-lookup li:first-of-type {margin-top:0;}
+.ddp-box-lookup ul.ddp-list-lookup li:first-of-type:before {display:inline-block; content:''; position:absolute; top:50%; left:-24px; width:24px; border-bottom:1px solid #374050;}
+.ddp-box-lookup ul.ddp-list-lookup li:after {display:inline-block; content:''; position:absolute; top:-31px; left:16px; height:36px; margin-left:-2px; border-left:1px solid #374050; z-index:1;}
+.ddp-box-lookup ul.ddp-list-lookup li:first-of-type:after {display:none;}
+
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-lookup {display:inline-block; padding-left:53px; position:relative;}
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-lookup:before {display:inline-block; content:''; position:absolute; top:50%; left:0; width:53px; border-bottom:1px solid #374050;}
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-lookup:last-of-type {padding-left:75px;}
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-lookup:last-of-type:before {width:75px;}
+.ddp-box-lookup ul.ddp-list-lookup li em[class*="ddp-icon-join-"] {display:inline-block; position:absolute; top:50%; left:50%; width:28px; height:18px; margin:-9px 0 0 -14px; background:url(../../../images/icon_join_s.png) no-repeat; z-index:1;}
+.ddp-box-lookup ul.ddp-list-lookup li em.ddp-icon-join-right {background-position:left -19px;}
+.ddp-box-lookup ul.ddp-list-lookup li em.ddp-icon-join-inner {background-position:left -38px;}
+.ddp-box-lookup ul.ddp-list-lookup li em.ddp-icon-join-outer {background-position:left -57px;}
+
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-ui-joinicon {display:inline-block; position:absolute; top:50%; left:-4px; width:34px; height:30px; margin-top:-15px;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-ui-joinicon:hover {border-radius:3px; background-color:#d7d8dd;}
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-lookup:last-of-type a.ddp-ui-joinicon {left:22px;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-joinname {display:block; position:relative; width:270px; padding:9px 13px 9px 13px; color:#4b515b; font-size:14px; border-radius:3px;  background-color:#dcdde2; box-sizing:border-box;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-joinname:hover {padding-right:50px;}
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-lookup:last-of-type a.ddp-link-joinname:before {width:55px; left:-55px;}
+
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-joinname em.ddp-icon-database2 {position:relative; top:2px; float:left; width:12px; height:14px; margin-right:7px; background:url(../../../images/icon_database.png) no-repeat; background-position:-13px top; vertical-align: middle; }
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-joinname span.ddp-data-joinname {display:block;  white-space:nowrap; text-overflow:ellipsis; word-wrap:normal; box-sizing:border-box; overflow:hidden;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-joinname .ddp-btn-edit {display:none; position:absolute; right:10px; top:50%; margin-top:-10px;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-joinname:hover .ddp-btn-edit {display:block;}
+
+.ddp-box-lookup ul.ddp-list-lookup li.ddp-list-add:after {display:none;}
+.ddp-box-lookup ul.ddp-list-lookup li.ddp-list-add:before {display:inline-block; position:absolute; left:13px; bottom:14px; content:''; width:34px; height:38px; background:url(../../../images/bg_joinline.png) no-repeat;}
+
+.ddp-box-lookup ul.ddp-list-lookup li.ddp-list-add {padding-left:53px;}
+.ddp-box-lookup ul.ddp-list-lookup li.ddp-list-add:first-of-type {margin-left:-74px;}
+.ddp-box-lookup ul.ddp-list-lookup li.ddp-list-add:first-of-type:before {display:none;}
+.ddp-box-lookup ul.ddp-list-lookup li.ddp-list-add:first-of-type a.ddp-link-add-data {margin-top:0;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-add-data {display:inline-block; padding:9px 13px 9px 13px; margin-top:-6px; color:#b7b9c2; font-size:14px;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-add-data:hover {color:#4b515b;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-add-data .ddp-icon-add {margin-right:5px;}
+.ddp-box-lookup ul.ddp-list-lookup li a.ddp-link-add-data:hover .ddp-icon-add { background-position:left top;}
+
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-add-data {display:inline-block; position:relative; padding-left:74px; vertical-align: top;}
+.ddp-box-lookup ul.ddp-list-lookup li .ddp-ui-add-data:before {display:inline-block; content:''; position:absolute; top:50%; left:0; width:77px; border-top:1px dotted #4b515b;}
+
+.ddp-popup-join .ddp-box-resultdata {position:relative; height:345px; border:1px solid #b7b9c2;}
+.ddp-popup-join .ddp-box-resultdata span.ddp-txt-title {float:left; padding:16px 17px 15px 17px; color:#4b515b; font-size:13px; font-weight:bold; }
+.ddp-popup-join .ddp-box-resultdata .ddp-wrap-grid-option {}
+.ddp-popup-join .ddp-box-resultdata .ddp-wrap-grid-option .ddp-part-right {margin-top:-9px;}
+.ddp-popup-join .ddp-box-resultdata .ddp-ui-grid-form {position:absolute; top:47px; left:0; right:0; bottom:0; overflow:auto;}
+
+

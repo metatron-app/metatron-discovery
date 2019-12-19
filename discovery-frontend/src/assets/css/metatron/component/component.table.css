@@ -199,7 +199,7 @@ table.ddp-table-type3 thead tr th:last-of-type {border-right:1px solid #d2d3d9;}
 table.ddp-table-type3 thead tr th .ddp-txt-colortype {color:#b7b9c2;}
 table.ddp-table-type3 thead tr th.ddp-border-right {border-right:1px solid #d0d1d8;}
 table.ddp-table-type3.ddp-cursor-none tbody tr td {cursor: default;}
-table.ddp-table-type3 tbody tr td {position:relative; padding:10px 10px 11px 10px; font-size:13px; border:none; border-bottom:1px solid #ddd; background-color:#fff; cursor: pointer; cursor:pointer; overflow:inherit; white-space:normal;}
+table.ddp-table-type3 tbody tr td {position:relative; padding:10px 10px 11px 10px; font-size:13px; border:none; border-bottom:1px solid #ddd; background-color:#fff; cursor: pointer; cursor:pointer; overflow:inherit;word-break:break-all; white-space:normal;}
 table.ddp-table-type3 tbody tr td.ddp-txt-center:first-of-type {padding-left:10px;}
 table.ddp-table-type3 tbody tr td:first-of-type {padding-left:20px; border-left:1px solid #ddd;}
 table.ddp-table-type3 tbody tr td:last-of-type {border-right:1px solid #ddd;}
@@ -221,15 +221,14 @@ table.ddp-table-type3 tbody tr td .ddp-txt-status.type-partially {color:#ffba00;
 table.ddp-table-type3 tbody tr td .ddp-txt-status.type-fully {color:#10bf83;}
 table.ddp-table-type3 tbody tr td .ddp-txt-status.type-actively {color:#3F72C1;}
 
-
 /**************************************************************
-	Table select
+    Table select
 **************************************************************/
 table.ddp-table-select tbody tr td {position:relative; cursor:pointer;}
 table.ddp-table-select tbody tr:hover td {background-color:#f1f1f1; cursor:pointer;}
 table.ddp-table-select tbody tr.ddp-selected td {background-color:#f2f1f8;}
 /*table.ddp-table-select tbody tr.ddp-selected td:before {position:absolute; top:0; left:0; right:0; bottom:0; border:1px solid Red; border-left:none; border-right:none; content:'';}*/
-table.ddp-table-select tbody tr.ddp-selected td {border-top:1px solid #666eb2; border-bottom:1px solid #666eb2;}
+table.ddp-table-select tbody tr.ddp-selected td {border-top:1px solid #666eb2; border-bottom:1px solid #666eb2;;}
 table.ddp-table-select tbody tr.ddp-selected td:first-of-type {border-left:1px solid #666eb2;}
 table.ddp-table-select tbody tr.ddp-selected td:last-of-type {border-right:1px solid #666eb2;}
 table.ddp-table-select tbody tr td .ddp-box-tag {position:relative; top:2px;}
@@ -404,8 +403,8 @@ table.ddp-table-detail tr td .ddp-ui-buttons .ddp-btn-add {display:inline-block;
 table.ddp-table-detail tr td .ddp-ui-buttons .ddp-btn-add:hover {border:1px solid #b7b9c1;color:#4b515b;}
 table.ddp-table-detail tr td .ddp-ui-buttons .ddp-btn-add em.ddp-icon-plus {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px; vertical-align:middle;}
 table.ddp-table-detail tr td .ddp-ui-tags {margin:-9px 0; vertical-align:top;}
-table.ddp-table-detail tr td .ddp-tags {float:left;display:block; position:relative; max-width:100%; padding:3px 6px; margin:4px 3px 4px 0; background-color:#f2f1f7; border-radius:4px; color:#666fad; font-size:13px; cursor:pointer;  box-sizing:border-box;}
-table.ddp-table-detail tr td .ddp-tags span.txt-tags {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+table.ddp-table-detail tr td .ddp-tags {display:inline-block; float:left; position:relative; padding:3px 6px; margin:4px 3px 4px 0; background-color:#f2f1f7; border-radius:4px; color:#666fad; font-size:13px; cursor:pointer;}
+
 table.ddp-table-detail tr td .ddp-tags a.ddp-btn-delete  {display:none; position:absolute; top:-4px; right:-4px; content:''; width:14px; height:14px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:0 -131px;}
 table.ddp-table-detail tr td .ddp-tags:hover a.ddp-btn-delete {display:block;}
 table.ddp-table-detail tr td .ddp-tags.ddp-txt {cursor:default;}

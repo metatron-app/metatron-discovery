@@ -1,0 +1,70 @@
+@charset "utf-8";
+
+/**********************************************************************************
+	클러스터 _ add
+**********************************************************************************/
+.ddp-cluster-add {width:850px; height:100%; margin:0 auto 0 auto; text-align:left; border:1px solid #d0d1d8; overflow:hidden;}
+.ddp-box-application {float:left; width:50%; height:100%; padding:19px 19px; border-right:1px solid #d0d1d8;background-color:#f6f6f7; box-sizing:border-box; overflow:auto;}
+.ddp-box-application ul.ddp-list-application li {width:50%; float:left; padding:5px 5px; box-sizing:border-box;}
+.ddp-box-application ul.ddp-list-application li a {display:table; height:98px; width:100%; }
+.ddp-box-application ul.ddp-list-application li a .ddp-add-application {display:table-cell; position:relative; width:100%; height:100%; border:1px solid #ddd; background-color:#fff; text-align:center; vertical-align:middle;}
+.ddp-box-application ul.ddp-list-application li a:hover .ddp-add-application:before,
+.ddp-box-application ul.ddp-list-application li.ddp-selected a .ddp-add-application:before{display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; border:1px solid #454545; content:'';}
+.ddp-box-application ul.ddp-list-application li a .ddp-add-application span.ddp-bg-selected {display:none; position:absolute; bottom:0; left:0; right:0; height:24px; background-color:#454545;}
+.ddp-box-application ul.ddp-list-application li a .ddp-add-application span.ddp-bg-selected em.ddp-icon-select {display:block; position:absolute; top:50%; left:50%; width:11px; height:8px; margin:-4px 0 0 -6px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-27px top;}
+.ddp-box-application ul.ddp-list-application li a:hover .ddp-add-application span.ddp-bg-selected,
+.ddp-box-application ul.ddp-list-application li.ddp-selected a .ddp-add-application span.ddp-bg-selected{display:block;}
+.ddp-cluster-add .ddp-wrap-ex {float:left; width:50%; height:100%; padding:30px 19px; box-sizing:border-box; overflow:auto;}
+.ddp-cluster-add .ddp-wrap-ex .ddp-form-option {padding-bottom:30px;}
+.ddp-form-option .ddp-label-type {display:block; padding-bottom:9px; color:#4b515b; font-size:13px; font-weight:bold;}
+.ddp-form-option .ddp-type-selectbox  {width:217px;}
+.ddp-cluster-add .ddp-wrap-ex .ddp-ui-ex {margin-top:0;}
+.ddp-cluster-add .ddp-wrap-ex ul.ddp-list-ex li {padding:0;}
+.ddp-cluster-add .ddp-wrap-ex ul.ddp-list-ex li:before {display:none;}
+.ddp-cluster-add2 {display:flex; width:1192px; height:100%; margin:0 auto; text-align:left;}
+.ddp-cluster-add2 .ddp-ui-version {float:left; width:257px; min-width:257px; height:100%; border:1px solid #e4e5ea; box-sizing:border-box; overflow:auto;}
+.ddp-cluster-add2 .ddp-ui-set-info {display:block; position:relative; width:100%; height:100%; overflow:auto;}
+
+.ddp-ui-version .ddp-label-list {position:relative; padding:22px 20px; cursor:pointer;}
+.ddp-ui-version .ddp-ui-step.ddp-selected .ddp-label-list:before {display:inline-block; position:absolute; top:0; left:0; bottom:0; border-left:3px solid #666eb2; content:'';}
+.ddp-ui-version .ddp-ui-step.ddp-selected .ddp-label-list .ddp-tag-step {background-color:#666eb2}
+.ddp-ui-version .ddp-label-list .ddp-txt-label {color:#90969f; font-size:14px;}
+.ddp-ui-version .ddp-ui-step.ddp-selected .ddp-label-list .ddp-txt-label {color:#666eb2; font-weight:bold;}
+.ddp-ui-version .ddp-step-contents {display:none; padding:12px 0; border-top:1px solid #ddd;  background-color:#f6f6f7; box-sizing:border-box;}
+.ddp-ui-version .ddp-ui-step {border-bottom:1px solid #ddd;}
+.ddp-ui-version .ddp-ui-step:last-of-type {border-bottom:none;}
+.ddp-ui-version .ddp-ui-step:last-of-type .ddp-step-contents {border-bottom:none;}
+.ddp-ui-version .ddp-ui-step.ddp-selected .ddp-step-contents {display:block; overflow:auto;}
+.ddp-step-contents .ddp-list-set li > a {display:block; position:relative; padding:12px 10px 12px 10px;}
+.ddp-step-contents .ddp-list-set li > a:hover {background-color:#e7e7ea; font-weight:Bold;}
+.ddp-step-contents .ddp-list-set li .ddp-sub-list {display:none;}
+.ddp-step-contents .ddp-list-set li.ddp-selected .ddp-sub-list {display:block;}
+
+.ddp-ui-set-info {padding:0 25px;}
+.ddp-ui-set-info .ddp-ui-title {padding:22px 0; border-bottom:1px solid #f6f6f7; color:#35393f; font-size:14px; font-weight:bold;}
+.ddp-ui-set-info .ddp-ui-title .ddp-data-ver {display:block; color:#35393f; font-size:12px; font-weight:normal;}
+ul.ddp-list-setinfo {}
+ul.ddp-list-setinfo li {}
+ul.ddp-list-setinfo li .ddp-form-setting {position:relative; padding:0 0 0 43px; overflow:auto;}
+ul.ddp-list-setinfo li .ddp-form-setting .ddp-clear {margin:0 -5px;}
+ul.ddp-list-setinfo li .ddp-form-setting [class*='ddp-col-'] {padding:0 5px;}
+ul.ddp-list-setinfo li .ddp-form-setting .ddp-txt-title {padding:7px 0; color:#35393f; font-size:13px;}
+ul.ddp-list-setinfo li .ddp-form-setting .ddp-btn-icons {position:absolute; top:50%; right:0; margin-top:-7px; width:68px;}
+ul.ddp-list-setinfo li .ddp-form-setting .ddp-btn-icons [class*="ddp-icon"] {margin-left:10px; float:Left;}
+ul.ddp-list-setinfo li .ddp-form-setting .ddp-icon-refresh {display:inline-block; width:16px; height:14px; background:url(../../../images/btn_refresh.png) no-repeat; background-position:left -48px; }
+
+ul.ddp-list-setinfo li .ddp-form-setting .ddp-icon-close {display:inline-block; width:14px; height:14px; margin-left:10px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:-15px -131px;}
+ul.ddp-list-setinfo li .ddp-label-info {position:relative; padding:10px 0 10px 43px; border-bottom:1px solid #e7e7ea; cursor:pointer;}
+ul.ddp-list-setinfo li .ddp-label-info em.ddp-icon-view {display:inline-block; position:absolute; top:50%; left:18px; margin-top:-2px; width:4px; height:7px; background:url(../../../images/icon_dataview.png) no-repeat; background-position:left -102px;}
+ul.ddp-list-setinfo li.ddp-selected .ddp-label-info em.ddp-icon-view {width:7px; height:4px; background-position:left -97px;}
+
+ul.ddp-list-setinfo li .ddp-btn-setinfo {padding:12px 0; text-align:right;}
+ul.ddp-list-setinfo li .ddp-btn-setinfo .ddp-btn-add {display:inline-block; padding:7px 14px; margin-right:68px;border-radius:2px; color:#fff; font-size:13px; background-color:#90969f;}
+ul.ddp-list-setinfo li .ddp-btn-setinfo .ddp-btn-add:hover {background-color:#4c515a;}
+ul.ddp-list-setinfo li .ddp-btn-setinfo .ddp-btn-add .ddp-icon-plus {display:inline-block; margin-right:6px; width:13px; height:13px; background:url(../../../images/icon_add.png) no-repeat; background-position:-42px -22px;}
+.ddp-setinfo-contents {display:none;}
+ul.ddp-list-setinfo li.ddp-selected .ddp-setinfo-contents {display:block;}
+ul.ddp-list-setinfo li .ddp-setinfo-contents {display:none; background-color:#f6f6f7; border-bottom:1px solid #e7e7ea;}
+ul.ddp-list-setinfo li .ddp-setinfo-contents span.ddp-label-title {display:block; padding:12px 0; color:#35393f; font-size:13px;}
+ul.ddp-list-setinfo li .ddp-setinfo-contents .ddp-ui-setinfo {position:Relative; padding:6px 68px 6px 0;}
+ul.ddp-list-setinfo li .ddp-setinfo-contents .ddp-ui-setinfo .ddp-txt-title {color:#90969f; font-size:13px;}

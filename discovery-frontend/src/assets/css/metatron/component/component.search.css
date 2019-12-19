@@ -4,20 +4,26 @@
 /**********************************************************************************
 	검색
 **********************************************************************************/
-.ddp-form-search {position:relative; width:300px; box-sizing: border-box;}
-.ddp-form-search em.ddp-icon-search {display:inline-block; position:absolute; top:50%; left:0; margin-top:-6px; width:11px; height:11px; background:url(../../../images/icon_search.png) no-repeat;}
-.ddp-form-search input {display:block; padding:6px 22px 6px 22px;  width:100%; border:none; border-bottom:1px solid #d0d1d7; background-color:transparent; font-size:13px; box-sizing:border-box;}
-.ddp-form-search input:focus {border-bottom:1px solid #b7b9c1;}
-.ddp-form-search input::-webkit-input-placeholder {color:#b7b9c2;}
-.ddp-form-search input:-ms-input-placeholder {color:#b7b9c2;}
-.ddp-form-search .ddp-btn-search-close {display:inline-block; padding:5px; position:absolute; top:50%; right:5px; margin-top:-8px; cursor:pointer; font-size:0 !important;}
-.ddp-form-search .ddp-btn-search-close:before {display:inline-block; width:7px; height:7px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -38px; content:'';}
+.ddp-form-search {position:relative; padding:0 20px 0 23px; width:300px; box-sizing: border-box;}
+.ddp-form-search em.ddp-icon-search {display:inline-block; position:absolute; top:50%; left:0; width:14px; height:14px; margin-top:-7px; background:url(../../../images/icon_search.png) no-repeat; background-position:-15px -12px; content:'';}
+.ddp-form-search input {display:block; width:100%; padding:7px 0; border:none; background:none; font-size:13px;}
+.ddp-form-search input::placeholder {color:#b6b9c2;}
+.ddp-form-search .ddp-btn-search-close {display:none; position:absolute; top:50%; right:0; margin-top:-8px; width:15px; height:15px; background:url(../../../images/btn_close.png) no-repeat; background-position:left -132px;}
+.ddp-form-search.ddp-selected .ddp-btn-search-close {display:block;}
+
+.ddp-form-search.type-box {border:1px solid #d0d1d8; border-radius:2px; padding-left:35px; box-sizing:border-box;}
+.ddp-form-search.type-box .ddp-icon-search {left:12px;}
+.ddp-form-search.type-box .ddp-btn-search-close {right:3px;}
+
+.ddp-wrap-type-search {overflow:hidden;}
+.ddp-wrap-type-search .ddp-form-search {float:left;}
+.ddp-wrap-type-search .ddp-btn-line {float:left; margin-left:10px;}
 
 .ddp-form-search.ddp-full {width:100%;}
 
 .ddp-ui-searching {position:relative; margin:0 16px 0 16px; padding:0 30px 0 26px; background-color:#f3f4f9}
 .ddp-ui-searching .ddp-icon-search {display:inline-block; position:absolute; top:50%; left:8px; margin-top:-7px;  width:13px; height:14px; background:url(../../../images/btn_search.png) no-repeat left -51px; }
-.ddp-ui-searching.type-search input {color:#666db7;}
+
 .ddp-ui-searching input {display:block; width:100%; padding:5px 0 4px 0; border:none; font-size:13px; line-height:21px; background:none;}
 .ddp-ui-searching .ddp-btn-delete {display:inline-block; position:absolute; top:50%; right:8px; margin-top:-8px; width:15px; height:15px; background:url(../../../images/btn_close.png) no-repeat; background-position:-16px -132px;}
 
@@ -27,6 +33,9 @@
 .ddp-form-search2 span.ddp-icon-search:hover {background-color:#e3e3e8;}
 .ddp-form-search2 span.ddp-icon-search:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px; width:12px; height:12px; background:url(../../../images/btn_search.png) no-repeat; background-position:left -38px; content:'';}
 
+/**************************************************************
+  filter search
+**************************************************************/
 .ddp-search-value .ddp-data-value {display:block; position:relative; padding:0 28px 0 25px; border-radius:3px; background-color:#efeff1; z-index:10;}
 .ddp-search-value .ddp-data-value.ddp-data-del {padding-right:8px;}
 .ddp-search-value .ddp-data-value input {display:block; width:100%; padding:7px 0; font-size:13px; border:none; background-color:transparent; box-sizing:border-box;}
@@ -82,25 +91,3 @@
 .ddp-select-search.ddp-selected a.ddp-ui-search2 {text-decoration:underline;}
 .ddp-select-search.ddp-selected a.ddp-ui-search2.type-underline-none {text-decoration:none;}
 .ddp-select-search.ddp-selected .ddp-ui-search2 span.ddp-icon-search {background-color:#e3e3e8;}
-.ddp-type-search.type-box {border:1px solid #d0d1d8; border-radius:2px; padding-left:35px; box-sizing:border-box;}
-.ddp-type-search.type-box:before {left:12px;}
-.ddp-type-search {position:relative; padding:0 20px 0 23px;}
-.ddp-type-search:before {display:Inline-block; position:absolute; top:50%; left:0; width:14px; height:14px; margin-top:-7px; background:url(../../../images/icon_search.png) no-repeat; background-position:-15px -12px; content:'';}
-.ddp-type-search .ddp-btn-delete {display:none; position:absolute; top:50%; right:0; margin-top:-8px; width:15px; height:15px; background:url(../../../images/btn_close.png) no-repeat; background-position:left -132px;}
-.ddp-type-search.type-box .ddp-btn-delete {right:3px;}
-.ddp-type-search.ddp-selected .ddp-btn-delete {display:block;}
-.ddp-type-search input {display:block; width:100%; padding:6px 0; border:none; background:none; font-size:13px;}
-.ddp-type-search input::placeholder {color:#b6b9c2;}
-/**************************************************************
-  hover search
-**************************************************************/
-/*.ddp-hover-search {display:inline-block; position:relative;}*/
-/*.ddp-hover-search .ddp-ui-search2 {color:#4b515b; font-weight:bold;}*/
-/*.ddp-hover-search .ddp-ui-search2 span.ddp-icon-search {display:inline-block; position:relative; width:22px; height:22px; margin-left:7px; background-color:#f6f6f7; border-radius:2px; vertical-align:middle;}*/
-/*.ddp-hover-search .ddp-ui-search2:hover span.ddp-icon-search {background-color:#e3e3e8;}*/
-/*.ddp-hover-search .ddp-ui-search2 span.ddp-icon-search:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px; width:12px; height:12px; background:url(../images/btn_search.png) no-repeat; background-position:left -38px; content:'';}*/
-/*.ddp-hover-search .ddp-box-layout4 {display:none; position:absolute; top:100%; left:-30px;}*/
-/*.ddp-hover-search:hover .ddp-box-layout4 {display:block;}*/
-/*.ddp-hover-search:hover a.ddp-ui-search2 {text-decoration:underline;}*/
-/*.ddp-hover-search:hover .ddp-ui-search2 span.ddp-icon-search {background-color:#e3e3e8;}*/
-

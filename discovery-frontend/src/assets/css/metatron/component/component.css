@@ -645,7 +645,6 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
   synch
 **************************************************************/
 .ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-box-message.ddp-type {margin-bottom:0;}
-.ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-box-message {margin-bottom:-10px;}
 .ddp-box-synch {display:table; width:100%; position:relative; padding:7px 12px; border:1px solid #cdd8f4; background-color:#f0f3fc; color:#6174b3; font-size:12px; border-radius:2px; overflow:hidden; box-sizing:border-box;}
 .ddp-box-synch + .ddp-box-synch {margin-top:4px;}
 .ddp-box-synch .ddp-txt-synch {display:table-cell; vertical-align:middle;}

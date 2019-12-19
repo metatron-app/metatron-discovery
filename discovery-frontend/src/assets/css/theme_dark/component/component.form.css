@@ -561,42 +561,11 @@
     display: block;
 }
 
-.theme-dark .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply.type-catalog .ddp-type-search {
-    position: relative;
-}
-
-.theme-dark .ddp-apply.type-catalog .ddp-type-search.ddp-selected .ddp-box-layout4 {
-    display: block;
-}
-
-.theme-dark .ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 2px;
-    width: auto;
-}
-
-.theme-dark .ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 .ddp-data-title + ul.ddp-wrap-catalogs2 {
-    margin-top: -6px;
-}
-
-.theme-dark .ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 ul.ddp-wrap-catalogs2 {
-    margin: 9px 0 9px 0;
-    padding: 0;
-}
-
-.theme-dark .ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 ul.ddp-wrap-catalogs2 li a .ddp-ui-catalogs2 {
-    padding: 0 0 0 20px;
-}
-
-.theme-dark .ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4.type-button {
+.theme-dark .ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4.type-button {
     padding-bottom: 40px;
 }
 
-.theme-dark .ddp-apply.type-catalog .ddp-type-search .ddp-box-layout4 .ddp-btn-bottom {
+.theme-dark .ddp-apply.type-catalog .ddp-form-search .ddp-box-layout4 .ddp-btn-bottom {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -607,14 +576,11 @@
     background-color: #fff;
 }
 
+
 .theme-dark .ddp-apply.type-catalog .ddp-box-layout4 .ddp-data-title {
     color: #b5b9c2;
     font-size: 12px;
     padding: 15px 14px 13px 14px;
-}
-
-.theme-dark .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-type-search {
-    float: left;
 }
 
 .theme-dark .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-apply .ddp-btn-add {
@@ -1669,7 +1635,7 @@
 }
 
 .theme-dark .ddp-box-layout4 .ddp-data-title + .ddp-data-code {
-  padding-top: 0; white-space:normal;
+    padding-top: 0; white-space:noraml;
 }
 
 .theme-dark .ddp-box-layout4 .ddp-table-code {
@@ -1938,7 +1904,7 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {
 
 .theme-dark .ddp-ui-dateinfo .ddp-txt-date {
     position: absolute;
-    top: 6px;
+    top: 8px;
     left: 0;
     color: #90969f;
     font-size: 12px;

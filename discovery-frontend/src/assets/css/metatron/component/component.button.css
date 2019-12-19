@@ -44,6 +44,8 @@ a.ddp-btn-buttons4 .ddp-icon-edit {display:inline-block; width:13px; height:13px
 
 .ddp-btn-pop.ddp-bg-black {background-color:#4b515b; border:1px solid #4b515b; color:#fff;}
 .ddp-btn-pop.ddp-bg-black:hover {background-color:#35393f; border:1px solid #35393f; color:#fff;}
+.ddp-btn-pop.ddp-bg-black .ddp-icon-view {display:inline-block; width:13px; height:11px; margin-right:5px; background:url(../../../images/icon_selection.png) no-repeat; background-position:-14px -43px; vertical-align: middle;}
+
 .ddp-btn-pop.ddp-bg-black.ddp-disabled {background-color:#d0d1d8; border:1px solid #d0d1d8; color:#fff; cursor: no-drop;}
 .ddp-btn-pop.ddp-bg-black em.ddp-icon-checked {display:inline-block; position:relative;  width:11px; margin-right:5px; height:9px; background:url(../../../images/icon_select2.png) no-repeat; background-positioN:-27px top; vertical-align: middle;}
 .ddp-btn-pop.ddp-bg-black em.ddp-icon-add2 {display:inline-block; position:relative; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-positioN:-42px -22px; vertical-align: middle;}
@@ -425,3 +427,24 @@ ul.ddp-list-tab-button.ddp-disabled:after {display:inline-block; content:''; pos
 .ddp-box-btn-r .ddp-icon-pause {display:inline-block; position:absolute; top:50%; left:50%; background:url(../../../images/btn_status.png) no-repeat;}
 .ddp-box-btn-r .ddp-icon-play {width:8px; height:12px;margin:-6px 0 0 -4px; background-position:left -50px;}
 .ddp-box-btn-r .ddp-icon-pause{width:9px; height:11px; margin:-6px 0 0 -5px; background-position:left -63px;}
+
+/***************************************************************************
+	Tamplate : icon box buttons
+*************************************************************************/
+.ddp-btn-box-icons {display:inline-block; position:relative; width:30px; height:30px; border-radius:2px; border:1px solid #d0d1d9; box-sizing:border-box;}
+.ddp-btn-box-icons .ddp-btn-icons {display:inline-block; position:absolute; top:50%; left:50%; background:url(../../../images/btn_icons.png) no-repeat;}
+.ddp-btn-box-icons .ddp-btn-icons.type-setting {margin:-7px 0 0 -7px;width:14px; height:14px;}
+.ddp-btn-box-icons:hover .ddp-btn-icons.type-setting {background-position-x:-15px;}
+.ddp-btn-box-icons .ddp-btn-icons.type-refresh {margin:-7px 0 0 -7px; width:13px; height:13px; background-position:left -15px; }
+.ddp-btn-box-icons:hover .ddp-btn-icons.type-refresh {background-position-x:-14px;}
+
+/***************************************************************************
+	Tamplate : component buttons
+*************************************************************************/
+.ddp-component-buttons {display:inline-block;padding:7px 12px; height:30px; border-radius:2px; background-color:#e7e7ea; color:#4b515b; font-size:13px; box-sizing:border-box}
+.ddp-component-buttons:hover {background-color:#d0d1d8;}
+.ddp-component-buttons .ddp-icons {display:inline-block; margin-right:4px; vertical-align:middle;}
+.ddp-component-buttons .ddp-icons.type-filter {display:inline-block; width:13px; height:13px; background:url(../../../images/icon_filter.png) no-repeat; background-position:left -27px;}
+
+
+

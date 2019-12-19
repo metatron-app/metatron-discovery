@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+@import url('page.login.css'); /* login */
+@import url('page.workbook.css'); /* workbook */
+@import url('page.workspace.css'); /* workspace */
+@import url('page.chart.css'); /* chart */
+@import url('page.datapreparation.css'); /* data preparation */
+@import url('page.cluster.css'); /* cluster */
+@import url('page.lineage.css'); /* lineage */
+@import url('page.metadata.css'); /* metadata */
+@import url('page.management.css'); /* management */
+@import url('page.notebook.css'); /* notebook */
+@import url('page.dashboard.css'); /* dashboard */
+@import url('page.dashboard.multidatasource.css'); /* dashboard multidatasource */
+@import url('page.dashboard.join.css'); /* dashboard join */
+@import url('page.filter.css'); /* filter */
+@import url('page.enginemonitoring.css'); /* engine monitoring */
+@import url('page.workbench.css'); /* workbench */
+@import url('page.error.css'); /* error */
+@import url('page.loading.css'); /* loading */
+@import url('page.admin.css'); /* admin */

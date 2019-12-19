@@ -1,0 +1,375 @@
+@charset "utf-8";
+
+/**********************************************************************************
+	클러스터 _ add
+**********************************************************************************/
+.theme-dark .ddp-cluster-add {
+	width: 850px;
+	margin: 0 auto 0 auto;
+	text-align: left;
+	border: 1px solid #c3c8d3;
+	overflow: hidden;
+}
+
+.theme-dark .ddp-box-application {
+	float: left;
+	width: 50%;
+	height: 100%;
+	padding: 19px 19px;
+	border-right: 1px solid #c3c8d3;
+	background-color: #f4f6fc;
+	box-sizing: border-box;
+	overflow: auto;
+}
+
+.theme-dark .ddp-box-application ul.ddp-list-application li {
+	width: 50%;
+	float: left;
+	padding: 5px 5px;
+	box-sizing: border-box;
+}
+
+.theme-dark .ddp-box-application ul.ddp-list-application li a {
+	display: table;
+	height: 98px;
+	width: 100%;
+}
+
+.theme-dark .ddp-box-application ul.ddp-list-application li a .ddp-add-application {
+	display: table-cell;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	border: 1px solid #ddd;
+	background-color: #fff;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.theme-dark .ddp-box-application ul.ddp-list-application li a:hover .ddp-add-application:before,
+.theme-dark .ddp-box-application ul.ddp-list-application li.ddp-selected a .ddp-add-application:before {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 1px solid #454545;
+	content: '';
+}
+
+.theme-dark .ddp-box-application ul.ddp-list-application li a .ddp-add-application span.ddp-bg-selected {
+	display: none;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 24px;
+	background-color: #454545;
+}
+
+.theme-dark .ddp-box-application ul.ddp-list-application li a .ddp-add-application span.ddp-bg-selected em.ddp-icon-select {
+	display: block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 11px;
+	height: 8px;
+	margin: -4px 0 0 -6px;
+	background: url(../../../../images/icon_select2.png) no-repeat;
+	background-position: -27px top;
+}
+
+.theme-dark .ddp-box-application ul.ddp-list-application li a:hover .ddp-add-application span.ddp-bg-selected,
+.theme-dark .ddp-box-application ul.ddp-list-application li.ddp-selected a .ddp-add-application span.ddp-bg-selected {
+	display: block;
+}
+
+.theme-dark .ddp-cluster-add .ddp-wrap-ex {
+	float: left;
+	width: 50%;
+	height:100%;
+	padding: 30px 19px;
+	box-sizing: border-box;
+	overflow:auto;
+}
+
+.theme-dark .ddp-cluster-add .ddp-wrap-ex .ddp-form-option {
+	padding-bottom: 30px;
+}
+
+.theme-dark .ddp-form-option .ddp-label-type {
+	display: block;
+	padding-bottom: 9px;
+	color: #4e5368;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+.theme-dark .ddp-form-option .ddp-type-selectbox {
+	width: 217px;
+}
+
+.theme-dark .ddp-cluster-add .ddp-wrap-ex .ddp-ui-ex {
+	margin-top: 0;
+}
+
+.theme-dark .ddp-cluster-add .ddp-wrap-ex ul.ddp-list-ex li {
+	padding: 0;
+}
+
+.theme-dark .ddp-cluster-add .ddp-wrap-ex ul.ddp-list-ex li:before {
+	display: none;
+}
+
+.theme-dark .ddp-cluster-add2 {
+	display:flex; width:1192px; height:100%;
+	margin: 0 auto;
+	text-align: left;
+}
+
+.theme-dark .ddp-cluster-add2 .ddp-ui-version {
+	float: left;
+	width: 257px;
+	min-width:257px;
+	height: 100%;
+	border: 1px solid #e4e5ea;
+	box-sizing: border-box;
+	overflow:auto;
+}
+
+.theme-dark .ddp-cluster-add2 .ddp-ui-set-info {
+	display: block;
+	position: relative;
+	width:100%;
+	height: 100%;
+	overflow: auto;
+}
+
+.theme-dark .ddp-ui-version .ddp-label-list {
+	position: relative;
+	padding: 22px 20px;
+	cursor: pointer;
+}
+
+.theme-dark .ddp-ui-version .ddp-ui-step.ddp-selected .ddp-label-list:before {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	border-left: 3px solid #1972d0;
+	content: '';
+}
+
+.theme-dark .ddp-ui-version .ddp-ui-step.ddp-selected .ddp-label-list .ddp-tag-step {
+	background-color: #1972d0;
+}
+
+.theme-dark .ddp-ui-version .ddp-label-list .ddp-txt-label {
+	color: #7e8aa5;
+	font-size: 14px;
+}
+
+.theme-dark .ddp-ui-version .ddp-ui-step.ddp-selected .ddp-label-list .ddp-txt-label {
+	color: #1972d0;
+	font-weight: bold;
+}
+
+.theme-dark .ddp-ui-version .ddp-step-contents {
+	display: none;
+	padding: 12px 0;
+	border-top: 1px solid #ddd;
+	background-color: #f4f6fc;
+	box-sizing: border-box;
+}
+
+.theme-dark .ddp-ui-version .ddp-ui-step {
+	border-bottom: 1px solid #ddd;
+}
+
+.theme-dark .ddp-ui-version .ddp-ui-step:last-of-type {
+	border-bottom: none;
+}
+
+.theme-dark .ddp-ui-version .ddp-ui-step:last-of-type .ddp-step-contents {
+	border-bottom: none;
+}
+
+.theme-dark .ddp-ui-version .ddp-ui-step.ddp-selected .ddp-step-contents {
+	display: block;
+	overflow: auto;
+}
+
+.theme-dark .ddp-step-contents .ddp-list-set li > a {
+	display: block;
+	position: relative;
+	padding: 12px 10px 12px 10px;
+}
+
+.theme-dark .ddp-step-contents .ddp-list-set li > a:hover {
+	background-color: #eaedf5;
+	font-weight: Bold;
+}
+
+.theme-dark .ddp-step-contents .ddp-list-set li .ddp-sub-list {
+	display: none;
+}
+
+.theme-dark .ddp-step-contents .ddp-list-set li.ddp-selected .ddp-sub-list {
+	display: block;
+}
+
+.theme-dark .ddp-ui-set-info {
+	padding: 0 25px;
+}
+
+.theme-dark .ddp-ui-set-info .ddp-ui-title {
+	padding: 22px 0;
+	border-bottom: 1px solid #f4f6fc;
+	color: #1f2942;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.theme-dark .ddp-ui-set-info .ddp-ui-title .ddp-data-ver {
+	display: block;
+	color: #1f2942;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting {
+	position: relative;
+	padding: 0 0 0 43px;
+	overflow: auto;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting .ddp-clear {
+	margin: 0 -5px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting [class*='ddp-col-'] {
+	padding: 0 5px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting .ddp-txt-title {
+	padding: 7px 0;
+	color: #1f2942;
+	font-size: 13px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting .ddp-btn-icons {
+	position: absolute;
+	top: 50%;
+	right: 0;
+	margin-top: -7px;
+	width: 68px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting .ddp-btn-icons [class*="ddp-icon"] {
+	margin-left: 10px;
+	float: Left;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting .ddp-icon-refresh {
+	display: inline-block;
+	width: 16px;
+	height: 14px;
+	background: url(../../../../images/btn_refresh.png) no-repeat;
+	background-position: left -48px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-form-setting .ddp-icon-close {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	margin-left: 10px;
+	background: url(../../../../images/btn_sclose.png) no-repeat;
+	background-position: -15px -131px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-label-info {
+	position: relative;
+	padding: 10px 0 10px 43px;
+	border-bottom: 1px solid #eaedf5;
+	cursor: pointer;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-label-info em.ddp-icon-view {
+	display: inline-block;
+	position: absolute;
+	top: 50%;
+	left: 18px;
+	margin-top: -2px;
+	width: 4px;
+	height: 7px;
+	background: url(../../../../images/icon_dataview.png) no-repeat;
+	background-position: left -102px;
+}
+
+.theme-dark ul.ddp-list-setinfo li.ddp-selected .ddp-label-info em.ddp-icon-view {
+	width: 7px;
+	height: 4px;
+	background-position: left -97px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-btn-setinfo {
+	padding: 12px 0;
+	text-align: right;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-btn-setinfo .ddp-btn-add {
+	display: inline-block;
+	padding: 7px 14px;
+	margin-right: 68px;
+	border-radius: 2px;
+	color: #fff;
+	font-size: 13px;
+	background-color: #7e8aa5;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-btn-setinfo .ddp-btn-add:hover {
+	background-color: #4c515a;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-btn-setinfo .ddp-btn-add .ddp-icon-plus {
+	display: inline-block;
+	margin-right: 6px;
+	width: 13px;
+	height: 13px;
+	background: url(../../../../images/icon_add.png) no-repeat;
+	background-position: -42px -22px;
+}
+
+.theme-dark .ddp-setinfo-contents {
+	display: none;
+}
+
+.theme-dark ul.ddp-list-setinfo li.ddp-selected .ddp-setinfo-contents {
+	display: block;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-setinfo-contents {
+	display: none;
+	background-color: #f4f6fc;
+	border-bottom: 1px solid #eaedf5;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-setinfo-contents span.ddp-label-title {
+	display: block;
+	padding: 12px 0;
+	color: #1f2942;
+	font-size: 13px;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-setinfo-contents .ddp-ui-setinfo {
+	position: Relative;
+	padding: 6px 68px 6px 0;
+}
+
+.theme-dark ul.ddp-list-setinfo li .ddp-setinfo-contents .ddp-ui-setinfo .ddp-txt-title {
+	color: #7e8aa5;
+	font-size: 13px;
+}
+

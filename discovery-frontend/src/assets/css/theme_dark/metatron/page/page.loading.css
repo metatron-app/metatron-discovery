@@ -1,0 +1,88 @@
+@charset "utf-8";
+
+/**********************************************************************************
+	sso _ loading
+**********************************************************************************/
+.theme-dark .ddp-wrap-login.sso-loading {
+    min-height: 500px;
+}
+
+.theme-dark .ddp-wrap-login .ddp-blur {
+    display: block;
+    background: url(../../../../images/login.jpg) no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
+    filter: blur(5px);
+    position: absolute;
+    height: 500px;
+    width: 500px;
+    top: 50%;
+    left: 50%;
+    margin: -250px 0 0 -250px;
+}
+
+.theme-dark .ddp-sso-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -250px 0 0 -250px;
+    width: 500px;
+    height: 500px;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 10;
+}
+
+.theme-dark .ddp-sso-loading .ddp-wrap-logo {
+    padding: 110px 0 60px 0;
+    text-align: center;
+}
+
+.theme-dark .ddp-sso-loading em.ddp-icon-logo {
+    display: inline-block;
+    width: 278px;
+    height: 35px;
+    background: url(../../../../images/logo_login.png) no-repeat;
+}
+
+.theme-dark .ddp-sso-loading em.ddp-icon-logo .st0 {
+    fill: #1A274B;
+}
+
+.theme-dark .ddp-sso-loading em.ddp-icon-logo .st1 {
+    fill: #272950;
+}
+
+.theme-dark .ddp-sso-loading em.ddp-icon-logo .st2 {
+    fill: #47DBF4;
+}
+
+.theme-dark .ddp-sso-loading em.ddp-icon-logo .st3 {
+    fill: #7575EA;
+}
+
+.theme-dark .ddp-icon-loading {
+    display: block;
+    padding-bottom: 35px;
+    text-align: center;
+}
+
+.theme-dark .ddp-icon-loading .lds-wedges {
+    display: inline-block;
+    position: relative;
+    top: 50px;
+    left: 50px;
+}
+
+.theme-dark .ddp-sso-loading .ddp-txt-welcome {
+    padding-bottom: 10px;
+    color: #272950;
+    font-size: 22px;
+    text-align: center;
+}
+
+.theme-dark .ddp-sso-loading .ddp-txt-message {
+    color: #272950;
+    font-size: 16px;
+    font-weight: 300;
+    text-align: center;
+}
