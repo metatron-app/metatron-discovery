@@ -61,22 +61,26 @@
           <!--
               loading 시 ddp-load 추가
           -->
-          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot('csv')"
+          <a href="javascript:" class="ddp-btn-bg "
+             (click)="downloadSnapshot($event,'csv')"
              *ngIf="snapshotUriFileFormat === 'csv' || selectedDataSnapshot.ssType === ssType.STAGING_DB">
+            <span *ngIf="prog_percent<100" class="local-float-progress" [ngStyle]="styleProgress()" >{{prog_percent}} %</span>
             <em class="ddp-icon-link-down"></em>
             <em class="ddp-icon-spin-loading"></em>
             {{'msg.dp.btn.csv.download' | translate}}
           </a>
           <a href="javascript:" class="ddp-btn-bg "
-             (click)="downloadSnapshot('json')"
+             (click)="downloadSnapshot($event,'json')"
              *ngIf="snapshotUriFileFormat === 'json' || selectedDataSnapshot.ssType === ssType.STAGING_DB">
+            <span *ngIf="prog_percent<100" class="local-float-progress" [ngStyle]="styleProgress()" >{{prog_percent}} %</span>
             <em class="ddp-icon-link-down"></em>
             <em class="ddp-icon-spin-loading"></em>
             {{'msg.dp.btn.json.download' | translate}}
           </a>
           <a href="javascript:" class="ddp-btn-bg "
-             (click)="downloadSnapshot('sql')"
+             (click)="downloadSnapshot($event,'sql')"
              *ngIf="snapshotUriFileFormat === 'sql' || selectedDataSnapshot.ssType === ssType.STAGING_DB">
+            <span *ngIf="prog_percent<100" class="local-float-progress" [ngStyle]="styleProgress()" >{{prog_percent}} %</span>
             <em class="ddp-icon-link-down"></em>
             <em class="ddp-icon-spin-loading"></em>
             {{'msg.dp.btn.sql.download' | translate}}

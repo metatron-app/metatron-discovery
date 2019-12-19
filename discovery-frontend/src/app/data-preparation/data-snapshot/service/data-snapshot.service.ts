@@ -13,7 +13,7 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpRequest } from '@angular/common/http';
 import { AbstractService } from '../../../common/service/abstract.service';
 import { PrDataSnapshot, SsType } from '../../../domain/data-preparation/pr-snapshot';
 import { CommonUtil } from '../../../common/util/common.util';
@@ -181,14 +181,23 @@ export class DataSnapshotService extends AbstractService {
     });
 
     let option: Object = {
-      headers: headers,
+      headers,
+      reportProgress: true,
       responseType: 'blob'
     };
 
-    return this.http.get(`${this._baseUrl}${ssId}/download?fileType=`+fileFormat, option)
+    const req = new HttpRequest('GET',
+                    `${this._baseUrl}${ssId}/download?fileType=`+fileFormat,
+                    option );
+
+    return this.http.request(req);
+    /*
+    `${this._baseUrl}${ssId}/download?fileType=`+fileFormat, option)
       .map((res) => {
+      console.log(res);
         return new Blob([res], { type: mineType })
       });
+      */
   }
 
 

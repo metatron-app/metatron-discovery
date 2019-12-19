@@ -23,6 +23,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import { HttpEvent, HttpEventType, HttpSentEvent } from '@angular/common/http';
 import {
   OriginDsInfo,
   PrDataSnapshot,
@@ -403,17 +404,41 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   }
 
+  public prog_percent : number = 100;
+  public styleProgress() {
+    let styles = {
+        'width': '30px',
+        'height': '30px',
+        'background-color': '#00000',
+        'padding': '5px',
+        'margin-right': '10px',
+        'opacity': 0
+    }
+    if( this.prog_percent<100 ) {
+        styles.opacity = 50 + this.prog_percent/200;
+    }
+    return styles;
+  }
 
   /**
    * Download snapshot
    * @param fileFormat
    */
-  public downloadSnapshot(fileFormat: string) {
-    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + "."+ fileFormat;
+  public downloadSnapshot(event, fileFormat: string) {
 
-    this.datasnapshotservice.downloadSnapshot(this.ssId, fileFormat).subscribe((snapshotFile) => {
-      saveAs(snapshotFile, downloadFileName);
-    });
+    this.datasnapshotservice.downloadSnapshot(this.ssId, fileFormat).subscribe(
+            (event: HttpEvent<any>) => {
+        if (event.type === HttpEventType.DownloadProgress) {
+          this.prog_percent = Math.round(100 * event.loaded / event.total);
+        } else if (event.type === HttpEventType.Response) {
+          let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + "."+ fileFormat;
+          saveAs(event.body, downloadFileName);
+        }
+      },
+      (err: any) => {
+        console.log('Error:', err);
+      });
+
   }
 
 
