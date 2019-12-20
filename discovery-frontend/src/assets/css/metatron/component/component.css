@@ -438,6 +438,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-empty {background:blue !important; opacity:0.2 !important;}
 
 .ddp-space-pre {white-space:pre !important;}
+.ddp-height-full {height:100% !important;}
 
 /**************************************************************
     Slick Grid 추가 스타일

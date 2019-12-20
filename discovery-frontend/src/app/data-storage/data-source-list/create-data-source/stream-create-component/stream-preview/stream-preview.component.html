@@ -12,83 +12,98 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.li.stream' | translate}})
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line5-type2"></em>
-    </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-sheet-resize">
-    <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
-      <div class="ddp-wrap-variable">
-        <!-- wrap sheet -->
-        <div class="ddp-wrap-sheet">
 
-          <!-- sheet view -->
-          <div class="ddp-view-sheet ddp-full">
-            <div class="ddp-wrap-grid-option ddp-data-name">
-              <!-- //error icon (only sheet) -->
-              <div class="ddp-part-right">
-                <ng-container *ngIf="selectedFileDetailData">
-                  <div class="ddp-data-form" *ngIf="selectedFileDetailData.fields">
-                    <strong>{{selectedFileDetailData.fields.length}}</strong>
-                    {{'msg.storage.ui.dsource.create.file.columns' | translate}}
-                  </div>
-                  <div class="ddp-data-form">
-                    <input type="text" class="ddp-data-input"
-                           input-mask="number"
-                           [(ngModel)]="rowNum"
-                           (keyup.enter)="onChangeRowNum()">
-                    <strong>/ {{selectedFileDetailData.totalRows}}</strong>
-                    {{'msg.storage.ui.dsource.create.file.row' | translate}}
-                  </div>
-                </ng-container>
-              </div>
-            </div>
-            <!-- 그리드 영역 -->
-            <div class="ddp-wrap-grid">
-              <!-- 데이터 없는경우 -->
-              <div class="ddp-ui-empty" *ngIf="clearGrid">
-                {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
-              </div>
-              <!-- //데이터 없는경우 -->
-              <!-- 데이터 있는경우 -->
-              <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
-              <!-- //데이터 있는경우 -->
-            </div>
-            <!-- //그리드 영역 -->
+  <div class="ddp-layout-popup">
 
-          </div>
-          <!-- //sheet view -->
-        </div>
-        <!-- //wrap sheet -->
+    <!-- top  -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.li.stream' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="ddp-selected">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="">5</span>
       </div>
+      <!-- //step -->
+    </div>
+    <!-- //top  -->
 
-      <!-- info message -->
-      <div class="ddp-wrap-message">
-        <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid">
-          <div class="ddp-txt-synch">
-            <em class="ddp-icon-info"></em>
-            {{getErrorMessage}}
+    <!-- import  -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
+        <div class="ddp-wrap-variable">
+          <!-- wrap sheet -->
+          <div class="ddp-wrap-sheet">
+
+            <!-- sheet view -->
+            <div class="ddp-view-sheet ddp-full">
+              <div class="ddp-wrap-grid-option ddp-data-name">
+                <!-- //error icon (only sheet) -->
+                <div class="ddp-part-right">
+                  <ng-container *ngIf="selectedFileDetailData">
+                    <div class="ddp-data-form" *ngIf="selectedFileDetailData.fields">
+                      <strong>{{selectedFileDetailData.fields.length}}</strong>
+                      {{'msg.storage.ui.dsource.create.file.columns' | translate}}
+                    </div>
+                    <div class="ddp-data-form">
+                      <input type="text" class="ddp-data-input"
+                             input-mask="number"
+                             [(ngModel)]="rowNum"
+                             (keyup.enter)="onChangeRowNum()">
+                      <strong>/ {{selectedFileDetailData.totalRows}}</strong>
+                      {{'msg.storage.ui.dsource.create.file.row' | translate}}
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+              <!-- 그리드 영역 -->
+              <div class="ddp-wrap-grid">
+                <!-- 데이터 없는경우 -->
+                <div class="ddp-ui-empty" *ngIf="clearGrid">
+                  {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+                </div>
+                <!-- //데이터 없는경우 -->
+                <!-- 데이터 있는경우 -->
+                <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
+                <!-- //데이터 있는경우 -->
+              </div>
+              <!-- //그리드 영역 -->
+
+            </div>
+            <!-- //sheet view -->
+          </div>
+          <!-- //wrap sheet -->
+        </div>
+
+        <!-- info message -->
+        <div class="ddp-wrap-message">
+          <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid">
+            <div class="ddp-txt-synch">
+              <em class="ddp-icon-info"></em>
+              {{getErrorMessage}}
+            </div>
           </div>
         </div>
       </div>
+      <!-- //파일 선택한 후 -->
     </div>
-    <!-- //파일 선택한 후 -->
+    <!-- //import  -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="isEnableNextButton()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="isEnableNextButton()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 
 </div>
 

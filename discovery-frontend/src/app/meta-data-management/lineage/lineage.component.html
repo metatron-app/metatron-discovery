@@ -17,8 +17,8 @@
   <div class="ddp-ui-contents-list type-list">
     <div class="ddp-wrap-top-filtering">
       <!-- filter search -->
-      <div class="ddp-filter-search ddp-fright">
-        <div class="ddp-form-filter-search type-auto">
+      <div class="ddp-wrap-type-search ddp-fright">
+        <div class="ddp-form-search ddp-selected type-auto">
           <component-input
             [autoFocus]="false"
             [isEnableDelete]="true"
@@ -27,7 +27,7 @@
             (changeValue)="onChangedSearchKeyword($event)">
           </component-input>
         </div>
-        <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-line" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
       </div>
       <!-- //filter search -->
 

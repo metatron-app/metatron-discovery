@@ -5,18 +5,18 @@
 **************************************************************/
 .ddp-wrap-top-filtering {position:relative; min-height:48px; margin:0 -80px; padding:0 80px;background-color:#dbdce0; z-index:10;}
 
-.ddp-wrap-top-filtering .ddp-filter-more {position:relative; float:left; margin-right:-7px;}
+.ddp-wrap-top-filtering .ddp-filter-more {position:relative; float:left; margin-right:20px; top:-3px;}
 .ddp-wrap-top-filtering .ddp-filter-more .ddp-wrap-popup2 {display:none; position:absolute; top:45px; left:0; min-width:134px;}
 .ddp-wrap-top-filtering .ddp-filter-more .ddp-box-result.ddp-selected .ddp-wrap-popup2 {display:block; top:28px;}
-.ddp-wrap-top-filtering .ddp-btn-filter-more {display:inline-block; position:relative; width:30px; height:30px; border-radius:3px; background-color:#c8cad1;}
+.ddp-wrap-top-filtering .ddp-btn-filter-more {display:inline-block; top:2px;position:relative; width:30px; height:30px; border-radius:3px; background-color:#c8cad1;}
 .ddp-wrap-top-filtering .ddp-btn-filter-more:hover {background-color:#b6b9c2;}
 .ddp-wrap-top-filtering .ddp-btn-filter-more:before {display:inline-block; width:12px; height:12px; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px;background:url(../../../images/icon_add.png) no-repeat; background-position:left -77px; content:'';}
 .ddp-wrap-top-filtering .ddp-btn-filter-more:hover:before {background-position-x:-13px;}
 .ddp-wrap-top-filtering .ddp-form-filtering {display:inline-block; position:relative; vertical-align:top; margin-left: 20px;}
-.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering { margin-left:20px; padding:5px 0; cursor:pointer;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering { padding:6px 0; cursor:pointer;}
 .ddp-wrap-top-filtering .ddp-wrap-form-filtering {padding:10px 0 10px 0; box-sizing:border-box;}
 /*.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering.ddp-selected .ddp-txt-label {visibility:hidden;}*/
-.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-txt-label {display:inline-block; color:#90969f; font-size:13px;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-txt-label {display:inline-block; color:#90969f; font-size:13px; vertical-align:top;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-edit-option.ddp-inline {display:inline-block; vertical-align:middle;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-edit-option.ddp-inline .ddp-label-checkbox {margin-right:10px;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-result {display:inline-block; vertical-align:top;}

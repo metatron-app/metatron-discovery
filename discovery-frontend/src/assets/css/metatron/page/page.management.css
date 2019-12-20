@@ -959,9 +959,8 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-box-popupcontents3.ddp-configure .ddp-wrap-value-setting {padding:0; }
 .ddp-configure-schema {position:relative;}
 .ddp-configure-schema .ddp-form-search {width:240px;}
-.ddp-configure-schema .ddp-data-details.ddp-ui-preview-contents {position:absolute; top:170px; left:50px; right:50px; bottom:48px; height:auto;}
-.ddp-configure-schema.ddp-info .ddp-data-details.ddp-ui-preview-contents {top:185px;}
-.ddp-configure-schema.ddp-info2 .ddp-data-details.ddp-ui-preview-contents {top:219px;}
+/*.ddp-configure-schema.ddp-info .ddp-data-details.ddp-ui-preview-contents {top:185px;}*/
+/*.ddp-configure-schema.ddp-info2 .ddp-data-details.ddp-ui-preview-contents {top:219px;}*/
 .ddp-type-top-option .ddp-ui-rightoption.ddp-type-schema .ddp-form-label2 {margin-left:10px;}
 
 .ddp-configure-schema .ddp-ui-rightoption.ddp-type-schema .ddp-wrap-dropdown {width:110px;}

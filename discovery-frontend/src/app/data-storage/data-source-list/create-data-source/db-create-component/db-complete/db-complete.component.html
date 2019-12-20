@@ -12,219 +12,233 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!-- //close -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.create.complete.description' | translate}}</span>
-      <em class="ddp-bg-order-line5-type5"></em>
+  <!-- //닫기 버튼 -->
+
+  <div class="ddp-layout-popup">
+
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="ddp-selected">5</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-scroll">
-    <div class="ddp-box-popupcontents2">
-      <!-- edit -->
-      <div class="ddp-wrap-boxtype ddp-scroll-none">
-        <!-- info -->
-        <table class="ddp-wrap-boxdata">
-          <colgroup>
-            <col width="120px" />
-            <col width="*" />
-          </colgroup>
-          <tbody>
-          <tr>
-            <th>
-              {{'msg.comm.th.type' | translate}}
-            </th>
-            <td>
-              {{getConnectionType()}}
-            </td>
-          </tr>
-          <tr *ngIf="isEnableUrl()">
-            <th>
-              {{'msg.storage.ui.conn.url' | translate}}
-            </th>
-            <td>
-              {{getConnectionData.connection.url}}
-            </td>
-          </tr>
-          <ng-container *ngIf="!isEnableUrl()">
-            <tr >
-              <th>
-                {{'msg.comm.th.host' | translate }}
-              </th>
-              <td>
-                {{getConnectionData.connection.hostname}}
-              </td>
-            </tr>
+    <!-- //top -->
+
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents2">
+        <!-- edit -->
+        <div class="ddp-wrap-boxtype ddp-scroll-none">
+          <!-- info -->
+          <table class="ddp-wrap-boxdata">
+            <colgroup>
+              <col width="120px" />
+              <col width="*" />
+            </colgroup>
+            <tbody>
             <tr>
               <th>
-                {{'msg.comm.th.port' | translate}}
+                {{'msg.comm.th.type' | translate}}
               </th>
               <td>
-                {{getConnectionData.connection.port}}
+                {{getConnectionType()}}
               </td>
             </tr>
-            <tr *ngIf="isRequiredDatabase()">
+            <tr *ngIf="isEnableUrl()">
               <th>
-                {{'msg.storage.th.db_name' | translate}}
+                {{'msg.storage.ui.conn.url' | translate}}
               </th>
               <td>
-                {{getConnectionData.connection.database}}
+                {{getConnectionData.connection.url}}
               </td>
             </tr>
-            <tr *ngIf="isRequiredCatalog()">
+            <ng-container *ngIf="!isEnableUrl()">
+              <tr >
+                <th>
+                  {{'msg.comm.th.host' | translate }}
+                </th>
+                <td>
+                  {{getConnectionData.connection.hostname}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.comm.th.port' | translate}}
+                </th>
+                <td>
+                  {{getConnectionData.connection.port}}
+                </td>
+              </tr>
+              <tr *ngIf="isRequiredDatabase()">
+                <th>
+                  {{'msg.storage.th.db_name' | translate}}
+                </th>
+                <td>
+                  {{getConnectionData.connection.database}}
+                </td>
+              </tr>
+              <tr *ngIf="isRequiredCatalog()">
+                <th>
+                  {{'msg.storage.th.catalog' | translate}}
+                </th>
+                <td>
+                  {{getConnectionData.connection.catalog}}
+                </td>
+              </tr>
+              <tr *ngIf="isRequiredSid()">
+                <th>
+                  {{'msg.storage.th.sid' | translate}}
+                </th>
+                <td>
+                  {{getConnectionData.connection.sid}}
+                </td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="getDatabaseData.selectedTab === 'TABLE'">
               <th>
-                {{'msg.storage.th.catalog' | translate}}
+                {{'msg.lineage.ui.list.title.database' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}
               </th>
               <td>
-                {{getConnectionData.connection.catalog}}
+                {{getDatabaseData.selectedDatabase}} <span>/</span> {{getDatabaseData.selectedTable}}
               </td>
             </tr>
-            <tr *ngIf="isRequiredSid()">
+            <tr *ngIf="getDatabaseData.selectedTab === 'QUERY'">
               <th>
-                {{'msg.storage.th.sid' | translate}}
+                {{'msg.lineage.ui.list.title.database' | translate}} / {{'msg.storage.btn.query' | translate}}
               </th>
               <td>
-                {{getConnectionData.connection.sid}}
+                {{getDatabaseData.selectedDatabaseInQuery}} <span>/</span> {{getDatabaseData.queryText}}
               </td>
             </tr>
-          </ng-container>
-          <tr *ngIf="getDatabaseData.selectedTab === 'TABLE'">
-            <th>
-              {{'msg.lineage.ui.list.title.database' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}
-            </th>
-            <td>
-              {{getDatabaseData.selectedDatabase}} <span>/</span> {{getDatabaseData.selectedTable}}
-            </td>
-          </tr>
-          <tr *ngIf="getDatabaseData.selectedTab === 'QUERY'">
-            <th>
-              {{'msg.lineage.ui.list.title.database' | translate}} / {{'msg.storage.btn.query' | translate}}
-            </th>
-            <td>
-              {{getDatabaseData.selectedDatabaseInQuery}} <span>/</span> {{getDatabaseData.queryText}}
-            </td>
-          </tr>
-          <!-- ingestion -->
-          <tr *ngIf="getConnectionData.selectedIngestionType.value === 'ENGINE'">
-            <th>
-              {{'msg.storage.th.ingestion-settings' | translate}}
-            </th>
-            <td>
-              <span class="ddp-data-txt">{{getIngestionData.selectedIngestionType.label}}</span>
-              <ul class="ddp-list-sub">
-                <li>
-                  {{'msg.storage.th.scope-ingest' | translate}} : {{getIngestionData.selectedIngestionScopeType.label}}
-                  <span *ngIf="getIngestionData.selectedIngestionScopeType.value === 'ROW'">{{getIngestionOnceRow()}} {{'msg.storage.ui.dsource.preview.rows' | translate}}</span>
-                </li>
-                <li *ngIf="getIngestionData.selectedIngestionType.value === 'batch'">
-                  {{'msg.storage.th.batch-cycle' | translate}} : {{getIngestionData.selectedBatchType.label}}
-                  <span *ngIf="getIngestionData.selectedBatchType.value === 'MINUTELY'"> / {{'msg.storage.li.dsource.expire-minutes' | translate : { minute : getIngestionData.selectedMinute } }}</span>
-                  <span *ngIf="getIngestionData.selectedBatchType.value === 'HOURLY'"> / {{'msg.storage.li.dsource.expire-hour' | translate : { hour : getIngestionData.selectedHour } }}</span>
-                  <span *ngIf="getIngestionData.selectedBatchType.value === 'DAILY'"> / {{getIngestionData.selectedDailyTime}}</span>
-                  <span *ngIf="getIngestionData.selectedBatchType.value === 'WEEKLY'"> / {{getSelectedDaysLabel()}} / {{getIngestionData.selectedWeeklyTime}}</span>
-                  <span *ngIf="getIngestionData.selectedBatchType.value === 'EXPR'"> / {{getIngestionData.cronText}}</span>
-                </li>
-                <li *ngIf="getIngestionData.selectedIngestionType.value === 'batch'">
-                  {{'msg.storage.th.max-query-row' | translate}} : {{getIngestionBatchRow()}}
-                </li>
-              </ul>
-            </td>
-          </tr>
-          <!-- //ingestion -->
-          <!-- expiration -->
-          <tr *ngIf="getConnectionData.selectedIngestionType.value === 'LINK'">
-            <th>
-              {{'msg.storage.th.dsource-expire' | translate}}
-            </th>
-            <td>
-              <ul class="ddp-list-sub">
-                <li>
-                  {{'msg.storage.th.time-interval' | translate}} : {{getIngestionData.selectedExpirationTime.label}}
-                </li>
-              </ul>
-            </td>
-          </tr>
-          <!-- //expiration -->
-          <!-- granularity -->
-          <tr>
-            <th>
-              {{'msg.storage.th.gran.settings' | translate}}
-            </th>
-            <td>
-              <ul class="ddp-list-sub">
-                <li>
-                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
-                </li>
-                <li>
-                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
-                </li>
-                <!-- if not used current TIMESTAMP-->
-                <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
-                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
-                </li>
-                <!-- //if not used current TIMESTAMP-->
-              </ul>
-            </td>
-          </tr>
-          <!-- //granularity -->
-          <!-- roll up -->
-          <tr>
-            <th>
-              {{'msg.storage.th.rollup.settings' | translate}}
-            </th>
-            <td>
-              {{getIngestionData.selectedRollUpType.label}}
-            </td>
-          </tr>
-          <!-- //roll up -->
-          </tbody>
-        </table>
-        <!-- //info -->
-      </div>
-      <!-- //edit -->
-      <!-- source name -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidName">
-        <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-        <input type="text" class="ddp-input-type"
-               maxlength="50"
-               placeholder="{{'msg.comm.ui.create.name' | translate}}"
-               [(ngModel)]="createCompleteData.sourceName"
-               (focus)="createCompleteData.isInvalidName = false"/>
+            <!-- ingestion -->
+            <tr *ngIf="getConnectionData.selectedIngestionType.value === 'ENGINE'">
+              <th>
+                {{'msg.storage.th.ingestion-settings' | translate}}
+              </th>
+              <td>
+                <span class="ddp-data-txt">{{getIngestionData.selectedIngestionType.label}}</span>
+                <ul class="ddp-list-sub">
+                  <li>
+                    {{'msg.storage.th.scope-ingest' | translate}} : {{getIngestionData.selectedIngestionScopeType.label}}
+                    <span *ngIf="getIngestionData.selectedIngestionScopeType.value === 'ROW'">{{getIngestionOnceRow()}} {{'msg.storage.ui.dsource.preview.rows' | translate}}</span>
+                  </li>
+                  <li *ngIf="getIngestionData.selectedIngestionType.value === 'batch'">
+                    {{'msg.storage.th.batch-cycle' | translate}} : {{getIngestionData.selectedBatchType.label}}
+                    <span *ngIf="getIngestionData.selectedBatchType.value === 'MINUTELY'"> / {{'msg.storage.li.dsource.expire-minutes' | translate : { minute : getIngestionData.selectedMinute } }}</span>
+                    <span *ngIf="getIngestionData.selectedBatchType.value === 'HOURLY'"> / {{'msg.storage.li.dsource.expire-hour' | translate : { hour : getIngestionData.selectedHour } }}</span>
+                    <span *ngIf="getIngestionData.selectedBatchType.value === 'DAILY'"> / {{getIngestionData.selectedDailyTime}}</span>
+                    <span *ngIf="getIngestionData.selectedBatchType.value === 'WEEKLY'"> / {{getSelectedDaysLabel()}} / {{getIngestionData.selectedWeeklyTime}}</span>
+                    <span *ngIf="getIngestionData.selectedBatchType.value === 'EXPR'"> / {{getIngestionData.cronText}}</span>
+                  </li>
+                  <li *ngIf="getIngestionData.selectedIngestionType.value === 'batch'">
+                    {{'msg.storage.th.max-query-row' | translate}} : {{getIngestionBatchRow()}}
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <!-- //ingestion -->
+            <!-- expiration -->
+            <tr *ngIf="getConnectionData.selectedIngestionType.value === 'LINK'">
+              <th>
+                {{'msg.storage.th.dsource-expire' | translate}}
+              </th>
+              <td>
+                <ul class="ddp-list-sub">
+                  <li>
+                    {{'msg.storage.th.time-interval' | translate}} : {{getIngestionData.selectedExpirationTime.label}}
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <!-- //expiration -->
+            <!-- granularity -->
+            <tr>
+              <th>
+                {{'msg.storage.th.gran.settings' | translate}}
+              </th>
+              <td>
+                <ul class="ddp-list-sub">
+                  <li>
+                    {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
+                  </li>
+                  <li>
+                    {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
+                  </li>
+                  <!-- if not used current TIMESTAMP-->
+                  <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
+                    {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
+                  </li>
+                  <!-- //if not used current TIMESTAMP-->
+                </ul>
+              </td>
+            </tr>
+            <!-- //granularity -->
+            <!-- roll up -->
+            <tr>
+              <th>
+                {{'msg.storage.th.rollup.settings' | translate}}
+              </th>
+              <td>
+                {{getIngestionData.selectedRollUpType.label}}
+              </td>
+            </tr>
+            <!-- //roll up -->
+            </tbody>
+          </table>
+          <!-- //info -->
+        </div>
+        <!-- //edit -->
+        <!-- source name -->
+        <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidName">
+          <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+          <input type="text" class="ddp-input-type"
+                 maxlength="50"
+                 placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                 [(ngModel)]="createCompleteData.sourceName"
+                 (focus)="createCompleteData.isInvalidName = false"/>
+            <!-- error -->
+            <span class="ddp-ui-error">{{createCompleteData.nameInvalidMessage}}</span>
+            <!-- error -->
+        </div>
+        <!-- //source name -->
+        <!-- source desc -->
+        <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidDesc">
+          <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+          <input type="text" class="ddp-input-type"
+                 maxlength="150"
+                 placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                 [(ngModel)]="createCompleteData.sourceDescription"
+                 (focus)="createCompleteData.isInvalidDesc=false"/>
           <!-- error -->
-          <span class="ddp-ui-error">{{createCompleteData.nameInvalidMessage}}</span>
+          <span class="ddp-ui-error">{{createCompleteData.descInvalidMessage}}</span>
           <!-- error -->
+        </div>
+        <!-- //source desc -->
       </div>
-      <!-- //source name -->
-      <!-- source desc -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidDesc">
-        <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
-        <input type="text" class="ddp-input-type"
-               maxlength="150"
-               placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-               [(ngModel)]="createCompleteData.sourceDescription"
-               (focus)="createCompleteData.isInvalidDesc=false"/>
-        <!-- error -->
-        <span class="ddp-ui-error">{{createCompleteData.descInvalidMessage}}</span>
-        <!-- error -->
-      </div>
-      <!-- //source desc -->
     </div>
+    <!-- //import  -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup"
+         (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+         (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup"
-       (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
-       (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>
 
 <app-confirm-modal></app-confirm-modal>

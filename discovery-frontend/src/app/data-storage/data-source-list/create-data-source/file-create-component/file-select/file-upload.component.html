@@ -12,33 +12,45 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">{{getTitle}}
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line5-type"></em>
+
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{getTitle}}</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="">5</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-full">
-    <div class="ddp-box-popupcontents type-info">
-      <uploader [uploadedFile]="uploadedFile"
-                (uploadStarted)="onStartedFileUpload()"
-                (uploadComplete)="onCompletedFileUpload($event)">
-      </uploader>
+    <!-- //top -->
+
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents type-info">
+        <uploader [uploadedFile]="uploadedFile"
+                  (uploadStarted)="onStartedFileUpload()"
+                  (uploadComplete)="onCompletedFileUpload($event)" class="ddp-height-full">
+        </uploader>
+      </div>
     </div>
-    <!-- //파일 선택한 후 -->
+    <!-- //import -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 
 </div>

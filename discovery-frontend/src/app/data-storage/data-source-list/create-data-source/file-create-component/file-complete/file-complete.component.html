@@ -12,117 +12,130 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!-- //close -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">{{getTitle}}
-      <span class="ddp-txt-info">{{'msg.storage.create.complete.description' | translate}}</span>
-      <em class="ddp-bg-order-line5-type5"></em>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{getTitle}}</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="ddp-selected">5</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-scroll">
-    <div class="ddp-box-popupcontents2">
-      <!-- edit -->
-      <div class="ddp-wrap-boxtype ddp-scroll-none">
+    <!-- //top -->
 
-        <table class="ddp-wrap-boxdata">
-          <colgroup>
-            <col width="120px" />
-            <col width="*" />
-          </colgroup>
-          <tbody>
-          <tr>
-            <th>
-              {{'msg.storage.th.dsource.create.file' | translate}}
-            </th>
-            <td>
-              {{getFileData.fileResult.fileName}}
-            </td>
-          </tr>
-          <tr *ngIf="isExcelFile()">
-            <th>
-              {{'msg.storage.th.dsource.create.sheet' | translate}}
-            </th>
-            <td>
-              {{getFileData.fileResult.selectedSheet.sheetName}}
-            </td>
-          </tr>
-          <!-- granularity -->
-          <tr>
-            <th>
-              {{'msg.storage.th.gran.settings' | translate}}
-            </th>
-            <td>
-              <ul class="ddp-list-sub">
-                <li>
-                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
-                </li>
-                <li>
-                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
-                </li>
-                <!-- if not used current TIMESTAMP-->
-                <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
-                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
-                </li>
-                <!-- //if not used current TIMESTAMP-->
-              </ul>
-            </td>
-          </tr>
-          <!-- //granularity -->
-          <!-- roll up -->
-          <tr>
-            <th>
-              {{'msg.storage.th.rollup.settings' | translate}}
-            </th>
-            <td>
-              {{getIngestionData.selectedRollUpType.label}}
-            </td>
-          </tr>
-          <!-- //roll up -->
-          </tbody>
-        </table>
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents2">
+        <!-- edit -->
+        <div class="ddp-wrap-boxtype ddp-scroll-none">
+
+          <table class="ddp-wrap-boxdata">
+            <colgroup>
+              <col width="120px" />
+              <col width="*" />
+            </colgroup>
+            <tbody>
+            <tr>
+              <th>
+                {{'msg.storage.th.dsource.create.file' | translate}}
+              </th>
+              <td>
+                {{getFileData.fileResult.fileName}}
+              </td>
+            </tr>
+            <tr *ngIf="isExcelFile()">
+              <th>
+                {{'msg.storage.th.dsource.create.sheet' | translate}}
+              </th>
+              <td>
+                {{getFileData.fileResult.selectedSheet.sheetName}}
+              </td>
+            </tr>
+            <!-- granularity -->
+            <tr>
+              <th>
+                {{'msg.storage.th.gran.settings' | translate}}
+              </th>
+              <td>
+                <ul class="ddp-list-sub">
+                  <li>
+                    {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
+                  </li>
+                  <li>
+                    {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
+                  </li>
+                  <!-- if not used current TIMESTAMP-->
+                  <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
+                    {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
+                  </li>
+                  <!-- //if not used current TIMESTAMP-->
+                </ul>
+              </td>
+            </tr>
+            <!-- //granularity -->
+            <!-- roll up -->
+            <tr>
+              <th>
+                {{'msg.storage.th.rollup.settings' | translate}}
+              </th>
+              <td>
+                {{getIngestionData.selectedRollUpType.label}}
+              </td>
+            </tr>
+            <!-- //roll up -->
+            </tbody>
+          </table>
+        </div>
+        <!-- //edit -->
+        <!-- source name -->
+        <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidName">
+          <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+          <input type="text" class="ddp-input-type"
+                 maxlength="50"
+                 placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                 [(ngModel)]="createCompleteData.sourceName"
+                 (focus)="createCompleteData.isInvalidName = false"/>
+          <!-- error -->
+          <span class="ddp-ui-error">{{createCompleteData.nameInvalidMessage}}</span>
+          <!-- error -->
+        </div>
+        <!-- //source name -->
+        <!-- source desc -->
+        <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidDesc">
+          <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+          <input type="text" class="ddp-input-type"
+                 maxlength="150"
+                 placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                 [(ngModel)]="createCompleteData.sourceDescription"
+                 (focus)="createCompleteData.isInvalidDesc=false"/>
+          <!-- error -->
+          <span class="ddp-ui-error">{{createCompleteData.descInvalidMessage}}</span>
+          <!-- error -->
+        </div>
+        <!-- //source desc -->
       </div>
-      <!-- //edit -->
-      <!-- source name -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidName">
-        <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-        <input type="text" class="ddp-input-type"
-               maxlength="50"
-               placeholder="{{'msg.comm.ui.create.name' | translate}}"
-               [(ngModel)]="createCompleteData.sourceName"
-               (focus)="createCompleteData.isInvalidName = false"/>
-        <!-- error -->
-        <span class="ddp-ui-error">{{createCompleteData.nameInvalidMessage}}</span>
-        <!-- error -->
-      </div>
-      <!-- //source name -->
-      <!-- source desc -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidDesc">
-        <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
-        <input type="text" class="ddp-input-type"
-               maxlength="150"
-               placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-               [(ngModel)]="createCompleteData.sourceDescription"
-               (focus)="createCompleteData.isInvalidDesc=false"/>
-        <!-- error -->
-        <span class="ddp-ui-error">{{createCompleteData.descInvalidMessage}}</span>
-        <!-- error -->
-      </div>
-      <!-- //source desc -->
     </div>
+    <!-- //import  -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup"
+         (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black"
+         (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup"
-       (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black"
-       (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 
 </div>
 

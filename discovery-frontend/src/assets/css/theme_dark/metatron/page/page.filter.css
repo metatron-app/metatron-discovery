@@ -49,6 +49,7 @@
 }
 
 .theme-dark .ddp-pop-filter .ddp-ui-popup-contents {
+    display:block;
     margin-top: -54px;
     padding: 54px 0 0 0;
 }

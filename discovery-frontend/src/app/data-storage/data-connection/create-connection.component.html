@@ -12,68 +12,73 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-connect" *ngIf="isShowPopup">
+<div class="ddp-layout-pop-fix" *ngIf="isShowPopup">
   <!-- close -->
   <a href="javascript:" class="ddp-btn-close" (click)="cancel()"></a>
   <!-- close -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.create.dconn' | translate}}
-      <span class="ddp-txt-info">{{'msg.storage.ui.create.dconn.description' | translate}}</span>
-      <em class="ddp-bg-order-type"></em>
-    </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-scroll">
-    <!-- dp connection -->
-    <div class="ddp-ui-dbconnect">
-      <app-connection
-                    [isUsedNameInitial]="true"
-                    [connectionName]="connectionName"
-                    (createdName)="connectionName = $event"></app-connection>
-      <!-- permission -->
-      <div class="ddp-wrap-edit2 ddp-mgt30">
-        <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.permission' | translate}}</label>
-        <!-- edit option -->
-        <div class="ddp-ui-edit-option ddp-type">
-          <div class="ddp-data-result">
-            <ng-container *ngIf="published">
-              {{'msg.storage.ui.conn.create.all.workspace' | translate}}
-            </ng-container>
-            <ng-container *ngIf="!published">
-              <strong>{{addWorkspaces.length}}</strong> {{'msg.storage.ui.conn.create.workspace' | translate}}  <a href="javascript:" class="ddp-link-edit2" (click)="onClickSetWorkspace()">{{'msg.storage.btn.edit' | translate}}</a>
-            </ng-container>
-          </div>
-          <label class="ddp-label-checkbox" (click)="published = !published; $event.preventDefault()">
-            <input type="checkbox" [checked]="published">
-            <i class="ddp-icon-checkbox"></i>
-            <span class="ddp-txt-checkbox">{{'msg.storage.ui.permission.choice.dconn' | translate}}</span>
-          </label>
+  <div class="ddp-layout-popup">
 
-        </div>
-        <!-- //edit option -->
-      </div>
-      <!-- //permission -->
-      <!-- name -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="isShowConnectionNameRequired" #connection_name_element>
-        <label class="ddp-label-type ddp-bold">{{'msg.storage.th.conn.name' | translate}}</label>
-        <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.dconn.name.ph' | translate}}"
-               [ngModel]="connectionName" (ngModelChange)="connectionName = $event; isShowConnectionNameRequired = false">
-        <!-- error -->
-        <span class="ddp-ui-error">{{nameErrorMsg}}</span>
-        <!-- error -->
-      </div>
-      <!-- //name -->
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.create.dconn' | translate}}</div>
+      <div class="ddp-pop-sub">{{'msg.storage.ui.create.dconn.description' | translate}}</div>
+
     </div>
-    <!-- //dp connection -->
+    <!-- //top -->
+
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <!-- dp connection -->
+      <div class="ddp-ui-dbconnect">
+        <app-connection
+                      [isUsedNameInitial]="true"
+                      [connectionName]="connectionName"
+                      (createdName)="connectionName = $event"></app-connection>
+        <!-- permission -->
+        <div class="ddp-wrap-edit2 ddp-mgt30">
+          <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.permission' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option ddp-type">
+            <div class="ddp-data-result">
+              <ng-container *ngIf="published">
+                {{'msg.storage.ui.conn.create.all.workspace' | translate}}
+              </ng-container>
+              <ng-container *ngIf="!published">
+                <strong>{{addWorkspaces.length}}</strong> {{'msg.storage.ui.conn.create.workspace' | translate}}  <a href="javascript:" class="ddp-link-edit2" (click)="onClickSetWorkspace()">{{'msg.storage.btn.edit' | translate}}</a>
+              </ng-container>
+            </div>
+            <label class="ddp-label-checkbox" (click)="published = !published; $event.preventDefault()">
+              <input type="checkbox" [checked]="published">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.storage.ui.permission.choice.dconn' | translate}}</span>
+            </label>
+
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //permission -->
+        <!-- name -->
+        <div class="ddp-wrap-edit2" [class.ddp-error]="isShowConnectionNameRequired" #connection_name_element>
+          <label class="ddp-label-type ddp-bold">{{'msg.storage.th.conn.name' | translate}}</label>
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.dconn.name.ph' | translate}}"
+                 [ngModel]="connectionName" (ngModelChange)="connectionName = $event; isShowConnectionNameRequired = false">
+          <!-- error -->
+          <span class="ddp-ui-error">{{nameErrorMsg}}</span>
+          <!-- error -->
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //dp connection -->
+    </div>
+    <!-- //import -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="cancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //import -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="cancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>
 <!-- workspace setting modal -->
 <app-set-workspace-published (complete)="addWorkspaces = $event"></app-set-workspace-published>

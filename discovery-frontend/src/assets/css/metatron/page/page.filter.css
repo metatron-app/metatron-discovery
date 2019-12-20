@@ -14,7 +14,7 @@
 .ddp-pop-filter .ddp-txt-title-name .ddp-wrap-source-name {float:right; margin-top:-5px;}
 .ddp-pop-filter .ddp-txt-title-name .ddp-wrap-source-name .ddp-box-layout4.ddp-datasearch .ddp-form-search {width:200px;}
 .ddp-pop-filter .ddp-wrap-tab {z-index:1;}
-.ddp-pop-filter .ddp-ui-popup-contents {margin-top:-54px; padding:54px 0 0 0;}
+.ddp-pop-filter .ddp-ui-popup-contents {display:block; margin-top:-54px; padding:54px 0 0 0;}
 .ddp-pop-filter .ddp-wrap-tab-contents {height:100%;}
 .ddp-pop-filter .ddp-ui-tab-contents {position:relative;margin-top:-60px; padding:60px 28px 0 28px; height:100%; box-sizing:border-box;}
 .ddp-pop-filter .ddp-filter0 {position:absolute; top:67px; left:0; right:0; bottom:63px; padding:0 28px;}

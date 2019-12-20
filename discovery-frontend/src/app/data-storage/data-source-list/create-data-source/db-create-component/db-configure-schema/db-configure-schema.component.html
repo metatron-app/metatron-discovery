@@ -12,25 +12,38 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-schema">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.ui.configure.schema' | translate}}</span>
-      <em class="ddp-bg-order-line5-type3"></em>
-    </div>
-  </div>
-  <!-- contents in  -->
-  <schema-configure-main [connType]="sourceData.connType"></schema-configure-main>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup"  *ngIf="!isWorkbenchCreate"  (click)="onClickPrev()">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickNext()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 
+  <div class="ddp-layout-popup">
+
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="">2</span>
+        <span class="ddp-selected">3</span>
+        <span class="">4</span>
+        <span class="">5</span>
+      </div>
+      <!-- //step -->
+    </div>
+    <!-- //top -->
+
+    <!-- import -->
+    <schema-configure-main [connType]="sourceData.connType" class="ddp-height-full"></schema-configure-main>
+    <!-- //import -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup"  *ngIf="!isWorkbenchCreate"  (click)="onClickPrev()">{{'msg.comm.btn.previous' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickNext()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
+  </div>
 </div>

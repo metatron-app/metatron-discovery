@@ -14,9 +14,7 @@
 }
 
 .theme-dark .ddp-wrap-top-filtering .ddp-filter-more {
-    position: relative;
-    float: left;
-    margin-right: -7px;
+    position:relative; float:left; margin-right:20px; top:-3px;
 }
 
 .theme-dark .ddp-wrap-top-filtering .ddp-filter-more .ddp-wrap-popup2 {
@@ -57,8 +55,7 @@
 }
 
 .theme-dark .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering {
-    margin-left: 20px;
-    padding: 5px 0;
+    padding: 6px 0;
     cursor: pointer;
 }
 
@@ -71,6 +68,7 @@
     display: inline-block;
     color: #90969f;
     font-size: 13px;
+    vertical-align:top;
 }
 
 .theme-dark .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-result {

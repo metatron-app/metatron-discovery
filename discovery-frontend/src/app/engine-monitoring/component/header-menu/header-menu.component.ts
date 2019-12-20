@@ -28,7 +28,7 @@ import {StateService} from '../../service/state.service';
 @Component({
   selector: '[header-menu]',
   templateUrl: './header-menu.component.html',
-  host: { '[class.ddp-top-menu]': 'true' }
+  host: { '[class.ddp-ui-contents-top]': 'true' }
 })
 export class HeaderMenuComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

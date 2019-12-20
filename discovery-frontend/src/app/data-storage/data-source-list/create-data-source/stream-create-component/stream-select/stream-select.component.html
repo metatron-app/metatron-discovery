@@ -12,104 +12,116 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.li.stream' | translate}})
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.ui.stream.description' | translate}}</span>
-      <em class="ddp-bg-order-line5-type"></em>
+
+  <div class="ddp-layout-popup">
+
+    <!-- top  -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.li.stream' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.ui.stream.description' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="">5</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-sheet-resize">
-    <div class="ddp-box-popupcontents page-storage-create ddp-flex">
-      <!-- edit -->
-      <div class="ddp-wrap-edit2 type-url">
-        <label class="ddp-label-type">{{'msg.comm.th.url' | translate}}</label>
-        <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.dp.ui.url.ph' | translate}}" (keypress)="urlInputChange($event)"
-               [ngModel]="url" (ngModelChange)="url = $event; isUrlError = undefined; connectionValidInitialize();">
-        <div class="ddp-ui-buttons ddp-inline">
-          <a href="javascript:" class="ddp-btn-pop ddp-bg-gray " (click)="checkConnection()">{{'msg.storage.btn.test' | translate}}</a>
+    <!-- //top  -->
 
-          <div class="ddp-ui-message ddp-ui-info" *ngIf="isEnableConnection()">
-            <span class="ddp-data-ok type-font-normal">{{'msg.dp.ui.valid.conn' | translate}}</span>
-          </div>
-          <div class="ddp-ui-message ddp-ui-info" *ngIf="isDisableConnection()">
-            <span class="ddp-data-error2 type-font-normal">{{'msg.storage.ui.invalid.conn' | translate}}</span>
-          </div>
-          <div class="ddp-ui-message ddp-ui-info" *ngIf="isUrlError">
-            <span class="ddp-data-error2 type-font-normal">{{'msg.storage.ui.required' | translate}}</span>
+    <!-- import  -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents page-storage-create ddp-flex">
+        <!-- edit -->
+        <div class="ddp-wrap-edit2 type-url">
+          <label class="ddp-label-type">{{'msg.comm.th.url' | translate}}</label>
+          <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.dp.ui.url.ph' | translate}}" (keypress)="urlInputChange($event)"
+                 [ngModel]="url" (ngModelChange)="url = $event; isUrlError = undefined; connectionValidInitialize();">
+          <div class="ddp-ui-buttons ddp-inline">
+            <a href="javascript:" class="ddp-btn-pop ddp-bg-gray " (click)="checkConnection()">{{'msg.storage.btn.test' | translate}}</a>
+
+            <div class="ddp-ui-message ddp-ui-info" *ngIf="isEnableConnection()">
+              <span class="ddp-data-ok type-font-normal">{{'msg.dp.ui.valid.conn' | translate}}</span>
+            </div>
+            <div class="ddp-ui-message ddp-ui-info" *ngIf="isDisableConnection()">
+              <span class="ddp-data-error2 type-font-normal">{{'msg.storage.ui.invalid.conn' | translate}}</span>
+            </div>
+            <div class="ddp-ui-message ddp-ui-info" *ngIf="isUrlError">
+              <span class="ddp-data-error2 type-font-normal">{{'msg.storage.ui.required' | translate}}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- //edit -->
-      <!-- topic -->
-      <div class="ddp-type-topic">
-        <div class="ddp-wrap-edit2">
-          <label class="ddp-label-type">{{'msg.storage.ui.stream.kafka.topic' | translate}}</label>
-          <component-paging-search-select
-            (onSelected)="selectTopic($event)"
-            [isDisabledOptions]="!isEnableConnection()"
-            [array]="kafkaTopicList"
-            [usePlaceholder]="true"
-            [searchPlaceHolderText]="searchTopicPlaceholder"
-            [isSearchOptions]="true">
-          </component-paging-search-select>
-          <!-- //selectbox -->
-          <div class="ddp-txt-info" *ngIf="isKafkaDataResult">
-            <em class="ddp-icon-info"></em>{{'msg.storage.ui.stream.exist.kafka.data' | translate : {topic : selectedKafkaTopic} }}
+        <!-- //edit -->
+        <!-- topic -->
+        <div class="ddp-type-topic">
+          <div class="ddp-wrap-edit2">
+            <label class="ddp-label-type">{{'msg.storage.ui.stream.kafka.topic' | translate}}</label>
+            <component-paging-search-select
+              (onSelected)="selectTopic($event)"
+              [isDisabledOptions]="!isEnableConnection()"
+              [array]="kafkaTopicList"
+              [usePlaceholder]="true"
+              [searchPlaceHolderText]="searchTopicPlaceholder"
+              [isSearchOptions]="true">
+            </component-paging-search-select>
+            <!-- //selectbox -->
+            <div class="ddp-txt-info" *ngIf="isKafkaDataResult">
+              <em class="ddp-icon-info"></em>{{'msg.storage.ui.stream.exist.kafka.data' | translate : {topic : selectedKafkaTopic} }}
+            </div>
+            <div class="ddp-txt-error type-font-normal type-inline" *ngIf="selectedKafkaTopic != undefined && !isKafkaDataResult">
+              <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.stream.not.exist.kafka.data' | translate : {topic : selectedKafkaTopic} }}
+            </div>
+            <ul class="ddp-radio-inline" *ngIf="selectedKafkaTopic != undefined">
+              <li>
+                <label class="ddp-label-radio">
+                  <input type="radio" name="kafkaData" [checked]="isUseKafkaScheme" [disabled]="!isKafkaDataResult" (change)="isUseKafkaScheme = true">
+                  <i class="ddp-icon-radio"></i>
+                  <span class="ddp-txt-radio">{{'msg.storage.ui.stream.use.kafka.schema' | translate}}</span>
+                </label>
+              </li>
+              <li>
+                <label class="ddp-label-radio">
+                  <input type="radio" name="kafkaData" [checked]="!isUseKafkaScheme"  (change)="isUseKafkaScheme = false">
+                  <i class="ddp-icon-radio"></i>
+                  <span class="ddp-txt-radio">{{'msg.storage.ui.stream.create.schema' | translate}}</span>
+                </label>
+
+              </li>
+            </ul>
           </div>
-          <div class="ddp-txt-error type-font-normal type-inline" *ngIf="selectedKafkaTopic != undefined && !isKafkaDataResult">
-            <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.stream.not.exist.kafka.data' | translate : {topic : selectedKafkaTopic} }}
+        </div>
+        <!-- //topic -->
+
+        <div class="ddp-wrap-update ddp-clear" *ngIf="showFileUpload()">
+          <div class="ddp-txt-update">
+            {{'msg.storage.ui.stream.upload.data.description' | translate}}
           </div>
-          <ul class="ddp-radio-inline" *ngIf="selectedKafkaTopic != undefined">
-            <li>
-              <label class="ddp-label-radio">
-                <input type="radio" name="kafkaData" [checked]="isUseKafkaScheme" [disabled]="!isKafkaDataResult" (change)="isUseKafkaScheme = true">
-                <i class="ddp-icon-radio"></i>
-                <span class="ddp-txt-radio">{{'msg.storage.ui.stream.use.kafka.schema' | translate}}</span>
-              </label>
-            </li>
-            <li>
-              <label class="ddp-label-radio">
-                <input type="radio" name="kafkaData" [checked]="!isUseKafkaScheme"  (change)="isUseKafkaScheme = false">
-                <i class="ddp-icon-radio"></i>
-                <span class="ddp-txt-radio">{{'msg.storage.ui.stream.create.schema' | translate}}</span>
-              </label>
-
-            </li>
-          </ul>
+          <a href="javascript:" class="ddp-btn-line" (click)="selectTopic(selectedKafkaTopic);"><em class="ddp-icon-reload"></em>{{'msg.storage.ui.stream.data.reload'| translate}}</a>
         </div>
-      </div>
-      <!-- //topic -->
 
-      <div class="ddp-wrap-update ddp-clear" *ngIf="showFileUpload()">
-        <div class="ddp-txt-update">
-          {{'msg.storage.ui.stream.upload.data.description' | translate}}
+        <div class="ddp-wrap-variable" *ngIf="showFileUpload()">
+          <stream-uploader [uploadedFile]="uploadedFile"
+                    (uploadStarted)="onStartedFileUpload()"
+                    (uploadComplete)="onCompletedFileUpload($event)">
+          </stream-uploader>
+          <!-- //file create -->
         </div>
-        <a href="javascript:" class="ddp-btn-line" (click)="selectTopic(selectedKafkaTopic);"><em class="ddp-icon-reload"></em>{{'msg.storage.ui.stream.data.reload'| translate}}</a>
-      </div>
 
-      <div class="ddp-wrap-variable" *ngIf="showFileUpload()">
-        <stream-uploader [uploadedFile]="uploadedFile"
-                  (uploadStarted)="onStartedFileUpload()"
-                  (uploadComplete)="onCompletedFileUpload($event)">
-        </stream-uploader>
-        <!-- //file create -->
       </div>
-
     </div>
+    <!-- //contents in  -->
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
-
 </div>

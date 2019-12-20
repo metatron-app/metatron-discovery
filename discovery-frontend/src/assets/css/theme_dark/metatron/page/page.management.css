@@ -1722,22 +1722,13 @@
     width: 240px;
 }
 
-.theme-dark .ddp-configure-schema .ddp-data-details.ddp-ui-preview-contents {
-    position: absolute;
-    top: 170px;
-    left: 50px;
-    right: 50px;
-    bottom: 48px;
-    height: auto;
-}
+/*.theme-dark .ddp-configure-schema.ddp-info .ddp-data-details.ddp-ui-preview-contents {*/
+    /*top: 185px;*/
+/*}*/
 
-.theme-dark .ddp-configure-schema.ddp-info .ddp-data-details.ddp-ui-preview-contents {
-    top: 185px;
-}
-
-.theme-dark .ddp-configure-schema.ddp-info2 .ddp-data-details.ddp-ui-preview-contents {
-    top: 219px;
-}
+/*.theme-dark .ddp-configure-schema.ddp-info2 .ddp-data-details.ddp-ui-preview-contents {*/
+    /*top: 219px;*/
+/*}*/
 
 .theme-dark .ddp-type-top-option .ddp-ui-rightoption.ddp-type-schema .ddp-form-label2 {
     margin-left: 10px;

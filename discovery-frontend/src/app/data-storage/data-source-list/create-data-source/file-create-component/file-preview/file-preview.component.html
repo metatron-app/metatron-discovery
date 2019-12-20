@@ -12,184 +12,197 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">{{getTitle}}
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line5-type2"></em>
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{getTitle}}</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="ddp-selected">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="">5</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-sheet-resize">
-    <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
-      <div class="ddp-wrap-variable" [class.ddp-type]="isExcelFile()">
-        <!-- wrap sheet -->
-        <div class="ddp-wrap-sheet">
+    <!-- //top -->
 
-          <!-- sheet list -->
-          <div class="ddp-ui-sheet-list" [ngStyle]="isExcelFile() ? {} : {'display': 'none'}">
-            <ul class="ddp-list-sheet">
-              <li *ngFor="let sheet of fileResult.sheets"
-                  [class.ddp-selected]="sheet === fileResult.selectedSheet"
-                  (click)="onChangeSelectedSheet(sheet)">
-                <label class="ddp-label-radio">
-                  <input type="radio" [checked]="sheet === fileResult.selectedSheet">
-                  <i class="ddp-icon-radio"></i>
-                </label>
-                <span class="ddp-txt-radio">{{sheet.sheetName}}<em *ngIf="!sheet.valid" class="ddp-icon-error2"></em></span>
-              </li>
-            </ul>
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
+        <div class="ddp-wrap-variable" [class.ddp-type]="isExcelFile()">
+          <!-- wrap sheet -->
+          <div class="ddp-wrap-sheet">
 
-          </div>
-          <!-- //sheet list -->
-          <!-- sheet view -->
-          <div class="ddp-view-sheet" [class.ddp-full]="!isExcelFile()">
-            <div class="ddp-wrap-grid-option ddp-data-name">
-              {{isExcelFile() ? fileResult.selectedSheet.sheetName : ''}}
-              <!-- error icon (only sheet) -->
-              <em class="ddp-icon-error2" *ngIf="isExcelFile() && !fileResult.selectedSheet.valid"></em>
-              <!-- //error icon (only sheet) -->
-              <div class="ddp-part-right">
-                <div class="ddp-data-form">
-                  <strong>{{fileResult.fileSize}}</strong>
-                  {{'msg.storage.ui.dsource.create.file.byte' | translate}}
-                </div>
-                <ng-container *ngIf="selectedFileDetailData">
-                  <div class="ddp-data-form" *ngIf="selectedFileDetailData.fields">
-                    <strong>{{selectedFileDetailData.fields.length}}</strong>
-                    {{'msg.storage.ui.dsource.create.file.columns' | translate}}
-                  </div>
+            <!-- sheet list -->
+            <div class="ddp-ui-sheet-list" [ngStyle]="isExcelFile() ? {} : {'display': 'none'}">
+              <ul class="ddp-list-sheet">
+                <li *ngFor="let sheet of fileResult.sheets"
+                    [class.ddp-selected]="sheet === fileResult.selectedSheet"
+                    (click)="onChangeSelectedSheet(sheet)">
+                  <label class="ddp-label-radio">
+                    <input type="radio" [checked]="sheet === fileResult.selectedSheet">
+                    <i class="ddp-icon-radio"></i>
+                  </label>
+                  <span class="ddp-txt-radio">{{sheet.sheetName}}<em *ngIf="!sheet.valid" class="ddp-icon-error2"></em></span>
+                </li>
+              </ul>
+
+            </div>
+            <!-- //sheet list -->
+            <!-- sheet view -->
+            <div class="ddp-view-sheet" [class.ddp-full]="!isExcelFile()">
+              <div class="ddp-wrap-grid-option ddp-data-name">
+                {{isExcelFile() ? fileResult.selectedSheet.sheetName : ''}}
+                <!-- error icon (only sheet) -->
+                <em class="ddp-icon-error2" *ngIf="isExcelFile() && !fileResult.selectedSheet.valid"></em>
+                <!-- //error icon (only sheet) -->
+                <div class="ddp-part-right">
                   <div class="ddp-data-form">
-                    <input type="text" class="ddp-data-input"
-                           input-mask="number"
-                           [(ngModel)]="rowNum"
-                           (keyup.enter)="onChangeRowNum()">
-                    <strong>/ {{selectedFileDetailData.totalRows}}</strong>
-                    {{'msg.storage.ui.dsource.create.file.row' | translate}}
+                    <strong>{{fileResult.fileSize}}</strong>
+                    {{'msg.storage.ui.dsource.create.file.byte' | translate}}
                   </div>
-                  <div class="ddp-data-form"
-                       *ngIf="selectedFileDetailData.fields">
-                    <strong class="ddp-cursor"
-                            (click)="typeShowFl = !typeShowFl"
-                            (clickOutside)="typeShowFl = false">{{typeList.length}}</strong>
-                    {{'msg.storage.ui.dsource.create.file.types' | translate}}
-                    <!-- 팝업 -->
-                    <div class="ddp-wrap-popup2 ddp-types" *ngIf="typeShowFl">
-                      <ul class="ddp-list-popup">
-                        <li *ngFor="let type of typeList">
-                          <a href="javascript:">
-                            <em class="{{getFieldTypeIconClass(type.label)}}"></em>
-                            {{type.value}} {{'msg.storage.th.row' | translate}}
-                          </a>
-                        </li>
-                      </ul>
+                  <ng-container *ngIf="selectedFileDetailData">
+                    <div class="ddp-data-form" *ngIf="selectedFileDetailData.fields">
+                      <strong>{{selectedFileDetailData.fields.length}}</strong>
+                      {{'msg.storage.ui.dsource.create.file.columns' | translate}}
                     </div>
-                    <!-- //팝업 -->
-                  </div>
-                </ng-container>
+                    <div class="ddp-data-form">
+                      <input type="text" class="ddp-data-input"
+                             input-mask="number"
+                             [(ngModel)]="rowNum"
+                             (keyup.enter)="onChangeRowNum()">
+                      <strong>/ {{selectedFileDetailData.totalRows}}</strong>
+                      {{'msg.storage.ui.dsource.create.file.row' | translate}}
+                    </div>
+                    <div class="ddp-data-form"
+                         *ngIf="selectedFileDetailData.fields">
+                      <strong class="ddp-cursor"
+                              (click)="typeShowFl = !typeShowFl"
+                              (clickOutside)="typeShowFl = false">{{typeList.length}}</strong>
+                      {{'msg.storage.ui.dsource.create.file.types' | translate}}
+                      <!-- 팝업 -->
+                      <div class="ddp-wrap-popup2 ddp-types" *ngIf="typeShowFl">
+                        <ul class="ddp-list-popup">
+                          <li *ngFor="let type of typeList">
+                            <a href="javascript:">
+                              <em class="{{getFieldTypeIconClass(type.label)}}"></em>
+                              {{type.value}} {{'msg.storage.th.row' | translate}}
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                      <!-- //팝업 -->
+                    </div>
+                  </ng-container>
+                </div>
               </div>
-            </div>
-            <!-- 그리드 영역 -->
-            <div class="ddp-wrap-grid">
-              <!-- 데이터 없는경우 -->
-              <div class="ddp-ui-empty" *ngIf="clearGrid">
-                {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+              <!-- 그리드 영역 -->
+              <div class="ddp-wrap-grid">
+                <!-- 데이터 없는경우 -->
+                <div class="ddp-ui-empty" *ngIf="clearGrid">
+                  {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+                </div>
+                <!-- //데이터 없는경우 -->
+                <!-- 데이터 있는경우 -->
+                <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
+                <!-- //데이터 있는경우 -->
               </div>
-              <!-- //데이터 없는경우 -->
-              <!-- 데이터 있는경우 -->
-              <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
-              <!-- //데이터 있는경우 -->
-            </div>
-            <!-- //그리드 영역 -->
+              <!-- //그리드 영역 -->
 
-          </div>
-          <!-- //sheet view -->
-        </div>
-        <!-- //wrap sheet -->
-      </div>
-      <div class="ddp-wrap-edit-form">
-        <ng-container *ngIf="isCsvFile()">
-          <div class="ddp-wrap-edit3 ddp-type"  [class.ddp-error]="isValidDelimiter === false">
-            <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.column.delimiter' | translate}}</label>
-            <!-- edit option -->
-            <div class="ddp-ui-edit-option">
-              <!-- apply -->
-              <div class="ddp-input-apply">
-                <input type="text" class="ddp-input-txt"
-                       [(ngModel)]="delimiter"
-                       (ngModelChange)="isValidDelimiter = undefined; isValidFile = undefined"
-                       (keypress)="onChangeDelimiter($event)"
-                       placeholder="{{'msg.storage.ph.dsource.create.file.column.delimiter' | translate}}">
-                <em class="ddp-icon-apply" (click)="onChangeDelimiter()"></em>
-              </div>
-              <!-- //apply -->
-              <span class="ddp-ui-error" *ngIf="isValidDelimiter === false">{{getValidMessage}}</span>
             </div>
-            <!-- //edit option -->
+            <!-- //sheet view -->
           </div>
-          <div class="ddp-wrap-edit3 ddp-type"[class.ddp-error]="isValidSeparator === false">
-            <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.line.separator' | translate}}</label>
-            <!-- edit option -->
-            <div class="ddp-ui-edit-option">
-              <!-- apply -->
-              <div class="ddp-input-apply">
-                <input type="text" class="ddp-input-txt"
-                       [(ngModel)]="separator"
-                       (ngModelChange)="isValidSeparator = undefined; isValidFile = undefined"
-                       (keypress)="onChangeSeparator($event)"
-                       placeholder="{{'msg.storage.ph.dsource.create.file.line.separator' | translate}}">
-                <em class="ddp-icon-apply" (click)="onChangeSeparator()"></em>
+          <!-- //wrap sheet -->
+        </div>
+        <div class="ddp-wrap-edit-form">
+          <ng-container *ngIf="isCsvFile()">
+            <div class="ddp-wrap-edit3 ddp-type"  [class.ddp-error]="isValidDelimiter === false">
+              <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.column.delimiter' | translate}}</label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                <!-- apply -->
+                <div class="ddp-input-apply">
+                  <input type="text" class="ddp-input-txt"
+                         [(ngModel)]="delimiter"
+                         (ngModelChange)="isValidDelimiter = undefined; isValidFile = undefined"
+                         (keypress)="onChangeDelimiter($event)"
+                         placeholder="{{'msg.storage.ph.dsource.create.file.column.delimiter' | translate}}">
+                  <em class="ddp-icon-apply" (click)="onChangeDelimiter()"></em>
+                </div>
+                <!-- //apply -->
+                <span class="ddp-ui-error" *ngIf="isValidDelimiter === false">{{getValidMessage}}</span>
               </div>
-              <!-- //apply -->
-              <span class="ddp-ui-error" *ngIf="isValidSeparator === false">{{getValidMessage}}</span>
+              <!-- //edit option -->
             </div>
-            <!-- //edit option -->
+            <div class="ddp-wrap-edit3 ddp-type"[class.ddp-error]="isValidSeparator === false">
+              <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.line.separator' | translate}}</label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                <!-- apply -->
+                <div class="ddp-input-apply">
+                  <input type="text" class="ddp-input-txt"
+                         [(ngModel)]="separator"
+                         (ngModelChange)="isValidSeparator = undefined; isValidFile = undefined"
+                         (keypress)="onChangeSeparator($event)"
+                         placeholder="{{'msg.storage.ph.dsource.create.file.line.separator' | translate}}">
+                  <em class="ddp-icon-apply" (click)="onChangeSeparator()"></em>
+                </div>
+                <!-- //apply -->
+                <span class="ddp-ui-error" *ngIf="isValidSeparator === false">{{getValidMessage}}</span>
+              </div>
+              <!-- //edit option -->
+            </div>
+          </ng-container>
+          <!-- 헤드컬럼 설정 -->
+          <div class="ddp-wrap-edit3 ddp-type" *ngIf="!isJsonFile()">
+            <label class="ddp-label-checkbox" (click)="onChangeIsFirstHeaderRowFlag(); $event.preventDefault()">
+              <input type="checkbox" [checked]="isFirstHeaderRow">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.storage.ui.dsource.create.file.column.head.enable' | translate}}</span>
+            </label>
           </div>
-        </ng-container>
-        <!-- 헤드컬럼 설정 -->
-        <div class="ddp-wrap-edit3 ddp-type" *ngIf="!isJsonFile()">
-          <label class="ddp-label-checkbox" (click)="onChangeIsFirstHeaderRowFlag(); $event.preventDefault()">
-            <input type="checkbox" [checked]="isFirstHeaderRow">
-            <i class="ddp-icon-checkbox"></i>
-            <span class="ddp-txt-checkbox">{{'msg.storage.ui.dsource.create.file.column.head.enable' | translate}}</span>
-          </label>
+        </div>
+        <!-- info message -->
+        <div class="ddp-wrap-message">
+          <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || (isExcelFile() ? !fileResult.selectedSheet.valid : (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid))">
+            <div class="ddp-txt-synch">
+              <em class="ddp-icon-info"></em>
+              {{getErrorMessage}}
+            </div>
+          </div>
+          <div class="ddp-box-synch " *ngIf="ingestionStatus === 'overwrite' || ingestionStatus === 'newcolumn'">
+            <div class="ddp-txt-synch">
+              <em class="ddp-icon-info"></em>
+              {{getReingestionStatusMsg}}
+            </div>
+          </div>
+          <div class="ddp-box-synch type-info" *ngIf="ingestionStatus === 'append'">
+            <div class="ddp-txt-synch">
+              <em class="ddp-icon-info"></em>
+              {{getReingestionStatusMsg}}
+            </div>
+          </div>
         </div>
       </div>
-      <!-- info message -->
-      <div class="ddp-wrap-message">
-        <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || (isExcelFile() ? !fileResult.selectedSheet.valid : (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid))">
-          <div class="ddp-txt-synch">
-            <em class="ddp-icon-info"></em>
-            {{getErrorMessage}}
-          </div>
-        </div>
-        <div class="ddp-box-synch " *ngIf="ingestionStatus === 'overwrite' || ingestionStatus === 'newcolumn'">
-          <div class="ddp-txt-synch">
-            <em class="ddp-icon-info"></em>
-            {{getReingestionStatusMsg}}
-          </div>
-        </div>
-        <div class="ddp-box-synch type-info" *ngIf="ingestionStatus === 'append'">
-          <div class="ddp-txt-synch">
-            <em class="ddp-icon-info"></em>
-            {{getReingestionStatusMsg}}
-          </div>
-        </div>
-      </div>
+      <!-- //파일 선택한 후 -->
     </div>
-    <!-- //파일 선택한 후 -->
+    <!-- //import -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="selectedFileDetailData === undefined" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="selectedFileDetailData === undefined" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 
 </div>
 

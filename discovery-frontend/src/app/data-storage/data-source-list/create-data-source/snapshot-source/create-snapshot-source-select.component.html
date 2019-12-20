@@ -1,161 +1,171 @@
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.ss.title' | translate}})
-      <span class="ddp-txt-info">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line4-type"></em>
-    </div>
-  </div>
 
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-size-resize">
-    <div class="ddp-popup-dashboard">
-      <!-- 옵션 -->
-      <div class="ddp-type-top-option ddp-clear">
-        <component-input
-          [compType]="'search'"
-          [optionalClass]="'ddp-fleft'"
-          [autoFocus]="false"
-          [value]="createSnapshotData.searchText"
-          [placeHolder]="'msg.storage.ph.search.snapshot' | translate"
-          (changeValue)="onChangedSearchText($event)">
-        </component-input>
-        <div class="ddp-ui-rightoption">
-
-          <!-- edit -->
-          <div class="ddp-form-label2">
-            <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
-            <div class="ddp-wrap-dropdown">
-              <!-- select box -->
-              <!-- 클릭시 ddp-selected 추가 -->
-              <div class="ddp-type-selectbox" [class.ddp-selected]="isSnapshotTypeFilterList" (click)="isSnapshotTypeFilterList = !isSnapshotTypeFilterList" (clickOutside)="isSnapshotTypeFilterList = false">
-                <span class="ddp-txt-selectbox">{{createSnapshotData.selectedSnapshotTypeFilter.label}}</span>
-                <ul class="ddp-list-selectbox ddp-selectdown">
-                  <li *ngFor="let type of snapshotTypeFilterList" (click)="onChangedSnapshotTypeFilter(type)">
-                    <a href="javascript:">
-                      {{type.label}}
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <!-- //select box -->
-            </div>
-          </div>
-          <!-- //edit -->
-        </div>
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.ss.title' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
       </div>
-      <!-- //옵션 -->
-      <div class="ddp-wrap-variable">
-        <!-- 그리드 영역 -->
-        <!-- 설명 나올때 ddp-selected 추가 -->
-        <div class="ddp-wrap-grid" [class.ddp-selected]="createSnapshotData.selectedSnapshot">
+      <!-- //step -->
+    </div>
+    <!-- //top -->
 
-          <div class="ddp-wrap-viewtable ddp-add">
-            <!-- 테이블 -->
-            <div class="ddp-box-viewtable">
-              <!-- gridhead -->
-              <div class="ddp-ui-gridhead">
-                <table class="ddp-table-form ddp-table-type2">
-                  <colgroup>
-                    <col width="*">
-                    <col width="20%">
-                    <col width="20%">
-                  </colgroup>
-                  <thead>
-                  <tr>
-                    <th>
-                      {{'msg.comm.ui.name' | translate}}
-                    </th>
-                    <th>
-                      {{'msg.comm.th.type' | translate}}
-                    </th>
-                    <th class="ddp-cursor" (click)="onChangedSort(createSnapshotData.sort)">
-                      {{'msg.comm.th.created' | translate}}
-                      <em class="ddp-icon-array-asc2" *ngIf="createSnapshotData.sort === 'createdTime,asc'"></em>
-                      <em class="ddp-icon-array-des2" *ngIf="createSnapshotData.sort === 'createdTime,desc'"></em>
-                    </th>
-                  </tr>
-                  </thead>
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-popup-dashboard">
+        <!-- 옵션 -->
+        <div class="ddp-type-top-option ddp-clear">
+          <component-input
+            [compType]="'search'"
+            [optionalClass]="'ddp-fleft'"
+            [autoFocus]="false"
+            [value]="createSnapshotData.searchText"
+            [placeHolder]="'msg.storage.ph.search.snapshot' | translate"
+            (changeValue)="onChangedSearchText($event)">
+          </component-input>
+          <div class="ddp-ui-rightoption">
 
-                </table>
+            <!-- edit -->
+            <div class="ddp-form-label2">
+              <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
+              <div class="ddp-wrap-dropdown">
+                <!-- select box -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-type-selectbox" [class.ddp-selected]="isSnapshotTypeFilterList" (click)="isSnapshotTypeFilterList = !isSnapshotTypeFilterList" (clickOutside)="isSnapshotTypeFilterList = false">
+                  <span class="ddp-txt-selectbox">{{createSnapshotData.selectedSnapshotTypeFilter.label}}</span>
+                  <ul class="ddp-list-selectbox ddp-selectdown">
+                    <li *ngFor="let type of snapshotTypeFilterList" (click)="onChangedSnapshotTypeFilter(type)">
+                      <a href="javascript:">
+                        {{type.label}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //select box -->
               </div>
-              <!--// gridhead -->
+            </div>
+            <!-- //edit -->
+          </div>
+        </div>
+        <!-- //옵션 -->
+        <div class="ddp-wrap-variable">
+          <!-- 그리드 영역 -->
+          <!-- 설명 나올때 ddp-selected 추가 -->
+          <div class="ddp-wrap-grid" [class.ddp-selected]="createSnapshotData.selectedSnapshot">
 
-              <!-- gridbody -->
-              <div class="ddp-ui-gridbody">
-                <table class="ddp-table-form ddp-table-type2 ddp-table-select">
-                  <colgroup>
-                    <col width="*">
-                    <col width="20%">
-                    <col width="20%">
-                  </colgroup>
-                  <tbody>
-                    <tr *ngIf="!createSnapshotData.snapshotList || createSnapshotData.snapshotList.length === 0">
-                      <td class="ddp-data-none " colspan="3">{{'msg.comm.ui.no.rslt' | translate}}</td>
+            <div class="ddp-wrap-viewtable ddp-add">
+              <!-- 테이블 -->
+              <div class="ddp-box-viewtable">
+                <!-- gridhead -->
+                <div class="ddp-ui-gridhead">
+                  <table class="ddp-table-form ddp-table-type2">
+                    <colgroup>
+                      <col width="*">
+                      <col width="20%">
+                      <col width="20%">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                      <th>
+                        {{'msg.comm.ui.name' | translate}}
+                      </th>
+                      <th>
+                        {{'msg.comm.th.type' | translate}}
+                      </th>
+                      <th class="ddp-cursor" (click)="onChangedSort(createSnapshotData.sort)">
+                        {{'msg.comm.th.created' | translate}}
+                        <em class="ddp-icon-array-asc2" *ngIf="createSnapshotData.sort === 'createdTime,asc'"></em>
+                        <em class="ddp-icon-array-des2" *ngIf="createSnapshotData.sort === 'createdTime,desc'"></em>
+                      </th>
                     </tr>
-                    <tr [class.ddp-selected]="isSelectedSnapshot(snapshot)" *ngFor="let snapshot of createSnapshotData.snapshotList" (click)="onSelectedSnapshot(snapshot)">
-                      <!-- name -->
-                      <td>
-                        <div class="ddp-txt-long" *ngIf="!isErrorSnapshot(snapshot.ssId)">
-                          {{snapshot.ssName}}
-                        </div>
-                        <div class="ddp-txt-error-type" *ngIf="isErrorSnapshot(snapshot.ssId)">
-                          <em class="ddp-icon-error2"></em>
-                          <span class="ddp-txt-data" >
+                    </thead>
+
+                  </table>
+                </div>
+                <!--// gridhead -->
+
+                <!-- gridbody -->
+                <div class="ddp-ui-gridbody">
+                  <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                    <colgroup>
+                      <col width="*">
+                      <col width="20%">
+                      <col width="20%">
+                    </colgroup>
+                    <tbody>
+                      <tr *ngIf="!createSnapshotData.snapshotList || createSnapshotData.snapshotList.length === 0">
+                        <td class="ddp-data-none " colspan="3">{{'msg.comm.ui.no.rslt' | translate}}</td>
+                      </tr>
+                      <tr [class.ddp-selected]="isSelectedSnapshot(snapshot)" *ngFor="let snapshot of createSnapshotData.snapshotList" (click)="onSelectedSnapshot(snapshot)">
+                        <!-- name -->
+                        <td>
+                          <div class="ddp-txt-long" *ngIf="!isErrorSnapshot(snapshot.ssId)">
                             {{snapshot.ssName}}
-                            </span>
-                        </div>
-                      </td>
-                      <!-- //name -->
-                      <!-- type -->
-                      <td>
-                        <span calss="ddp-data-source">
-                            {{getSnapshotTypeLabel(snapshot)}}
-                        </span>
-                      </td>
-                      <!-- //type -->
-                      <!-- create time -->
-                      <td>
-                        {{snapshot.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
-                      </td>
-                      <!-- //create time -->
-                    </tr>
-                  </tbody>
-                </table>
+                          </div>
+                          <div class="ddp-txt-error-type" *ngIf="isErrorSnapshot(snapshot.ssId)">
+                            <em class="ddp-icon-error2"></em>
+                            <span class="ddp-txt-data" >
+                              {{snapshot.ssName}}
+                              </span>
+                          </div>
+                        </td>
+                        <!-- //name -->
+                        <!-- type -->
+                        <td>
+                          <span calss="ddp-data-source">
+                              {{getSnapshotTypeLabel(snapshot)}}
+                          </span>
+                        </td>
+                        <!-- //type -->
+                        <!-- create time -->
+                        <td>
+                          {{snapshot.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
+                        </td>
+                        <!-- //create time -->
+                      </tr>
+                    </tbody>
+                  </table>
 
+                </div>
+                <!--// gridbody -->
               </div>
-              <!--// gridbody -->
+              <!-- //테이블 -->
+              <div class="ddp-box-add-link3" [class.ddp-disabled]="!isMoreExistSnapshotList()" (click)="onClickMoreSnapshotList()">
+                <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+              </div>
             </div>
-            <!-- //테이블 -->
-            <div class="ddp-box-add-link3" [class.ddp-disabled]="!isMoreExistSnapshotList()" (click)="onClickMoreSnapshotList()">
-              <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-            </div>
+
           </div>
-
+          <!-- //그리드 영역 -->
         </div>
-        <!-- //그리드 영역 -->
+        <!-- 설명 -->
+        <!-- Preview -->
+        <snapshot-preview *ngIf="createSnapshotData.selectedSnapshot"
+                          [sourceData]="sourceData"
+                          [createSnapshotData]="createSnapshotData"
+                          [snapshotId]="createSnapshotData.selectedSnapshot.ssId"
+                          (closedPreview)="createSnapshotData.selectedSnapshot = undefined">
+        </snapshot-preview>
+        <!-- //Preview -->
       </div>
-      <!-- 설명 -->
-      <!-- Preview -->
-      <snapshot-preview *ngIf="createSnapshotData.selectedSnapshot"
-                        [sourceData]="sourceData"
-                        [createSnapshotData]="createSnapshotData"
-                        [snapshotId]="createSnapshotData.selectedSnapshot.ssId"
-                        (closedPreview)="createSnapshotData.selectedSnapshot = undefined">
-      </snapshot-preview>
-      <!-- //Preview -->
     </div>
-  </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
+    <!-- //contents in  -->
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
 
+  </div>
 </div>

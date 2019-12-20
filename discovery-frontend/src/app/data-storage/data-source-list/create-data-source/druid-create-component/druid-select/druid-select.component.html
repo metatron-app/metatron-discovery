@@ -12,74 +12,83 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.druid.title' | translate}})
-      <span class="ddp-txt-info ddp-type">{{'msg.storage.ui.dsource.create.druid.select.table' | translate}}</span>
-      <em class="ddp-bg-order-type"></em>
-    </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-size-resize2">
-    <div class="ddp-box-popupcontents ddp-wrap-file-create">
 
-      <!-- wrap sheet -->
-      <!-- ddp-full 추가 -->
-      <div class="ddp-wrap-sheet ddp-wrap-druid">
-
-        <!-- sheet list -->
-        <div class="ddp-ui-sheet-list">
-          <!-- selection -->
-          <div class="ddp-select-all">
-            <label class="ddp-label-checkbox" (click)="onCheckAllEngine()">
-              <input type="checkbox" [checked]="isAllSelectedEngine()">
-              <i class="ddp-icon-checkbox"></i>
-              <span class="ddp-txt-checkbox"><strong>{{selectedEngineList.length}}</strong> {{'msg.storage.ui.dsource.create.druid.selected.count' | translate}}</span>
-            </label>
-          </div>
-          <!-- //selection -->
-          <ul class="ddp-list-sheet">
-            <li *ngFor="let engineName of engineList" [class.ddp-selected]="isSelectedEngine(engineName)" (click)="onSelectedEngine(engineName)">
-              <label class="ddp-label-checkbox" (click)="$event.stopImmediatePropagation()">
-                <input type="checkbox"
-                       (click)="onCheckEngine(engineName)"
-                       [checked]="isCheckedEngine(engineName)">
-                <i class="ddp-icon-checkbox"></i>
-              </label>
-              <span class="ddp-txt-checkbox">{{engineName}}</span>
-            </li>
-          </ul>
-        </div>
-        <!-- //sheet list -->
-        <!-- sheet view -->
-        <div class="ddp-view-sheet">
-          <div class="ddp-data-tablename">
-            {{selectedEngine}}
-          </div>
-          <!-- 그리드 영역 -->
-          <div class="ddp-wrap-grid" #grid grid-component>
-
-          </div>
-          <!-- //그리드 영역 -->
-
-        </div>
-        <!-- //sheet view -->
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.druid.title' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.ui.dsource.create.druid.select.table' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
       </div>
-      <!-- //wrap sheet -->
-
+      <!-- //step -->
     </div>
+    <!-- //top -->
+
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents ddp-wrap-file-create">
+
+        <!-- wrap sheet -->
+        <!-- ddp-full 추가 -->
+        <div class="ddp-wrap-sheet ddp-wrap-druid">
+
+          <!-- sheet list -->
+          <div class="ddp-ui-sheet-list">
+            <!-- selection -->
+            <div class="ddp-select-all">
+              <label class="ddp-label-checkbox" (click)="onCheckAllEngine()">
+                <input type="checkbox" [checked]="isAllSelectedEngine()">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-txt-checkbox"><strong>{{selectedEngineList.length}}</strong> {{'msg.storage.ui.dsource.create.druid.selected.count' | translate}}</span>
+              </label>
+            </div>
+            <!-- //selection -->
+            <ul class="ddp-list-sheet">
+              <li *ngFor="let engineName of engineList" [class.ddp-selected]="isSelectedEngine(engineName)" (click)="onSelectedEngine(engineName)">
+                <label class="ddp-label-checkbox" (click)="$event.stopImmediatePropagation()">
+                  <input type="checkbox"
+                         (click)="onCheckEngine(engineName)"
+                         [checked]="isCheckedEngine(engineName)">
+                  <i class="ddp-icon-checkbox"></i>
+                </label>
+                <span class="ddp-txt-checkbox">{{engineName}}</span>
+              </li>
+            </ul>
+          </div>
+          <!-- //sheet list -->
+          <!-- sheet view -->
+          <div class="ddp-view-sheet">
+            <div class="ddp-data-tablename">
+              {{selectedEngine}}
+            </div>
+            <!-- 그리드 영역 -->
+            <div class="ddp-wrap-grid" #grid grid-component>
+
+            </div>
+            <!-- //그리드 영역 -->
+
+          </div>
+          <!-- //sheet view -->
+        </div>
+        <!-- //wrap sheet -->
+
+      </div>
+    </div>
+    <!-- //import  -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!doneValidation()" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!doneValidation()" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 
 </div>

@@ -12,73 +12,87 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})
-      <span class="ddp-txt-info">{{'msg.storage.create-dsource.db.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line5-type"></em>
-    </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-type ddp-scroll">
-    <!-- dp connection -->
-    <div class="ddp-ui-dbconnect">
-      <!-- ingestion type -->
-      <div class="ddp-wrap-edit3 ddp-type">
-        <label class="ddp-label-type ddp-bold">{{'msg.storage.th.ingestion_type' | translate}}</label>
-        <!-- edit option -->
-        <div class="ddp-ui-edit-option">
-          <div class="ddp-inline">
-            <label class="ddp-label-radio" *ngFor="let type of ingestionTypeList" (change)="onChangeIngestionType(type)">
-              <input type="radio" [checked]="selectedIngestionType.value === type.value">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{type.label}}</span>
-            </label>
-          </div>
-        </div>
-        <!-- //edit option -->
+
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="">5</span>
       </div>
-      <!-- //ingestion type -->
-      <div class="ddp-edit-setting ddp-type">
-        <!-- preset box -->
-        <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
-          <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
+      <!-- //step -->
+    </div>
+    <!-- //top -->
+
+    <!-- import -->
+    <div class="ddp-pop-contents">
+
+      <!-- dp connection -->
+      <div class="ddp-ui-dbconnect">
+        <!-- ingestion type -->
+        <div class="ddp-wrap-edit3 ddp-type">
+          <label class="ddp-label-type ddp-bold">{{'msg.storage.th.ingestion_type' | translate}}</label>
           <!-- edit option -->
-          <div class="ddp-ui-edit-option ">
-            <component-paging-search-select
-              (onSelected)="onSelectedConnectionPreset($event)"
-              (onLoadPage)="onScrollPage($event)"
-              [defaultIndex]="getConnectionDefaultIndex()"
-              [array]="connectionPresetList"
-              [isEnableObjectKey]="true"
-              [objectKey]="'name'"
-              [pageNum]="pageResult.number"
-              [usePlaceholder]="true"
-              [isConnection]="true"
-              [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
-            </component-paging-search-select>
+          <div class="ddp-ui-edit-option">
+            <div class="ddp-inline">
+              <label class="ddp-label-radio" *ngFor="let type of ingestionTypeList" (change)="onChangeIngestionType(type)">
+                <input type="radio" [checked]="selectedIngestionType.value === type.value">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{type.label}}</span>
+              </label>
+            </div>
           </div>
           <!-- //edit option -->
         </div>
-        <!-- //preset box -->
-        <app-connection [isDisableChangeConnectionType]="!selectedConnectionPreset.default"
-                        [isDisableChangeConnectionInfo]="!selectedConnectionPreset.default"
-                        [isDisableProperties]="true"
-                        [isHideConnectionLabel]="true"
-                        [isShowDialogGuide]="true"></app-connection>
+        <!-- //ingestion type -->
+        <div class="ddp-edit-setting ddp-type">
+          <!-- preset box -->
+          <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
+            <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ">
+              <component-paging-search-select
+                (onSelected)="onSelectedConnectionPreset($event)"
+                (onLoadPage)="onScrollPage($event)"
+                [defaultIndex]="getConnectionDefaultIndex()"
+                [array]="connectionPresetList"
+                [isEnableObjectKey]="true"
+                [objectKey]="'name'"
+                [pageNum]="pageResult.number"
+                [usePlaceholder]="true"
+                [isConnection]="true"
+                [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
+              </component-paging-search-select>
+            </div>
+            <!-- //edit option -->
+          </div>
+          <!-- //preset box -->
+          <app-connection [isDisableChangeConnectionType]="!selectedConnectionPreset.default"
+                          [isDisableChangeConnectionInfo]="!selectedConnectionPreset.default"
+                          [isDisableProperties]="true"
+                          [isHideConnectionLabel]="true"
+                          [isShowDialogGuide]="true"></app-connection>
+        </div>
       </div>
+      <!-- //dp connection -->
     </div>
-    <!-- //dp connection -->
+    <!-- //import -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //import -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>

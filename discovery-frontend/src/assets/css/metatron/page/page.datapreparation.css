@@ -143,7 +143,7 @@
 .ddp-layout-pop-fix .ddp-pop-contents .ddp-wrap-variable .ddp-wrap-viewtable  {flex:auto; display:flex; flex-direction:column;height:100%; min-height:auto; overflow:auto; box-sizing:border-box;}
 .ddp-layout-pop-fix .ddp-pop-contents .ddp-wrap-variable .ddp-wrap-viewtable .ddp-box-viewtable {flex:auto; height:100%; min-height:auto;}
 .ddp-layout-pop-fix .ddp-pop-contents .ddp-wrap-variable .ddp-ui-bottomoption {position:Relative; top:0;}
-.ddp-layout-pop-fix .ddp-pop-contents .ddp-box-popupcontents {display:flex; flex-direction: column; width:800px; margin:0 auto;flex:auto; height:100%; overflow:auto; box-sizing:border-box;}
+.ddp-layout-pop-fix .ddp-pop-contents .ddp-box-popupcontents {display:flex; flex-direction: column; width:1100px; margin:0 auto;flex:auto; height:100%; overflow:auto; box-sizing:border-box;}
 .ddp-box-popupcontents .ddp-box-file-create {position:relative; flex:auto; height:100%; display:flex; box-sizing:border-box;}
 .ddp-box-popupcontents .ddp-box-file-create .ddp-wrap-upload {display:inline-block; position:relative; padding:23px 0 0 0;width:323px; text-align:left;}
 .ddp-box-popupcontents .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type {padding:15px 20px 15px 17px;border-radius:5px; background-color:#ececef;}
@@ -699,11 +699,6 @@ table.ddp-table-column tr td .ddp-txt-column {line-height:30px;}
 .ddp-ui-popup-title {padding:49px 330px 49px 50px; text-align:left; overflow:hidden;}
 .ddp-ui-popup-title span.ddp-txt-title-name {width:100%; line-height:32px; box-sizing:border-box; color:#222; font-size:16px;}
 
-.ddp-ui-popup {position:fixed; top:0; left:50%; bottom:0; width:960px; margin-left:-480px; background-color: #fff; /* layer fill content */
-	-moz-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
-	-webkit-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
-	box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
-	z-index:91;}
 .ddp-ui-pop-buttons {position:absolute; top:49px; right:47px;}
 .ddp-ui-pop-buttons .ddp-btn-pop {float:left;}
 .ddp-ui-pop-buttons .ddp-btn-pop + .ddp-btn-pop {margin-left:4px;}
@@ -1383,19 +1378,6 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-pop-bar a.ddp-btn-close em.ddp-icon-close {display:inline-block; width:16px; height:16px; margin-right:7px; background:url(../../../images/btn_popclose.png) no-repeat; background-position:left -84px; vertical-align: middle;}
 
 .ddp-wrap-flow .ddp-wrap-addrule {position:absolute; bottom:0; left:0; right:0; min-height:207px; background-color:#fff; box-sizing:border-box; z-index:10;}
-
-/****	데이터셋 팝업	  *****/
-.ddp-ui-popup-contents {position:relative; height:100%; margin-top:-120px; padding:120px 50px 0 50px; box-sizing: border-box;}
-.ddp-ui-popup-contents.ddp-info {padding-top:134px;}
-.ddp-ui-popup-contents.ddp-info2 {padding-top:168px;}
-.ddp-ui-popup-contents .ddp-box-message {position:absolute; top:84px; left:50px; right:50px;}
-.ddp-ui-popup-contents .ddp-popup-viewtable {position:absolute; top:170px; left:50px; right:50px; bottom:90px;}
-.ddp-ui-popup-contents .ddp-popup-viewtable .ddp-box-add-link {position:absolute; bottom:0; left:0; right:0;}
-.ddp-ui-popup-contents .ddp-box-viewtable {height:100%; box-sizing:Border-box;}
-.ddp-box-viewtable.ddp-viewtable-type .ddp-ui-gridbody {bottom:35px;}
-.ddp-box-viewtable.ddp-viewtable-type .ddp-box-add-link  {position:absolute; left:0; right:0; bottom:0; padding:12px 0 13px 0; text-align:center; border:none; border-top:1px solid #d0d1d8; background-color: #fff;
-	-moz-box-shadow: inset 0 1px 3px rgba(75,81,91,.1); /* inner shadow */
-	-webkit-box-shadow: inset 0 1px 3px rgba(75,81,91,.1); /* inner shadow */}
 
 /****	flow  *****/
 .ddp-wrap-flow2 {position:fixed; left:0; top:100px; right:0; bottom:0;background-color:#fff;}

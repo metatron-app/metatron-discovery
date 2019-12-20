@@ -1598,23 +1598,20 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     z-index: 126;
 }
 
-.theme-dark .ddp-layout-popuptype .ddp-ui-popup {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    bottom: 0;
-    width: 960px;
-    overflow-y: auto;
-    margin-left: -480px;
-    background-color: #fff;
-    z-index: 127;
+.theme-dark .ddp-layout-popuptype .ddp-ui-popup {position:relative; display:flex;flex-direction: column;  width:960px; height:100%; overflow-y:auto; margin:0 auto; background-color:#fff;
+    -moz-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
+    -webkit-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
+    box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
+    z-index:127;
 }
 
 .theme-dark .ddp-layout-popuptype .ddp-ui-popup .ddp-ui-popup-title {
     position: relative;
+    min-height:115px;
     padding: 44px 280px 44px 50px;
     text-align: left;
     overflow: hidden;
+    box-sizing:border-box;
 }
 
 .theme-dark .ddp-layout-popuptype .ddp-ui-popup .ddp-ui-popup-title .ddp-txt-sub-title {
@@ -1702,6 +1699,56 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     height: 15px;
     background: url(../../images/icon_info.png) no-repeat;
 }
+.theme-dark .ddp-layout-popuptype.type-flex {display:flex; justify-content:center; align-items:center;}
+.theme-dark .ddp-ui-popup-contents {
+    display:flex; flex-direction:column; flex:auto; height:100%; padding:0 50px 30px 50px; box-sizing: border-box;
+}
+
+
+.theme-dark .ddp-ui-popup-contents .ddp-box-message {
+    margin:-30px 0 15px 0;
+}
+
+.theme-dark .ddp-ui-popup-contents .ddp-popup-viewtable {
+    position: absolute;
+    top: 170px;
+    left: 50px;
+    right: 50px;
+    bottom: 90px;
+}
+
+.theme-dark .ddp-ui-popup-contents .ddp-popup-viewtable .ddp-box-add-link {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.theme-dark .ddp-ui-popup-contents .ddp-box-viewtable {
+    height: 100%;
+    box-sizing: Border-box;
+}
+
+.theme-dark .ddp-box-viewtable.ddp-viewtable-type .ddp-ui-gridbody {
+    bottom: 35px;
+}
+
+.theme-dark .ddp-box-viewtable.ddp-viewtable-type .ddp-box-add-link {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 12px 0 13px 0;
+    text-align: center;
+    border: none;
+    border-top: 1px solid #c3c8d3;
+    background-color: #fff;
+    -moz-box-shadow: inset 0 1px 3px rgba(75, 81, 91, 0.1);
+    /* inner shadow */
+    -webkit-box-shadow: inset 0 1px 3px rgba(75, 81, 91, 0.1);
+    /* inner shadow */
+}
+
 /* 4 */
 .theme-dark .ddp-ui-layout-popup {
     display: table-cell;

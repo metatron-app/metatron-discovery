@@ -12,153 +12,164 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-create">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!-- 닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})
-      <span class="ddp-txt-info">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line5-type2"></em>
+  <!-- //닫기 버튼 -->
+
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})</div>
+      <div class="ddp-pop-sub">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="ddp-selected">2</span>
+        <span class="">3</span>
+        <span class="">4</span>
+        <span class="">5</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-size-resize">
-    <!-- 테이블/쿼리 설정 -->
-    <div class="ddp-ui-import-option" [class.ddp-selected-table]="selectedTab === tab.TABLE" [class.ddp-selected-query]="selectedTab === tab.QUERY">
-      <!-- tab -->
-      <ul class="ddp-list-buttons">
-        <li [class.ddp-selected]="selectedTab === tab.TABLE" (click)="onChangedTab(tab.TABLE)">
-          {{'msg.storage.btn.table' | translate}}
-        </li>
-        <li [class.ddp-selected]="selectedTab === tab.QUERY" (click)="onChangedTab(tab.QUERY)">
-          {{'msg.storage.btn.query' | translate}}
-        </li>
-      </ul>
-      <!-- //tab -->
-      <div class="ddp-ui-option-select">
+    <!-- //top -->
 
-        <div class="ddp-ui-edit-db">
+    <!-- import -->
+    <div class="ddp-pop-contents">
+      <!-- 테이블/쿼리 설정 -->
+      <div class="ddp-ui-import-option" [class.ddp-selected-table]="selectedTab === tab.TABLE" [class.ddp-selected-query]="selectedTab === tab.QUERY">
+        <!-- tab -->
+        <ul class="ddp-list-buttons">
+          <li [class.ddp-selected]="selectedTab === tab.TABLE" (click)="onChangedTab(tab.TABLE)">
+            {{'msg.storage.btn.table' | translate}}
+          </li>
+          <li [class.ddp-selected]="selectedTab === tab.QUERY" (click)="onChangedTab(tab.QUERY)">
+            {{'msg.storage.btn.query' | translate}}
+          </li>
+        </ul>
+        <!-- //tab -->
+        <div class="ddp-ui-option-select">
 
-          <!-- 쿼리 선택 -->
-          <div class="ddp-ui-textarea" *ngIf="selectedTab === tab.QUERY">
-            <div class="ddp-ui-search-db ddp-clear">
-              <component-paging-search-select
-                (onSelected)="onChangedDatabaseInQuery($event)"
-                (onSearchText)="searchTextDatabaseInQuery = $event"
-                [defaultIndex]="getDefaultIndexInList('DATABASE_QUERY')"
-                [isFirstOpenItemList]="!selectedDatabaseInQuery"
-                [array]="databaseList"
-                [usePlaceholder]="true"
-                [unselectedMessage]="getUnSelectedDatabaseMessage()"
-                [searchPlaceHolderText]="getDatabaseSearchPlaceHolderMessage()"
-                [searchText]="searchTextDatabaseInQuery"
-                [isEnableInternalPaging]="true"
-                [isSearchOptions]="true">
-              </component-paging-search-select>
-            </div>
+          <div class="ddp-ui-edit-db">
 
-            <div class="ddp-wrap-edit">
-              <div class="ddp-ui-edit" contentEditable="true">
-                <div class="ddp-wrap-editor">
-                  <div editor-component
-                       #editor
-                       [(sText)]="queryText"
-                       [sOptions]="options"
-                       [sReadOnly]="false"
-                       [sShowGutter]="false"
-                       [sAutoUpdateContent]="true"
-                       (textChanged)="onChangedQueryText($event)">
+            <!-- 쿼리 선택 -->
+            <div class="ddp-ui-textarea" *ngIf="selectedTab === tab.QUERY">
+              <div class="ddp-ui-search-db ddp-clear">
+                <component-paging-search-select
+                  (onSelected)="onChangedDatabaseInQuery($event)"
+                  (onSearchText)="searchTextDatabaseInQuery = $event"
+                  [defaultIndex]="getDefaultIndexInList('DATABASE_QUERY')"
+                  [isFirstOpenItemList]="!selectedDatabaseInQuery"
+                  [array]="databaseList"
+                  [usePlaceholder]="true"
+                  [unselectedMessage]="getUnSelectedDatabaseMessage()"
+                  [searchPlaceHolderText]="getDatabaseSearchPlaceHolderMessage()"
+                  [searchText]="searchTextDatabaseInQuery"
+                  [isEnableInternalPaging]="true"
+                  [isSearchOptions]="true">
+                </component-paging-search-select>
+              </div>
+
+              <div class="ddp-wrap-edit">
+                <div class="ddp-ui-edit" contentEditable="true">
+                  <div class="ddp-wrap-editor">
+                    <div editor-component
+                         #editor
+                         [(sText)]="queryText"
+                         [sOptions]="options"
+                         [sReadOnly]="false"
+                         [sShowGutter]="false"
+                         [sAutoUpdateContent]="true"
+                         (textChanged)="onChangedQueryText($event)">
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <!-- button -->
-            <div class="ddp-ui-buttons" style="z-index: 10">
-              <div class="ddp-ui-message" *ngIf="queryResultData">
-                <span class="ddp-data-error" *ngIf="queryResultData.message"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.query' | translate}}</span>
-                <span class="ddp-data-ok" *ngIf="queryResultData.fields"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.query' | translate}}</span>
-              </div>
-              <a href="javascript:" class="ddp-btn-type4" [class.ddp-disabled]="!isExistQueryText()" (click)="runQuery()">{{'msg.storage.btn.run' | translate}}</a>
+              <!-- button -->
+              <div class="ddp-ui-buttons" style="z-index: 10">
+                <div class="ddp-ui-message" *ngIf="queryResultData">
+                  <span class="ddp-data-error" *ngIf="queryResultData.message"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.query' | translate}}</span>
+                  <span class="ddp-data-ok" *ngIf="queryResultData.fields"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.query' | translate}}</span>
+                </div>
+                <a href="javascript:" class="ddp-btn-type4" [class.ddp-disabled]="!isExistQueryText()" (click)="runQuery()">{{'msg.storage.btn.run' | translate}}</a>
 
-            </div>
-            <!-- //button -->
-          </div>
-          <!-- //쿼리 선택 -->
-
-          <!-- 테이블 선택 -->
-          <div class="ddp-ui-db-table" *ngIf="selectedTab === tab.TABLE">
-            <div class="ddp-ui-search-db ddp-clear">
-              <!-- 데이터 베이스 리스트-->
-              <component-paging-search-select
-                (onSelected)="onChangedDatabase($event)"
-                (onSearchText)="searchTextDatabase = $event"
-                [defaultIndex]="getDefaultIndexInList('DATABASE')"
-                [isFirstOpenItemList]="!selectedDatabase"
-                [array]="databaseList"
-                [usePlaceholder]="true"
-                [unselectedMessage]="getUnSelectedDatabaseMessage()"
-                [searchPlaceHolderText]="getDatabaseSearchPlaceHolderMessage()"
-                [searchText]="searchTextDatabase"
-                [isEnableInternalPaging]="true"
-                [isSearchOptions]="true">
-              </component-paging-search-select>
-              <!-- //데이터 베이스 리스트-->
-              <!-- 테이블 리스트-->
-              <component-paging-search-select
-                (onSelected)="onChangedTable($event)"
-                (onSearchText)="searchTextTable = $event"
-                [defaultIndex]="getDefaultIndexInList('TABLE')"
-                [isFirstOpenItemList]="selectedDatabase && !selectedTable"
-                [array]="tableList"
-                [usePlaceholder]="true"
-                [unselectedMessage]="'msg.storage.ui.dsource.create.choose-table' | translate"
-                [searchPlaceHolderText]="'msg.storage.ui.dsource.create.search-table' | translate"
-                [searchText]="searchTextTable"
-                [isSearchOptions]="true"
-                [isEnableInternalPaging]="true"
-                [isDisabledOptions]="!selectedDatabase">
-              </component-paging-search-select>
-              <!-- //테이블 리스트-->
-              <!-- error -->
-              <div class="ddp-txt-error" *ngIf="selectedDatabase && isTableListError">
-                <em class="ddp-icon-error"></em>{{'msg.storage.no.tbl.error' | translate}}
               </div>
-              <!-- //error -->
+              <!-- //button -->
             </div>
+            <!-- //쿼리 선택 -->
+
+            <!-- 테이블 선택 -->
+            <div class="ddp-ui-db-table" *ngIf="selectedTab === tab.TABLE">
+              <div class="ddp-ui-search-db ddp-clear">
+                <!-- 데이터 베이스 리스트-->
+                <component-paging-search-select
+                  (onSelected)="onChangedDatabase($event)"
+                  (onSearchText)="searchTextDatabase = $event"
+                  [defaultIndex]="getDefaultIndexInList('DATABASE')"
+                  [isFirstOpenItemList]="!selectedDatabase"
+                  [array]="databaseList"
+                  [usePlaceholder]="true"
+                  [unselectedMessage]="getUnSelectedDatabaseMessage()"
+                  [searchPlaceHolderText]="getDatabaseSearchPlaceHolderMessage()"
+                  [searchText]="searchTextDatabase"
+                  [isEnableInternalPaging]="true"
+                  [isSearchOptions]="true">
+                </component-paging-search-select>
+                <!-- //데이터 베이스 리스트-->
+                <!-- 테이블 리스트-->
+                <component-paging-search-select
+                  (onSelected)="onChangedTable($event)"
+                  (onSearchText)="searchTextTable = $event"
+                  [defaultIndex]="getDefaultIndexInList('TABLE')"
+                  [isFirstOpenItemList]="selectedDatabase && !selectedTable"
+                  [array]="tableList"
+                  [usePlaceholder]="true"
+                  [unselectedMessage]="'msg.storage.ui.dsource.create.choose-table' | translate"
+                  [searchPlaceHolderText]="'msg.storage.ui.dsource.create.search-table' | translate"
+                  [searchText]="searchTextTable"
+                  [isSearchOptions]="true"
+                  [isEnableInternalPaging]="true"
+                  [isDisabledOptions]="!selectedDatabase">
+                </component-paging-search-select>
+                <!-- //테이블 리스트-->
+                <!-- error -->
+                <div class="ddp-txt-error" *ngIf="selectedDatabase && isTableListError">
+                  <em class="ddp-icon-error"></em>{{'msg.storage.no.tbl.error' | translate}}
+                </div>
+                <!-- //error -->
+              </div>
+            </div>
+            <!-- //테이블 선택 -->
           </div>
-          <!-- //테이블 선택 -->
+        </div>
+        <div class="ddp-wrap-variable ddp-dataset">
+          <!-- 그리드 영역 -->
+          <div class="ddp-ui-grid">
+            <ng-container *ngIf="clearGrid">
+              <!-- 데이터가 없다면 ddp-ui-empty -->
+              <!-- 에러라면 ddp-search-none -->
+              <div [class.ddp-search-none]="tableResultData && tableResultData.message" [class.ddp-ui-empty]="!tableResultData" *ngIf="selectedTab === tab.TABLE">
+                {{tableResultData ? tableResultData.message : ('msg.storage.ui.dsource.create.preview.no.data'| translate)}}
+              </div>
+              <div [class.ddp-search-none]="queryResultData && queryResultData.message" [class.ddp-ui-empty]="!queryResultData" *ngIf="selectedTab === tab.QUERY">
+                {{queryResultData ? queryResultData.message : ('msg.storage.ui.dsource.create.preview.no.data'| translate)}}
+              </div>
+            </ng-container>
+            <div *ngIf="databaseList.length > 0" grid-component style="width:100%; height:100%;"></div>
+          </div>
+          <!-- //그리드 영역 -->
         </div>
       </div>
-      <div class="ddp-wrap-variable ddp-dataset">
-        <!-- 그리드 영역 -->
-        <div class="ddp-ui-grid">
-          <ng-container *ngIf="clearGrid">
-            <!-- 데이터가 없다면 ddp-ui-empty -->
-            <!-- 에러라면 ddp-search-none -->
-            <div [class.ddp-search-none]="tableResultData && tableResultData.message" [class.ddp-ui-empty]="!tableResultData" *ngIf="selectedTab === tab.TABLE">
-              {{tableResultData ? tableResultData.message : ('msg.storage.ui.dsource.create.preview.no.data'| translate)}}
-            </div>
-            <div [class.ddp-search-none]="queryResultData && queryResultData.message" [class.ddp-ui-empty]="!queryResultData" *ngIf="selectedTab === tab.QUERY">
-              {{queryResultData ? queryResultData.message : ('msg.storage.ui.dsource.create.preview.no.data'| translate)}}
-            </div>
-          </ng-container>
-          <div *ngIf="databaseList.length > 0" grid-component style="width:100%; height:100%;"></div>
-        </div>
-        <!-- //그리드 영역 -->
-      </div>
+      <!-- //테이블/쿼리 설정 -->
     </div>
-    <!-- //테이블/쿼리 설정 -->
+    <!-- //import -->
 
-
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
 
   </div>
-  <!-- //import -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>

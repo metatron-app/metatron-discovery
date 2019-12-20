@@ -39,6 +39,9 @@
     width:1100px; margin:0 auto;
     padding: 0 0 45px 0;
 }
+.theme-dark .ddp-layout-pop-fix .ddp-pop-top.type-top {
+    width:460px;
+}
 
 .theme-dark .ddp-layout-pop-fix .ddp-pop-top .ddp-pop-title {
     padding: 35px 0 0 0;
@@ -63,6 +66,8 @@
 }
 
 .theme-dark .ddp-layout-pop-fix .ddp-pop-contents .ddp-box-synch {display:block; margin-top:10px; min-height:30px; box-sizing:border-box;}
+
+.ddp-layout-pop-fix .ddp-pop-contents .ddp-ui-buttons {text-align:left;}
 .theme-dark .ddp-layout-pop-fix .ddp-ui-buttons {
     padding: 20px 0;
     text-align: center;
@@ -76,6 +81,7 @@
     display: inline-block;
     width: 28px;
     height: 28px;
+    margin-left:3px;
     border-radius: 3px;
     border: 1px solid #9ca2cc;
     box-sizing: border-box;

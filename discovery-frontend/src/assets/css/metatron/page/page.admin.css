@@ -139,7 +139,7 @@ ul.ddp-list-owner li {padding:6px 0;}
 .ddp-wrap-popup2.ddp-accout-popup {position:fixed; left:0; top:0; width:248px; max-height:230px; z-index:127; overflow-y:auto; word-break: break-all;}
 .ddp-wrap-popup2.ddp-types.ddp-accout-popup ul.ddp-list-popup li a {white-space:normal;}
 .ddp-ui-account-search {position:absolute; top:410px; left:0; right:0; bottom:0; padding:0 50px 30px 50px; box-sizing:border-box;}
-.ddp-ui-popup-contents.page-flex {display:flex; flex-direction: column;}
+
 .page-flex .ddp-ui-accout-textarea {display:flex;flex:1 1 0; margin-bottom:20px;}
 .page-flex .ddp-ui-account-search{display:flex; flex:1 1 0; height:100%; position:relative; top:0; left:0; right:0; bottom:0; padding:0 0 30px 0;}
 .page-flex .ddp-ui-formula {margin-top:-32px; padding-top:32px;}
