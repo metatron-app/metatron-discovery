@@ -12,106 +12,119 @@
   ~ limitations under the License.
   -->
 <ng-container *ngIf="names.length === 1">
-  <div class="ddp-type-contents ddp-resize2 ddp-type2" [ngClass]="{'popup-prep-create-complete':isMultiSheet}">
+
+  <div class="ddp-layout-pop-fix" [ngClass]="{'popup-prep-create-complete':isMultiSheet}">
     <!-- 닫기 버튼 -->
     <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
     <!-- //닫기 버튼 -->
-    <div class="ddp-icon-name">
-      <div class="ddp-ui-name2 ddp-type3">
-        {{'msg.dp.ui.ds.create.title' | translate : {type : getTypeName} }}
-        <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.create-staging-db.sub.title' | translate}}</span>
-        <em class="ddp-bg-order-line3-type3" *ngIf="type === 'DB'"></em>
-        <em class="ddp-bg-order-line2-type2" *ngIf="type !== 'DB'"></em>
+
+    <div class="ddp-layout-popup">
+      <!-- top -->
+      <div class="ddp-pop-top">
+        <div class="ddp-pop-title">{{'msg.dp.ui.ds.create.title' | translate : {type : getTypeName} }}</div>
+        <div class="ddp-pop-sub">{{'msg.dp.ui.create-staging-db.sub.title' | translate}}</div>
+        <!-- step -->
+        <div class="ddp-pop-step" *ngIf="type === 'DB'">
+          <span class="">1</span>
+          <span class="">2</span>
+          <span class="ddp-selected">3</span>
+        </div>
+        <div class="ddp-pop-step" *ngIf="type !== 'DB'">
+          <span class="">1</span>
+          <span class="ddp-selected">2</span>
+        </div>
+        <!-- //step -->
       </div>
-    </div>
-    <!-- contents in  -->
-    <div class="ddp-type-contents-in" *ngIf="!isMultiSheet">
-      <div class="ddp-box-popupcontents2">
+      <!-- //top -->
 
-        <!-- edit -->
-        <div class="ddp-wrap-boxtype">
+      <!-- import -->
+      <div class="ddp-pop-contents" *ngIf="!isMultiSheet">
+        <div class="ddp-box-popupcontents2">
 
-          <table class="ddp-wrap-boxdata">
-            <colgroup>
-              <col width="120px" />
-              <col width="*" />
-            </colgroup>
+          <!-- edit -->
+          <div class="ddp-wrap-boxtype">
 
-            <tbody>
+            <table class="ddp-wrap-boxdata">
+              <colgroup>
+                <col width="120px" />
+                <col width="*" />
+              </colgroup>
 
-            <tr *ngFor="let ds of datasetInfo;let index=index">
-              <th>
-                {{ds.name}}
-              </th>
-              <td>
-                <em class="ddp-icon-svg" *ngIf="ds.svg">
-                  <svg-icon-component [name]="ds.svg" [isBlackAndWhite]="false"></svg-icon-component>
-                </em>
-                {{ds.value}}
-              </td>
-            </tr>
+              <tbody>
 
-            </tbody>
-          </table>
+              <tr *ngFor="let ds of datasetInfo;let index=index">
+                <th>
+                  {{ds.name}}
+                </th>
+                <td>
+                  <em class="ddp-icon-svg" *ngIf="ds.svg">
+                    <svg-icon-component [name]="ds.svg" [isBlackAndWhite]="false"></svg-icon-component>
+                  </em>
+                  {{ds.value}}
+                </td>
+              </tr>
 
+              </tbody>
+            </table>
+
+          </div>
+          <!-- //edit -->
+
+          <!-- edit -->
+          <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showNameError}">
+            <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+            <input type="text" #nameElement
+                   class="ddp-input-type"
+                   placeholder="{{clonedNames[0] === '' ? ('msg.comm.ui.create.name' | translate ) : clonedNames[0]}}"
+                   (keydown)="keyDownEvent($event, 0)"
+                   [(ngModel)]="names[0]" maxlength="150"
+                   (keyup)="keyupEvent($event)">
+            <span class="ddp-ui-error">{{nameErrors[0]}}</span>
+          </div>
+          <!-- //edit -->
+
+          <!-- edit -->
+          <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showDescError}">
+            <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+            <input type="text" class="ddp-input-type"
+                   placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                   (keydown)="keyDownDescEvent($event,0)"
+                   [(ngModel)]="descriptions[0]" maxlength="150"
+                   (keyup)="keyupEvent($event)">
+            <span class="ddp-ui-error">{{descriptionErrors[0]}}</span>
+          </div>
+          <!-- //edit -->
+
+          <div class="ddp-wrap-edit3">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [(ngModel)]="isChecked" [checked]="isChecked" disabled="disabled" *ngIf="!isFromDatasetList">
+              <input type="checkbox" [(ngModel)]="isChecked" [checked]="isChecked" *ngIf="isFromDatasetList">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'mgs.dp.ui.continue.new.rule' | translate}}</span>
+            </label>
+          </div>
         </div>
-        <!-- //edit -->
 
-        <!-- edit -->
-        <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showNameError}">
-          <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-          <input type="text" #nameElement
-                 class="ddp-input-type"
-                 placeholder="{{clonedNames[0] === '' ? ('msg.comm.ui.create.name' | translate ) : clonedNames[0]}}"
-                 (keydown)="keyDownEvent($event, 0)"
-                 [(ngModel)]="names[0]" maxlength="150"
-                 (keyup)="keyupEvent($event)">
-          <span class="ddp-ui-error">{{nameErrors[0]}}</span>
-        </div>
-        <!-- //edit -->
-
-        <!-- edit -->
-        <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showDescError}">
-          <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
-          <input type="text" class="ddp-input-type"
-                 placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                 (keydown)="keyDownDescEvent($event,0)"
-                 [(ngModel)]="descriptions[0]" maxlength="150"
-                 (keyup)="keyupEvent($event)">
-          <span class="ddp-ui-error">{{descriptionErrors[0]}}</span>
-        </div>
-        <!-- //edit -->
-
-        <div class="ddp-wrap-edit3">
-          <label class="ddp-label-checkbox">
-            <input type="checkbox" [(ngModel)]="isChecked" [checked]="isChecked" disabled="disabled" *ngIf="!isFromDatasetList">
-            <input type="checkbox" [(ngModel)]="isChecked" [checked]="isChecked" *ngIf="isFromDatasetList">
-            <i class="ddp-icon-checkbox"></i>
-            <span class="ddp-txt-checkbox">{{'mgs.dp.ui.continue.new.rule' | translate}}</span>
-          </label>
-        </div>
       </div>
+      <!-- //contents in  -->
 
+      <!-- buttons -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:"
+           class="ddp-btn-type-popup"
+           (click)="prev()">
+          {{'msg.comm.btn.previous' | translate}}
+        </a>
+
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <a href="javascript:"
+           class="ddp-btn-type-popup ddp-bg-black"
+           (click)="complete()">
+          {{'msg.comm.btn.done2' | translate}}
+        </a>
+      </div>
+      <!-- //buttons -->
     </div>
-    <!-- //contents in  -->
-
-    <!-- buttons -->
-    <div class="ddp-ui-buttons">
-      <a href="javascript:"
-         class="ddp-btn-type-popup"
-         (click)="prev()">
-        {{'msg.comm.btn.previous' | translate}}
-      </a>
-
-      <!-- disabled 시 ddp-disabled 추가 -->
-      <a href="javascript:"
-         class="ddp-btn-type-popup ddp-bg-black"
-         (click)="complete()">
-        {{'msg.comm.btn.done2' | translate}}
-      </a>
-    </div>
-    <!-- //buttons -->
-
   </div>
 </ng-container>
 
@@ -119,94 +132,108 @@
 
 <ng-container *ngIf="(type==='FILE' || type === 'URL') && names.length > 1">
 
-  <div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create-complete popup-prep-create">
+
+  <div class="ddp-layout-pop-fix popup-prep-create-complete popup-prep-create">
     <!-- 닫기 버튼 -->
     <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-    <!-- 닫기 버튼 -->
-    <div class="ddp-icon-name">
-      <div class="ddp-ui-name2 ddp-type3">
-        {{'msg.dp.ui.ds.create.title' | translate : {type : getTypeName} }}
-        <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.create-staging-db.sub.title' | translate}}</span>
-        <em class="ddp-bg-order-line3-type3" *ngIf="type !== 'URL'"></em>
-        <em class="ddp-bg-order-line2-type2" *ngIf="type === 'URL'"></em>
+    <!-- //닫기 버튼 -->
+
+    <div class="ddp-layout-popup">
+      <!-- top -->
+      <div class="ddp-pop-top">
+        <div class="ddp-pop-title">{{'msg.dp.ui.ds.create.title' | translate : {type : getTypeName} }}</div>
+        <div class="ddp-pop-sub">{{'msg.dp.ui.create-staging-db.sub.title' | translate}}</div>
+        <!-- step -->
+        <div class="ddp-pop-step" *ngIf="type !== 'URL'">
+          <span class="">1</span>
+          <span class="">2</span>
+          <span class="ddp-selected">3</span>
+        </div>
+        <div class="ddp-pop-step" *ngIf="type === 'URL'">
+          <span class="">1</span>
+          <span class="ddp-selected">2</span>
+        </div>
+        <!-- //step -->
       </div>
-    </div>
-    <div class="ddp-type-contents-in ddp-sheet-resize">
-      <div class="ddp-box-popupcontents ddp-wrap-file-create type-info ">
-        <div class="ddp-ui-sheet-list">
-          <table class="ddp-table-sheet">
-            <colgroup>
-              <col width="250px">
-              <col width="230px">
-              <col width="*">
-            </colgroup>
-            <thead>
-            <tr>
-              <th>{{'msg.dp.th.source' | translate}}</th>
-              <th>{{'msg.comm.ui.name' | translate}}</th>
-              <th>{{'msg.comm.ui.description' | translate}}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let name of dsfileInformations; let index = index">
-              <td title="{{dsfileInformations[index].fileName}}">
-                <em class="ddp-icon-svg" *ngIf="dsfileInformations[index].svg">
-                  <svg-icon-component [name]="dsfileInformations[index].svg" [isBlackAndWhite]="false"></svg-icon-component>
-                </em>
-                {{dsfileInformations[index].fileName}}
-              </td>
-              <td>
-                <div class="ddp-sheet-form">
-                  <input class="ddp-input-typebasic"
-                         placeholder="{{clonedNames[index] === '' ? ('msg.comm.ui.create.name' | translate ) : clonedNames[index]}}"
-                         (keyup)="keyupEvent($event)"
-                         [(ngModel)]="names[index]" maxlength="150"
-                         (keydown)="keyDownEvent($event, index)">
-                  <span class="ddp-data-error" *ngIf="nameErrors[index] !== ''"> {{nameErrors[index]}}</span>
-                </div>
-              </td>
-              <td>
-                <div class="ddp-textarea-resize">
+      <!-- //top -->
+
+      <!-- import -->
+      <div class="ddp-pop-contents">
+        <div class="ddp-box-popupcontents ddp-wrap-file-create type-info ">
+          <div class="ddp-ui-sheet-list">
+            <table class="ddp-table-sheet">
+              <colgroup>
+                <col width="250px">
+                <col width="230px">
+                <col width="*">
+              </colgroup>
+              <thead>
+              <tr>
+                <th>{{'msg.dp.th.source' | translate}}</th>
+                <th>{{'msg.comm.ui.name' | translate}}</th>
+                <th>{{'msg.comm.ui.description' | translate}}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let name of dsfileInformations; let index = index">
+                <td title="{{dsfileInformations[index].fileName}}">
+                  <em class="ddp-icon-svg" *ngIf="dsfileInformations[index].svg">
+                    <svg-icon-component [name]="dsfileInformations[index].svg" [isBlackAndWhite]="false"></svg-icon-component>
+                  </em>
+                  {{dsfileInformations[index].fileName}}
+                </td>
+                <td>
                   <div class="ddp-sheet-form">
-                    <div class="ddp-textarea-resize">
-                      <textarea  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                                 [(ngModel)]="descriptions[index]" maxlength="150"
-                                 (keyup)="keyupEvent($event)"
-                                 style="height: 30px"
-                                 (keydown)="keyDownDescEvent($event,index)">
-                      </textarea>
-                    </div>
-                    <span class="ddp-data-error" *ngIf="descriptionErrors[index] !== ''"> {{descriptionErrors[index]}}</span>
+                    <input class="ddp-input-typebasic"
+                           placeholder="{{clonedNames[index] === '' ? ('msg.comm.ui.create.name' | translate ) : clonedNames[index]}}"
+                           (keyup)="keyupEvent($event)"
+                           [(ngModel)]="names[index]" maxlength="150"
+                           (keydown)="keyDownEvent($event, index)">
+                    <span class="ddp-data-error" *ngIf="nameErrors[index] !== ''"> {{nameErrors[index]}}</span>
                   </div>
-                </div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
+                </td>
+                <td>
+                  <div class="ddp-textarea-resize">
+                    <div class="ddp-sheet-form">
+                      <div class="ddp-textarea-resize">
+                        <textarea  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                                   [(ngModel)]="descriptions[index]" maxlength="150"
+                                   (keyup)="keyupEvent($event)"
+                                   style="height: 30px"
+                                   (keydown)="keyDownDescEvent($event,index)">
+                        </textarea>
+                      </div>
+                      <span class="ddp-data-error" *ngIf="descriptionErrors[index] !== ''"> {{descriptionErrors[index]}}</span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+          </div>
 
         </div>
-
       </div>
+
+
+      <!-- buttons -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:"
+           class="ddp-btn-type-popup"
+           (click)="prev()">
+          {{'msg.comm.btn.previous' | translate}}
+        </a>
+
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <a href="javascript:"
+           class="ddp-btn-type-popup ddp-bg-black"
+           (click)="complete()"
+           [ngClass]="{'ddp-disabled': isBtnDisabled() }">
+          {{'msg.comm.btn.done2' | translate}}
+        </a>
+      </div>
+      <!-- //buttons -->
     </div>
-
-
-    <!-- buttons -->
-    <div class="ddp-ui-buttons">
-      <a href="javascript:"
-         class="ddp-btn-type-popup"
-         (click)="prev()">
-        {{'msg.comm.btn.previous' | translate}}
-      </a>
-
-      <!-- disabled 시 ddp-disabled 추가 -->
-      <a href="javascript:"
-         class="ddp-btn-type-popup ddp-bg-black"
-         (click)="complete()"
-         [ngClass]="{'ddp-disabled': isBtnDisabled() }">
-        {{'msg.comm.btn.done2' | translate}}
-      </a>
-    </div>
-    <!-- //buttons -->
   </div>
-
 </ng-container>

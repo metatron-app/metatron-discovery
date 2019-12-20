@@ -11,45 +11,38 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!-- 닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.dp.ui.ds.create.title' | translate : {type : 'DB'} }}
-      <span class="ddp-txt-info">{{'msg.dp.ui.db.sub.title' | translate}}</span>
-      <em class="ddp-bg-order-line3-type"></em>
+  <!-- //닫기 버튼 -->
+
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.dp.ui.ds.create.title' | translate : {type : 'DB'} }}</div>
+      <div class="ddp-pop-sub">{{'msg.dp.ui.db.sub.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
+        <span class="">3</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-type">
-    <!-- dp connection -->
-    <div class="ddp-ui-dbconnect">
+    <!-- //top -->
 
-      <div class="ddp-edit-setting">
+    <!-- import -->
+    <div class="ddp-pop-contents ddp-type">
+      <!-- dp connection -->
+      <div class="ddp-ui-dbconnect">
 
-        <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
-          <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <component-paging-search-select *ngIf="connectionList.length > 0; else noConnection"
-              (onSelected)="onConnectionSelected($event)"
-              (onLoadPage)="onScrollPage($event)"
-              [defaultIndex]="getConnectionDefaultIndex()"
-              [array]="connectionList"
-              [isEnableObjectKey]="true"
-              [objectKey]="'name'"
-              [pageNum]="pageResult.number"
-              [usePlaceholder]="true"
-              [isConnection]="true"
-              [isOptionToLeft]="true"
-              [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
-            </component-paging-search-select>
+        <div class="ddp-edit-setting">
 
-            <ng-template #noConnection>
-              <component-paging-search-select
+          <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
+            <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+              <component-paging-search-select *ngIf="connectionList.length > 0; else noConnection"
                 (onSelected)="onConnectionSelected($event)"
                 (onLoadPage)="onScrollPage($event)"
                 [defaultIndex]="getConnectionDefaultIndex()"
@@ -62,29 +55,45 @@
                 [isOptionToLeft]="true"
                 [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
               </component-paging-search-select>
-            </ng-template>
+
+              <ng-template #noConnection>
+                <component-paging-search-select
+                  (onSelected)="onConnectionSelected($event)"
+                  (onLoadPage)="onScrollPage($event)"
+                  [defaultIndex]="getConnectionDefaultIndex()"
+                  [array]="connectionList"
+                  [isEnableObjectKey]="true"
+                  [objectKey]="'name'"
+                  [pageNum]="pageResult.number"
+                  [usePlaceholder]="true"
+                  [isConnection]="true"
+                  [isOptionToLeft]="true"
+                  [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
+                </component-paging-search-select>
+              </ng-template>
+            </div>
+
+            <!-- //edit option -->
           </div>
-
-          <!-- //edit option -->
         </div>
-      </div>
 
-      <app-connection [isDisableChangeConnectionType]="true"
-                      [isDisableChangeConnectionInfo]="true"
-                      [isDisableProperties]="true"
-                      [isHideConnectionLabel]="true">
-      </app-connection>
+        <app-connection [isDisableChangeConnectionType]="true"
+                        [isDisableChangeConnectionInfo]="true"
+                        [isDisableProperties]="true"
+                        [isHideConnectionLabel]="true">
+        </app-connection>
+
+      </div>
+      <!-- //dp connection -->
 
     </div>
-    <!-- //dp connection -->
+    <!-- //import -->
 
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //import -->
-
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>

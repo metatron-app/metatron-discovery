@@ -11,203 +11,213 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!-- 닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.dp.ui.ds.create.title' | translate : {type : 'Staging DB'} }}
-      <span class="ddp-txt-info">{{'msg.dp.ui.ds-sel.create.title' | translate}}</span>
-      <em class="ddp-bg-order-line2-type1"></em>
+  <!-- //닫기 버튼 -->
+
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.dp.ui.ds.create.title' | translate : {type : 'Staging DB'} }}</div>
+      <div class="ddp-pop-sub">{{'msg.dp.ui.ds-sel.create.title' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
+      </div>
+      <!-- //step -->
     </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-size-resize">
-    <!-- 테이블/쿼리 설정 -->
-    <!--
-        table 선택시 : ddp-selected-table
-        쿼리 선택시 : ddp-selected-query
-    -->
-    <div class="ddp-ui-import-option" [ngClass]="{'TABLE' : 'ddp-selected-table', 'QUERY': 'ddp-selected-query'}[datasetHive.rsType]">
+    <!-- //top -->
 
-      <!-- tab -->
-      <ul class="ddp-list-buttons">
-        <li (click)="selectTab('TABLE')"
-            [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.TABLE}">
-          {{'msg.lineage.ui.list.search.table' | translate}}
-        </li>
-        <li (click)="selectTab('QUERY')"
-            [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.QUERY}">
-          {{'msg.dp.btn.query' | translate}}
-        </li>
-      </ul>
-      <!-- //tab -->
-      <div class="ddp-ui-option-select">
-        <div class="ddp-ui-edit-db">
+    <!-- import -->
+    <div class="ddp-pop-contents">
 
-          <!-- 쿼리 선택 -->
-          <div class="ddp-ui-textarea">
+      <!-- 테이블/쿼리 설정 -->
+      <!--
+          table 선택시 : ddp-selected-table
+          쿼리 선택시 : ddp-selected-query
+      -->
+      <div class="ddp-ui-import-option" [ngClass]="{'TABLE' : 'ddp-selected-table', 'QUERY': 'ddp-selected-query'}[datasetHive.rsType]">
 
-            <div class="ddp-ui-search-db ddp-clear">
-              <div class="ddp-type-selectbox ddp-type-search-select"
-                   [ngClass]="{'ddp-selected':isQueryDatabaseListShow}"
-                   [class.ddp-result]="datasetHive.sqlInfo.databaseName"
-                   tabindex="1"
-                   (click)="showQueryDatabaseList($event)"
-                   (keydown)="navigateWithKeyboardShortList($event,filteredQueryDbList,'db')">
-                <input id="query-db-input"
-                       class="ddp-input-selectbox"
-                       placeholder="{{'msg.bench.ui.db.name.search' | translate }}"
-                       [(ngModel)]="queryDbSearchText">
-                <span class="ddp-txt-selectbox">
-                  {{datasetHive.sqlInfo.databaseName === undefined ? ('msg.dp.ui.sel.db' | translate) :datasetHive.sqlInfo.databaseName }}
-                </span>
-                <ul class="ddp-list-selectbox ddp-selectdown"
-                    (clickOutside)="isQueryDatabaseListShow = false;initSelectedCommand(filteredQueryDbList)">
-                  <li *ngFor="let database of filteredQueryDbList; let index=index"
-                      (click)="$event.stopPropagation(); selectQueryDatabase(database)"
-                      (mouseout)="listHover($event,'query',index)"
-                      (mouseover)="listHover($event,'query',index)"
-                      (mousemove)="flag === true ? flag = false : flag = true">
-                    <a href="javascript:"
-                       [ngStyle]="database.selected ? {'background-color': '#f6f6f7' }:{}">
-                      {{database.name}}
-                    </a>
-                  </li>
-                  <li *ngIf="filteredQueryDbList.length === 0 ">
-                    <span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span>
-                  </li>
-                </ul>
+        <!-- tab -->
+        <ul class="ddp-list-buttons">
+          <li (click)="selectTab('TABLE')"
+              [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.TABLE}">
+            {{'msg.lineage.ui.list.search.table' | translate}}
+          </li>
+          <li (click)="selectTab('QUERY')"
+              [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.QUERY}">
+            {{'msg.dp.btn.query' | translate}}
+          </li>
+        </ul>
+        <!-- //tab -->
+        <div class="ddp-ui-option-select">
+          <div class="ddp-ui-edit-db">
+
+            <!-- 쿼리 선택 -->
+            <div class="ddp-ui-textarea">
+
+              <div class="ddp-ui-search-db ddp-clear">
+                <div class="ddp-type-selectbox ddp-type-search-select"
+                     [ngClass]="{'ddp-selected':isQueryDatabaseListShow}"
+                     [class.ddp-result]="datasetHive.sqlInfo.databaseName"
+                     tabindex="1"
+                     (click)="showQueryDatabaseList($event)"
+                     (keydown)="navigateWithKeyboardShortList($event,filteredQueryDbList,'db')">
+                  <input id="query-db-input"
+                         class="ddp-input-selectbox"
+                         placeholder="{{'msg.bench.ui.db.name.search' | translate }}"
+                         [(ngModel)]="queryDbSearchText">
+                  <span class="ddp-txt-selectbox">
+                    {{datasetHive.sqlInfo.databaseName === undefined ? ('msg.dp.ui.sel.db' | translate) :datasetHive.sqlInfo.databaseName }}
+                  </span>
+                  <ul class="ddp-list-selectbox ddp-selectdown"
+                      (clickOutside)="isQueryDatabaseListShow = false;initSelectedCommand(filteredQueryDbList)">
+                    <li *ngFor="let database of filteredQueryDbList; let index=index"
+                        (click)="$event.stopPropagation(); selectQueryDatabase(database)"
+                        (mouseout)="listHover($event,'query',index)"
+                        (mouseover)="listHover($event,'query',index)"
+                        (mousemove)="flag === true ? flag = false : flag = true">
+                      <a href="javascript:"
+                         [ngStyle]="database.selected ? {'background-color': '#f6f6f7' }:{}">
+                        {{database.name}}
+                      </a>
+                    </li>
+                    <li *ngIf="filteredQueryDbList.length === 0 ">
+                      <span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </div>
 
-            <div class="ddp-wrap-edit">
-              <div class="ddp-ui-edit">
-                <div class="ddp-wrap-editor">
-                  <div editor-component
-                       #editor
-                       [(sText)]="datasetHive.sqlInfo.queryStmt"
-                       [sOptions]="options"
-                       [sReadOnly]="false"
-                       [sShowGutter]="false"
-                       [sAutoUpdateContent]="true"
-                       (textChanged)="editorTextChange($event)">
+              <div class="ddp-wrap-edit">
+                <div class="ddp-ui-edit">
+                  <div class="ddp-wrap-editor">
+                    <div editor-component
+                         #editor
+                         [(sText)]="datasetHive.sqlInfo.queryStmt"
+                         [sOptions]="options"
+                         [sReadOnly]="false"
+                         [sShowGutter]="false"
+                         [sAutoUpdateContent]="true"
+                         (textChanged)="editorTextChange($event)">
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <!-- button -->
-            <div class="ddp-ui-buttons" *ngIf="datasetHive.rsType != rsType.TABLE" style="z-index: 10">
-              <div class="ddp-ui-message" *ngIf="showQueryStatus">
-                <span class="ddp-data-error" *ngIf="isQuerySuccess === false">
-                  <em class="ddp-icon-error"></em>
-                  {{ queryErrorMsg }}
-                </span>
-                <span class="ddp-data-ok" *ngIf="isQuerySuccess === true">
-                  <em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.query' | translate}}
-                </span>
+              <!-- button -->
+              <div class="ddp-ui-buttons" *ngIf="datasetHive.rsType != rsType.TABLE" style="z-index: 10">
+                <div class="ddp-ui-message" *ngIf="showQueryStatus">
+                  <span class="ddp-data-error" *ngIf="isQuerySuccess === false">
+                    <em class="ddp-icon-error"></em>
+                    {{ queryErrorMsg }}
+                  </span>
+                  <span class="ddp-data-ok" *ngIf="isQuerySuccess === true">
+                    <em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.query' | translate}}
+                  </span>
+                </div>
+                <a href="javascript:" class="ddp-btn-type4"
+                   [ngClass]="{'ddp-disabled': datasetHive.sqlInfo.queryStmt == '' || datasetHive.sqlInfo.queryStmt === undefined}"
+                   (click)="runStagingDBQuery()">{{'msg.dp.btn.run' | translate}}
+                </a>
               </div>
-              <a href="javascript:" class="ddp-btn-type4"
-                 [ngClass]="{'ddp-disabled': datasetHive.sqlInfo.queryStmt == '' || datasetHive.sqlInfo.queryStmt === undefined}"
-                 (click)="runStagingDBQuery()">{{'msg.dp.btn.run' | translate}}
-              </a>
+              <!-- //button -->
             </div>
-            <!-- //button -->
-          </div>
-          <!-- //쿼리 선택 -->
+            <!-- //쿼리 선택 -->
 
-          <!-- 테이블 선택 -->
-          <div class="ddp-ui-db-table" *ngIf="datasetHive.rsType === rsType.TABLE">
-            <div class="ddp-ui-search-db ddp-clear">
-              <div class="ddp-type-selectbox ddp-type-search-select"
-                   [ngClass]="{'ddp-selected':isDatabaseListShow}"
-                   [class.ddp-result]="datasetHive.tableInfo.databaseName"
-                   tabindex="1"
-                   (click)="showDatabaseList($event)"
-                   (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
-                <input class="ddp-input-selectbox"
-                       id="table-db-input"
-                       placeholder="{{'msg.bench.ui.db.name.search' | translate }}" [(ngModel)]="dbSearchText">
-                <span class="ddp-txt-selectbox">{{datasetHive.tableInfo.databaseName === undefined ? ('msg.dp.ui.sel.db' | translate) : datasetHive.tableInfo.databaseName }}</span>
-                <ul class="ddp-list-selectbox ddp-selectdown"
-                    (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
-                  <li *ngFor="let database of filteredDbList; let index=index"
-                      (click)="$event.stopPropagation(); selectDatabase(database)"
-                      (mouseout)="listHover($event,'db',index)"
-                      (mouseover)="listHover($event,'db',index)"
-                      (mousemove)="flag === true ? flag = false : flag = true">
-                    <a href="javascript:"
-                       [ngStyle]="database.selected ? {'background-color': '#f6f6f7' }:{}">
-                      {{database.name}}
-                    </a>
-                  </li>
-                  <li *ngIf="filteredDbList.length === 0 ">
-                    <span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span>
-                  </li>
-                </ul>
-              </div>
-              <div class="ddp-type-selectbox ddp-type-search-select"
-                   [ngClass]="{'ddp-selected': isSchemaListShow }"
-                   [class.ddp-result]="datasetHive.tableInfo.tableName"
-                   (click)="$event.stopImmediatePropagation(); showSchemaList()"
-                   tabindex="2"
-                   (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
-                   *ngIf="datasetHive.tableInfo.databaseName !== undefined">
-                <input class="ddp-input-selectbox schema-search" placeholder="{{'msg.bench.ui.search.table.ph' | translate }}" [(ngModel)]="schemaSearchText">
-                <span class="ddp-txt-selectbox">{{datasetHive.tableInfo.tableName === undefined? ('msg.storage.ui.dsource.create.choose-table' | translate) : datasetHive.tableInfo.tableName }}</span>
-                <ul class="ddp-list-selectbox ddp-selectdown"
-                    (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
-                  <li *ngFor="let schema of filteredSchemaList; let index=index"
-                      (click)="onChangeTable($event,schema)"
-                      (mouseout)="listHover($event,'schema',index)"
-                      (mouseover)="listHover($event,'schema',index)"
-                      (mousemove)="flag === true ? flag = false : flag = true">
-                    <a href="javascript:"
-                       [ngStyle]="schema.selected ? {'background-color': '#f6f6f7' }:{}">
-                      {{schema.name}}
-                    </a>
-                  </li>
-                  <li *ngIf="filteredSchemaList.length === 0">
-                    <span class="ddp-noresult">
-                      {{'msg.dp.ui.search.no.rslt' | translate}}
-                    </span>
-                  </li>
-                </ul>
-              </div>
+            <!-- 테이블 선택 -->
+            <div class="ddp-ui-db-table" *ngIf="datasetHive.rsType === rsType.TABLE">
+              <div class="ddp-ui-search-db ddp-clear">
+                <div class="ddp-type-selectbox ddp-type-search-select"
+                     [ngClass]="{'ddp-selected':isDatabaseListShow}"
+                     [class.ddp-result]="datasetHive.tableInfo.databaseName"
+                     tabindex="1"
+                     (click)="showDatabaseList($event)"
+                     (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
+                  <input class="ddp-input-selectbox"
+                         id="table-db-input"
+                         placeholder="{{'msg.bench.ui.db.name.search' | translate }}" [(ngModel)]="dbSearchText">
+                  <span class="ddp-txt-selectbox">{{datasetHive.tableInfo.databaseName === undefined ? ('msg.dp.ui.sel.db' | translate) : datasetHive.tableInfo.databaseName }}</span>
+                  <ul class="ddp-list-selectbox ddp-selectdown"
+                      (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
+                    <li *ngFor="let database of filteredDbList; let index=index"
+                        (click)="$event.stopPropagation(); selectDatabase(database)"
+                        (mouseout)="listHover($event,'db',index)"
+                        (mouseover)="listHover($event,'db',index)"
+                        (mousemove)="flag === true ? flag = false : flag = true">
+                      <a href="javascript:"
+                         [ngStyle]="database.selected ? {'background-color': '#f6f6f7' }:{}">
+                        {{database.name}}
+                      </a>
+                    </li>
+                    <li *ngIf="filteredDbList.length === 0 ">
+                      <span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span>
+                    </li>
+                  </ul>
+                </div>
+                <div class="ddp-type-selectbox ddp-type-search-select"
+                     [ngClass]="{'ddp-selected': isSchemaListShow }"
+                     [class.ddp-result]="datasetHive.tableInfo.tableName"
+                     (click)="$event.stopImmediatePropagation(); showSchemaList()"
+                     tabindex="2"
+                     (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
+                     *ngIf="datasetHive.tableInfo.databaseName !== undefined">
+                  <input class="ddp-input-selectbox schema-search" placeholder="{{'msg.bench.ui.search.table.ph' | translate }}" [(ngModel)]="schemaSearchText">
+                  <span class="ddp-txt-selectbox">{{datasetHive.tableInfo.tableName === undefined? ('msg.storage.ui.dsource.create.choose-table' | translate) : datasetHive.tableInfo.tableName }}</span>
+                  <ul class="ddp-list-selectbox ddp-selectdown"
+                      (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
+                    <li *ngFor="let schema of filteredSchemaList; let index=index"
+                        (click)="onChangeTable($event,schema)"
+                        (mouseout)="listHover($event,'schema',index)"
+                        (mouseover)="listHover($event,'schema',index)"
+                        (mousemove)="flag === true ? flag = false : flag = true">
+                      <a href="javascript:"
+                         [ngStyle]="schema.selected ? {'background-color': '#f6f6f7' }:{}">
+                        {{schema.name}}
+                      </a>
+                    </li>
+                    <li *ngIf="filteredSchemaList.length === 0">
+                      <span class="ddp-noresult">
+                        {{'msg.dp.ui.search.no.rslt' | translate}}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
 
-              <!-- error -->
-              <div class="ddp-txt-error" *ngIf="isTableEmpty">
-                <em class="ddp-icon-error"></em>{{'msg.dp.ui.no.table.description' | translate}}
+                <!-- error -->
+                <div class="ddp-txt-error" *ngIf="isTableEmpty">
+                  <em class="ddp-icon-error"></em>{{'msg.dp.ui.no.table.description' | translate}}
+                </div>
+                <!-- //error -->
               </div>
-              <!-- //error -->
             </div>
+            <!-- //테이블 선택 -->
           </div>
-          <!-- //테이블 선택 -->
+
         </div>
-
-      </div>
-      <div class="ddp-wrap-variable ddp-dataset">
-        <!-- 그리드 영역 -->
-        <div class="ddp-ui-grid">
-          <div class="ddp-ui-empty" *ngIf="clearGrid">
-            {{'msg.dp.ui.no.preview' | translate}}
+        <div class="ddp-wrap-variable ddp-dataset">
+          <!-- 그리드 영역 -->
+          <div class="ddp-ui-grid">
+            <div class="ddp-ui-empty" *ngIf="clearGrid">
+              {{'msg.dp.ui.no.preview' | translate}}
+            </div>
+            <div *ngIf="databaseList.length > 0"  grid-component style="width:100%; height:100%;" ></div>
           </div>
-          <div *ngIf="databaseList.length > 0"  grid-component style="width:100%; height:100%;" ></div>
+          <!-- //그리드 영역 -->
         </div>
-        <!-- //그리드 영역 -->
       </div>
+      <!-- //테이블/쿼리 설정 -->
+
     </div>
-    <!-- //테이블/쿼리 설정 -->
+    <!-- //import -->
 
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="next();" [ngClass]="{'ddp-disabled':!clickable}">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //import -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="next();" [ngClass]="{'ddp-disabled':!clickable}">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>
 <!-- //그리드 결과 -->

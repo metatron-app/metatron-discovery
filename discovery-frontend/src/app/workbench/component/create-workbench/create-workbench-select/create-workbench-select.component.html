@@ -11,177 +11,180 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<div class="ddp-type-contents ddp-resize2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
-  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
   <!-- //닫기 버튼 -->
-  <!-- 제목 영역 -->
-  <div class="ddp-icon-name" >
-    <div class="ddp-ui-name2">
-      <em class="ddp-icon-newlink2"></em>
-      {{'msg.book.create.workbench.title' | translate}}
-      <em class="ddp-bg-order-line2-type"></em>
-    </div>
-    <span class="ddp-txt-info">{{'msg.comm.ui.sel.conn.description' | translate}}</span>
-  </div>
-  <!-- // 제목 영역 -->
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in">
-    <div class="ddp-popup-dashboard">
-      <!-- 옵션 -->
-      <div class="ddp-type-top-option ddp-clear">
-        <!-- 검색 -->
-        <div class="ddp-form-search ddp-fleft">
-          <em class="ddp-icon-search"></em>
-          <input #inputSearch type="text" placeholder="{{'msg.book.ui.conn.search.name' | translate}}"
-                 [ngModel]="searchText"
-                 (keypress)="searchEventPressKey($event)"
-                 (keyup.esc)="resetSearchText(false)"
-                 (clickOutside)="resetSearchText(false)">
-          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);searchEvent();"></em>
-        </div>
-        <!-- //검색 -->
-        <div class="ddp-ui-rightoption">
-          <!-- form -->
-          <div class="ddp-form-label2">
-            <label class="ddp-label-type">{{'msg.bench.th.db.type' | translate}}</label>
-            <div class="ddp-wrap-dropdown">
-              <!-- select box -->
-              <component-select
-                [array]="dbTypes"
-                [defaultIndex]="getDefaultIndexDbType"
-                [viewKey]="'name'"
-                (onSelected)="onChangeDbType($event)">
-              </component-select>
-              <!-- //select box -->
-            </div>
-          </div>
-          <!-- //form -->
-          <!-- form -->
-          <div class="ddp-form-label2">
-            <label class="ddp-label-type">{{'msg.bench.th.account.type' | translate}}</label>
-            <div class="ddp-wrap-dropdown">
-              <!-- select box -->
-              <component-select
-                [array]="accountTypes"
-                [defaultIndex]="getDefaultIndexAccountType"
-                [viewKey]="'label'"
-                (onSelected)="onChangeAccountType($event)">
-              </component-select>
-              <!-- //select box -->
-            </div>
-          </div>
-          <!-- //form -->
-        </div>
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.book.create.workbench.title' | translate}}</div>
+      <div class="ddp-pop-sub">{{'msg.comm.ui.sel.conn.description' | translate}}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
       </div>
-      <!-- //옵션 -->
-      <!-- 그리드 영역 [ngClass]="{'ddp-selected' : dataconnectionId != ''}" -->
-      <div class="ddp-wrap-grid" >
-        <!-- view table -->
-        <div class="ddp-wrap-viewtable">
-          <!-- 테이블 -->
-          <div class="ddp-box-viewtable">
-            <!-- gridhead -->
-            <div class="ddp-ui-gridhead">
-              <table class="ddp-table-form ddp-table-type2">
-                <colgroup>
-                  <col width="51px">
-                  <col width="*">
-                  <col width="10%">
-                  <col width="10%">
-                  <col width="10%">
-                  <col width="15%">
-                  <col width="15%">
-                </colgroup>
-                <thead>
-                <tr>
-                  <th class="ddp-txt-center">
-                    {{'msg.comm.th.no' | translate}}
-                  </th>
-                  <th class="ddp-cursor" (click)="changeOrder('name')">
-                    {{'msg.comm.th.conn' | translate}}
-                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
-                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
-                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
-                  </th>
-                  <th>
-                    {{'msg.comm.th.type' | translate}}
-                  </th>
-                  <th>
-                    {{'msg.comm.th.host' | translate}}
-                  </th>
-                  <th>
-                    {{'msg.comm.th.port' | translate}}
-                  </th>
-                  <th>
-                    {{'msg.comm.th.account.type' | translate}}
-                  </th>
-                  <th class="ddp-cursor" (click)="changeOrder('modifiedTime')">
-                    {{'msg.comm.th.updated' | translate}}
-                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
-                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
-                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
-                  </th>
-                </tr>
-                </thead>
-              </table>
-            </div>
-            <!--// gridhead -->
+      <!-- //step -->
+    </div>
+    <!-- //top -->
 
-            <!-- gridbody -->
-            <div class="ddp-ui-gridbody">
-              <table class="ddp-table-form ddp-table-type2 ddp-table-select">
-                <colgroup>
-                  <col width="51px">
-                  <col width="*">
-                  <col width="10%">
-                  <col width="10%">
-                  <col width="10%">
-                  <col width="15%">
-                  <col width="15%">
-                </colgroup>
-                <tbody>
-                  <tr *ngFor="let connection of dataconnections; let i = index"
-                      [ngClass]="{'ddp-selected' : dataconnection?.id === connection.id}"
-                      (click)="onSelectDataconnection(connection)">
-                    <td class="ddp-txt-center">{{connection.num}}</td>
-                    <td>
-                      <div class=" ddp-txt-long">
-                        {{connection.name}}
-                        <span class="ddp-txt-colortype" *ngIf="connection.description">- {{connection.description}}</span>
-                      </div>
-                    </td>
-                    <td>{{connection.implementor}}</td>
-                    <td>{{connection.hostname}}</td>
-                    <td>{{connection.port}}</td>
-                    <td>{{getAuthenticationType(connection)}}</td>
-                    <td>{{connection.modifiedTime  | date:'yyyy-MM-dd'}}</td>
+    <!-- contents in -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents">
+        <!-- 옵션 -->
+        <div class="ddp-type-top-option ddp-clear">
+          <!-- 검색 -->
+          <div class="ddp-form-search ddp-fleft">
+            <em class="ddp-icon-search"></em>
+            <input #inputSearch type="text" placeholder="{{'msg.book.ui.conn.search.name' | translate}}"
+                   [ngModel]="searchText"
+                   (keypress)="searchEventPressKey($event)"
+                   (keyup.esc)="resetSearchText(false)"
+                   (clickOutside)="resetSearchText(false)">
+            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);searchEvent();"></em>
+          </div>
+          <!-- //검색 -->
+          <div class="ddp-ui-rightoption">
+            <!-- form -->
+            <div class="ddp-form-label2">
+              <label class="ddp-label-type">{{'msg.bench.th.db.type' | translate}}</label>
+              <div class="ddp-wrap-dropdown">
+                <!-- select box -->
+                <component-select
+                  [array]="dbTypes"
+                  [defaultIndex]="getDefaultIndexDbType"
+                  [viewKey]="'name'"
+                  (onSelected)="onChangeDbType($event)">
+                </component-select>
+                <!-- //select box -->
+              </div>
+            </div>
+            <!-- //form -->
+            <!-- form -->
+            <div class="ddp-form-label2">
+              <label class="ddp-label-type">{{'msg.bench.th.account.type' | translate}}</label>
+              <div class="ddp-wrap-dropdown">
+                <!-- select box -->
+                <component-select
+                  [array]="accountTypes"
+                  [defaultIndex]="getDefaultIndexAccountType"
+                  [viewKey]="'label'"
+                  (onSelected)="onChangeAccountType($event)">
+                </component-select>
+                <!-- //select box -->
+              </div>
+            </div>
+            <!-- //form -->
+          </div>
+        </div>
+        <!-- //옵션 -->
+        <!-- 그리드 영역 [ngClass]="{'ddp-selected' : dataconnectionId != ''}" -->
+        <div class="ddp-wrap-grid" >
+          <!-- view table -->
+          <div class="ddp-wrap-viewtable">
+            <!-- 테이블 -->
+            <div class="ddp-box-viewtable">
+              <!-- gridhead -->
+              <div class="ddp-ui-gridhead">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="15%">
+                    <col width="15%">
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th class="ddp-txt-center">
+                      {{'msg.comm.th.no' | translate}}
+                    </th>
+                    <th class="ddp-cursor" (click)="changeOrder('name')">
+                      {{'msg.comm.th.conn' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                    <th>
+                      {{'msg.comm.th.type' | translate}}
+                    </th>
+                    <th>
+                      {{'msg.comm.th.host' | translate}}
+                    </th>
+                    <th>
+                      {{'msg.comm.th.port' | translate}}
+                    </th>
+                    <th>
+                      {{'msg.comm.th.account.type' | translate}}
+                    </th>
+                    <th class="ddp-cursor" (click)="changeOrder('modifiedTime')">
+                      {{'msg.comm.th.updated' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
                   </tr>
-                </tbody>
-              </table>
+                  </thead>
+                </table>
+              </div>
+              <!--// gridhead -->
 
+              <!-- gridbody -->
+              <div class="ddp-ui-gridbody">
+                <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="15%">
+                    <col width="15%">
+                  </colgroup>
+                  <tbody>
+                    <tr *ngFor="let connection of dataconnections; let i = index"
+                        [ngClass]="{'ddp-selected' : dataconnection?.id === connection.id}"
+                        (click)="onSelectDataconnection(connection)">
+                      <td class="ddp-txt-center">{{connection.num}}</td>
+                      <td>
+                        <div class=" ddp-txt-long">
+                          {{connection.name}}
+                          <span class="ddp-txt-colortype" *ngIf="connection.description">- {{connection.description}}</span>
+                        </div>
+                      </td>
+                      <td>{{connection.implementor}}</td>
+                      <td>{{connection.hostname}}</td>
+                      <td>{{connection.port}}</td>
+                      <td>{{getAuthenticationType(connection)}}</td>
+                      <td>{{connection.modifiedTime  | date:'yyyy-MM-dd'}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+              </div>
+              <!--// gridbody -->
             </div>
-            <!--// gridbody -->
+            <!-- //테이블 -->
+            <!-- 더보기 -->
+            <div class="ddp-box-add-link3" [ngClass]="{'ddp-disabled' : !isMoreContents}" (click)="onClickMoreList()">
+              <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+            </div>
+            <!-- //더보기 -->
           </div>
-          <!-- //테이블 -->
-          <!-- 더보기 -->
-          <div class="ddp-box-add-link3" [ngClass]="{'ddp-disabled' : !isMoreContents}" (click)="onClickMoreList()">
-            <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-          </div>
-          <!-- //더보기 -->
+          <!-- //view table -->
         </div>
-        <!-- //view table -->
       </div>
     </div>
+    <!-- //contents in  -->
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !isSelectedConnection}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !isSelectedConnection}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
-
 </div>

@@ -13,33 +13,44 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a (click)="closeComp()" href="javascript:" class="ddp-btn-close"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-ui-name2 ddp-type3">
-    {{ 'msg.board.create.title' | translate }}
-    <em class="ddp-bg-order-line2-type"></em>
-  </div>
-  <div class="ddp-type-contents-in">
+  <div class="ddp-layout-popup">
+    <!-- top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{ 'msg.board.create.title' | translate }}</div>
+      <div class="ddp-pop-sub" *ngIf="isShowLabelAddDataSource">{{ 'msg.board.create.add-ds' | translate }}</div>
+      <div class="ddp-pop-sub" *ngIf="!isShowLabelAddDataSource">{{ 'msg.board.create.set-relation' | translate }}</div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="ddp-selected">1</span>
+        <span class="">2</span>
+      </div>
+      <!-- //step -->
+    </div>
+    <!-- //top -->
 
-    <span *ngIf="isShowLabelAddDataSource" class="ddp-txt-info ddp-type">{{ 'msg.board.create.add-ds' | translate }}</span>
-    <span *ngIf="!isShowLabelAddDataSource" class="ddp-txt-info ddp-type">{{ 'msg.board.create.set-relation' | translate }}</span>
+    <!-- contents in -->
+    <div class="ddp-pop-contents">
 
-    <!-- Network Board -->
-    <create-board-ds-network [workspaceId]="workspaceId"
-                             (onChange)="checkAllowNext($event)" ></create-board-ds-network>
-    <!-- // Network Board -->
+      <!-- Network Board -->
+      <create-board-ds-network [workspaceId]="workspaceId"
+                               (onChange)="checkAllowNext($event)" class="ddp-height-full"></create-board-ds-network>
+      <!-- // Network Board -->
 
+    </div>
+    <!-- //contents in -->
+    <!-- buttons -->
+    <div *ngIf="isShowButtons" class="ddp-ui-buttons">
+      <a (click)="closeComp()" href="javascript:" class="ddp-btn-type-popup ">{{ 'msg.comm.btn.cancl' | translate }}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a (click)="next()" [class.ddp-disabled]="isDenyNext"
+         href="javascript:" class="ddp-btn-type-popup ddp-bg-black">{{ 'msg.comm.btn.next' | translate }}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- buttons -->
-  <div *ngIf="isShowButtons" class="ddp-ui-buttons">
-    <a (click)="closeComp()" href="javascript:" class="ddp-btn-type-popup ">{{ 'msg.comm.btn.cancl' | translate }}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a (click)="next()" [class.ddp-disabled]="isDenyNext"
-       href="javascript:" class="ddp-btn-type-popup ddp-bg-black">{{ 'msg.comm.btn.next' | translate }}</a>
-  </div>
-  <!-- //buttons -->
 </div>
 
 <create-board-complete (close)="closeComp(true)"></create-board-complete>
