@@ -250,12 +250,12 @@
                           <!-- //map chart -->
                           <em class="ddp-icon-dimension-ab"
                               *ngIf="field.logicalType?.toString() === 'STRING'"></em>
-                          <em class="ddp-icon-dimension-array"
-                              *ngIf="field.logicalType?.toString() === 'ARRAY'"></em>
                           <em class="ddp-icon-dimension-local"
                               *ngIf="field.logicalType?.toString() === 'LNG' || field.logicalType?.toString() === 'LNT'"></em>
                           <em class="ddp-icon-dimension-calen"
                               *ngIf="field.logicalType?.toString() === 'TIMESTAMP'"></em>
+                          <em class="ddp-icon-measure-array"
+                              *ngIf="field.logicalType?.toString() === 'ARRAY'"></em>
                           <em class="ddp-icon-measure-sharp"
                               *ngIf="field.logicalType?.toString() === 'DOUBLE' || field.logicalType?.toString() === 'INTEGER' || field.type === 'user_expr'"></em>
                           <!-- boolean -->
