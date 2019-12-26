@@ -553,6 +553,11 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         icon: 'ddp-icon-type-calen'
       },
       {
+        label: this.translateService.instant('msg.storage.ui.list.array'),
+        value: 'ARRAY',
+        icon: 'ddp-icon-type-array'
+      },
+      {
         label: this.translateService.instant('msg.metadata.ui.dictionary.type.latitude'),
         value: 'LNT',
         icon: 'ddp-icon-type-latitude'

@@ -187,7 +187,7 @@ export class UploaderComponent extends AbstractComponent {
       .MultiSelection(false)
       .Filters(new Pluploader.Builder.FileFiltersBuilder()
         .MimeTypes([
-          {title: "files", extensions: "csv,xls,xlsx"}
+          {title: "files", extensions: "csv,xls,xlsx,json"}
         ])
         .MaxFileSize(0)
         .builder()

@@ -685,6 +685,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
           if (this.isCsvFile()) {
             this.isValidDelimiter = true;
             this.isValidSeparator = true;
+          } else if (this.isJsonFile()) {
+            this.isFirstHeaderRow = false;
           }
 
           // 재적재 상태체크

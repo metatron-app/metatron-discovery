@@ -24,6 +24,7 @@ export class ConstantService {
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.integer'), Type.Logical.INTEGER, 'ddp-icon-type-int'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.double'), Type.Logical.DOUBLE, 'ddp-icon-type-float'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.date'), Type.Logical.TIMESTAMP, 'ddp-icon-type-calen'),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.array'), Type.Logical.ARRAY, 'ddp-icon-type-array'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lnt'), Type.Logical.LNT, 'ddp-icon-type-latitude'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lng'), Type.Logical.LNG, 'ddp-icon-type-longitude'),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.point'), Type.Logical.GEO_POINT, 'ddp-icon-type-point'),
@@ -115,7 +116,7 @@ export class ConstantService {
   public getTypeFiltersInMeasure() {
     return _.cloneDeep(
       this.typeFilters.filter(type => {
-        return type.value !== Type.Logical.ALL && (type.value === Type.Logical.INTEGER || type.value === Type.Logical.DOUBLE);
+        return type.value !== Type.Logical.ALL && (type.value === Type.Logical.INTEGER || type.value === Type.Logical.DOUBLE || type.value === Type.Logical.ARRAY);
       }));
   }
 

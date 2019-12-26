@@ -608,6 +608,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     if (this._$calculationInput.text().hasOwnProperty(length) && this._$calculationInput.text().length > 0) {
       let expr = this._$calculationInput.text();
       expr = expr.replace(/[[\]]/g, '"');
+      expr = expr.replace(/" *"\d"/g, (text) => {
+        return '"[' + text.substring(text.indexOf('"', 1) + 1, text.lastIndexOf('"')) + ']'
+      });
       expr = StringUtil.trim(expr);
 
       const cloneDs:BoardDataSource = _.cloneDeep( this.dataSource );
