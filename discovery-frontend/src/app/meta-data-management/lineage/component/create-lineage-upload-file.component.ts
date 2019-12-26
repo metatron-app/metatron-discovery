@@ -58,9 +58,6 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   @Output()
   public lineageDataChange = new EventEmitter();
 
-  // file uploader
-  public chunk_uploader: any;
-
   public changeDetect: ChangeDetectorRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -83,117 +80,26 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
 
   public ngOnInit() {
     super.ngOnInit();
-
-    this.initPlupload();
   }
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    this.chunk_uploader = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public initPlupload() {
-
-    this.chunk_uploader = new plupload.Uploader({
-      runtimes : 'html5,html4',
-      chunk_size: '0',
-      browse_button : this.pickfiles.nativeElement,
-      drop_element : this.drop_container.nativeElement,
-      url : CommonConstant.API_CONSTANT.API_URL + 'metadatas/lineages/file_upload',
-      headers:{
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-      },
-
-      filters : {
-        max_file_size : 0,
-        prevent_duplicate: true,
-        mime_types: [
-          {title: "Lineage Edge files", extensions: "csv,txt"}
-        ],
-
-      },
-
-      init: {
-        PostInit: () => {
-        },
-
-        FilesAdded: (up, files) => {
-          this.lineageData = null;
-          this.startUpload();
-        },
-
-        FileUploaded: (up, file, info)=>{
-          var response = JSON.parse(info.response);
-          if( true===response.hasOwnProperty('storedUri') ) {
-            this.getLineageData(response);
-          }
-        },
-
-        UploadComplete: (up, files) => {
-          this.next();
-          this.changeDetect.detectChanges();
-        },
-
-        /* error define
-        -100 GENERIC_ERROR
-        -200 HTTP_ERROR
-        -300 IO_ERROR
-        -400 SECURITY_ERROR
-        -500 INIT_ERROR
-        -600 FILE_SIZE_ERROR
-        -601 FILE_EXTENSION_ERROR
-        -602 FILE_DUPLICATE_ERROR
-        -701 MEMORY_ERROR
-         */
-        Error: (up, err) => {
-          switch (err.code){
-            case -601:
-              //Alert.error(this.translateService.instant('format.wrong'));
-              break;
-            case -100:
-              console.log('GENERIC_ERROR', err);
-              break;
-            case -200:
-              console.log('HTTP_ERROR', err);
-              if (err.response) {
-                const res = JSON.parse(err.response);
-                Alert.error(this.translateService.instant(res.message));
-              }
-              break;
-            case -300:
-              console.log('IO_ERROR', err);
-              break;
-            default:
-              console.log('unknow error', err);
-              break;
-          }
-        }
-      }
-    });
-    this.chunk_uploader.init();
-
-  }
 
   /**
    * File Upload Cancel(Plupload)
    */
   public cancelUpload(file){
-    if (file.status == plupload.UPLOADING) {
-        this.chunk_uploader.stop();
-        this.chunk_uploader.removeFile(file);
-        this.chunk_uploader.start();
-    }
   }
 
   /**
    * File Upload Start(Plupload)
    */
   public startUpload(){
-      this.chunk_uploader.start();
   }
 
   /**
@@ -223,8 +129,6 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   public close() {
 
     super.close();
-
-    this.chunk_uploader.stop();
 
     this.popupService.notiPopup({
       name: 'close',

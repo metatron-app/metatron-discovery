@@ -28,8 +28,6 @@ import {Alert} from "../../../common/util/alert.util";
 import {LineageService} from '../service/lineage.service';
 import {LineageEdge} from '../../../domain/meta-data-management/lineage';
 
-declare let plupload: any;
-
 @Component({
   selector: 'app-create-lineage-confirm-grid',
   templateUrl: './create-lineage-confirm-grid.component.html',
