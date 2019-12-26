@@ -41,44 +41,53 @@
         <!-- //search -->
 
         <!-- favorite -->
-        <div class="ddp-ui-favorite">
-          <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite({{ favoriteCatalogList.length }})</div>
-          <div class="ddp-favorite-nodata" *ngIf="favoriteCatalogList.length === 0">
-            No favorite data
+        <div class="ddp-ui-favorite type-dropdown-data" [class.ddp-selected]="isOpenFavoriteLnb">
+          <div (click)="isOpenFavoriteLnb = !isOpenFavoriteLnb" class="ddp-label-down">
+            Favorite({{ favoriteCatalogList.length }})
+            <span class="ddp-favorite-nodata" *ngIf="favoriteCatalogList.length === 0">
+              No favorite data
+            </span>
           </div>
-          <ul class="ddp-list-favorite" *ngIf="favoriteCatalogList.length > 0">
-            <li *ngFor="let favoriteCatalog of favoriteCatalogList"  (click)="onChangeSelectedCatalog(favoriteCatalog)">
-              <a href="javascript:">
-                <em class="ddp-icon-folder-type"></em>
-                <div class="ddp-data-txt">
+          <div class="ddp-down-contents">
+            <ul class="ddp-list-favorite" *ngIf="favoriteCatalogList.length > 0">
+              <li *ngFor="let favoriteCatalog of favoriteCatalogList"  (click)="onChangeSelectedCatalog(favoriteCatalog)">
+                <a href="javascript:">
+                  <em class="ddp-icon-folder-type"></em>
+                  <div class="ddp-data-txt">
                   <span class="ddp-data-navi">
                       {{ getCatalogHierarchyLabel(favoriteCatalog) }}
                   </span>
-                  <span class="ddp-data-name">
+                    <span class="ddp-data-name">
                     {{ favoriteCatalog.name }}
                   </span>
-                </div>
-              </a>
-            </li>
-          </ul>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
         <!-- //favorite -->
 
         <!-- tree -->
-        <div class="ddp-ui-tree">
-          <ul class="ddp-list-tree">
-            <component-catalog-folder *ngFor="let catalog of catalogList"
-                                      [catalog]="catalog"
-                                      [selectedCatalog]="selectedCatalog"
-                                      [searchKeyword]="catalogSearchKeyword"
-                                      (clickedCatalog)="onChangeSelectedCatalog($event)" >
-            </component-catalog-folder>
-            <!-- is empty -->
-            <component-catalog-folder [isEmptyCatalog]="true"
-                                      [selectedCatalog]="selectedCatalog"
-                                      (clickedCatalog)="onChangeSelectedCatalog($event)" ></component-catalog-folder>
-            <!-- // is empty -->
-          </ul>
+        <div class="ddp-ui-tree type-dropdown-data" [class.ddp-selected]="!isOpenFavoriteLnb">
+          <!-- label -->
+          <div (click)="isOpenFavoriteLnb = !isOpenFavoriteLnb" class="ddp-label-down" > All Catalog </div>
+          <!-- // label -->
+          <div class="ddp-down-contents" >
+            <ul class="ddp-list-tree">
+              <component-catalog-folder *ngFor="let catalog of catalogList"
+                                        [catalog]="catalog"
+                                        [selectedCatalog]="selectedCatalog"
+                                        [searchKeyword]="catalogSearchKeyword"
+                                        (clickedCatalog)="onChangeSelectedCatalog($event)" >
+              </component-catalog-folder>
+              <!-- is empty -->
+              <component-catalog-folder [isEmptyCatalog]="true"
+                                        [selectedCatalog]="selectedCatalog"
+                                        (clickedCatalog)="onChangeSelectedCatalog($event)" ></component-catalog-folder>
+              <!-- // is empty -->
+            </ul>
+          </div>
         </div>
         <!-- //tree -->
       </div>

@@ -92,16 +92,14 @@
         <div class="ddp-no-data" *ngIf="isEmptyMetadataList()">
           No Metadata
         </div>
-        <div class="ddp-type-search type-metasearch">
-          <component-input
-            [autoFocus]="false"
-            [isEnableDelete]="true"
-            [value]="searchedKeyword"
-            [placeHolder]="'msg.storage.ph.source.search' | translate"
-            (changeValue)="onChangedSearchKeyword($event)">
-          </component-input>
-          <a href="javascript:" class="ddp-btn-delete"></a>
-        </div>
+        <component-input
+          [compType]="'search'"
+          [autoFocus]="false"
+          [isEnableDelete]="true"
+          [value]="searchedKeyword"
+          [placeHolder]="'msg.storage.ph.source.search' | translate"
+          (changeValue)="onChangedSearchKeyword($event)">
+        </component-input>
         <table class="ddp-table-form ddp-table-line" *ngIf="!isEmptyMetadataList()">
           <colgroup>
             <col width="26px">
