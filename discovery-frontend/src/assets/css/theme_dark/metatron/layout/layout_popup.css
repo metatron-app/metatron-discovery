@@ -18,6 +18,7 @@
     width: 23px;
     height: 23px;
     background: url(../../../../images/btn_popclose.png) no-repeat;
+    z-index:10;
 }
 
 .theme-dark .ddp-layout-pop-fix .ddp-layout-popup {

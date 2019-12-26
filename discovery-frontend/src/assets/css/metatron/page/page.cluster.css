@@ -3,7 +3,7 @@
 /**********************************************************************************
 	클러스터 _ add
 **********************************************************************************/
-.ddp-cluster-add {width:850px; height:100%; margin:0 auto 0 auto; text-align:left; border:1px solid #d0d1d8; overflow:hidden;}
+.ddp-cluster-add {width:1100px; height:100%; margin:0 auto 0 auto; text-align:left; border:1px solid #d0d1d8; overflow:hidden;}
 .ddp-box-application {float:left; width:50%; height:100%; padding:19px 19px; border-right:1px solid #d0d1d8;background-color:#f6f6f7; box-sizing:border-box; overflow:auto;}
 .ddp-box-application ul.ddp-list-application li {width:50%; float:left; padding:5px 5px; box-sizing:border-box;}
 .ddp-box-application ul.ddp-list-application li a {display:table; height:98px; width:100%; }
@@ -21,7 +21,7 @@
 .ddp-cluster-add .ddp-wrap-ex .ddp-ui-ex {margin-top:0;}
 .ddp-cluster-add .ddp-wrap-ex ul.ddp-list-ex li {padding:0;}
 .ddp-cluster-add .ddp-wrap-ex ul.ddp-list-ex li:before {display:none;}
-.ddp-cluster-add2 {display:flex; width:1192px; height:100%; margin:0 auto; text-align:left;}
+.ddp-cluster-add2 {display:flex; width:1100px; height:100%; margin:0 auto; text-align:left;}
 .ddp-cluster-add2 .ddp-ui-version {float:left; width:257px; min-width:257px; height:100%; border:1px solid #e4e5ea; box-sizing:border-box; overflow:auto;}
 .ddp-cluster-add2 .ddp-ui-set-info {display:block; position:relative; width:100%; height:100%; overflow:auto;}
 

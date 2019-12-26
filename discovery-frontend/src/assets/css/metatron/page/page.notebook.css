@@ -40,12 +40,12 @@
 .ddp-wrap-table2 .ddp-ui-table  table.ddp-table-form.ddp-table-type3 {width:100%;}
 .ddp-wrap-table2 .ddp-label-table {float:left;padding:7px 0; color:#b7bac1; font-size:13px;}
 .ddp-wrap-table2 table.ddp-table-form {display:block;  overflow:hidden;}
-.ddp-wrap-datadetail.ddp-type {height:100%; margin-top:-48px; padding:88px 45px 0 45px; box-sizing:border-box;}
+.ddp-wrap-datadetail.ddp-type {height:100%; margin-top:-48px; padding:88px 0 0 45px; box-sizing:border-box; flex-direction: initial; overflow:auto;}
 .ddp-wrap-datadetail {padding:15px 45px;}
 .ddp-wrap-datadetail table.ddp-table-detail:first-of-type {margin-top:20px;}
 .ddp-wrap-datadetail .ddp-wrap-detail-sub table.ddp-table-detail {margin-bottom:30px;}
-.ddp-wrap-datadetail .ddp-info-left {display:inline-block; float:left; width:350px; height:100%; border-right:1px dotted #ccc;}
-.ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail {padding:0; height:100%; border-top:none; overflow:auto;}
+.ddp-wrap-datadetail .ddp-info-left {display:inline-block; float:left; width:350px; height:100%; border-right:1px dotted #ccc; overflow:auto;}
+.ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail {padding:0;border-top:none;}
 .ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail table.ddp-table-detail tbody tr td {padding-right:20px;}
 .ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail .ddp-data-none {color:#b7bac1; font-size:13px;}
 
@@ -55,7 +55,7 @@
 .ddp-wrap-datadetail.ddp-type .ddp-wrap-rules-flow.ddp-snapshot .ddp-box-title {font-size:16px; font-weight:normal; vertical-align:middle;}
 .ddp-wrap-datadetail.ddp-type .ddp-wrap-rules-flow.ddp-snapshot .ddp-data-num {position:relative; top:-1px;}
 .ddp-wrap-datadetail.ddp-type .ddp-form-box {height:350px; border:1px solid #d0d1d8;}
-.ddp-wrap-datadetail .ddp-info-right {display:block; padding-left:50px; overflow:hidden;}
+.ddp-wrap-datadetail .ddp-info-right {display:block; padding-left:50px; padding-right:35px; overflow:auto; flex:auto;}
 table.ddp-table-detail.type-sub {padding-left:27px;}
 table.ddp-table-detail {table-layout:fixed; width:100%; margin-top:30px;}
 table.ddp-table-detail.ddp-mgt20 {margin-top:20px;}

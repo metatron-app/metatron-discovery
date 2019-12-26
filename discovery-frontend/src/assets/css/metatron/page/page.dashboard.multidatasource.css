@@ -10,6 +10,8 @@
 
 .ddp-box-popupcontents3.ddp-type-multidata.ddp-edit {overflow:hidden;}
 .ddp-box-popupcontents3.ddp-type-multidata {position:relative; height:100%;}
+.ddp-box-popupcontents.ddp-type-multidata.ddp-edit {overflow:hidden;}
+.ddp-box-popupcontents.ddp-type-multidata {position:relative; height:100%;}
 .ddp-type-multidata .ddp-multidata-option {position:relative; padding:14px 20px; height:50px; border-bottom:1px solid #b7b9c2; background-color:#fff; z-index:1; box-sizing:border-box;}
 
 .ddp-type-multidata .ddp-multidata-option .ddp-btn-line {position:relative; top:-3px; float:right;}

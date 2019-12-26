@@ -2117,7 +2117,7 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     overflow: auto;
 }
 
-
+.theme-dark .ddp-layout-contents .ddp-type-contents2 {padding-top:0;}
 .theme-dark .ddp-type-contents3 {
     position: fixed;
     left: 0;

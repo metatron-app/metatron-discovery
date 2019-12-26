@@ -1772,7 +1772,7 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 
 /* 스키마팝업 */
 .ddp-type-scheme.ddp-column-detail .ddp-preview-type .ddp-wrap-list {width:460px;}
-.ddp-type-scheme.ddp-column-detail .ddp-preview-type .ddp-ui-datadetail2 {display:block; position:relative; overflow:hidden; height:100%;}
+.ddp-type-scheme.ddp-column-detail .ddp-preview-type .ddp-ui-datadetail2 {flex:auto; display:block; position:relative; overflow:hidden; height:100%;}
 
 .ddp-type-scheme.ddp-column-detail .ddp-preview-type .ddp-type-top-option {left:0;}
 

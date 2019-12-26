@@ -110,7 +110,7 @@
 .ddp-form-label2 .ddp-wrap-dropdown {display:inline-block; vertical-align:middle;}
 
 /* wrap edit3 */
-.ddp-wrap-edit3 {display:table; width:100%; table-layout:fixed; min-height:30px;}
+.ddp-wrap-edit3 {display:table; width:100%; table-layout:fixed; min-height:30px; box-sizing:border-box;}
 .ddp-wrap-edit3.type-sub {padding-left:20px;}
 .ddp-wrap-edit3.ddp-error .ddp-ui-error{display:inline-block;}
 .ddp-wrap-edit3 .ddp-ui-error {display:none; position:relative; top:-2px; margin-left:4px; color:#DC494F; font-size:12px; white-space:nowrap; font-style:italic;}

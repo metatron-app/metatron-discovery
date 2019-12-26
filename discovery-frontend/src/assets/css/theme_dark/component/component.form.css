@@ -437,6 +437,7 @@
     width: 100%;
     table-layout: fixed;
     min-height: 30px;
+    box-sizing:border-box;
 }
 
 .theme-dark .ddp-wrap-edit3.type-sub {

@@ -173,9 +173,9 @@
 
 .theme-dark .ddp-wrap-datadetail.ddp-type {
     height: 100%;
-    margin-top: -48px;
-    padding: 88px 45px 0 45px;
+    padding: 88px 0 0 45px;
     box-sizing: border-box;
+    flex-direction: initial;
 }
 
 .theme-dark .ddp-wrap-datadetail {
@@ -195,13 +195,12 @@
     width: 350px;
     height: 100%;
     border-right: 1px dotted #ccc;
+    overflow:auto;
 }
 
 .theme-dark .ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail {
     padding: 0;
-    height: 100%;
     border-top: none;
-    overflow: auto;
 }
 
 .theme-dark .ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail table.ddp-table-detail tbody tr td {
@@ -249,7 +248,9 @@
 .theme-dark .ddp-wrap-datadetail .ddp-info-right {
     display: block;
     padding-left: 50px;
-    overflow: hidden;
+    padding-right:35px;
+    overflow: auto;
+    flex:auto;
 }
 
 .theme-dark table.ddp-table-detail.type-sub {

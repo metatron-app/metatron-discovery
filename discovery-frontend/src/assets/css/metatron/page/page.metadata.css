@@ -255,12 +255,11 @@ table.ddp-table-form.ddp-table-details tr th:nth-child(4) .ddp-box-layout4 {righ
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li span.ddp-txt-radio {display:block; padding:14px 28px 14px 0; font-size:14px; color:#4c515a;}
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li span.ddp-txt-radio em.ddp-icon-error2 {margin-left:3px; position:relative; top:-2px;}
 .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li.ddp-selected label.ddp-label-radio input[type="radio"]:checked + i {background-position:-48px top;}
-@charset "utf-8";
 
 /**********************************************************************************
 	메타데이터
 **********************************************************************************/
-.ddp-ui-meta {width:666px; margin:0 auto; text-align:left;}
+.ddp-ui-meta {width:1100px; margin:0 auto; text-align:left;}
 .ddp-wrap-create { position:relative;}
 .ddp-wrap-create .ddp-list-option {position:absolute; top:-7px; right:0;}
 .ddp-wrap-create .ddp-list-option .ddp-btn-line-s {font-size:12px; float:left; margin-left:4px;}

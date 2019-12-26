@@ -1076,7 +1076,9 @@
     background-color: #fff;
     overflow: auto;
 }
-
+.theme-dark .ddp-ui-preview-contents.type-contents {
+    flex-direction: inherit;
+}
 .theme-dark .ddp-ui-preview-contents.type-relative {
     position: Relative;
     top: 0;
@@ -1136,7 +1138,7 @@
 .theme-dark .ddp-ui-preview-contents.ddp-query {
     padding: 20px;
 }
-
+.theme-dark .ddp-ui-preview-contents.ddp-preview-group {display:block;}
 .theme-dark .ddp-ui-preview-contents.ddp-preview-group .ddp-col-table {
     margin-top: -46px;
     padding: 46px 0 0 0;

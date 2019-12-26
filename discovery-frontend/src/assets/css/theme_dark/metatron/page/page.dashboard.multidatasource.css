@@ -25,6 +25,14 @@
     position: relative;
     height: 598px;
 }
+.theme-dark .ddp-box-popupcontents.ddp-type-multidata.ddp-edit {
+
+    overflow: hidden;
+}
+.theme-dark .ddp-box-popupcontents.ddp-type-multidata {
+    position: relative;
+    height: 598px;
+}
 
 .theme-dark .ddp-type-multidata .ddp-multidata-option {
     position: relative;

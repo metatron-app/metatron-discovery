@@ -4,7 +4,7 @@
 	클러스터 _ add
 **********************************************************************************/
 .theme-dark .ddp-cluster-add {
-	width: 850px;
+	width: 1100px;
 	margin: 0 auto 0 auto;
 	text-align: left;
 	border: 1px solid #c3c8d3;
@@ -123,7 +123,7 @@
 }
 
 .theme-dark .ddp-cluster-add2 {
-	display:flex; width:1192px; height:100%;
+	display:flex; width:1100px; height:100%;
 	margin: 0 auto;
 	text-align: left;
 }

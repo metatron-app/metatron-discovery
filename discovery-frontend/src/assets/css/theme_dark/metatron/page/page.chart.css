@@ -7560,6 +7560,7 @@
 }
 
 .theme-dark .ddp-type-scheme.ddp-column-detail .ddp-preview-type .ddp-ui-datadetail2 {
+    flex:auto;
     display: block;
     position: relative;
     overflow: hidden;

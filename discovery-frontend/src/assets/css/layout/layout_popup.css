@@ -2,7 +2,7 @@
 /* CSS Document */
 
 .ddp-layout-pop-fix { position:fixed; left:0; right:0; bottom:0; top:0; z-index:126; background-color:#fff;}
-.ddp-layout-pop-fix .ddp-btn-close {position:fixed; right:23px; top:28px; display:inline-block; width:23px; height:23px; background:url(../../images/btn_popclose.png) no-repeat}
+.ddp-layout-pop-fix .ddp-btn-close {position:fixed; right:23px; top:28px; display:inline-block; width:23px; height:23px; background:url(../../images/btn_popclose.png) no-repeat; z-index:10;}
 .ddp-layout-pop-fix .ddp-layout-popup {position:relative; height:100%; margin:0 auto; display:flex; flex-direction:column;}
 .ddp-layout-pop-fix .ddp-layout-popup .ddp-pop-step {position:absolute; top:45px; right:0;}
 .ddp-layout-pop-fix .ddp-pop-top {position:relative; width:1100px; margin:0 auto; padding:0 0 45px 0}
@@ -16,7 +16,7 @@
 .ddp-layout-pop-fix .ddp-ui-buttons {padding:20px 0; text-align:center;}
 .ddp-layout-pop-fix .ddp-ui-buttons [class*="ddp-btn-type"] {margin:0 3px;}
 .ddp-layout-pop-fix .ddp-pop-step {}
-.ddp-layout-pop-fix .ddp-pop-step span {display:inline-block; width:28px; height:28px; border-radius:3px; border:1px solid #9ca2cc; box-sizing:border-box; color:#666eb2; font-size:16px; line-height:26px; text-align:center; font-weight:bold; background-color:#f2f1f8;}
+.ddp-layout-pop-fix .ddp-pop-step span {display:inline-block; margin-left:3px; width:28px; height:28px; border-radius:3px; border:1px solid #9ca2cc; box-sizing:border-box; color:#666eb2; font-size:16px; line-height:26px; text-align:center; font-weight:bold; background-color:#f2f1f8;}
 .ddp-layout-pop-fix .ddp-pop-step span.ddp-selected {border:1px solid #666eb2; background-color:#666eb2; color:#fff; }
 .ddp-layout-pop-fix .ddp-pop-step span.ddp-selected + span + span + span + span,
 .ddp-layout-pop-fix .ddp-pop-step span.ddp-selected + span + span + span,

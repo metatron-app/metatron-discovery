@@ -551,7 +551,7 @@
 	height: 100%;
 	box-sizing: border-box;
 	overflow: auto;
-}
+};
 .theme-dark .popup-prep-create-complete table.ddp-table-sheet {
 	width: 100%;
 	table-layout: fixed;
@@ -1095,11 +1095,11 @@
 }
 
 /***********************************************************************************************************
-	page : 데이터 프리퍼레이션 db타입 데이터 셋 생성
+	page : 데이터 프리퍼레이션 db타입 데이터 셋 생성.ddp-cluster-add2
 ************************************************************************************************************/
 
 
-.theme-dark .ddp-ui-import-option {width:880px;height:100%; display:flex; margin:0 auto; flex-direction:column;}
+.theme-dark .ddp-ui-import-option {width:1100px;height:100%; display:flex; margin:0 auto; flex-direction:column;}
 .theme-dark .ddp-ui-import-option .ddp-ui-textarea {
 	position: relative;
 	width: 100%;
@@ -1609,10 +1609,6 @@
 	left: 0;
 }
 
-.theme-dark .ddp-ui-dbconnect .ddp-clear {
-	margin: 0 -8px;
-}
-
 .theme-dark .ddp-ui-dbconnect .ddp-ui-db-option .ddp-ui-message {
 	float: left;
 	width: 100%;
@@ -1740,7 +1736,7 @@
      데이터셋치환
 **********************************************************************************/
 .theme-dark .ddp-type-dataset .ddp-ui-popup-contents {position:relative;}
-.theme-dark .ddp-type-dataset .ddp-popup-dashboard {position:absolute; top:120px; left:50px; right:50px; bottom:50px; width:auto;}
+.theme-dark .ddp-type-dataset .ddp-popup-dashboard {position:absolute; top:0; left:50px; right:50px; bottom:50px; width:auto;}
 .theme-dark .ddp-type-dataset .ddp-wrap-variable {position:absolute; top:43px; left:0; right:0; bottom:0;}
 .theme-dark .ddp-type-dataset .ddp-wrap-grid {height:100%; padding-bottom:44px; box-sizing:border-box;}
 .theme-dark .ddp-type-dataset .ddp-wrap-viewtable {height:100%;}
@@ -1894,7 +1890,7 @@
 }
 
 .theme-dark .ddp-ui-popup-contents.ddp-union {
-	padding-top: 140px;
+	padding-top: 20px;
 }
 
 .theme-dark .ddp-ui-union-set .ddp-ui-title a.ddp-btn-line:hover .ddp-icon-link-plus {
@@ -2186,6 +2182,7 @@
 .theme-dark .ddp-ui-dataset-new {
 	position: relative;
 	height: 100%;
+	padding:10px 0 0 0;
 }
 
 .theme-dark .ddp-ui-dataset-new .ddp-wrap-viewtable {
@@ -2553,9 +2550,6 @@
 /**************************************************************
   popup :99_데이터프리퍼레이션_01데이터플로우_03데이터셋선택_popup
 **************************************************************/
-.theme-dark .popup-prep-dataset .ddp-ui-popup-contents {
-	padding-top: 170px;
-}
 
 .theme-dark .popup-prep-dataset .ddp-ui-dataset-new .ddp-wrap-viewtable {
 	bottom: 33px;
@@ -2567,10 +2561,6 @@
 }
 
 .theme-dark .popup-prep-dataset .ddp-ui-popup-contents .ddp-data-dataset {
-	position: absolute;
-	top: 104px;
-	left: 50px;
-	right: 50px;
 	padding: 15px 20px;
 	background-color: #f4f6fc;
 	font-size: 14px;
@@ -3145,24 +3135,6 @@
 	box-sizing: border-box;
 	color: #222;
 	font-size: 16px;
-}
-
-.theme-dark .ddp-ui-popup {
-	position: fixed;
-	top: 0;
-	left: 50%;
-	bottom: 0;
-	width: 960px;
-	margin-left: -480px;
-	background-color: #fff;
-	/* layer fill content */
-	-moz-box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-	/* drop shadow */
-	-webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-	/* drop shadow */
-	box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-	/* drop shadow */
-	z-index: 91;
 }
 
 .theme-dark .ddp-ui-pop-buttons {
