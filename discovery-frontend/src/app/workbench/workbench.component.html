@@ -670,7 +670,11 @@
           <a href="javascript:" (click)="openNavigationMenu()">
             <em class="ddp-icon-navimenu"></em>
           </a>
-
+        </li>
+        <li [ngClass]="{'ddp-selected':isDataAggregateMenuShow}" *ngIf="supportPersonalDatabase">
+          <a href="javascript:" (click)="openDataAggregateMenu()">
+            <em class="ddp-icon-query-loop"></em>
+          </a>
         </li>
       </ul>
       <div class="ddp-wrap-rnb-contents">
@@ -682,6 +686,7 @@
         <detail-workbench-navigation *ngIf="isNavigationMenuShow"
                                      [workbenchId]="workbenchId"></detail-workbench-navigation>
         <!-- //rnb contents -->
+        <plugin-hive-personal-database-data-aggregate *ngIf="supportPersonalDatabase && isDataAggregateMenuShow" [workbenchId]="workbenchId"></plugin-hive-personal-database-data-aggregate>
       </div>
     </div>
     <!-- // rnb --->
@@ -779,3 +784,6 @@
 <plugin-hive-personal-database-creation-table></plugin-hive-personal-database-creation-table>
 <plugin-hive-personal-database-rename-table></plugin-hive-personal-database-rename-table>
 <plugin-hive-personal-database-delete-table></plugin-hive-personal-database-delete-table>
+<plugin-hive-personal-database-creation-data-aggregate-task></plugin-hive-personal-database-creation-data-aggregate-task>
+<plugin-hive-personal-database-complete-data-aggregate-task></plugin-hive-personal-database-complete-data-aggregate-task>
+<plugin-hive-personal-database-details-data-aggregate-task></plugin-hive-personal-database-details-data-aggregate-task>

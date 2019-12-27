@@ -71,6 +71,10 @@ import {EventBroadcaster} from "../common/event/event.broadcaster";
 import {ImportFileComponent} from "../plugins/hive-personal-database/component/import-file/import-file.component";
 import {RenameTableComponent} from "../plugins/hive-personal-database/component/rename-table/rename-table.component";
 import {DeleteTableComponent} from "../plugins/hive-personal-database/component/delete-table/delete-table.component";
+import {CreationDataAggregateTaskComponent} from "../plugins/hive-personal-database/component/data-aggregate/creation-data-aggregate-task/creation-data-aggregate-task.component";
+import {CompleteDataAggregateTaskComponent} from "../plugins/hive-personal-database/component/data-aggregate/complete-data-aggregate-task/complete-data-aggregate-task.component";
+import {DataAggregate} from "../plugins/hive-personal-database/component/data-aggregate/data-aggregate.component";
+import {DetailsDataAggregateTaskComponent} from "../plugins/hive-personal-database/component/data-aggregate/details-data-aggregate-task/details-data-aggregate-task.component";
 
 declare let moment: any;
 declare let Split;
@@ -154,6 +158,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild(DeleteTableComponent)
   private deleteTableComponent: DeleteTableComponent;
 
+  @ViewChild(CreationDataAggregateTaskComponent)
+  private creationDataAggregateTaskComponent: CreationDataAggregateTaskComponent;
+
+  @ViewChild(CompleteDataAggregateTaskComponent)
+  private completeDataAggregateTaskComponent: CompleteDataAggregateTaskComponent;
+
+  @ViewChild(DetailsDataAggregateTaskComponent)
+  private detailsDataAggregateTaskComponent: DetailsDataAggregateTaskComponent;
+
   private _executeSqlReconnectCnt: number = 0;
   private _checkQueryStatusReconnectCnt: number = 0;
 
@@ -209,6 +222,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public isQueryHistoryMenuShow: boolean = false;
 
   public isNavigationMenuShow: boolean = false;
+
+  public isDataAggregateMenuShow: boolean = false;
 
   public isQueryEditorFull: boolean = false;
 
@@ -350,7 +365,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }),
       this.broadCaster.on<any>('WORKBENCH_REFRESH_DATABASE_TABLE').subscribe(() => {
         this.detailWorkbenchDatabase.refreshDatabases();
-      })
+      }),
+      this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_CREATION_DATA_AGGREGATE_TASK').subscribe((dataAggregate: DataAggregate) => {
+        this.creationDataAggregateTaskComponent.init(this.workbench.dataConnection.id, this.detailWorkbenchDatabase.databases, this.websocketId, dataAggregate);
+      }),
+      this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_COMPLETE_DATA_AGGREGATE_TASK').subscribe((dataAggregate: DataAggregate) => {
+        this.completeDataAggregateTaskComponent.init(this.workbench.id, dataAggregate);
+      }),
+      this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_DETAILS_DATA_AGGREGATE_TASK').subscribe((task) => {
+        this.detailsDataAggregateTaskComponent.init(this.workbench.id, task.id, task.name);
+      }),
     );
 
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) === '') {
@@ -955,10 +979,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public openGlobalVariableMenu() {
     this.isGlobalVariableMenuShow = !this.isGlobalVariableMenuShow;
     this.isNavigationMenuShow = false;
+    this.isDataAggregateMenuShow = false;
   }
 
   public openNavigationMenu() {
     this.isNavigationMenuShow = !this.isNavigationMenuShow;
+    this.isGlobalVariableMenuShow = false;
+    this.isDataAggregateMenuShow = false;
+  }
+
+  public openDataAggregateMenu() {
+    this.isDataAggregateMenuShow = !this.isDataAggregateMenuShow;
+    this.isNavigationMenuShow = false;
     this.isGlobalVariableMenuShow = false;
   }
 

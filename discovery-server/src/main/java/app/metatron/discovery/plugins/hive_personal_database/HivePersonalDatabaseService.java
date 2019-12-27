@@ -1,13 +1,18 @@
 package app.metatron.discovery.plugins.hive_personal_database;
 
 import app.metatron.discovery.common.ConnectionConfigProperties;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.GlobalErrorCodes;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessor;
 import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchErrorCodes;
 import app.metatron.discovery.domain.workbench.WorkbenchException;
 import app.metatron.discovery.domain.workbench.WorkbenchProperties;
@@ -17,8 +22,12 @@ import app.metatron.discovery.domain.workbench.hive.HivePersonalDatasource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceManager;
 import app.metatron.discovery.plugins.hive_personal_database.dto.*;
+import app.metatron.discovery.plugins.hive_personal_database.entity.DataAggregateTask;
+import app.metatron.discovery.plugins.hive_personal_database.entity.DataAggregateTaskHistory;
 import app.metatron.discovery.plugins.hive_personal_database.file.ImportExcelFileRowMapper;
 import app.metatron.discovery.plugins.hive_personal_database.file.excel.ExcelTemplate;
+import app.metatron.discovery.plugins.hive_personal_database.repository.DataAggregateTaskHistoryRepository;
+import app.metatron.discovery.plugins.hive_personal_database.repository.DataAggregateTaskRepository;
 import app.metatron.discovery.plugins.hive_personal_database.script.AbstractSaveAsTableScriptGenerator;
 import app.metatron.discovery.plugins.hive_personal_database.script.SaveAsDefaultTableScriptGenerator;
 import app.metatron.discovery.plugins.hive_personal_database.script.SaveAsPartitionTableScriptGenerator;
@@ -30,8 +39,11 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,6 +52,7 @@ import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +72,10 @@ public class HivePersonalDatabaseService {
   private JdbcConnectionService connectionService;
 
   private ConnectionConfigProperties connectionConfigProperties;
+
+  private DataAggregateTaskRepository dataAggregateTaskRepository;
+
+  private DataAggregateTaskHistoryRepository dataAggregateTaskHistoryRepository;
 
   @Autowired
   public void setWorkbenchProperties(WorkbenchProperties workbenchProperties) {
@@ -93,6 +110,16 @@ public class HivePersonalDatabaseService {
   @Autowired
   public void setWorkbenchDataSourceManager(WorkbenchDataSourceManager workbenchDataSourceManager) {
     this.workbenchDataSourceManager = workbenchDataSourceManager;
+  }
+
+  @Autowired
+  public void setDataAggregateTaskRepository(DataAggregateTaskRepository dataAggregateTaskRepository) {
+    this.dataAggregateTaskRepository = dataAggregateTaskRepository;
+  }
+
+  @Autowired
+  public void setDataAggregateTaskHistoryRepository(DataAggregateTaskHistoryRepository dataAggregateTaskHistoryRepository) {
+    this.dataAggregateTaskHistoryRepository = dataAggregateTaskHistoryRepository;
   }
 
   public void importFileToDatabase(DataConnection hiveConnection, ImportFile importFile) {
@@ -320,5 +347,55 @@ public class HivePersonalDatabaseService {
     } catch(Exception e) {
       throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed rename hive table.", e);
     }
+  }
+
+  @Transactional
+  public void createDataAggregateTask(Workbench workbench, DataAggregateTaskInformation taskInformation) {
+    // TODO 워크벤치 당 작업 수 제한...
+    // TODO 멀티 파티션인 경우에는 어떻게 하나???
+    String partitionColumn = this.findTablePartitionColumn(workbench.getDataConnection(),
+        taskInformation.getTarget().getDatabase(), taskInformation.getTarget().getTable());
+
+    final String hivePersonalDataSourceName = workbench.getDataConnection().getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PROPERTY_GROUP_NAME);
+    HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSourceByName(hivePersonalDataSourceName);
+    DataAggregateDataConnection dataAggregateDataConnection =
+        new DataAggregateDataConnection(workbench.getDataConnection(), hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword());
+
+    final String workThreadName = java.util.UUID.randomUUID().toString().toUpperCase();
+
+    DataAggregateTask dataAggregateTask = new DataAggregateTask(taskInformation.getName(), workbench.getId(), dataAggregateDataConnection, taskInformation, workThreadName);
+    dataAggregateTaskRepository.save(dataAggregateTask);
+    dataAggregateTaskRepository.flush();
+
+    DataAggregateQuery dataAggregateQuery = new DataAggregateQuery(taskInformation, partitionColumn);
+    DataAggregateWorkerThread dataAggregateWorkerThread = new DataAggregateWorkerThread(
+        dataAggregateTask.getId(),
+        dataAggregateDataConnection,
+        dataAggregateQuery);
+
+    Thread thread = new Thread(dataAggregateWorkerThread);
+    thread.setName(workThreadName);
+    thread.start();
+  }
+
+  public Page<DataAggregateTaskStatusInformation> getDataAggregateTasks(String workbenchId, Pageable page) {
+    return dataAggregateTaskRepository.findByWorkbenchIdOrderByIdDesc(workbenchId, page).map((task) -> task.getStatusInformation());
+  }
+
+  public DataAggregateTaskDetails getDataAggregateTaskDetails(String workbenchId, Long taskId) {
+    DataAggregateTask task = dataAggregateTaskRepository.findOne(taskId);
+    final String taskStatus = task.getStatusInformation().getStatus();
+    List<DataAggregateTaskHistory> taskHistories = dataAggregateTaskHistoryRepository.findByTaskIdOrderByIdDesc(taskId);
+
+    List<DataAggregateTaskHistoryStatusInformation> taskHistoryStatusInformationList = taskHistories.stream().map(history -> {
+      // WorkerThread 의 상태를 보고 이력에 대한 상태를 추가적으로 판단한다.
+      String historyStatus = history.getStatus().equalsIgnoreCase("RUNNING") ? taskStatus.equalsIgnoreCase("종료") ? "STOP" : "RUNNING" : history.getStatus();
+      return new DataAggregateTaskHistoryStatusInformation(history.getStartTime(), history.getEndTime(), history.getQuery(), historyStatus, history.getErrorMessage());
+    }).collect(Collectors.toList());
+
+    return new DataAggregateTaskDetails(
+        task.getTaskInformationObject(),
+        taskHistoryStatusInformationList
+    );
   }
 }

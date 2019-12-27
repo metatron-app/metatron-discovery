@@ -21,6 +21,7 @@ import {Dataconnection} from "../../../../domain/dataconnection/dataconnection";
 import {StringUtil} from "../../../../common/util/string.util";
 import {HivePersonalDatabaseService} from "../../service/plugins.hive-personal-database.service";
 import {Alert} from "../../../../common/util/alert.util";
+import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
 
 const PERSONAL_DATABASE_NAME = "개인데이터베이스";
 
@@ -64,6 +65,7 @@ export class CreationTableComponent extends AbstractPopupComponent implements On
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private dataconnectionService: DataconnectionService,
+              protected broadCaster: EventBroadcaster,
               private hivePersonalDatabaseService: HivePersonalDatabaseService) {
 
     super(elementRef, injector);
@@ -215,6 +217,7 @@ export class CreationTableComponent extends AbstractPopupComponent implements On
       this.hivePersonalDatabaseService.createTable(this.workbenchId, database, createTableRequest).then((res) => {
         this.loadingHide();
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        this.broadCaster.broadcast('WORKBENCH_REFRESH_DATABASE_TABLE');
         this.close();
       }).catch((error) => {
         this.loadingHide();

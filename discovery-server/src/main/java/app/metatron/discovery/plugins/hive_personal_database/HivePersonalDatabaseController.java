@@ -6,9 +6,7 @@ import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchRepository;
-import app.metatron.discovery.plugins.hive_personal_database.dto.CreateTableInformation;
-import app.metatron.discovery.plugins.hive_personal_database.dto.ImportFile;
-import app.metatron.discovery.plugins.hive_personal_database.dto.ImportFilePreview;
+import app.metatron.discovery.plugins.hive_personal_database.dto.*;
 import app.metatron.discovery.plugins.hive_personal_database.file.ImportCsvFileRowMapper;
 import app.metatron.discovery.plugins.hive_personal_database.file.ImportExcelFileRowMapper;
 import app.metatron.discovery.plugins.hive_personal_database.file.excel.ExcelTemplate;
@@ -19,12 +17,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -56,7 +57,7 @@ public class HivePersonalDatabaseController {
                                        @RequestBody CreateTableInformation createTableInformation) {
     Workbench workbench = workbenchRepository.findOne(id);
 
-    if(workbench == null) {
+    if (workbench == null) {
       throw new ResourceNotFoundException("Workbench(" + id + ")");
     }
 
@@ -162,11 +163,11 @@ public class HivePersonalDatabaseController {
   @RequestMapping(value = "/api/plugins/hive-personal-database/workbenches/{id}/databases/{database}/tables/import-file", method = RequestMethod.POST)
   @ResponseBody
   public ResponseEntity<?> createTableFromFile(@PathVariable("id") String id,
-                                       @PathVariable("database") String database,
-                                       @RequestBody ImportFile importFile) {
+                                               @PathVariable("database") String database,
+                                               @RequestBody ImportFile importFile) {
     Workbench workbench = workbenchRepository.findOne(id);
 
-    if(workbench == null) {
+    if (workbench == null) {
       throw new ResourceNotFoundException("Workbench(" + id + ")");
     }
 
@@ -186,7 +187,7 @@ public class HivePersonalDatabaseController {
                                        @RequestParam(value = "webSocketId") String webSocketId) {
     Workbench workbench = workbenchRepository.findOne(id);
 
-    if(workbench == null) {
+    if (workbench == null) {
       throw new ResourceNotFoundException("Workbench(" + id + ")");
     }
 
@@ -205,7 +206,7 @@ public class HivePersonalDatabaseController {
                                        @RequestParam(value = "webSocketId") String webSocketId) {
     Workbench workbench = workbenchRepository.findOne(id);
 
-    if(workbench == null) {
+    if (workbench == null) {
       throw new ResourceNotFoundException("Workbench(" + id + ")");
     }
 
@@ -213,5 +214,32 @@ public class HivePersonalDatabaseController {
     hivePersonalDatabaseService.renameTable(dataConnection, database, table, renameTable, webSocketId);
 
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/api/plugins/hive-personal-database/workbenches/{id}/data-aggregate/tasks", method = RequestMethod.POST)
+  @ResponseBody
+  public ResponseEntity<?> createDataAggregateTask(@PathVariable("id") String id,
+                                                   @RequestBody DataAggregateTaskInformation taskInformation) {
+    Workbench workbench = workbenchRepository.findOne(id);
+    if (workbench == null) {
+      throw new ResourceNotFoundException("Workbench(" + id + ")");
+    }
+
+    taskInformation.validate();
+
+    this.hivePersonalDatabaseService.createDataAggregateTask(workbench, taskInformation);
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/api/plugins/hive-personal-database/workbenches/{id}/data-aggregate/tasks", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<?> getDataAggregateTasks(@PathVariable("id") String id, Pageable pageable) {
+    return ResponseEntity.ok(this.hivePersonalDatabaseService.getDataAggregateTasks(id, pageable));
+  }
+
+  @RequestMapping(value = "/api/plugins/hive-personal-database/workbenches/{id}/data-aggregate/tasks/{taskId}", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<?> getDataAggregateTaskDetails(@PathVariable("id") String id, @PathVariable("taskId") Long taskId) {
+    return ResponseEntity.ok(this.hivePersonalDatabaseService.getDataAggregateTaskDetails(id, taskId));
   }
 }

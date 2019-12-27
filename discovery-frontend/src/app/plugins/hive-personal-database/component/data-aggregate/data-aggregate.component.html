@@ -1,0 +1,65 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-ui-rnb-contents ddp-type">
+  <div class="ddp-ui-title">
+    쿼리 반복 실행기
+  </div>
+  <div class="ddp-ui-form-list">
+    <div class="ddp-ui-var-plus">
+      <div class="ddp-wrap-addview">
+        <!-- 새로 고침 버튼 필요... -->
+        <a class="ddp-btn-add" href="javascript:" (click)="onClickShowAddDataAggregate()"></a>
+        <a class="ddp-icon-query-loop-refresh" href="javascript:" (click)="refreshTasks()"></a>
+      </div>
+      <div class="ddp-list-form-plus">
+        <!-- Data Aggregate Tasks -->
+        <div class="ddp-wrap-table-simple" style="top:0px;">
+          <div class="ddp-table-thead">
+            <table class="ddp-table-simple">
+              <colgroup>
+                <col width="60px">
+                <col width="*">
+                <col width="130px">
+              </colgroup>
+              <thead>
+              <tr>
+                <th class="ddp-txt-center"> No. </th>
+                <th> 작업 이름 </th>
+                <th> 상태 </th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+          <div class="ddp-table-tbody">
+            <table class="ddp-table-simple">
+              <colgroup>
+                <col width="60px">
+                <col width="*">
+                <col width="130px">
+              </colgroup>
+              <tbody>
+              <tr *ngFor="let item of dataAggregateTaskStatusInformations; let idx = index" (click)="goTaskDetails(item)">
+                <td class="ddp-txt-center"> {{idx + 1}} </td>
+                <td>{{item.name}}</td>
+                <td>{{item.status}}</td>
+              </tr>
+              </tbody>
+            </table>
+            <a href="javascript:" class="ddp-btn-more" *ngIf="page.page < (pageResult.totalPages-1)" (click)="moreTasks();">+ {{'msg.comm.ui.more' | translate}}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

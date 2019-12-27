@@ -1,0 +1,86 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-type-contents ddp-resize2 ddp-type2" *ngIf="isShow">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      반복 실행 작업 생성
+      <span class="ddp-txt-info ddp-type">
+        설정을 완료해 주세요.
+      </span>
+      <em class="ddp-bg-order-line2-type2"></em>
+    </div>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-scroll">
+    <div class="ddp-box-popupcontents">
+      <div class="ddp-wrap-edit2 ddp-type">
+        <label class="ddp-label-type ddp-bold">범위 설정</label>
+        <div *ngIf="isRangeTypeDate()">
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">시작일</label>
+            <div style="width:290px;">
+              <input #startPickerInput type="text" class="ddp-input-typebasic" placeholder="날짜를 선택하세요" readonly>
+            </div>
+          </div>
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">종료일</label>
+            <div style="width:290px;">
+              <input #endPickerInput type="text" class="ddp-input-typebasic" placeholder="날짜를 선택하세요" readonly>
+            </div>
+          </div>
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">포멧</label>
+            <div class="ddp-ui-setting-table ddp-clear">
+              <div style="width:290px;">
+                <input class="ddp-input-typebasic" [(ngModel)]="dataAggregate.rangeFormat">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isRangeTypeHour()">
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">시작 시간</label>
+            <div style="width:290px;">
+              <component-select #startHourSelect [array]="hours" [isFull]="false" [defaultIndex]="-1" [usePlaceholder]="true" [unselectedMessage]="'시간을 선택하세요'"
+                                (onSelected)="onSelectedStartHour($event)"></component-select>
+            </div>
+          </div>
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">종료 시간</label>
+            <div style="width:290px;">
+              <component-select #endHourSelect [array]="hours" [isFull]="false" [defaultIndex]="-1" [usePlaceholder]="true" [unselectedMessage]="'시간을 선택하세요'"
+                                (onSelected)="onSelectedEndHour($event)"></component-select>
+            </div>
+          </div>
+        </div>
+
+        <div class="ddp-wrap-edit2 ddp-type">
+          <label class="ddp-label-type ddp-bold">반복 작업 이름</label>
+          <input class="ddp-input-type" maxlength="50" type="text" placeholder="Please enter a name" [(ngModel)]="dataAggregate.name"><span class="ddp-ui-error"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="previous()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>

@@ -6965,19 +6965,24 @@ ul.ddp-list-rnb li.ddp-selected a {background-color:#90969f;}
 ul.ddp-list-rnb li a:hover em.ddp-icon-globalvar {background-position:-21px top;}
 ul.ddp-list-rnb li a:hover em.ddp-icon-history {background-position:-21px -17px;}
 ul.ddp-list-rnb li a:hover em.ddp-icon-navimenu {background-position:-17px -38px;}
+ul.ddp-list-rnb li a:hover em.ddp-icon-query-loop {background:url(../images/icon_query_loop_3.png);}
 ul.ddp-list-rnb li.ddp-selected a em.ddp-icon-globalvar {background-position:-42px top;}
 ul.ddp-list-rnb li.ddp-selected a em.ddp-icon-history {background-position:-42px -17px;}
 ul.ddp-list-rnb li.ddp-selected a em.ddp-icon-navimenu {background-position:-34px -38px;}
+ul.ddp-list-rnb li.ddp-selected a em.ddp-icon-query-loop {background:url(../images/icon_query_loop_1.png)}
 em.ddp-icon-globalvar,
 em.ddp-icon-history,
 em.ddp-icon-navimenu {display:inline-block; position:absolute; top:50%; left:50%; background:url(../images/icon_query_rnb.png) no-repeat;}
 em.ddp-icon-globalvar {margin:-8px 0 0 -10px; width:20px; height:16px;}
 em.ddp-icon-history {margin:-10px 0 0 -10px; width:20px; height:20px;background-position:left -17px;}
 em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-position:left -38px;}
+em.ddp-icon-query-loop {display:inline-block; position:absolute; top:50%; left:50%; margin:-8px 0 0 -8px; width:16px; height:16px; background:url(../images/icon_query_loop_2.png);}
 .ddp-wrap-rnb-contents {height:100%;}
 .ddp-ui-rnb-contents {position:absolute; right:52px; bottom:0; top:0; width:505px; height:100%; border-right:1px solid #e7e7ea;  background-color:#f7f7f8;}
 .ddp-ui-rnb-contents.ddp-type {width:316px;}
 .ddp-ui-rnb-contents:before {display:inline-block; content:''; position:absolute; left:-5px; top:0; bottom:0; width:5px; background:url(../images/bg_shadow2.png) repeat-y;}
+
+.ddp-icon-query-loop-refresh {display: inline-block; position: absolute; top: -33px; right: 35px; width: 12px; height: 12px; background: url(../images/icon_refresh2.png) no-repeat; background-position:-28px top;}
 
 .ddp-ui-rnb-contents .ddp-ui-title {position:relative; padding:17px 0 15px 0; margin-left:15px; font-size:16px; color:#555d66; font-weight:bold; border-bottom:1px solid #e5e6e8;}
 .ddp-ui-rnb-contents .ddp-ui-title span.ddp-data-num {margin-left:10px; color:#b7b9c2;}
