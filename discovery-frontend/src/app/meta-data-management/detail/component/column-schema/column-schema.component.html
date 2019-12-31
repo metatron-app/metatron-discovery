@@ -540,3 +540,6 @@
   </div>
 </div>
 <!-- //tab contents -->
+
+<popup-code-table *ngIf="isShowPopCodeTable" [codeTableId]="selectedCodeTableId" (closeEvent)="isShowPopCodeTable = false;"></popup-code-table>
+<popup-column-dictionary *ngIf="isShowPopColDic" [columnDictionaryId]="selectedColDicId" (closeEvent)="isShowPopColDic = false;"></popup-column-dictionary>

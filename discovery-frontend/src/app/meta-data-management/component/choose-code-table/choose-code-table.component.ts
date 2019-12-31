@@ -62,6 +62,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public isShowPopCodeTable: boolean = false;
 
   // 코드 테이블 목록
   public codeTableList: CodeTable[];
@@ -289,29 +290,6 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
 
     // show flag
     this.codeTableList[idx]['previewShowFl'] = true;
-  }
-
-  /**
-   * 코드 테이블 디테일 클릭 이벤트
-   * @param {CodeTable} codeTable
-   */
-  public onClickCodeTableDetails(codeTable: CodeTable): void {
-    event.stopImmediatePropagation();
-
-    // notice i navigate from column dictionary page
-    this._codeTableService.fromColumnDictionary = true;
-
-    const modal = new Modal();
-    modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
-    modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
-    modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
-    modal.isShowCancel = true;
-    modal.data = { id: codeTable.id };
-    modal.afterConfirm = () => {
-      this.router.navigate(['management/metadata/code-table', this.selectedCodeTable['id']]);
-      this.selectedCodeTable = null;
-    };
-    CommonUtil.confirm(modal);
   }
 
   /**
