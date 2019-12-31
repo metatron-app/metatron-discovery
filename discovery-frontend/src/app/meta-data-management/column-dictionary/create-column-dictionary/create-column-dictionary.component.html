@@ -12,199 +12,202 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2" *ngIf="showFl">
+<div class="ddp-layout-pop-fix" *ngIf="showFl">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="onClickCancel()"></a>
   <!-- 닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.metadata.ui.dictionary.create.title' | translate}}
-      <span class="ddp-txt-info">{{'msg.metadata.ui.dictionary.create.desc' | translate}}</span>
-      <em class="ddp-bg-order-type"></em>
+  <div class="ddp-layout-popup">
+    <!-- Top -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title"> {{'msg.metadata.ui.dictionary.create.title' | translate}} </div>
+      <span class="ddp-pop-sub">{{'msg.metadata.ui.dictionary.create.desc' | translate}}</span>
     </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-scroll">
-    <div class="ddp-ui-meta">
-      <!-- wrap-create -->
-      <div class="ddp-wrap-create">
-        <label class="ddp-label-title">{{'msg.metadata.ui.dictionary.create.dictionary.information' | translate}}</label>
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.column.name' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}"
-                   (focusout)="doneLogicNameValidation()"
-                   (keyup)="onKeypressLogicalName()"
-                   [(ngModel)]="logicalName">
-            <span class="ddp-data-error" *ngIf="logicalNameValidationMsg"> {{logicalNameValidationMsg}}</span>
+    <!-- // Top -->
+
+    <!-- Contents -->
+    <div class="ddp-pop-contents ddp-scroll">
+      <div class="ddp-ui-meta ddp-dictionary">
+        <!-- wrap-create -->
+        <div class="ddp-wrap-create">
+          <label class="ddp-label-title">{{'msg.metadata.ui.dictionary.create.dictionary.information' | translate}}</label>
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.column.name' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}"
+                     (focusout)="doneLogicNameValidation()"
+                     (keyup)="onKeypressLogicalName()"
+                     [(ngModel)]="logicalName">
+              <span class="ddp-data-error" *ngIf="logicalNameValidationMsg"> {{logicalNameValidationMsg}}</span>
+            </div>
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <input type="text" class="ddp-input-typebasic ddp-full"
-                   placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.column.name' | translate}}"
-                   (focusout)="doneColNameValidation()"
-                   (keyup)="onKeypressColumnName()"
-                   [(ngModel)]="columnName">
-            <span class="ddp-data-error" *ngIf="columnNameValidationMsg"> {{columnNameValidationMsg}}</span>
+          <!-- //edit -->
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <input type="text" class="ddp-input-typebasic ddp-full"
+                     placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.column.name' | translate}}"
+                     (focusout)="doneColNameValidation()"
+                     (keyup)="onKeypressColumnName()"
+                     [(ngModel)]="columnName">
+              <span class="ddp-data-error" *ngIf="columnNameValidationMsg"> {{columnNameValidationMsg}}</span>
+            </div>
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.recommendation.short.name' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <input type="text" class="ddp-input-typebasic ddp-full"
-                   placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.short.name' | translate}}"
-                   (focusout)="doneShortNameValidation()"
-                   (keyup)="onKeypressShortName()"
-                   [(ngModel)]="shortName">
-            <span class="ddp-data-error" *ngIf="shortNameValidationMsg"> {{shortNameValidationMsg}}</span>
+          <!-- //edit -->
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.recommendation.short.name' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <input type="text" class="ddp-input-typebasic ddp-full"
+                     placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.short.name' | translate}}"
+                     (focusout)="doneShortNameValidation()"
+                     (keyup)="onKeypressShortName()"
+                     [(ngModel)]="shortName">
+              <span class="ddp-data-error" *ngIf="shortNameValidationMsg"> {{shortNameValidationMsg}}</span>
+            </div>
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.description' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
+          <!-- //edit -->
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.description' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
             <textarea class="ddp-textarea" rows="3"
                       placeholder="{{'msg.comm.ui.create.desc' | translate}}"
                       (focusout)="doneDescValidation()"
                       (keyup)="onKeypressDescription()"
                       [(ngModel)]="description"></textarea>
-            <span class="ddp-data-error" *ngIf="descriptionValidationMsg"> {{descriptionValidationMsg}}</span>
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.code-table' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <div class="ddp-form-search2" (click)="onClickChooseCodeTable()">
-              <input type="text" [ngModel]="selectedCodeTable?.name" readonly="readonly" placeholder="{{'msg.metadata.ph.dictionary.create.code.table' | translate}}">
-              <span class="ddp-icon-search"></span>
+              <span class="ddp-data-error" *ngIf="descriptionValidationMsg"> {{descriptionValidationMsg}}</span>
             </div>
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
+          <!-- //edit -->
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.code-table' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <div class="ddp-form-search2" (click)="onClickChooseCodeTable()">
+                <input type="text" [ngModel]="selectedCodeTable?.name" readonly="readonly" placeholder="{{'msg.metadata.ph.dictionary.create.code.table' | translate}}">
+                <span class="ddp-icon-search"></span>
+              </div>
+            </div>
+            <!-- //edit option -->
+          </div>
+          <!-- //edit -->
         </div>
-        <!-- //edit -->
-      </div>
-      <!-- //wrap-create -->
-      <!-- wrap-create -->
-      <div class="ddp-wrap-create">
-        <label class="ddp-label-title">{{'msg.metadata.ui.dictionary.create.format.information' | translate}}</label>
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.type' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <div class="ddp-clear ddp-type-multy">
-              <div class="ddp-col-6">
-                <!-- selectbox -->
-                <div class="ddp-type-selectbox"
-                     [class.ddp-selected]="typeShowFl"
-                     (click)="typeShowFl = !typeShowFl" (clickOutside)="typeShowFl = false">
+        <!-- //wrap-create -->
+        <!-- wrap-create -->
+        <div class="ddp-wrap-create">
+          <label class="ddp-label-title">{{'msg.metadata.ui.dictionary.create.format.information' | translate}}</label>
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.type' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <div class="ddp-clear ddp-type-multy">
+                <div class="ddp-col-6">
+                  <!-- selectbox -->
+                  <div class="ddp-type-selectbox"
+                       [class.ddp-selected]="typeShowFl"
+                       (click)="typeShowFl = !typeShowFl" (clickOutside)="typeShowFl = false">
                   <span class="ddp-txt-selectbox ddp-icon">
                     <em class="{{getFieldTypeIconClass(selectedType)}}"></em>
                     {{getSelectedLogicalTypeLabel()}}
                   </span>
-                  <div class="ddp-wrap-popup2 ddp-types ddp-top2 ddp-scroll-none">
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="isSelectedLogicalType('STRING')">
-                        <a href="javascript:" (click)="onChangeType('STRING')">
-                          <em class="ddp-icon-type-ab"></em>
-                          {{'msg.metadata.ui.dictionary.type.string' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('BOOLEAN')">
-                        <a href="javascript:" (click)="onChangeType('BOOLEAN')">
-                          <em class="ddp-icon-type-tf"></em>
-                          {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('INTEGER')">
-                        <a href="javascript:" (click)="onChangeType('INTEGER')">
-                          <em class="ddp-icon-type-int"></em>
-                          {{'msg.metadata.ui.dictionary.type.integer' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('DOUBLE')">
-                        <a href="javascript:" (click)="onChangeType('DOUBLE')">
-                          <em class="ddp-icon-type-float"></em>
-                          {{'msg.metadata.ui.dictionary.type.double' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('TIMESTAMP')">
-                        <a href="javascript:" (click)="onChangeType('TIMESTAMP')">
-                          <em class="ddp-icon-type-calen"></em>
-                          {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="isSelectedLogicalType('LNT')">
-                        <a href="javascript:" (click)="onChangeType('LNT')">
-                          <em class="ddp-icon-type-latitude"></em>
-                          {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('LNG')">
-                        <a href="javascript:" (click)="onChangeType('LNG')">
-                          <em class="ddp-icon-type-longitude"></em>
-                          {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
+                    <div class="ddp-wrap-popup2 ddp-types ddp-top2 ddp-scroll-none">
+                      <ul class="ddp-list-popup">
+                        <li [class.ddp-selected]="isSelectedLogicalType('STRING')">
+                          <a href="javascript:" (click)="onChangeType('STRING')">
+                            <em class="ddp-icon-type-ab"></em>
+                            {{'msg.metadata.ui.dictionary.type.string' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('BOOLEAN')">
+                          <a href="javascript:" (click)="onChangeType('BOOLEAN')">
+                            <em class="ddp-icon-type-tf"></em>
+                            {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('INTEGER')">
+                          <a href="javascript:" (click)="onChangeType('INTEGER')">
+                            <em class="ddp-icon-type-int"></em>
+                            {{'msg.metadata.ui.dictionary.type.integer' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('DOUBLE')">
+                          <a href="javascript:" (click)="onChangeType('DOUBLE')">
+                            <em class="ddp-icon-type-float"></em>
+                            {{'msg.metadata.ui.dictionary.type.double' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('TIMESTAMP')">
+                          <a href="javascript:" (click)="onChangeType('TIMESTAMP')">
+                            <em class="ddp-icon-type-calen"></em>
+                            {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                      </ul>
+                      <ul class="ddp-list-popup">
+                        <li [class.ddp-selected]="isSelectedLogicalType('LNT')">
+                          <a href="javascript:" (click)="onChangeType('LNT')">
+                            <em class="ddp-icon-type-latitude"></em>
+                            {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('LNG')">
+                          <a href="javascript:" (click)="onChangeType('LNG')">
+                            <em class="ddp-icon-type-longitude"></em>
+                            {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
+                  <!-- //selectbox -->
                 </div>
-                <!-- //selectbox -->
               </div>
             </div>
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type" *ngIf="isShowTimeFormat()">
-          <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.time.format' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="" [(ngModel)]="timeFormat">
+          <!-- //edit -->
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type" *ngIf="isShowTimeFormat()">
+            <label class="ddp-label-type">{{'msg.metadata.ui.dictionary.create.time.format' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <input type="text" class="ddp-input-typebasic ddp-full" placeholder="" [(ngModel)]="timeFormat">
+            </div>
+            <!-- //edit option -->
           </div>
-          <!-- //edit option -->
+          <!-- //edit -->
         </div>
-        <!-- //edit -->
+        <!-- //wrap-create -->
       </div>
-      <!-- //wrap-create -->
     </div>
+    <!-- // Contents -->
+
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="onClickDone()">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //import -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="onClickDone()">{{'msg.comm.btn.done' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>
 
 <!-- 코드테이블 선택 컴포넌트 -->
