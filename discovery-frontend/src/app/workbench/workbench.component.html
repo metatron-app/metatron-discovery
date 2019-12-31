@@ -173,7 +173,7 @@
           [ngStyle]="isLeftMenuOpen ? {} : {'padding-left':'20px'}"
           [ngClass]="{'ddp-full':!isLeftMenuOpen}">
       <div class="ddp-ui-query-in">
-        <div class="sys-workbench-top-panel" class="ddp-height-full">
+        <div class="sys-workbench-top-panel" style="height:100%;">
           <!-- query editor -->
           <!-- full size 일때 ddp-full 추가 -->
           <div class="ddp-box-editer" [ngClass]="{'ddp-full':isQueryEditorFull}"
@@ -390,7 +390,7 @@
 
          </div>
         </div>
-        <div class="sys-workbench-bottom-panel" class="ddp-height-full">
+        <div class="sys-workbench-bottom-panel" style="height:100%;">
           <!-- query result -->
           <div [hidden]="isQueryEditorFull" class="ddp-box-query-result" style="position:relative;top:0; left:0; right:0; bottom:0; height:100%;">
             <div class="ddp-box-in">
