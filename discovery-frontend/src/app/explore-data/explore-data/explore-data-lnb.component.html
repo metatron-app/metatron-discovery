@@ -65,8 +65,10 @@
                     <span class="ddp-data-navi" *ngIf="favoriteCatalog.hierarchies.length > 1">
                         {{ getCatalogHierarchyLabel(favoriteCatalog) }}
                     </span>
-                    <span class="ddp-data-name">{{ favoriteCatalog.name }}<span
-                      class="ddp-data-num">({{ favoriteCatalog.hierarchies.length === 1 ? 0 : favoriteCatalog.hierarchies.length - 1  }})</span></span>
+                    <span class="ddp-data-name">
+                      {{ favoriteCatalog.name }}
+                      <!-- <span class="ddp-data-num">({{ favoriteCatalog.hierarchies.length === 1 ? 0 : favoriteCatalog.hierarchies.length - 1  }})</span>-->
+                    </span>
                   </div>
                 </a>
               </li>
