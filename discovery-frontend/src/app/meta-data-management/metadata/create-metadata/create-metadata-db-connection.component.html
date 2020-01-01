@@ -12,22 +12,23 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datasource">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="onCancel()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
-      <span class="ddp-txt-info" >{{'msg.metadata.ui.create.connection.sub' | translate}}</span>
-      <em class="ddp-bg-order-line3-type"></em>
+  <div class="ddp-layout-popup" >
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">
+        {{'msg.metadata.ui.create.main.title' | translate}} ({{'msg.storage.li.db' | translate}})
+      </div>
+      <div class="ddp-pop-sub">
+        {{'msg.metadata.ui.create.connection.sub' | translate}}
+      </div>
     </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-type ddp-scroll">
-    <!-- dp connection -->
-    <div class="ddp-ui-dbconnect">
-      <div class="ddp-edit-setting ddp-type">
+    <!-- import -->
+    <div class="ddp-pop-contents ddp-scroll">
+      <!-- dp connection -->
+      <div class="ddp-box-popupcontents ddp-ui-dbconnect">
         <!-- preset box -->
         <div class="ddp-wrap-edit3 ddp-type">
           <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
@@ -54,16 +55,16 @@
                         [isHideConnectionLabel]="true"
                         [isDisableProperties]="true"></app-connection>
       </div>
+      <!-- //dp connection -->
     </div>
-    <!-- //dp connection -->
+    <!-- //import -->
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="onCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="changeToNextStep()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //import -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="onCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="changeToNextStep()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>
 
 
