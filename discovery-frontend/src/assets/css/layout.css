@@ -522,7 +522,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
     팝업 레이아웃
 **************************************************************/
 /* 1 */
-.ddp-wrap-layout-popup {display:table; position:fixed; left:0; right:0; bottom:0; top:0; width:100%; height:100%; background-color:rgba(208,209,216,0.5); z-index:126; box-sizing:border-box;  overflow:auto;}
+.ddp-wrap-layout-popup {display:table; position:fixed; left:0; right:0; bottom:0; top:0; width:100%; height:100%; background-color:rgba(208,209,216,0.5); z-index:128; box-sizing:border-box;  overflow:auto;}
 
 .ddp-wrap-layout-popup.ddp-scroll-popup {display:block; overflow:auto;}
 .ddp-wrap-layout-popup.ddp-scroll-popup .ddp-ui-layout-popup {display:table; width:100%; height:100%; text-align:center; }

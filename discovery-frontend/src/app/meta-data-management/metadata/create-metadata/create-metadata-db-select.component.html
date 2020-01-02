@@ -24,10 +24,17 @@
       <div class="ddp-pop-sub">
         {{'msg.metadata.ui.create.data.sub' | translate}}
       </div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="ddp-selected">2</span>
+        <span class="">3</span>
+      </div>
+      <!-- //step -->
     </div>
     <!-- contents in  -->
-    <div class="ddp-pop-contents ddp-size-resize2">
-      <div class="ddp-box-popupcontents ddp-wrap-file-create">
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents">
         <!-- loading -->
         <div #loadingPart class="ddp-loading-part" [style.display]="isLoading ? 'inline-block' : 'none'">
           <div style="" class="lds-wedges">

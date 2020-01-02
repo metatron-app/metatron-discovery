@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-pop-fix">
+<div class="ddp-layout-pop-fix popup-prep-create-complete">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="onCancel()"></a>
   <!-- //닫기 버튼 -->
@@ -24,11 +24,18 @@
       <div class="ddp-pop-sub">
         {{'msg.metadata.ui.create.complete.sub' | translate}}
       </div>
+      <!-- step -->
+      <div class="ddp-pop-step">
+        <span class="">1</span>
+        <span class="">2</span>
+        <span class="ddp-selected">3</span>
+      </div>
+      <!-- //step -->
     </div>
     <!-- import -->
-    <div class="ddp-pop-contents ddp-scroll">
-      <div class="ddp-box-popupcontents type-metadata">
-        <div class="ddp-wrap-boxtype ddp-flex-column">
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents">
+        <div class="ddp-wrap-boxtype">
           <table class="ddp-wrap-boxdata">
             <colgroup>
               <col width="120px">
