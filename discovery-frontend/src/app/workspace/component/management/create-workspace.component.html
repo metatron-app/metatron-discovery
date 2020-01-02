@@ -12,120 +12,124 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2" *ngIf="isShow" (click)="clickComponent( $event )">
+<div class="ddp-layout-pop-fix" *ngIf="isShow" (click)="clickComponent( $event )">
   <!-- 닫기 버튼 -->
   <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
   <!-- // 닫기 버튼 -->
 
-  <!-- 제목 영역 -->
-  <div class="ddp-ui-name2 ddp-type">{{'msg.space.create.title' | translate}}</div>
-  <!-- // 제목 영역 -->
+  <div class="ddp-layout-pop">
 
-  <!-- 내용 영역 -->
-  <div class="ddp-box-popupcontents4 ">
-    <!-- 이름 입력 -->
-    <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
-      <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-      <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}"
-             (ngModelChange)="nameChange($event)"
-             [ngModel]="shareWorkspace.name" maxlength="50" />
-      <span class="ddp-ui-error">{{errMsgName}}</span>
+    <!-- 제목 영역 -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.space.create.title' | translate}}</div>
     </div>
-    <!-- // 이름 입력 -->
+    <!-- // 제목 영역 -->
+    <!-- 내용 영역 -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents">
+        <!-- 이름 입력 -->
+        <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
+          <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                 (ngModelChange)="nameChange($event)"
+                 [ngModel]="shareWorkspace.name" maxlength="50" />
+          <span class="ddp-ui-error">{{errMsgName}}</span>
+        </div>
+        <!-- // 이름 입력 -->
 
-    <!-- 설명 입력 -->
-    <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidDesc">
-      <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
-      <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-             [(ngModel)]="shareWorkspace.description" (focus)="isInvalidDesc=false" maxlength="150" />
-      <span class="ddp-ui-error">{{errMsgDesc}}</span>
-    </div>
-    <!-- // 설명 입력 -->
+        <!-- 설명 입력 -->
+        <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidDesc">
+          <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                 [(ngModel)]="shareWorkspace.description" (focus)="isInvalidDesc=false" maxlength="150" />
+          <span class="ddp-ui-error">{{errMsgDesc}}</span>
+        </div>
+        <!-- // 설명 입력 -->
 
-    <!-- 퍼미션 스키마 선택 영역 -->
-    <div class="ddp-wrap-edit2">
-      <label class="ddp-label-type">Permission schema</label>
-      <ul class="ddp-radio-inline">
-        <li>
-          <label *ngIf="isPermissionManager()" (click)="changeRoleSetType( false );" class="ddp-label-radio">
-            <input name="roleSetType" type="radio"
-                   [checked]="!isUseCustomRoleSet">
-            <i class="ddp-icon-radio"></i>
-            <span class="ddp-txt-radio">{{ 'msg.space.ui.use-schema-preset' | translate }}</span>
+        <!-- 퍼미션 스키마 선택 영역 -->
+        <div class="ddp-wrap-edit2">
+          <label class="ddp-label-type">Permission schema</label>
+          <ul class="ddp-radio-inline">
+            <li>
+              <label *ngIf="isPermissionManager()" (click)="changeRoleSetType( false );" class="ddp-label-radio">
+                <input name="roleSetType" type="radio"
+                       [checked]="!isUseCustomRoleSet">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{ 'msg.space.ui.use-schema-preset' | translate }}</span>
+              </label>
+              <!-- select box -->
+              <div *ngIf="!isUseCustomRoleSet" (click)="openPredefinedRoleSetOpts()"
+                   [ngClass]="{'ddp-selected' : isShowPredefinedRoleSetList, 'ddp-disabled' : isUseCustomRoleSet }"
+                   class="ddp-type-selectbox" >
+                <span class="ddp-txt-selectbox">
+                  {{ false === isUseCustomRoleSet && selectedRoleSetInfo ? selectedRoleSetInfo.name: 'Load a schema preset' }}
+                </span>
+                <ul class="ddp-list-selectbox">
+                  <li *ngFor="let item of roleSetList" (click)="selectRoleSet(item, false)" >
+                    <a href="javascript:"> {{item.name}} </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- //select box -->
+            </li>
+            <li *ngIf="isPermissionManager()">
+              <label (click)="changeRoleSetType( true );" class="ddp-label-radio ">
+                <input name="roleSetType" type="radio"
+                       [checked]="isUseCustomRoleSet">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{ 'msg.space.ui.use-custom-schema' | translate }}</span>
+              </label>
+              <!-- select box -->
+              <!--
+              <div *ngIf="isUseCustomRoleSet" (click)="openCustomRoleSetOpts()"
+                   [ngClass]="{'ddp-selected' : isShowCustomRoleSetList, 'ddp-disabled' : !isUseCustomRoleSet }"
+                   class="ddp-type-selectbox">
+                <span class="ddp-txt-selectbox">
+                  {{ true === isUseCustomRoleSet && selectedRoleSetInfo ? selectedRoleSetInfo.name: 'Load a schema preset' }}
+                </span>
+                <ul class="ddp-list-selectbox">
+                  <li *ngFor="let item of roleSetList" (click)="selectRoleSet(item, true)" >
+                    <a href="javascript:"> {{item.name}} </a>
+                  </li>
+                </ul>
+              </div>
+              -->
+              <!-- // select box -->
+            </li>
+          </ul>
+        </div>
+        <!-- // 퍼미션 스키마 선택 영역 -->
+
+        <!-- 사용자 롤 설정 영역 -->
+        <div class="ddp-wrap-edit2" >
+          <label class="ddp-label-type">
+            {{ 'msg.spaces.permission.schema.userroles' | translate }}
+            <a *ngIf="isUseCustomRoleSet" (click)="onClickOpenPermissionSchemaSet()"
+               href="javascript:" class="ddp-link-edit">
+              <em class="ddp-icon-edit"></em> {{ 'msg.comm.ui.edit' | translate }}
+            </a>
           </label>
-          <!-- select box -->
-          <div *ngIf="!isUseCustomRoleSet" (click)="openPredefinedRoleSetOpts()"
-               [ngClass]="{'ddp-selected' : isShowPredefinedRoleSetList, 'ddp-disabled' : isUseCustomRoleSet }"
-               class="ddp-type-selectbox" >
-            <span class="ddp-txt-selectbox">
-              {{ false === isUseCustomRoleSet && selectedRoleSetInfo ? selectedRoleSetInfo.name: 'Load a schema preset' }}
-            </span>
-            <ul class="ddp-list-selectbox">
-              <li *ngFor="let item of roleSetList" (click)="selectRoleSet(item, false)" >
-                <a href="javascript:"> {{item.name}} </a>
-              </li>
-            </ul>
+          <div *ngIf="!selectedRoleSetDetail" class="ddp-box-datanone" >
+            {{ 'msg.permission.ui.please-select-schema' | translate }}
           </div>
-          <!-- //select box -->
-        </li>
-        <li *ngIf="isPermissionManager()">
-          <label (click)="changeRoleSetType( true );" class="ddp-label-radio ">
-            <input name="roleSetType" type="radio"
-                   [checked]="isUseCustomRoleSet">
-            <i class="ddp-icon-radio"></i>
-            <span class="ddp-txt-radio">{{ 'msg.space.ui.use-custom-schema' | translate }}</span>
-          </label>
-          <!-- select box -->
-          <!--
-          <div *ngIf="isUseCustomRoleSet" (click)="openCustomRoleSetOpts()"
-               [ngClass]="{'ddp-selected' : isShowCustomRoleSetList, 'ddp-disabled' : !isUseCustomRoleSet }"
-               class="ddp-type-selectbox">
-            <span class="ddp-txt-selectbox">
-              {{ true === isUseCustomRoleSet && selectedRoleSetInfo ? selectedRoleSetInfo.name: 'Load a schema preset' }}
-            </span>
-            <ul class="ddp-list-selectbox">
-              <li *ngFor="let item of roleSetList" (click)="selectRoleSet(item, true)" >
-                <a href="javascript:"> {{item.name}} </a>
-              </li>
-            </ul>
-          </div>
-          -->
-          <!-- // select box -->
-        </li>
-      </ul>
-    </div>
-    <!-- // 퍼미션 스키마 선택 영역 -->
 
-    <!-- 사용자 롤 설정 영역 -->
-    <div class="ddp-wrap-edit2" >
-      <label class="ddp-label-type">
-        {{ 'msg.spaces.permission.schema.userroles' | translate }}
-        <a *ngIf="isUseCustomRoleSet" (click)="onClickOpenPermissionSchemaSet()"
-           href="javascript:" class="ddp-link-edit">
-          <em class="ddp-icon-edit"></em> {{ 'msg.comm.ui.edit' | translate }}
-        </a>
-      </label>
-      <div *ngIf="!selectedRoleSetDetail" class="ddp-box-datanone" >
-        {{ 'msg.permission.ui.please-select-schema' | translate }}
+          <app-permission-schema *ngIf="selectedRoleSetDetail"
+                                 [roleSet]="selectedRoleSetDetail" [editMode]="false"></app-permission-schema>
+
+        </div>
+        <!-- // 사용자 롤 설정 영역 -->
       </div>
-
-      <app-permission-schema *ngIf="selectedRoleSetDetail"
-                             [roleSet]="selectedRoleSetDetail" [editMode]="false"></app-permission-schema>
-
     </div>
-    <!-- // 사용자 롤 설정 영역 -->
+    <!-- // 내용 영역 -->
 
+    <!-- 버튼 영역 -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+         (click)="createShareWorkspace()">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- // 버튼 영역 -->
   </div>
-  <!-- // 내용 영역 -->
-
-  <!-- 버튼 영역 -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
-       (click)="createShareWorkspace()">{{'msg.comm.btn.done' | translate}}</a>
-  </div>
-  <!-- // 버튼 영역 -->
-
 </div>
 
 <!-- 워크스페이스 권한 스키마 설정 -->
