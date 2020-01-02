@@ -34,8 +34,8 @@
   <div class="ddp-ui-buttons">
     <a (click)="closeComp()" href="javascript:" class="ddp-btn-type-popup ">{{ 'msg.comm.btn.cancl' | translate }}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a (click)="next()" [class.ddp-disabled]="isDenyDone"
-       href="javascript:" class="ddp-btn-type-popup ddp-bg-black">{{ 'msg.comm.btn.next' | translate }}</a>
+    <a (click)="save()" [class.ddp-disabled]="isDenyDone"
+       href="javascript:" class="ddp-btn-type-popup ddp-bg-black">{{ 'msg.comm.btn.save' | translate }}</a>
   </div>
   <!-- //buttons -->
 </div>

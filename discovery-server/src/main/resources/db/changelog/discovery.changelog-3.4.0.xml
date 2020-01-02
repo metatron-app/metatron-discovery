@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog dbchangelog-3.8.xsd">
     <changeSet author="sohncw (generated)" id="1572393007722-1">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -28,5 +28,24 @@
         <addColumn tableName="pr_dataset">
             <column name="quote_char" type="${varchar.type}(255)" />
         </addColumn>
+    </changeSet>
+    <changeSet author="sohncw" id="1574830584206-0">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="hibernate_sequence"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="hibernate_sequence" cycle="false" incrementBy="1" ordered="true" startValue="0"/>
+    </changeSet>
+    <changeSet author="sohncw" id="1574830584206-1">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="hibernate_sequence" />
+                <tableIsEmpty tableName="hibernate_sequence" />
+            </and>
+        </preConditions>
+        <insert tableName="hibernate_sequence">
+            <column name="next_val" value="1" />
+        </insert>
     </changeSet>
 </databaseChangeLog>

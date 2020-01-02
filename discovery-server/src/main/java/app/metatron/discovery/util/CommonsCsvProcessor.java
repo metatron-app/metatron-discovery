@@ -35,6 +35,8 @@ import org.apache.hadoop.fs.Path;
 import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import java.io.*;
 import java.net.URI;
@@ -43,6 +45,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.exception.MetatronException;
@@ -101,6 +104,23 @@ public class CommonsCsvProcessor {
       csvUri = new URI(strUri);
     } catch (URISyntaxException e) {
       throw new CommonsCsvException("Invalid URI : " + strUri, e);
+    }
+
+    loadStream();
+  }
+
+  public CommonsCsvProcessor(List<String> lines) {
+    String tempFileName = "TEMP_FILE_" + UUID.randomUUID().toString() + ".csv";
+    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
+    try{
+      CsvListWriter csvListWriter = new CsvListWriter(new FileWriter(tempFilePath), CsvPreference.STANDARD_PREFERENCE);
+      for (String line : lines) {
+        csvListWriter.write(line.split(","));
+      }
+      csvListWriter.close();
+      csvUri = new URI("file://" + tempFilePath);
+    } catch (Exception e) {
+      throw new CommonsCsvException("Invalid csvData", e);
     }
 
     loadStream();

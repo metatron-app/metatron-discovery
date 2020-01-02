@@ -38,7 +38,7 @@
       [infiniteScrollThrottle]="150"
       (scrolled)="onScroll()" >
     <!-- 데이터가 없는경우 -->
-    <li *ngIf="getArrayList.length === 0">
+    <li *ngIf="getArrayList == undefined || getArrayList.length === 0">
       <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
     </li>
     <!-- //데이터가 없는경우 -->

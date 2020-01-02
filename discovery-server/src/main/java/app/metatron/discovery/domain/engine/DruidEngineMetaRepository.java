@@ -112,9 +112,25 @@ public class DruidEngineMetaRepository extends AbstractEngineRepository {
     call(CANCEL_QUERY, params);
   }
 
+  public void enableDataSource(String dataSourceId) {
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("datasourceId", dataSourceId);
+
+    call(ENABLE_DATASOURCE, params);
+  }
+
   public void disableDataSource(String dataSourceId) {
     Map<String, Object> params = Maps.newHashMap();
     params.put("datasourceId", dataSourceId);
+
+    call(DISABLE_DATASOURCE, params);
+  }
+
+  public void permanentlyDeleteDataSource(String dataSourceId) {
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("datasourceId", dataSourceId);
+    params.put("kill", true);
+    params.put("interval", "1000/3000");
 
     call(DISABLE_DATASOURCE, params);
   }

@@ -715,16 +715,17 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         datasetFile.filenameBeforeUpload = this.upFiles[i].name;
         datasetFile.storedUri = this.upFiles[i].storedUri;
         datasetFile.storageType = this._getStorageType(this.fileLocation);
-        datasetFile.fileFormat = this._getFileFormat(this.upFiles[i].fileExtension);
+        let fileFormat = this._getFileFormat(this.upFiles[i].fileExtension);
+        datasetFile.fileFormat = fileFormat;
 
         // Delimiter is , when fileFormat is csv or excel or txt
         const formatWithCommaDel = ['CSV','EXCEL', 'TXT'];
-        if(-1 !== formatWithCommaDel.indexOf(datasetFile.fileFormat.toString())) {
+        if(-1 !== formatWithCommaDel.indexOf(fileFormat.toString())) {
           datasetFile.delimiter = ',';
         }
 
         const quoteCharWithCommaDel = ['CSV', 'TXT'];
-        if(-1 !== quoteCharWithCommaDel.indexOf(datasetFile.fileFormat.toString())) {
+        if(-1 !== quoteCharWithCommaDel.indexOf(fileFormat.toString())) {
           datasetFile.quoteChar = '\"';
         }
 

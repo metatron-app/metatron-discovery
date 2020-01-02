@@ -39,7 +39,6 @@ public class DfSetType extends DataFrame {
     SetType setType = (SetType) rule;
 
     Expression targetColExpr = setType.getCol();
-    List<Integer> targetColnos = new ArrayList<>();
     String timestampFormat = setType.getFormat();
 
     ColumnType toType;
@@ -66,25 +65,15 @@ public class DfSetType extends DataFrame {
         toType = ColumnType.STRING;
     }
 
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      String targetColName = ((Identifier.IdentifierExpr) targetColExpr).getValue();
-      Integer colno = prevDf.getColnoByColName(targetColName);
-      targetColnos.add(colno);
-      interestedColNames.add(targetColName);
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      List<String> targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
-      for (String targetColName : targetColNames) {
-        targetColnos.add(prevDf.getColnoByColName(targetColName));
-        interestedColNames.add(targetColName);
-      }
-    } else {
-      throw new WrongTargetColumnExpressionException(
-              "DfSetType.prepare(): wrong target column expression: " + targetColExpr.toString());
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
+      throw new WrongTargetColumnExpressionException("DfSetType.prepare(): no target column: " + setType);
     }
+    interestedColNames.addAll(targetColNames);
 
-    if (targetColnos.size() == 0) {
-      throw new WrongTargetColumnExpressionException(
-              "DfSetType.prepare(): no target column designated: " + targetColExpr.toString());
+    List<Integer> targetColnos = new ArrayList<>();
+    for (String colName : targetColNames) {
+      targetColnos.add(prevDf.getColnoByColName(colName));
     }
 
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {

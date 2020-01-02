@@ -99,7 +99,8 @@
               <li *ngFor="let topUser of topUserList">
                 <component-explore-data-user-card
                   [topUser]="topUser"
-                  [sourceType]="metadata.sourceType">
+                  [sourceType]="metadata.sourceType"
+                  (userClicked)="onClickUser($event)">
                 </component-explore-data-user-card>
               </li>
             </ul>

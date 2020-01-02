@@ -269,7 +269,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {boolean}
    */
   public isCsvFile(): boolean {
-    return _.isNil(this.fileResult.sheets);
+    return _.isNil(this.fileResult.sheets) && !this.isJsonFile();
   }
 
   /**
@@ -280,13 +280,21 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     return !_.isNil(this.fileResult.sheets);
   }
 
+  public isJsonFile(): boolean {
+    return this.fileResult.fileKey.endsWith('json');
+  }
+
   /**
    * Get file format
    * @returns {string}
    * @private
    */
   private _getFileFormat(): string {
-    return this.isExcelFile() ? 'excel' : 'csv';
+    if (this.isJsonFile()) {
+      return 'json';
+    } else {
+      return this.isExcelFile() ? 'excel' : 'csv';
+    }
   }
 
   /**
@@ -641,7 +649,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     // grid hide
     this.clearGrid = true;
     // if excel invalid file
-    if (!this.isCsvFile() && !this.fileResult.selectedSheet.valid) {
+    if (this.isExcelFile() && !this.fileResult.selectedSheet.valid) {
       return;
     }
     // 로딩 show
@@ -677,6 +685,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
           if (this.isCsvFile()) {
             this.isValidDelimiter = true;
             this.isValidSeparator = true;
+          } else if (this.isJsonFile()) {
+            this.isFirstHeaderRow = false;
           }
 
           // 재적재 상태체크
@@ -708,9 +718,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       firstHeaderRow: this.isFirstHeaderRow,
     };
     // if excel file
-    if (!this.isCsvFile()) {
+    if (this.isExcelFile()) {
       params['sheet'] = this.fileResult.selectedSheet.sheetName;
-    } else {
+    } else if (this.isCsvFile()) {
       params['lineSep'] = this.separator;
       params['delimiter'] = this.delimiter;
     }

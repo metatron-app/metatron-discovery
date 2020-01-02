@@ -33,7 +33,7 @@ import {
   BoardConfiguration,
   BoardDataSource,
   Dashboard,
-  JoinMapping,
+  JoinMapping, JoinMappingDataSource,
   QueryParam
 } from '../../../domain/dashboard/dashboard';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
@@ -122,6 +122,10 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    */
   public ngOnInit() {
     super.ngOnInit();
+
+    if(this.dataSource.joins && this.dataSource.joins.length > 0) {
+      this.joinMappings = this.dataSource.joins;
+    }
 
     // 데이터 소스 선택
     this.subscriptions.push(
@@ -317,12 +321,15 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
 
   /**
    * 조인 변경
-   * @param {JoinMapping[]} joinMappings
+   * @param {JoinMappingDataSource[]} joinMappingDataSource
    */
-  public changeJoin(joinMappings: JoinMapping[]) {
+  public changeJoin(joinMappingDataSource : JoinMappingDataSource) {
+    const joinMappings: JoinMapping[] = joinMappingDataSource.joinMappings;
+    const candidateDataSources: Datasource[] = joinMappingDataSource.candidateDataSources;
+
     this.joinMappings = joinMappings;
     this.dataSource.joins = joinMappings;
-    this.broadCaster.broadcast('CREATE_BOARD_UPDATE_DS', { dataSource: this.dataSource });
+    this.broadCaster.broadcast('CREATE_BOARD_UPDATE_DS', { dataSource: this.dataSource,  candidateDataSources: candidateDataSources });
   } // function - changeJoin
 
   // noinspection JSMethodCanBeStatic

@@ -57,6 +57,8 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
   public tagValue: string = '';
   public tagsList: any = [];
 
+  public isMsgPopupShow: boolean = false;
+
   @Output()
   public openAddCataglog = new EventEmitter();
 
@@ -237,6 +239,8 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
     // Edit 상태 종료
     this.isDescEdit = false;
 
+    this.isMsgPopupShow = false;
+
     // Set
     this.editingDesc ? this.desc = this.editingDesc.trim() : this.desc = '';
 
@@ -260,6 +264,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
     $event.stopPropagation();
 
     this.isDescEdit = !this.isDescEdit;
+    this.isMsgPopupShow = this.isDescEdit;
     this.editingDesc = this.metadataModelService.getMetadata().description;
     this.changeDetect.detectChanges();
     this.metadataDesc.nativeElement.focus();
@@ -324,6 +329,15 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
 
   public isMetadataSourceTypeIsEngine() {
     return Metadata.isSourceTypeIsEngine(this.metadataModelService.getMetadata().sourceType);
+  }
+
+  /**
+   * Close msg popup
+   * @param event
+   */
+  public closeMsgPopup(event) {
+    event.stopPropagation();
+    this.isMsgPopupShow = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

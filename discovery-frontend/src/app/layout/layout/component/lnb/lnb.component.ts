@@ -81,9 +81,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public permission = {
     myWorkspace: false,
     workspace: false,
-    exploreData: false,
+    exploreData: true,
     exploreDataView: true,
-    exploreFavorite: false,
+    exploreFavorite: true,
     management: false,
     managementDatasource: false,
     managementMetadata: false,
@@ -204,6 +204,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
           case '/management/engine-monitoring/overview' :
           case '/management/engine-monitoring/ingestion' :
           case '/management/engine-monitoring/query' :
+          case '/management/engine-monitoring/datasource' :
             this.depth1Menu1ClickListener('MANAGEMENT');
             this.mgmtMenuClickListener('ENGINE_MONITORING');
             break;

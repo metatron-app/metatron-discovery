@@ -120,6 +120,8 @@ export class UploaderComponent extends AbstractComponent {
         return /^.*\.xls$/.test(file.name);
       case 'xlsx':
         return /^.*\.xlsx$/.test(file.name);
+      case 'json':
+        return /^.*\.json$/.test(file.name);
     }
   }
 
@@ -185,7 +187,7 @@ export class UploaderComponent extends AbstractComponent {
       .MultiSelection(false)
       .Filters(new Pluploader.Builder.FileFiltersBuilder()
         .MimeTypes([
-          {title: "files", extensions: "csv,xls,xlsx"}
+          {title: "files", extensions: "csv,xls,xlsx,json"}
         ])
         .MaxFileSize(0)
         .builder()

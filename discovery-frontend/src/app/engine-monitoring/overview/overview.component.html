@@ -21,7 +21,7 @@
   <!-- // box status -->
 
   <!-- Graph Area -->
-  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear"></div>
+  <div overview-graph-view class="ddp-wrap-engine-graph ddp-clear" (changeValue)="showKpiChart($event)"></div>
   <!-- // Graph Area -->
 
   <div class="ddp-box-type ddp-type-server">
@@ -104,82 +104,85 @@
 
     <div class="ddp-box-detail">
       <ng-container *ngIf="monitorings | tableSort:tableSortProperty:tableSortDirection | tableFilter:{'hostname': keyword, 'status': selectedMonitoringStatus, 'type': selectedNodeType} as filteredItems">
-        <div class="ddp-data-source-none" *ngIf="filteredItems.length == 0">
+        <div class="ddp-data-source-none" *ngIf="filteredItems.length == 0; else existList">
           No data
         </div>
-        <div class="ddp-grid-detail ddp-clear" *ngIf="selectedViewMode === VIEW_MODE.CARD && filteredItems.length > 0">
-          <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}"
-               (mouseover)="showNodeInformationTooltip(monitoring, $event);"
-               (mouseleave)="hideNodeInformationTooltip($event);"
-               (click)="showNodeInformationModal(monitoring);">
-            {{ convertTypeLabel(monitoring.type).substring(0, 1) }}
+        <ng-template #existList>
+          <div class="ddp-grid-detail ddp-clear" *ngIf="selectedViewMode === VIEW_MODE.CARD">
+            <div class="ddp-grid-box ddp-cursor" *ngFor="let monitoring of filteredItems" [ngClass]="{'type-error' : !monitoring.status}"
+                 (mouseover)="showNodeInformationTooltip(monitoring, $event);"
+                 (mouseleave)="hideNodeInformationTooltip($event);"
+                 (click)="showNodeInformationModal(monitoring);">
+              {{ convertTypeLabel(monitoring.type).substring(0, 1) }}
+            </div>
+            <!-- tooltip -->
+            <node-tooltip></node-tooltip>
           </div>
-          <!-- tooltip -->
-          <node-tooltip></node-tooltip>
-        </div>
-        <table class="ddp-table-detail3" *ngIf="selectedViewMode === VIEW_MODE.GRID && filteredItems.length > 0">
-          <colgroup>
-            <col width="33%">
-            <col width="33%">
-            <col width="33%">
-          </colgroup>
-          <thead>
-          <tr>
-            <th (click)="sortTable('hostname')">
-              {{ 'msg.engine.monotoring.overview.server.name' | translate }}
-              <em [class.ddp-icon-array-default2]="tableSortProperty != 'hostname' || tableSortDirection === TABLE_SORT_DIRECTION.NONE"
-                  [class.ddp-icon-array-asc2]="tableSortProperty === 'hostname' && tableSortDirection === TABLE_SORT_DIRECTION.DESC"
-                  [class.ddp-icon-array-des2]="tableSortProperty === 'hostname' && tableSortDirection === TABLE_SORT_DIRECTION.ASC">
-              </em>
-            </th>
-            <th (click)="sortTable('type')">
-              {{ 'msg.engine.monotoring.overview.node.name' | translate }}
-              <em [class.ddp-icon-array-default2]="tableSortProperty != 'type' || tableSortDirection === TABLE_SORT_DIRECTION.NONE"
-                  [class.ddp-icon-array-asc2]="tableSortProperty === 'type' && tableSortDirection === TABLE_SORT_DIRECTION.DESC"
-                  [class.ddp-icon-array-des2]="tableSortProperty === 'type' && tableSortDirection === TABLE_SORT_DIRECTION.ASC">
-              </em>
-            </th>
-            <th>{{ 'msg.engine.monotoring.overview.status' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr class="ddp-cursor" *ngFor="let monitoring of filteredItems" (click)="showNodeInformationModal(monitoring);">
-            <td>{{ monitoring.hostname }}</td>
-            <td>
-              <span class="ddp-data-node" [ngClass]="['type-' + monitoring.type]">
-                {{ convertTypeLabel(monitoring.type) }}
-              </span>
-            </td>
-            <td>
-              <ng-template [ngIf]="monitoring.status">
-                <ok-icon></ok-icon>
-              </ng-template>
-              <ng-template [ngIf]="!monitoring.status">
-                <div class="ddp-type-status-error">
-                  <error-icon></error-icon>
-                  <span class="ddp-txt-error">
-                  <em class="ddp-icon-error"></em>{{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
-                    <!--suppress HtmlUnknownTag -->
-                    <div class="ddp-box-layout4">
-                      <div class="ddp-data-title">
-                        {{ 'msg.engine.monotoring.error.label' | translate }}
-                        <span class="ddp-sub-title">({{ monitoring.errorDuration }})</span>
+          <table class="ddp-table-detail3" *ngIf="selectedViewMode === VIEW_MODE.GRID">
+            <colgroup>
+              <col width="33%">
+              <col width="33%">
+              <col width="33%">
+            </colgroup>
+            <thead>
+            <tr>
+              <th (click)="sortTable('hostname')">
+                {{ 'msg.engine.monotoring.overview.server.name' | translate }}
+                <em [class.ddp-icon-array-default2]="tableSortProperty != 'hostname' || tableSortDirection === TABLE_SORT_DIRECTION.NONE"
+                    [class.ddp-icon-array-asc2]="tableSortProperty === 'hostname' && tableSortDirection === TABLE_SORT_DIRECTION.DESC"
+                    [class.ddp-icon-array-des2]="tableSortProperty === 'hostname' && tableSortDirection === TABLE_SORT_DIRECTION.ASC">
+                </em>
+              </th>
+              <th (click)="sortTable('type')">
+                {{ 'msg.engine.monotoring.overview.node.name' | translate }}
+                <em [class.ddp-icon-array-default2]="tableSortProperty != 'type' || tableSortDirection === TABLE_SORT_DIRECTION.NONE"
+                    [class.ddp-icon-array-asc2]="tableSortProperty === 'type' && tableSortDirection === TABLE_SORT_DIRECTION.DESC"
+                    [class.ddp-icon-array-des2]="tableSortProperty === 'type' && tableSortDirection === TABLE_SORT_DIRECTION.ASC">
+                </em>
+              </th>
+              <th>{{ 'msg.engine.monotoring.overview.status' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="ddp-cursor" *ngFor="let monitoring of filteredItems" (click)="showNodeInformationModal(monitoring);">
+              <td>{{ monitoring.hostname }}</td>
+              <td>
+                <span class="ddp-data-node" [ngClass]="['type-' + monitoring.type]">
+                  {{ convertTypeLabel(monitoring.type) }}
+                </span>
+              </td>
+              <td>
+                <ng-template [ngIf]="monitoring.status">
+                  <ok-icon></ok-icon>
+                </ng-template>
+                <ng-template [ngIf]="!monitoring.status">
+                  <div class="ddp-type-status-error">
+                    <error-icon></error-icon>
+                    <span class="ddp-txt-error">
+                    <em class="ddp-icon-error"></em>{{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
+                      <!--suppress HtmlUnknownTag -->
+                      <div class="ddp-box-layout4">
+                        <div class="ddp-data-title">
+                          {{ 'msg.engine.monotoring.error.label' | translate }}
+                          <span class="ddp-sub-title">({{ monitoring.errorDuration }})</span>
+                        </div>
+                        <div class="ddp-data-det">
+                          {{ monitoring.hostname }}:{{ monitoring.port }} {{ monitoring.type }} {{ 'msg.engine.monotoring.overview.error.layer.prefix' | translate }}<br>
+                          {{ 'msg.engine.monotoring.failure.time.label' | translate }} : {{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
                       </div>
-                      <div class="ddp-data-det">
-                        {{ monitoring.hostname }}:{{ monitoring.port }} {{ monitoring.type }} {{ 'msg.engine.monotoring.overview.error.layer.prefix' | translate }}<br>
-                        {{ 'msg.engine.monotoring.failure.time.label' | translate }} : {{ monitoring.errorTime | mdate:'YYYY-MM-DD HH:mm:ss' }}
-                    </div>
-                    </div>
-                  </span>
-                </div>
-              </ng-template>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+                      </div>
+                    </span>
+                  </div>
+                </ng-template>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </ng-template>
       </ng-container>
     </div>
   </div>
 </div>
 
 <node-information></node-information>
+<kpi-popup></kpi-popup>

@@ -30,7 +30,8 @@ public enum EngineMonitoringCriterionKey implements ListCriterionKey {
   SERVICE("SERVICE"),
   RESULT("RESULT"),
   HOST("HOST"),
-  STARTED_TIME("STARTED_TIME");
+  STARTED_TIME("STARTED_TIME"),
+  AVAILABILITY("AVAILABILITY");
 
   String criterionKey;
   EngineMonitoringCriterionKey(String s){

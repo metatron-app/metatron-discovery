@@ -27,6 +27,7 @@ public class EngineMonitoringQueryRequest {
 
   String key;
   String sort;
+  Integer limit;
 
   public EngineMonitoringQueryRequest() {
   }
@@ -86,4 +87,8 @@ public class EngineMonitoringQueryRequest {
   public void setSort(String sort) {
     this.sort = sort;
   }
+
+  public Integer getLimit() { return limit; }
+
+  public void setLimit(Integer limit) { this.limit = limit; }
 }

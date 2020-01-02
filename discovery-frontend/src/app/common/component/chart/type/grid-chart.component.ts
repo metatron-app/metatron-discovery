@@ -81,7 +81,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -113,16 +113,16 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
 
     // Chart Instance 생성
     pivot.ui.style.summaryLabel = {
-      SUM : this.translateService.instant('msg.page.calc.label.operator.sum'),
-      AVERAGE : this.translateService.instant('msg.page.calc.label.operator.average'),
-      MAX : this.translateService.instant('msg.page.calc.label.operator.max'),
-      MIN : this.translateService.instant('msg.page.calc.label.operator.min'),
-      COUNT : this.translateService.instant('msg.page.calc.label.operator.count')
+      SUM: this.translateService.instant('msg.page.calc.label.operator.sum'),
+      AVERAGE: this.translateService.instant('msg.page.calc.label.operator.average'),
+      MAX: this.translateService.instant('msg.page.calc.label.operator.max'),
+      MIN: this.translateService.instant('msg.page.calc.label.operator.min'),
+      COUNT: this.translateService.instant('msg.page.calc.label.operator.count')
     };
     this.chart = new pivot.ui.pivot.Viewer(this.$element.find('.chartCanvas')[0]);
 
     // 초기에 주입된 데이터를 기준으로 차트를 표현한다.
-    if( this.data ) {
+    if (this.data) {
       this.draw();
     }
   }
@@ -142,7 +142,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     // Valid 체크
     ////////////////////////////////////////////////////////
 
-    if( !this.isValid(this.pivot) ) {
+    if (!this.isValid(this.pivot)) {
 
       // No Data 이벤트 발생
       this.noData.emit();
@@ -238,7 +238,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
           selectDataList.push(data);
         });
       }
-    // 부모데이터가 없는경우 (셀을 클릭했을때)
+      // 부모데이터가 없는경우 (셀을 클릭했을때)
     } else {
 
       let dimensionList = _.concat(this['xProperties'], this['yProperties']);
@@ -316,15 +316,26 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     let rows: any = this.fieldInfo.rows.map((name) => {
       return {name};
     });
-    let aggregations: any = this.fieldInfo.aggs.map((name) => {
-      return {name, digits: 2};
-    });
+    let aggregations: any;
+    if( this.pivot && this.pivot.aggregations && 0 < this.pivot.aggregations.length ) {
+      aggregations = this.pivot.aggregations.map((pivot) => {
+        if( pivot.field && pivot.field.logicalType ) {
+          return {name : pivot.name, digits: 2, type : pivot.field.logicalType };
+        } else {
+          return {name : pivot.name, digits: 2 };
+        }
+      });
+    } else {
+      aggregations = this.fieldInfo.aggs.map((name) => {
+        return {name, digits: 2};
+      });
+    }
 
     // 원본보기데이터 초기화
     this.originData = [];
 
     // 원본 보기일경우 데이터 재가공
-    if( (<UIGridChart>this.uiOption).dataType == GridViewType.MASTER ) {
+    if ((<UIGridChart>this.uiOption).dataType == GridViewType.MASTER) {
 
       // for setting aggregations original name
       let originAggregations: any = this.fieldInfo.aggs.map((name) => {
@@ -368,6 +379,12 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       rows = [{"name": "&nbsp;"}];
       originAggregations = [{name: "VALUE"}];
 
+      this.pivot.aggregations.map((pivot) => {
+        if( pivot.field && pivot.field.logicalType ) {
+          ( originAggregations[0].type ) || ( originAggregations[0].type = {} );
+          originAggregations[0].type[ pivot.name ] = pivot.field.logicalType;
+        }
+      });
       aggregations = originAggregations;
 
       // 원본보기 데이터에 설정
@@ -398,8 +415,8 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       body: {
         font: {},
         color: {
-            stepColors: [],
-            stepTextColors: []
+          stepColors: [],
+          stepTextColors: []
         },
         align: {},
         showAxisZ: false
@@ -440,7 +457,9 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
 
         // visualGradations이 있는경우 stepTextColor를 visualGradations개수만큼 설정
         if (this.uiOption.color['visualGradations'] && this.uiOption.color['visualGradations'].length > 0) {
-          this.gridModel.body.color.stepTextColors = this.uiOption.color['visualGradations'].map(() => {return (<UIGridChart>this.uiOption).contentStyle.fontColor});
+          this.gridModel.body.color.stepTextColors = this.uiOption.color['visualGradations'].map(() => {
+            return (<UIGridChart>this.uiOption).contentStyle.fontColor
+          });
         } else {
           this.gridModel.body.color.stepTextColors = [(<UIGridChart>this.uiOption).contentStyle.fontColor];
         }
@@ -538,6 +557,16 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     // 원본보기일때 원본보기 데이터로 정제된 데이터를 설정
     const data = (<UIGridChart>this.uiOption).dataType == GridViewType.MASTER ? this.originData : this.data;
 
+    if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
+      let strScript = '(' + this.userCustomFunction + ')';
+      // ( new Function( 'return ' + strScript ) )();
+      try {
+        this.gridModel = eval(strScript)({name: 'InitWidgetEvent', data: this.gridModel});
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     // 차트 데이터 주입
     this.chart.initialize(data, this.gridModel);
   }
@@ -597,7 +626,9 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
    */
   private setGradationRangeColor(cellColor: UIChartColorGradationByCell, gridModel: any) {
 
-    const codes = cellColor.visualGradations.map((item) => {return item['color']});
+    const codes = cellColor.visualGradations.map((item) => {
+      return item['color']
+    });
 
     if (CellColorTarget.BACKGROUND == (<UIChartColorByCell>this.uiOption.color).colorTarget) {
       gridModel.body.color.stepColors = codes;
@@ -616,7 +647,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
 
     // 폰트사이즈 설정
     let size: number;
-    switch(fontSize) {
+    switch (fontSize) {
       case FontSize.NORMAL:
         size = 13;
         break;

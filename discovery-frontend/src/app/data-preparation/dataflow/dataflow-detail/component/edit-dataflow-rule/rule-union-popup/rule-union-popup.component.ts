@@ -39,7 +39,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private maxCntFields: number = 0;    // Union 대상 데이터셋 최대 필드 수
-  public isValidUnionState: boolean = true;  // Union 가능 상태인지 여부
+  public isValidUnionState: boolean = false;  // Union 가능 상태인지 여부
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -251,7 +251,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
         className = className + 'map';
         break;
       default:
-        className = className + 'ab';
+        className = null;
         break;
     }
     return className;
@@ -343,7 +343,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
           let rowFields: Field[] = [];
           colFields.forEach((dsFields: Field[], dsIdx: number) => {
             if (rowIdx >= dsFields.length) {
-              rowFields.push({ name: '', type: '', unionType: 'LACK' });
+              this.isValidUnionState = false;
+              rowFields.push({ name: '(no column)', type: '', unionType: 'LACK' });
             } else {
               let dsFieldInRow: Field = dsFields[rowIdx];
               if ('NONE' === resultField.type) {

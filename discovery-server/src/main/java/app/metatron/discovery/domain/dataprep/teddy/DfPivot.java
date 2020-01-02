@@ -23,8 +23,8 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnsupportedAggreg
 import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr.FunctionExpr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -134,41 +134,28 @@ public class DfPivot extends DataFrame {
     Expression pivotColExpr = pivot.getCol();
     Expression groupByColExpr = pivot.getGroup();
     Expression aggrValueExpr = pivot.getValue();
-    List<String> pivotColNames = new ArrayList<>();
-    List<String> groupByColNames = new ArrayList<>();
-    List<Expr.FunctionExpr> funcExprs;
 
-    // group by expression -> group by colnames
-    if (groupByColExpr == null) {
-      /* NOP */
-    } else if (groupByColExpr instanceof Identifier.IdentifierExpr) {
-      groupByColNames.add(((Identifier.IdentifierExpr) groupByColExpr).getValue());
-    } else if (groupByColExpr instanceof Identifier.IdentifierArrayExpr) {
-      groupByColNames.addAll(((Identifier.IdentifierArrayExpr) groupByColExpr).getValue());
-    } else {
-      throw new InvalidColumnExpressionTypeException(
-              "doPivot(): invalid group by column expression type: " + groupByColExpr.toString());
+    // group by expression -> group by colnames (group by can be null)
+    List<String> groupByColNames = new ArrayList<>();
+    if (groupByColExpr != null) {
+      groupByColNames = TeddyUtil.getIdentifierList(groupByColExpr);
+      if (groupByColNames.isEmpty()) {
+        throw new InvalidColumnExpressionTypeException("doPivot(): invalid group by column expression: " + pivot);
+      }
     }
 
     // pivot target (to-be-column) column expression -> group by colnames
-    if (pivotColExpr instanceof Identifier.IdentifierExpr) {
-      pivotColNames.add(((Identifier.IdentifierExpr) pivotColExpr).getValue());
-    } else if (pivotColExpr instanceof Identifier.IdentifierArrayExpr) {
-      pivotColNames.addAll(((Identifier.IdentifierArrayExpr) pivotColExpr).getValue());
-    } else {
+    List<String> pivotColNames = TeddyUtil.getIdentifierList(pivotColExpr);
+    if (pivotColNames.isEmpty()) {
       throw new InvalidColumnExpressionTypeException(
-              "doPivot(): invalid pivot column expression type: " + pivotColExpr.toString());
+              "doPivot(): invalid pivot column expression" + pivot);
     }
 
     // aggregation value expression is not string literals any more.
-    if (aggrValueExpr instanceof Expr.FunctionExpr) {
-      funcExprs = new ArrayList(1);
-      funcExprs.add((Expr.FunctionExpr) aggrValueExpr);
-    } else if (aggrValueExpr instanceof Expr.FunctionArrayExpr) {
-      funcExprs = ((Expr.FunctionArrayExpr) aggrValueExpr).getFunctions();
-    } else {
+    List<FunctionExpr> funcExprs = TeddyUtil.getFuncExprList(aggrValueExpr);
+    if (funcExprs.isEmpty()) {
       throw new InvalidAggregationValueExpressionTypeException(
-              "DfAggregate.prepare(): invalid aggregation value expression type: " + aggrValueExpr.toString());
+              "DfAggregate.prepare(): invalid aggregation value expression" + pivot);
     }
 
     List<String> mergedGroupByColNames = new ArrayList<>();

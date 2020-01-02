@@ -220,7 +220,6 @@ public class TeddyExecutor {
       status = FAILED;
       exception = e;
     }
-    callback.updateStatus(ssId, status);
 
     if (exception == null) {
       return true;

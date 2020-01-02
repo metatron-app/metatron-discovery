@@ -20,7 +20,7 @@
     <groupId>app.metatron.discovery</groupId>
     <artifactId>metatron-discovery</artifactId>
     <packaging>pom</packaging>
-    <version>3.4.0-rc2</version>
+    <version>3.4.0-rc4</version>
 
     <modules>
         <module>discovery-frontend</module>
@@ -74,7 +74,7 @@
         <junit.version>4.12</junit.version>
 
         <jackson.version>2.9.9</jackson.version>
-        <jackson.databind.version>2.9.9.2</jackson.databind.version>
+        <jackson.databind.version>2.9.10.1</jackson.databind.version>
 
         <metatron.metis.version>2.0.0-SNAPSHOT</metatron.metis.version>
 

@@ -38,4 +38,6 @@ public interface MetadataRepositoryExtends {
   List<Metadata> findById(String id);
 
   List<MetadataStatsDto> countBySourceType();
+
+  List<DataCreatorDTO> findDistinctCreatorByName(String nameContains);
 }

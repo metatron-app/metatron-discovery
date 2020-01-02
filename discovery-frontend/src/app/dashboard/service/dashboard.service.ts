@@ -33,6 +33,8 @@ declare let async;
 @Injectable()
 export class DashboardService extends AbstractService {
 
+  private _dashboard:Dashboard;
+
   constructor(protected injector: Injector,
               private metadataService: MetadataService) {
     super(injector);
@@ -41,6 +43,14 @@ export class DashboardService extends AbstractService {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public setCurrentDashboard(board:Dashboard) {
+    this._dashboard = board;
+  }
+
+  public getCurrentDashboard() {
+    return this._dashboard;
+  }
+
   /**
    * 데이터소스와 대시보드를 연결한다.
    * @param {string} boardId

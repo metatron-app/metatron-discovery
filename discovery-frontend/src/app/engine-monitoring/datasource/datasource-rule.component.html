@@ -1,0 +1,97 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-layout-popuptype" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+           {{'msg.dp.ui.btn.edit.rule' | translate}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{ 'msg.comm.btn.cancl' | translate }}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{ 'msg.comm.btn.done' | translate }}</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+
+    <div class="ddp-ui-popup-contents ">
+      <!-- top option -->
+      <div class="ddp-type-top-option ddp-clear">
+        <div class="ddp-fleft">
+          <div class="ddp-top-title">{{'msg.dp.btn.tab.rule' | translate}} ({{datasourceCopyRule.length}})</div>
+        </div>
+        <div class="ddp-ui-rightoption">
+          <!-- //setting 버튼 -->
+          <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="addRule()"><em class="ddp-icon-plus"></em>{{'msg.dp.ui.btn.add.rule' | translate}}</a>
+        </div>
+      </div>
+      <!-- //top option -->
+
+      <!-- wrap rule -->
+      <div class="ddp-wrap-rule-edit">
+        <ul class="ddp-list-rule">
+          <li *ngFor="let rule of datasourceCopyRule; let i = index;">
+            <div class="ddp-box-rule" [class.type-add]="rule.isNew">
+              <!-- button -->
+              <div class="ddp-btn-control" (click)="deleteRule(i)">
+                <em class="ddp-icon-control-cut"></em>
+              </div>
+              <!-- //button -->
+              <div class="ddp-data-name">{{'msg.dp.btn.tab.rule' | translate}} #{{i + 1}}<em class="ddp-icon-new">{{'msg.common.ui.new' | translate}}</em></div>  <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option ">
+                  <div class="ddp-type-selectbox type-full" [class.ddp-selected]="rule.selectBox"
+                       (click)="rule.selectBox = !rule.selectBox">
+                    <span class="ddp-txt-selectbox">{{ rule.type ? rule.type : 'Select Type'}}</span>
+                    <div class="ddp-wrap-popup2">
+                      <ul class="ddp-list-popup">
+                        <li *ngFor="let selectRule of ruleTypeList"
+                            [class.ddp-selected]="rule.type && rule.type === selectRule"
+                            (click)="onClickRule(selectRule, rule)">
+                          <a href="javascript:">{{selectRule}}<em class="ddp-icon-check"></em></a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type" *ngIf="rule.type && rule.type.indexOf('Forever') < 0">
+                <label class="ddp-label-type">{{rule.type.indexOf('Period') > -1 ? 'Period' : 'Interval'}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option ">
+                  <component-input
+                    [value]="rule.type.indexOf('Period') > -1 ? rule.period : rule.interval"
+                    [inputClass]="'ddp-input-typebasic'"
+                    [placeHolder]="rule.type.indexOf('Period') > -1 ? 'ISO-8601 Periods' : 'ISO-8601 Intervals'"
+                    [immediately]="true"
+                    (changeValue)="onChangedDuration($event, rule);"></component-input>
+                </div>
+              </div>
+              <!-- //edit -->
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- //wrap rule -->
+    </div>
+
+  </div>
+</div>

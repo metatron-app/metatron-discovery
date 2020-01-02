@@ -289,7 +289,7 @@ public class DataFrame implements Serializable, Transformable {
     return colDescs.get(colno).getType();
   }
 
-  private void setColType(int colno, ColumnType colType) {
+  public void setColType(int colno, ColumnType colType) {
     colDescs.get(colno).setType(colType);
   }
 
@@ -433,6 +433,7 @@ public class DataFrame implements Serializable, Transformable {
     }
 
     for (String[] strRow : strGrid) {
+      assert strRow != null;  // Currently, CSV & JSON file dataset shouldn't generate null rows.
       Row row = new Row();
       for (int colno = 0; colno < colCnt; colno++) {
         row.add(getColName(colno), colno >= strRow.length ? null : strRow[colno]);
@@ -523,7 +524,7 @@ public class DataFrame implements Serializable, Transformable {
     for (int rowno = 0; rowno < limit; rowno++) {
       Row row = rows.get(rowno);
       for (int colno = 0; colno < row.size(); colno++) {
-        Object objCol = row.get(getColName(colno));
+        Object objCol = row.get(colno);
         int colLen = (objCol == null) ? 4 : objCol.toString().length();   // 4 for "null"
         if (colLen > widths.get(colno)) {
           widths.set(colno, colLen);
@@ -1075,30 +1076,6 @@ public class DataFrame implements Serializable, Transformable {
     }
   }
 
-  protected String disableRegexSymbols(String str) {
-    String regExSymbols = "[\\<\\(\\[\\{\\\\\\^\\-\\=\\$\\!\\|\\]\\}\\)\\?\\*\\+\\.\\>]";
-    return str.replaceAll(regExSymbols, "\\\\$0");
-  }
-
-  protected String makeCaseInsensitive(String str) {
-    String ignorePatternStr = "";
-    for (int i = 0; i < str.length(); i++) {
-      String c = String.valueOf(str.charAt(i));
-
-      if (c.matches("[a-zA-Z]")) {
-        ignorePatternStr += "[" + c.toUpperCase() + c.toLowerCase() + "]";
-      } else {
-        ignorePatternStr += c;
-      }
-    }
-    return ignorePatternStr;
-  }
-
-  protected String compilePatternWithQuote(String patternStr, String quoteStr) {
-    return patternStr + "(?=([^" + quoteStr + "]*" + quoteStr + "[^" + quoteStr + "]*" + quoteStr + ")*[^" + quoteStr
-            + "]*$)";
-  }
-
   protected String getColNameAndColnoFromFunc(Expr.FunctionExpr funcExpr, List<Integer> targetAggrColnos)
           throws ColumnNotFoundException, InvalidAggregationValueExpressionTypeException {
     List<Expr> args = funcExpr.getArgs();
@@ -1449,19 +1426,6 @@ public class DataFrame implements Serializable, Transformable {
     for (String colName : colNames) {
       checkAlphaNumerical(colName);
     }
-  }
-
-  public void lowerColNames() throws IllegalColumnNameForHiveException {
-    List<String> lowerColNames = new ArrayList();
-    for (String colName : colNames) {
-      String lowerColName = colName.toLowerCase();
-      if (lowerColNames.contains(lowerColName)) {
-        throw new IllegalColumnNameForHiveException(
-                "Column names become duplicated while saving into a Hive table: " + colName);
-      }
-      lowerColNames.add(lowerColName);
-    }
-    colNames = lowerColNames;
   }
 
   protected String makeParsable(String colName) {

@@ -397,7 +397,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       }
 
       // if role is MEASURE and field name not existed in covarianceData
-      if (field.role === FieldRole.MEASURE && !this.covarianceData.hasOwnProperty(field.name)) {
+      if (field.role === FieldRole.MEASURE && field.type != 'ARRAY' && !this.covarianceData.hasOwnProperty(field.name)) {
         // loading show
         this.loadingShow();
         // get covariance data

@@ -82,4 +82,6 @@ export class PageWidgetConfiguration extends WidgetConfiguration {
   // 선반 정보
   shelf: Shelf;
 
+  customFunction?:string;
+
 } // Class - PageWidgetConfiguration
