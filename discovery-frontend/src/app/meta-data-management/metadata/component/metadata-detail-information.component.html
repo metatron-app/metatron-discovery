@@ -157,9 +157,9 @@
             </div>
             <!-- //data -->
             <div class="ddp-box-textarea">
-              <textarea #descInput [(ngModel)]="descriptionChangeText">{{ this.descriptionChangeText }}</textarea>
+              <textarea #descInput [ngModel]="descriptionChangeText">{{ this.descriptionChangeText }}</textarea>
               <div class="ddp-textarea-buttons">
-                <a href="javascript:" class="ddp-box-btn" (click)="toggleEditDescriptionFlag()"><em class="ddp-icon-cancel"></em></a>
+                <a href="javascript:" class="ddp-box-btn" (click)="onCancelEditDescription()"><em class="ddp-icon-cancel"></em></a>
                 <a href="javascript:" class="ddp-box-btn" (click)="onUpdateSourceDescriptionClicked()"><em class="ddp-icon-check"></em></a>
               </div>
             </div>

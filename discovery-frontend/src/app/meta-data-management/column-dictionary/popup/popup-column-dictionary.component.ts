@@ -109,7 +109,7 @@ export class PopupColumnDictionaryComponent extends AbstractComponent implements
   /**
    * 컬럼 사전 상세 페이지로 이동
    */
-  public gotoCodeTableDetail(): void {
+  public gotoColDicDetail(): void {
     event.stopImmediatePropagation();
 
     const modal = new Modal();

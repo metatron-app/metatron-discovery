@@ -138,21 +138,30 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.isEditDescription = !this.isEditDescription;
   }
 
+  public onCancelEditDescription(): void {
+    const $descInput = $(this._descInput.nativeElement);
+    $descInput.val( this.descriptionChangeText );
+    this.isEditDescription = false;
+  }
+
   public onUpdateSourceDescriptionClicked(): void {
     this.loadingShow();
     // Check text length
-    if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 2000) {
+    const $descInput = $(this._descInput.nativeElement);
+    const inputVal = $descInput.val() as string;
+    if (CommonUtil.getByte(inputVal.trim()) > 2000) {
       Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
-      $(this._descInput.nativeElement).trigger('focus');
+      $descInput.trigger('focus');
       this.loadingHide();
       return;
     }
 
     // deactivate edit mode
     this.isEditDescription = !this.isEditDescription;
+    this.descriptionChangeText = inputVal;
 
     // update the data in DB
-    this.metadataService.updateMetadata(this.metadata.id, {description: this.descriptionChangeText.trim()})
+    this.metadataService.updateMetadata(this.metadata.id, {description: inputVal.trim()})
       .then(() => {
         Alert.success(this.translateService.instant('msg.metadata.metadata.detail.ui.alert.metadata.modified'));
         this.metadata.description = this.descriptionChangeText;
