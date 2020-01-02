@@ -1701,6 +1701,7 @@
   "msg.board.ui.missing_datasource": "Datasource is missing",
   "msg.board.ui.missing_datasource.detail": "데이터소스가 만료되어 사용할 수 없습니다",
   "msg.board.ui.tryagain_ds": "데이터소스를 갱신한 후에 다시 시도해 주세요",
+  "msg.board.ui.sync": "데이터 동기화",
   "msg.board.ui.sync_interval": "데이터 동기화 주기",
   "msg.board.ui.card.view": "카드뷰",
   "msg.board.ui.view-chart-data": "차트 데이터",

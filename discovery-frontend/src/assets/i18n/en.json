@@ -1717,6 +1717,7 @@
   "msg.board.ui.missing_datasource" : "Datasource is missing",
   "msg.board.ui.missing_datasource.detail" : "The datasource is not available beyond the engine.",
   "msg.board.ui.tryagain_ds" : "Try to update datasource again",
+  "msg.board.ui.sync" : "Data sync",
   "msg.board.ui.sync_interval" : "Data sync interval",
   "msg.board.ui.card.view" : "Card view",
   "msg.board.ui.view-chart-data" : "View chart data",

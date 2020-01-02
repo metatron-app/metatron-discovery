@@ -84,4 +84,6 @@ export class PageWidgetConfiguration extends WidgetConfiguration {
 
   customFunction?:string;
 
+  sync?:boolean;
+
 } // Class - PageWidgetConfiguration
