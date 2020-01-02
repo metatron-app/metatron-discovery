@@ -72,6 +72,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -84,6 +85,7 @@ import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.domain.comment.Comment;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionEventHandler;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
@@ -171,6 +173,9 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   MetatronProperties metatronProperties;
 
   @Autowired
+  PrepProperties prepProperties;
+
+  @Autowired
   PluginManager pluginManager;
 
   @Value("${polaris.resources.cache.cacheControl.max-age: 604800}")
@@ -234,6 +239,10 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
       registry.addResourceHandler("/extensions/" + pluginWrapper.getPluginId() + "/**")
               .addResourceLocations("file:" + pluginWrapper.getPluginPath().toAbsolutePath().toString() + "/classes/");
     }
+
+    // snapshot files of dataprep
+    registry.addResourceHandler("/snapshots/**")
+            .addResourceLocations("file:" + prepProperties.getLocalBaseDir() + File.separator + PrepProperties.dirSnapshot + File.separator);
   }
 
   @Override

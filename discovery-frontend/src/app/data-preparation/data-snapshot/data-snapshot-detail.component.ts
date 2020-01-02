@@ -426,7 +426,12 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    */
   public downloadSnapshot(event, fileFormat: string) {
 
-    this.datasnapshotservice.downloadSnapshot(this.ssId, fileFormat).subscribe(
+    if (this.selectedDataSnapshot.ssType ===  SsType.URI){
+      let downloadLink = '/snapshots/' + this.selectedDataSnapshot.storedUri.replace(/^.*[\\\/]/, '');
+      window.location.href = downloadLink;
+      event.preventDefault();
+    } else {
+      this.datasnapshotservice.downloadSnapshot(this.ssId, fileFormat).subscribe(
             (event: HttpEvent<any>) => {
         if (event.type === HttpEventType.DownloadProgress) {
           this.prog_percent = Math.round(100 * event.loaded / event.total);
@@ -438,7 +443,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       (err: any) => {
         console.log('Error:', err);
       });
-
+    }
   }
 
 
