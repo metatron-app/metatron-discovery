@@ -59,7 +59,7 @@
 .ddp-ui-chart-lnb .ddp-box-down .ddp-form {margin:0 -2px;}
 .ddp-ui-chart-lnb .ddp-box-down .ddp-form [class*="ddp-col-"]{padding:0 2px;}
 .ddp-ui-chart-lnb .ddp-box-down .ddp-form-buttons {padding:14px 0 0 0;}
-
+.ddp-ui-chart-lnb .ddp-wrap-list-source ul.ddp-list-source li:hover { background-color:#2f3339;}
 .ddp-ui-chart-lnb .ddp-box-down .ddp-form-buttons .ddp-btn-blue {display:inline-block; width:100%; box-sizing:border-box; text-align:center;}
 /* wrap slider down */
 .ddp-ui-chart-lnb .ddp-wrap-slider-down .ddp-wrap-option-slider span.ddp-label-slider {color:#d0d1d8;}

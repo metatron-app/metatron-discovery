@@ -162,6 +162,7 @@
     padding: 14px 0 0 0;
 }
 
+.theme-dark .ddp-ui-chart-lnb .ddp-wrap-list-source ul.ddp-list-source li:hover { background-color:#2f3339;}
 .theme-dark .ddp-ui-chart-lnb .ddp-box-down .ddp-form-buttons .ddp-btn-blue {
     display: inline-block;
     width: 100%;
