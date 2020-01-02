@@ -134,14 +134,16 @@
         <!-- Grid data -->
         <data-grid-datasource *ngIf="mode === 'grid'"
                               [metaData]="metaData"
-                              [datasource]="datasource">
+                              [datasource]="datasource"
+                              class="ddp-height-full">
         </data-grid-datasource>
         <!-- //Grid data -->
         <!-- Column detail -->
         <column-detail-datasource *ngIf="mode === 'columns'"
                                   (changeDatasource)="changedDatasourceData($event)"
                                   [metaData]="metaData"
-                                  [datasource]="datasource">
+                                  [datasource]="datasource"
+                                  class="ddp-height-full">
         </column-detail-datasource>
         <!-- //Column detail -->
         <!-- Monitoring -->

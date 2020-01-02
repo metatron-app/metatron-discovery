@@ -1791,7 +1791,7 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 .ddp-type-scheme.ddp-column-detail .ddp-metadata .ddp-wrap-detail {margin-left:-50%; padding-left:50%;}
 .ddp-pop-preview.ddp-type-scheme .ddp-metadata  .ddp-type-top-option {left:50%;}
 .ddp-pop-preview.ddp-type-scheme .ddp-type-top-option .ddp-ui-tab-contents {position:relative; height:100%;}
-.ddp-pop-preview.ddp-type-scheme .ddp-type-top-option .ddp-ui-tab-contents .ddp-wrap-viewtable {position:absolute; top:44px; left:0; right:0; bottom:0;}
+.ddp-pop-preview.ddp-type-scheme .ddp-type-top-option .ddp-ui-tab-contents .ddp-wrap-viewtable {position:absolute; top:45px; left:0; right:0; bottom:0;}
 .ddp-pop-preview.ddp-type-scheme .ddp-type-top-option .ddp-ui-tab-contents .ddp-wrap-datadetail {position:absolute; top:44px; left:0; right:0; bottom:0; padding-top:28px; overflow:auto;}
 
 .ddp-pop-preview.ddp-type-scheme .ddp-type-top-option .ddp-ui-tab-contents .ddp-wrap-datadetail.ddp-full {top:0;}

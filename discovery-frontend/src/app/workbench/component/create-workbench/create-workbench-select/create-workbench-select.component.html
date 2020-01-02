@@ -31,7 +31,7 @@
 
     <!-- contents in -->
     <div class="ddp-pop-contents">
-      <div class="ddp-box-popupcontents">
+      <div class="ddp-box-popupcontents ddp-pop-dataset">
         <!-- 옵션 -->
         <div class="ddp-type-top-option ddp-clear">
           <!-- 검색 -->
@@ -80,7 +80,8 @@
         </div>
         <!-- //옵션 -->
         <!-- 그리드 영역 [ngClass]="{'ddp-selected' : dataconnectionId != ''}" -->
-        <div class="ddp-wrap-grid" >
+        <div class="ddp-wrap-variable">
+          <div class="ddp-wrap-grid">
           <!-- view table -->
           <div class="ddp-wrap-viewtable">
             <!-- 테이블 -->
@@ -175,6 +176,7 @@
             <!-- //더보기 -->
           </div>
           <!-- //view table -->
+        </div>
         </div>
       </div>
     </div>
