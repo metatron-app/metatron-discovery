@@ -46215,11 +46215,6 @@
 
 .theme-dark .ddp-ui-tree {
     position: relative;
-    padding: 0 15px;
-}
-
-.theme-dark .ddp-ui-tree ul.ddp-list-tree {
-    margin-left: -15px;
 }
 
 .theme-dark .ddp-ui-tree ul.ddp-list-tree li a {
