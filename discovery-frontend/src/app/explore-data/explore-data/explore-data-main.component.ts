@@ -180,11 +180,11 @@ export class ExploreDataMainComponent extends AbstractComponent {
     }
   }
 
-
-  private async _setCreatorFavoriteMetadataList() {
-    const result = await this._metadataService.getMetadataListByCreatorFavorite({size: 10, page: 0, projection: 'forListView'});
-    if (!_.isNil(result._embedded)) {
-      this.favoriteCreatorList = result._embedded.metadatas;
+  // change when api is ready
+  private async _setFavoriteCreatorList() {
+    const result = await this._metadataService.getFavoriteCreatorList({size: 4, page: 0});
+    if (!_.isNil(result)) {
+      // this.favoriteCreatorList = result;
     }
   }
 
