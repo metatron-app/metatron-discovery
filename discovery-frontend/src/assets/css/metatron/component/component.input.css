@@ -88,4 +88,4 @@ input.ddp-input-type {display:block; width:100%; padding-bottom:10px; font-size:
 /**************************************************************
     textarea
 **************************************************************/
-.ddp-textarea-auto {display:block; width:100% !important; max-width:100%; padding:6px 10px 6px 10px; height:31px; min-height:31px; font-size:13px; resize:auto; box-sizing:border-box; border:1px solid #d0d1d8; box-sizing:border-box;}
+.ddp-textarea-auto {display:block; width:100% !important; max-width:100%; padding:6px 10px 6px 10px; height:31px; min-height:31px; font-size:13px; resize:auto; box-sizing:border-box; border:1px solid #d0d1d8;}

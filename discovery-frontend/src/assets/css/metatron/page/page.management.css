@@ -24,7 +24,7 @@
 .page-storage-create .form-check .ddp-btn-pop {min-width:auto; margin-left:4px; white-space:nowrap;}
 .page-storage-create .ddp-wrap-edit2.type-url {margin-top:0;}
 .page-storage-create .ddp-wrap-edit2.type-url .ddp-ui-buttons {padding-top:6px; text-align:left}
-.page-storage-create .ddp-radio-inline {padding-top:5px; overflow:hidden;}
+.page-storage-create .ddp-radio-inline {display:block; padding-top:5px; overflow:hidden;}
 .page-storage-create .ddp-radio-inline li {float:left; margin-right:20px;}
 .page-storage-create .ddp-wrap-update { margin-top:17px; margin-bottom:6px;}
 .page-storage-create .ddp-wrap-update .ddp-txt-update {color:#666eb2; font-size:14px; float:left;}
@@ -272,15 +272,15 @@
 **********************************************************************************/
 table.ddp-table-type3.ddp-popup tr td span.ddp-data-date {color:#90969f; font-size:12px;}
 table.ddp-table-type3.ddp-popup tr td {padding:10px 10px 11px 10px;}
-.ddp-data-details {position:relative; padding-left:460px; border:1px solid #d5d6db;}
+.ddp-data-details {position:relative; padding-left:460px; border:1px solid #d5d6db; height:100%; overflow:auto; box-sizing:border-box;}
 
 .ddp-data-details .ddp-title {padding:15px 20px; color:#4b515b; font-size:14px; font-weight:bold;}
-.ddp-data-details .ddp-wrap-sourcename {position:absolute; top:0; left:0; bottom:0; width:459px; }
+.ddp-data-details .ddp-wrap-sourcename {position:absolute; top:0; left:0; bottom:0; width:459px; overflow:auto;}
 .ddp-data-details .ddp-wrap-sourcename .ddp-wrap-table {}
 .ddp-data-details .ddp-wrap-sourcename .ddp-wrap-table table.ddp-table-form {margin-top:-1px;}
-.ddp-data-details .ddp-wrap-detail {display:block; padding:15px 30px; border-left:1px solid #e7e7ea;overflow:hidden;}
+.ddp-data-details .ddp-wrap-detail {display:block; padding:15px 30px; height:100%; border-left:1px solid #e7e7ea;overflow:auto; box-sizing:border-box;}
 .ddp-data-details .ddp-wrap-detail .ddp-title {padding:0; margin-bottom:-10px;}
-.ddp-data-details .ddp-ui-detail {padding-top:25px; margin:0 -20px}
+.ddp-data-details .ddp-ui-detail {padding-top:25px; margin:0 -20px; box-sizing:border-box;}
 .ddp-data-details .ddp-ui-detail .ddp-popularity {height:120px;}
 .ddp-data-details .ddp-ui-detail [class*="ddp-col-"]{padding:0 20px; border-left:1px dotted #ccc;}
 .ddp-data-details .ddp-ui-detail [class*="ddp-col-"]:first-of-type {border-left:none;}

@@ -162,12 +162,12 @@
 .ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:31; vertical-align:top;}
 
 .ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
-.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:455px;height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:455px;height:100%; min-width:455px; background-color:#35393f; vertical-align: top; z-index:20;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-view-benchlnb {width:100%;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-ui-benchtable {display:none;}
 .ddp-wrap-workbench .ddp-ui-benchlnb .ddp-view-benchlnb {position:relative; float:left; height:100%; width:55%;}
-.ddp-ui-benchlnb.ddp-close {width:9px; min-width:9px;}
+.ddp-ui-benchlnb.ddp-close {width:9px !important; min-width:9px;}
 .ddp-ui-benchlnb.ddp-none {display:none;}
 .ddp-ui-benchlnb.ddp-close .ddp-view-benchlnb {width:9px; min-width:auto;}
 .ddp-ui-benchlnb.ddp-close .ddp-box-benchlnb {display:none;}

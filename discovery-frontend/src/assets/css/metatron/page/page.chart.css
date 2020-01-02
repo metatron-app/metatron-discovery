@@ -185,6 +185,7 @@
 .ddp-ui-drop-contents .ddp-ui-drop-name em.ddp-icon-source2 {margin-right:8px;}
 .ddp-ui-drop-option {position:relative; padding:0 22px 0 22px; margin:10px 0 17px 0;}
 .ddp-ui-drop-option .ddp-form-search {width:100%;}
+.ddp-ui-drop-option .ddp-form-search em.ddp-icon-search {background-position-x:0;}
 .ddp-ui-drop-option .ddp-form-search input {border-bottom:1px solid #656971; color:#90969f}
 .ddp-ui-drop-option .ddp-form-search input::-webkit-input-placeholder {color:#90969f;}
 .ddp-ui-drop-option .ddp-form-search input:-ms-input-placeholder {color:#90969f;}
@@ -1796,7 +1797,7 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 .ddp-pop-preview.ddp-type-scheme .ddp-type-top-option .ddp-ui-tab-contents .ddp-wrap-datadetail.ddp-full {top:0;}
 .ddp-wrap-datadetail .ddp-ui-option .ddp-wrap-edit {float:left; padding-left:46px; margin-right:6px;}
 .ddp-wrap-datadetail .ddp-ui-option .ddp-wrap-edit:first-of-type {padding-left:0;}
-
+.ddp-wrap-datadetail .ddp-ui-option .ddp-reset {float:left; position:relative; top:8px;}
 .ddp-wrap-datadetail .ddp-ui-option .ddp-ui-rightoption {float:right;}
 .ddp-wrap-datadetail .ddp-ui-option .ddp-ui-rightoption .ddp-btn-selection {float:left; margin-left:4px;}
 .ddp-wrap-datadetail .ddp-ui-option .ddp-type-selectbox {min-width:160px;}

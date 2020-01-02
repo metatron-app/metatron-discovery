@@ -687,6 +687,7 @@
     display: table-cell;
     position: relative;
     width: 455px;
+    min-width:455px;
     height: 100%;
     background-color: #1f2942;
     vertical-align: top;
@@ -713,7 +714,7 @@
 }
 
 .theme-dark .ddp-ui-benchlnb.ddp-close {
-    width: 9px;
+    width: 9px !important;
     min-width: 9px;
 }
 

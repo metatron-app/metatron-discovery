@@ -1413,7 +1413,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-wrap-list-source ul.ddp-list-source li.ddp-ui-measure {padding-left:64px;}
 .ddp-wrap-list-source ul.ddp-list-source li:hover { background-color:#f6f6f7;}
 .ddp-wrap-list-source ul.ddp-list-source li span.ddp-data-name {display:block; position:relative; top:0;box-sizing:border-box; overflow:hidden;}
-.ddp-wrap-list-source ul.ddp-list-source li span.ddp-data-name .ddp-data-in {display:inline-block;position:relative;vertical-align:top; width:100%;}
+.ddp-wrap-list-source ul.ddp-list-source li span.ddp-data-name .ddp-data-in {display:inline-block;position:relative;vertical-align:top; width:100%; color:#fff;}
 .ddp-wrap-list-source ul.ddp-list-source li span.ddp-data-name .ddp-data-in .ddp-sub-name {margin-left:5px;color:#90969f; font-weight:300; font-size:12px;}
 
 .ddp-wrap-list-source ul.ddp-list-source li em.ddp-icon-use {position:absolute; top:50%; left:22px; margin-top:-1px;}

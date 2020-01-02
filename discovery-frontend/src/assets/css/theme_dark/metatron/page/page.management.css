@@ -2894,7 +2894,9 @@
 .theme-dark .ddp-data-details {
     position: relative;
     padding-left: 460px;
+    height:100%;
     border: 1px solid #d5d6db;
+    box-sizing:border-box;
 }
 
 .theme-dark .ddp-data-details .ddp-title {
@@ -2910,6 +2912,7 @@
     left: 0;
     bottom: 0;
     width: 459px;
+    overflow:auto;
 }
 
 .theme-dark .ddp-data-details .ddp-wrap-sourcename .ddp-wrap-table table.ddp-table-form {
@@ -2920,7 +2923,9 @@
     display: block;
     padding: 15px 30px;
     border-left: 1px solid #eaedf5;
-    overflow: hidden;
+    overflow: auto;
+    height:100%;
+    box-sizing:border-box;
 }
 
 .theme-dark .ddp-data-details .ddp-wrap-detail .ddp-title {
@@ -2930,7 +2935,7 @@
 
 .theme-dark .ddp-data-details .ddp-ui-detail {
     padding-top: 25px;
-    margin: 0 -20px;
+    margin: 0 -20px;box-sizing:border-box;
 }
 
 .theme-dark .ddp-data-details .ddp-ui-detail .ddp-popularity {

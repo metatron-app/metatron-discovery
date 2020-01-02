@@ -307,11 +307,15 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 .ddp-layout-contents .ddp-ui-contents-in .ddp-ui-contents-list .ddp-wrap-top-filtering .ddp-form-filtering {margin-left:0; margin-right:20px;}
 .ddp-layout-contents .ddp-type-contents2 {padding-top:0;}
 .ddp-type-contents2 {display:flex; flex-direction:column; height:100%; padding:54px 0 0 0; box-sizing:border-box;background-color:#fff; z-index:2; overflow:auto;}
-.ddp-type-contents2 .ddp-wrap-datadetail,
-.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents,
-.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-ui-tab-contents,
-.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-datagrid{display:flex; flex-direction:column; height:100%; flex:auto;}
+.ddp-type-contents2 .ddp-type-contents2-in {display:flex; flex:auto; flex-direction:column; height:100%; overflow:auto; box-sizing:border-box;}
+.ddp-type-contents2 .ddp-wrap-datadetail {display:flex; flex-direction:column; height:100%; flex:auto; box-sizing:border-box;}
+.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents {display:flex; flex-direction:column; height:100%; flex:auto; box-sizing:border-box;}
+.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-ui-tab-contents {display:flex; flex-direction:column; height:100%; flex:auto; box-sizing:border-box;}
+.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-datagrid{display:flex; flex-direction:column; height:100%; flex:auto; box-sizing:border-box;}
+.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-wrap-variable {flex:auto; position:relative;}
+.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-wrap-variable .ddp-data-details {position:absolute; top:0; left:0; right:0; bottom:0;}
 .ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-datagrid .ddp-fix-grid {flex:auto; height:100%;}
+.ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-datagrid .ddp-fix-grid .ddp-data-details {height:100%;}
 .ddp-type-contents2 .ddp-wrap-datadetail .ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-ui-option {padding-top:10px;}
 .ddp-wrap-datadetail2 {flex:auto; height:100%; padding:0 80px 0 80px; box-sizing:border-box; overflow:auto;}
 
