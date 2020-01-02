@@ -471,7 +471,7 @@
   "msg.alert.edit.name.len": "The title can be up to 50 characters (150 bytes)",
   "msg.alert.del": "Are you sure you want to delete?",
   "msg.alert.ds.retrieve.fail": "Failed to retrieve datasource",
-  "msg.alert.edit.description.len": "The description can be up to 150 characters (450 bytes)",
+  "msg.alert.edit.description.len": "The description can be up to 2000 characters (2000 bytes)",
 
   "msg.login.join.title": "Sign Up",
   "msg.login.join.description": "Please fill out the following items.",

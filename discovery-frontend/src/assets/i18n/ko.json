@@ -467,7 +467,7 @@
   "msg.alert.edit.name.len": "제목은 한글기준 50자(150byte)까지 가능합니다",
   "msg.alert.del": "삭제하시겠습니까?",
   "msg.alert.ds.retrieve.fail": "데이터소스 조회에 실패하였습니다",
-  "msg.alert.edit.description.len": "설명은 한글기준 150자(450byte)까지 가능합니다",
+  "msg.alert.edit.description.len": "설명은 한글기준 약 630자(2000byte)까지 가능합니다",
   "msg.login.join.title": "사용자 신청",
   "msg.login.join.description": "아래의 항목들을 작성해 주시면,",
   "msg.login.join.description2": "시스템 관리자가 확인 후 이메일로 신청 승인 여부를 알려드립니다",

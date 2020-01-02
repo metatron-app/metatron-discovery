@@ -10884,6 +10884,24 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-type-dataset .ddp-wrap-viewtable {height:100%;}
 
 /**********************************************************************************
+     pop manager
+**********************************************************************************/
+.ddp-pop-manager {position:relative; padding:15px 60px 16px 40px; border-bottom:1px solid #ddd; overflow:hidden; z-index:5;}
+.ddp-pop-manager .ddp-data-photo {display:inline-block; float:left; width:50px; height:50px; margin-right:16px; border-radius:50%; overflow:hidden; background:url(../../images/img_photo2.png) no-repeat; background-size:100% 100%;}
+.ddp-pop-manager .ddp-data-photo img {display:block; width:100%; height:100%;}
+
+.ddp-pop-manager .ddp-wrap-manager {display:block; padding:5px 0 0 0; overflow:hidden;}
+.ddp-pop-manager .ddp-wrap-manager .ddp-data-name {display:inline-block; max-width:100%;}
+.ddp-pop-manager .ddp-wrap-manager .ddp-data-name .ddp-icon-control-fav {float:right; margin-left:3px; position:relative; top:2px;}
+.ddp-pop-manager .ddp-wrap-manager .ddp-data-name .ddp-txt-name {display:block; margin-bottom:5px; overflow:hidden; white-space:nowrap;text-overflow:ellipsis; color:#4b515b; font-size:16px; font-weight:bold;}
+.ddp-pop-manager .ddp-wrap-manager .ddp-data-date {color:#90969f; font-size:12px;}
+.ddp-box-meta .ddp-detail-contents.type-manager {display:flex; flex-direction: column; top:0; padding:94px 60px 20px 60px; height:100%; box-sizing:border-box; }
+.ddp-box-meta .ddp-detail-contents.type-manager .ddp-wrap-table {flex:1 auto; overflow:auto;}
+.ddp-box-meta .ddp-detail-contents .ddp-no-data {padding:42px 0; color:#b5b9c2; border-top:1px solid #e7e7ea; text-align:center;}
+.ddp-box-meta .ddp-detail-contents.type-manager .ddp-type-top-option {min-width:846px;}
+.ddp-box-meta .ddp-detail-contents.type-manager .ddp-box-page {}
+
+/**********************************************************************************
      pop stream
  **********************************************************************************/
 
@@ -10940,3 +10958,19 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-wrap-edit3.ddp-type .ddp-label-type {width:80px;}
 .ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-wrap-edit3 .type-full {width:100%;}
 .ddp-wrap-rule-edit .ddp-list-rule .ddp-box-rule .ddp-wrap-edit3 .type-input-size {width:300px;}
+
+/**********************************************************************************
+     pop Admin Column Dictionry popup
+**********************************************************************************/
+.ddp-detail-summary .ddp-data-name {padding:0 0 17px 0;color:#4b515b; font-size:18px; font-weight:bold;}
+.ddp-detail-summary .ddp-detail-txt {color:#4b515b; font-size:13px;}
+.ddp-ui-flex-popup .ddp-pop-contents .ddp-wrap-table-detail {padding:30px 0 0 0; margin:30px 0 0 0;}
+.ddp-ui-flex-popup .ddp-pop-contents .ddp-wrap-table-detail .ddp-label-detail {color:#4b515b; font-size:13px; font-weight:bold;}
+.ddp-ui-flex-popup .ddp-pop-contents .ddp-wrap-table-detail table.ddp-table-detail {margin-top:19px;}
+table.ddp-table-detail tbody tr td .ddp-type-format {margin:-4px 0 13px 0;}
+table.ddp-table-detail tbody tr td .ddp-type-format .ddp-label-checkbox {margin-left:10px; vertical-align:top;}
+table.ddp-table-detail tbody tr td  .ddp-wrap-label.type-inline .ddp-label-radio {margin-right:18px;}
+table.ddp-table-detail tbody tr td .ddp-txt-logical [class*="ddp-icon-type-"]{position:relative; top:0; left:0; margin:0 4px 0 0;}
+.ddp-wrap-table-detail .ddp-table-solid-bg {width:50%;}
+table.ddp-table-solid-bg tr th {padding:3px 15px;color:#90969f; font-weight:normal; font-size:13px; background-color:#f6f6f7; text-align:left;}
+table.ddp-table-solid-bg tr td {padding:5px 15px; font-size:13px; color:#4b515b;}
