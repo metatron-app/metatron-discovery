@@ -66,6 +66,7 @@ public enum PrepMessageKey {
   MSG_DP_ALERT_FAILED_TO_CLOSE_JSON(                           "msg.dp.alert.failed.to.close.json"),
   MSG_DP_ALERT_FAILED_TO_CLOSE_SQL(                            "msg.dp.alert.failed.to.close.sql"),
   MSG_DP_ALERT_FAILED_TO_PARSE_JSON(                           "msg.dp.alert.failed.to.parse.json"),
+  MSG_DP_ALERT_FAILED_TO_PARSE_JSON_FOR_EMPTY(                 "msg.dp.alert.failed.to.parse.json.for.empty"),
   MSG_DP_ALERT_FAILED_TO_PARSE_SQL(                            "msg.dp.alert.failed.to.parse.sql"),
   MSG_DP_ALERT_FAILED_TO_DELETE_SNAPSHOT(                      "msg.dp.alert.failed.to.delete.snapshot"),
   MSG_DP_ALERT_INVALID_SNAPSHOT_NAME(                          "msg.dp.alert.invalid.snapshot.name"),

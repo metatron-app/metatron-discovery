@@ -30,6 +30,7 @@ import {Criteria} from "../../../../domain/datasource/criteria";
 import {ActivatedRoute} from "@angular/router";
 import {StringUtil} from "../../../../common/util/string.util";
 import {TimezoneService} from "../../../../data-storage/service/timezone.service";
+import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
 
 declare let moment: any;
 
@@ -113,7 +114,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
   }
 
   public isEmptyList(): boolean {
-    return this.pageResult.totalElements === 0;
+    return this.pageResult.totalElements === 0 || this.workerTotalList === undefined;
   }
 
   public reloadPage(isFirstPage: boolean = true) {
@@ -172,11 +173,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
   }
 
   public highlightSearchText(name, searchText): string {
-    if (_.isNil(searchText) || searchText.trim() === '') {
-      return name;
-    } else {
-      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
-    }
+    return EngineMonitoringUtil.highlightSearchText(name, searchText);
   } // function - highlightSearchText
 
   /**
@@ -255,7 +252,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
       this.engineService.getWorkerList().then((data) => {
         this.workerTotalList = data;
         this._getWorkerPagingList();
-      })
+      }).catch((error) => this.commonExceptionHandler(error));
     } else {
       this._getWorkerPagingList();
     }

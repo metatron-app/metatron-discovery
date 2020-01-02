@@ -14,8 +14,15 @@
 
 <!-- tab contents -->
 <div [ngClass]="['ddp-ui-tab-contents']">
-  <div class="ddp-box-message" *ngIf="'ENGINE' === metadata.sourceType?.toString() && !isSaveInvalid">
-    <div top-info></div>
+  <div class="ddp-box-message"
+       *ngIf="'ENGINE' === metadata.sourceType?.toString() && !isSaveInvalid && isShowMetadataGuide">
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{ "msg.metadata.ui.notice" | translate }}
+        <a href="javascript:" class="ddp-btn-info-close" (click)="isShowMetadataGuide = false"></a>
+      </div>
+    </div>
   </div>
   <div class="ddp-box-message" *ngIf="isSaveInvalid">
     <div class="ddp-box-synch type-error">
@@ -119,6 +126,7 @@
   </div>
 
   <div class="ddp-data-details ddp-ui-preview-contents ddp-info"
+       [ngStyle]="{top : !isShowMetadataGuide ? '246px' : '265px'}"
        [class.ddp-info2]="isSaveInvalid"
        (scroll)="onScrollColumnView()">
     <!-- header -->

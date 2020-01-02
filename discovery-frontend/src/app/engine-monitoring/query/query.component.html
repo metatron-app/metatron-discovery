@@ -28,7 +28,6 @@
           </component-input>
         </div>
         <!-- form -->
-        <a href="javascript:" class="ddp-btn-selection" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
       </div>
       <!-- //filter search -->
       <!-- filters -->
@@ -107,7 +106,7 @@
             <span class="ddp-data-status" [ngClass]="[getStatusClass(query.result)]">{{query.result === 'true' ? 'Success' : 'Fail'}}</span>
           </td>
           <td>
-            {{query.service}}
+            {{query.serviceName}}
           </td>
           <td>
             {{query.host}}
@@ -136,21 +135,16 @@
   </div>
 </div>
 
-<div class="ddp-pop-preview ddp-type" *ngIf="showDetail && queryDetail">
-  <!-- top -->
-  <div class="ddp-ui-top">
-    <div class="ddp-data-name">
-      Query Information
+<div class="ddp-layout-popuptype type-flex" *ngIf="showDetail && queryDetail">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-flex-popup">
+    <a href="javascript:" class="ddp-btn-close" (click)="closeDetail()"></a>
+    <div class="ddp-pop-title">{{ 'msg.comm.menu.manage.engine.monitoring.query' | translate }} {{'msg.comm.ui.info' | translate}}</div>
 
-    </div>
-    <em class="ddp-btn-popup-close" (click)="closeDetail()"></em>
-  </div>
-  <!-- //top -->
-  <!-- cpmtemts -->
-  <div class="ddp-ui-preview-contents ">
-    <div class="ddp-wrap-informaiton ">
-      <div class="ddp-ui-detail ddp-clear ddp-task-detail ">
-        <table class="ddp-table-detail2 type-vertical-top">
+    <!-- contents -->
+    <div class="ddp-pop-contents ">
+
+      <table class="ddp-table-detail2 ">
           <colgroup>
             <col width="200px">
             <col width="*">
@@ -177,7 +171,7 @@
               Service
             </th>
             <td>
-              {{queryDetail.service}}
+              {{queryDetail.serviceName}}
             </td>
           </tr>
           <tr>
@@ -221,10 +215,7 @@
             </td>
           </tr>
           </tbody>
-        </table>
-
-      </div>
+      </table>
     </div>
   </div>
-  <!-- //cpmtemts -->
 </div>

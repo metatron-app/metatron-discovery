@@ -36,10 +36,11 @@
             {{'msg.storage.ui.schema.valid.desc' | translate}}
           </div>
         </div>
-        <div class="ddp-box-synch type-info">
+        <div class="ddp-box-synch type-info" *ngIf="isShowMetadataGuide">
           <div class="ddp-txt-synch">
             <em class="ddp-icon-info"></em>
             {{'msg.storage.ui.guide.meta.modified' | translate}}
+            <a href="javascript:" class="ddp-btn-info-close" (click)="isShowMetadataGuide = false"></a>
           </div>
         </div>
       </div>

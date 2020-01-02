@@ -158,9 +158,9 @@
           <!-- right -->
           <div class="ddp-right-option">
             <div class="ddp-ui-btn-log">
-              <a href="javascript:" class="ddp-btn-log type-refresh" (click)="refreshLog();"></a>
-              <a href="javascript:" class="ddp-btn-log type-down" (click)="logDownload();"></a>
-              <a href="javascript:" class="ddp-btn-log type-newwindow" (click)="logNewTab();"></a>
+              <a href="javascript:" class="ddp-btn-log type-refresh" title="{{'msg.engine.monitoring.btn.refresh' | translate}}" (click)="refreshLog();"></a>
+              <a href="javascript:" class="ddp-btn-log type-down" title="{{'msg.engine.monitoring.btn.download' | translate}}" (click)="logDownload();"></a>
+              <a href="javascript:" class="ddp-btn-log type-newwindow" title="{{'msg.engine.monitoring.btn.newtab' | translate}}" (click)="logNewTab();"></a>
             </div>
           </div>
           <!-- //right -->
@@ -204,36 +204,11 @@
           </div>
           <!-- //edit option -->
         </div>
-        <div class="ddp-type-selectbox ddp-fright" [class.ddp-selected]="isShowRowDuration"
-             (click)="isShowRowDuration = !isShowRowDuration" (clickOutside)="isShowRowDuration=false">
-          <span class="ddp-txt-selectbox">{{getDurationLabel(selectedRowDuration)}}</span>
-
-          <ul class="ddp-list-selectbox ddp-selectdown ">
-            <li>
-              <a href="javascript:" (click)="changeRowDuration('1HOUR'); $event.stopImmediatePropagation(); $event.preventDefault()">
-                {{getDurationLabel('1HOUR')}}
-              </a>
-            </li>
-            <li>
-              <a href="javascript:" (click)="changeRowDuration('1DAY'); $event.stopImmediatePropagation(); $event.preventDefault()">
-                {{getDurationLabel('1DAY')}}
-              </a>
-            </li>
-            <li>
-              <a href="javascript:" (click)="changeRowDuration('7DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
-                {{getDurationLabel('7DAYS')}}
-              </a>
-            </li>
-            <li>
-              <a href="javascript:" (click)="changeRowDuration('30DAYS'); $event.stopImmediatePropagation(); $event.preventDefault()">
-                {{getDurationLabel('30DAYS')}}
-              </a>
-            </li>
-          </ul>
-        </div>
       </div>
       <div class="ddp-box-graph" #row>
-
+        <div class="ddp-data-empty">
+          <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+        </div>
       </div>
     </div>
     <!-- //detail -->

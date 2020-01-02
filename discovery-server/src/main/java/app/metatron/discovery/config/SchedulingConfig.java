@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.domain.scheduling.dataprep.DatasetCacheOutJob;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -92,7 +93,8 @@ public class SchedulingConfig {
                                        tempCSVFileCleanJob().getObject(),
                                        timeoutWorkbenchConnectionCloseJob().getObject(),
                                        engineMonitoringJob().getObject(),
-                                       engineMonitoringSetter().getObject());
+                                       engineMonitoringSetter().getObject(),
+                                       datasetCacheOutJob().getObject());
     schedulerFactoryBean.setTriggers(dataSourceCheckTrigger().getObject(),
                                      dataSourceIngestionCheckTrigger().getObject(),
                                      dataSourceSizeCheckTrigger().getObject(),
@@ -102,7 +104,8 @@ public class SchedulingConfig {
                                      tempCSVFileCleanTrigger().getObject(),
                                      timeoutWorkbenchConnectionCloseTrigger().getObject(),
                                      engineMonitoringTrigger().getObject(),
-                                     engineMonitoringSetterTrigger().getObject());
+                                     engineMonitoringSetterTrigger().getObject(),
+                                     datasetCacheOutTrigger().getObject());
 
     return schedulerFactoryBean;
   }
@@ -392,4 +395,33 @@ public class SchedulingConfig {
     return jobDetailFactory;
   }
 
+  /**
+   * Cache-out idle wrangled datasets.
+   *
+   * @return
+   */
+  @Bean
+  public JobDetailFactoryBean datasetCacheOutJob() {
+    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+    jobDetailFactory.setName("dataset-cache-out");
+    jobDetailFactory.setGroup(JOB_GROUP_CLEANER);
+    jobDetailFactory.setJobClass(DatasetCacheOutJob.class);
+    jobDetailFactory.setDurability(true);
+    return jobDetailFactory;
+  }
+
+  /**
+   * Every 3 hours
+   *
+   * @return
+   */
+  @Bean
+  public CronTriggerFactoryBean datasetCacheOutTrigger() {
+    CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
+    triggerFactory.setJobDetail(datasetCacheOutJob().getObject());
+    triggerFactory.setName("dataset-cache-out-trigger");
+    triggerFactory.setGroup(JOB_GROUP_CLEANER);
+    triggerFactory.setCronExpression("0 0 0/3 1/1 * ? *");
+    return triggerFactory;
+  }
 }

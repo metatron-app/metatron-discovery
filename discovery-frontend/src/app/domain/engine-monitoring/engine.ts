@@ -83,7 +83,8 @@ export namespace Engine {
   export enum ContentType {
     OVERVIEW = 'overview',
     INGESTION = 'ingestion',
-    QUERY = 'query'
+    QUERY = 'query',
+    DATASOURCE = 'datasource'
   }
 
   export class Constant {
@@ -102,6 +103,7 @@ export namespace Engine {
     private static readonly overview = new Content(ContentType.OVERVIEW);
     private static readonly ingestion = new Content(ContentType.INGESTION);
     private static readonly query = new Content(ContentType.QUERY);
+    private static readonly datasource = new Content(ContentType.DATASOURCE);
 
     public isOverview() {
       return this.value === Content.overview.toString();
@@ -113,6 +115,10 @@ export namespace Engine {
 
     public isQuery() {
       return this.value === Content.query.toString();
+    }
+
+    public isDatasource() {
+      return this.value === Content.datasource.toString();
     }
   }
 

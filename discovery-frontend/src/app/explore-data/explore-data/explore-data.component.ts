@@ -36,15 +36,18 @@ import {Subscription} from "rxjs";
 import {ExploreDataSearchComponent} from "./explore-data-search.component";
 import {ExploreDataModelService} from "./service/explore-data-model.service";
 import {ExploreDataMainComponent} from "./explore-data-main.component";
+import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
+import {Modal} from "../../common/domain/modal";
 
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
-  entryComponents: [MetadataContainerComponent]
+  entryComponents: [MetadataContainerComponent, ConfirmRefModalComponent]
 })
 export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  @ViewChild('component_metadata_detail', {read: ViewContainerRef}) entry: ViewContainerRef;
+  @ViewChild('component_metadata_detail', {read: ViewContainerRef}) readonly metadataContainerEntry: ViewContainerRef;
+  metadataContainerEntryRef: ComponentRef<MetadataContainerComponent>;
 
   @ViewChild(ExploreDataListComponent)
   private readonly _exploreDataListComponent: ExploreDataListComponent;
@@ -55,7 +58,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   @ViewChild(ExploreDataSearchComponent)
   exploreDataSearchComponent: ExploreDataSearchComponent;
 
-  entryRef: ComponentRef<MetadataContainerComponent>;
+  @ViewChild('component_confirm', {read: ViewContainerRef}) readonly confirmModalEntry: ViewContainerRef;
+  confirmModalEntryRef: ComponentRef<ConfirmRefModalComponent>;
 
   selectedMetadata: Metadata;
 
@@ -65,6 +69,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   stagingTypeCount: number = 0;
   databaseTypeCount: number = 0;
   datasetTypeCount: number = 0;
+  originalHeight: number = 0;
 
   subscription: Subscription;
 
@@ -93,6 +98,8 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
     super.ngOnInit();
+
+
     let broadCastSuccessCount: number = 0;
     // subscribe
     this.subscription = this.broadcaster.on(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL).subscribe(() => {
@@ -114,14 +121,17 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     super.ngAfterViewInit();
     this.$layoutContentsClass.addClass( 'ddp-layout-meta');
 
+    this.originalHeight = this.$layoutContentsClass.outerHeight();
     const height = this.$layoutContentsClass.outerHeight() + 190 + 54;
     this.$layoutContentsClass.css('height', height);
+
   }
 
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
     this.$layoutContentsClass.removeClass( 'ddp-layout-meta' );
+    this.$layoutContentsClass.css('height', this.originalHeight);
     this.subscription.unsubscribe();
   }
 
@@ -144,6 +154,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   }
 
   onClickMetadata(metadata: Metadata) {
+    this.loadingShow();
     // declare variables needed for metadata-container(modal) component
     let metadataDetail;
     let recentlyQueriesForDatabase;
@@ -154,14 +165,14 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     // get datas...
     const getRecentlyQueriesForDatabase = async (sourcetype: SourceType) => {
       if (sourcetype === SourceType.STAGEDB) {
-        recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+        recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
           .catch(error => this.commonExceptionHandler(error));
       } else {
         if (metadataDetail.source.source != undefined) {
-          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
+          recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         } else {
-          recentlyQueriesForDatabase = await this.dataSourceService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
+          recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         }
       }
@@ -189,33 +200,33 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
       if (metadata.sourceType === SourceType.ENGINE) {
         await getRecentlyUsedList();
 
-        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
-        this.entryRef.instance.metadataDetailData = metadataDetail;
-        this.entryRef.instance.topUserList = topUserList;
-        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        this.metadataContainerEntryRef = this.metadataContainerEntry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.metadataContainerEntryRef.instance.metadataDetailData = metadataDetail;
+        this.metadataContainerEntryRef.instance.topUserList = topUserList;
+        this.metadataContainerEntryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
         if (recentlyUsedList !== undefined && recentlyUsedList['_embedded'] !== undefined) {
-          this.entryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
+          this.metadataContainerEntryRef.instance.recentlyUsedDashboardList = recentlyUsedList['_embedded']['dashboards'];
         }
 
-        this.entryRef.instance.metadataId = metadata.id;
+        this.metadataContainerEntryRef.instance.metadataId = metadata.id;
       } else if (metadata.sourceType === SourceType.JDBC || metadata.sourceType === SourceType.STAGEDB) {
         await getRecentlyQueriesForDatabase(metadata.sourceType);
-        this.entryRef = this.entry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
-        this.entryRef.instance.metadataDetailData = metadataDetail;
-        this.entryRef.instance.topUserList = topUserList;
-        this.entryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
+        this.metadataContainerEntryRef = this.metadataContainerEntry.createComponent(this.resolver.resolveComponentFactory(MetadataContainerComponent));
+        this.metadataContainerEntryRef.instance.metadataDetailData = metadataDetail;
+        this.metadataContainerEntryRef.instance.topUserList = topUserList;
+        this.metadataContainerEntryRef.instance.recentlyUpdatedList = recentlyUpdatedList;
         if (recentlyQueriesForDatabase['_embedded']) {
-          this.entryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase['_embedded']['queryhistories'];
+          this.metadataContainerEntryRef.instance.recentlyQueriesForDataBase = recentlyQueriesForDatabase['_embedded']['queryhistories'];
         }
-        this.entryRef.instance.metadataId = metadata.id;
+        this.metadataContainerEntryRef.instance.metadataId = metadata.id;
       }
       this.loadingHide();
       // close modal event listener
-      this.entryRef.instance.closedPopup.subscribe(() => {
-        this.entryRef.destroy();
+      this.metadataContainerEntryRef.instance.closedPopup.subscribe(() => {
+        this.metadataContainerEntryRef.destroy();
       });
       // toggle favorite in modal listener
-      this.entryRef.instance.onToggleFavorite.subscribe((metadataDetail) => {
+      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((metadataDetail) => {
         // modal is shown in list screen
         if (this.mode === ExploreMode.LIST) {
           const index = this._exploreDataListComponent.metadataList.findIndex((metadata) => {
@@ -230,8 +241,29 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
           this._exploreDataMainComponent.setMyFavoriteMetadataList().catch(e => this.commonExceptionHandler(e));
         }
       });
-
     }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
+  }
+
+  private _showConfirmComponent() {
+    return new Promise((resolve, reject) => {
+      // show confirm modal
+      this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
+      const modal: Modal = new Modal();
+
+      modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+      modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+      modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
+      this.confirmModalEntryRef.instance.init(modal);
+      this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+      });
+      this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
+        // destroy confirm component
+        this.confirmModalEntryRef.destroy();
+        resolve(result);
+      });
+    });
   }
 
   private async _setMetadataSourceTypeCount() {

@@ -81,7 +81,7 @@ export class StreamIngestionComponent extends AbstractPopupComponent implements 
     if (changes._sourceData) {
       this._ingestionSettingComponent.init(
         this._sourceData,
-        'FILE',
+        'REALTIME',
         this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null :  this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );

@@ -155,6 +155,9 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
       case 'DOUBLE':
         result = 'ddp-icon-type-float';
         break;
+      case 'ARRAY':
+        result = 'ddp-icon-type-array';
+        break;
       case 'CALCULATED':
         result = 'ddp-icon-type-sharp';
         break;

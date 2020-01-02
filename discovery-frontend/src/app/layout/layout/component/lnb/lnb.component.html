@@ -125,23 +125,19 @@
           <!-- submenu -->
           <ul class="ddp-list-sublnb">
             <li [ngClass]="{'ddp-selected': lnbManager.exploreData.data.fold == false}" *ngIf="permission.exploreDataView">
-              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_DATA'); move('exploredata/view')">
-                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.favorite.data' | translate}}
+              <a href="javascript:" (click)=" move('exploredata/view')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.data' | translate}}
               </a>
             </li>
-            <li *ngIf="permission.exploreFavorite" [ngClass]="{'ddp-selected': lnbManager.exploreData.favorite.fold == false}">
-              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_FAVORITE')">
-                <em class="ddp-icon-dot"></em>
-                {{'msg.comm.menu.explore-data.favorite' | translate}}
+            <li [ngClass]="{'ddp-selected': lnbManager.exploreData.data.fold == false}" *ngIf="permission.exploreData">
+              <a href="javascript:" (click)="move('exploredata/favorite/data')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.my.favorite.data' | translate}}
               </a>
-              <ul class="ddp-list-sublnb-2depth">
-                <li>
-                  <a href="javascript:" (click)="move('exploredata/favorite/data')">{{'msg.comm.menu.explore-data.favorite.data' | translate}}</a>
-                </li>
-                <li>
-                  <a href="javascript:" (click)="move('exploredata/favorite/creator')">{{'msg.comm.menu.explore-data.favorite.creator' | translate}}</a>
-                </li>
-              </ul>
+            </li>
+            <li [ngClass]="{'ddp-selected': lnbManager.exploreData.data.fold == false}" *ngIf="permission.exploreFavorite">
+              <a href="javascript:" (click)=" move('exploredata/favorite/creator')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.favorite.creator' | translate}}
+              </a>
             </li>
           </ul>
           <!-- //submenu -->
@@ -269,6 +265,9 @@
                 </li>
                 <li>
                   <a href="javascript:" (click)="move('management/engine-monitoring/query')">{{'msg.comm.menu.manage.engine.monitoring.query' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/datasource')">{{'msg.comm.menu.manage.storage.ds' | translate}}</a>
                 </li>
               </ul>
             </li>

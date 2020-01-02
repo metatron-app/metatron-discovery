@@ -99,13 +99,20 @@ public class TeddyUtil {
     return colNames;
   }
 
+  private static String strip(String str) {
+    return str.substring(1, str.length() - 1);
+  }
+
   public static List<String> getStringList(Expression expr) {
     List<String> colNames = new ArrayList<>();
 
     if (expr instanceof StringExpr) {
-      colNames.add(expr.toString());
+      colNames.add(((StringExpr) expr).getEscapedValue());
     } else if (expr instanceof ArrayExpr) {
-      colNames = ((ArrayExpr) expr).getValue();
+      List<String> quotedStrs = ((ArrayExpr) expr).getValue();
+      for (String str : quotedStrs) {
+        colNames.add(strip(str));
+      }
     }
     return colNames;
   }

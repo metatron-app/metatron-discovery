@@ -66,6 +66,7 @@ import {PaginationComponent} from "./component/pagination/pagination.component";
 import {StompConfig, StompService} from '@stomp/ng2-stompjs';
 import * as SockJS from 'sockjs-client';
 import {FilterSelectBoxComponent} from "./component/select/filter-select-box.component";
+import {ConfirmRefModalComponent} from "./component/modal/confirm/confirm-ref.component";
 import {MetadataTypeBoxTagComponent} from "../explore-data/explore-data/component/metadata-type-box-tag.component";
 
 
@@ -114,6 +115,7 @@ const stompConfig: StompConfig = {
     InvokeDirective,
     CreateModalComponent,
     ConfirmModalComponent,
+    ConfirmRefModalComponent,
     LoadingComponent,
     GridComponent,
     LogComponent,
@@ -157,6 +159,7 @@ const stompConfig: StompConfig = {
     DeleteModalComponent,
     CreateModalComponent,
     ConfirmModalComponent,
+    ConfirmRefModalComponent,
     PeriodComponent,
     DateComponent,
     InputMaskDirective,

@@ -73,6 +73,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.QueryParam;
+
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.criteria.ListCriterion;
@@ -942,7 +944,7 @@ public class DataSourceController {
   @RequestMapping(value = "/datasources/file/upload", method = RequestMethod.POST, produces = "application/json")
   public
   @ResponseBody
-  ResponseEntity<?> uploadFileForIngestion(@RequestParam("file") MultipartFile file) {
+  ResponseEntity<?> uploadFileForIngestion(@RequestParam("file") MultipartFile file, @QueryParam("stream") final String stream) {
 
     // 파일명 가져오기
     String fileName = file.getOriginalFilename();
@@ -950,7 +952,12 @@ public class DataSourceController {
     // 파일명을 통해 확장자 정보 얻기
     String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
 
-    if (StringUtils.isEmpty(extensionType) || !extensionType.matches("xlsx|xls|csv")) {
+    String extensionRegex = "xlsx|xls|csv|json";
+    if (stream != null) {
+      extensionRegex = "csv|json";
+    }
+
+    if (StringUtils.isEmpty(extensionType) || !extensionType.matches(extensionRegex)) {
       throw new BadRequestException("Not supported file type : " + extensionType);
     }
 
@@ -1254,10 +1261,27 @@ public class DataSourceController {
   ResponseEntity<?> getPreviewFromKafka(@RequestParam(value = "bootstrapServer") String bootstrapServer,
                                        @RequestParam(value = "topic") String topic) {
 
+    Map resultMap = Maps.newHashMap();
+    IngestionDataResultResponse resultResponse = null;
     try {
       List kafkaData = dataSourceService.getKafkaPreviewData(bootstrapServer, topic);
-      JsonProcessor jsonProcessor = new JsonProcessor().parse(kafkaData);
-      return ResponseEntity.ok(jsonProcessor.ingestionDataResultResponse());
+      if (CollectionUtils.isNotEmpty(kafkaData)) {
+        JsonProcessor jsonProcessor = new JsonProcessor().parse(kafkaData);
+        resultResponse = jsonProcessor.ingestionDataResultResponse();
+        if (resultResponse.getTotalRows() > 0) {
+          resultMap.put("type", "json");
+        } else {
+          resultMap.put("type", "csv");
+          CommonsCsvProcessor commonsCsvProcessor = new CommonsCsvProcessor(kafkaData)
+              .totalCount()
+              .withHeader(false)
+              .parse(",");
+
+          resultResponse = commonsCsvProcessor.ingestionDataResultResponse();
+        }
+      }
+      resultMap.put("resultResponse", resultResponse);
+      return ResponseEntity.ok(resultMap);
     } catch (TimeoutException te) {
       LOGGER.error("Fail to timeout kafka ({} : {}) : {}", bootstrapServer, topic, te.getMessage());
       throw new DataSourceIngestionException("Fail to timeout kafka.", te.getCause());
@@ -1265,42 +1289,6 @@ public class DataSourceController {
       LOGGER.error("Failed to parse kafka ({} : {}) : {}", bootstrapServer, topic, e.getMessage());
       throw new DataSourceIngestionException("Fail to parse kafka.", e.getCause());
     }
-
-  }
-
-  @RequestMapping(value = "/datasources/stream/upload", method = RequestMethod.POST, produces = "application/json")
-  public
-  @ResponseBody
-  ResponseEntity<?> uploadFileForStreamIngestion(@RequestParam("file") MultipartFile file) {
-
-    // 파일명 가져오기
-    String fileName = file.getOriginalFilename();
-
-    // 파일명을 통해 확장자 정보 얻기
-    String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
-
-    if (StringUtils.isEmpty(extensionType) || !extensionType.matches("json")) {
-      throw new BadRequestException("Not supported file type : " + extensionType);
-    }
-
-    // Upload 파일 처리
-    String tempFileName = "TEMP_FILE_" + UUID.randomUUID().toString() + "." + extensionType;
-    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
-
-    Map<String, Object> responseMap = Maps.newHashMap();
-    responseMap.put("filekey", tempFileName);
-    responseMap.put("filePath", tempFilePath);
-
-    try {
-      File tempFile = new File(tempFilePath);
-      file.transferTo(tempFile);
-
-    } catch (IOException e) {
-      LOGGER.error("Failed to upload file : {}", e.getMessage());
-      throw new DataSourceIngestionException("Fail to upload file.", e.getCause());
-    }
-
-    return ResponseEntity.ok(responseMap);
   }
 
   class TimeFormatCheckResponse {

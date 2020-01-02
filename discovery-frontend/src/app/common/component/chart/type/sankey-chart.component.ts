@@ -517,9 +517,21 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     this.chart.off('click');
     this.chart.on('click', (params) => {
 
-      if(params.dataType == 'node') {
+      if (params.dataType == 'node') {
         // 의사 결정될때까지 사용
         return;
+      }
+
+      if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
+        let strScript = '(' + this.userCustomFunction + ')';
+        // ( new Function( 'return ' + strScript ) )();
+        try {
+          if (eval(strScript)({name: 'SelectionEvent', data: params ? params.name : ''})) {
+            return;
+          }
+        } catch (e) {
+          console.error(e);
+        }
       }
 
       let selectMode: ChartSelectMode;

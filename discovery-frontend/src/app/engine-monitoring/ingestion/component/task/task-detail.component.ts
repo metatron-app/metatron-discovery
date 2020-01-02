@@ -69,9 +69,6 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
   public unparseable: any;
   public thrownaway: any;
 
-  public isShowRowDuration: boolean;
-  public selectedRowDuration: string = '1HOUR';
-
   private _taskId: string;
   private _rowChart: any;
 
@@ -136,55 +133,12 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     })
   }
 
-  public changeRowDuration(duration:string) {
-    this.isShowRowDuration = false;
-    this.loadingShow();
-    this.selectedRowDuration = duration;
-    const fromDate = this._getFromDate(duration);
-    this._getTaskRow(fromDate);
-    setTimeout(() => {
-      this.loadingHide();
-    }, 300);
-  }
-
   public getStatusClass(taskStatus: TaskStatus): string {
-    if (TaskStatus.PENDING === taskStatus) {
-      return 'ddp-pending';
-    } else if (TaskStatus.WAITING === taskStatus) {
-      return 'ddp-waiting';
-    } else if (TaskStatus.RUNNING === taskStatus) {
-      return 'ddp-running';
-    } else if (TaskStatus.SUCCESS === taskStatus) {
-      return 'ddp-success';
-    } else if (TaskStatus.FAILED === taskStatus) {
-      return 'ddp-fail';
-    } else {
-      return '';
-    }
+    return EngineMonitoringUtil.getTaskStatusClass(taskStatus);
   }
 
   public getTypeTranslate(taskType: TaskType): string {
-    if (TaskType.INDEX === taskType) {
-      return 'index';
-    } else if (TaskType.KAFKA === taskType) {
-      return 'kafka';
-    } else if (TaskType.HADOOP === taskType) {
-      return 'hadoop';
-    } else {
-      return '';
-    }
-  }
-
-  public getDurationLabel(duration:string) {
-    if ('1DAY' === duration) {
-      return 'Last 1 day';
-    } else if ('7DAYS' === duration) {
-      return 'Last 7 days';
-    } else if ('30DAYS' === duration) {
-      return 'Last 30 days';
-    } else {
-      return 'Last 1 hour';
-    }
+    return EngineMonitoringUtil.getTaskTypeTranslate(taskType);
   }
 
   public logDownload() {
@@ -254,17 +208,14 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     });
   }
 
-  private _getTaskRow(fromDate?:string): void {
-    if (_.isNil(fromDate)) {
-      fromDate = this._getFromDate('1HOUR');
-    }
+  private _getTaskRow(): void {
     const queryParam: any =
       {
         monitoringTarget : {
           metric: Engine.MonitoringTarget.TASK_ROW,
           taskId: this._taskId
         },
-        fromDate: fromDate,
+        fromDate: moment(this.task.created_time).utc().format('YYYY-MM-DDTHH:mm:ss'),
         toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
       };
 
@@ -305,7 +256,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
             sampling: 'max',
             itemStyle: {
               normal: {
-                color: '#f2f1f8'
+                color: '#fb7661'
               }
             },
             smooth: true
@@ -331,6 +282,13 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
       });
       const chartOps: any = {
         type: 'line',
+        legend: {
+          show: true,
+          selectedMode: false,
+          textStyle: {
+            color: '#ffffff'
+          }
+        },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
@@ -344,27 +302,36 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
         },
         grid: [
           {
-            top: 0,
+            top: 30,
             bottom: 0,
-            left: 0,
-            right: 0
+            left: 5,
+            right: 20,
+            containLabel: true
           }
         ],
         xAxis: [
           {
             type: 'category',
-            show: false,
             data: data.time,
             name: 'SECOND(event_time)',
-            axisName: 'SECOND(event_time)'
+            axisName: 'SECOND(event_time)',
+            axisLine: {
+              lineStyle: {
+                color: '#f2f1f8'
+              }
+            }
           }
         ],
         yAxis: [
           {
             type: 'value',
-            show: false,
             name: 'Row',
-            axisName: 'Row'
+            axisName: 'Row',
+            axisLine: {
+              lineStyle: {
+                color: '#f2f1f8'
+              }
+            }
           }
         ],
         series: series
@@ -372,24 +339,12 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
 
       if (series.length > 0) {
         if (_.isNil(this._rowChart)) {
-          this._rowChart = echarts.init(this._rowChartElmRef.nativeElement, 'exntu');
+          this._rowChart = echarts.init(this._rowChartElmRef.nativeElement);
         }
         this._rowChart.setOption(chartOps, false);
       }
     });
 
-  }
-
-  private _getFromDate(duration:string) {
-    if ('1DAY' === duration) {
-      return moment().subtract(1, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
-    } else if ('7DAYS' === duration) {
-      return moment().subtract(7, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
-    } else if ('30DAYS' === duration) {
-      return moment().subtract(30, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
-    } else {
-      return moment().subtract(1, 'hours').utc().format('YYYY-MM-DDTHH:mm:ss');
-    }
   }
 
   private _getSumOfArray(arr: any[]) {

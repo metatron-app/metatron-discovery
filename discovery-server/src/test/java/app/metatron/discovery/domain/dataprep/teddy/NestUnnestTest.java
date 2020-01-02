@@ -63,34 +63,56 @@ public class NestUnnestTest extends TeddyTest {
   }
 
   @Test
-  public void test_nest_map() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
+  public void test_nest_unnest_map() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{
+            {"3", "1", "2"},
+            {"1", "1", "3"},
+            {"3", "1", "4"},
+            {}
+    };
+    DataFrame df = createByGrid(strGrid, new String[]{"a", "b", "c"});
 
-    String ruleString = "nest col: pcode1, pcode2, pcode3, pcode4 into: map as: pcode";
+    df = apply_rule(df, "settype col: a, b type: long");
 
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
+    df = apply_rule(df, "nest col: a, b, c into: map as: d");
+    assertRow(df.rows.get(0), new Object[]{3L, 1L, "2", "{\"a\":3,\"b\":1,\"c\":\"2\"}"});
+    assertRow(df.rows.get(1), new Object[]{1L, 1L, "3", "{\"a\":1,\"b\":1,\"c\":\"3\"}"});
+    assertRow(df.rows.get(2), new Object[]{3L, 1L, "4", "{\"a\":3,\"b\":1,\"c\":\"4\"}"});
+    assertRow(df.rows.get(3), new Object[]{null, null, null, "{}"});
+
+    DataFrame df2 = apply_rule(df, "unnest col: d into: map idx: 'a'");
+    assertRow(df2.rows.get(0), new Object[]{3L, 1L, "2", "{\"a\":3,\"b\":1,\"c\":\"2\"}", 3L});
+    assertRow(df2.rows.get(1), new Object[]{1L, 1L, "3", "{\"a\":1,\"b\":1,\"c\":\"3\"}", 1L});
+    assertRow(df2.rows.get(2), new Object[]{3L, 1L, "4", "{\"a\":3,\"b\":1,\"c\":\"4\"}", 3L});
+
+    df2 = apply_rule(df, "unnest col: d into: map idx: 'c'");
+    assertRow(df2.rows.get(0), new Object[]{3L, 1L, "2", "{\"a\":3,\"b\":1,\"c\":\"2\"}", "2"});
+    assertRow(df2.rows.get(1), new Object[]{1L, 1L, "3", "{\"a\":1,\"b\":1,\"c\":\"3\"}", "3"});
+    assertRow(df2.rows.get(2), new Object[]{3L, 1L, "4", "{\"a\":3,\"b\":1,\"c\":\"4\"}", "4"});
   }
 
   @Test
-  public void test_nest_unnest_map() throws IOException, TeddyException {
-    DataFrame contract = new DataFrame();
-    contract.setByGrid(grids.get("contract"));
-    contract = prepare_contract(contract);
-    contract.show();
+  public void test_nest_unnest_map_multi() throws IOException, TeddyException {
+    String[][] strGrid = new String[][]{
+            {"3", "2"},
+            {"1", "3"},
+            {null, "4"},
+            {}
+    };
+    DataFrame df = createByGrid(strGrid, new String[]{"a", "b"});
 
-    String ruleString = "nest col: pcode1, pcode2, pcode3, pcode4 into: map as: pcode";
+    df = apply_rule(df, "settype col: a type: long");
 
-    DataFrame newDf = apply_rule(contract, ruleString);
-    newDf.show();
+    df = apply_rule(df, "nest col: a, b into: map as: c");
+    assertRow(df.rows.get(0), new Object[]{3L, "2", "{\"a\":3,\"b\":\"2\"}"});
+    assertRow(df.rows.get(1), new Object[]{1L, "3", "{\"a\":1,\"b\":\"3\"}"});
+    assertRow(df.rows.get(2), new Object[]{null, "4", "{\"b\":\"4\"}"});
+    assertRow(df.rows.get(3), new Object[]{null, null, "{}"});
 
-    ruleString = "unnest col: pcode into: map idx: 'pcode3'"; // into: is not used (remains for backward-compatability)
-
-    newDf = apply_rule(newDf, ruleString);
-    newDf.show();
+    DataFrame df2 = apply_rule(df, "unnest col: c into: map idx: 'a', 'b'");
+    assertRow(df2.rows.get(0), new Object[]{3L, "2", "{\"a\":3,\"b\":\"2\"}", 3L, "2"});
+    assertRow(df2.rows.get(1), new Object[]{1L, "3", "{\"a\":1,\"b\":\"3\"}", 1L, "3"});
+    assertRow(df2.rows.get(2), new Object[]{null, "4", "{\"b\":\"4\"}", null, "4"});
   }
 
   @Test

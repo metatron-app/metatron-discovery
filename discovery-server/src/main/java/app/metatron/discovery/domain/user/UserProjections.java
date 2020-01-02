@@ -120,4 +120,43 @@ public class UserProjections extends BaseProjections {
 
   }
 
+  @Projection(types = User.class, name = "forMetadataCreatorListProjection")
+  public interface ForMetadataCreatorListProjection extends BaseProjectionCls {
+    @Value("#{target.username}")
+    String getId();
+
+    String getUsername();
+
+    String getFullName();
+
+    String getEmail();
+
+    String getImageUrl();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+  }
+
+  @Projection(types = User.class, name = "forMetadataCreatorDetailProjection")
+  public interface ForMetadataCreatorDetailProjection extends BaseProjectionCls {
+    @Value("#{target.username}")
+    String getId();
+
+    String getUsername();
+
+    String getFullName();
+
+    String getEmail();
+
+    String getImageUrl();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+
+    @Value("#{@userService.getLastAccessTime(target.getUsername())}")
+    DateTime getLastAccessTime();
+  }
+
 }

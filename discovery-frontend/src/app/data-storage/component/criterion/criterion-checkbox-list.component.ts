@@ -64,7 +64,6 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
   ngOnInit() {
     super.ngOnInit();
     this._selectedItemList = {};
-    this.defaultSelectedItemList = {};
   }
 
 

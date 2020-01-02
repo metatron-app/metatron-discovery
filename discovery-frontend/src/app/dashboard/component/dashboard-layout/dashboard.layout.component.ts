@@ -359,7 +359,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     }
 
     // 설정에 있는 Datasource Mapping 정보에 connType, engineName 추가해줌 - MasterDatasource
-    dataSource.name = masterDsInfo.engineName;
+    dataSource.name = masterDsInfo.name;
     if (ConnectionType.ENGINE === masterDsInfo.connType) {
       dataSource
         = _.merge(dataSource, {

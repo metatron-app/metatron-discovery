@@ -25,12 +25,12 @@
   <!-- contents in  -->
   <div class="ddp-type-contents-in ddp-sheet-resize">
     <div class="ddp-box-popupcontents ddp-wrap-file-create ddp-flex">
-      <div class="ddp-wrap-variable" [class.ddp-type]="!isCsvFile()">
+      <div class="ddp-wrap-variable" [class.ddp-type]="isExcelFile()">
         <!-- wrap sheet -->
         <div class="ddp-wrap-sheet">
 
           <!-- sheet list -->
-          <div class="ddp-ui-sheet-list" [ngStyle]="isCsvFile() ? {'display': 'none'} : {}">
+          <div class="ddp-ui-sheet-list" [ngStyle]="isExcelFile() ? {} : {'display': 'none'}">
             <ul class="ddp-list-sheet">
               <li *ngFor="let sheet of fileResult.sheets"
                   [class.ddp-selected]="sheet === fileResult.selectedSheet"
@@ -46,11 +46,11 @@
           </div>
           <!-- //sheet list -->
           <!-- sheet view -->
-          <div class="ddp-view-sheet" [class.ddp-full]="isCsvFile()">
+          <div class="ddp-view-sheet" [class.ddp-full]="!isExcelFile()">
             <div class="ddp-wrap-grid-option ddp-data-name">
-              {{isCsvFile() ? '' : fileResult.selectedSheet.sheetName}}
+              {{isExcelFile() ? fileResult.selectedSheet.sheetName : ''}}
               <!-- error icon (only sheet) -->
-              <em class="ddp-icon-error2" *ngIf="!isCsvFile() && !fileResult.selectedSheet.valid"></em>
+              <em class="ddp-icon-error2" *ngIf="isExcelFile() && !fileResult.selectedSheet.valid"></em>
               <!-- //error icon (only sheet) -->
               <div class="ddp-part-right">
                 <div class="ddp-data-form">
@@ -150,7 +150,7 @@
           </div>
         </ng-container>
         <!-- 헤드컬럼 설정 -->
-        <div class="ddp-wrap-edit3 ddp-type">
+        <div class="ddp-wrap-edit3 ddp-type" *ngIf="!isJsonFile()">
           <label class="ddp-label-checkbox" (click)="onChangeIsFirstHeaderRowFlag(); $event.preventDefault()">
             <input type="checkbox" [checked]="isFirstHeaderRow">
             <i class="ddp-icon-checkbox"></i>
@@ -160,7 +160,7 @@
       </div>
       <!-- info message -->
       <div class="ddp-wrap-message">
-        <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || (isCsvFile() ? (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid) : !fileResult.selectedSheet.valid)">
+        <div class="ddp-box-synch type-error" *ngIf="globalErrorMessage || (isExcelFile() ? !fileResult.selectedSheet.valid : (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid))">
           <div class="ddp-txt-synch">
             <em class="ddp-icon-info"></em>
             {{getErrorMessage}}

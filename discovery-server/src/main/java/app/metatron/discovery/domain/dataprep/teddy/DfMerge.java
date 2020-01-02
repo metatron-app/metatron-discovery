@@ -19,7 +19,6 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Merge;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -33,26 +32,31 @@ public class DfMerge extends DataFrame {
     super(dsName, ruleString);
   }
 
+  private String strip(String str) {
+    return str.substring(1, str.length() - 1);
+  }
+
   @Override
   public List<Object> prepare(DataFrame prevDf, Rule rule, List<DataFrame> slaveDfs) throws TeddyException {
     List<Object> preparedArgs = new ArrayList<>();
     Merge merge = (Merge) rule;
 
     Expression targetExpr = merge.getCol();
-    String with = merge.getWith().replaceAll("'", "");        // FIXME: use makeParsable()
-    String newColName = merge.getAs().replaceAll("'", "");
+    String with = strip(merge.getWith());
+    String newColName = strip(merge.getAs());
 
     List<String> targetColNames = TeddyUtil.getIdentifierList(targetExpr);
     if (targetColNames.isEmpty()) {
       throw new NoInputColumnDesignatedException("DfMerge.prepare(): no input column designated");
     }
 
-    // 마지막 목적 컬럼까지만 추가 하기 위해
+    // Find where to put among the columns
     int lastColPos = 0;
     for (String colName : targetColNames) {
       lastColPos = prevDf.getColnoByColName(colName) > lastColPos ? prevDf.getColnoByColName(colName) : lastColPos;
     }
 
+    // Merge target columns are dropped.
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
       String colName = prevDf.getColName(colno);
       if (targetColNames.contains(colName)) {
@@ -61,10 +65,9 @@ public class DfMerge extends DataFrame {
       addColumnWithDf(prevDf, colno);
     }
 
-    // target columns will not be dropped.
+    // Insert the new merged column in the middle
     int newColPos = lastColPos - targetColNames.size() + 1;
-
-    newColName = this.addColumn(newColPos, newColName, ColumnType.STRING);  // 중간 삽입
+    newColName = this.addColumn(newColPos, newColName, ColumnType.STRING);
     this.interestedColNames.add(newColName);
 
     preparedArgs.add(lastColPos);
@@ -90,7 +93,7 @@ public class DfMerge extends DataFrame {
       Row row = prevDf.rows.get(rowno);
       Row newRow = new Row();
 
-      // 마지막 목적 컬럼까지만 추가
+      // Up to the last target column (inclusive)
       for (colno = 0; colno < lastColPos; colno++) {
         String colName = prevDf.getColName(colno);
         if (targetColNames.contains(colName)) {
@@ -99,12 +102,19 @@ public class DfMerge extends DataFrame {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 
-      // 새 컬럼 추가
+      // The new merged column
       StringBuilder sb = new StringBuilder();
-      sb.append(row.get(targetColNames.get(0)));
 
-      for (int i = 1; i < targetColNames.size(); i++) {
-        sb.append(with).append(row.get(targetColNames.get(i)));
+      for (int i = 0; i < targetColNames.size(); i++) {
+        Object coldata = row.get(targetColNames.get(i));
+        if (coldata == null) {
+          continue;
+        }
+        String str = coldata.toString();
+        sb.append(str).append(with);
+      }
+      if (sb.length() > 0) {
+        sb.setLength(sb.length() - with.length());
       }
       newRow.add(newColName, sb.toString());
 

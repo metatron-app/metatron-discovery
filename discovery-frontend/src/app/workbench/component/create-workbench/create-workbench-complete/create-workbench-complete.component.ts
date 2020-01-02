@@ -91,6 +91,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
     if (this.workbench.hasOwnProperty('createData')) {
       this.initCreateData(this.workbench['createData']);
     }
+
   }
 
   // Destory

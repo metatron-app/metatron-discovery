@@ -1,0 +1,330 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="ddp-type-contents2">
+
+  <div class="ddp-top-flow">
+    <div class="ddp-data-form">
+      <!-- more -->
+      <!-- more 버튼 클릭시 ddp-selected 추가 -->
+      <div class="ddp-ui-more" [ngClass]="{'ddp-selected' : showDisable}" (click)="showDisable = !showDisable" (clickOutside)="showDisable = false">
+        <a href="javascript:" class="ddp-icon-more"></a>
+        <!-- popup -->
+        <div class="ddp-data-box">
+          <a href="javascript:" class="ddp-list-link" (click)="disableModalOpen()"><em class="ddp-icon-delete"></em>{{'msg.engine.monitoring.btn.ds.disable' | translate}}</a>
+        </div>
+        <!-- //popup -->
+      </div>
+      <!-- //more -->
+    </div>
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="prevDatasourceList()"></a>
+      <span class="ddp-data-name" *ngIf="datasource">{{datasource.datasource}}</span>
+    </div>
+    <!-- //navi wrap -->
+  </div>
+
+  <div class="ddp-wrap-info-detail">
+    <!-- detail -->
+    <div class="ddp-ui-info-detail">
+
+      <label class="ddp-label-detail">{{'msg.comm.ui.info' | translate}}</label>
+
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="180px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.dp.th.status' | translate}}
+          </th>
+          <td *ngIf="datasource">
+            <span class="ddp-txt-status type-{{getDatasourceStatus(datasource)}}">{{getDatasourceStatusLabel(datasource)}}</span>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.comm.detail.size' | translate}}
+          </th>
+          <td *ngIf="datasourceStatus">
+            {{convertSize(datasourceStatus.segments.size)}} (over {{getDurationLabel(datasourceStatus.segments.minTime, datasourceStatus.segments.maxTime)}})
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.engine.monitoring.ui.ds.numrows' | translate}}
+          </th>
+          <td *ngIf="datasource">
+            {{datasource.num_rows | numberCommas}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.storage.th.time-interval' | translate}}
+          </th>
+          <td *ngIf="datasourceStatus">
+            {{datasourceStatus.segments.minTime | date : 'yyyy-MM-ddTHH' : 'UTC'}} ~ {{datasourceStatus.segments.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC'}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+    <!-- //detail -->
+
+    <!-- detail -->
+    <div class="ddp-ui-info-detail">
+
+      <label class="ddp-label-detail type-inline">
+        {{'msg.dp.btn.tab.rule' | translate}}
+        <div class="ddp-ui-buttons">
+          <a href="javascript:" class="ddp-btn-box-edit" (click)="openRule();">{{'msg.comm.ui.edit' | translate}} > </a>
+        </div>
+      </label>
+      <div class="wrap-info-table">
+
+        <table class="ddp-table-form ddp-table-type2 ">
+          <colgroup>
+            <col width="170px">
+            <col width="170px">
+            <col width="*">
+            <!--<col width="20%">-->
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              No
+            </th>
+            <th>
+              {{'msg.comm.th.type' | translate}}
+            </th>
+            <th>
+              {{'msg.storage.th.duration' | translate}}
+            </th>
+            <!--<th>
+              Tier
+            </th>-->
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let rule of datasourceRule; let i = index">
+            <td>
+              Rule #{{i+1}}
+            </td>
+            <td>
+              {{rule.type}}
+            </td>
+            <td>
+              {{getRetentionDuration(rule)}}
+            </td>
+            <!--<td>
+              {{getRetentionTier(rule)}}
+            </td>-->
+          </tr>
+          <tr *ngFor="let rule of datasourceDefaultRule; let i = index">
+            <td>
+              Rule #{{i+ datasourceRule.length + 1}} (default rule)
+            </td>
+            <td>
+              {{rule.type}}
+            </td>
+            <td>
+              {{getRetentionDuration(rule)}}
+            </td>
+            <!--<td>
+              {{getRetentionTier(rule)}}
+            </td>-->
+          </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+    <!-- //detail -->
+    <!-- detail -->
+    <div class="ddp-ui-info-detail">
+
+      <label class="ddp-label-detail type-inline">{{'msg.storage.ui.dsource.preview.histogram' | translate}}</label>
+      <div class="box-graph" #histogram>
+        <div class="ddp-data-empty">
+          <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+        </div>
+      </div>
+    </div>
+    <!-- //detail -->
+
+    <!-- detail -->
+    <div class="ddp-ui-info-detail">
+      <label class="ddp-label-detail ">
+        {{'msg.storage.ui.title.data.detail' | translate}}
+        <span class="ddp-data-num"><strong *ngIf="datasourceStatus">{{datasourceStatus.segments.count | numberCommas}}</strong> shards</span>
+        <span class="ddp-data-num"><strong *ngIf="datasourceIntervalKey">{{datasourceIntervalKey.length | numberCommas}}</strong> intervals</span>
+      </label>
+
+
+      <div class="wrap-data-detail">
+        <!-- table -->
+        <div class="wrap-info-table type-left">
+
+          <table class="ddp-table-form ddp-table-type2 type-cursor">
+            <colgroup>
+              <col width="*">
+              <col width="60px">
+              <col width="100px">
+              <col width="30px">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                Interval
+              </th>
+              <th class="ddp-txt-right">
+                Shard
+              </th>
+              <th class="ddp-txt-right">
+                {{'msg.comm.detail.size' | translate}}
+              </th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let key of datasourceIntervalKey" (click)="onClickInterval(key)" [class.ddp-selected]="selectedInterval === key">
+              <td>
+                {{ key.substring(0,10) }}<span class="sep">T</span>{{ key.substring(11,13) }}
+              </td>
+              <td class="ddp-txt-right">
+                {{datasourceIntervals[key].count}}
+              </td>
+              <td class="ddp-txt-right">
+                {{convertSize(datasourceIntervals[key].size)}}
+              </td>
+              <td>
+                <em class="ddp-icon-view"></em>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- //table -->
+        <div class="wrap-info-table-detail" *ngIf="intervalStatus">
+          <div class="data-interval">{{getObjectKey(intervalStatus)}}</div>
+
+          <table class="ddp-table-detail">
+            <colgroup>
+              <col width="180px">
+              <col width="*">
+            </colgroup>
+            <tbody>
+            <!--<tr>
+              <th>
+                Dimension ({{intervalMetadata.dimensions.split(',').length}})
+              </th>
+              <td>
+                {{intervalMetadata.dimensions}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                Metric ({{intervalMetadata.metrics.split(',').length}})
+              </th>
+              <td>
+                {{intervalMetadata.metrics}}
+              </td>
+            </tr>-->
+
+            </tbody>
+          </table>
+          <!-- table -->
+          <div class="wrap-info-table">
+            <table class="ddp-table-form ddp-table-type2 ">
+              <colgroup>
+                <col width="20%">
+                <col width="*">
+                <!--<col width="15%">
+                <col width="17%">-->
+                <col width="220px">
+                <col width="100px">
+                <col width="120px">
+                <col width="120px">
+              </colgroup>
+              <thead>
+              <tr>
+                <th>
+                  Shard ID
+                </th>
+                <th>
+                  Path
+                </th>
+                <!--<th>
+                  LoadingNode
+                </th>
+                <th>
+                  Version
+                </th>-->
+                <th>
+                  {{'msg.storage.ui.server' | translate}}
+                </th>
+                <th class="ddp-txt-right">
+                  {{'msg.comm.detail.size' | translate}}
+                </th>
+                <th class="ddp-txt-right" colspan="2">
+                  {{'msg.comm.name.dim' | translate}} / {{'msg.comm.name.mea' | translate}} ({{'msg.statistics.th.count' | translate}})
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let key of shardKey">
+                <td>
+                  {{key}}
+                </td>
+                <td>
+                  {{getObjectString(intervalStatus[key].metadata.loadSpec)}}
+                </td>
+                <!--<td>
+                  druid-historical-58.druid-historical.metatron.svc.cluster.loca
+                </td>
+                <td>
+                  {{intervalStatus[key].metadata.version}}
+                </td>-->
+                <td [innerHTML]="intervalStatus[key].servers.join('<br/>')">
+                </td>
+                <td class="ddp-txt-right">
+                  {{convertSize(intervalStatus[key].metadata.size)}}
+                </td>
+                <td class="ddp-txt-right">
+                  {{intervalStatus[key].metadata.dimensions === '' ? 0 : intervalStatus[key].metadata.dimensions.split(',').length}} / {{intervalStatus[key].metadata.metrics === '' ? 0 : intervalStatus[key].metadata.metrics.split(',').length}}
+                </td>
+                <td class="ddp-txt-right">
+                  <a href="javascript:" class="ddp-btn-box-edit" (click)="openColumn(intervalStatus[key].metadata.dimensions, intervalStatus[key].metadata.metrics)">{{'msg.comm.detail.details' | translate}} ></a>
+                </td>
+              </tr>
+
+              </tbody>
+            </table>
+
+          </div>
+          <!-- //table -->
+        </div>
+
+      </div>
+    </div>
+    <!-- //detail -->
+  </div>
+</div>
+<app-rule-datasource [datasourceId]="datasource ? datasource.datasource : ''" [datasourceRule]="datasourceRule" (changeRetention)="onChangedRetention();"></app-rule-datasource>
+<app-column-datasource></app-column-datasource>
+<app-delete-modal (deleteConfirm)="disableDatasource()"></app-delete-modal>

@@ -67,6 +67,10 @@ public interface UserRepository extends JpaRepository<User, String>, QueryDslPre
   User findByUsername(@Param("username") String username);
 
   @RestResource(exported = false)
+  @Query("SELECT user FROM User user WHERE user.username = :username AND user.status NOT IN ('DELETED', 'REJECTED')")
+  <T> T findByUsername(@Param("username") String username, Class<T> projectionCls);
+
+  @RestResource(exported = false)
   @Query("SELECT user FROM User user WHERE user.email = :email AND user.status NOT IN ('DELETED', 'REJECTED')")
   User findByEmail(@Param("email") String email);
 
@@ -93,6 +97,10 @@ public interface UserRepository extends JpaRepository<User, String>, QueryDslPre
   @RestResource(exported = false)
   @Query("SELECT user FROM User user WHERE user.username IN (:usernames)")
   List<User> findByUsernames(@Param("usernames") List<String> usernames);
+
+  @RestResource(exported = false)
+  @Query("SELECT user FROM User user WHERE user.username IN (:usernames)")
+  <T> List<T> findByUsernames(@Param("usernames") List<String> usernames, Class<T> projectionCls);
 
   /**
    * 사용자 Fullname, id 검색

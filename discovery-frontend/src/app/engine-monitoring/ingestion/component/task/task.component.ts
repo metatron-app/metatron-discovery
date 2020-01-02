@@ -31,6 +31,7 @@ import {CriterionComponent} from "../../../../data-storage/component/criterion/c
 import {Criteria} from "../../../../domain/datasource/criteria";
 import {StringUtil} from "../../../../common/util/string.util";
 import {TimezoneService} from "../../../../data-storage/service/timezone.service";
+import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
 
 declare let moment: any;
 
@@ -116,7 +117,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   }
 
   public isEmptyList(): boolean {
-    return this.pageResult.totalElements === 0;
+    return this.pageResult.totalElements === 0 || this.taskTotalList === undefined;
   }
 
   public reloadPage(isFirstPage: boolean = true) {
@@ -142,19 +143,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   }
 
   public getStatusClass(taskStatus: TaskStatus): string {
-    if (TaskStatus.PENDING === taskStatus) {
-      return 'ddp-pending';
-    } else if (TaskStatus.WAITING === taskStatus) {
-      return 'ddp-waiting';
-    } else if (TaskStatus.RUNNING === taskStatus) {
-      return 'ddp-running';
-    } else if (TaskStatus.SUCCESS === taskStatus) {
-      return 'ddp-success';
-    } else if (TaskStatus.FAILED === taskStatus) {
-      return 'ddp-fail';
-    } else {
-      return '';
-    }
+    return EngineMonitoringUtil.getTaskStatusClass(taskStatus);
   }
 
   public getDurationString(taskDuration: number): string {
@@ -162,15 +151,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   }
 
   public getTypeTranslate(taskType: TaskType): string {
-    if (TaskType.INDEX === taskType) {
-      return 'index';
-    } else if (TaskType.KAFKA === taskType) {
-      return 'kafka';
-    } else if (TaskType.HADOOP === taskType) {
-      return 'hadoop';
-    } else {
-      return '';
-    }
+    return EngineMonitoringUtil.getTaskTypeTranslate(taskType);
   }
 
   public sortTaskList(key: string): void {
@@ -208,11 +189,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   }
 
   public highlightSearchText(name, searchText): string {
-    if (_.isNil(searchText) || searchText.trim() === '') {
-      return name;
-    } else {
-      return name.replace(new RegExp('(' + searchText + ')'), '<span class="ddp-txt-search type-search">$1</span>');
-    }
+    return EngineMonitoringUtil.highlightSearchText(name, searchText);
   } // function - highlightSearchText
 
   /**
@@ -242,7 +219,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
     const filterParam = this._getTaskParams();
     return _.cloneDeep(this.taskTotalList).filter(item => {
       const matchStatus = !filterParam['taskStatus'] || filterParam['taskStatus'].length == 0 || filterParam['taskStatus'].some(status => item.status == status);
-      const matchType = !filterParam['taskType'] || filterParam['taskType'].length == 0 || filterParam['taskType'].some(type => this.getTypeTranslate(item.type) == type.toLowerCase());
+      const matchType = !filterParam['taskType'] || filterParam['taskType'].length == 0 || filterParam['taskType'].some(type => this.getTypeTranslate(item.type) == type);
       const matchSearchWord = !filterParam['containsText'] || item.task_id.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
       const matchCreatedTime = (_.isNil(filterParam['createdTimeFrom'] && _.isNil(filterParam['createdTimeTo'])))
         || (filterParam['createdTimeFrom'] == "" && filterParam['createdTimeTo'] == "")
@@ -285,7 +262,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
       this.engineService.getTaskList().then((data) => {
         this.taskTotalList = data;
         this._getTaskPagingList();
-      })
+      }).catch((error) => this.commonExceptionHandler(error));
     } else {
       this._getTaskPagingList();
     }

@@ -441,7 +441,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
         // 현재 보고있는 페이지 인 경우
         if (this.selectedDashboard.id === dashboard.id) {
-          this.selectedDashboard = null;
+          this._setSelectedDashboard( null );
         }
 
         this._getWorkbook().then(() => {
@@ -772,7 +772,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           }
         }
       } else {
-        this.selectedDashboard = null;
+        this._setSelectedDashboard( null );
       }
 
       // detect changes
@@ -975,7 +975,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public updateCompleteDashboard(dashboard) {
     // 업데이트한 대시보드 선택처리
-    this.selectedDashboard = dashboard;
+    this._setSelectedDashboard( dashboard );
     // 좌측 대시보드 리스트 썸네일 갱신
     this.dashboards.forEach((board) => {
       if (board.id === dashboard.id) {
@@ -1026,7 +1026,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.tempLoadBoard = dashboard;
     if (this.isInvalidDatasource(dashboard)) {
       if (this._boardComp) {
-        this.selectedDashboard = undefined;
+        this._setSelectedDashboard( undefined );
         this._boardComp.showError(this.translateService.instant('msg.space.ui.dashboard.unauthorized'));
         this._boardComp.hideBoardLoading();
       }
@@ -1039,7 +1039,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
           // save data for selected dashboard
           board.workBook = this.workbook;
-          this.selectedDashboard = board;
+          this._setSelectedDashboard( board );
           this.tempLoadBoard = undefined;
 
           this.scrollToDashboard(board.id); // scroll to item
@@ -1090,7 +1090,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this._boardComp.hideError();
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
         board.workBook = this.workbook;
-        this.selectedDashboard = board;
+        this._setSelectedDashboard( board );
         this.loadingHide(); // 로딩 숨김
         this.changeDetect.detectChanges();    // 변경 갱신
       }).catch(() => {
@@ -1336,4 +1336,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     this.changeMode('NO_DATA');
   } // function - _initViewPage
+
+  private _setSelectedDashboard(dashboard) {
+    this.selectedDashboard = dashboard;
+    this.dashboardService.setCurrentDashboard( dashboard );
+  }
 }

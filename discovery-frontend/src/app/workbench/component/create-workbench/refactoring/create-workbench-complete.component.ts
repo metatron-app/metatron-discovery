@@ -23,8 +23,8 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   @Input() readonly schemaName: string;
   @Input() readonly tableName: string;
 
-  name: string;
-  description: string;
+  name: string = '';
+  description: string = '';
   selectedConnection;
 
   isInvalidName: boolean;

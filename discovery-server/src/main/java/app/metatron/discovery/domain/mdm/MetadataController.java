@@ -101,6 +101,9 @@ public class MetadataController {
   @Autowired
   FavoriteService favoriteService;
 
+  @Autowired
+  DataCreatorService dataCreatorService;
+
   MetadataColumnProjections metadataColumnProjections = new MetadataColumnProjections();
 
   MetadataProjections metadataProjections = new MetadataProjections();
@@ -536,6 +539,13 @@ public class MetadataController {
     ));
   }
 
+  /**
+   * Add or Remove favorite to metadata
+   *
+   * @param metadataId the metadata id
+   * @param action     the action
+   * @return the response entity
+   */
   @RequestMapping(value = "/metadatas/{metadataId}/favorite/{action:attach|detach}", method = RequestMethod.POST)
   public ResponseEntity <?> manageFavorite(@PathVariable("metadataId") String metadataId, @PathVariable("action") String action) {
     switch (action) {
@@ -547,5 +557,94 @@ public class MetadataController {
         break;
     }
     return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Add or Remove favorite to data creator
+   *
+   * @param creatorId the creator id
+   * @param action    the action
+   * @return the response entity
+   */
+  @RequestMapping(value = "/metadatas/datacreators/{creatorId}/favorite/{action:attach|detach}", method = RequestMethod.POST)
+  public ResponseEntity <?> manageFavoriteCreator(@PathVariable("creatorId") String creatorId, @PathVariable("action") String action) {
+    switch (action) {
+      case "attach":
+        favoriteService.addFavorite(DomainType.METADATA_CREATOR, creatorId);
+        break;
+      case "detach":
+        favoriteService.removeFavorite(DomainType.METADATA_CREATOR, creatorId);
+        break;
+    }
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Gets Metadata creator List.
+   *
+   * @param nameContains      the name contains
+   * @param resourceAssembler the resource assembler
+   * @return the favorite creator
+   */
+  @RequestMapping(path = "/metadatas/datacreators", method = RequestMethod.GET)
+  @ResponseBody
+  public ResponseEntity<?> getDataCreatorList(@RequestParam(value = "nameContains", required = false) String nameContains,
+                                              PersistentEntityResourceAssembler resourceAssembler) {
+    List<DataCreatorDTO> dataCreatorList = dataCreatorService.getDataCreatorList(nameContains);
+    return ResponseEntity.ok(dataCreatorList);
+  }
+
+  /**
+   * Gets favorite creator detail.
+   *
+   * @param creatorId the creator id
+   * @return the favorite creator detail
+   */
+  @RequestMapping(value = "/metadatas/datacreators/{creatorId}", method = RequestMethod.GET)
+  public ResponseEntity <?> getFavoriteCreatorDetail(@PathVariable("creatorId") String creatorId) {
+    DataCreatorDTO dataCreator = dataCreatorService.getDataCreator(creatorId);
+    return ResponseEntity.ok(dataCreator);
+  }
+
+  /**
+   * Getting Metadata List by Creator
+   *
+   * @param creatorId         the creator id
+   * @param nameContains      the name contains
+   * @param pageable          the pageable
+   * @param resourceAssembler the resource assembler
+   * @return the response entity
+   */
+  @RequestMapping(value = "/metadatas/datacreators/{creatorId}/metadatas", method = RequestMethod.GET)
+  public ResponseEntity <?> findMetadatas(@PathVariable("creatorId") String creatorId,
+                                          @RequestParam(value = "nameContains", required = false) String nameContains,
+                                          @RequestParam(value = "sourceType", required = false) List<String> sourceType,
+                                          Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+
+    // Validate source type.
+    List<Metadata.SourceType> searchSourceType = null;
+    if(sourceType != null && !sourceType.isEmpty()){
+      searchSourceType = new ArrayList<>();
+      for(String sourceTypeStr : sourceType){
+        if (StringUtils.isNotEmpty(sourceTypeStr)) {
+          searchSourceType.add(SearchParamValidator.enumUpperValue(Metadata.SourceType.class, sourceTypeStr, "sourceType"));
+        }
+      }
+    }
+
+    // 기본 정렬 조건 셋팅
+    if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
+      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
+                                 new Sort(Sort.Direction.ASC, "name"));
+    }
+
+    User targetUser = userRepository.findByUsername(creatorId);
+    List<String> targetUserId = Lists.newArrayList(targetUser.getUsername());
+    Page<Metadata> metadatas = metadataRepository.searchMetadatas(null, searchSourceType, null, null,
+                                                                  nameContains, null, targetUserId,
+                                                                  null, null, null, pageable);
+    //add additional properties for list projection
+    metadataService.addProjectionProperties(metadatas.getContent());
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 }

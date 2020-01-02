@@ -67,6 +67,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   public readonly TIMESTAMP_VALID_PUPOP_ELEMENT = this.UUID + '-timestamp-valid-pupop-elm';
   public readonly TYPE_SELECT_PUPOP_ELEMENT = this.UUID + '-type-select-pupop-elm';
 
+  // Guide message flag
+  isShowMetadataGuide: boolean = true;
+
   /**
    * Sort
    */
