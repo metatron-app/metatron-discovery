@@ -36,8 +36,7 @@ import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
 
 @Component({
   selector: '[overview]',
-  templateUrl: './overview.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' }
+  templateUrl: './overview.component.html'
 })
 export class OverviewComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

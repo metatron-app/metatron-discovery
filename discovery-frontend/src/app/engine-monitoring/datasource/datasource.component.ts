@@ -41,9 +41,7 @@ import {DeleteModalComponent} from "../../common/component/modal/delete/delete.c
 @Component({
   selector: '[datasource]',
   templateUrl: './datasource.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' },
-  styles: ['.ddp-wrap-top-filtering .ddp-filter-search.type-dataname .ddp-form-filter-search {width: 100%;}'
-          ,'.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {width: 280px;}']
+  styles: [':host /deep/ .ddp-form-search {width: 280px;}']
 })
 export class DatasourceComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

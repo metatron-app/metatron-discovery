@@ -38,7 +38,8 @@ declare let moment: any;
   templateUrl: './kpi-popup.component.html',
   styles: ['.ddp-box-meta {top:80px;}', '.ddp-box-meta .ddp-pop-top {padding-top:40px; padding-bottom:40px}'
     , '.ddp-box-meta .ddp-pop-top .ddp-ui-title {padding-top:0px;}', '.ddp-box-meta .ddp-pop-top .ddp-label-title {font-size:22px;}'
-    , '.ddp-detail-contents .ddp-view-datadetail .ddp-wrap-graph {padding:20px;}']
+    , '.ddp-detail-contents .ddp-view-datadetail .ddp-wrap-graph {padding:20px;}'
+    , '.ddp-pop-meta-detail {z-index: 30;}']
 })
 export class KpiPopupComponent extends AbstractPopupComponent implements OnInit, OnDestroy, AfterViewInit {
 

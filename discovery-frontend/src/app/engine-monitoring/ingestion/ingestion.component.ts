@@ -30,7 +30,6 @@ import {filter} from 'rxjs/operators';
 @Component({
   selector: '[ingestion]',
   templateUrl: './ingestion.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' },
   styles: ['ingestion-task .ddp-wrap-top-filtering .ddp-form-filtering:first-of-type .ddp-result-filtering {margin-left:0;}']
 })
 export class IngestionComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {

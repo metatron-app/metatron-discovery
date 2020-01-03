@@ -28,11 +28,7 @@ import {HeaderOptionComponent} from '../header-option/header-option.component';
 
 @Component({
   selector: '[header]',
-  templateUrl: './header.component.html',
-  host: {
-    '[class.ddp-layout-top-menu]': 'true',
-    '[class.ddp-clear]': 'true'
-  }
+  templateUrl: './header.component.html'
 })
 export class HeaderComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
