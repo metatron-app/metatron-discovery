@@ -14,25 +14,17 @@
 
 <!--suppress NsUnresolvedStyleClassReference -->
 <em class="ddp-bg-back"></em>
-<div class="ddp-ui-contents-in ddp-pad0">
+<div class="ddp-ui-contents-in ">
 
   <!-- top -->
-  <div header [content]="isSelectedContent"></div>
+  <div class="ddp-ui-contents-top" header [content]="isSelectedContent"></div>
   <!-- //top -->
 
   <!-- contents det -->
-  <ng-template [ngIf]="isSelectedContent.isOverview()">
-    <div overview></div>
-  </ng-template>
-  <ng-template [ngIf]="isSelectedContent.isIngestion()">
-    <div ingestion [tab]="selectedIngestionContentType"></div>
-  </ng-template>
-  <ng-template [ngIf]="isSelectedContent.isQuery()">
-    <div query></div>
-  </ng-template>
-  <ng-template [ngIf]="isSelectedContent.isDatasource()">
-    <div datasource></div>
-  </ng-template>
+  <div class="ddp-ui-contents-list" overview *ngIf="isSelectedContent.isOverview()"></div>
+  <div class="ddp-ui-contents-list" ingestion [tab]="selectedIngestionContentType" *ngIf="isSelectedContent.isIngestion()"></div>
+  <div class="ddp-ui-contents-list" query *ngIf="isSelectedContent.isQuery()"></div>
+  <div class="ddp-ui-contents-list" datasource *ngIf="isSelectedContent.isDatasource()"></div>
   <!-- //contents det -->
 
 </div>

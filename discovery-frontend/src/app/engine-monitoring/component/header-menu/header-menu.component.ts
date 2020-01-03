@@ -26,9 +26,8 @@ import {Engine} from '../../../domain/engine-monitoring/engine';
 import {StateService} from '../../service/state.service';
 
 @Component({
-  selector: '[header-menu]',
-  templateUrl: './header-menu.component.html',
-  host: { '[class.ddp-ui-contents-top]': 'true' }
+  selector: 'header-menu',
+  templateUrl: './header-menu.component.html'
 })
 export class HeaderMenuComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

@@ -15,16 +15,14 @@
 <div class="ddp-wrap-top-filtering">
   <!-- filter search -->
   <div class="ddp-wrap-type-search ddp-fright">
-    <div class="ddp-form-search ddp-selected">
-      <component-input
-        [autoFocus]="false"
-        [isEnableDelete]="true"
-        [value]="searchKeyword"
-        [placeHolder]="'msg.engine.monitoring.ph.supervisor.search' | translate"
-        [immediately]="true"
-        (changeValue)="onChangedSearchKeyword($event)">
-      </component-input>
-    </div>
+    <component-input
+      [autoFocus]="false"
+      [isEnableDelete]="true"
+      [value]="searchKeyword"
+      [placeHolder]="'msg.engine.monitoring.ph.supervisor.search' | translate"
+      [immediately]="true"
+      (changeValue)="onChangedSearchKeyword($event)">
+    </component-input>
     <!-- form -->
   </div>
   <!-- //filter search -->

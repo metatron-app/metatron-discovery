@@ -38,8 +38,7 @@ import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
 @Component({
   selector: '[query]',
   templateUrl: './query.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' },
-  styles: ['.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {width: 280px;}']
+  styles: [':host /deep/ .ddp-form-search {width: 280px;}']
 })
 export class QueryComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 

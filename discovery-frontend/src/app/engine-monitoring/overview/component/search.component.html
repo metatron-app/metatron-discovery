@@ -12,10 +12,10 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-search"
+<div class="ddp-form-search"
      [class.ddp-selected]="isNotEmptyInput()"
      (click)="clearValue()">
-  <!--suppress HtmlFormInputWithoutLabel -->
+  <em class="ddp-icon-search"></em>
   <input type="text"
          #inputElement
          (click)="$event.stopPropagation()"
@@ -24,5 +24,5 @@
          (keyup.escape)="keyupEscapeHandler($event)"
          (blur)="blurHandler()"
          [ngModel]="keyword">
-  <a href="javascript:" [ngClass]="['ddp-btn-delete']"></a>
+  <em class="ddp-btn-search-close"></em>
 </div>

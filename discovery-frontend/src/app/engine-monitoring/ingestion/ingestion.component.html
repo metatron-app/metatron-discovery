@@ -11,18 +11,16 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<div [ngClass]="['ddp-ui-contents-det']">
-  <!-- option -->
-  <div class="ddp-list-option ddp-clear">
-    <!-- tab -->
-    <div class="ddp-wrap-boxtab">
-      <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isTaskTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.TASK)">Task</a>
-      <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isSupervisorTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.SUPERVISOR)">Supervisor</a>
-      <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isRemoteWorkerTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.REMOTE_WORKER)">Middle Manager</a>
-    </div>
+<!-- option -->
+<div class="ddp-list-option ddp-clear">
+  <!-- tab -->
+  <div class="ddp-wrap-boxtab">
+    <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isTaskTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.TASK)">Task</a>
+    <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isSupervisorTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.SUPERVISOR)">Supervisor</a>
+    <a href="javascript:" class="ddp-box-tab" [class.ddp-selected]="isRemoteWorkerTab" (click)="changeIngestionTab(INGESTION_CONTENT_TYPE.REMOTE_WORKER)">Middle Manager</a>
   </div>
-  <!-- //option -->
-  <ingestion-task *ngIf="isTaskTab"></ingestion-task>
-  <ingestion-supervisor *ngIf="isSupervisorTab"></ingestion-supervisor>
-  <ingestion-worker *ngIf="isRemoteWorkerTab"></ingestion-worker>
 </div>
+<!-- //option -->
+<ingestion-task *ngIf="isTaskTab"></ingestion-task>
+<ingestion-supervisor *ngIf="isSupervisorTab"></ingestion-supervisor>
+<ingestion-worker *ngIf="isRemoteWorkerTab"></ingestion-worker>
