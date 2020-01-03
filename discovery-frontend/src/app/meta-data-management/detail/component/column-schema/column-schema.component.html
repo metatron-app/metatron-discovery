@@ -383,7 +383,7 @@
                     <a href="javascript:"
                        (click)="onChangeLogicalType(column, LOGICAL.STRING)">
                       <em class="ddp-icon-type-ab"></em>
-                      {{'msg.metadata.ui.dictionary.type.string' | translate}}
+                      {{'msg.storage.ui.list.string' | translate}}
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
@@ -391,7 +391,7 @@
                     <a href="javascript:"
                        (click)="onChangeLogicalType(column,  LOGICAL.BOOLEAN)">
                       <em class="ddp-icon-type-tf"></em>
-                      {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
+                      {{'msg.storage.ui.list.boolean' | translate}}
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
@@ -399,7 +399,7 @@
                     <a href="javascript:"
                        (click)="onChangeLogicalType(column, LOGICAL.INTEGER)">
                       <em class="ddp-icon-type-int"></em>
-                      {{'msg.metadata.ui.dictionary.type.integer' | translate}}
+                      {{'msg.storage.ui.list.integer' | translate}}
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
@@ -407,7 +407,7 @@
                     <a href="javascript:"
                        (click)="onChangeLogicalType(column, LOGICAL.DOUBLE)">
                       <em class="ddp-icon-type-float"></em>
-                      {{'msg.metadata.ui.dictionary.type.double' | translate}}
+                      {{'msg.storage.ui.list.double' | translate}}
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
@@ -419,11 +419,19 @@
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.ARRAY)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.ARRAY, index)">
+                      <em class="ddp-icon-type-array"></em>
+                      {{'msg.storage.ui.list.array' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
                   <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.LNT)">
                     <a href="javascript:"
                        (click)="onChangeLogicalType(column, LOGICAL.LNT)">
                       <em class="ddp-icon-type-latitude"></em>
-                      {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
+                      {{'msg.storage.ui.list.lnt' | translate}}
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
@@ -431,7 +439,31 @@
                     <a href="javascript:"
                        (click)="onChangeLogicalType(column, LOGICAL.LNG)">
                       <em class="ddp-icon-type-longitude"></em>
-                      {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
+                      {{'msg.storage.ui.list.lng' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.GEO_POINT)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.GEO_POINT, index)">
+                      <em class="ddp-icon-type-point"></em>
+                      {{'msg.storage.ui.list.geo.point' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.GEO_POLYGON)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.GEO_POLYGON, index)">
+                      <em class="ddp-icon-type-polygon"></em>
+                      {{'msg.storage.ui.list.geo.polygon' | translate}}
+                      <em class="ddp-icon-check"></em>
+                    </a>
+                  </li>
+                  <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.GEO_LINE)">
+                    <a href="javascript:"
+                       (click)="onChangeLogicalType(column, LOGICAL.GEO_LINE, index)">
+                      <em class="ddp-icon-type-line"></em>
+                      {{'msg.storage.ui.list.geo.line' | translate}}
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
