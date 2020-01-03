@@ -49,13 +49,15 @@
   <!-- right -->
   <div class="ddp-part-right">
     <!-- search -->
-    <div class="ddp-type-search">
+
+    <div class="ddp-form-search ddp-selected">
+      <em class="ddp-icon-search"></em>
       <input placeholder="{{'msg.storage.ui.search.data' | translate}}"
              id="gridSearch"
              [(ngModel)]="searchText"
              (keyup.enter)="searchGrid();"
              (keyup.esc)="searchGrid(true);">
-      <a class="ddp-btn-delete" [ngStyle]="searchText ? {'display':'block'} : {'display':'none'}"  (click)="searchGrid(true);"></a>
+      <em class="ddp-btn-search-close" [ngStyle]="searchText ? {'display':'block'} : {'display':'none'}"  (click)="searchGrid(true);"></em>
     </div>
     <!-- //search -->
 
