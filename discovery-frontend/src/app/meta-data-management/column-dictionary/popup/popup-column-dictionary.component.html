@@ -1,0 +1,128 @@
+<div *ngIf="columnDictionary" class="ddp-layout-popuptype type-flex">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-flex-popup">
+    <a (click)="onClose()" href="javascript:" class="ddp-btn-close"></a>
+    <div class="ddp-pop-title">Column Dictionary
+      <div class="ddp-ui-buttons">
+        <a (click)="gotoColDicDetail()" href="javascript:" class="ddp-btn-pop ddp-bg-black"><em class="ddp-icon-view"></em>Go to Dictionary</a>
+      </div>
+    </div>
+
+    <!-- contents -->
+    <div class="ddp-pop-contents ">
+      <!-- summary -->
+      <div class="ddp-detail-summary">
+        <div class="ddp-data-name">{{columnDictionary.name}}</div>
+        <div class="ddp-detail-txt">{{description}}</div>
+      </div>
+      <!-- //summary -->
+      <!-- wrap table detail -->
+      <div class="ddp-wrap-table-detail">
+        <label class="ddp-label-detail">{{'msg.metadata.ui.dictionary.create.dictionary.information' | translate}}</label>
+        <table class="ddp-table-detail">
+          <colgroup>
+            <col width="160px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+            <tr>
+              <th> {{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}} </th>
+              <td> {{columnDictionary.name}} </td>
+            </tr>
+            <tr>
+              <th> {{'msg.metadata.ui.dictionary.create.recommendation.short.name' | translate}} </th>
+              <td>
+                {{ columnDictionary.suggestionShortName && columnDictionary.suggestionShortName.length > 0 ? columnDictionary.suggestionShortName : 'msg.metadata.ui.codetable.detail.used.column.dictionary.no.name' | translate }}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {{'msg.metadata.ui.dictionary.create.code-table' | translate}}
+              </th>
+              <td>
+                <strong>
+                  {{ (columnDictionary.codeTable && columnDictionary.codeTable.name && columnDictionary.codeTable.name.length > 0) ? columnDictionary.codeTable.name : ('msg.metadata.ui.codetable.detail.used.column.dictionary.no.code.table' | translate) }}
+                </strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //wrap table detail -->
+      <!-- wrap table detail -->
+      <div class="ddp-wrap-table-detail">
+        <label class="ddp-label-detail">{{'msg.metadata.ui.dictionary.create.format.information' | translate}}</label>
+        <table class="ddp-table-detail">
+          <colgroup>
+            <col width="160px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>Logical Type</th>
+              <td class="">
+                <span class="ddp-txt-logical">
+                  <em class="{{getFieldTypeIconClass(columnDictionary.logicalType?.toString())}}"></em>
+                  {{getLogicalTypeLabel()}}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th>{{'msg.metadata.ui.dictionary.create.time.format' | translate}}</th>
+              <td>
+                <div class="ddp-type-format">
+                  {{isEmptyDictionaryFormat() ? ('msg.metadata.ui.codetable.detail.used.column.dictionary.no.format'| translate) : columnDictionary.format.format}}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //wrap table detail -->
+      <!-- wrap table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">
+            {{'msg.metadata.dictionary.used.metadata' | translate}} ({{linkedMetadataTotalCount}})
+          </label>
+        </div>
+
+        <table class="ddp-table-form ddp-table-type3">
+          <colgroup>
+            <col width="*">
+            <col width="20%">
+            <col width="20%">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.comm.detail.metadata-name' | translate}}
+            </th>
+            <th>
+              {{'msg.metadata.th.name' | translate}}
+            </th>
+            <th>
+              {{'msg.storage.ui.th.logical.type' | translate}}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let metadata of getLinkedMetaDataColumn()">
+              <td>
+                {{metadata.metadataName}}
+              </td>
+              <td>
+                {{metadata.name}}
+              </td>
+              <td>
+                {{metadata.type}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //wrap table detail -->
+    </div>
+    <!-- //contents -->
+  </div>
+</div>

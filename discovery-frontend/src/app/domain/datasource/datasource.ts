@@ -365,6 +365,8 @@ export class Field {
         return 'ddp-icon-type-line';
       case LogicalType.GEO_POLYGON:
         return 'ddp-icon-type-polygon';
+      case LogicalType.ARRAY:
+        return 'ddp-icon-type-array'
       default:
         return '';
     }
@@ -392,6 +394,8 @@ export class Field {
       return 'ddp-icon-dimension-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-dimension-tf';
+    } else if ('ARRAY' === logicalType) {
+      return 'ddp-icon-dimension-array';
     } else if ('GEO_POINT' === logicalType) {
       return 'ddp-icon-map-view ddp-icon-dimension-point';
     } else if ('GEO_LINE' === logicalType) {
@@ -421,6 +425,8 @@ export class Field {
       return 'ddp-icon-measure-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-measure-tf';
+    } else if ('ARRAY' === logicalType) {
+      return 'ddp-icon-measure-array';
     } else if ('GEO_POINT' === logicalType) {
       return 'ddp-icon-map-view ddp-icon-measure-point';
     } else if ('GEO_LINE' === logicalType) {

@@ -272,6 +272,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       case LogicalType.GEO_POINT:
       case LogicalType.GEO_LINE:
       case LogicalType.GEO_POLYGON:
+      case LogicalType.ARRAY:
         return '';
       case LogicalType.INTEGER:
         return '0';
@@ -499,6 +500,8 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
           .catch((error) => {
             this.loadingHide();
           });
+      } else if (type.value === Type.Logical.ARRAY) {
+        this.selectedField.type = type.value;
       } else {
         delete this.selectedField.format;
       }

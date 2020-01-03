@@ -92,6 +92,16 @@
         <!-- 버튼 목록 -->
         <div class="ddp-ui-buttons" *ngIf="!isMiniHeader" >
 
+          <div class="ddp-box-btn2" *ngIf="isRealTimeDashboard()">
+            <em (click)="toggleSync()" class="ddp-icon-widget-synch" [class.ddp-on]="isRealTimeWidget()"></em>
+            <!-- 툴팁 -->
+            <div class="ddp-ui-tooltip-info">
+              <em class="ddp-icon-view-down"></em>
+              {{'msg.board.ui.sync' | translate}}
+            </div>
+            <!-- //툴팁 -->
+          </div>
+
           <!-- Data Limit Info -->
           <div class="ddp-box-btn2" *ngIf="limitInfo.isShow">
             <em class="ddp-icon-widget-info2"></em>

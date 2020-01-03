@@ -67,6 +67,7 @@ import {StompConfig, StompService} from '@stomp/ng2-stompjs';
 import * as SockJS from 'sockjs-client';
 import {FilterSelectBoxComponent} from "./component/select/filter-select-box.component";
 import {ConfirmRefModalComponent} from "./component/modal/confirm/confirm-ref.component";
+import {MetadataTypeBoxTagComponent} from "../explore-data/explore-data/component/metadata-type-box-tag.component";
 
 
 export function socketProvider() {
@@ -130,7 +131,8 @@ const stompConfig: StompConfig = {
     ColorTemplateComponent,
     SvgIconComponent,
     InputComponent,
-    PaginationComponent
+    PaginationComponent,
+    MetadataTypeBoxTagComponent
   ],
   exports: [
     AngularCommonModule,
@@ -178,7 +180,8 @@ const stompConfig: StompConfig = {
     ColorTemplateComponent,
     SvgIconComponent,
     InputComponent,
-    PaginationComponent
+    PaginationComponent,
+    MetadataTypeBoxTagComponent
   ],
   providers: [
     {

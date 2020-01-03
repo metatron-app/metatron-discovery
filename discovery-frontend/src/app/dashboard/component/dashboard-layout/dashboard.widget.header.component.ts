@@ -127,6 +127,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
             = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, pageWidgetConf.dataSource);
           this.isMissingDataSource = !widgetDataSource;
         }
+
       } else {
         this.isMissingDataSource = false;
       }
@@ -253,10 +254,6 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     return strFields;
   } // function - getChartFilterStr
 
-  /**
-   * 미니맵 설정이 유효한 차트인지 여부
-   * @returns {boolean}
-   */
   public isValidMiniMap(): boolean {
     if (this.isPageWidget && this.widget) {
       const chartConf = this.widget.configuration['chart'];
@@ -265,7 +262,24 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     } else {
       return false;
     }
-  } // function - isValidMiniMap
+  }
+
+  public isRealTimeDashboard(): boolean {
+    if (this.isPageWidget && this.widget) {
+      const boardConf = this.widget.dashBoard.configuration;
+      return ( boardConf.options.sync && boardConf.options.sync.enabled );
+    } else {
+      return false;
+    }
+  }
+
+  public isRealTimeWidget():boolean {
+    if (this.isPageWidget && this.widget) {
+      return false !== ( this.widget.configuration as PageWidgetConfiguration ).sync;
+    } else {
+      return false;
+    }
+  }
 
   /**
    * 범례 표시 여부
@@ -402,6 +416,10 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   public toggleMiniMap() {
     this.broadCaster.broadcast('TOGGLE_MINIMAP', {widgetId: this.widget.id});
   } // function - toggleMiniMap
+
+  public toggleSync() {
+    this.broadCaster.broadcast('TOGGLE_SYNC', {widgetId: this.widget.id});
+  }
 
   /**
    * 위젯 수정

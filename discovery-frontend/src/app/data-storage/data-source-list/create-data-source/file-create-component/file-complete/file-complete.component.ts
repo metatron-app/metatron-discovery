@@ -363,7 +363,15 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
    * @private
    */
   private _getFileFormat(): string {
-    return this.isExcelFile() ? 'excel' : 'csv';
+    if (this._isJsonFile()) {
+      return 'json';
+    } else {
+      return this.isExcelFile() ? 'excel' : 'csv';
+    }
+  }
+
+  private _isJsonFile() {
+    return this.getFileData.fileResult.fileKey.endsWith('json');
   }
 
   /**

@@ -1,11 +1,8 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
+import {Component, ElementRef, Renderer2, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
 import {AbstractComponent} from "../../../../../common/component/abstract.component";
 import {CommonConstant} from "../../../../../common/constant/common.constant";
 import {CookieConstant} from "../../../../../common/constant/cookie.constant";
-import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
 import * as _ from 'lodash';
-import ErrorCode = Pluploader.ErrorCode;
-declare const plupload: any;
 
 
 @Component({
@@ -20,13 +17,12 @@ export class UploaderComponent extends AbstractComponent {
   private readonly _dropContainer: ElementRef;
 
   @Input() // TODO 멀티 업로드시 이것을 배열 형태로 받고 사용하는 모든 메서드 변경 필요
-  public uploadedFile: Pluploader.File;
+  public uploadedFile: any;
 
   // upload guide message
   public uploadGuideMessage: string;
 
-  // file uploader
-  private _chunkUploader: Pluploader.Uploader;
+  public xhr;
 
   @Output()
   public uploadStarted = new EventEmitter();
@@ -34,6 +30,7 @@ export class UploaderComponent extends AbstractComponent {
   public uploadComplete = new EventEmitter();
 
   constructor(protected elementRef: ElementRef,
+              protected renderer: Renderer2,
               protected injector: Injector) {
     super(elementRef, injector);
   }
@@ -41,16 +38,112 @@ export class UploaderComponent extends AbstractComponent {
   ngOnInit() {
     super.ngOnInit();
     this.safelyDetectChanges();
-    // init uploader
-    this._initUploader();
+
+    this.renderer.listen(this._pickFiles.nativeElement, 'change', (event) => {
+      let files = event.target.files;
+      this.addFiles(files);
+    });
+    this.renderer.listen(this._dropContainer.nativeElement, 'dragover', (event) => {
+      this.disableEvent(event);
+    });
+    this.renderer.listen(this._dropContainer.nativeElement, 'drop', (event) => {
+      this.disableEvent(event);
+      let files = event.dataTransfer.files;
+      this.addFiles(files);
+    });
+
+    this.xhr = null;
+  }
+
+  public addFiles(files) {
+    console.log('FilesAdded', files);
+
+    if(!files || 0===files.length) {
+      return;
+    }
+    let file = files[0]; // one file is allowed only
+
+    // upload started
+    this.uploadStarted.emit();
+    // set guide message
+    this.uploadGuideMessage = this.translateService.instant('msg.storage.ui.file.uploading');
+
+    this.uploadFile(file);
+  }
+
+  public uploadFile(file) {
+    var formData = new FormData();
+    formData.append('file', file, file.name);
+
+    this.uploadedFile = file;
+    this.uploadedFile.isUploading = true;
+    this.uploadedFile.isCanceled = false;
+    this.uploadedFile.isComplete = false;
+    this.uploadedFile.isFailed = false;
+    this.safelyDetectChanges();
+
+    this.xhr = new XMLHttpRequest();
+    this.xhr.open("POST", CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload');
+    this.xhr.setRequestHeader('Accept', 'application/json, text/plain, */*');
+    this.xhr.setRequestHeader('Authorization', this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) );
+
+    let that = this;
+    this.xhr.onprogress = function(e) {
+      file.percent = ((e.loaded / file.size) * 100).toFixed(2);
+      that.uploadedFile.percent = file.percent;
+      that.safelyDetectChanges();
+    };
+    this.xhr.onabort = function(e) {
+      that.uploadedFile.isUploading = false;
+      that.uploadedFile.isFailed = false;
+      that.uploadedFile.isComplete = false;
+      that.uploadedFile.isCanceled = true;
+    };
+    this.xhr.onloadstart = function(e) {
+      file.percent = 0.00;
+      that.uploadedFile.percent = file.percent;
+      that.uploadGuideMessage = that.translateService.instant('msg.storage.ui.file.uploading');
+      that.safelyDetectChanges();
+    };
+    this.xhr.onload = function(e) {
+      that.uploadedFile.response = this.response;
+      var jsonResponse = JSON.parse(this.response);
+
+      if( this.status===200 ) {
+        file.percent = 100.00;
+        that.uploadedFile.percent = file.percent;
+
+        that.uploadedFile.isUploading = false;
+        that.uploadedFile.isFailed = false;
+        that.uploadedFile.isCanceled = false;
+        that.uploadedFile.isComplete = true;
+        that.safelyDetectChanges();
+
+        that.uploadComplete.emit(that.uploadedFile);
+      } else {
+        that.uploadedFile.isFailed = true;
+        that.uploadedFile.isCanceled = false;
+        that.uploadedFile.isComplete = false;
+        that.uploadedFile.isUploading = false;
+
+        // set guide message
+        that.uploadGuideMessage = that.translateService.instant('msg.storage.ui.file.failed');
+        that.uploadedFile.errorMessage = jsonResponse.message;
+        that.uploadStarted.emit();
+      }
+    };
+    this.xhr.onloadend = function(e) {
+      this.xhr = null;
+    };
+    this.xhr.send(formData);
   }
 
   /**
    * Get upload percent
-   * @param {Pluploader.File} file
+   * @param {any} file
    * @return {number}
    */
-  public getUploadPercent(file: Pluploader.File): number {
+  public getUploadPercent(file: any): number {
     return file.percent || 0;
   }
 
@@ -108,11 +201,11 @@ export class UploaderComponent extends AbstractComponent {
 
   /**
    * Is file type
-   * @param {Pluploader.File} file
+   * @param {any} file
    * @param {string} type
    * @return {boolean}
    */
-  public isFileType(file: Pluploader.File, type: string): boolean {
+  public isFileType(file: any, type: string): boolean {
     switch (type) {
       case 'csv':
         return /^.*\.csv$/.test(file.name);
@@ -127,19 +220,19 @@ export class UploaderComponent extends AbstractComponent {
 
   /**
    * Upload cancel
-   * @param {Pluploader.File} file
+   * @param {any} file
    */
-  public cancelUpload(file: Pluploader.File): void {
-    if (file.status === Pluploader.FileStatus.UPLOADING) {
+  public cancelUpload(file: any): void {
+    if (this.isFileUploading()) {
       // stop uploader
-      this._chunkUploader.stop();
       // set upload cancel
       this.uploadedFile.isUploading = false;
       this.uploadedFile.isCanceled = true;
       // remove file
-      this._chunkUploader.removeFile(file);
+      if(this.xhr) {
+        this.xhr.abort();
+      }
       // restart
-      this._chunkUploader.start();
       // set guide message
       this.uploadGuideMessage = this.translateService.instant('msg.storage.ui.file.canceled');
     }
@@ -166,131 +259,4 @@ export class UploaderComponent extends AbstractComponent {
     }
   }
 
-  /**
-   * Get created uploader
-   * @param dropElement
-   * @param buttonElement
-   * @return {Pluploader.Uploader}
-   * @private
-   */
-  private _getCreatedUploader(dropElement, buttonElement) {
-    return new plupload.Uploader(new Pluploader.Builder.UploaderOptionsBuilder()
-      .Runtimes('html5,html4')
-      .ChunkSize(0)
-      .BrowseButton(buttonElement)
-      .DropElement(dropElement)
-      .Url(CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload')
-      .Headers({
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-      })
-      .MultiSelection(false)
-      .Filters(new Pluploader.Builder.FileFiltersBuilder()
-        .MimeTypes([
-          {title: "files", extensions: "csv,xls,xlsx"}
-        ])
-        .MaxFileSize(0)
-        .builder()
-      )
-      .Init({
-        BeforeUpload: (up: Pluploader.Uploader) => {
-
-        },
-        // 파일 큐 스택 변경시
-        QueueChanged: (up: Pluploader.Uploader)=>{
-          // Only one file
-          if (up.files.length > 0) {
-            // TODO 멀티 업로드시 변경필요
-            if (up.files.length > 1) {
-              up.files.splice(0, up.files.length - 1);
-            }
-            // disable browse button
-            up.disableBrowse(true);
-            // set upload result
-            this.uploadedFile = up.files[0];
-            this.uploadedFile.isUploading = true;
-            this.uploadedFile.isCanceled = false;
-            this.uploadedFile.isComplete = false;
-            this.uploadedFile.isFailed = false;
-            this.safelyDetectChanges();
-          }
-        },
-        // 파일 추가시
-        FilesAdded: (up: Pluploader.Uploader, files) => {
-          console.log('FilesAdded', files);
-          // upload started
-          this.uploadStarted.emit();
-          // set guide message
-          this.uploadGuideMessage = this.translateService.instant('msg.storage.ui.file.uploading');
-          // upload start
-          up.start();
-          // disable upload
-          up.disableBrowse(true);
-        },
-        // 프로그레스
-        UploadProgress: (up: Pluploader.Uploader, file: Pluploader.File) => {
-          // set percent
-          this.uploadedFile.percent = file.percent;
-          this.safelyDetectChanges();
-        },
-        FileUploaded: (up, file, result: {response: string, status: number, responseHeaders: string}) => {
-          this.uploadedFile.response = result.response;
-          this.uploadedFile.responseHeaders = result.responseHeaders;
-        },
-        // complete upload
-        UploadComplete: (up, files) => {
-          // enable upload
-          up.disableBrowse(false);
-          if (this.uploadedFile.isCanceled !== true || this.uploadedFile.isFailed) {
-            this.uploadedFile.isUploading = false;
-            this.uploadedFile.isComplete = true;
-            this.safelyDetectChanges();
-            this.uploadComplete.emit(this.uploadedFile);
-          }
-        },
-        // error
-        Error: (up, err: {code: number, file: Pluploader.File, message: string}) => {
-          // enable upload
-          up.disableBrowse(false);
-          // set file
-          this.uploadedFile = err.file;
-          // set upload error
-          this.uploadedFile.isFailed = true;
-          this.uploadedFile.isCanceled = false;
-          this.uploadedFile.isComplete = false;
-          this.uploadedFile.isUploading = false;
-          // set guide message
-          this.uploadGuideMessage = this.translateService.instant('msg.storage.ui.file.failed');
-          this.uploadedFile.errorMessage = err.message;
-          // set error
-          switch (err.code) {
-            case ErrorCode.FILE_DUPLICATE_ERROR:
-              break;
-            case ErrorCode.FILE_EXTENSION_ERROR:
-              break;
-            case ErrorCode.FILE_SIZE_ERROR:
-              break;
-            case ErrorCode.GENERIC_ERROR:
-              break;
-            case ErrorCode.HTTP_ERROR:
-              break;
-            case ErrorCode.IO_ERROR:
-              break;
-            default:
-              break;
-          }
-          this.uploadStarted.emit();
-        }
-      })
-      .build());
-  }
-
-  /**
-   * Init uploader
-   * @private
-   */
-  private _initUploader(): void {
-    this._chunkUploader = this._getCreatedUploader(this._dropContainer.nativeElement, this._pickFiles.nativeElement);
-    this._chunkUploader.init();
-  }
 }

@@ -952,7 +952,7 @@ public class DataSourceController {
     // 파일명을 통해 확장자 정보 얻기
     String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
 
-    String extensionRegex = "xlsx|xls|csv";
+    String extensionRegex = "xlsx|xls|csv|json";
     if (stream != null) {
       extensionRegex = "csv|json";
     }

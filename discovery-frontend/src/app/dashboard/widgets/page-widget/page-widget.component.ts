@@ -74,8 +74,10 @@ import {Pivot} from "../../../domain/workbook/configurations/pivot";
 import {MapChartComponent} from '../../../common/component/chart/type/map-chart/map-chart.component';
 import {Shelf, ShelfLayers} from "../../../domain/workbook/configurations/shelf/shelf";
 import {CommonConstant} from "../../../common/constant/common.constant";
+import {clone} from "@turf/turf";
 
 declare let $;
+declare let moment;
 
 @Component({
   selector: 'page-widget',
@@ -193,6 +195,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isOriginDown: boolean = false;
   public srchText: string = '';
   public isCanNotDownAggr: boolean = false;
+
+  public isRealTimeDs: boolean = false;
+  public isRealTimeWidget: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -781,7 +786,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.widget.configuration.customFunction = this.userCustomFunction;
     const param = {configuration: _.cloneDeep(this.widget.configuration)};
     param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
-    this.widgetService.updateWidget( this.widget.id, param )
+    this.widgetService.updateWidget(this.widget.id, param)
       .then((widget) => {
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
         this.closeUserFuncInput();
@@ -1177,6 +1182,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this._search(null, this._currentSelectionFilters);
   }
 
+  public toggleSync() {
+    this.isRealTimeWidget = !this.isRealTimeWidget;
+    this.widget.configuration.sync = this.isRealTimeWidget;
+    this._setSync();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1194,7 +1205,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.parentWidget = null;
     if (widget.dashBoard.configuration) {
 
-      if( this.widgetConfiguration.customFunction && '' !== this.widgetConfiguration.customFunction ) {
+      if (this.widgetConfiguration.customFunction && '' !== this.widgetConfiguration.customFunction) {
         this.userCustomFunction = this.widgetConfiguration.customFunction;
       }
 
@@ -1326,20 +1337,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     // RealTime 데이터갱신 설정
-    if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
-      const syncOpts: BoardSyncOptions = boardConf.options.sync;
-      this._interval = setInterval(() => {
-        this.safelyDetectChanges();
-        if (this.parentWidget) {
-          // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
-          this.processStart();
-          this._isDuringProcess = true;
-          this.updateComplete();
-        } else {
-          this._search();
-        }
-      }, syncOpts.interval * 1000);
-    }
+    this.isRealTimeDs = (boardConf.options.sync && boardConf.options.sync.enabled);
+    this.isRealTimeWidget = (this.isRealTimeDs && false !== widget.configuration.sync);
+    this._setSync();
 
     this.safelyDetectChanges();
 
@@ -1352,6 +1352,29 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this._search();
     }
   } // function - _setCommonConfig
+
+  private _setSync() {
+    const boardConf: BoardConfiguration = this.widget.dashBoard.configuration;
+    if (this.layoutMode !== LayoutMode.EDIT && this.isRealTimeWidget) {
+      const syncOpts: BoardSyncOptions = boardConf.options.sync;
+      this._interval = setInterval(() => {
+        this.safelyDetectChanges();
+        if (this.parentWidget) {
+          // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+          this.processStart();
+          this._isDuringProcess = true;
+          this.updateComplete();
+        } else {
+          this._search();
+        }
+      }, syncOpts.interval * 1000);
+    } else {
+      if (this._interval) {
+        clearInterval(this._interval);
+        this._interval = undefined;
+      }
+    }
+  }
 
   /**
    * 데이터 검색
@@ -1557,17 +1580,44 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     this.datasourceService.searchQuery(cloneQuery).then((data) => {
 
-      this.resultData = {
-        data,
-        config: query,
-        uiOption: this.uiOption,
-        params: {
-          widgetId: this.widget.id,
-          externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
-          // 현재 차트가 선택한 필터목록
-          selectFilterListList: this._selectFilterList
-        }
-      };
+      if (this.resultData && this.isRealTimeWidget && cloneQuery.pivot.columns.some(item => 'TIMESTAMP' === item.subRole)) {
+
+        // let time = moment(data.rows[data.rows.length - 1]);
+        // for (let idx = 0; idx < 1; idx++) {
+        //   time.add(5, 's');
+        //   data.rows.push(time.format('MMM D, YYYY HH:mm:ss'));
+        //   data.columns[0].value.push(Math.floor((Math.random() * 12) - 9));
+        // }
+
+        let colData = data.columns[0].value;
+        let newData = data.rows.map((rowItem, idx) => {
+          return {
+            row: rowItem,
+            col: colData[idx]
+          };
+        }).sort((a, b) => {
+          return moment(a.row).isBefore(moment(b.row));
+        });
+        newData.forEach(newItem => {
+          if (!this.resultData.data.rows.some(row => row === newItem.row)) {
+            this.resultData.data.rows.push(newItem.row);
+            this.resultData.data.columns[0].value.push(newItem.col);
+          }
+        });
+        // console.info( '>>>>>>', newData );
+      } else {
+        this.resultData = {
+          data,
+          config: query,
+          uiOption: this.uiOption,
+          params: {
+            widgetId: this.widget.id,
+            externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
+            // 현재 차트가 선택한 필터목록
+            selectFilterListList: this._selectFilterList
+          }
+        };
+      }
 
       let optionKeys = Object.keys(this.uiOption);
       if (optionKeys && optionKeys.length === 1) {

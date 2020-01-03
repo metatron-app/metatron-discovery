@@ -159,6 +159,11 @@ export class DataSourceCreateService {
         value: LogicalType.TIMESTAMP
       },
       {
+        label: this._translateService.instant('msg.storage.ui.list.array'),
+        icon: 'ddp-icon-type-array',
+        value: LogicalType.ARRAY
+      },
+      {
         label: this._translateService.instant('msg.storage.ui.list.lnt'),
         icon: 'ddp-icon-type-latitude',
         value: LogicalType.LNT
@@ -252,13 +257,13 @@ export class DataSourceCreateService {
    */
   public getFileFormatParams(fileFormat: string, fileData: any): object {
     const format = {
-      type: fileFormat,
+      type: fileFormat
     };
     // if file format is csv, add delimiter and lineSeparator
     if (fileFormat === 'csv') {
       format['delimiter'] = fileData.delimiter;
       format['lineSeparator'] = fileData.separator;
-    } else {
+    } else if (fileFormat === 'excel') {
       // add sheetIndex
       format['sheetIndex'] = fileData.fileResult.sheets.findIndex(sheet => sheet === fileData.fileResult.selectedSheet);
       format['sheetName'] = fileData.fileResult.selectedSheet.sheetName;

@@ -110,6 +110,8 @@
                               *ngIf="field.logicalType?.toString() === 'STRING' || field.type === 'user_expr'"></em>
                           <!--*ngIf="field.type === 'TEXT' || field.type === 'STRING' || field.type === 'USER_DEFINED'"></em>-->
                           <!-- //문자열 -->
+                          <em class="ddp-icon-dimension-array"
+                              *ngIf="field.logicalType?.toString() === 'ARRAY'"></em>
                           <!-- 위도 / 경도 -->
                           <em class="ddp-icon-dimension-latitude"
                               *ngIf="field.logicalType?.toString() === 'LNT'"></em>
@@ -252,6 +254,8 @@
                               *ngIf="field.logicalType?.toString() === 'LNG' || field.logicalType?.toString() === 'LNT'"></em>
                           <em class="ddp-icon-dimension-calen"
                               *ngIf="field.logicalType?.toString() === 'TIMESTAMP'"></em>
+                          <em class="ddp-icon-measure-array"
+                              *ngIf="field.logicalType?.toString() === 'ARRAY'"></em>
                           <em class="ddp-icon-measure-sharp"
                               *ngIf="field.logicalType?.toString() === 'DOUBLE' || field.logicalType?.toString() === 'INTEGER' || field.type === 'user_expr'"></em>
                           <!-- boolean -->

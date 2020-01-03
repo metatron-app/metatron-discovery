@@ -40,7 +40,7 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   catalogSearchKeyword: string;
   tagSearchKeyword: string;
   isFoldingNavigation: boolean = false;
-  isOpenFavoriteLnb: boolean = true;
+  isShowFavoriteCatalog: boolean = false;
 
   // Dummy data before api
   favoriteCatalogList = [];
@@ -215,6 +215,10 @@ export class ExploreDataLnbComponent extends AbstractComponent {
     });
 
     return path;
+  }
+
+  onToggleIsShowFavoriteCatalog() {
+    this.isShowFavoriteCatalog = !this.isShowFavoriteCatalog;
   }
 
   private async _setCatalogList(catalogId: string) {
