@@ -193,6 +193,7 @@
 .theme-dark .ddp-wrap-datadetail .ddp-info-left {
     float: left;
     width: 350px;
+    min-width:350px;
     height: 100%;
     border-right: 1px dotted #ccc;
     overflow:auto;

@@ -44,7 +44,7 @@
 .ddp-wrap-datadetail {padding:15px 45px;}
 .ddp-wrap-datadetail table.ddp-table-detail:first-of-type {margin-top:20px;}
 .ddp-wrap-datadetail .ddp-wrap-detail-sub table.ddp-table-detail {margin-bottom:30px;}
-.ddp-wrap-datadetail .ddp-info-left {display:inline-block; float:left; width:350px; height:100%; border-right:1px dotted #ccc; overflow:auto;}
+.ddp-wrap-datadetail .ddp-info-left {display:inline-block; float:left; width:350px; min-width:350px; height:100%; border-right:1px dotted #ccc; overflow:auto;}
 .ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail {padding:0;border-top:none;}
 .ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail table.ddp-table-detail tbody tr td {padding-right:20px;}
 .ddp-wrap-datadetail.ddp-type .ddp-ui-datadetail .ddp-data-none {color:#b7bac1; font-size:13px;}

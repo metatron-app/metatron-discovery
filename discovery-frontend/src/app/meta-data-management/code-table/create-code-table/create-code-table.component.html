@@ -12,92 +12,93 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2" *ngIf="showFl">
+<div class="ddp-layout-pop-fix" *ngIf="showFl">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="onClickCancel()"></a>
   <!-- 닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.metadata.ui.codetable.create.title' | translate}}
-      <span class="ddp-txt-info">{{'msg.metadata.ui.codetable.create.desc' | translate}}</span>
-      <em class="ddp-bg-order-type"></em>
+
+  <div class="ddp-layout-popup">
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.metadata.ui.codetable.create.title' | translate}}</div>
+      <div class="ddp-pop-sub">{{'msg.metadata.ui.codetable.create.desc' | translate}}</div>
     </div>
-  </div>
-  <!-- import -->
-  <div class="ddp-type-contents-in ddp-scroll">
-    <div class="ddp-ui-meta">
-      <!-- wrap-create -->
-      <div class="ddp-wrap-create">
-        <label class="ddp-label-title">{{'msg.metadata.ui.codetable.create.table.information' | translate}}</label>
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.codetable.create.table.name' |  translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <input type="text" class="ddp-input-typebasic ddp-full"
-                   placeholder="{{'msg.comm.ui.create.name' | translate}}"
-                   (keypress)="onKeypressTableName()"
-                   [(ngModel)]="tableName">
-            <span class="ddp-data-error" *ngIf="tableNameValidationMsg"> {{tableNameValidationMsg}}</span>
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.metadata.ui.codetable.create.description' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-type">
-            <textarea placeholder="{{'msg.comm.ui.create.desc' | translate}}" class="ddp-textarea" rows="3"
-                      (keypress)="onKeypressTableDesc()"
-                      [(ngModel)]="tableDescription"></textarea>
-            <span class="ddp-data-error" *ngIf="tableDescValidationMsg"> {{tableDescValidationMsg}}</span>
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-      </div>
-      <!-- //wrap-create -->
-      <!-- wrap-create -->
-      <div class="ddp-wrap-create">
-        <label class="ddp-label-title">{{'msg.metadata.ui.codetable.create.code-table' | translate}}</label>
-        <!-- option -->
-        <span class="ddp-list-option"></span>
-        <!-- //option -->
-        <!-- box -->
-        <!-- box -->
-        <div class="ddp-box-code">
-          <div class="ddp-clear ddp-list-label">
-            <div class="ddp-col-5">{{'msg.metadata.ui.codetable.create.code' | translate}} </div>
-            <div class="ddp-col-7">{{'msg.metadata.ui.codetable.create.value' | translate}} </div>
-          </div>
-          <!-- list -->
-          <div class="ddp-clear ddp-list-code" *ngFor="let pair of codeTableList">
-            <div class="ddp-col-5">
-              <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.code" (keypress)="onKeypressCodePair(pair)">
+
+    <!-- import -->
+    <div class="ddp-pop-contents ddp-scroll">
+      <div class="ddp-ui-meta">
+        <!-- wrap-create -->
+        <div class="ddp-wrap-create">
+          <label class="ddp-label-title">{{'msg.metadata.ui.codetable.create.table.information' | translate}}</label>
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.codetable.create.table.name' |  translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <input type="text" class="ddp-input-typebasic ddp-full"
+                     placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                     (keypress)="onKeypressTableName()"
+                     [(ngModel)]="tableName">
+              <span class="ddp-data-error" *ngIf="tableNameValidationMsg"> {{tableNameValidationMsg}}</span>
             </div>
-            <div class="ddp-col-7">
-              <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.value" (keypress)="onKeypressCodePair(pair)">
-            </div>
-            <!-- delete pair -->
-            <a href="javascript:" class="ddp-icon-close" *ngIf="isShowDeleteCodePair()" (click)="onClickDeleteCode(pair)"></a>
-            <!-- //delete pair -->
-            <span class="ddp-data-error" *ngIf="pair['invalid']"> {{'msg.metadata.ui.codetable.create.valid.code-value.required' | translate}}</span>
+            <!-- //edit option -->
           </div>
-          <!-- //list -->
-          <a href="javascript:" class="ddp-btn-add" (click)="onClickAddCode()"><em class="ddp-icon-plus"></em> {{'msg.metadata.ui.codetable.create.add.btn' | translate}}</a>
+          <!-- //edit -->
+          <!-- edit -->
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.metadata.ui.codetable.create.description' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-type">
+              <textarea placeholder="{{'msg.comm.ui.create.desc' | translate}}" class="ddp-textarea" rows="3"
+                        (keypress)="onKeypressTableDesc()"
+                        [(ngModel)]="tableDescription"></textarea>
+              <span class="ddp-data-error" *ngIf="tableDescValidationMsg"> {{tableDescValidationMsg}}</span>
+            </div>
+            <!-- //edit option -->
+          </div>
+          <!-- //edit -->
         </div>
-        <!-- //box -->
-        <!-- //box -->
+        <!-- //wrap-create -->
+        <!-- wrap-create -->
+        <div class="ddp-wrap-create">
+          <label class="ddp-label-title">{{'msg.metadata.ui.codetable.create.code-table' | translate}}</label>
+          <!-- option -->
+          <span class="ddp-list-option"></span>
+          <!-- //option -->
+          <!-- box -->
+          <!-- box -->
+          <div class="ddp-box-code">
+            <div class="ddp-clear ddp-list-label">
+              <div class="ddp-col-5">{{'msg.metadata.ui.codetable.create.code' | translate}} </div>
+              <div class="ddp-col-7">{{'msg.metadata.ui.codetable.create.value' | translate}} </div>
+            </div>
+            <!-- list -->
+            <div class="ddp-clear ddp-list-code" *ngFor="let pair of codeTableList">
+              <div class="ddp-col-5">
+                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.code" (keypress)="onKeypressCodePair(pair)">
+              </div>
+              <div class="ddp-col-7">
+                <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="pair.value" (keypress)="onKeypressCodePair(pair)">
+              </div>
+              <!-- delete pair -->
+              <a href="javascript:" class="ddp-icon-close" *ngIf="isShowDeleteCodePair()" (click)="onClickDeleteCode(pair)"></a>
+              <!-- //delete pair -->
+              <span class="ddp-data-error" *ngIf="pair['invalid']"> {{'msg.metadata.ui.codetable.create.valid.code-value.required' | translate}}</span>
+            </div>
+            <!-- //list -->
+            <a href="javascript:" class="ddp-btn-add" (click)="onClickAddCode()"><em class="ddp-icon-plus"></em> {{'msg.metadata.ui.codetable.create.add.btn' | translate}}</a>
+          </div>
+          <!-- //box -->
+          <!-- //box -->
+        </div>
+        <!-- //wrap-create -->
       </div>
-      <!-- //wrap-create -->
     </div>
+    <!-- //import -->
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="onClickDone()">{{'msg.comm.btn.done2' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //import -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="onClickDone()">{{'msg.comm.btn.done2' | translate}}</a>
-  </div>
-  <!-- //buttons -->
 </div>

@@ -12,99 +12,96 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2">
+<div class="ddp-layout-pop-fix">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
 
-  <!-- 제목 영역 -->
-  <div class="ddp-icon-name" >
-    <div class="ddp-ui-name2">
-      <em class="ddp-icon-newlink2"></em>
-      {{'msg.book.create.notebook.title' | translate}}
-      <em class="ddp-bg-order-line2-type"></em>
+  <div class="ddp-layout-popup">
+    <!-- 제목 영역 -->
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.book.create.notebook.title' | translate}}</div>
+      <div class="ddp-pop-sub">{{'msg.comm.ui.sel.board.description' | translate}}</div>
     </div>
-    <span class="ddp-txt-info">{{'msg.comm.ui.sel.board.description' | translate}}</span>
-  </div>
-  <!-- // 제목 영역 -->
+    <!-- // 제목 영역 -->
 
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in">
-    <div class="ddp-popup-dashboard">
+    <!-- contents in  -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-popup-dashboard">
 
-      <!-- 그리드 영역 -->
-      <!--
-          설명 나올때 ddp-selected 추가
-          차트 테이블 추가 될때 ddp-type-chart 추가
-      -->
-      <div class="ddp-wrap-grid" [ngClass]="{'ddp-selected' : selectedDatasourceId !== ''}">
-        <!-- wrap file navi -->
-        <div class="ddp-wrap-file-navi">
-          <div class="ddp-ui-file-navi">
-            <!-- box file list -->
-            <div class="ddp-box-filelist" *ngFor="let data of node; let x = index">
-              <ul class="ddp-list-file" *ngIf="data.hasOwnProperty('dashBoards') === false">
-                <!--
-                    하위 뎁스가 있을경우 li class="ddp-list-parent" 추가
-                    선택 됐을때 ddp-selected 추가
-                -->
-                <!-- 폴더만 표시 -->
-                <li *ngFor="let book of (data | baseFilter:['type','folder'])"
-                    [class.ddp-list-parent]="hasSubBooks(book)"
-                    [class.ddp-selected]="nameNode.indexOf(book.id) > -1"
-                    (click)="showBooks(book, x)">
-                  <a href="javascript:">
-                    <em class="ddp-icon-folder"></em>
-                    {{book.name}}
-                  </a>
-                </li>
-                <!-- 폴더 이외의 컨텐츠 -->
-                <li *ngFor="let book of (data | baseFilter:['type','folder',true])"
-                    [class.ddp-list-parent]="hasSubBooks(book)"
-                    [class.ddp-selected]="nameNode.indexOf(book.id) > -1"
-                    (click)="showBooks(book, x)">
-                  <a href="javascript:">
-                    <em class="ddp-icon-workbook" *ngIf="book.type === 'workbook'"></em>
-                    <em class="ddp-icon-dashboard3" *ngIf="book.type === 'board'"></em>
-                    <em class="ddp-icon-chart3" *ngIf="book.type === 'chart'"></em>
-                    <!--<em class="ddp-icon-chart3"></em>-->
-                    {{book.name}}
-                  </a>
-                </li>
-              </ul>
-              <ul class="ddp-list-file" *ngIf="data.hasOwnProperty('dashBoards') === true">
-                <li *ngFor="let dashboard of data.dashBoards"
-                  (click)="showDashboardDetail(dashboard['id'], dashboard['name'])">
-                  <a href="javascript:">
-                    <em class="ddp-icon-dashboard3"></em>
-                    <!--<em class="ddp-icon-chart3"></em>-->
-                    {{dashboard.name}}
-                  </a>
-                </li>
-              </ul>
+        <!-- 그리드 영역 -->
+        <!--
+            설명 나올때 ddp-selected 추가
+            차트 테이블 추가 될때 ddp-type-chart 추가
+        -->
+        <div class="ddp-wrap-grid" [ngClass]="{'ddp-selected' : selectedDatasourceId !== ''}">
+          <!-- wrap file navi -->
+          <div class="ddp-wrap-file-navi">
+            <div class="ddp-ui-file-navi">
+              <!-- box file list -->
+              <div class="ddp-box-filelist" *ngFor="let data of node; let x = index">
+                <ul class="ddp-list-file" *ngIf="data.hasOwnProperty('dashBoards') === false">
+                  <!--
+                      하위 뎁스가 있을경우 li class="ddp-list-parent" 추가
+                      선택 됐을때 ddp-selected 추가
+                  -->
+                  <!-- 폴더만 표시 -->
+                  <li *ngFor="let book of (data | baseFilter:['type','folder'])"
+                      [class.ddp-list-parent]="hasSubBooks(book)"
+                      [class.ddp-selected]="nameNode.indexOf(book.id) > -1"
+                      (click)="showBooks(book, x)">
+                    <a href="javascript:">
+                      <em class="ddp-icon-folder"></em>
+                      {{book.name}}
+                    </a>
+                  </li>
+                  <!-- 폴더 이외의 컨텐츠 -->
+                  <li *ngFor="let book of (data | baseFilter:['type','folder',true])"
+                      [class.ddp-list-parent]="hasSubBooks(book)"
+                      [class.ddp-selected]="nameNode.indexOf(book.id) > -1"
+                      (click)="showBooks(book, x)">
+                    <a href="javascript:">
+                      <em class="ddp-icon-workbook" *ngIf="book.type === 'workbook'"></em>
+                      <em class="ddp-icon-dashboard3" *ngIf="book.type === 'board'"></em>
+                      <em class="ddp-icon-chart3" *ngIf="book.type === 'chart'"></em>
+                      <!--<em class="ddp-icon-chart3"></em>-->
+                      {{book.name}}
+                    </a>
+                  </li>
+                </ul>
+                <ul class="ddp-list-file" *ngIf="data.hasOwnProperty('dashBoards') === true">
+                  <li *ngFor="let dashboard of data.dashBoards"
+                    (click)="showDashboardDetail(dashboard['id'], dashboard['name'])">
+                    <a href="javascript:">
+                      <em class="ddp-icon-dashboard3"></em>
+                      <!--<em class="ddp-icon-chart3"></em>-->
+                      {{dashboard.name}}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- //box file list -->
             </div>
-            <!-- //box file list -->
           </div>
+          <!-- //wrap file navi -->
+
         </div>
-        <!-- //wrap file navi -->
+        <!-- //그리드 영역 -->
+        <!-- 스키마 리스트 -->
+        <app-datasource-summary *ngIf="selectedDatasourceId !== ''" [datasource]="selectedDatasourceId" [hasHeader]="false" (close)="onCloseSummary()"></app-datasource-summary>
+        <!-- //스키마 리스트 -->
 
       </div>
-      <!-- //그리드 영역 -->
-      <!-- 스키마 리스트 -->
-      <app-datasource-summary *ngIf="selectedDatasourceId !== ''" [datasource]="selectedDatasourceId" [hasHeader]="false" (close)="onCloseSummary()"></app-datasource-summary>
-      <!-- //스키마 리스트 -->
+
 
     </div>
-
-
+    <!-- //contents in  -->
+    <!-- buttons -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : selectedDatasourceId === ''}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //contents in  -->
-  <!-- buttons -->
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : selectedDatasourceId === ''}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
-  </div>
-  <!-- //buttons -->
-
 </div>

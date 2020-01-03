@@ -1,32 +1,32 @@
 <div class="ddp-lineage-create-confirm-grid">
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create">
+<div class="ddp-layout-pop-fix popup-prep-create">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-icon-name">
-    <div class="ddp-ui-name2 ddp-type2">
-      {{'msg.metadata.ui.lineage.create.edge.upload' | translate}}
-      <span class="ddp-txt-info ddp-type">confirm edges</span>
-      <em class="ddp-bg-order-line2-type2"></em>
-    </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-full">
-    <div class="ddp-box-popupcontents type-info">
-      <div class="ddp-box-preview">
-        <div class="ddp-ui-empty" *ngIf="!lineageData">
-          {{'msg.dp.ui.no.preview' | translate}}
-        </div>
-        <div class="ddp-box-gridarea" #previewGrid grid-component style="width:100%; height: 100%;" [hidden]="!lineageData"></div>
+
+  <div class="ddp-layout-popup">
+    <div class="ddp-pop-top">
+      <div class="ddp-pop-title">{{'msg.metadata.ui.lineage.create.edge.upload' | translate}}</div>
+      <div class="ddp-pop-sub">confirm edges</div>
       </div>
     </div>
-  </div>
+    <!-- contents in  -->
+    <div class="ddp-pop-contents">
+      <div class="ddp-box-popupcontents type-info">
+        <div class="ddp-box-preview">
+          <div class="ddp-ui-empty" *ngIf="!lineageData">
+            {{'msg.dp.ui.no.preview' | translate}}
+          </div>
+          <div class="ddp-box-gridarea" #previewGrid grid-component style="width:100%; height: 100%;" [hidden]="!lineageData"></div>
+        </div>
+      </div>
+    </div>
 
-  <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{ 'msg.comm.btn.previous' | translate }}</a>
-    <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [ngClass]="{'ddp-disabled':!lineageData}" (click)="complete()">{{'msg.comm.btn.done2' | translate}}</a>
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{ 'msg.comm.btn.previous' | translate }}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [ngClass]="{'ddp-disabled':!lineageData}" (click)="complete()">{{'msg.comm.btn.done2' | translate}}</a>
+    </div>
+    <!-- //buttons -->
   </div>
-  <!-- //buttons -->
-
 </div>
