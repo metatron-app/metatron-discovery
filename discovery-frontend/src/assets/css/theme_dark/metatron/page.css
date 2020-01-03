@@ -34982,7 +34982,7 @@
 .theme-dark .ddp-pop-datadetail {
     overflow: inherit;
 }
-
+.theme-dark .ddp-area-datadetail .ddp-form-search {position:absolute; top:0; right:0; width:200px;}
 .theme-dark .ddp-pop-datadetail .ddp-wrap-grid-option .ddp-fleft {
     padding: 7px 14px 6px 14px;
 }
@@ -45047,7 +45047,7 @@
     background: url(../../../images/img_profile.png) no-repeat;
     background-position: left -82px;
 }
-
+.theme-dark .ddp-wrap-list-create .ddp-box-create .ddp-data-top .ddp-data-photo img {display:block; width:100%; height:100%; }
 .theme-dark .ddp-wrap-list-create .ddp-box-create .ddp-data-top .ddp-data-name {
     display: block;
     position: relative;

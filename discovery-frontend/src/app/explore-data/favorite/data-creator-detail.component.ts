@@ -96,6 +96,9 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
     protected injector: Injector) {
     super(element, injector);
 
+    this.sortOptions.name.option = 'default';
+    this.sortOptions.createdTime.option = 'desc';
+
     // path variable
     this.activatedRoute.params.subscribe((params) => {
       this.username = params['username'];
@@ -248,6 +251,14 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
     }
     return result;
   }
+
+  public getUserImage(userInfo): string {
+    if( userInfo && userInfo.hasOwnProperty('imageUrl') ) {
+      return '/api/images/load/url?url=' + userInfo.imageUrl + '/thumbnail';
+    } else {
+      return this.defaultPhotoSrc;
+    }
+  } // function - getUserImage
 
   /**
    * Search connection keypress event

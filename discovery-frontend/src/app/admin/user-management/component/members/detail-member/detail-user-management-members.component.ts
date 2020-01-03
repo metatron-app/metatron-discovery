@@ -47,8 +47,6 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   @ViewChild(UpdateUserManagementMembersComponent)
   private _setGroupComponent: UpdateUserManagementMembersComponent;
 
-  private defaultPhotoSrc = '/assets/images/img_photo.png';
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
