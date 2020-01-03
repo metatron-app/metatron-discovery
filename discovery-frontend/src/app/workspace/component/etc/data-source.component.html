@@ -19,13 +19,14 @@
       {{'msg.space.ui.ds' | translate}}
       <div class="ddp-ui-rightoption">
         <!-- 검색 -->
-        <div class="ddp-type-search">
+        <div class="ddp-form-search ddp-selected">
+          <em class="ddp-icon-search"></em>
           <input type="text" placeholder="{{'msg.comm.search.ds' | translate}}"
                  [(ngModel)]="searchText"
                  (keypress)="searchDatasourceEvent($event);"
                  (keyup.esc)="searchEvent(false);">
-          <a *ngIf="'' !== searchText" (click)="searchText='';searchEvent(true);"
-             href="javascript:" class="ddp-btn-delete" style="display: block;"></a>
+          <em class="ddp-btn-search-close" *ngIf="'' !== searchText" (click)="searchText='';searchEvent(true);"
+              href="javascript:"></em>
         </div>
         <!-- // 검색 -->
         <!-- 공개 -->
