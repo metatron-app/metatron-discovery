@@ -180,6 +180,14 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
       this.dataCreatorList[index].favorite = !this.dataCreatorList[index].favorite;
     }
   }
+
+  public getUserImage(userInfo): string {
+    if( userInfo && userInfo.hasOwnProperty('imageUrl') ) {
+      return '/api/images/load/url?url=' + userInfo.imageUrl + '/thumbnail';
+    } else {
+      return this.defaultPhotoSrc;
+    }
+  } // function - getUserImage
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

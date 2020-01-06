@@ -32,7 +32,9 @@
         <div class="ddp-box-create" *ngFor="let creator of dataCreatorList" (click)="onClickCreatorCard(creator.username)">
           <!-- top -->
           <div class="ddp-data-top">
-            <em class="ddp-data-photo"></em>
+            <em class="ddp-data-photo">
+              <img [src]="getUserImage(creator.creator)" />
+            </em>
             <!-- name -->
             <div class="ddp-data-name">
                <span class="ddp-txt-name">

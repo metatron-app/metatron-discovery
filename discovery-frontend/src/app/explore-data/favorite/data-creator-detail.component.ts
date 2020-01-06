@@ -70,7 +70,7 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
   searchRange = {name: 'DATA_NAME', value: ExploreDataConstant.SearchRange.DATA_NAME};
 
   // sort
-  selectedSort = 'createdTime, desc';
+  selectedSort = 'createdTime,desc';
 
   public sortOptions = {
     // TODO: popularity is not implemented yet
@@ -95,6 +95,9 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
     protected activatedRoute: ActivatedRoute,
     protected injector: Injector) {
     super(element, injector);
+
+    this.sortOptions.name.option = 'default';
+    this.sortOptions.createdTime.option = 'desc';
 
     // path variable
     this.activatedRoute.params.subscribe((params) => {
@@ -248,6 +251,14 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
     }
     return result;
   }
+
+  public getUserImage(userInfo): string {
+    if( userInfo && userInfo.hasOwnProperty('imageUrl') ) {
+      return '/api/images/load/url?url=' + userInfo.imageUrl + '/thumbnail';
+    } else {
+      return this.defaultPhotoSrc;
+    }
+  } // function - getUserImage
 
   /**
    * Search connection keypress event

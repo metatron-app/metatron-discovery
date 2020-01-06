@@ -72,6 +72,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // Subscription
   protected subscriptions: Subscription[] = [];
 
+  protected defaultPhotoSrc = '/assets/images/img_photo.png';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
