@@ -198,7 +198,7 @@
               <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
             </td>
             <td>
-              {{metadata.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}
+              {{metadata.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
             </td>
           </tr>
           </tbody>
