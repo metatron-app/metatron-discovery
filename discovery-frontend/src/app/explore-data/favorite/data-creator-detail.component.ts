@@ -70,7 +70,7 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
   searchRange = {name: 'DATA_NAME', value: ExploreDataConstant.SearchRange.DATA_NAME};
 
   // sort
-  selectedSort = 'createdTime, desc';
+  selectedSort = 'createdTime,desc';
 
   public sortOptions = {
     // TODO: popularity is not implemented yet
