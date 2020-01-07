@@ -30,12 +30,14 @@
       </div>
       <!-- //step -->
     </div>
-  </div>
-  <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-full">
-    <div class="ddp-box-popupcontents type-info">
-      <!-- file create -->
-      <div class="ddp-box-file-create">
+    <!-- //top -->
+
+    <!-- import -->
+    <div class="ddp-pop-contents">
+
+      <div class="ddp-box-popupcontents type-info">
+        <!-- file create -->
+        <div class="ddp-box-file-create">
 
         <!-- default -->
         <!--<ng-template [ngIf]="supportedFileCount===0">-->
@@ -46,30 +48,32 @@
               <input type="file" accept=".txt, .csv, .json, .xls, .xlsx" #pickfiles />
               Import
             </div>
-            <div class="ddp-txt-file-info2">
-              xls, .xlsx, .txt, .csv and .json formats are allowed
-            </div>
-            <!-- upload -->
-            <div class="ddp-wrap-upload">
-              <div class="ddp-box-upload-type">
-                <div class="ddp-wrap-edit3 ddp-type">
-                  <label class="ddp-label-type">Upload Location</label>
-                  <!-- edit option -->
-                  <div class="ddp-ui-edit-option ddp-type">
-                    <!-- select -->
-                    <component-select
-                      [array]="fileLocations"
-                      [isUpSelect]="false"
-                      [isFull]="false"
-                      [viewKey]="'label'"
-                      [defaultIndex]="fileLocationDefaultIdx"
-                      (onSelected)="onSelected($event)">
-                    </component-select>
-                    <!--//select-->
-                  </div>
-                  <!-- //edit option -->
+            or drop file here
+          </div>
+          <div class="ddp-txt-file-info2">
+            xls, .xlsx, .txt, .csv and .json formats are allowed
+          </div>
+          <!-- upload -->
+          <div class="ddp-wrap-upload">
+            <div class="ddp-box-upload-type">
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">Upload Location</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option ddp-type">
+                  <!-- select -->
+                  <component-select
+                    [array]="fileLocations"
+                    [isUpSelect]="false"
+                    [isFull]="false"
+                    [viewKey]="'label'"
+                    [defaultIndex]="fileLocationDefaultIdx"
+                    (onSelected)="onSelected($event)">
+                  </component-select>
+                  <!--//select-->
                 </div>
+                <!-- //edit option -->
               </div>
+            </div>
 
             </div>
 
@@ -161,6 +165,11 @@
                   <input type="file" accept=".txt, .csv, .json, .xls, .xlsx" #pickfiles2 />
                   Import
                 </div>
+                or drop file here
+              </div>
+              <div class="ddp-txt-file-info2">
+                xls, .xlsx, .txt, .csv and .json formats are allowed
+              </div>
 
                 <div class="ddp-wrap-edit3 ddp-type">
                   <label class="ddp-label-type">Upload Location</label>
