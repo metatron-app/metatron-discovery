@@ -2581,7 +2581,7 @@
 .theme-dark .ddp-pop-datadetail {
 	overflow: inherit;
 }
-
+.theme-dark .ddp-area-datadetail .ddp-form-search {position:absolute; top:0; right:0; width:200px;}
 .theme-dark .ddp-pop-datadetail .ddp-wrap-grid-option .ddp-fleft {
 	padding: 7px 14px 6px 14px;
 }

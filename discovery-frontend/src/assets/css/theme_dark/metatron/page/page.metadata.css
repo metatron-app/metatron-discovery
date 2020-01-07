@@ -1632,7 +1632,7 @@
     background: url(../../../../images/img_profile.png) no-repeat;
     background-position: left -82px;
 }
-
+.theme-dark .ddp-wrap-list-create .ddp-box-create .ddp-data-top .ddp-data-photo img {display:block; width:100%; height:100%; }
 .theme-dark .ddp-wrap-list-create .ddp-box-create .ddp-data-top .ddp-data-name {
     display: block;
     position: relative;
