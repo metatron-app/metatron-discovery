@@ -62,4 +62,13 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
     this.metadataService.toggleCreatorFavorite(this.creator.creator.id, this.creator.favorite).then().catch(e => this.commonExceptionHandler(e));
     this.creator.favorite = !this.creator.favorite;
   }
+
+
+  public getUserImage(userInfo): string {
+    if( userInfo && userInfo.hasOwnProperty('imageUrl') ) {
+      return '/api/images/load/url?url=' + userInfo.imageUrl + '/thumbnail';
+    } else {
+      return this.defaultPhotoSrc;
+    }
+  } // function - getUserImage
 }
