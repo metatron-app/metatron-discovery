@@ -1,0 +1,91 @@
+<div *ngIf="codeTable" class="ddp-layout-popuptype type-flex">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-flex-popup">
+    <a (click)="onClose()" href="javascript:" class="ddp-btn-close"></a>
+    <div class="ddp-pop-title">Code Table
+      <div class="ddp-ui-buttons">
+        <a (click)="gotoCodeTableDetail()" href="javascript:" class="ddp-btn-pop ddp-bg-black">
+          <em class="ddp-icon-view"></em>Go to Code Table
+        </a>
+      </div>
+    </div>
+
+    <!-- contents -->
+    <div class="ddp-pop-contents ">
+      <!-- summary -->
+      <div class="ddp-detail-summary">
+        <div class="ddp-data-name">{{codeTable.name}}</div>
+        <div class="ddp-detail-txt"> {{codeTable.description}} </div>
+      </div>
+      <!-- //summary -->
+      <!-- wrap table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">
+            {{'msg.metadata.ui.codetable.detail.used.column.dictionary' | translate}} ({{linkedDictionaryTotalCount}})
+          </label>
+        </div>
+
+        <table class="ddp-table-form ddp-table-type3 ddp-cursor-none">
+          <colgroup>
+            <col width="20%">
+            <col width="30%">
+            <col width="*">
+          </colgroup>
+          <thead>
+          <tr>
+            <th> {{'msg.metadata.th.dictionary.column.name' | translate}} </th>
+            <th> {{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}} </th>
+            <th> {{'msg.metadata.th.dictionary.description' | translate}} </th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let dictionary of getLinkedColumnDictionaryList()">
+              <td>
+                {{dictionary.logicalName}}
+              </td>
+              <td>
+                {{dictionary.name}}
+              </td>
+              <td>
+             <span class=" ddp-txt-long">
+                {{dictionary.description}}
+             </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //wrap table detail -->
+      <!-- wrap table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">
+            {{'msg.metadata.ui.codetable.create.code-table' | translate}}
+          </label>
+        </div>
+
+        <table class="ddp-table-solid-bg">
+          <colgroup>
+            <col width="15%">
+            <col width="*">
+          </colgroup>
+          <thead>
+          <tr>
+            <th> {{'msg.metadata.ui.codetable.create.code' | translate}} </th>
+            <th> {{'msg.metadata.ui.codetable.create.value' | translate}} </th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let pair of codeList; let index = index">
+              <td> {{pair.code}} </td>
+              <td> {{pair.value}} </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //wrap table detail -->
+    </div>
+    <!-- //contents -->
+  </div>
+</div>

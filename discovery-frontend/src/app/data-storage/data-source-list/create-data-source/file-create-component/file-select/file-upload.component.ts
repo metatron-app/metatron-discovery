@@ -26,7 +26,6 @@ import {AbstractPopupComponent} from '../../../../../common/component/abstract-p
 import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {FileResult, Sheet,} from "../../../../service/data-source-create.service";
-import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
 
 @Component({
   selector: 'file-upload',
@@ -43,7 +42,7 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
   private readonly sourceData: DatasourceInfo;
 
   // upload result
-  public uploadedFile: Pluploader.File;
+  public uploadedFile: any;
   // file results
   public fileResult: FileResult;
 
@@ -117,9 +116,9 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
 
   /**
    * Complete file upload
-   * @param {Pluploader.File} uploadedFile
+   * @param {any} uploadedFile
    */
-  public onCompletedFileUpload(uploadedFile: Pluploader.File) {
+  public onCompletedFileUpload(uploadedFile: any) {
     this.uploadedFile = uploadedFile;
     // response 데이터
     const response: any = JSON.parse(uploadedFile.response);

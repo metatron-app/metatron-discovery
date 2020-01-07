@@ -30,25 +30,21 @@
       </div>
       <!-- //step -->
     </div>
-    <!-- //top -->
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-full">
+    <div class="ddp-box-popupcontents type-info">
+      <!-- file create -->
+      <div class="ddp-box-file-create">
 
-    <!-- import -->
-    <div class="ddp-pop-contents">
+        <!-- default -->
+        <!--<ng-template [ngIf]="supportedFileCount===0">-->
+        <div class="ddp-box-default" #drop_container [ngStyle]="{'visibility': supportedFileCount===0?'visible':'hidden'}">
 
-      <div class="ddp-box-popupcontents type-info">
-        <!-- file create -->
-        <div class="ddp-box-file-create">
-
-          <!-- default -->
-          <!--<ng-template [ngIf]="supportedFileCount===0">-->
-          <div class="ddp-box-default" #drop_container [ngStyle]="{'visibility': supportedFileCount===0?'visible':'hidden'}">
-
-            <div class="ddp-txt-file-info" >
-              <div class="ddp-link-file">
-                <input type="file" #pickfiles />
-                Import
-              </div>
-              or drop file here
+          <div class="ddp-txt-file-info" >
+            <div class="ddp-link-file">
+              <input type="file" accept=".txt, .csv, .json, .xls, .xlsx" #pickfiles />
+              Import
             </div>
             <div class="ddp-txt-file-info2">
               xls, .xlsx, .txt, .csv and .json formats are allowed
@@ -153,8 +149,17 @@
                   </div>
                   or drop file here
                 </div>
-                <div class="ddp-txt-file-info2">
-                  xls, .xlsx, .txt, .csv and .json formats are allowed
+                <!-- //상태 -->
+              </li>
+            </ul>
+            <!-- list -->
+
+            <!-- import file -->
+            <div class="ddp-import-file" [ngClass]="{'ddp-disabled':upFiles.length===0}" #drop_container2 >
+              <div class="ddp-txt-file-info">
+                <div class="ddp-link-file">
+                  <input type="file" accept=".txt, .csv, .json, .xls, .xlsx" #pickfiles2 />
+                  Import
                 </div>
 
                 <div class="ddp-wrap-edit3 ddp-type">

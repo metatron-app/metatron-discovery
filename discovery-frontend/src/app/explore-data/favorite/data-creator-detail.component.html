@@ -43,6 +43,7 @@
         <div class="ddp-ui-userdetail type-user">
           <!-- 사진 -->
           <div class="ddp-data-photo">
+            <img [src]="getUserImage(creator.creator)" />
           </div>
 
           <!-- //사진 -->
@@ -79,7 +80,9 @@
                 {{ 'msg.explore.favorite.creator.detail.followers' | translate }}
               </th>
               <td>
-                <span *ngFor="let follower of creator.followerList" class="ddp-data-follow-photo"></span>
+                <span *ngFor="let follower of creator.followerList" class="ddp-data-follow-photo">
+                  <img [src]="getUserImage(follower)" />
+                </span>
               </td>
             </tr>
 
@@ -193,7 +196,7 @@
               <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
             </td>
             <td>
-              {{metadata.modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}
+              {{metadata.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
             </td>
           </tr>
           </tbody>

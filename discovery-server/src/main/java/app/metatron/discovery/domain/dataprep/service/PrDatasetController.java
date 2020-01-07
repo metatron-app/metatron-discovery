@@ -14,34 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NOT_IMPORTED_DATASET;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NO_DATASET;
-import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
-import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
-
-import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
-import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
-import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
-import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrUploadFileRepository;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
-import app.metatron.discovery.domain.storage.StorageProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpStatus;
 import org.joda.time.DateTime;
@@ -63,6 +38,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
+import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
+import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE;
+import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
+import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrUploadFileRepository;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
+import app.metatron.discovery.domain.storage.StorageProperties;
+
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NOT_IMPORTED_DATASET;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_NO_DATASET;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.datasetError;
 
 @RequestMapping(value = "/preparationdatasets")
 @RepositoryRestController
@@ -353,8 +357,8 @@ public class PrDatasetController {
 
   @RequestMapping(value = "/file_upload", method = RequestMethod.POST, produces = "application/json")
   public
-  @ResponseBody
-  ResponseEntity<?> file_upload(
+  @ResponseBody synchronized
+  ResponseEntity<?>  file_upload(
           @RequestParam(value = "name") String name,
           @RequestParam(value = "chunk") String chunk,
           @RequestParam(value = "chunks") String chunks,

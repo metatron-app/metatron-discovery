@@ -72,6 +72,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // Subscription
   protected subscriptions: Subscription[] = [];
 
+  protected defaultPhotoSrc = '/assets/images/img_photo.png';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -551,6 +553,11 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         label: this.translateService.instant('msg.storage.ui.list.date'),
         value: 'TIMESTAMP',
         icon: 'ddp-icon-type-calen'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.array'),
+        value: 'ARRAY',
+        icon: 'ddp-icon-type-array'
       },
       {
         label: this.translateService.instant('msg.metadata.ui.dictionary.type.latitude'),

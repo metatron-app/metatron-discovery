@@ -33,8 +33,8 @@
     <!--  New or Update  -->
     <div class="ddp-box-summary">
       <div class="ddp-type-label">{{ 'msg.explore.ui.list.updated' | translate }}</div>
-
-      <ul class="ddp-list-summary">
+      <div class="ddp-data-nodata" *ngIf="updatedMetadataList.length === 0">No data</div>
+      <ul class="ddp-list-summary" *ngIf="updatedMetadataList.length > 0">
         <li *ngFor="let metadata of updatedMetadataList| slice:0:4">
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
                                   [tagList]="metadata.tags !== undefined ? metadata.tags : []"
@@ -56,7 +56,8 @@
 <!--           href="javascript:"-->
 <!--           class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>-->
       </div>
-      <ul class="ddp-list-summary">
+      <div class="ddp-data-nodata" *ngIf="favoriteMetadataList.length === 0">No data</div>
+      <ul class="ddp-list-summary" *ngIf="favoriteMetadataList.length > 0">
         <li *ngFor="let metadata of favoriteMetadataList| slice:0:4">
           <component-explore-card [iconClass]="getMetadataTypeClass(metadata)"
                                   [tagList]="metadata.tags !== undefined ? metadata.tags : []"
@@ -75,15 +76,15 @@
       <div class="ddp-type-label"> {{ 'msg.explore.ui.list.favorite.creator' | translate }}
         <a *ngIf="favoriteCreatorList.length > 4" href="javascript:" class="ddp-btn-more">{{ 'msg.comm.ui.more' | translate }} &gt;</a>
       </div>
-
-      <ul class="ddp-list-data">
+      <div class="ddp-data-nodata" *ngIf="favoriteCreatorList.length === 0">No data</div>
+      <ul class="ddp-list-data" *ngIf="favoriteCreatorList.length > 0">
 <!--        <ul class="ddp-list-summary">-->
           <li *ngFor="let creator of favoriteCreatorList| slice:0:4">
             <a href="javascript:">
               <div class="ddp-wrap-data">
-                <span class="ddp-data-profile">
+                  <span class="ddp-data-profile">
 
-                </span>
+                  </span>
                 <div class="ddp-data-txt">
                   <div class="ddp-data-name" title="{{ creator.creator.fullName }}">{{ creator.creator.fullName }}</div>
                   <div class="ddp-data-create">{{ creator.count }}</div>

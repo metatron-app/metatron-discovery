@@ -1,7 +1,7 @@
 <!-- SourceType is ENGINE(Datasource) -->
 <div class="ddp-box-user" *ngIf="sourceType.toString() === 'ENGINE' && creator">
   <div class="ddp-data-photo">
-    <img src="../../../../assets/images/img_photo.png" (click)="onClickUserName(topUser.user.username)">
+    <img [src]="getUserImage(topUser.user)" (click)="onClickUserName(topUser.user.username)">
   </div>
   <div class="ddp-wrap-data">
     <div class="ddp-data-name">
