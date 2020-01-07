@@ -35,9 +35,9 @@
           <div class="ddp-ui-searching"
                [class.type-search]="!isEmptyCatalogSearchKeyword() && isNotEmptyCatalogContents()">
             <em class="ddp-icon-search"></em>
-            <component-input [placeHolder]="'msg.explore.ph.tab.catalogs.search' | translate"
-                             (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword"
-                             [autoFocus]="false"></component-input>
+            <input [(ngModel)]="catalogSearchKeyword"
+                    placeholder="{{'msg.explore.ph.tab.catalogs.search' | translate}}"
+                    type="text" placeholder="Searching tags" >
             <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyCatalogSearchKeyword()"
                (click)="onChangeCatalogSearchKeyword('')"></a>
           </div>
@@ -50,7 +50,7 @@
           <!-- label -->
           <div class="ddp-label-down" (click)="onToggleIsShowFavoriteCatalog()">
             Favorite({{ favoriteCatalogList.length }})
-            <span class="ddp-favorite-nodata" *ngIf="favoriteCatalogList.length === 0">
+            <span class="ddp-data-nodata" *ngIf="favoriteCatalogList.length === 0">
               No favorite data
             </span>
           </div>
