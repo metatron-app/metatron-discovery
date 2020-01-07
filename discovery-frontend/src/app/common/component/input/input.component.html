@@ -14,8 +14,11 @@
 -->
 
 <ng-container *ngIf="'default' === compType" >
-
-
+  <input #inputElm #styleElm placeholder="{{placeHolder}}"
+         (keyup)="keyupHandler($event)" (focus)="focusHandler()" (blur)="blurHandler()"
+         (mousedown)="$event.stopPropagation()" (mousemove)="$event.stopPropagation()"
+         class="{{inputClass}} {{optionalClass}}" type="text">
+<!--
   <div class="ddp-form-search ddp-selected">
     <em class="ddp-icon-search"></em>
     <input #inputElm #styleElm placeholder="{{placeHolder}}"
@@ -24,6 +27,7 @@
            class="{{inputClass}} {{optionalClass}}" type="text">
     <em class="ddp-btn-search-close" *ngIf="isEnableDelete && isNotEmptyInput()" (click)="clearValue()" [style.display]="isNotEmptyInput() ? 'block' : 'none'"></em>
   </div>
+-->
 </ng-container>
 
 <ng-container *ngIf="'apply' === compType" >

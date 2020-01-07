@@ -34,15 +34,14 @@
     <div class="ddp-wrap-top-filtering">
       <!-- filter search -->
       <div class="ddp-wrap-type-search ddp-fright">
-        <div class="ddp-form-search ddp-selected">
-          <component-input
-            [autoFocus]="false"
-            [isEnableDelete]="true"
-            [value]="searchKeyword"
-            [placeHolder]="'msg.storage.ph.connection.search' | translate"
-            (changeValue)="onChangedSearchKeyword($event)">
-          </component-input>
-        </div>
+        <component-input
+          [compType]="'search'"
+          [autoFocus]="false"
+          [isEnableDelete]="true"
+          [value]="searchKeyword"
+          [placeHolder]="'msg.storage.ph.connection.search' | translate"
+          (changeValue)="onChangedSearchKeyword($event)">
+        </component-input>
         <!-- form -->
         <a href="javascript:" class="ddp-btn-line" (click)="reloadPage(true)">{{'msg.comm.btn.search' | translate}}</a>
       </div>

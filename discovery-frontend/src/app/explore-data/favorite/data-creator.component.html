@@ -16,17 +16,15 @@
       <div class="ddp-wrap-list-create">
         <div class="ddp-type-top-option ddp-clear ">
           <!-- 검색 -->
-          <div class="ddp-form-search ddp-fleft">
-            <em class="ddp-icon-search"></em>
-            <component-input
-              [autoFocus]="false"
-              [isEnableDelete]="true"
-              [value]="searchedKeyword"
-              [placeHolder]="'msg.storage.ph.source.search' | translate"
-              (changeValue)="onChangedSearchKeyword($event)">
-            </component-input>
-            <a href="javascript:" class="ddp-btn-delete"></a>
-          </div>
+          <component-input
+            [compType]="'search'"
+            [autoFocus]="false"
+            [isEnableDelete]="true"
+            [value]="searchedKeyword"
+            [optionalClass]="'ddp-fleft'"
+            [placeHolder]="'msg.storage.ph.source.search' | translate"
+            (changeValue)="onChangedSearchKeyword($event)">
+          </component-input>
           <!-- //검색 -->
         </div>
         <span *ngIf="dataCreatorList.length === 0">No Data Creator</span>
