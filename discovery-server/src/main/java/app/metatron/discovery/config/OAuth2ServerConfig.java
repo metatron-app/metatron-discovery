@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.config;
 
+import com.google.common.collect.ImmutableList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
@@ -46,6 +48,10 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -345,6 +351,18 @@ public class OAuth2ServerConfig {
 //        .accessTokenConverter(tokenEnhancer())
         .approvalStoreDisabled();
 //        .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST); // to allow get for password grant
+
+      //Cors Configure for oAuth
+      Map<String, CorsConfiguration> corsConfigurationMap = new HashMap<>();
+      final CorsConfiguration configuration = new CorsConfiguration();
+      configuration.setAllowedOrigins(ImmutableList.of("*"));
+      configuration.setAllowedMethods(ImmutableList.of("*"));
+      configuration.setAllowCredentials(true);
+      configuration.setAllowedHeaders(ImmutableList.of("*"));
+      corsConfigurationMap.put("/oauth/token", configuration);
+      endpoints
+          .getFrameworkEndpointHandlerMapping()
+          .setCorsConfigurations(corsConfigurationMap);
       // @formatter:on
     }
 
