@@ -698,7 +698,7 @@ public class DataSourceService {
   }
 
   private Consumer<Long, String> createConsumer(String bootstrapServer) {
-    DataSourceProperties.ConsumerConfig consumerConfig = dataSourceProperties.getRealtimeConfig().getConsumerConfig();
+    DataSourceProperties.ConsumerConfig consumerConfig = dataSourceProperties.getRealtime().getConsumerConfig();
 
     Properties props = new Properties();
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);

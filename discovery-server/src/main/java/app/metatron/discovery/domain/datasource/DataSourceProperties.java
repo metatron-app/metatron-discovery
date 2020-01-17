@@ -31,7 +31,7 @@ public class DataSourceProperties {
 
   List<DefaultFilter> defaultFilters;
 
-  Realtime realtimeConfig;
+  Realtime realtime;
 
   public Map<String, List<String>> getConnections() {
     return connections;
@@ -49,12 +49,12 @@ public class DataSourceProperties {
     this.defaultFilters = defaultFilters;
   }
 
-  public Realtime getRealtimeConfig() {
-    return realtimeConfig;
+  public Realtime getRealtime() {
+    return realtime;
   }
 
-  public void setRealtimeConfig(Realtime realtimeConfig) {
-    this.realtimeConfig = realtimeConfig;
+  public void setRealtime(Realtime realtimeConfig) {
+    this.realtime = realtimeConfig;
   }
 
   public static class DefaultFilter {
@@ -115,16 +115,16 @@ public class DataSourceProperties {
     }
   }
 
-  class ConsumerConfig {
+  public static class ConsumerConfig {
 
     String groupId = "KafkaSampleConsumer";
     String keyDeserializer = "org.apache.kafka.common.serialization.LongDeserializer";
     String valueDeserializer = "org.apache.kafka.common.serialization.StringDeserializer";
     String autoOffsetReset = "latest";
-    long requestTimeout = 10000;
-    long sessionTimeOut = 8000;
-    long fetchMaxWait = 8000;
-    long heartbeatInterval = 5000;
+    String requestTimeout = "10000";
+    String sessionTimeOut = "8000";
+    String fetchMaxWait = "8000";
+    String heartbeatInterval = "5000";
 
     public ConsumerConfig() {
     }
@@ -161,35 +161,35 @@ public class DataSourceProperties {
       this.autoOffsetReset = autoOffsetReset;
     }
 
-    public long getRequestTimeout() {
+    public String getRequestTimeout() {
       return requestTimeout;
     }
 
-    public void setRequestTimeout(long requestTimeout) {
+    public void setRequestTimeout(String requestTimeout) {
       this.requestTimeout = requestTimeout;
     }
 
-    public long getSessionTimeOut() {
+    public String getSessionTimeOut() {
       return sessionTimeOut;
     }
 
-    public void setSessionTimeOut(long sessionTimeOut) {
+    public void setSessionTimeOut(String sessionTimeOut) {
       this.sessionTimeOut = sessionTimeOut;
     }
 
-    public long getFetchMaxWait() {
+    public String getFetchMaxWait() {
       return fetchMaxWait;
     }
 
-    public void setFetchMaxWait(long fetchMaxWait) {
+    public void setFetchMaxWait(String fetchMaxWait) {
       this.fetchMaxWait = fetchMaxWait;
     }
 
-    public long getHeartbeatInterval() {
+    public String getHeartbeatInterval() {
       return heartbeatInterval;
     }
 
-    public void setHeartbeatInterval(long heartbeatInterval) {
+    public void setHeartbeatInterval(String heartbeatInterval) {
       this.heartbeatInterval = heartbeatInterval;
     }
   }
