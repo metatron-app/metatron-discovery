@@ -698,16 +698,18 @@ public class DataSourceService {
   }
 
   private Consumer<Long, String> createConsumer(String bootstrapServer) {
+    DataSourceProperties.ConsumerConfig consumerConfig = dataSourceProperties.getRealtimeConfig().getConsumerConfig();
+
     Properties props = new Properties();
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-    props.put(ConsumerConfig.GROUP_ID_CONFIG, "KafkaSampleConsumer");
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-    props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 10000);
-    props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 8000);
-    props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 8000);
-    props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 5000);
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerConfig.getGroupId());
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, consumerConfig.getKeyDeserializer());
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, consumerConfig.getValueDeserializer());
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, consumerConfig.getAutoOffsetReset());
+    props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, consumerConfig.getRequestTimeout());
+    props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, consumerConfig.getSessionTimeOut());
+    props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, consumerConfig.getFetchMaxWait());
+    props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, consumerConfig.getHeartbeatInterval());
     Consumer<Long, String> consumer = new KafkaConsumer<>(props);
     return consumer;
   }
