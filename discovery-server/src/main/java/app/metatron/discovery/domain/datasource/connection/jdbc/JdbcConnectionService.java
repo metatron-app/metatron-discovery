@@ -299,6 +299,10 @@ public class JdbcConnectionService {
       if (limit > 0)
         stmt.setMaxRows(limit);
 
+      if(dialect instanceof HiveDialect) {
+        stmt.execute(((HiveDialect)dialect).getNoneStrictMode());
+      }
+
       rs = stmt.executeQuery(query);
 
       queryResultSet = getJdbcQueryResult(rs, dialect, extractColumnName);

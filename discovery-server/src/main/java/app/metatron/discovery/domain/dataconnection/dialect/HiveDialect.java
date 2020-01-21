@@ -438,4 +438,8 @@ public class HiveDialect implements JdbcDialect {
     if(StringUtils.isEmpty(metastorePassword)) return false;
     return true;
   }
+
+  public String getNoneStrictMode() {
+    return "set hive.mapred.mode=nonstrict";
+  }
 }
