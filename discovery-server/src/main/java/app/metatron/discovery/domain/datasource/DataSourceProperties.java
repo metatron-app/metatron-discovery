@@ -31,6 +31,8 @@ public class DataSourceProperties {
 
   List<DefaultFilter> defaultFilters;
 
+  Realtime realtime;
+
   public Map<String, List<String>> getConnections() {
     return connections;
   }
@@ -45,6 +47,14 @@ public class DataSourceProperties {
 
   public void setDefaultFilters(List<DefaultFilter> defaultFilters) {
     this.defaultFilters = defaultFilters;
+  }
+
+  public Realtime getRealtime() {
+    return realtime;
+  }
+
+  public void setRealtime(Realtime realtimeConfig) {
+    this.realtime = realtimeConfig;
   }
 
   public static class DefaultFilter {
@@ -87,6 +97,100 @@ public class DataSourceProperties {
 
     public void setFilterName(String filterName) {
       this.filterName = filterName;
+    }
+  }
+
+  public static class Realtime {
+    ConsumerConfig consumerConfig;
+
+    public Realtime() {
+    }
+
+    public ConsumerConfig getConsumerConfig() {
+      return consumerConfig;
+    }
+
+    public void setConsumerConfig(ConsumerConfig consumerConfig) {
+      this.consumerConfig = consumerConfig;
+    }
+  }
+
+  public static class ConsumerConfig {
+
+    String groupId = "KafkaSampleConsumer";
+    String keyDeserializer = "org.apache.kafka.common.serialization.LongDeserializer";
+    String valueDeserializer = "org.apache.kafka.common.serialization.StringDeserializer";
+    String autoOffsetReset = "latest";
+    String requestTimeout = "10000";
+    String sessionTimeOut = "8000";
+    String fetchMaxWait = "8000";
+    String heartbeatInterval = "5000";
+
+    public ConsumerConfig() {
+    }
+
+    public String getGroupId() {
+      return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+      this.groupId = groupId;
+    }
+
+    public String getKeyDeserializer() {
+      return keyDeserializer;
+    }
+
+    public void setKeyDeserializer(String keyDeserializer) {
+      this.keyDeserializer = keyDeserializer;
+    }
+
+    public String getValueDeserializer() {
+      return valueDeserializer;
+    }
+
+    public void setValueDeserializer(String valueDeserializer) {
+      this.valueDeserializer = valueDeserializer;
+    }
+
+    public String getAutoOffsetReset() {
+      return autoOffsetReset;
+    }
+
+    public void setAutoOffsetReset(String autoOffsetReset) {
+      this.autoOffsetReset = autoOffsetReset;
+    }
+
+    public String getRequestTimeout() {
+      return requestTimeout;
+    }
+
+    public void setRequestTimeout(String requestTimeout) {
+      this.requestTimeout = requestTimeout;
+    }
+
+    public String getSessionTimeOut() {
+      return sessionTimeOut;
+    }
+
+    public void setSessionTimeOut(String sessionTimeOut) {
+      this.sessionTimeOut = sessionTimeOut;
+    }
+
+    public String getFetchMaxWait() {
+      return fetchMaxWait;
+    }
+
+    public void setFetchMaxWait(String fetchMaxWait) {
+      this.fetchMaxWait = fetchMaxWait;
+    }
+
+    public String getHeartbeatInterval() {
+      return heartbeatInterval;
+    }
+
+    public void setHeartbeatInterval(String heartbeatInterval) {
+      this.heartbeatInterval = heartbeatInterval;
     }
   }
 }

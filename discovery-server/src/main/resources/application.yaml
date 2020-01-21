@@ -100,6 +100,16 @@ polaris:
       HIVE: ["ENGINE", "LIVE"]
       PRESTO: ["LIVE"]
       PHOENIX: ["LIVE"]
+    realtime:
+      consumerConfig:
+        groupId: KafkaSampleConsumer
+        keyDeserializer: org.apache.kafka.common.serialization.LongDeserializer
+        valueDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+        autoOffsetReset: latest
+        requestTimeout: 10000
+        sessionTimeOut: 8000
+        fetchMaxWait: 8000
+        heartbeatInterval: 5000
   engine:
     monitoring:
       emitter:
