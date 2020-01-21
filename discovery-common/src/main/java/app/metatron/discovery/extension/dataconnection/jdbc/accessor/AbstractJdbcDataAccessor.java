@@ -312,8 +312,12 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
         LOGGER.debug("SCHEMA: {} - NAME: {} - TYPE: {}", resultSet.getString(2), resultSet.getString(3), resultSet.getString(4));
 
         String tableType = resultSet.getString(4);
-        if (!("TABLE".equals(tableType) || "VIEW".equals(tableType))) {
-          continue;
+        String[] supportedTableType = dialect.getResultSetTableType(connectionInfo);
+        if(supportedTableType != null && supportedTableType.length > 0){
+          List<String> supportedTableTypeList = Arrays.asList(supportedTableType);
+          if(!supportedTableTypeList.contains(tableType)){
+            continue;
+          }
         }
 
         tableInfo.put("name", resultSet.getString(3));
