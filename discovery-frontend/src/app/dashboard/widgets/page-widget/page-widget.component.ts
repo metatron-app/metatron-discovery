@@ -74,7 +74,6 @@ import {Pivot} from "../../../domain/workbook/configurations/pivot";
 import {MapChartComponent} from '../../../common/component/chart/type/map-chart/map-chart.component';
 import {Shelf, ShelfLayers} from "../../../domain/workbook/configurations/shelf/shelf";
 import {CommonConstant} from "../../../common/constant/common.constant";
-import {clone} from "@turf/turf";
 
 declare let $;
 declare let moment;
@@ -1577,8 +1576,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this._currentSelectionFilters = currentSelectionFilters;
     this._currentSelectionFilterString = JSON.stringify(currentSelectionFilters);
     this._currentGlobalFilterString = JSON.stringify(globalFilters);
+    const disableCache: boolean = this.isRealTimeWidget;
 
-    this.datasourceService.searchQuery(cloneQuery).then((data) => {
+    this.datasourceService.searchQuery(cloneQuery, disableCache).then((data) => {
 
       if (this.resultData && this.isRealTimeWidget && cloneQuery.pivot.columns.some(item => 'TIMESTAMP' === item.subRole)) {
 
