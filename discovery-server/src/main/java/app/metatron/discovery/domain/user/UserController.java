@@ -329,9 +329,13 @@ public class UserController {
 
     // mail 전송을 수행하지 않고 패스워드를 지정하지 않은 경우 시스템에서 비번 생성
     if (!user.getPassMailer() || StringUtils.isEmpty(user.getPassword())) {
-      String encodedPassword = passwordEncoder.encode(PolarisUtils.createTemporaryPassword(8));
-      user.setPassword(encodedPassword);
+      user.setPassword(PolarisUtils.createTemporaryPassword(8));
     }
+
+    //encode password
+    String decryptedPassword = user.getPassword();
+    String encodedPassword = passwordEncoder.encode(user.getPassword());
+    user.setPassword(encodedPassword);
 
     user.setStatus(User.Status.ACTIVATED);
 
@@ -353,7 +357,7 @@ public class UserController {
     userRepository.save(user);
 
     if (!user.getPassMailer()) {
-      mailer.sendSignUpApprovedMail(user, true, user.getPassword());
+      mailer.sendSignUpApprovedMail(user, true, decryptedPassword);
     }
 
     Map<String, Object> responseMap = Maps.newHashMap();
