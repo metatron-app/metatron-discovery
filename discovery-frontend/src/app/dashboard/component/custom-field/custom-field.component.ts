@@ -27,7 +27,7 @@ import {
 } from '@angular/core';
 import {DashboardService} from '../../service/dashboard.service';
 import {CommonCode} from '../../../domain/code/common-code';
-import {ConnectionType, Field, FieldRole} from '../../../domain/datasource/datasource';
+import {Field, FieldRole} from '../../../domain/datasource/datasource';
 import {AbstractComponent} from '../../../common/component/abstract.component';
 import {Alert} from '../../../common/util/alert.util';
 import {BoardDataSource} from '../../../domain/dashboard/dashboard';
@@ -614,7 +614,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       expr = StringUtil.trim(expr);
 
       const cloneDs:BoardDataSource = _.cloneDeep( this.dataSource );
-      if( ConnectionType.LINK.toString() === cloneDs.connType && !isNullOrUndefined(cloneDs.engineName) ) {
+      if( !isNullOrUndefined(cloneDs.engineName) ) {
         cloneDs.name = cloneDs.engineName;
       }
       const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs) };
