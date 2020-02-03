@@ -12,7 +12,15 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {isNullOrUndefined} from "util";
 import {
@@ -22,7 +30,10 @@ import {
   JdbcDialect,
   Scope
 } from "../../../domain/dataconnection/dataconnection";
-import {ConnectionParam, DataConnectionCreateService} from "../../service/data-connection-create.service";
+import {
+  ConnectionParam,
+  DataConnectionCreateService
+} from "../../service/data-connection-create.service";
 import {StringUtil} from "../../../common/util/string.util";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
 import {StorageService} from "../../service/storage.service";
@@ -215,7 +226,7 @@ export class ConnectionComponent extends AbstractComponent {
       // loading show
       this.loadingShow();
       // check connection
-      this.connectionService.checkConnection({connection: this.getConnectionParams()})
+      this.connectionService.checkConnection({connection: this.getConnectionParams(true)})
         .then((result: {connected: boolean}) => {
           // set connection validation result
           this.connectionValidation = result.connected ? ConnectionValid.ENABLE_CONNECTION : ConnectionValid.DISABLE_CONNECTION;
@@ -358,6 +369,22 @@ export class ConnectionComponent extends AbstractComponent {
   }
 
   /**
+   * Is disable username
+   * @return {boolean}
+   */
+  public isMandatoryUsername() {
+    return this.selectedConnectionType.inputSpec.username === InputMandatory.MANDATORY;
+  }
+
+  /**
+   * Is disable password
+   * @return {boolean}
+   */
+  public isMandatoryPassword() {
+    return this.selectedConnectionType.inputSpec.password === InputMandatory.MANDATORY;
+  }
+
+  /**
    * Is valid connection input
    * @return {boolean}
    */
@@ -392,13 +419,14 @@ export class ConnectionComponent extends AbstractComponent {
     }
     // check enable authentication
     if (!this.isDisableAuthenticationType()) {
+
       // check username
-      if (!this.isDisableUsername() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.username)) {
+      if (!this.isDisableUsername() && this.isMandatoryUsername() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.username)) {
         this.isUsernameError = true;
         result = false;
       }
       // check password
-      if (!this.isDisablePassword() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.password)) {
+      if (!this.isDisablePassword() && this.isMandatoryPassword() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.password)) {
         this.isPasswordError = true;
         result = false;
       }

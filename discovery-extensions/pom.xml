@@ -19,12 +19,14 @@
             </activation>
             <modules>
                 <module>mssql-connection</module>
+                <module>athena-connection</module>
             </modules>
         </profile>
         <profile>
             <id>extensions-all</id>
             <modules>
                 <module>mssql-connection</module>
+                <module>athena-connection</module>
                 <module>oracle-connection</module>
             </modules>
         </profile>
