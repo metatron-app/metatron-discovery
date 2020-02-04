@@ -25,6 +25,9 @@ import {EventBroadcaster} from "../../../../../common/event/event.broadcaster";
 import {DataAggregate, RangeType} from "../data-aggregate.component";
 import {StringUtil} from "../../../../../common/util/string.util";
 import {SelectComponent} from "../../../../../common/component/select/select.component";
+import {CommonUtil} from "../../../../../common/util/common.util";
+import {SYSTEM_PERMISSION} from "../../../../../common/permission/permission";
+import {Dataconnection} from "../../../../../domain/dataconnection/dataconnection";
 
 const QUERY_EDITOR_COMMENT: string =
   "-- 반복해서 실행할 SELECT 쿼리를 입력해 주세요.\n" +
@@ -126,10 +129,14 @@ export class CreationDataAggregateTaskComponent extends AbstractPopupComponent i
     this.isShow = false;
   }
 
-  public init(dataConnectionId: string, databases: string[], webSocketId: string, dataAggregate: DataAggregate = null) {
+  public init(dataConnectionId: string, databases: string[], webSocketId: string, dataConnection: Dataconnection, dataAggregate: DataAggregate = null) {
     this.isShow = true;
     this.dataConnectionId = dataConnectionId;
-    this.databases = databases;
+    if(CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_SYSTEM)) {
+      this.databases = databases;
+    } else {
+      this.databases = [dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName']];
+    }
     this.webSocketId = webSocketId;
     if(dataAggregate) {
       this.dataAggregate = dataAggregate;

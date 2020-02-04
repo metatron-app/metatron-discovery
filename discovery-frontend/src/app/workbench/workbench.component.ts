@@ -367,7 +367,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.detailWorkbenchDatabase.refreshDatabases();
       }),
       this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_CREATION_DATA_AGGREGATE_TASK').subscribe((dataAggregate: DataAggregate) => {
-        this.creationDataAggregateTaskComponent.init(this.workbench.dataConnection.id, this.detailWorkbenchDatabase.databases, this.websocketId, dataAggregate);
+        this.creationDataAggregateTaskComponent.init(this.workbench.dataConnection.id, this.detailWorkbenchDatabase.databases,
+          this.websocketId, this.workbench.dataConnection, dataAggregate);
       }),
       this.broadCaster.on<any>('SHOW_HIVE_PERSONAL_DATABASE_COMPLETE_DATA_AGGREGATE_TASK').subscribe((dataAggregate: DataAggregate) => {
         this.completeDataAggregateTaskComponent.init(this.workbench.id, dataAggregate);
