@@ -289,7 +289,7 @@
             <div class="ddp-ui-boardside-title">
               {{'msg.board.filter.title.global-filter' | translate}}
               <span class="ddp-data-num">
-                {{(boardUtil.getBoardFilters(dashboard) != null ? boardUtil.getBoardFilters(dashboard).length : 0) + (chartFilters != null ? chartFilters.length : 0)}}
+                {{(boardUtil.getBoardFilters(dashboard) != null ? boardUtil.getBoardFilters(dashboard).length : 0)}}
               </span>
               <a href="javascript:" class="ddp-icon-add" (click)="openUpdateFilterPopup()">
                 <!-- 툴팁 -->

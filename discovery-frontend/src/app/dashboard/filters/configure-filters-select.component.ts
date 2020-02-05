@@ -236,7 +236,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
         }
       } else {
         if (field['isEditable']) {
-          const timeFilter: TimeFilter = field['filter'];
+          const timeFilter: TimeFilter = field['filter'] ? field['filter'] : field['someChartFilter'];
           this.editTimestampFilter(field, timeFilter.timeUnit, timeFilter.byTimeUnit);
         } else {
           this.addTimestampFilter(field);
@@ -360,11 +360,18 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     const isToBoardFilter: boolean = (field.hasOwnProperty('someChartFilter'));
     const timeFilter: TimeFilter = (isToBoardFilter) ? field['someChartFilter'] : field['filter'];
     if (isNullOrUndefined(unit) || TimeUnit.NONE === unit) {
-      timeFilter.type = 'time_all';
+      timeFilter.type = 'time_relative';
     } else {
       timeFilter.type = 'time_list';
       timeFilter.timeUnit = unit;
       (byUnit) && (timeFilter.byTimeUnit = byUnit);
+    }
+
+    if( !timeFilter.clzField ) {
+      console.info( timeFilter );
+      // 필드 설정
+      let totalFields: (Field | CustomField)[] = DashboardUtil.getFieldsForMainDataSource(this._boardConf, timeFilter.dataSource);
+      timeFilter.clzField = totalFields.find( field => field.name === timeFilter.field ) as Field;
     }
 
     if (isToBoardFilter) {
