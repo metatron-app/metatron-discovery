@@ -1589,25 +1589,28 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         //   data.columns[0].value.push(Math.floor((Math.random() * 12) - 9));
         // }
 
-        const colSize = data.columns.length;
-        for(let colIdx = 0; colIdx < colSize; ++colIdx){
-          let colData = data.columns[colIdx].value;
-          let newData = data.rows.map((rowItem, idx) => {
-            return {
-              row: rowItem,
-              col: colData[idx]
-            };
-          }).sort((a, b) => {
-            return moment(a.row).isBefore(moment(b.row));
-          });
-          newData.forEach(newItem => {
-            if (!this.resultData.data.rows.some(row => row === newItem.row)) {
-              this.resultData.data.rows.push(newItem.row);
-              this.resultData.data.columns[colIdx].value.push(newItem.col);
+        const columnSize = data.columns.length;
+        let newData = data.rows.map((rowItem, rowIndex) => {
+          let columnValues = [];
+          for(let columnIdx = 0; columnIdx < columnSize; ++columnIdx){
+            let columnValue = data.columns[columnIdx].value;
+            columnValues.push(columnValue[rowIndex]);
+          }
+          return {
+            row: rowItem,
+            col: columnValues
+          };
+        }).sort((a, b) => {
+          return moment(a.row).isBefore(moment(b.row));
+        });
+        newData.forEach(newItem => {
+          if (!this.resultData.data.rows.some(row => row === newItem.row)) {
+            this.resultData.data.rows.push(newItem.row);
+            for(let columnIdx = 0; columnIdx < columnSize; ++columnIdx){
+              this.resultData.data.columns[columnIdx].value.push(newItem.col[columnIdx]);
             }
-          });
-        }
-        // console.info( '>>>>>>', newData );
+          }
+        });
       } else {
         this.resultData = {
           data,
