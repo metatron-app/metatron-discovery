@@ -134,14 +134,14 @@ export class DatasourceService extends AbstractService {
    * @param {SearchQueryRequest} query
    * @returns {Promise<any>}
    */
-  public searchQuery(query: SearchQueryRequest): Promise<any> {
+  public searchQuery(query: SearchQueryRequest, disableCache?: boolean): Promise<any> {
     // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '129.444 38.444', upperCorner: '129.888 38.999', dataSource: 'cei_m1_b'};
     // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
 
     // query.filters.push(params);
     let stringifyQuery = JSON.stringify(query);
     let historyItem = this._searchHistory.find(history => history.query === stringifyQuery);
-    if (historyItem) {
+    if (!disableCache && historyItem) {
       return new Promise((resolve, reject) => {
         resolve(historyItem.result);
       });
