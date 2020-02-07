@@ -14,21 +14,18 @@
 
 package app.metatron.discovery.domain.workbook.configurations.field;
 
-import com.google.common.base.Preconditions;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.validation.constraints.NotNull;
-
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.util.EnumUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -89,7 +86,7 @@ public class ExpressionField extends UserDefinedField {
   }
 
   public ExpressionField(String name, String expr, String role, boolean aggregated) {
-    this(name, expr, null, null, null, aggregated);
+    this(name, expr, role, null, null, aggregated);
   }
 
   @JsonIgnore
