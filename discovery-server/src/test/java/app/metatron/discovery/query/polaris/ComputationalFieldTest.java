@@ -388,8 +388,9 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
 
         fieldName = "avg_per_city";
         input = "$mean( sumof(Profit), {City,Category})";
-        ComputationalField.checkComputationalFieldIn( input, mapFieldNames );
-        ComputationalField.makeAggregationFunctionsIn( fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap(), mapFieldNames );
+        ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
 
         return;
     }

@@ -14,7 +14,11 @@
 
 package app.metatron.discovery.query.polaris;
 
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.data.InvalidExpressionException;
+import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.aggregations.*;
@@ -52,6 +56,7 @@ public class ComputationalField {
 
 
   static class FunctionInfo {
+
     enum FunctionInfoType {
       FUNCTION_INFO_TYPE_OPERATOR,
       FUNCTION_INFO_TYPE_WINDOW_OPERATOR,
@@ -71,7 +76,8 @@ public class ComputationalField {
       this.cmdPresto = cmdPresto;
     }
 
-    public FunctionInfo(String compareType, int numberOfParam, FunctionInfoType type, String cmdPresto, String cmdPhoenix) {
+    public FunctionInfo(String compareType, int numberOfParam, FunctionInfoType type, String cmdPresto,
+            String cmdPhoenix) {
       this.compareType = compareType;
       this.numberOfParam = numberOfParam;
       this.type = type;
@@ -87,10 +93,12 @@ public class ComputationalField {
 
   }
 
-  static class WrapInt{
+  static class WrapInt {
+
     int value;
-    public WrapInt(){
-      value =0;
+
+    public WrapInt() {
+      value = 0;
     }
   }
 
@@ -100,162 +108,299 @@ public class ComputationalField {
     // ImmutableMap을 써볼까?
     functionInfos = new HashMap<String, FunctionInfo>();
 
-    functionInfos.put("size".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("array".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("like".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("regex".toLowerCase(), new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("abs".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("acos".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("asin".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("atan".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("cbrt".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("ceil".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("cos".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("cosh".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("exp".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("expm1".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("floor".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("getexponent".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("log".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("log10".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("log1p".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("nextup".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("rint".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("round".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("signum".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("sin".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("sinh".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("sqrt".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("tan".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("tanh".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("todegrees".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("toradians".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("ulp".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("atan2".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("copysign".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("hypot".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("remainder".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("max".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("min".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("nextafter".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("pow".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("scalb".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("if".toLowerCase(), new FunctionInfo("ge", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("cast".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("timestamp".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("unix_timestamp".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("time_format".toLowerCase(), new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("isnull".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("nvl".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("datediff".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("switch".toLowerCase(), new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("case".toLowerCase(), new FunctionInfo("ge", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("concat".toLowerCase(), new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("format".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("lpad".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("rpad".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("upper".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("lower".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("split".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("splitregex".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("proper".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("length".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("strlen".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("left".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("right".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("mid".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("substring".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("indexof".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("replace".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("trim".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("btrim".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("ltrim".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("rtrim".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("in".toLowerCase(), new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("between".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("startswith".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("endswith".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("startswithignorecase".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("endswithignorecase".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("contains".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("match".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("now".toLowerCase(), new FunctionInfo("eq", 0, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("current_time".toLowerCase(), new FunctionInfo("eq", 0, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("recent".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("bucketstart".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("bucketend".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("bucketstartdatetime".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("bucketenddatetime".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("add_time".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("sub_time".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("difftime".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("dayname".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("dayofmonth".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("lastdayofmonth".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("dayofweek".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("dayofyear".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("weekofweekyear".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("weekyear".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("hour".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("month".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("monthname".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("year".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("first_day".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("last_day".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("datetime".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("datetime_millis".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("timestamp_validate".toLowerCase(), new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("datetime_extract".toLowerCase(), new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("$prev".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$next".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$last".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$first".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$nth".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$lag".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$lead".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$delta".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$sum".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$min".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$max".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$row_num".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$rank".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$dense_rank".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$mean".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$variance".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$stddev".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$variancepop".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$stddevpop".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$percentile".toLowerCase(), new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("$size".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ));
-    functionInfos.put("minof".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("maxof".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("avgof".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("sumof".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("varianceof".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("stddevof".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("countof".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("countd".toLowerCase(), new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-    functionInfos.put("ifcountd".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR ));
-//    functionInfos.put("+".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-//    functionInfos.put("-".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-//    functionInfos.put("*".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-//    functionInfos.put("/".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-//    functionInfos.put("%".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-//    functionInfos.put("^".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
-    functionInfos.put("ipv4_in".toLowerCase(), new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
+    functionInfos.put("size".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("array".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("like".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("regex".toLowerCase(),
+            new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("abs".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("acos".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("asin".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("atan".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("cbrt".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("ceil".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("cos".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("cosh".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("exp".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("expm1".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("floor".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("getexponent".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("log".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("log10".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("log1p".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("nextup".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("rint".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("round".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("signum".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("sin".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("sinh".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("sqrt".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("tan".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("tanh".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("todegrees".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("toradians".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("ulp".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("atan2".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("copysign".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("hypot".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("remainder".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("max".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("min".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("nextafter".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("pow".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("scalb".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("if".toLowerCase(),
+            new FunctionInfo("ge", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("cast".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("timestamp".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("unix_timestamp".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("time_format".toLowerCase(),
+            new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("isnull".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("nvl".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("datediff".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("switch".toLowerCase(),
+            new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("case".toLowerCase(),
+            new FunctionInfo("ge", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("concat".toLowerCase(),
+            new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("format".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("lpad".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("rpad".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("upper".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("lower".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("split".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("splitregex".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("proper".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("length".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("strlen".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("left".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("right".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("mid".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("substring".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("indexof".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("replace".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("trim".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("btrim".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("ltrim".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("rtrim".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("in".toLowerCase(),
+            new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("between".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("startswith".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("endswith".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("startswithignorecase".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("endswithignorecase".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("contains".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("match".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("now".toLowerCase(),
+            new FunctionInfo("eq", 0, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("current_time".toLowerCase(),
+            new FunctionInfo("eq", 0, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("recent".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("bucketstart".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("bucketend".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("bucketstartdatetime".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("bucketenddatetime".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("add_time".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("sub_time".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("difftime".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("dayname".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("dayofmonth".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("lastdayofmonth".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("dayofweek".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("dayofyear".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("weekofweekyear".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("weekyear".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("hour".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("month".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("monthname".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("year".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("first_day".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("last_day".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("datetime".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("datetime_millis".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("timestamp_validate".toLowerCase(),
+            new FunctionInfo("ge", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("datetime_extract".toLowerCase(),
+            new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
+    functionInfos.put("$prev".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$next".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$last".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$first".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$nth".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$lag".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$lead".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$delta".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$sum".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$min".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$max".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$row_num".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$rank".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$dense_rank".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$mean".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$variance".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$stddev".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$variancepop".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$stddevpop".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$percentile".toLowerCase(),
+            new FunctionInfo("eq", 3, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("$size".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR));
+    functionInfos.put("minof".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("maxof".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("avgof".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("sumof".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("varianceof".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("stddevof".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("countof".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("countd".toLowerCase(),
+            new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    functionInfos.put("ifcountd".toLowerCase(),
+            new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR));
+    //    functionInfos.put("+".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
+    //    functionInfos.put("-".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
+    //    functionInfos.put("*".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
+    //    functionInfos.put("/".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
+    //    functionInfos.put("%".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
+    //    functionInfos.put("^".toLowerCase(), new FunctionInfo("eq", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR ));
+    functionInfos.put("ipv4_in".toLowerCase(),
+            new FunctionInfo("ge", 2, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
 
 
   }
 
   public static int getWindowFunctions(ParseTree node, List<FunctionExprContext> windowFunctions) {
 
-    if(node == null || node.getChild(0) == null) {
+    if (node == null || node.getChild(0) == null) {
       return windowFunctions == null ? 0 : windowFunctions.size();
     }
 
     if (node instanceof FunctionExprContext) {
 
-      if(node.getChild(0).getText() == null) {
+      if (node.getChild(0).getText() == null) {
         return windowFunctions == null ? 0 : windowFunctions.size();
       }
 
@@ -263,13 +408,13 @@ public class ComputationalField {
 
       FunctionInfo functionInfo = functionInfos.get(fnName);
 
-      if( functionInfo == null )
+      if (functionInfo == null) {
         return windowFunctions.size();
+      }
 
       if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
         windowFunctions.add((FunctionExprContext) node);
-      }
-      else{
+      } else {
         for (int i = 0; i < node.getChildCount(); i++) {
           getWindowFunctions(node.getChild(i), windowFunctions);
         }
@@ -292,8 +437,7 @@ public class ComputationalField {
 
       if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR) {
         aggregationFunctions.add((FunctionExprContext) node);
-      }
-      else{
+      } else {
         for (int i = 0; i < node.getChildCount(); i++) {
           getAggregations(node.getChild(i), aggregationFunctions);
         }
@@ -307,10 +451,11 @@ public class ComputationalField {
     return aggregationFunctions.size();
   }
 
-  public static boolean checkParserTree(ParseTree node, boolean inAggregationFunc, WrapInt AggregationFuncCount, StringBuilder errorInfo) {
+  public static boolean checkParserTree(ParseTree node, boolean inAggregationFunc, WrapInt AggregationFuncCount,
+          StringBuilder errorInfo) {
 
     if (node instanceof ErrorNode) {
-      errorInfo.append( node.getText() );
+      errorInfo.append(node.getText());
       return false;
     }
 
@@ -321,45 +466,42 @@ public class ComputationalField {
       FunctionInfo functionInfo = functionInfos.get(fnName);
 
       if (functionInfo == null) {
-        errorInfo.append( "unknown function name , " + node.getText() );
+        errorInfo.append("unknown function name , " + node.getText());
         return false;
       }
 
       if (functionInfo.numberOfParam != 0 && node.getChildCount() != 4) {
-        errorInfo.append( "param count miss match , " + node.getText() );
+        errorInfo.append("param count miss match , " + node.getText());
         return false;
       }
 
-      if( ((FunctionExprContext) node).fnArgs() == null ){
-        if( !(functionInfo.compareType.equals( "eq" ) && functionInfo.numberOfParam == 0 )) {
+      if (((FunctionExprContext) node).fnArgs() == null) {
+        if (!(functionInfo.compareType.equals("eq") && functionInfo.numberOfParam == 0)) {
           errorInfo.append("param count miss match , " + node.getText());
           return false;
         }
-      }
-      else if ( functionInfo.compareType.equals( "eq" ) ){
-        if( !(((FunctionExprContext) node).fnArgs().getChildCount() == (functionInfo.numberOfParam * 2 - 1)) ){
-          errorInfo.append( "param count miss match , " + node.getText() );
+      } else if (functionInfo.compareType.equals("eq")) {
+        if (!(((FunctionExprContext) node).fnArgs().getChildCount() == (functionInfo.numberOfParam * 2 - 1))) {
+          errorInfo.append("param count miss match , " + node.getText());
           return false;
         }
-      }
-      else if( functionInfo.compareType.equals( "ge" ) ){
-        if( !(((FunctionExprContext) node).fnArgs().getChildCount() >= (functionInfo.numberOfParam * 2 - 1)) ){
-          errorInfo.append( "param count miss match , " + node.getText() );
+      } else if (functionInfo.compareType.equals("ge")) {
+        if (!(((FunctionExprContext) node).fnArgs().getChildCount() >= (functionInfo.numberOfParam * 2 - 1))) {
+          errorInfo.append("param count miss match , " + node.getText());
           return false;
         }
       }
 
       if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR) {
         if (inAggregationFunc == true) {
-          errorInfo.append( "aggregation in aggregation, " + node.getText() );
+          errorInfo.append("aggregation in aggregation, " + node.getText());
           return false;
         }
         inAggregationFunc = true;
         AggregationFuncCount.value += 1;
-      }
-      else if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
+      } else if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
         if (inAggregationFunc == true) {
-          errorInfo.append( "windowfunction in aggregation, " + node.getText() );
+          errorInfo.append("windowfunction in aggregation, " + node.getText());
           return false;
         }
         // TODO : need to check window function in window function ??
@@ -371,15 +513,15 @@ public class ComputationalField {
     }
 
     if (!(node instanceof TerminalNode) && (node.getChildCount() == 0)) {
-      errorInfo.append( "no viable alternative at input" );
+      errorInfo.append("no viable alternative at input");
       return false;
     }
 
     for (int i = 0; i < node.getChildCount(); i++) {
-      if (checkParserTree(node.getChild(i), inAggregationFunc, AggregationFuncCount, errorInfo) == false)
+      if (checkParserTree(node.getChild(i), inAggregationFunc, AggregationFuncCount, errorInfo) == false) {
         return false;
+      }
     }
-
 
     return true;
   }
@@ -391,9 +533,11 @@ public class ComputationalField {
   public static CheckType checkComputationalField(String computationalField) {
 
     List<String> aggregationFunctions = new ArrayList<String>();
-    app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(new ANTLRInputStream(computationalField));
+    app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(
+            new ANTLRInputStream(computationalField));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
-    app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(tokens);
+    app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(
+            tokens);
     ParseTree tree = parser.expr();
 
     StringBuilder errorInfo = new StringBuilder();
@@ -404,11 +548,10 @@ public class ComputationalField {
       throw new InvalidExpressionException(errorInfo.toString());
     }
 
-    if ( result == true ){
-      if ( AggregationFuncCount.value > 0 ){
+    if (result == true) {
+      if (AggregationFuncCount.value > 0) {
         return CheckType.CHECK_TYPE_VALID_AGGREGATOR;
-      }
-      else{
+      } else {
         return CheckType.CHECK_TYPE_VALID_NON_AGGREGATOR;
       }
     }
@@ -416,77 +559,87 @@ public class ComputationalField {
     return CheckType.CHECK_TYPE_INVALID;
   }
 
-  public static CheckType checkComputationalFieldIn(String computationalField, Map<String, String> mapField ) {
+  public static CheckType checkComputationalFieldIn(String computationalField, Map<String, String> mapField) {
 
     String fieldName = "check_computational_field";
-    if( mapField == null ) {
+    if (mapField == null) {
       mapField = Maps.newHashMap();
     }
     mapField.put(fieldName, computationalField);
-    Map<String, String> mapHistoryField = Maps.newHashMap();
 
-    String newComputationalField = generateAggregationExpression( fieldName, mapField, mapHistoryField );
-
-
-    return checkComputationalField( newComputationalField );
+    return checkComputationalField(computationalField);
   }
 
 
+  public static ParseTree getParseTree(String expression) {
 
-  public static ParseTree getParseTree( String expression ){
-
-    app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(new ANTLRInputStream(expression));
+    app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(
+            new ANTLRInputStream(expression));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
-    app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(tokens);
+    app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(
+            tokens);
     ParseTree tree = parser.expr();
 
     return tree;
   }
 
-  public static void searchInFieldName( ParseTree node, Map<String, String> mapField, Map<String, String> mapHistoryField ){
+  public static void searchInFieldName(ParseTree node, Map<String, String> mapHistoryField,
+          Map<String, UserDefinedField> userDefinedFieldMap) {
 
     if ((node instanceof IdentifierExprContext)) {
 
-      String expression = generateAggregationExpression( node.getText(), mapField, mapHistoryField );
+      String identifierName = node.getText().replaceAll("^\"|\"$", "");
 
-      if( !expression.equals( node.getText() )) {
+      String expression = generateAggregationExpression(identifierName, mapHistoryField, userDefinedFieldMap);
+
+      // skip if identifierName is field name
+      if (expression.equals(identifierName)) {
+        return;
+      }
+
+      if (!userDefinedFieldMap.containsKey(identifierName)) {
+        return;
+      }
+
+      // skip substitution in case of dimension type of user-defined column
+      if (((ExpressionField) userDefinedFieldMap.get(identifierName)).getRole() == Field.FieldRole.MEASURE) {
         TerminalNode terminalNode = new TerminalNodeImpl(new CommonToken(IDENTIFIER, "(" + expression + ")"));
         ((IdentifierExprContext) node).removeLastChild();
         ((IdentifierExprContext) node).addChild(terminalNode);
       }
     } else {
       for (int i = 0; i < node.getChildCount(); i++) {
-        searchInFieldName(node.getChild(i), mapField, mapHistoryField);
+        searchInFieldName(node.getChild(i), mapHistoryField, userDefinedFieldMap);
       }
     }
   }
 
-  public static String generateAggregationExpression( String fieldName, Map<String, String> mapField, Map<String, String> mapHistoryField){
+  public static String generateAggregationExpression(String fieldName, Map<String, String> mapHistoryField,
+          Map<String, UserDefinedField> userDefinedFieldMap) {
 
     String cleanFieldName = fieldName.replaceAll("^\"|\"$", "");
 
-    if (!mapField.containsKey(cleanFieldName))
+    if (!userDefinedFieldMap.containsKey(cleanFieldName)) {
       return fieldName;
-
-    if (mapHistoryField.containsKey(cleanFieldName))
-      return fieldName;
-
-    String expression = mapField.get(cleanFieldName);
-
-    ParseTree tree = getParseTree( expression );
-
-    mapHistoryField.put( cleanFieldName, expression );
-
-    if( tree instanceof IdentifierExprContext ){
-      searchInFieldName(tree, mapField, mapHistoryField );
     }
-    else {
+
+    if (mapHistoryField.containsKey(cleanFieldName)) {
+      return mapHistoryField.get(cleanFieldName);
+    }
+
+    ExpressionField expressionField = (ExpressionField) userDefinedFieldMap.get(cleanFieldName);
+
+    ParseTree tree = getParseTree(expressionField.getExpr());
+
+    if (tree instanceof IdentifierExprContext) {
+      searchInFieldName(tree, mapHistoryField, userDefinedFieldMap);
+    } else {
       for (int i = 0; i < tree.getChildCount(); i++) {
-        searchInFieldName(tree.getChild(i), mapField, mapHistoryField );
+        searchInFieldName(tree.getChild(i), mapHistoryField, userDefinedFieldMap);
       }
     }
 
-    mapHistoryField.remove( cleanFieldName );
+    mapHistoryField.put(cleanFieldName, tree.getText());
 
     return tree.getText();
   }
@@ -495,7 +648,7 @@ public class ComputationalField {
           List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs,
           Map<String, Object> queryContext) {
 
-    ParseTree tree = getParseTree( computationalField );
+    ParseTree tree = getParseTree(computationalField);
 
     List<FunctionExprContext> aggregationFunctions = Lists.newArrayList();
     getAggregations(tree, aggregationFunctions);
@@ -531,40 +684,41 @@ public class ComputationalField {
         aggregations.add(new CountAggregation(paramName));
       } else if ("countd".equals(context.IDENTIFIER().getText().toLowerCase())) {
         // if you shouldFinalize to false, this route's return includes .estimation value. So you may need to modify UI code.
-        aggregations.add(new DistinctSketchAggregation(fieldName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, true));
+        aggregations
+                .add(new DistinctSketchAggregation(fieldName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, true));
         paramName = null;
         Map<String, Object> processingMap = Maps.newHashMap();
         processingMap.put("type", "sketch.estimate");
         queryContext.put("postProcessing", processingMap);
       } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new CardinalityAggregation(paramName, Arrays.asList( context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "") ), context.fnArgs().getChild(0).getText(), true));
+        aggregations.add(new CardinalityAggregation(paramName,
+                Arrays.asList(context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "")),
+                context.fnArgs().getChild(0).getText(), true));
         paramName = "ROUND(" + paramName + ")";
 
         // set true case of only "ifcountd" function
         finalize = true;
-      }
-      else {
+      } else {
         continue;
       }
 
       while (context.getChildCount() > 0) {
         context.removeLastChild();
       }
-      if(paramName != null){
+      if (paramName != null) {
         TerminalNode terminalNode = new TerminalNodeImpl(new CommonToken(IDENTIFIER, paramName));
         context.addChild(terminalNode);
       }
     }
 
-
     List<FunctionExprContext> windowFunctions = Lists.newArrayList();
     getWindowFunctions(tree, windowFunctions);
 
-    if ( CollectionUtils.isEmpty(windowFunctions) ){
+    if (CollectionUtils.isEmpty(windowFunctions)) {
 
       String postAggregationExpression = tree.getText();
 
-      if(StringUtils.isNotEmpty(postAggregationExpression) && !"null".equals(postAggregationExpression)) {
+      if (StringUtils.isNotEmpty(postAggregationExpression) && !"null".equals(postAggregationExpression)) {
         MathPostAggregator mathPostAggregator = new MathPostAggregator(fieldName, postAggregationExpression, finalize);
         postAggregations.add(mathPostAggregator);
       }
@@ -572,16 +726,18 @@ public class ComputationalField {
     } else {
 
       // 1. generate postaggregation
-      for ( FunctionExprContext node : windowFunctions) {
+      for (FunctionExprContext node : windowFunctions) {
 
-        if ( node.fnArgs() == null )
+        if (node.fnArgs() == null) {
           continue;
+        }
 
-        if ( node.fnArgs().getChildCount() == 0 )
+        if (node.fnArgs().getChildCount() == 0) {
           continue;
+        }
 
         ParseTree postnode = node.fnArgs().getChild(0);
-        if ( postnode instanceof IdentifierExprContext && postnode.getChildCount() == 1 ){
+        if (postnode instanceof IdentifierExprContext && postnode.getChildCount() == 1) {
           continue;
         }
 
@@ -602,7 +758,7 @@ public class ComputationalField {
       // 2. get partition columns
       List<String> partitionColumns = Lists.newArrayList();
       boolean isSetPartitionColumns = false;
-      if( windowFunctions.size() > 0 ) {
+      if (windowFunctions.size() > 0) {
         ParseTree windowNode = windowFunctions.get(0).fnArgs();
 
         if (windowNode.getChildCount() > 0) {
@@ -612,19 +768,21 @@ public class ComputationalField {
       }
 
       // 3. remove partition column info
-      for ( FunctionExprContext node : windowFunctions) {
+      for (FunctionExprContext node : windowFunctions) {
         ParseTree windowNode = node.fnArgs();
 
         ((ParserRuleContext) windowNode).removeLastChild();
-        if (windowNode.getChildCount() > 0)
+        if (windowNode.getChildCount() > 0) {
           ((ParserRuleContext) windowNode).removeLastChild();
+        }
       }
 
       // 4. make windowing spec
-      if( isSetPartitionColumns ) {
+      if (isSetPartitionColumns) {
         String windowFunctionExpression = tree.getText();
         windowFunctionExpression = "\"" + fieldName + "\"" + " = " + windowFunctionExpression;
-        WindowingSpec windowingSpec = new WindowingSpec(partitionColumns, null, Arrays.asList(windowFunctionExpression));
+        WindowingSpec windowingSpec = new WindowingSpec(partitionColumns, null,
+                Arrays.asList(windowFunctionExpression));
         windowingSpecs.add(windowingSpec);
       }
     }
@@ -632,51 +790,55 @@ public class ComputationalField {
     return true;
   }
 
-  public static boolean makeAggregationFunctionsIn(String fieldName, String computationalField, List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs, Map<String, Object> context, Map<String, String> mapField ) {
+  public static boolean makeAggregationFunctionsIn(MeasureField field, List<Aggregation> aggregations,
+          List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs,
+          Map<String, UserDefinedField> userDefinedFieldMap, Map<String, Object> context) {
 
-    mapField.put(fieldName, computationalField );
     Map<String, String> mapHistoryField = Maps.newHashMap();
 
-    String newComputationalField = generateAggregationExpression( fieldName, mapField, mapHistoryField );
+    String newComputationalField = generateAggregationExpression(field.getName(), mapHistoryField, userDefinedFieldMap);
 
-    return makeAggregationFunctions(fieldName, newComputationalField, aggregations, postAggregations, windowingSpecs,
+    return makeAggregationFunctions(field.getAlias(), newComputationalField, aggregations, postAggregations,
+            windowingSpecs,
             context);
 
   }
 
-  public static List<String> makeDependencyTree( String fieldName,  Map<String, String> mapField ){
-
+  public static List<String> makeDependencyTree(String fieldName, Map<String, String> mapField) {
 
     List<String> resultFieldNames = new ArrayList<>();
     List<String> targetFieldNames = new ArrayList<>();
     List<String> newFieldNames = new ArrayList<>();
     targetFieldNames.add(fieldName);
 
-    while( true ) {
+    while (true) {
 
       for (String curFieldName : targetFieldNames) {
 
-        if (!mapField.containsKey(curFieldName))
+        if (!mapField.containsKey(curFieldName)) {
           continue;
+        }
 
         resultFieldNames.add(curFieldName);
 
         String curComputationalField = mapField.get(curFieldName);
 
-        app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(new ANTLRInputStream(curComputationalField));
+        app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(
+                new ANTLRInputStream(curComputationalField));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(tokens);
+        app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(
+                tokens);
         ParseTree tree = parser.expr();
 
         getAllFieldNames(tree, newFieldNames);
 
       }
 
-      if ( newFieldNames.size() == 0 )
+      if (newFieldNames.size() == 0) {
         break;
-      else{
+      } else {
         targetFieldNames.clear();
-        targetFieldNames.addAll( newFieldNames );
+        targetFieldNames.addAll(newFieldNames);
         newFieldNames.clear();
       }
     }
@@ -689,11 +851,11 @@ public class ComputationalField {
 
     if (node instanceof app.metatron.discovery.query.polaris.ExprParser.IdfieldContext) {
 
-//      TerminalNode terminalNode = new TerminalNodeImpl( new CommonToken( IDENTIFIER, "test"));
-//      ((IdentifierExprContext) node).removeLastChild();
-//      ((IdentifierExprContext) node).addChild(terminalNode);
+      //      TerminalNode terminalNode = new TerminalNodeImpl( new CommonToken( IDENTIFIER, "test"));
+      //      ((IdentifierExprContext) node).removeLastChild();
+      //      ((IdentifierExprContext) node).addChild(terminalNode);
       String newFieldName = node.getText().replaceAll("^\"|\"$", "");
-      newFieldNames.add( newFieldName );
+      newFieldNames.add(newFieldName);
     } else {
       for (int i = 0; i < node.getChildCount(); i++) {
         getAllFieldNames(node.getChild(i), newFieldNames);
@@ -703,47 +865,41 @@ public class ComputationalField {
     return newFieldNames.size();
   }
 
-  private static String generatePrestoQueryNode( ParseTree node ){
+  private static String generatePrestoQueryNode(ParseTree node) {
 
     String nodeText = "";
 
-    if( node.getChildCount() == 0 ){
+    if (node.getChildCount() == 0) {
       nodeText = node.getText();
 
-      if( nodeText.equals("&&")){
+      if (nodeText.equals("&&")) {
         nodeText = " AND ";
-      }
-      else if( nodeText.equals("||")){
+      } else if (nodeText.equals("||")) {
         nodeText = " OR ";
-      }
-      else if( nodeText.equals("==")){
+      } else if (nodeText.equals("==")) {
         nodeText = " = ";
       }
-    }
-    else {
+    } else {
 
       if (node instanceof FunctionExprContext) {
 
         String fnName = node.getChild(0).getText().toLowerCase();
         FunctionInfo functionInfo = functionInfos.get(fnName);
 
-        if( fnName.equals( "like") ){
-          nodeText = "\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText();
-        }
-        else if( functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ){
+        if (fnName.equals("like")) {
+          nodeText =
+                  "\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText();
+        } else if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
 
-        }
-        else {
+        } else {
           nodeText = functionInfo.cmdPresto;
           for (int i = 1; i < node.getChildCount(); i++) {
             nodeText = nodeText + generatePrestoQueryNode(node.getChild(i));
           }
         }
-      }
-      else if ((node instanceof IdentifierExprContext)) {
+      } else if ((node instanceof IdentifierExprContext)) {
         nodeText = "\"" + node.getText() + "\"";
-      }
-      else{
+      } else {
         for (int i = 0; i < node.getChildCount(); i++) {
           nodeText = nodeText + generatePrestoQueryNode(node.getChild(i));
         }
@@ -754,59 +910,53 @@ public class ComputationalField {
 
   }
 
-  public static String generatePrestoQuery( String computationalField ) {
+  public static String generatePrestoQuery(String computationalField) {
 
-    ParseTree tree = getParseTree( computationalField );
+    ParseTree tree = getParseTree(computationalField);
 
-    String nodeText = generatePrestoQueryNode( tree );
+    String nodeText = generatePrestoQueryNode(tree);
 
     return nodeText;
   }
 
-  private static String generatePhoenixQueryNode( ParseTree node ){
+  private static String generatePhoenixQueryNode(ParseTree node) {
 
     String nodeText = "";
 
-    if( node.getChildCount() == 0 ){
+    if (node.getChildCount() == 0) {
       nodeText = node.getText();
 
-      if( nodeText.equals("&&")){
+      if (nodeText.equals("&&")) {
         nodeText = " AND ";
-      }
-      else if( nodeText.equals("||")){
+      } else if (nodeText.equals("||")) {
         nodeText = " OR ";
-      }
-      else if( nodeText.equals("==")){
+      } else if (nodeText.equals("==")) {
         nodeText = " = ";
       }
-    }
-    else {
+    } else {
 
       if (node instanceof FunctionExprContext) {
 
         String fnName = node.getChild(0).getText().toLowerCase();
         FunctionInfo functionInfo = functionInfos.get(fnName);
 
-        if( fnName.equals( "like") ){
-          nodeText = "\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText();
-        }
-        else if( fnName.equals( "isnumber") ){
-          nodeText = "REGEXP_SUBSTR( \"" +  node.getChild(2).getChild(0).getText() + "\", '^(\\+|\\-)?[0-9]+(\\.)?[0-9]*$') is not null";
-        }
-        else if( functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR ){
+        if (fnName.equals("like")) {
+          nodeText =
+                  "\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText();
+        } else if (fnName.equals("isnumber")) {
+          nodeText = "REGEXP_SUBSTR( \"" + node.getChild(2).getChild(0).getText()
+                  + "\", '^(\\+|\\-)?[0-9]+(\\.)?[0-9]*$') is not null";
+        } else if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
 
-        }
-        else {
+        } else {
           nodeText = functionInfo.cmdPresto;
           for (int i = 1; i < node.getChildCount(); i++) {
             nodeText = nodeText + generatePhoenixQueryNode(node.getChild(i));
           }
         }
-      }
-      else if ((node instanceof IdentifierExprContext)) {
+      } else if ((node instanceof IdentifierExprContext)) {
         nodeText = "\"" + node.getText() + "\"";
-      }
-      else{
+      } else {
         for (int i = 0; i < node.getChildCount(); i++) {
           nodeText = nodeText + generatePhoenixQueryNode(node.getChild(i));
         }
@@ -817,29 +967,29 @@ public class ComputationalField {
 
   }
 
-  public static String generatePhoenixQuery( String computationalField ) {
+  public static String generatePhoenixQuery(String computationalField) {
 
-    ParseTree tree = getParseTree( computationalField );
+    ParseTree tree = getParseTree(computationalField);
 
-    String nodeText = generatePhoenixQueryNode( tree );
-
-    return nodeText;
-  }
-
-  public static String generateHiveQuery( String computationalField ) {
-
-    ParseTree tree = getParseTree( computationalField );
-
-    String nodeText = generatePrestoQueryNode( tree );
+    String nodeText = generatePhoenixQueryNode(tree);
 
     return nodeText;
   }
 
-  public static String generateOracleQuery( String computationalField ) {
+  public static String generateHiveQuery(String computationalField) {
 
-    ParseTree tree = getParseTree( computationalField );
+    ParseTree tree = getParseTree(computationalField);
 
-    String nodeText = generatePrestoQueryNode( tree );
+    String nodeText = generatePrestoQueryNode(tree);
+
+    return nodeText;
+  }
+
+  public static String generateOracleQuery(String computationalField) {
+
+    ParseTree tree = getParseTree(computationalField);
+
+    String nodeText = generatePrestoQueryNode(tree);
 
     return nodeText;
   }

@@ -836,13 +836,8 @@ public abstract class AbstractQueryBuilder {
         break;
     }
 
-    // TODO: 파라미터도 추가해야함, 일단 기존 로직 유지
-    Map<String, String> exprMap = userFieldsMap.values().stream()
-                                               .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
-                                               .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
-
-    ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr, aggregations
-        , postAggregations, windowingSpecs, context, exprMap);
+    ComputationalField.makeAggregationFunctionsIn(field, aggregations
+            , postAggregations, windowingSpecs, userFieldsMap, context);
 
   }
 

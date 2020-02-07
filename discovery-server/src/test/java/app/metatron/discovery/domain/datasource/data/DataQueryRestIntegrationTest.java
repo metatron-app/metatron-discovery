@@ -2898,6 +2898,50 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void groupbyNestedQueryForUserDefined() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(50000);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    ExpressionField expressionField1 = new ExpressionField("r_symbol", "SUBSTRING( \"Region\" , 0, 1 )", "dimension",
+            false);
+    ExpressionField expressionField2 = new ExpressionField("case_test",
+            "CASE( \"r_symbol\" == 'C',  count_sales, \"r_symbol\" == 'E',  count_sales, 0 )", "measure", true);
+    ExpressionField expressionField3 = new ExpressionField("count_sales", "COUNTOF( \"Sales\" )", "measure", true);
+    ExpressionField expressionField4 = new ExpressionField("sales_plus", "\"Sales\"+1", "measure", false);
+
+    DimensionField dimField = new DimensionField("r_symbol", "r_symbol", "user_defined", null);
+    MeasureField mField1 = new MeasureField("case_test", "case_test", "user_defined");
+
+    SearchQueryRequest request = new SearchQueryRequest();
+    request.setDataSource(dataSource1);
+    request.setFilters(filters);
+    request.setProjections(Lists.newArrayList(dimField, mField1));
+    request.setUserFields(Lists.newArrayList(expressionField1, expressionField2, expressionField3));
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void candidateQueryForUserDefined() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales_geo");
