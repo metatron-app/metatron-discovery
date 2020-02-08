@@ -147,6 +147,10 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
    */
   Boolean preview = false;
 
+  Boolean downloadUsed = false;
+
+  String workbookId;
+
   /**
    *
    */
@@ -510,6 +514,22 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
     LOGGER.debug("[{}] Query Result Count : {}", CommonLocalVariable.getQueryId(), root.size());
 
     return root;
+  }
+
+  public Boolean getDownloadUsed() {
+    return downloadUsed;
+  }
+
+  public void setDownloadUsed(Boolean downloadUsed) {
+    this.downloadUsed = downloadUsed;
+  }
+
+  public String getWorkbookId() {
+    return workbookId;
+  }
+
+  public void setWorkbookId(String workbookId) {
+    this.workbookId = workbookId;
   }
 
   @Override

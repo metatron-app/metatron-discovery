@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.datasource.data;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.workspace.BookAuditLogService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -90,6 +92,9 @@ public class DataQueryController {
   @Autowired
   JdbcConnectionService jdbcConnectionService;
 
+  @Autowired
+  BookAuditLogService bookAuditLogService;
+
   @RequestMapping(value = "/datasources/query/candidate", method = RequestMethod.POST)
   public ResponseEntity<?> metaDataQuery(@RequestBody CandidateQueryRequest queryRequest) {
 
@@ -133,6 +138,11 @@ public class DataQueryController {
       result = response;
     }
 
+    if(queryRequest.getDownloadUsed() && StringUtils.isNotEmpty(queryRequest.getWorkbookId())) {
+      bookAuditLogService.logDataDownload("workbook",
+          queryRequest.getWorkbookId(),
+          GlobalObjectMapper.writeValueAsString(queryRequest));
+    }
     return ResponseEntity.ok(result);
   }
 

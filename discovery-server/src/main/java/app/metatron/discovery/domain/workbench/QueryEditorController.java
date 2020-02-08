@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.domain.workspace.BookAuditLogService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,10 +35,7 @@ import org.supercsv.prefs.CsvPreference;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
@@ -86,6 +84,9 @@ public class QueryEditorController {
 
   @Autowired
   WorkbenchDataSourceManager workbenchDataSourceManager;
+
+  @Autowired
+  BookAuditLogService bookAuditLogService;
 
   @RequestMapping(path = "/queryeditors/{id}/query/run", method = RequestMethod.POST)
   @ResponseBody
@@ -420,7 +421,7 @@ public class QueryEditorController {
     String csvFilePath = (String) requestParam.get("csvFilePath");
     String fileName = (String) requestParam.get("fileName");
 
-    downloadCSV(csvFilePath, fileName, response);
+    downloadCSV(id, csvFilePath, fileName, response);
   }
 
   @RequestMapping(path = "/queryeditors/{id}/query/download/csv", method = RequestMethod.POST,
@@ -432,10 +433,10 @@ public class QueryEditorController {
     String csvFilePath = (String) requestBody.get("csvFilePath");
     String fileName = (String) requestBody.get("fileName");
 
-    downloadCSV(csvFilePath, fileName, response);
+    downloadCSV(id, csvFilePath, fileName, response);
   }
 
-  private void downloadCSV(String csvFilePath, String fileName, HttpServletResponse response) throws IOException {
+  private void downloadCSV(String id, String csvFilePath, String fileName, HttpServletResponse response) throws IOException {
     if(StringUtils.isEmpty(fileName)){
       fileName = "noname";
     }
@@ -455,6 +456,26 @@ public class QueryEditorController {
     }
 
     HttpUtils.downloadCSVFile(response, fileName, filePath, "text/csv; charset=utf-8");
+
+    try {
+      logDataDownloadHistory(id, csvFilePath);
+    } catch (Exception e) {
+      LOGGER.error("error Logging workspace audit logs for data downloads from workbenches and workbook", e);
+    }
   }
 
+  private void logDataDownloadHistory(String queryEditorId, String csvFilePath) {
+    QueryEditor queryEditor = queryEditorRepository.findOne(queryEditorId);
+    if(queryEditor == null){
+      throw new ResourceNotFoundException("QueryEditor(" + queryEditorId + ")");
+    }
+
+    Optional<QueryEditorResult> queryResult = queryEditor.getQueryResults().stream()
+        .filter(result -> result.getFilePath().equalsIgnoreCase(csvFilePath))
+        .findFirst();
+
+    if(queryResult.isPresent()) {
+      bookAuditLogService.logDataDownload("workbench", queryEditor.getWorkbench().getId(), queryResult.get().getQuery());
+    }
+  }
 }

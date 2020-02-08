@@ -28,12 +28,15 @@
 
 package app.metatron.discovery.domain.workbook.widget;
 
+import app.metatron.discovery.domain.workspace.BookAuditLogService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -98,6 +101,7 @@ import static java.util.stream.Collectors.toList;
  */
 @RepositoryRestController
 public class WidgetController {
+  private static final Logger LOGGER = LoggerFactory.getLogger(WidgetController.class);
 
   @Autowired
   WidgetRepository widgetRepository;
@@ -122,6 +126,9 @@ public class WidgetController {
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
+
+  @Autowired
+  BookAuditLogService bookAuditLogService;
 
   @RequestMapping(path = "/widgets/{widgetId}/copy", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> copyWidget(@PathVariable("widgetId") String widgetId,
@@ -351,6 +358,8 @@ public class WidgetController {
 
     downloadData(isOriginal ? "original_data" : "chart_data", accept, searchQuery, maxRowsPerSheet, response);
 
+    bookAuditLogService.logDataDownload("workbook", widget.dashBoard.getWorkBook().getId(),
+        GlobalObjectMapper.writeValueAsString(searchQuery));
   }
 
   /**

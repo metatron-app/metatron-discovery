@@ -177,6 +177,8 @@ export class QueryParam {
   public limits: QueryParamLimit;
   public preview: boolean;
   public metaQuery:boolean;
+  public downloadUsed:boolean = false;
+  public workbookId: string = '';
 
   constructor() {
     this.dataSource = new BoardDataSource();

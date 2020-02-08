@@ -995,7 +995,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           const downloadPreview: PreviewResult = new PreviewResult(metaData.estimatedSize, metaData.totalCount);
           params.metaQuery = false;
           const dataSource: Datasource = this.findDataSourceUsedChart();
-          this._dataDownComp.openDataDown(event, dataSource.fields, null, downloadPreview, params);
+
+          this._dataDownComp.openDataDown(event, dataSource.fields, null, downloadPreview, params, this.widget.dashBoard.workBook.id);
         }).catch((err) => {
         });
       } else {

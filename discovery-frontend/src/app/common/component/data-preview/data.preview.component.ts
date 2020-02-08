@@ -1556,7 +1556,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (this.connType === 'LINK' && this._isGridDataDown) {
       this._dataDownComp.openDataDown(event, this.columns, this.gridData, this.downloadPreview);
     } else {
-      this._dataDownComp.openDataDown(event, this.columns, null, this.downloadPreview, this._queryParams );
+      if(this.source['workBook']['id']) {
+        this._dataDownComp.openDataDown(event, this.columns, null, this.downloadPreview, this._queryParams, this.source['workBook']['id']);
+      } else {
+        this._dataDownComp.openDataDown(event, this.columns, null, this.downloadPreview, this._queryParams);
+      }
     }
 
   } // function - downloadData

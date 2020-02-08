@@ -191,13 +191,17 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this._gridComp = gridComp;
   } // function - openGridDown
 
-  public openDataDown(event: MouseEvent, cols: any[], rows: any[], preview: PreviewResult, queryParam?: QueryParam) {
+  public openDataDown(event: MouseEvent, cols: any[], rows: any[], preview: PreviewResult, queryParam?: QueryParam, workbookId?: string) {
     this._openComponent(event, 'RIGHT');
     this.preview = preview;
     this.mode = 'DATA';
     this.isOriginDown = true;
     this._downData = {cols: cols, rows: rows};
     (queryParam) && (this._queryParams = queryParam);
+    if(this._queryParams && workbookId) {
+      this._queryParams.downloadUsed = true;
+      this._queryParams.workbookId = workbookId;
+    }
   } // function - openDataDown
 
   /**
