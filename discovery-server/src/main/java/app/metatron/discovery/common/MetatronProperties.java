@@ -41,12 +41,22 @@ public class MetatronProperties {
 
   private String loginDelegationUrl;
 
+  private Integer jwtExpirationSeconds = 0;
+
   public String getLoginDelegationUrl() {
     return loginDelegationUrl;
   }
 
   public void setLoginDelegationUrl(String loginDelegationUrl) {
     this.loginDelegationUrl = loginDelegationUrl;
+  }
+
+  public Integer getJwtExpirationSeconds() {
+    return jwtExpirationSeconds;
+  }
+
+  public void setJwtExpirationSeconds(Integer jwtExpirationSeconds) {
+    this.jwtExpirationSeconds = jwtExpirationSeconds;
   }
 
   public Map<String, Object> getFormat() {

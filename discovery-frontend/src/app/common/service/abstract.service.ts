@@ -539,16 +539,37 @@ export class AbstractService {
       this.cookieService.delete(CookieConstant.KEY.MY_WORKSPACE, '/');
       this.cookieService.delete(CookieConstant.KEY.PERMISSION, '/');
 
-      if (scope && scope.router) {
-        const navigationExtras: NavigationExtras = {
-          queryParams: {
-            forwardURL: scope.router.url
+      const apiURL = this.API_URL + 'auth/login-delegation';
+      const currentURL = location.href;
+      this.http.get(apiURL)
+        .toPromise()
+        .then(res => {
+          if(res['url']) {
+            //http://localhost:4200/app/v2/workbook/ec157f05-1122-4d4e-9d41-2905f020702b
+            let existQueryString = false;
+            if(res['url'].indexOf('?') !== -1) {
+              existQueryString = true;
+            }
+
+            const queryString = (existQueryString ? "&" : "?") + "redirectURL=" + encodeURIComponent(currentURL);
+            const loginDelegationURL = res['url'] + queryString;
+            CommonUtil.moveToStartPage( this.router, loginDelegationURL);
+          } else {
+            if (scope && scope.router) {
+              const navigationExtras: NavigationExtras = {
+                queryParams: {
+                  forwardURL: scope.router.url
+                }
+              };
+              this.router.navigate(['/user/login'], navigationExtras);
+            } else {
+              this.router.navigate(['/user/login']);
+            }
           }
-        };
-        this.router.navigate(['/user/login'], navigationExtras);
-      } else {
-        this.router.navigate(['/user/login']);
-      }
+        })
+        .catch(error => {
+          CommonUtil.moveToStartPage( this.router );
+        });
     }
   } // function - _logout
 
