@@ -113,6 +113,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
    */
   public ngOnInit() {
     super.ngOnInit();
+    console.info( '>>>> time-filter-panel init' );
   }
 
   /**
@@ -204,16 +205,26 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
   /**
    * TimeAllFilter 설정
    */
+/*
   public setTimeAllFilter() {
     this.filter = FilterUtil.getTimeAllFilter( this.filter.clzField, this.filter.ui.importanceType );
     this._setStatus();
     this._updateFilter( this.filter );
   } // function - setTimeAllFilter
+ */
 
   /**
    * TimeRangeFilter 설정
    */
   public setTimeRangeFilter() {
+    let cloneFilter = JSON.parse(JSON.stringify(this.filter));
+    if( this._tempRangeFilter) {
+      cloneFilter = this._tempRangeFilter;
+    } else {
+      cloneFilter = FilterUtil.getTimeRangeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType, this.dataSource );
+    }
+    this._updateFilter(cloneFilter);
+/*
     if( this._tempRangeFilter) {
       this.filter = this._tempRangeFilter;
     } else {
@@ -221,6 +232,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     }
     this.originalFilter = _.cloneDeep( this.filter );
     this._setStatus();
+ */
   } // function - setTimeRangeFilter
 
   /**
@@ -311,7 +323,9 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     if(TimeUnit.NONE !== data.unit) {
       currFilter = FilterUtil.getTimeListFilter( currFilter.clzField, data.discontinuous, data.unit, data.byUnit, currFilter.ui.importanceType );
     } else {
-      currFilter = FilterUtil.getTimeAllFilter( currFilter.clzField, currFilter.ui.importanceType );
+      currFilter = FilterUtil.getTimeRangeFilter(
+        currFilter.clzField, TimeUnit.NONE, currFilter.ui.importanceType, this.dataSource
+      );
     }
     this._initialize(currFilter, true);
   } // function - selectTimeUnit

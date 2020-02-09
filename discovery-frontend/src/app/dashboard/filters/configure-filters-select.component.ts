@@ -15,7 +15,7 @@
 import * as _ from 'lodash';
 import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {BoardConfiguration} from '../../domain/dashboard/dashboard';
+import {BoardConfiguration, Dashboard} from '../../domain/dashboard/dashboard';
 import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
 import {Datasource, Field, FieldRole, LogicalType} from '../../domain/datasource/datasource';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
@@ -32,6 +32,9 @@ import {isNullOrUndefined, isUndefined} from 'util';
 import {DashboardUtil} from '../util/dashboard.util';
 import {Alert} from '../../common/util/alert.util';
 import {TimeRelativeFilter} from "../../domain/workbook/configurations/filter/time-relative-filter";
+import {TimeRangeFilter} from "../../domain/workbook/configurations/filter/time-range-filter";
+import {DashboardService} from "../service/dashboard.service";
+import * as moment from "moment";
 
 @Component({
   selector: 'app-config-filter-select',
@@ -307,7 +310,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     let timeFilter: TimeFilter;
     if (isNullOrUndefined(unit)) {
       // timeFilter = new TimeAllFilter(<Field>field);
-      timeFilter = new TimeRelativeFilter(<Field>field);
+      timeFilter = FilterUtil.getTimeRangeFilter(<Field>field, undefined, undefined, this.selectedDataSource );
     } else {
       timeFilter = new TimeListFilter(<Field>field);
       timeFilter.timeUnit = unit;

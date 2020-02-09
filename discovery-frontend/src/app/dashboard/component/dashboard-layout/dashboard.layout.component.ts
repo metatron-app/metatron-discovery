@@ -926,7 +926,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           if (field.filtering) {
             let rcmdFilter: Filter = undefined;
             if (field.logicalType === LogicalType.TIMESTAMP) {
-              rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
+              rcmdFilter = FilterUtil.getTimeRangeFilter(field, TimeUnit.NONE, 'recommended', dsInfo);
             } else {
               rcmdFilter = FilterUtil.getBasicInclusionFilter(field, 'recommended');
             }
