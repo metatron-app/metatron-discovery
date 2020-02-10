@@ -338,9 +338,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     } else {
       if (this.widget && field['useBoardFilter']) {
         // 보드 필터를 차트 필터로 변경
-        this._openConfirmToChartFilter(field['filter']);
+        this._openConfirmToChartFilter(field['thisChartFilter'] ? field['thisChartFilter'] : field['filter']);
       } else {
-        this.setFilterEvent.emit({key: 'EDIT', filter: field['filter']});
+        this.setFilterEvent.emit({key: 'EDIT', filter: field['thisChartFilter'] ? field['thisChartFilter'] : field['filter']});
       }
     }
   } // function - editFilter

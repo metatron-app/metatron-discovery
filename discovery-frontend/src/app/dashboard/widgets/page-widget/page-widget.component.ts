@@ -1571,6 +1571,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     if( cloneGlobalFilters ) {
       cloneGlobalFilters.forEach( gf => {
         delete gf['clzField'];
+        delete gf['fieldObj'];
       });
     }
 
