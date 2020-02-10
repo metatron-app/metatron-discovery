@@ -679,9 +679,9 @@ export class FilterUtil {
       && ds && ds.summary
       && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime ) {
       ( timeFilter as TimeRangeFilter ).intervals = [
-        FilterUtil.getDateTimeFormat( ds.summary.ingestionMinTime, TimeUnit.DAY) + ' 00:00:00'
+        FilterUtil.getDateTimeFormat( ds.summary.ingestionMinTime, TimeUnit.SECOND)
         + '/'
-        + FilterUtil.getDateTimeFormat( ds.summary.ingestionMaxTime, TimeUnit.DAY) + ' 00:00:00'
+        + FilterUtil.getDateTimeFormat( ds.summary.ingestionMaxTime, TimeUnit.SECOND)
       ];
     }
 
