@@ -14,9 +14,13 @@
     <!-- 폴딩 -->
     <a href="javascript:" class="ddp-btn-folding ddp-hover-tooltip" (click)="onChangeFoldingNavigation()">
       <!-- tooltip -->
-      <div class="ddp-ui-tooltip-info ddp-down">
+      <div *ngIf="isFoldingNavigation" class="ddp-ui-tooltip-info ddp-down">
         <em class="ddp-icon-view-top"></em>
-        {{'msg.explore.ui.lnb.folding'| translate}}
+        {{'msg.explore.ui.lnb.unfold'| translate}}
+      </div>
+      <div *ngIf="!isFoldingNavigation" class="ddp-ui-tooltip-info ddp-down">
+        <em class="ddp-icon-view-top"></em>
+        {{'msg.explore.ui.lnb.fold'| translate}}
       </div>
       <!-- //tooltip -->
     </a>
@@ -28,53 +32,74 @@
       <div class="ddp-ui-catalog-contents ddp-type">
         <!-- search -->
         <div class="ddp-wrap-searching">
-          <div class="ddp-ui-searching" [class.type-search]="!isEmptyCatalogSearchKeyword() && isNotEmptyCatalogContents()">
+          <div class="ddp-ui-searching"
+               [class.type-search]="!isEmptyCatalogSearchKeyword() && isNotEmptyCatalogContents()">
             <em class="ddp-icon-search"></em>
-            <component-input [placeHolder]="'msg.explore.ph.tab.catalogs.search' | translate" (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword" [autoFocus]="false"></component-input>
-            <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyCatalogSearchKeyword()" (click)="onChangeCatalogSearchKeyword('')"></a>
+            <component-input [placeHolder]="'msg.explore.ph.tab.catalogs.search' | translate"
+                             (changeValue)="onChangeCatalogSearchKeyword($event)" [value]="catalogSearchKeyword"
+                             [autoFocus]="false"></component-input>
+            <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyCatalogSearchKeyword()"
+               (click)="onChangeCatalogSearchKeyword('')"></a>
           </div>
         </div>
         <!-- //search -->
 
         <!-- favorite -->
-        <div class="ddp-ui-favorite">
-          <div class="ddp-ui-label"><em class="ddp-icon-favorite"></em>Favorite({{ favoriteCatalogList.length }})</div>
-          <div class="ddp-favorite-nodata" *ngIf="favoriteCatalogList.length === 0">
-            No favorite data
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-ui-favorite type-dropdown-data" [class.ddp-selected]="isShowFavoriteCatalog">
+          <!-- label -->
+          <div class="ddp-label-down" (click)="onToggleIsShowFavoriteCatalog()">
+            Favorite({{ favoriteCatalogList.length }})
+            <span class="ddp-favorite-nodata" *ngIf="favoriteCatalogList.length === 0">
+              No favorite data
+            </span>
           </div>
-          <ul class="ddp-list-favorite" *ngIf="favoriteCatalogList.length > 0">
-            <li *ngFor="let favoriteCatalog of favoriteCatalogList"  (click)="onChangeSelectedCatalog(favoriteCatalog)">
-              <a href="javascript:">
-                <em class="ddp-icon-folder-type"></em>
-                <div class="ddp-data-txt">
-                  <span class="ddp-data-navi">
-                      {{ getCatalogHierarchyLabel(favoriteCatalog) }}
-                  </span>
-                  <span class="ddp-data-name">
-                    {{ favoriteCatalog.name }}
-                  </span>
-                </div>
-              </a>
-            </li>
-          </ul>
+          <!-- //label -->
+          <div class="ddp-down-contents">
+            <ul class="ddp-list-favorite" *ngIf="favoriteCatalogList.length > 0">
+              <li *ngFor="let favoriteCatalog of favoriteCatalogList"
+                  (click)="onChangeSelectedCatalog(favoriteCatalog)">
+                <a href="javascript:">
+                  <em class="ddp-icon-folder-type"></em>
+                  <div class="ddp-data-txt">
+                    <span class="ddp-data-navi" *ngIf="favoriteCatalog.hierarchies.length > 1">
+                        {{ getCatalogHierarchyLabel(favoriteCatalog) }}
+                    </span>
+                    <span class="ddp-data-name">
+                      {{ favoriteCatalog.name }}
+                      <!-- <span class="ddp-data-num">({{ favoriteCatalog.hierarchies.length === 1 ? 0 : favoriteCatalog.hierarchies.length - 1  }})</span>-->
+                    </span>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
         <!-- //favorite -->
 
         <!-- tree -->
-        <div class="ddp-ui-tree">
-          <ul class="ddp-list-tree">
-            <component-catalog-folder *ngFor="let catalog of catalogList"
-                                      [catalog]="catalog"
-                                      [selectedCatalog]="selectedCatalog"
-                                      [searchKeyword]="catalogSearchKeyword"
-                                      (clickedCatalog)="onChangeSelectedCatalog($event)" >
-            </component-catalog-folder>
-            <!-- is empty -->
-            <component-catalog-folder [isEmptyCatalog]="true"
-                                      [selectedCatalog]="selectedCatalog"
-                                      (clickedCatalog)="onChangeSelectedCatalog($event)" ></component-catalog-folder>
-            <!-- // is empty -->
-          </ul>
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-ui-tree type-dropdown-data" [class.ddp-selected]="!isShowFavoriteCatalog">
+          <!-- label -->
+          <div class="ddp-label-down" (click)="onToggleIsShowFavoriteCatalog()">
+            All Catalog
+          </div>
+          <!-- //label -->
+          <div class="ddp-down-contents">
+            <ul class="ddp-list-tree">
+              <component-catalog-folder *ngFor="let catalog of catalogList"
+                                        [catalog]="catalog"
+                                        [selectedCatalog]="selectedCatalog"
+                                        [searchKeyword]="catalogSearchKeyword"
+                                        (clickedCatalog)="onChangeSelectedCatalog($event)">
+              </component-catalog-folder>
+              <!-- is empty -->
+              <component-catalog-folder [isEmptyCatalog]="true"
+                                        [selectedCatalog]="selectedCatalog"
+                                        (clickedCatalog)="onChangeSelectedCatalog($event)"></component-catalog-folder>
+              <!-- // is empty -->
+            </ul>
+          </div>
         </div>
         <!-- //tree -->
       </div>
@@ -86,8 +111,11 @@
       <div class="ddp-wrap-searching">
         <div class="ddp-ui-searching" [class.type-search]="!isEmptyTagSearchKeyword() && isNotEmptyTagContents()">
           <em class="ddp-icon-search"></em>
-          <component-input [placeHolder]="'msg.explore.ph.tab.tags.search' | translate" (changeValue)="onChangeTagSearchKeyword($event)" [value]="tagSearchKeyword" [autoFocus]="false"></component-input>
-          <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyTagSearchKeyword()" (click)="onChangeTagSearchKeyword('')"></a>
+          <component-input [placeHolder]="'msg.explore.ph.tab.tags.search' | translate"
+                           (changeValue)="onChangeTagSearchKeyword($event)" [value]="tagSearchKeyword"
+                           [autoFocus]="false"></component-input>
+          <a href="javascript:" class="ddp-btn-delete" *ngIf="!isEmptyTagSearchKeyword()"
+             (click)="onChangeTagSearchKeyword('')"></a>
         </div>
       </div>
       <!-- //search -->

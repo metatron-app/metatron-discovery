@@ -153,10 +153,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   @Input()
   public dashboards: Dashboard[] = [];
 
-  // 대시보드 선택 진입점
-  @Input('dashboard')
-  public inputDashboard: Dashboard;
-
   @Input()
   public startupCmd: { cmd: string, id?: string, type?: string };
 
@@ -247,10 +243,18 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       })
     );
 
-    // 미니맵 표시 변경
     this.subscriptions.push(
       this.broadCaster.on<any>('TOGGLE_MINIMAP').subscribe(() => {
         this.dashboard.configuration.options.widget.showMinimap = WidgetShowType.BY_WIDGET;
+      })
+    );
+
+    this.subscriptions.push(
+      this.broadCaster.on<any>('TOGGLE_SYNC').subscribe((data) => {
+        const widgetInfo = DashboardUtil.getWidget(this.dashboard, data.widgetId);
+        const widgetConf = ( widgetInfo.configuration as PageWidgetConfiguration );
+        widgetConf.sync = ( false === widgetConf.sync );
+        DashboardUtil.updateWidget(this.dashboard, widgetInfo);
       })
     );
 
@@ -360,19 +364,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     $('body').css( 'overflow', 'hidden' );
   } // function - ngOnInit
 
-  /**
-   * Input 값 변경 체크
-   * @param {SimpleChanges} changes
-   */
-  public ngOnChanges(changes: SimpleChanges) {
-    const boardChanges: SimpleChange = changes.inputDashboard;
-    if (boardChanges && boardChanges.currentValue) {
-      // 초기 설정
-      this.dashboard = boardChanges.currentValue;
-
-      this._initViewPage(this.dashboard.id);
-    }
-  } // function - ngOnChanges
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this._initViewPage();
+  }
 
   /**
    * 클래스 제거
@@ -790,13 +785,12 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Dashboard} dashboard
    */
   public changeDataSource(dashboard: Dashboard) {
-
     this.dashboard = dashboard;
 
     // 없어진 데이터소스에 대한 필터 제거
     this.dashboard.configuration.filters =
       _.cloneDeep(this.dashboard.configuration.filters).filter(filter => {
-        if (dashboard.dataSources.some(ds => ds.id === filter.dataSource)) {
+        if (dashboard.dataSources.some(ds => ds.engineName === filter.dataSource)) {
           return true;
         } else {
           const filterWidget: FilterWidget = DashboardUtil.getFilterWidgetByFilter(dashboard, filter);
@@ -825,10 +819,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         }
       }
     });
-
-    // 변경된 레이아웃 반영
-    this.dashboard.configuration.content = this.getLayoutContent();
-    this.dashboard.configuration.layout.content = this.getLayoutContent();
 
     this.dashboard.configuration.fields = [];
 
@@ -1598,18 +1588,18 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
   /**
    * 화면 정보 초기화
-   * @param {string} dashboardId
    * @private
    */
-  private _initViewPage(dashboardId: string) {
+  private _initViewPage() {
 
     this.showBoardLoading();
 
     this.useUnloadConfirm = false;
 
+    this.dashboard = this.dashboardService.getCurrentDashboard();
     // 대시보드 설정
-    this.dashboardService.getDashboard(dashboardId).then((boardInfo:Dashboard) => {
-
+    {
+      let boardInfo = this.dashboard;
       boardInfo.workBook = this.workbook;
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
       const mainDsList: Datasource[] = DashboardUtil.getMainDataSources(boardInfo);
@@ -1655,7 +1645,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       } else {
         this.hideBoardLoading();
       }
-    }).catch(err => this.commonExceptionHandler(err));
+    }
 
   } // function - _initViewPage
 

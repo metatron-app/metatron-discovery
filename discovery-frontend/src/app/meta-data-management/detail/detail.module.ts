@@ -9,6 +9,8 @@ import {LineageViewService} from './service/lineage-view.service';
 import {DatasourceMetadataSharedModule} from '../../shared/datasource-metadata/datasource-metadata-shared.module';
 import {MetadataGridComponent} from "./component/metadata-grid.component";
 import {DataStorageCommonModule} from "../../data-storage/data-storage-common.module";
+import {PopupCodeTableComponent} from "../code-table/popup/popup-code-table.component";
+import {PopupColumnDictionaryComponent} from "../column-dictionary/popup/popup-column-dictionary.component";
 
 @NgModule({
   imports: [
@@ -23,6 +25,8 @@ import {DataStorageCommonModule} from "../../data-storage/data-storage-common.mo
     LineageViewComponent,
     LineageDetailComponent,
     TopInfoComponent,
+    PopupCodeTableComponent,
+    PopupColumnDictionaryComponent
   ],
   exports: [
     InformationComponent,
@@ -30,6 +34,8 @@ import {DataStorageCommonModule} from "../../data-storage/data-storage-common.mo
     ColumnSchemaComponent,
     LineageViewComponent,
     LineageDetailComponent,
+    PopupCodeTableComponent,
+    PopupColumnDictionaryComponent
   ],
   providers: [
     LineageViewService

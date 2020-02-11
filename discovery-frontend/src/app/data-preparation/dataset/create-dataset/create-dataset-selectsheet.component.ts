@@ -69,6 +69,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public isColumnCountRequired : boolean = false;
 
   public currDelimiter : string = '';
+  public currQuote: string = '';
   public currSheetIndex : number = 0;
   public currDSIndex: number = 0;
   public currDetail : {fileFormat: FileFormat, detailName: string, columns: number} ;
@@ -116,6 +117,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         if(index === 0) {
           this.currDelimiter = (this.isCSV ? ',' : '');
+          this.currQuote = (this.isCSV ? '\"' : '');
         }
 
         // FIXME : UI에서 각자 따로 오는 response를 어떻게 처리할지
@@ -134,6 +136,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
       // JSON이 아닌경우 delimiter 설정
       this.currDelimiter = !this.isJSON ? this.datasetFiles[this.currDSIndex].delimiter : '';
+      this.currQuote = this.isCSV ? this.datasetFiles[this.currDSIndex].quoteChar : '\"';
 
       // 컬럼 카운트 설정
       this.currColumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
@@ -237,6 +240,23 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     if( this.datasetFiles[this.currDSIndex].delimiter !==  this.currDelimiter ){
       this.datasetFiles[this.currDSIndex].delimiter =  this.currDelimiter;
+      this.loadingShow();
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
+    }
+  }
+
+
+  /**
+   * When quoteChar is changed(only CSV)
+   */
+  public changeQuote() {
+
+    if (isNullOrUndefined(this.currQuote) || this.isJSON || this.isEXCEL) {
+      return;
+    }
+
+    if( this.datasetFiles[this.currDSIndex].quoteChar !==  this.currQuote ){
+      this.datasetFiles[this.currDSIndex].quoteChar =  this.currQuote;
       this.loadingShow();
       this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
     }
@@ -350,6 +370,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this._setDetailInformation(dsIdx, 0);
 
       this.currDelimiter = this.datasetFiles[dsIdx].delimiter;
+      this.currQuote = this.datasetFiles[dsIdx].quoteChar;
 
       this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
 
@@ -387,6 +408,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.previewErrorMsg = '';
     this.isDelimiterRequired = false;
     this.currDelimiter = '';
+    this.currQuote = '\"';
 
     this.isColumnCountRequired = false;
     this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
@@ -436,6 +458,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       // File delimiter
       if ('delimiter' === type) {
         this.changeDelimiter();
+      }
+
+      // Quote character
+      if ('quoteChar' === type) {
+        this.changeQuote();
       }
 
     } else {
@@ -505,6 +532,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       storedUri : datasetFile.storedUri,
     };
     if (datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.TXT) result['delimiter'] = datasetFile.delimiter;
+    if (datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.TXT) result['quoteChar'] = datasetFile.quoteChar;
     if (manualColumnCount && manualColumnCount > 0) result['manualColumnCount'] = manualColumnCount;
 
     return result;

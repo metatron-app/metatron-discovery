@@ -263,7 +263,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
     });
 
     series.forEach((obj, idx) => {
-      if( 0 < idx ) {
+      if (0 < idx) {
         obj.data.forEach(item => {
           this.clearSelectSeriesData(item);
         });
@@ -425,6 +425,16 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    * @param initFl 차트 초기화 여부
    */
   protected apply(initFl: boolean = true): void {
+
+    if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
+      let strScript = '(' + this.userCustomFunction + ')';
+      // ( new Function( 'return ' + strScript ) )();
+      try {
+        this.chartOption = eval(strScript)({name: 'InitWidgetEvent', data: this.chartOption});
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     this.chart.setOption(this.chartOption, true, false);
 

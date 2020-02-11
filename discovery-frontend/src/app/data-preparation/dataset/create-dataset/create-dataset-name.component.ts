@@ -715,6 +715,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       params.delimiter = file.delimiter;
     }
 
+    if (file.fileFormat === FileFormat.CSV || file.fileFormat === FileFormat.TXT ){
+      params.quoteChar = file.quoteChar;
+    }
+
     params.dsName = file.dsName;
     params.dsDesc = file.dsDesc;
     params.dsType = 'IMPORTED';
@@ -730,21 +734,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     params.sheetName = file.sheetName;
     params.storedUri = file.storedUri;
     params.manualColumnCount = file.manualColumnCount;
-
-    const filenameBeforeUpload = file.filenameBeforeUpload.toLowerCase();
-    if( filenameBeforeUpload.endsWith("xls") || filenameBeforeUpload.endsWith("xlsx") ) {
-
-      params.fileFormat = "EXCEL";
-
-    } else if(filenameBeforeUpload.endsWith("csv") || filenameBeforeUpload.endsWith("txt") ) {
-
-      params.fileFormat = "CSV";
-
-    } else if(filenameBeforeUpload.endsWith("json") ) {
-
-      params.fileFormat = "JSON";
-
-    }
 
     return params
   }

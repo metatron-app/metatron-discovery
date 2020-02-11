@@ -26,14 +26,14 @@
             <a href="javascript:">{{'msg.metadata.metadata.detail.information' | translate}}</a>
           </li>
           <li
-            (click)="changeTab('data-grid')"
-            [ngClass]="{'ddp-selected': tab === 'data-grid'}">
-            <a href="javascript:">{{'msg.metadata.metadata.detail.data-grid' | translate}}</a>
-          </li>
-          <li
             (click)="changeTab('column-details')"
             [ngClass]="{'ddp-selected': tab === 'column-details'}">
             <a href="javascript:">{{'msg.metadata.metadata.detail.column-details' | translate}}</a>
+          </li>
+          <li
+            (click)="changeTab('data-grid')"
+            [ngClass]="{'ddp-selected': tab === 'data-grid'}">
+            <a href="javascript:">{{'msg.metadata.metadata.detail.data-grid' | translate}}</a>
           </li>
           <!--
           <li

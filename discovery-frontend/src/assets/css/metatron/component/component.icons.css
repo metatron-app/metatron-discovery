@@ -236,6 +236,7 @@ em.ddp-icon-widget-info {position:relative; display:inline-block; cursor:pointer
 
 em.ddp-icon-widget-edit:before,
 em.ddp-icon-widget-cut:before,
+em.ddp-icon-widget-cut-w:before,
 em.ddp-icon-widget-moveto:before,
 em.ddp-icon-widget-save:before,
 em.ddp-icon-widget-gridsave:before,
@@ -246,10 +247,12 @@ em.ddp-icon-widget-chart:before,
 em.ddp-icon-widget-store:before,
 em.ddp-icon-widget-info:before ,
 em.ddp-icon-widget-dataview:before,
-em.ddp-icon-widget-synch:before {display:inline-block;  background:url(../../../images/icon_widget.png) no-repeat; vertical-align: middle; content:'';}
-
+em.ddp-icon-widget-synch:before,
+em.ddp-icon-widget-trigger:before {display:inline-block;  background:url(../../../images/icon_widget.png) no-repeat; vertical-align: middle; content:'';}
+em.ddp-icon-widget-trigger:before {width:17px; height:17px; background-position:left -259px;}
 em.ddp-icon-widget-edit:before {width:13px; height:13px; background-position:left -131px;}
 em.ddp-icon-widget-cut:before {width:11px; height:11px; background-position:0 -176px;}
+em.ddp-icon-widget-cut-w:before {width:11px; height:11px; background-position:-24px -176px;}
 em.ddp-icon-widget-moveto:before {width:13px; height:12px; background-position:-14px top;}
 em.ddp-icon-widget-save:before {width:12px; height:13px; background-position:-13px -40px;}
 em.ddp-icon-widget-gridsave:before {display:inline-block; width:12px; height:13px; background-position:-39px -40px; content:'';}
@@ -567,7 +570,9 @@ a.ddp-icon-board-edit:hover:before {background-position:-21px -19px;}
 .ddp-icon-drop-guide,
 .ddp-icon-drop-select,
 .ddp-icon-drop-sort,
-.ddp-icon-drop-unit{display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../../../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-unit,
+.ddp-icon-drop-disabled {display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../../../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-disabled {width:11px; height:11px; margin-top:-6px; background-position:-315px top;}
 .ddp-icon-drop-unit {width:11px; height:11px; background-position:-303px top;}
 .ddp-icon-drop-select {width:12px; height:9px; background-position:-277px top;}
 .ddp-icon-drop-sort {width:12px; height:10px; background-position:-290px top;}

@@ -27,6 +27,7 @@ import {EngineService} from "../../service/engine.service";
 import {Engine} from "../../../domain/engine-monitoring/engine";
 import {CommonUtil} from "../../../common/util/common.util";
 import * as _ from "lodash";
+import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
 
 declare let echarts: any;
 
@@ -41,6 +42,9 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
 
   public isShow: boolean;
   public monitoring: Engine.Monitoring = new Engine.Monitoring();
+
+  public gcCountEmpty: boolean;
+  public memoryEmpty: boolean;
 
   @ViewChild('gcCount') private _gcCountChartElmRef: ElementRef;
   @ViewChild('memory') private _memoryChartElmRef: ElementRef;
@@ -86,6 +90,18 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
   }
 
   public selfHide() {
+    if (!_.isNil(this._gcCountChart)) {
+      this._gcCountChart.clear();
+      this._gcCountChart = undefined;
+    }
+    if (!_.isNil(this._memoryChart)) {
+      this._memoryChart.clear();
+      this._memoryChart = undefined;
+    }
+
+    this.gcCountEmpty = undefined;
+    this.memoryEmpty = undefined;
+
     this.isShow = false;
   }
 
@@ -94,20 +110,7 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
    *  - broker, coordinator, historical, overlord, middleManager
    */
   public convertTypeLabel(type: Engine.NodeType) {
-    switch (type) {
-      case Engine.NodeType.BROKER:
-        return this._toCamelCase(type);
-      case Engine.NodeType.COORDINATOR:
-        return this._toCamelCase(type);
-      case Engine.NodeType.HISTORICAL:
-        return this._toCamelCase(type);
-      case Engine.NodeType.OVERLORD:
-        return this._toCamelCase(type);
-      case Engine.NodeType.MIDDLE_MANAGER:
-        return this._toCamelCase(type);
-      default:
-        return type;
-    }
+    return EngineMonitoringUtil.convertTypeLabel(type);
   }
 
   private _selfShow() {
@@ -126,62 +129,69 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
       };
 
     this.engineService.getMonitoringData(queryParam).then((data) => {
-      const chartOps: any = {
-        type: 'line',
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'line'
-          }
-        },
-        grid: [
-          {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
-          }
-        ],
-        xAxis: [
-          {
-            type: 'category',
-            show: false,
-            data: data.time,
-            name: 'SECOND(event_time)',
-            axisName: 'SECOND(event_time)'
-          }
-        ],
-        yAxis: [
-          {
-            type: 'value',
-            show: false,
-            name: 'Count',
-            axisName: 'Count'
-          }
-        ],
-        series: [
-          {
-            type: 'line',
-            name: 'Count',
-            data: data.value,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#2eaaaf'
-              }
+      if (data.value.length > 0) {
+        const chartOps: any = {
+          type: 'line',
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'line'
             },
-            smooth: true
-          }
-        ]
-      };
-      if (_.isNil(this._gcCountChart)) {
-        this._gcCountChart = echarts.init(this._gcCountChartElmRef.nativeElement, 'exntu');
+            formatter: (params) => {
+              return EngineMonitoringUtil.tooltipFormatter(params);
+            }
+          },
+          grid: [
+            {
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0
+            }
+          ],
+          xAxis: [
+            {
+              type: 'category',
+              show: false,
+              data: data.time,
+              name: 'SECOND(event_time)',
+              axisName: 'SECOND(event_time)'
+            }
+          ],
+          yAxis: [
+            {
+              type: 'value',
+              show: false,
+              name: 'Count',
+              axisName: 'Count'
+            }
+          ],
+          series: [
+            {
+              type: 'line',
+              name: 'Count',
+              data: data.value,
+              connectNulls: true,
+              showAllSymbol: true,
+              symbol: 'none',
+              sampling: 'max',
+              itemStyle: {
+                normal: {
+                  color: '#2eaaaf'
+                }
+              },
+              smooth: true
+            }
+          ]
+        };
+        if (_.isNil(this._gcCountChart)) {
+          this._gcCountChart = echarts.init(this._gcCountChartElmRef.nativeElement, 'exntu');
+        }
+        this._gcCountChart.setOption(chartOps, false);
+      } else {
+        throw new Error('data is empty');
       }
-      this._gcCountChart.setOption(chartOps, false);
-    });
+    }).catch(() => this.gcCountEmpty = true);
   }
 
   private _getMemory() {
@@ -194,96 +204,85 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
       };
 
     this.engineService.getMonitoringData(queryParam).then((data) => {
-      const chartOps: any = {
-        type: 'line',
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'line'
-          }
-        },
-        grid: [
-          {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
-          }
-        ],
-        xAxis: [
-          {
-            type: 'category',
-            show: false,
-            data: data.time,
-            name: 'SECOND(event_time)',
-            axisName: 'SECOND(event_time)'
-          }
-        ],
-        yAxis: [
-          {
-            type: 'value',
-            show: false,
-            name: 'Count',
-            axisName: 'Count'
-          }
-        ],
-        series: [
-          {
-            type: 'line',
-            name: 'Max',
-            data: data.maxMem,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#dc494f'
-              }
+      if (data.maxMem.length > 0 && data.usedMem.length > 0) {
+        const chartOps: any = {
+          type: 'line',
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'line'
             },
-            smooth: true
+            formatter: (params) => {
+              return EngineMonitoringUtil.convertLocalTime(params[0].axisValue) + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + CommonUtil.formatBytes(params[0].data, 2)
+                + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + CommonUtil.formatBytes(params[1].data, 2);
+            }
           },
-          {
-            type: 'line',
-            name: 'Used',
-            data: data.usedMem,
-            connectNulls: true,
-            showAllSymbol: true,
-            symbol: 'none',
-            sampling: 'max',
-            itemStyle: {
-              normal: {
-                color: '#2eaaaf'
-              }
+          grid: [
+            {
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0
+            }
+          ],
+          xAxis: [
+            {
+              type: 'category',
+              show: false,
+              data: data.time,
+              name: 'SECOND(event_time)',
+              axisName: 'SECOND(event_time)'
+            }
+          ],
+          yAxis: [
+            {
+              type: 'value',
+              show: false,
+              name: 'Count',
+              axisName: 'Count'
+            }
+          ],
+          series: [
+            {
+              type: 'line',
+              name: 'Max',
+              data: data.maxMem,
+              connectNulls: true,
+              showAllSymbol: true,
+              symbol: 'none',
+              sampling: 'max',
+              itemStyle: {
+                normal: {
+                  color: '#dc494f'
+                }
+              },
+              smooth: true
             },
-            smooth: true
-          }
-        ]
-      };
-      chartOps.tooltip.formatter = ((params): any => {
-        return params[0].axisValue + '<br/>' + params[0].marker + params[0].seriesName + ' : ' + CommonUtil.formatBytes(params[0].data, 2)
-          + '<br/>' + params[1].marker + params[1].seriesName + ' : ' + CommonUtil.formatBytes(params[1].data, 2);
-      });
-      if (_.isNil(this._memoryChart)) {
-        this._memoryChart = echarts.init(this._memoryChartElmRef.nativeElement, 'exntu');
+            {
+              type: 'line',
+              name: 'Used',
+              data: data.usedMem,
+              connectNulls: true,
+              showAllSymbol: true,
+              symbol: 'none',
+              sampling: 'max',
+              itemStyle: {
+                normal: {
+                  color: '#2eaaaf'
+                }
+              },
+              smooth: true
+            }
+          ]
+        };
+        if (_.isNil(this._memoryChart)) {
+          this._memoryChart = echarts.init(this._memoryChartElmRef.nativeElement, 'exntu');
+        }
+        this._memoryChart.setOption(chartOps, false);
+      } else {
+        throw new Error('data is empty');
       }
-      this._memoryChart.setOption(chartOps, false);
-    });
+    }).catch(() => this.memoryEmpty = true);
   }
 
-  /**
-   * Utility function to change only the first letter to uppercase
-   */
-  private _toCamelCase(type: Engine.NodeType) {
-
-    if (_.isNil(type)) {
-      return '';
-    }
-
-    if (type.length === 0) {
-      return type;
-    }
-
-    return `${type.charAt(0).toLocaleUpperCase()}${type.substring(1, type.length)}`;
-  }
 }

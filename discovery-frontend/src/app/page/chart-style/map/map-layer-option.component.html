@@ -171,7 +171,7 @@
                                   class="ddp-btn-color-series{{findColorIndex(colorTemplate?.defaultColorList, layerIndex)}} ddp-type"></button>
                                 <button
                                   *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()"
-                                  class="ddp-btn-color-type{{findMeasureColorIndex(layerIndex)}} ddp-type"></button>
+                                  class="ddp-btn-color-type{{findMeasureColorIndex(layerIndex)}} ddp-type" [ngClass]="{'sys-inverted': isChartColorInverted(layerIndex)}"></button>
                                 <button *ngIf="'heatmap' === uiOption.layers[layerIndex].type.toString()"
                                         class="ddp-btn-color-heatmap{{findColorIndex(colorTemplate?.mapHeatmapColorList, layerIndex)}}"></button>
                               </div>

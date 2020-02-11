@@ -1,0 +1,221 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div [ngClass]="['ddp-ui-contents-det']">
+  <!-- option -->
+  <div class="ddp-list-option ddp-clear">
+    <div class="ddp-wrap-top-filtering">
+      <!-- filter search -->
+      <div class="ddp-filter-search ddp-fright">
+        <div class="ddp-form-filter-search">
+          <component-input
+            [autoFocus]="false"
+            [isEnableDelete]="true"
+            [value]="searchKeyword"
+            [placeHolder]="'msg.engine.monitoring.ph.query.search' | translate"
+            [immediately]="true"
+            (changeValue)="onChangedSearchKeyword($event)">
+          </component-input>
+        </div>
+        <!-- form -->
+      </div>
+      <!-- //filter search -->
+      <!-- filters -->
+      <component-criterion [criterionApiFunc]="criterionApiFunc"
+                           (changedFilter)="onChangedFilter($event)">
+      </component-criterion>
+      <!-- //filters -->
+    </div>
+
+    <div class="ddp-data-source-none" *ngIf="isEmptyList(); else existList">
+      {{'msg.comm.ui.no.rslt' | translate}}
+    </div>
+
+    <ng-template #existList>
+      <table class="ddp-table-form ddp-table-type3">
+        <colgroup>
+          <col width="*">
+          <col width="90px">
+          <col width="150px">
+          <col width="130px">
+          <col width="150px">
+          <col width="180px">
+          <col width="180px">
+          <col width="125px">
+        </colgroup>
+        <thead>
+        <tr>
+          <th>
+            ID
+          </th>
+          <th>
+            Result
+          </th>
+          <th class="ddp-cursor" (click)="sortQueryList('service')">
+            Service
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'service' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'service' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'service' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <th class="ddp-cursor">
+            Host
+          </th>
+          <th class="ddp-cursor" (click)="sortQueryList('type')">
+            Type
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'type' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'type' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'type' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <th class="ddp-cursor" (click)="sortQueryList('dataSource')">
+            Datasource
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dataSource' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'dataSource' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'dataSource' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <th class="ddp-cursor" (click)="sortQueryList('__time')">
+            Started time
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== '__time' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == '__time' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == '__time' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <th class="ddp-cursor" (click)="sortQueryList('value')">
+            Duration (ms)
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'value' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key == 'value' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key == 'value' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let query of queryList" (click)="onClickQuery(query)">
+          <td>
+            <div class="ddp-txt-long" title="{{query.queryId}}" [innerHTML]="highlightSearchText( query.queryId, searchKeyword )">
+            </div>
+          </td>
+          <td>
+            <span class="ddp-data-status" [ngClass]="[getStatusClass(query.result)]">{{query.result === 'true' ? 'Success' : 'Fail'}}</span>
+          </td>
+          <td>
+            {{query.serviceName}}
+          </td>
+          <td>
+            {{query.host}}
+          </td>
+          <td>
+            {{query.type}}
+          </td>
+          <td>
+            <div class="ddp-txt-long" title="{{query.datasource}}" [innerHTML]="highlightSearchText( query.datasource, searchKeyword )">
+            </div>
+          </td>
+          <td>
+            {{query.startedTime | date : 'yyyy-MM-dd HH:mm:ss.SSS' : getTimezone}}
+          </td>
+          <td>
+            {{query.duration | numberCommas}}
+          </td>
+        </tr>
+        </tbody>
+
+      </table>
+      <!-- Pagination -->
+      <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+      <!-- // Pagination -->
+    </ng-template>
+  </div>
+</div>
+
+<div class="ddp-layout-popuptype type-flex" *ngIf="showDetail && queryDetail">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-flex-popup">
+    <a href="javascript:" class="ddp-btn-close" (click)="closeDetail()"></a>
+    <div class="ddp-pop-title">{{ 'msg.comm.menu.manage.engine.monitoring.query' | translate }} {{'msg.comm.ui.info' | translate}}</div>
+
+    <!-- contents -->
+    <div class="ddp-pop-contents ">
+
+      <table class="ddp-table-detail2 ">
+          <colgroup>
+            <col width="200px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              Query ID
+            </th>
+            <td>
+              {{queryDetail.queryId}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Result
+            </th>
+            <td>
+              {{queryDetail.result === 'true' ? 'Success' : 'Fail'}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Service
+            </th>
+            <td>
+              {{queryDetail.serviceName}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Host
+            </th>
+            <td>
+              {{queryDetail.host}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Type
+            </th>
+            <td>
+              {{queryDetail.type}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Datasource
+            </th>
+            <td>
+              {{queryDetail.datasource}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Started Time
+            </th>
+            <td>
+              {{queryDetail.startedTime | date : 'yyyy-MM-dd HH:mm:ss.SSS' : getTimezone}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Duration
+            </th>
+            <td>
+              {{queryDetail.duration | numberCommas}} ms
+            </td>
+          </tr>
+          </tbody>
+      </table>
+    </div>
+  </div>
+</div>

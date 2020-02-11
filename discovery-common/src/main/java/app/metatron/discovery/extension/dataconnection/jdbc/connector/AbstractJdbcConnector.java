@@ -137,6 +137,9 @@ public abstract class AbstractJdbcConnector implements JdbcConnector{
         if (StringUtils.startsWith(propertyKey, JdbcDialect.JDBC_PROPERTY_PREFIX)) {
           String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDialect.JDBC_PROPERTY_PREFIX, "");
           properties.setProperty(nativePropertyKey, connectionInfo.getPropertiesMap().get(propertyKey));
+        } else if(!StringUtils.startsWith(propertyKey, JdbcDialect.METATRON_PROPERTY_PREFIX)) {
+          String nativePropertyKey = propertyKey;
+          properties.setProperty(nativePropertyKey, connectionInfo.getPropertiesMap().get(propertyKey));
         }
       }
     }

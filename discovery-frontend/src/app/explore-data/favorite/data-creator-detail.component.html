@@ -1,0 +1,213 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+  <div class="ddp-type-contents2">
+
+    <div class="ddp-top-flow">
+      <!-- navi wrap -->
+      <div class="ddp-wrap-navi">
+        <a href="javascript:" class="ddp-btn-back" (click)="goBack()"></a>
+        <!-- navi -->
+        <div class="ddp-ui-naviarea">
+          <!-- name -->
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-box-navi">
+            <div class="ddp-wrap-naviname">
+              <span class="ddp-data-naviname ddp-readonly">
+                {{ username }}
+              </span>
+            </div>
+          </div>
+          <!-- //name -->
+        </div>
+        <!-- //navi -->
+      </div>
+      <!-- //navi wrap -->
+    </div>
+
+    <!-- 상세 -->
+    <div class="ddp-wrap-datadetail" *ngIf="creator">
+      <div class="ddp-area-datadetail">
+        <label class="ddp-label-detail">{{ 'msg.explore.favorite.creator.information' | translate }}</label>
+        <div class="ddp-ui-userdetail type-user">
+          <!-- 사진 -->
+          <div class="ddp-data-photo">
+            <img [src]="getUserImage(creator.creator)" />
+          </div>
+
+          <!-- //사진 -->
+          <!-- user -->
+          <div class="ddp-data-user-info">
+            {{ username }}
+            <em class="ddp-icon-fav" [class.ddp-selected]="creator.favorite" (click)="onClickFavoriteInUserName(creator)"></em>
+          </div>
+          <!-- //user -->
+          <table class="ddp-table-detail ddp-mgt0">
+            <colgroup>
+              <col width="160px">
+              <col width="*">
+            </colgroup>
+            <tbody>
+            <tr>
+              <th>
+                {{ 'msg.explore.favorite.creator.detail.joined' | translate }}
+              </th>
+              <td>
+                {{ creator.creator.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {{ 'msg.explore.favorite.creator.detail.last.activity' | translate }}
+              </th>
+              <td>
+                {{ creator.creator.lastAccessTime | mdate:'YYYY-MM-DD HH:mm'}}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {{ 'msg.explore.favorite.creator.detail.followers' | translate }}
+              </th>
+              <td>
+                <span *ngFor="let follower of creator.followerList" class="ddp-data-follow-photo">
+                  <img [src]="getUserImage(follower)" />
+                </span>
+              </td>
+            </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ddp-area-datadetail">
+        <label class="ddp-label-detail ddp-clear">{{ 'msg.explore.favorite.creator.metadata' | translate }} <span class="ddp-data-num">({{ pageResult.totalElements }})</span></label>
+        <div class="ddp-no-data" *ngIf="isEmptyMetadataList()">
+          No Metadata
+        </div>
+        <div class="ddp-type-search type-metasearch">
+          <component-input
+            [autoFocus]="false"
+            [isEnableDelete]="true"
+            [value]="searchedKeyword"
+            [placeHolder]="'msg.storage.ph.source.search' | translate"
+            (changeValue)="onChangedSearchKeyword($event)">
+          </component-input>
+          <a href="javascript:" class="ddp-btn-delete"></a>
+        </div>
+        <table class="ddp-table-form ddp-table-line" *ngIf="!isEmptyMetadataList()">
+          <colgroup>
+            <col width="26px">
+            <col width="100px">
+            <col width="*">
+            <col width="200px">
+            <col width="160px">
+            <col width="13%">
+            <col width="180px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+
+            </th>
+            <th>
+              {{'msg.metadata.md.ui.data.type' | translate}}
+            </th>
+            <th (click)="toggleSortOption('name')">
+              {{'msg.comm.ui.name' | translate}}
+              <em class="ddp-icon-array-default2" *ngIf="sortOptions.name.option === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.name.option === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="sortOptions.name.option === 'desc'"></em>
+            </th>
+            <th>
+              {{'msg.metadata.md.ui.tags' | translate}}
+            </th>
+            <th >
+              {{'msg.metadata.md.ui.data.popularity' | translate}}
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.md.ui.tooltip.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.md.ui.tooltip.description' | translate}}
+                    <ul>
+                      <li>• {{'msg.metadata.md.ui.tooltip.point.1' | translate}}</li>
+                      <li>• {{'msg.metadata.md.ui.tooltip.point.2' | translate}}</li>
+                      <li>• {{'msg.metadata.md.ui.tooltip.point.3' | translate}}</li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+            </th>
+            <th>
+              {{'msg.storage.ui.criterion.creator' | translate}}
+            </th>
+            <th (click)="toggleSortOption('createdTime')">
+              {{'msg.comm.ui.list.created' | translate}}
+              <em class="ddp-icon-array-default2" *ngIf="sortOptions.createdTime.option === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="sortOptions.createdTime.option === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="sortOptions.createdTime.option === 'desc'"></em>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let metadata of metadataList" (click)="onClickMetadata(metadata)">
+            <td>
+              <em class="ddp-icon-control-fav"
+                  [class.ddp-selected]="metadata.favorite"
+                  (click)="onClickFavoriteIconInList(metadata)"></em>
+            </td>
+            <td>
+              <component-metadata-type-box-tag [metadata]="metadata"></component-metadata-type-box-tag>
+            </td>
+            <td>
+              <div class="ddp-txt-long" title="{{getTooltipValue(metadata)}}">
+                <span [innerHTML]="getMetadataName(metadata.name)"></span>
+                <span class="ddp-txt-colortype" *ngIf="isEnableDescription(metadata)" [innerHTML]="getMetadataDescription(metadata.description)"></span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-wrap-tags" *ngIf="isEnableTag(metadata)">
+                <span class="ddp-tags"># {{metadata.tags[0].name}}</span>
+                <span class="ddp-tag-more" *ngIf="isExistMoreTags(metadata)">+ {{metadata.tags.length - 1}}</span>
+              </div>
+            </td>
+            <td>
+              <div class="ddp-ui-popularity">
+                <em class="ddp-icon-popularity"></em>
+                <div class="ddp-bar">
+                  <span [style.width]="metadata.popularity + '%'" style="margin-bottom:10px;"></span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="ddp-txt-long" title="{{metadata?.modifiedBy?.fullName}}" [innerHTML]="getMetadataCreator(metadata?.modifiedBy?.fullName)"></span>
+            </td>
+            <td>
+              {{metadata.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    <component-pagination *ngIf="!isEmptyMetadataList()" [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+    </div>
+    <!-- //상세 -->
+  </div>
+<ng-template #component_metadata_detail></ng-template>
+

@@ -35,7 +35,7 @@ public class SetTypeTest extends TeddyTest {
 
   private DataFrame newSampleDataFrame() throws IOException, TeddyException {
     DataFrame df = new DataFrame();
-    df.setByGrid(grids.get("sample"), null);
+    df.setByGrid(grids.get("sample"));
     df = prepare_timestamp(df);
     df.show();
     return df;
@@ -73,7 +73,7 @@ public class SetTypeTest extends TeddyTest {
   @Test
   public void testSetTypeMulti() throws IOException, TeddyException {
     DataFrame crime = new DataFrame();
-    crime.setByGrid(grids.get("crime"), null);
+    crime.setByGrid(grids.get("crime"));
     crime = DataFrameTest.prepare_crime_more(crime);
     crime.show();
 

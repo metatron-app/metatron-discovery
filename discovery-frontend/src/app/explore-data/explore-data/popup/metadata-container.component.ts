@@ -20,6 +20,8 @@ import {CookieConstant} from "../../../common/constant/cookie.constant";
 import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
 import {Modal} from "../../../common/domain/modal";
 import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
+import {Alert} from "../../../common/util/alert.util";
+import {DataCreator} from "../../../domain/meta-data-management/data-creator";
 
 @Component({
   selector: 'explore-metadata-container',
@@ -93,11 +95,17 @@ export class MetadataContainerComponent extends AbstractComponent {
     this.selectedTab = tab.id;
   }
 
+  public onClickTopUser(creator: string) {
+    this._showConfirmComponent().then(() => this.router.navigate(['exploredata/favorite/creator', creator]));
+  }
+
   /**
    * Move to management > metadata detail
    */
   public onClickEditData() {
-    this.router.navigate(['management/metadata/metadata', this.metadataId]).then();
+    this._showConfirmComponent()
+      .then(() => this.router.navigate(['management/metadata/metadata', this.metadataId]).then())
+      .catch(e => this.commonExceptionHandler(e));
   }
 
   onClickCreateWorkbench(): void {
@@ -150,9 +158,9 @@ export class MetadataContainerComponent extends AbstractComponent {
       // show confirm modal
       this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
       const modal: Modal = new Modal();
-      modal.name = this.translateService.instant('msg.explore.ui.confirm.title');
-      modal.description = this.translateService.instant('msg.explore.ui.confirm.description');
-      modal.btnName = this.translateService.instant('msg.explore.btn.confirm.done');
+      modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+      modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+      modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
       this.confirmModalEntryRef.instance.init(modal);
       this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
         // destroy confirm component
@@ -188,26 +196,31 @@ export class MetadataContainerComponent extends AbstractComponent {
   }
 
   private _showCreateWorkbenchComponent(): void {
-    this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
-    const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
-    // set data in component
-    this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
-    this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
-    this.createWorkbenchEntryRef.instance.setSchemaName(this.metadataDetailData.source.schema);
-    this.createWorkbenchEntryRef.instance.setTableName(this.metadataDetailData.source.table);
-    this.createWorkbenchEntryRef.instance.accessFromExplore();
-    this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
-      this.createWorkbenchEntryRef.destroy();
-    });
-    this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
-      if (_.isNil(workbenchId)) {
-        // link to workspace
-        this.router.navigateByUrl('/workspace').then();
-      } else {
-        // link to workspace
-        this.router.navigateByUrl('/workbench/' + workbenchId).then();
-      }
-    });
+    if (this.metadataDetailData.source.source !== undefined) {
+      this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
+      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+
+      // set data in component
+      this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
+      this.createWorkbenchEntryRef.instance.setConnectionInModel(this.metadataDetailData.source.source);
+      this.createWorkbenchEntryRef.instance.setSchemaName(this.metadataDetailData.source.schema);
+      this.createWorkbenchEntryRef.instance.setTableName(this.metadataDetailData.source.table);
+      this.createWorkbenchEntryRef.instance.accessFromExplore();
+      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
+        this.createWorkbenchEntryRef.destroy();
+      });
+      this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
+        if (_.isNil(workbenchId)) {
+          // link to workspace
+          this.router.navigateByUrl('/workspace').then();
+        } else {
+          // link to workspace
+          this.router.navigateByUrl('/workbench/' + workbenchId).then();
+        }
+      });
+    } else {
+      Alert.error(this.translateService.instant('msg.explore.alert.error.cannot.make.workbench'));
+    }
   }
 }
 

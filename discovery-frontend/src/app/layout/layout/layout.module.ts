@@ -74,7 +74,7 @@ const layoutRoutes: Routes = [
       {
         path: 'management/engine-monitoring',
         loadChildren: 'app/engine-monitoring/engine-monitoring.module#EngineMonitoringModule',
-        canActivate: [MetadataManagementGuard]
+        canActivate: [DatasourceManagementGuard]
       },
       {path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule'},
       {path: 'external', loadChildren: 'app/external/external-view.module#ExternalViewModule'},

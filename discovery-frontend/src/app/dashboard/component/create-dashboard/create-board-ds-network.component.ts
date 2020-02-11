@@ -124,9 +124,18 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
     // 데이터 소스 변경
     this.subscriptions.push(
-      this.broadCaster.on('CREATE_BOARD_UPDATE_DS').subscribe((data: { dataSource: BoardDataSource }) => {
+      this.broadCaster.on('CREATE_BOARD_UPDATE_DS').subscribe((data: { dataSource: BoardDataSource, candidateDataSources: Datasource[]}) => {
+
         const targetIdx = this._boardDataSources.findIndex(item => item.id === data.dataSource.id);
         (-1 < targetIdx) && (this._boardDataSources[targetIdx] = data.dataSource);
+
+        data.candidateDataSources.forEach(ds => {
+          const dataSourceIdx : number = this._dataSources.findIndex(item => item.id === ds.id);
+
+          if( -1 == dataSourceIdx ) {
+            this._dataSources.push(ds);
+          }
+        });
       })
     );
 
@@ -215,7 +224,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
         boardDs.dataSources.forEach(item => {
           const targetDs: Datasource = dataSources.find(ds => item.engineName === ds.engineName);
           (targetDs) && (item.name = targetDs.name);
-          this._addDataSource(item);
+          this._addDataSource(BoardDataSource.convertDsToMetaDs(targetDs));
         });
         if (boardDs.associations) {
           boardDs.associations.forEach(item => {
@@ -235,7 +244,14 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
         }
         this.isPossibleSettingRel = true;
       } else {
-        this._addDataSource(boardDs);
+        const foundDs: Datasource = dataSources.find(ds => boardDs.engineName === ds.engineName);
+        if(foundDs) {
+          const newBoardDs : BoardDataSource = BoardDataSource.convertDsToMetaDs(foundDs);
+          if(boardDs.joins && boardDs.joins.length > 0) {
+            newBoardDs.joins = boardDs.joins;
+          }
+          this._addDataSource(newBoardDs);
+        }
       }
       this._bindEventNetworkBoard();
       this.safelyDetectChanges();

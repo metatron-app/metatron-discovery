@@ -130,6 +130,9 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this._showLineageTab();
 
     super.ngOnInit();
+
+    // To keep selected tab when back from code table detail and column dictionary detail screen
+    this.tab = this.metadataService.metadataDetailSelectedTab;
   }
 
   public ngOnDestroy() {
@@ -152,6 +155,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
    */
   public changeTab(tab: string) {
     this.tab = tab;
+    this.metadataService.metadataDetailSelectedTab = tab;
   }
 
   /**

@@ -13,14 +13,39 @@
   -->
 
 <div (mouseover)="setForceStyle(true)" (mouseout)="setForceStyle(false)"
-     [ngClass]="{'ddp-active':isShowDownloadPopup, 'ddp-popup-show':isShowDownloadPopup, 'ddp-page-mapview' : 'map' === chartType}"
-     class="ddp-box-widget ddp-box-graph">
+     [ngClass]="{
+       'ddp-active':isShowDownloadPopup,
+       'ddp-popup-show':isShowDownloadPopup,
+       'ddp-page-mapview' : 'map' === chartType,
+       'type-event-trigger' : isShowEvtTriggerEditor
+     }"
+     class="ddp-box-widget ddp-box-graph" style="display:block;">
 
   <!-- Top Control -->
-  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && ( !errorInfo || !errorInfo.show )">
+  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && ( !errorInfo || !errorInfo.show ) && !isShowEvtTriggerEditor">
 
     <!-- 버튼 목록 -->
     <div class="ddp-ui-buttons" >
+
+      <!-- Event Trigger -->
+      <div  *ngIf="isAuthMgmtViewMode" class="ddp-box-btn2">
+        <em (click)="openUserFuncInput()" class="ddp-icon-widget-trigger "></em>
+        <div class="ddp-ui-tooltip-info">
+          <em class="ddp-icon-view-down"></em>
+          {{ 'msg.board.ui.custom-action' | translate }}
+        </div>
+      </div>
+      <!-- // Event Trigger -->
+
+      <div class="ddp-box-btn2" *ngIf="isRealTimeDs">
+        <em (click)="toggleSync()" class="ddp-icon-widget-synch" [class.ddp-on]="isRealTimeWidget"></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info">
+          <em class="ddp-icon-view-down"></em>
+          {{'msg.board.ui.sync' | translate}}
+        </div>
+        <!-- //툴팁 -->
+      </div>
 
       <!-- Data Limit Info -->
       <div class="ddp-box-btn2" *ngIf="limitInfo.isShow">
@@ -222,6 +247,7 @@
        [style.display]="(!isShowNoData && widget.mode === 'chart') ? 'block' : 'none'" >
     <bar-chart #chart
                *ngIf="chartType === 'bar' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+               [userCustomFunction]="userCustomFunction"
                (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                (chartSelectInfo)="chartSelectInfo($event)"
                (noData)="showNoData()"
@@ -231,6 +257,7 @@
 
     <grid-chart #chart
                 *ngIf="chartType === 'grid' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                [userCustomFunction]="userCustomFunction"
                 (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                 (chartSelectInfo)="chartSelectInfo($event)"
                 (noData)="showNoData()"
@@ -239,6 +266,7 @@
 
     <line-chart #chart
                 *ngIf="chartType === 'line' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                [userCustomFunction]="userCustomFunction"
                 (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                 (chartSelectInfo)="chartSelectInfo($event)"
                 (noData)="showNoData()"
@@ -248,6 +276,7 @@
 
     <scatter-chart #chart
                    *ngIf="chartType === 'scatter' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   [userCustomFunction]="userCustomFunction"
                    (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                    (chartSelectInfo)="chartSelectInfo($event)"
                    (noData)="showNoData()"
@@ -257,6 +286,7 @@
 
     <heatmap-chart #chart
                    *ngIf="chartType === 'heatmap' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   [userCustomFunction]="userCustomFunction"
                    (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                    (chartSelectInfo)="chartSelectInfo($event)"
                    (noData)="showNoData()"
@@ -265,6 +295,7 @@
 
     <pie-chart #chart
                *ngIf="chartType === 'pie' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+               [userCustomFunction]="userCustomFunction"
                (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                (chartSelectInfo)="chartSelectInfo($event)"
                (noData)="showNoData()"
@@ -273,6 +304,7 @@
 
     <label-chart #chart
                  *ngIf="chartType === 'label' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                 [userCustomFunction]="userCustomFunction"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                  (chartSelectInfo)="chartSelectInfo($event)"
                  [query]="query"
@@ -283,6 +315,7 @@
 
     <boxplot-chart #chart
                    *ngIf="chartType === 'boxplot' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   [userCustomFunction]="userCustomFunction"
                    (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                    (chartSelectInfo)="chartSelectInfo($event)"
                    (noData)="showNoData()"
@@ -291,6 +324,7 @@
 
     <waterfall-chart #chart
                      *ngIf="chartType === 'waterfall' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                     [userCustomFunction]="userCustomFunction"
                      (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                      (chartSelectInfo)="chartSelectInfo($event)"
                      (noData)="showNoData()"
@@ -299,6 +333,7 @@
 
     <wordcloud-chart #chart
                      *ngIf="chartType === 'wordcloud' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                     [userCustomFunction]="userCustomFunction"
                      (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                      (chartSelectInfo)="chartSelectInfo($event)"
                      (noData)="showNoData()"
@@ -307,6 +342,7 @@
 
     <combine-chart #chart
                    *ngIf="chartType === 'combine' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   [userCustomFunction]="userCustomFunction"
                    (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                    (chartSelectInfo)="chartSelectInfo($event)"
                    (noData)="showNoData()"
@@ -315,6 +351,7 @@
 
     <treemap-chart #chart
                    *ngIf="chartType === 'treemap' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   [userCustomFunction]="userCustomFunction"
                    (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                    (chartSelectInfo)="chartSelectInfo($event)"
                    (noData)="showNoData()"
@@ -323,6 +360,7 @@
 
     <radar-chart #chart
                  *ngIf="chartType === 'radar' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                 [userCustomFunction]="userCustomFunction"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                  (chartSelectInfo)="chartSelectInfo($event)"
                  (noData)="showNoData()"
@@ -331,6 +369,7 @@
 
     <network-chart #chart
                    *ngIf="chartType === 'network' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   [userCustomFunction]="userCustomFunction"
                    (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                    (chartSelectInfo)="chartSelectInfo($event)"
                    (noData)="showNoData()"
@@ -338,6 +377,7 @@
     </network-chart>
     <sankey-chart #chart
                  *ngIf="chartType === 'sankey' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                  [userCustomFunction]="userCustomFunction"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                  (chartSelectInfo)="chartSelectInfo($event)"
                  (noData)="showNoData()"
@@ -345,6 +385,7 @@
     </sankey-chart>
     <gauge-chart #chart
                    *ngIf="chartType === 'gauge' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   [userCustomFunction]="userCustomFunction"
                    (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
                    (chartSelectInfo)="chartSelectInfo($event)"
                    (noData)="showNoData()"
@@ -522,5 +563,33 @@
     </div>
   </div>
   <!-- //미리보기 팝업 -->
+
+  <div *ngIf="isShowEvtTriggerEditor" #userFuncInputContainer
+       style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;">
+    <div class="ddp-top-control ddp-clear">
+      <!-- buttons -->
+      <div class="ddp-ui-buttons">
+        <!-- <span class="ddp-txt-event">Event trigger</span> -->
+        <a (click)="saveUserFunc()" href="javascript:" class="ddp-btn-solid-type">{{ 'msg.comm.btn.save' | translate }}</a>
+        <div class="ddp-box-btn2">
+          <em (click)="closeUserFuncInput()" class="ddp-icon-widget-cut-w ddp-hover-tooltip">
+            <!-- tooltip -->
+            <div class="ddp-ui-tooltip-info ddp-down">
+              <em class="ddp-icon-view-top"></em>
+              {{ 'msg.comm.ui.del' | translate }}
+            </div>
+            <!-- //tooltip -->
+          </em>
+        </div>
+      </div>
+      <!-- //buttons -->
+      <div *ngIf="isShowWidgetName()" class="ddp-top-label">{{widget.name}}</div>
+    </div>
+    <div class="ddp-view-widget" style="padding:25px 0 0 0;">
+      <textarea #userFuncInput [ngModel]="userCustomFunction"
+                class="ddp-textarea-widget" placeholder="P.H Event trigger script"
+                style="background:white;"></textarea>
+    </div>
+  </div>
 
 </div>

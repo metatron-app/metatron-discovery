@@ -15,9 +15,15 @@
 <!--suppress NsUnresolvedStyleClassReference -->
 <ul class="ddp-list-top-menu">
   <li [class.ddp-selected]="content.isOverview()">
-    <a href="javascript:" (click)="changeTab(CONTENT_TYPE.OVERVIEW)">{{ 'msg.engine.monotoring.overview' | translate }}</a>
+    <a href="javascript:" (click)="changeTab(CONTENT_TYPE.OVERVIEW)">{{ 'msg.comm.menu.manage.engine.monitoring.overview' | translate }}</a>
   </li>
   <li [class.ddp-selected]="content.isIngestion()">
-    <a href="javascript:" (click)="changeTab(CONTENT_TYPE.INGESTION)">{{ 'msg.engine.monotoring.ingestion' | translate }}</a>
+    <a href="javascript:" (click)="changeTab(CONTENT_TYPE.INGESTION)">{{ 'msg.comm.menu.manage.engine.monitoring.ingestion' | translate }}</a>
+  </li>
+  <li [class.ddp-selected]="content.isQuery()">
+    <a href="javascript:" (click)="changeTab(CONTENT_TYPE.QUERY)">{{ 'msg.comm.menu.manage.engine.monitoring.query' | translate }}</a>
+  </li>
+  <li [class.ddp-selected]="content.isDatasource()">
+    <a href="javascript:" (click)="changeTab(CONTENT_TYPE.DATASOURCE)">{{ 'msg.comm.menu.manage.storage.ds' | translate }}</a>
   </li>
 </ul>

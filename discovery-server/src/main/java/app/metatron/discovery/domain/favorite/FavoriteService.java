@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.entity.DomainType;
 import app.metatron.discovery.util.AuthUtils;
@@ -54,5 +55,24 @@ public class FavoriteService {
     if(favoriteList != null && !favoriteList.isEmpty()){
       favoriteRepository.delete(favoriteList);
     }
+  }
+
+  public List<String> getFavoriteDomainIdList(List<String> domainIdList, DomainType domainType){
+    List<String> favoriteDomainIdList = null;
+    if(domainIdList != null && !domainIdList.isEmpty()){
+      String userName = AuthUtils.getAuthUserName();
+      List<Favorite> favoriteList = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, domainType, domainIdList);
+      if(favoriteList != null && !favoriteList.isEmpty()){
+        favoriteDomainIdList = favoriteList.stream().map(favorite -> favorite.getTargetId()).collect(Collectors.toList());
+      }
+    }
+    return favoriteDomainIdList;
+  }
+
+  public boolean isFavorite(String targetId, DomainType domainType){
+    String userName = AuthUtils.getAuthUserName();
+    List<Favorite> favoriteList
+        = favoriteRepository.findByCreatedByAndDomainTypeAndTargetIdIn(userName, domainType, Lists.newArrayList(targetId));
+    return (favoriteList != null && favoriteList.size() > 0);
   }
 }

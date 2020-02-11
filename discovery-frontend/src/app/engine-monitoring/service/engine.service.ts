@@ -82,8 +82,8 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + '/information/' + name);
   }
 
-  public getDatasourceList() {
-    return this.get(this.URL_MONITORING + '/datasource/list');
+  public getDatasourceCount() {
+    return this.get(this.URL_MONITORING + '/datasource/count');
   }
 
   public getSegmentCount() {
@@ -110,6 +110,10 @@ export class EngineService extends AbstractService {
     return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log' + (offset ? '?offset='+offset : ''));
   }
 
+  public getTaskLogDownloadById(taskId) {
+    return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log?download=true');
+  }
+
   public shutdownTaskById(taskId) {
     return this.post(this.URL_MONITORING + '/ingestion/task/' + taskId + '/shutdown', null);
   }
@@ -120,10 +124,6 @@ export class EngineService extends AbstractService {
 
   public getSupervisorStatus(supervisorId) {
     return this.get(this.URL_MONITORING + '/ingestion/supervisor/' + supervisorId);
-  }
-
-  public getSupervisorRows(params: object) {
-    return this.post(this.URL_MONITORING + '/ingestion/supervisor/row', params);
   }
 
   public shutdownSupervisorById(supervisorId) {
@@ -152,6 +152,58 @@ export class EngineService extends AbstractService {
 
   public getCriterionInWorker(criterionKey: Criteria.ListCriterionKey) {
     return this.get(this.URL_MONITORING + `/ingestion/workers/criteria/${criterionKey}`);
+  }
+
+  public getQueryList(param) {
+    return this.post(this.URL_MONITORING + '/queries/list', param);
+  }
+
+  public getCriterionListInQuery() {
+    return this.get(this.URL_MONITORING + '/query/criteria');
+  }
+
+  public getCriterionInQuery(criterionKey: Criteria.ListCriterionKey) {
+    return this.get(this.URL_MONITORING + `/query/criteria/${criterionKey}`);
+  }
+
+  public getDatasource() {
+    return this.get(this.URL_MONITORING + '/datasources/list');
+  }
+
+  public getCriterionListInDatasource() {
+    return this.get(this.URL_MONITORING + '/datasource/criteria');
+  }
+
+  public getCriterionInDatasource(criterionKey: Criteria.ListCriterionKey) {
+    return this.get(this.URL_MONITORING + `/datasource/criteria/${criterionKey}`);
+  }
+
+  public getDatasourceDetail(datasource) {
+    return this.get(this.URL_MONITORING + `/datasource/${datasource}`);
+  }
+
+  public getDatasourceIntervalStatus(datasource, interval) {
+    return this.get(this.URL_MONITORING + `/datasource/${datasource}/${interval}`);
+  }
+
+  public getDatasourceRule(datasource) {
+    return this.get(this.URL_MONITORING + `/datasource/${datasource}/rule`);
+  }
+
+  public setDatasourceRule(datasource, rules) {
+    return this.post(this.URL_MONITORING + `/datasource/${datasource}/rule`, rules);
+  }
+
+  public enableDatasource(datasource) {
+    return this.post(this.URL_MONITORING + `/datasource/${datasource}`, null);
+  }
+
+  public permanentlyDeleteDataSource(datasource) {
+    return this.delete(this.URL_MONITORING + `/datasource/${datasource}` + '?kill=true');
+  }
+
+  public disableDatasource(datasource) {
+    return this.delete(this.URL_MONITORING + `/datasource/${datasource}`);
   }
 
 }

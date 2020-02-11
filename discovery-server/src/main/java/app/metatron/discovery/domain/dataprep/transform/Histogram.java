@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import static app.metatron.discovery.common.GlobalObjectMapper.getDefaultMapper;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.DAY;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.HOUR;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.MILLIS;
@@ -22,11 +24,14 @@ import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.NOT_USED;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.SECOND;
 import static app.metatron.discovery.domain.dataprep.transform.Histogram.Granule.YEAR;
+import static app.metatron.discovery.domain.dataprep.util.PrepUtil.transformError;
 
-import app.metatron.discovery.domain.dataprep.util.PrepUtil;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
+import app.metatron.discovery.domain.dataprep.util.PrepUtil;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,13 +128,19 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (checkMismatchMissing(rowno, obj, Map.class)) {
+      if (checkMismatchMissing(rowno, obj, String.class)) {
         continue;
       }
 
-      assert obj instanceof Map : obj;
+      Map<String, Object> objMap;
+      try {
+        objMap = getDefaultMapper().readValue((String) obj, Map.class);
+      } catch (IOException e) {
+        LOGGER.error("Cannot read JSON from a map type value", e);
+        throw transformError(MSG_DP_ALERT_FAILED_TO_PARSE_JSON, e.getMessage());
+      }
 
-      for (Object o : ((Map<String, Object>) obj).keySet()) {
+      for (Object o : objMap.keySet()) {
         String str = o.toString();
         Integer cnt = map.get(str);
         map.put(str, cnt == null ? 1 : cnt + 1);
@@ -174,11 +185,19 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (checkMismatchMissing(rowno, obj, List.class)) {
+      if (checkMismatchMissing(rowno, obj, String.class)) {
         continue;
       }
 
-      for (Object o : (List<Object>) obj) {
+      List<Object> list;
+      try {
+        list = getDefaultMapper().readValue((String) obj, List.class);
+      } catch (IOException e) {
+        LOGGER.error("Cannot read JSON from an array type value", e);
+        throw transformError(MSG_DP_ALERT_FAILED_TO_PARSE_JSON, e.getMessage());
+      }
+
+      for (Object o : list) {
         String str = o.toString();
         Integer cnt = map.get(str);
         map.put(str, cnt == null ? 1 : cnt + 1);

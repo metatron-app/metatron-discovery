@@ -14,12 +14,14 @@
 
 package app.metatron.discovery.domain.dataprep.entity;
 
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.user.UserProfile;
-import java.util.List;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+
+import java.util.List;
+
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.user.UserProfile;
 
 public class PrDatasetProjections {
 
@@ -92,9 +94,11 @@ public class PrDatasetProjections {
 
     String getSheetName();
 
-    PrDataset.FILE_FORMAT getFileFormat();
-
     String getDelimiter();
+
+    Integer getManualColumnCount();
+
+    String getQuoteChar();
 
     String getCustom();
 

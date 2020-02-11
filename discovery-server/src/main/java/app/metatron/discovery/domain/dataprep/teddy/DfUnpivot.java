@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TypeDifferentException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongGroupEveryCountException;
@@ -22,7 +21,6 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumn
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -43,43 +41,30 @@ public class DfUnpivot extends DataFrame {
 
     Expression unpivotColExpr = unpivot.getCol();
     int groupEvery = (unpivot.getGroupEvery() == null) ? 1 : unpivot.getGroupEvery();
-    List<String> unpivotColNames = new ArrayList<>();
     List<String> fixedColNames = new ArrayList<>();
 
     // group by expression -> group by colnames
-    if (unpivotColExpr instanceof Identifier.IdentifierExpr) {
-      unpivotColNames.add(((Identifier.IdentifierExpr) unpivotColExpr).getValue());
-    } else if (unpivotColExpr instanceof Identifier.IdentifierArrayExpr) {
-      unpivotColNames.addAll(((Identifier.IdentifierArrayExpr) unpivotColExpr).getValue());
-    } else {
-      throw new WrongTargetColumnExpressionException(
-              "doUnpivot(): invalid unpivot target column expression type: " + unpivotColExpr.toString());
-    }
-
-    for (String colName : unpivotColNames) {
-      if (!prevDf.colNames.contains(colName)) {
-        throw new ColumnNotFoundException("doUnpivot(): column not found: " + colName);
-      }
+    List<String> unpivotColNames = TeddyUtil.getIdentifierList(unpivotColExpr);
+    if (unpivotColNames.isEmpty()) {
+      throw new WrongTargetColumnExpressionException("doUnpivot(): invalid unpivot target column: " + unpivot);
     }
 
     if (groupEvery != 1 && groupEvery != unpivotColNames.size()) {
-      throw new WrongGroupEveryCountException(
-              "doUnpivot(): group every count should be 1 or all: " + groupEvery);
+      throw new WrongGroupEveryCountException("doUnpivot(): group every count should be 1 or all: " + groupEvery);
     }
 
-    // FIXME: 왜 여기서만 colName을 기준으로 할까? 다른 곳은 colNo를 가지고 모으고, 넣고 했는데..
-
-    // 고정 column 리스트 확보
-    for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
-      if (!unpivotColNames.contains(prevDf.getColName(colno))) {
-        fixedColNames.add(prevDf.getColName(colno));
+    // Irrelevant columns from unpivot
+    for (String colName : prevDf.colNames) {
+      if (!unpivotColNames.contains(colName)) {
+        fixedColNames.add(colName);
       }
     }
 
     for (int i = 0; i < fixedColNames.size(); i++) {
       String colName = fixedColNames.get(i);
-      this.addColumn(colName, prevDf.getColTypeByColName(colName));
+      this.addColumn(colName, prevDf.getColDescByColName(colName));
     }
+
     for (int i = 0; i < unpivotColNames.size(); i++) {
       String unpivotColName = unpivotColNames.get(i);
       ColumnType unpivotColType = prevDf.getColTypeByColName(unpivotColName);

@@ -190,10 +190,7 @@ public class WidgetController {
 
     BoardConfiguration boardConfiguration = GlobalObjectMapper.readValue(widget.getDashBoard().getConfiguration(), BoardConfiguration.class);
     if(CollectionUtils.isNotEmpty(filters)) {
-      if(boardConfiguration.getFilters() == null) {
-        boardConfiguration.setFilters(new ArrayList<>());
-      }
-      boardConfiguration.getFilters().addAll(filters);
+      boardConfiguration.setFilters(filters);
     }
 
     Object result = engineQueryService.search(getQueryRequestFromConfig(
@@ -337,10 +334,7 @@ public class WidgetController {
 
     BoardConfiguration boardConfiguration = GlobalObjectMapper.readValue(widget.getDashBoard().getConfiguration(), BoardConfiguration.class);
     if(CollectionUtils.isNotEmpty(filters)) {
-      if(boardConfiguration.getFilters() == null) {
-        boardConfiguration.setFilters(new ArrayList<>());
-      }
-      boardConfiguration.getFilters().addAll(filters);
+      boardConfiguration.setFilters(filters);
     }
 
     SearchQueryRequest searchQuery = getQueryRequestFromConfig(

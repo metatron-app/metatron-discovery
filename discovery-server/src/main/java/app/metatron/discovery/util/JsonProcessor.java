@@ -31,13 +31,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.exception.MetatronException;
@@ -61,54 +64,20 @@ public class JsonProcessor {
   }
 
   public JsonProcessor parse(List<String> lines) {
-    ObjectMapper mapper = new ObjectMapper();
-    String line;
+    String tempFileName = "TEMP_FILE_" + UUID.randomUUID().toString() + ".json";
+    String tempFilePath = System.getProperty("java.io.tmpdir") + File.separator + tempFileName;
 
-    try {
-      columnNames = Lists.newArrayList();
-      rows = Lists.newArrayList();
-      StringBuffer sb = new StringBuffer();
-      for (int i = 0; i < lines.size(); i++) {
-        Map<String, Object> jsonRow;
-        line  = lines.get(i);
-        //System.out.println(line);
-        try {
-          sb.append(line);
-          jsonRow = mapper.readValue(sb.toString(), new TypeReference<Map<String, Object>>() {});
-          sb.delete(0, sb.length());
-        } catch (JsonParseException e) {
-          LOGGER.debug("Incomplete JSON string.", e);
-          continue;
-        }
-
-        totalRows++;
-
-        if (rows.size() == maxRowCnt) {
-          break;
-        }
-
-        for (String jsonKey : jsonRow.keySet()) {
-          if (!columnNames.contains(jsonKey)) {
-            columnNames.add(jsonKey);
-          }
-        }
-
-        int colCnt = columnNames.size();
-
-        String[] row = new String[colCnt];
-        for (int j = 0; j < colCnt; j++) {
-          String colName = columnNames.get(j);
-          if (jsonRow.containsKey(colName)) {
-            Object obj = jsonRow.get(colName);
-            row[j] = (obj == null) ? null : obj.toString();
-          }
-        }
-        rows.add(row);
+    try{
+      PrintWriter printWriter = new PrintWriter(new FileOutputStream(tempFilePath));
+      for (String line : lines) {
+        printWriter.println(line);
       }
+      printWriter.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return this;
+
+    return parse("file://" + tempFilePath);
   }
 
   public JsonProcessor parse(String strUri) {
@@ -159,7 +128,6 @@ public class JsonProcessor {
       BufferedReader br = new BufferedReader(inputStreamReader);
       while ((line = br.readLine()) != null) {
         Map<String, Object> jsonRow = null;
-        System.out.println(line);
         try {
           sb.append(line);
           jsonRow = mapper.readValue(sb.toString(), new TypeReference<Map<String, Object>>() {});

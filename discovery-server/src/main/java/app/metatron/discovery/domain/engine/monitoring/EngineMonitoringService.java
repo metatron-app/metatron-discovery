@@ -21,7 +21,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +45,7 @@ import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListCriterionType;
 import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
@@ -81,6 +88,8 @@ public class EngineMonitoringService {
   String datasourceName;
 
   private Map<String, String> druidNameMap = new HashMap();
+
+  private final List<String> SERVICE_KEY_LIST = Lists.newArrayList("broker", "historical", "middleManager");
 
   public Object query(Object query) {
     EngineMonitoringRequest request = new EngineMonitoringRequest();
@@ -135,13 +144,13 @@ public class EngineMonitoringService {
     }
 
     Query query = MonitoringQuery.builder(new DefaultDataSource(datasourceName))
-                           .filters(filters)
-                           .granularity(request.getGranularity())
-                           .aggregation(aggregations)
-                           .postAggregation(postAggregations)
-                           .format(request.getResultFormat())
-                           .intervals(Lists.newArrayList(request.getFromDate(), request.getToDate()))
-                           .build();
+                                 .filters(filters)
+                                 .granularity(request.getGranularity())
+                                 .aggregation(aggregations)
+                                 .postAggregation(postAggregations)
+                                 .format(request.getResultFormat())
+                                 .intervals(Lists.newArrayList(request.getFromDate(), request.getToDate()))
+                                 .build();
 
     String queryString = GlobalObjectMapper.writeValueAsString(query);
 
@@ -200,15 +209,16 @@ public class EngineMonitoringService {
 
           for (JsonNode rowNode : engineData) {
             Map<String, Object> row = GlobalObjectMapper.getDefaultMapper().convertValue(rowNode, Map.class);
-            timeList.add(String.valueOf(row.get("event_time")));
             metric = String.valueOf(row.get("metric"));
             if ("jvm/mem/max".equals(metric)) {
+              timeList.add(String.valueOf(row.get("event_time")));
               maxMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
             } else if ("jvm/mem/used".equals(metric)) {
               usedMemList.add(Long.parseLong(String.valueOf(row.get("value"))));
             }
           }
 
+          result.put("time", timeList);
           result.put("maxMem", maxMemList);
           result.put("usedMem", usedMemList);
           break;
@@ -243,6 +253,10 @@ public class EngineMonitoringService {
   }
 
   public List getMemory(EngineMonitoringRequest queryRequest) {
+    List memList = Lists.newArrayList();
+    Map<String, Object> useMemMap = Maps.newHashMap();
+    Map<String, Object> maxMemMap = Maps.newHashMap();
+
     if (queryRequest.getMonitoringTarget() == null) {
       queryRequest.setMonitoringTarget(new EngineMonitoringTarget());
     }
@@ -255,15 +269,12 @@ public class EngineMonitoringService {
     List maxMemList = (List) result.get("maxMem");
     float useMem = new Float(String.valueOf(usedMemList.get(usedMemList.size()-1)));
     float maxMem = new Float(String.valueOf(maxMemList.get(maxMemList.size()-1)));
-
     float percentage = 100 * useMem / maxMem;
-    List memList = Lists.newArrayList();
-    Map<String, Object> useMemMap = Maps.newHashMap();
+
     useMemMap.put("name", "useMem");
     useMemMap.put("value", useMem);
     useMemMap.put("percentage", percentage);
 
-    Map<String, Object> maxMemMap = Maps.newHashMap();
     maxMemMap.put("name", "maxMem");
     maxMemMap.put("value", maxMem);
     maxMemMap.put("percentage", 100 - percentage);
@@ -295,9 +306,13 @@ public class EngineMonitoringService {
     return sizeMap;
   }
 
-  public List getDatasourceList() {
-    Optional<List> results = engineRepository.sql("SELECT datasource FROM sys.segments GROUP BY 1");
-    return results.get();
+  public int getDatasourceCount() {
+    try {
+      Optional<List> results = engineRepository.sql("SELECT datasource FROM sys.segments GROUP BY 1");
+      return results.get().size();
+    } catch (Exception e) {
+      return 0;
+    }
   }
 
   public List getSegmentCount() {
@@ -341,7 +356,7 @@ public class EngineMonitoringService {
 
   public boolean shutDownIngestionTask(String taskId) {
     try {
-        engineMetaRepository.shutDownIngestionTask(taskId);
+      engineMetaRepository.shutDownIngestionTask(taskId);
       LOGGER.info("Successfully shutdown ingestion task : {}", taskId);
     } catch (Exception e) {
       LOGGER.warn("Fail to shutdown ingestion task : {}", taskId);
@@ -442,17 +457,12 @@ public class EngineMonitoringService {
                                            "msg.engine.monitoring.ui.criterion.duration"));
         break;
       case TYPE:
-        EngineMonitoring.TaskType[] taskTypes = {
-            EngineMonitoring.TaskType.INDEX,
-            EngineMonitoring.TaskType.KAFKA,
-            EngineMonitoring.TaskType.HADOOP
-        };
-
-        for (EngineMonitoring.TaskType taskType : taskTypes) {
-          String filterName = taskType.toString();
-          criterion.addFilter(new ListFilter(criterionKey, "taskType",
-                                             taskType.toString(), filterName));
-        }
+        criterion.addFilter(new ListFilter(criterionKey, "taskType",
+                                           "index", "index"));
+        criterion.addFilter(new ListFilter(criterionKey, "taskType",
+                                           "kafka", "kafka"));
+        criterion.addFilter(new ListFilter(criterionKey, "taskType",
+                                           "hadoop", "hadoop"));
         break;
       case CREATED_TIME:
         //created_time
@@ -528,16 +538,182 @@ public class EngineMonitoringService {
     return criterion;
   }
 
+  public List<ListCriterion> getListCriterionInQuery() {
+
+    List<ListCriterion> criteria = new ArrayList<>();
+
+    //Result
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.RESULT,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.result"));
+
+    //Service
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.SERVICE,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.service"));
+
+    // Type
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.TYPE,
+                                   ListCriterionType.CHECKBOX, "msg.engine.monitoring.ui.criterion.type"));
+
+    //StartedTime
+    ListCriterion createdTimeCriterion
+        = new ListCriterion(EngineMonitoringCriterionKey.STARTED_TIME,
+                            ListCriterionType.RANGE_DATETIME, "msg.engine.monitoring.ui.criterion.started-time");
+    createdTimeCriterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.STARTED_TIME,
+                                                  "startedTimeFrom", "startedTimeTo", "", "",
+                                                  "msg.engine.monitoring.ui.criterion.started-time"));
+    criteria.add(createdTimeCriterion);
+
+    //Duration
+    /*ListCriterion durationCriterion
+        = new ListCriterion(EngineMonitoringCriterionKey.DURATION,
+                            ListCriterionType.RANGE_DATETIME, "msg.engine.monitoring.ui.criterion.duration");
+    durationCriterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.DURATION,
+                                               "durationFrom", "durationTo", "", "",
+                                               "msg.engine.monotoring.ui.criterion.duration"));
+    criteria.add(durationCriterion);*/
+
+    return criteria;
+  }
+
+  public ListCriterion getListCriterionInQueryByKey(EngineMonitoringCriterionKey criterionKey) {
+    ListCriterion criterion = new ListCriterion();
+    criterion.setCriterionKey(criterionKey);
+
+    switch (criterionKey) {
+      case RESULT:
+        criterion.addFilter(new ListFilter(criterionKey, "result",
+                                           "true", "Success"));
+        criterion.addFilter(new ListFilter(criterionKey, "result",
+                                           "false", "Fail"));
+        break;
+      case SERVICE:
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           "broker", "Broker"));
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           "historical", "Historical"));
+        criterion.addFilter(new ListFilter(criterionKey, "service",
+                                           "middleManager", "Middle Manager"));
+        break;
+      case TYPE:
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "groupBy", "groupBy"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "schema", "schema"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "search", "search"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "segmentMetadata", "segmentMetadata"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "select", "select"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "select.stream", "select.stream"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "selectMeta", "selectMeta"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "sketch", "sketch"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "timeBoundary", "timeBoundary"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "timeseries", "timeseries"));
+        criterion.addFilter(new ListFilter(criterionKey, "type",
+                                           "unionAll", "unionAll"));
+        break;
+      case STARTED_TIME:
+        //started_time
+        criterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.STARTED_TIME,
+                                           "startedTimeFrom", "startedTimeTo", "", "",
+                                           "msg.engine.monitoring.ui.criterion.started-time"));
+        break;
+      case DURATION:
+        criterion.addFilter(new ListFilter(EngineMonitoringCriterionKey.DURATION,
+                                           "durationFrom", "durationTo", "", "",
+                                           "msg.engine.monitoring.ui.criterion.duration"));
+        break;
+      default:
+        break;
+    }
+
+    return criterion;
+  }
+
+  public List getQueryList(EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("SELECT \"context.queryId\" AS \"queryId\", \"success\" AS \"result\", \"service\", CASE WHEN \"service\" = '");
+    sb.append(getDruidName("broker"));
+    sb.append("' THEN 'Broker' WHEN \"service\" = '");
+    sb.append(getDruidName("historical"));
+    sb.append("' THEN 'Historical' WHEN \"service\" = '");
+    sb.append(getDruidName("middleManager"));
+    sb.append("' THEN 'Middle Manager' END AS \"serviceName\"");
+    sb.append(", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"");
+    sb.append(datasourceName);
+    sb.append("\" WHERE metric = 'query/time'");
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getResult())) {
+      sb.append(" AND \"success\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getResult()));
+      sb.append("') ");
+    }
+
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getService())) {
+      List<String> serviceList = (List<String>)CollectionUtils.collect(engineMonitoringQueryRequest.getService(), new Transformer<String, String>() {
+        @Override
+        public String transform(String service) {
+          return getDruidName(service);
+        }
+      });
+      sb.append(" AND \"service\" IN ('");
+      sb.append(String.join("', '", serviceList));
+      sb.append("') ");
+    }
+    if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getType())) {
+      sb.append(" AND \"type\" IN ('");
+      sb.append(String.join("', '", engineMonitoringQueryRequest.getType()));
+      sb.append("') ");
+    }
+
+    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeFrom())) {
+      sb.append(" AND  TIMESTAMP '");
+      DateTime startTimeFrom = new DateTime(engineMonitoringQueryRequest.getStartedTimeFrom()).withZone(DateTimeZone.UTC);
+      sb.append(startTimeFrom.toString(dateTimeFormatter));
+      sb.append("' <= \"__time\" ");
+    }
+    if (StringUtils.isNotEmpty(engineMonitoringQueryRequest.getStartedTimeTo())) {
+      sb.append(" AND \"__time\" <= TIMESTAMP '");
+      DateTime startTimeTo = new DateTime(engineMonitoringQueryRequest.getStartedTimeTo()).withZone(DateTimeZone.UTC);
+      sb.append(startTimeTo.toString(dateTimeFormatter));
+      sb.append("' ");
+    }
+    sb.append(" ORDER BY \"" );
+    sb.append(engineMonitoringQueryRequest.getKey());
+    sb.append("\" ");
+    sb.append(engineMonitoringQueryRequest.getSort().toUpperCase());
+    sb.append(" LIMIT ");
+    if (engineMonitoringQueryRequest.getLimit() != null) {
+      sb.append(engineMonitoringQueryRequest.getLimit());
+    } else {
+      sb.append("1000");
+    }
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
+    return results.get();
+  }
+
+  public List getRunningIds() {
+    Optional<List> results = engineRepository.getRunningIds();
+    return results.get();
+  }
+
   private void setFiltersByType(List<Filter> filters, EngineMonitoringTarget monitoringTarget) {
-    if ( monitoringTarget.getHost() != null ) {
+    if (StringUtils.isNotEmpty(monitoringTarget.getHost())) {
       filters.add(new SelectorFilter("host", monitoringTarget.getHost()));
     }
 
-    if ( monitoringTarget.getService() != null ) {
-      filters.add(new SelectorFilter("service", monitoringTarget.getService()));
+    if (StringUtils.isNotEmpty(monitoringTarget.getService())) {
+      filters.add(new SelectorFilter("service", getDruidName(monitoringTarget.getService())));
     }
 
-    if ( monitoringTarget.getTaskId() != null ) {
+    if (StringUtils.isNotEmpty(monitoringTarget.getTaskId())) {
       filters.add(new SelectorFilter("taskId", monitoringTarget.getTaskId()));
     }
 
@@ -556,7 +732,9 @@ public class EngineMonitoringService {
         break;
       case QUERY_COUNT:
         filters.add(new SelectorFilter("metric", "query/time"));
-        filters.add(new SelectorFilter("service", getDruidName("broker")));
+        if (monitoringTarget.getService() == null) {
+          filters.add(new SelectorFilter("service", getDruidName("broker")));
+        }
         break;
       case SUPERVISOR_LAG:
         filters.add(new SelectorFilter("metric", "ingest/kafka/lag"));
@@ -569,14 +747,136 @@ public class EngineMonitoringService {
     }
   }
 
+  public List getDatasourceList() {
+    List datasourceMeta = getDatasourceMeta();
+    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments GROUP BY 1");
+    List datasourceList = results.get();
+    for (Object result : datasourceList) {
+      Map datasource = GlobalObjectMapper.getDefaultMapper().convertValue(result, Map.class);
+      for (Object meta : datasourceMeta) {
+        Map metaDatasource = GlobalObjectMapper.getDefaultMapper().convertValue(meta, Map.class);
+        if (metaDatasource.get("name").equals(datasource.get("datasource"))) {
+          datasource.put("segments", MapUtils.getMap(MapUtils.getMap(metaDatasource, "properties"), "segments"));
+          break;
+        }
+      }
+    }
+    return datasourceList;
+  }
+
+  public List getDatasourceMeta() {
+    Map paramMap = Maps.newHashMap();
+    paramMap.put("simple", null);
+    Optional<List> results = engineRepository.meta(paramMap);
+    return results.get();
+  }
+
+  public List getDatasourceListIncludeDisabled() {
+    Optional<List> results = engineRepository.getDatasourceListIncludeDisabled();
+    return results.get();
+  }
+
+  public Map getDatasourceLoadStatus() {
+    Optional<Map> results = engineRepository.getDatasourceLoadStatus();
+    return results.get();
+  }
+
+  public Map getDatasourceRules() {
+    Optional<Map> results = engineRepository.getDatasourceRules();
+    return results.get();
+  }
+
+  public Map getDatasourceDetail(String datasourceId) {
+    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments WHERE \"datasource\" = '" + datasourceId + "' GROUP BY 1");
+    if (CollectionUtils.isNotEmpty(results.get())) {
+      return GlobalObjectMapper.getDefaultMapper().convertValue(results.get().get(0), Map.class);
+    } else {
+      throw new ResourceNotFoundException(datasourceId);
+    }
+  }
+
+  public Map getDatasourceStatus(String datasourceId) {
+    Optional<Map> results = engineRepository.getDatasourceStatus(datasourceId);
+    return results.get();
+  }
+
+  public List getDatasourceRule(String datasourceId) {
+    Optional<List> results = engineRepository.getDatasourceRule(datasourceId);
+    return results.get();
+  }
+
+  public void setDatasourceRule(String datasourceId, List retention) {
+    engineRepository.setDatasourceRule(datasourceId, retention);
+  }
+
+  public Map getDatasourceIntervals(String datasourceId) {
+    Optional<Map> results = engineRepository.getDatasourceIntervals(datasourceId);
+    return results.get();
+  }
+
+  public Map getDatasourceIntervalStatus(String datasourceId, String interval) {
+    Optional<Map> results = engineRepository.getDatasourceIntervalStatus(datasourceId, interval);
+    return results.get();
+  }
+
+  public void enableDatasource(String datasourceId) {
+    engineMetaRepository.enableDataSource(datasourceId);
+  }
+
+  public void disableDatasource(String datasourceId) {
+    engineMetaRepository.disableDataSource(datasourceId);
+  }
+
+  public void permanentlyDeleteDataSource(String datasourceId) {
+    engineMetaRepository.permanentlyDeleteDataSource(datasourceId);
+  }
+
+  public List<ListCriterion> getListCriterionInDatasource() {
+
+    List<ListCriterion> criteria = new ArrayList<>();
+
+    //Status
+    criteria.add(new ListCriterion(EngineMonitoringCriterionKey.AVAILABILITY,
+                                   ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.status"));
+
+    return criteria;
+  }
+
+  public ListCriterion getListCriterionInDatasourceByKey(EngineMonitoringCriterionKey criterionKey) {
+    ListCriterion criterion = new ListCriterion();
+    criterion.setCriterionKey(criterionKey);
+
+    switch (criterionKey) {
+      case AVAILABILITY:
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "fully", "msg.engine.monitoring.ui.criterion.fully"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "partially", "msg.engine.monitoring.ui.criterion.partially"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "indexing", "msg.engine.monitoring.ui.criterion.indexing"));
+        criterion.addFilter(new ListFilter(criterionKey, "availability",
+                                           "disabled", "msg.engine.monitoring.ui.criterion.disabled"));
+        break;
+      default:
+        break;
+    }
+
+    return criterion;
+  }
+
   private String getDruidName(String configName) {
-    String druidName = druidNameMap.get(configName);
-    if (StringUtils.isEmpty(druidName)) {
+    if (SERVICE_KEY_LIST.contains(configName)) {
+      String druidName = druidNameMap.get(configName);
+      if (StringUtils.isEmpty(druidName)) {
         HashMap configs = getConfigs(configName);
         druidName = String.valueOf(configs.get("druid.service"));
         druidNameMap.put(configName, druidName);
       }
-    return druidName;
+      return druidName;
+    } else {
+      return configName;
+    }
+
   }
 
 }

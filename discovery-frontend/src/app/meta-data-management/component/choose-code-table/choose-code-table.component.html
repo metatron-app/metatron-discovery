@@ -85,10 +85,12 @@
                     (click)="onSelectCodeTable(table)"
                     *ngFor="let table of codeTableList; let idx = index">
                   <td>
-                    <a href="javascript:" class="ddp-link-detail ddp-type" (click)="onClickTableName(table.id)">
-                      {{table.name}}
-                      <em class="ddp-icon-window"></em>
-                    </a>
+                    <div class="ddp-txt-long">
+                      <a href="javascript:" class="ddp-link-detail ddp-type" (click)="onClickTableName(table.id)">
+                        {{table.name}}
+                        <em class="ddp-icon-window"></em>
+                      </a>
+                    </div>
                   </td>
                   <td>
                     <div class=" ddp-txt-long">
@@ -133,7 +135,7 @@
                             </tr>
                             </tbody>
                           </table>
-                          <a href="javascript:" class="ddp-link-detail" (click)="onClickCodeTableDetails(table)">{{'msg.storage.btn.detail' | translate}}</a>
+                          <a href="javascript:" class="ddp-link-detail" (click)="isShowPopCodeTable = true;">{{'msg.storage.btn.detail' | translate}}</a>
                         </div>
                       </div>
                       <!-- //popup -->
@@ -160,3 +162,5 @@
 <!-- 코드 테이블 생성 컴포넌트 -->
 <app-create-code-table (createComplete)="getCodeTableListPageInit()"></app-create-code-table>
 <!-- //코드 테이블 생성 컴포넌트 -->
+
+<popup-code-table *ngIf="isShowPopCodeTable" [codeTableId]="selectedCodeTable?.id" (closeEvent)="isShowPopCodeTable = false;"></popup-code-table>

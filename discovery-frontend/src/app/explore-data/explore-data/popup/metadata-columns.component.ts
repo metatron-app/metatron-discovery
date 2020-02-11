@@ -30,7 +30,14 @@ export class MetadataColumnsComponent extends AbstractComponent {
   public metadataId: string;
 
   @ViewChildren('codeTablePreview')
-  public codeTablePreview: QueryList<ElementRef>;
+  public codeTablePreview: ElementRef;
+  @ViewChildren('codeTable')
+  private _codeTable: ElementRef;
+
+  @ViewChildren('dictionaryPreview')
+  public dictionaryPreview: ElementRef;
+  @ViewChildren('dictionary')
+  private readonly dictionary: ElementRef;
 
   public columns: MetadataColumn[];
 
@@ -77,12 +84,41 @@ export class MetadataColumnsComponent extends AbstractComponent {
     column.format.isShowTimestampValidPopup = true;
   }
 
+  public onHoverOpenDictionary(column, index) {
+    if (column['isShowDictionary']) {
+      return;
+    }
+
+    // Only open if code table name exits
+    if (!column.dictionary) {
+      return;
+    }
+
+    this.columns.forEach((item) => {
+      item['isShowDictionary'] = false;
+    });
+
+    column.isShowDictionary = true;
+    this.safelyDetectChanges();
+
+    const table = this.dictionary[ '_results' ][ index ].nativeElement;
+    const preview = this.dictionaryPreview[ '_results' ][ index ].nativeElement;
+
+    this.changeDetect.detectChanges();
+
+    preview.style.top = (table.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
+      ? (table.getBoundingClientRect().top - preview.offsetHeight + 'px')
+      : (table.getBoundingClientRect().top + 15 + 'px');
+    preview.style.left = table.getBoundingClientRect().left + 'px';
+
+  }
+
   /**
    * Code Table open detail popup
    * @param column
    * @param idx
    */
-  public onClickOpenCodeTable(column, idx) {
+  public onHoverOpenCodeTable(column, index) {
     if (column['isShowCodeTable']) {
       return;
     }
@@ -105,18 +141,32 @@ export class MetadataColumnsComponent extends AbstractComponent {
       // open Close
       column.isShowCodeTable = true;
 
-      // find popup top (css)
-      const current = this.codeTablePreview.toArray()[idx].nativeElement;
-      const parent = this.codeTablePreview.toArray()[idx].nativeElement.parentNode;
+      this.safelyDetectChanges();
 
-      current.style.top = (parent.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
-        ? (parent.getBoundingClientRect().top - parent.offsetHeight + 'px')
-        : (parent.getBoundingClientRect().top + 25 + 'px');
-      current.style.left = parent.getBoundingClientRect().left + 'px';
+      // find popup top (css)
+      const table = this._codeTable[ '_results' ][ index ].nativeElement;
+      const preview = this.codeTablePreview[ '_results' ][ index ].nativeElement;
+
+      preview.style.top = (table.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
+        ? (table.getBoundingClientRect().top - preview.offsetHeight + 'px')
+        : (table.getBoundingClientRect().top + 15 + 'px');
+      preview.style.left = table.getBoundingClientRect().left + 'px';
 
     }).catch(error => {
       this.commonExceptionHandler(error)
     });
+  }
+
+  public onHideCodeTable(metadataColumn) {
+    event.stopImmediatePropagation();
+    // 해당 코드테이블 레이어 팝업 show flag
+    metadataColumn.codeTable && (metadataColumn.isShowCodeTable = !metadataColumn.isShowCodeTable);
+  }
+
+  public onHideDictionary(metadataColumn) {
+    event.stopImmediatePropagation();
+    // 해당 코드테이블 레이어 팝업 show flag
+    metadataColumn.dictionary && (metadataColumn.isShowDictionary = !metadataColumn.isShowDictionary);
   }
 
   /**
@@ -125,6 +175,7 @@ export class MetadataColumnsComponent extends AbstractComponent {
   public onScroll() {
     this.columns.forEach((item) => {
       item['isShowCodeTable'] = false;
+      item['isShowDictionary'] = false;
     })
   }
 
@@ -139,6 +190,7 @@ export class MetadataColumnsComponent extends AbstractComponent {
       // remove item with name == 'current_datetime'
       this.columns = result.filter((item) => {
         item['isShowCodeTable'] = false;
+        item['isShowDictionary'] = false;
         return item.name !== 'current_datetime'
       });
 

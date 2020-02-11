@@ -27,7 +27,7 @@ import {
 } from '@angular/core';
 import {DashboardService} from '../../service/dashboard.service';
 import {CommonCode} from '../../../domain/code/common-code';
-import {ConnectionType, Field, FieldRole} from '../../../domain/datasource/datasource';
+import {Field, FieldRole} from '../../../domain/datasource/datasource';
 import {AbstractComponent} from '../../../common/component/abstract.component';
 import {Alert} from '../../../common/util/alert.util';
 import {BoardDataSource} from '../../../domain/dashboard/dashboard';
@@ -248,7 +248,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     this._$calculationInput.attr('placeholder', this.translateService.instant('msg.board.custom.ui.content.placeholder'));
 
     // 계산식 에디터 변경 감지
-    this._$calculationInput.bind('input', () => {
+    this._$calculationInput.on('input', () => {
       this.calValidButtonCheck();
       this.isCalFuncSuccess = null;
     });
@@ -608,10 +608,13 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     if (this._$calculationInput.text().hasOwnProperty(length) && this._$calculationInput.text().length > 0) {
       let expr = this._$calculationInput.text();
       expr = expr.replace(/[[\]]/g, '"');
+      expr = expr.replace(/" *"\d"/g, (text) => {
+        return '"[' + text.substring(text.indexOf('"', 1) + 1, text.lastIndexOf('"')) + ']'
+      });
       expr = StringUtil.trim(expr);
 
       const cloneDs:BoardDataSource = _.cloneDeep( this.dataSource );
-      if( ConnectionType.LINK.toString() === cloneDs.connType && !isNullOrUndefined(cloneDs.engineName) ) {
+      if( !isNullOrUndefined(cloneDs.engineName) ) {
         cloneDs.name = cloneDs.engineName;
       }
       const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs) };

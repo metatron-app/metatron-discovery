@@ -246,7 +246,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Limit limit = new Limit();
     limit.setLimit(1000);
     limit.setSort(Lists.newArrayList(
-            new Sort("OrderDate", "DESC")
+            new Sort("OrderDate", "DESC"),
+            new Sort("Category", "ASC"),
+            new Sort("Sales", "DESC")
     ));
 
     List<Filter> filters = Lists.newArrayList(
@@ -263,85 +265,6 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
-
-    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
-
-    // @formatter:off
-    given()
-            .auth().oauth2(oauth_token)
-            .body(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request))
-            .contentType(ContentType.JSON)
-            .log().all()
-            .when()
-            .post("/api/datasources/query/search")
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .log().all();
-    // @formatter:on
-
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
-  @Sql(value = {"/sql/test_workbook.sql", "/sql/test_mdm.sql"})
-  public void searchQuerySelectForSalesForStream() throws JsonProcessingException {
-
-    String dataSourceId = "ds-gis-37";
-    String dashboardId = "db-005";
-    String fieldName = "Category";
-
-    DataSourceAlias createAlias = new DataSourceAlias();
-    createAlias.setDataSourceId(dataSourceId);
-    createAlias.setDashBoardId(dashboardId);
-    createAlias.setFieldName(fieldName);
-    Map<String, Object> valueMap = TestUtils.makeMap("Furniture", "가구",
-            "Office Supplies", "사무용품",
-            "Technology", "가전");
-    createAlias.setValueAlias(GlobalObjectMapper.writeValueAsString(valueMap));
-
-    // @formatter:off
-    Response createResponse =
-            given()
-                    .auth().oauth2(oauth_token)
-                    .contentType(ContentType.JSON)
-                    .body(createAlias)
-                    .log().all()
-                    .when()
-                    .post("/api/datasources/aliases");
-
-    createResponse.then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all();
-    // @formatter:on
-
-    DataSource dataSource1 = new DefaultDataSource("sales_geo");
-
-    // Limit
-    Limit limit = new Limit();
-    limit.setLimit(1000);
-    limit.setSort(Lists.newArrayList(
-            new Sort("OrderDate", "DESC")
-    ));
-
-    List<Filter> filters = Lists.newArrayList(
-            new IntervalFilter("OrderDate", "2011-01-04T00:00:00.000", "2012-05-19T00:00:00.000"),
-            new LikeFilter("Category", "T_chnology")
-    );
-
-    DimensionField dimAliasField = new DimensionField("Category");
-
-    List<Field> projections = Lists.newArrayList(
-            new TimestampField("OrderDate"),
-            new DimensionField("City"),
-            new DimensionField("Sub-Category"),
-            new DimensionField("Category"),
-            new DimensionField("location"),
-            new MeasureField("Sales", MeasureField.AggregationType.NONE)
-    );
-
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
-    request.setValueAliasRef("db-005");
-    request.setContext(TestUtils.makeMap(SearchQueryRequest.CXT_KEY_USE_STREAM, true));
 
     System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
 
@@ -2970,6 +2893,50 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             .then()
             .log().all()
             .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void groupbyNestedQueryForUserDefined() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(50000);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    ExpressionField expressionField1 = new ExpressionField("r_symbol", "SUBSTRING( \"Region\" , 0, 1 )", "dimension",
+            false);
+    ExpressionField expressionField2 = new ExpressionField("case_test",
+            "CASE( \"r_symbol\" == 'C',  count_sales, \"r_symbol\" == 'E',  count_sales, 0 )", "measure", true);
+    ExpressionField expressionField3 = new ExpressionField("count_sales", "COUNTOF( \"Sales\" )", "measure", true);
+    ExpressionField expressionField4 = new ExpressionField("sales_plus", "\"Sales\"+1", "measure", false);
+
+    DimensionField dimField = new DimensionField("r_symbol", "r_symbol", "user_defined", null);
+    MeasureField mField1 = new MeasureField("case_test", "case_test", "user_defined");
+
+    SearchQueryRequest request = new SearchQueryRequest();
+    request.setDataSource(dataSource1);
+    request.setFilters(filters);
+    request.setProjections(Lists.newArrayList(dimField, mField1));
+    request.setUserFields(Lists.newArrayList(expressionField1, expressionField2, expressionField3));
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
     // @formatter:on
   }
 

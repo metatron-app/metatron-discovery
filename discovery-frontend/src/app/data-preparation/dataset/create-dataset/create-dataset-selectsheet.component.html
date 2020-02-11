@@ -172,6 +172,25 @@
                     <!-- //edit option -->
                   </div>
                   <!-- //edit -->
+                  <div style="clear: both;" ></div>
+                  <!-- edit -->
+                  <div class="ddp-wrap-edit3 ddp-type ddp-error" [ngStyle]="{'display': !isCSV?'none':''}">
+                    <label class="ddp-label-type">{{'msg.dp.th.quote' | translate}}</label>
+                    <!-- edit option -->
+                    <div class="ddp-ui-edit-option ddp-type">
+
+                      <!-- apply -->
+                      <div class="ddp-input-apply ddp-edit" [ngClass]="{'ddp-disabled': !isCSV}">
+                        <input type="text" placeholder="{{'msg.dp.th.quote.ph' | translate}}"
+                               class="ddp-input-txt" [(ngModel)]="currQuote"
+                               (keydown)="keyDownEvent($event, 'quoteChar')">
+                        <em class="ddp-icon-apply" (click)="changeQuote()"></em>
+                      </div>
+                      <!-- //apply -->
+                    </div>
+                    <!-- //edit option -->
+                  </div>
+                  <!-- //edit -->
                 </div>
               </div>
 

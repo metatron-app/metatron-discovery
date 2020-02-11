@@ -61,7 +61,7 @@ public class TeddyImpl {
 
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyImpl.class);
 
-  Map<String, RevisionSet> revisionSetCache = Maps.newHashMap();
+  Map<String, RevisionSet> revisionSetCache = Maps.newLinkedHashMap();
 
   @Autowired(required = false)
   PrepTransformService transformService;
@@ -246,24 +246,18 @@ public class TeddyImpl {
     return revisionSetCache.get(dsId).isRedoable();
   }
 
-  public void delete(String dsId, int stageIdx)
-          throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
-    Revision rev = getCurRev(
-            dsId);     // rule apply == revision generate, so always use the last one.
-    Revision newRev = new Revision(rev,
-            stageIdx);   // apply previous rules until the delete target.
+  public void delete(String dsId, int stageIdx) throws TransformExecutionFailedException, TransformTimeoutException {
+    Revision rev = getCurRev(dsId);                 // rule apply == revision generate, so always use the last one.
+    Revision newRev = new Revision(rev, stageIdx);  // apply previous rules until the delete target.
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
     addRev(dsId, newRev);
   }
 
-  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString)
-          throws TeddyException {    // used in DELETE only
-    Revision rev = getCurRev(
-            dsId);     // rule apply == revision generate, so always use the last one.
-    Revision newRev = new Revision(rev,
-            stageIdx);   // apply previous rules until the update target.
+  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString) throws TeddyException {
+    Revision rev = getCurRev(dsId);                 // rule apply == revision generate, so always use the last one.
+    Revision newRev = new Revision(rev, stageIdx);  // apply previous rules until the update target.
 
     // replace with the new, updated DF
     DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString, jsonRuleString);
@@ -272,15 +266,14 @@ public class TeddyImpl {
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
-    newRev.saveSlaveDsNameMap(
-            getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
+    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
 
     addRev(dsId, newRev);
   }
 
-  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter,
+  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String quoteChar,
           Integer columnCount, String dsName) {
-    DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    DataFrame df = new DataFrame(dsName);   // to provide dataset name in join, union
     Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(false));
     int samplingRows = prepProperties.getSamplingLimitRows();
 
@@ -290,7 +283,13 @@ public class TeddyImpl {
         df.setByGrid(PrepJsonUtil.parse(strUri, samplingRows, columnCount, hadoopConf));
         break;
       default: // csv
-        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, samplingRows, columnCount, hadoopConf));
+        PrepCsvUtil csvUtil = PrepCsvUtil.DEFAULT
+                .withDelim(delimiter)
+                .withQuoteChar(quoteChar)
+                .withLimitRows(samplingRows)
+                .withManualColCnt(columnCount)
+                .withHadoopConf(hadoopConf);
+        df.setByGrid(csvUtil.parse(strUri));
     }
 
     return createStage0(dsId, df);
@@ -327,7 +326,7 @@ public class TeddyImpl {
       throw PrepException.create(PREP_TEDDY_ERROR_CODE, e);
     }
 
-    DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
+    DataFrame df = new DataFrame(dsName);   // dsName is for join/union to display the dataset name instead of id)
 
     try {
       df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
@@ -339,8 +338,7 @@ public class TeddyImpl {
     return createStage0(dsId, df);
   }
 
-  public DataFrame loadJdbcDataFrame(DataConnection dataConnection, String sql, int limit,
-          String dsName) {
+  public DataFrame loadJdbcDataFrame(DataConnection dataConnection, String sql, int limit, String dsName) {
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(dataConnection);
     Connection conn;
     Statement stmt = null;
@@ -615,5 +613,23 @@ public class TeddyImpl {
     }
 
     return df;
+  }
+
+  public void datasetCacheOut() {
+    int curSize = revisionSetCache.size();
+    int targetSize = prepProperties.getSamplingCacheSize();
+    int idleTime = prepProperties.getSamplingIdleTime();
+    LOGGER.debug("datasetCacheOut(): curSize={} targetSize()={} idleTime={}", curSize, targetSize, idleTime);
+
+    for (String key : revisionSetCache.keySet()) {
+      if (curSize <= targetSize) {
+        return;
+      }
+
+      RevisionSet rs = revisionSetCache.get(key);
+      if (rs.isIdle(idleTime)) {
+        revisionSetCache.remove(key);
+      }
+    }
   }
 }

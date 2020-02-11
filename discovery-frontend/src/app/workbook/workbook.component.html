@@ -517,7 +517,6 @@
 <app-update-dashboard *ngIf="mode == 'UPDATE'"
                       [startupCmd]="updateDashboardStartupCmd"
                       [workbook]="workbook"
-                      [dashboard]="selectedDashboard"
                       [dashboards]="dashboards"
                       (changeMode)="changeMode($event)"
                       (updateComplete)="updateCompleteDashboard($event)"

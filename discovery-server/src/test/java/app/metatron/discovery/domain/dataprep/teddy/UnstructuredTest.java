@@ -38,7 +38,7 @@ public class UnstructuredTest extends TeddyTest {
   @Test
   public void test_unstructured() throws IOException, TeddyException {
     DataFrame unstructured = new DataFrame();
-    unstructured.setByGrid(grids.get("unstructured"), null);
+    unstructured.setByGrid(grids.get("unstructured"));
     unstructured = prepare_unstructured(unstructured);
     unstructured.show();
   }

@@ -61,6 +61,7 @@ import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
 import app.metatron.discovery.spec.druid.ingestion.parser.*;
 
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.ALL;
+import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.INCREMENTAL;
 
 public class AbstractSpecBuilder {
 
@@ -148,6 +149,11 @@ public class AbstractSpecBuilder {
     if (dataSource.getIngestionInfo() instanceof BatchIngestionInfo
         && ((BatchIngestionInfo) dataSource.getIngestionInfo()).getRange() == ALL) {
       granularitySpec.setAppend(false);
+    } else if (dataSource.getIngestionInfo() instanceof BatchIngestionInfo
+        && ((BatchIngestionInfo) dataSource.getIngestionInfo()).getRange() == INCREMENTAL) {
+      granularitySpec.setAppend(true);
+    } else {
+      granularitySpec.setAppend(dataSource.getAppend());
     }
 
     dataSchema.setGranularitySpec(granularitySpec);

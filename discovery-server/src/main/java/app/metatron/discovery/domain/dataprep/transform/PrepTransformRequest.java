@@ -23,6 +23,7 @@ public class PrepTransformRequest implements Serializable {
   private Integer ruleIdx;
   private String ruleString;
   private String uiRuleString;
+  private String predefinedDsName;
 
   private Integer count;
 
@@ -44,6 +45,10 @@ public class PrepTransformRequest implements Serializable {
 
   public String getUiRuleString() {
     return uiRuleString;
+  }
+
+  public String getPredefinedDsName() {
+    return predefinedDsName;
   }
 
   public Integer getCount() {

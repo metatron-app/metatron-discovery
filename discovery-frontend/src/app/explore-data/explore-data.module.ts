@@ -17,7 +17,7 @@ import {RouterModule} from "@angular/router";
 import {EventBroadcaster} from "../common/event/event.broadcaster";
 import {NgModule} from "@angular/core";
 import {FavoriteDataComponent} from "./favorite/favorite-data.component";
-import {FavoriteCreatorComponent} from "./favorite/favorite-creator.component";
+import {DataCreatorComponent} from "./favorite/data-creator.component";
 import {ExploreDataComponent} from "./explore-data/explore-data.component";
 import {MetadataContainerComponent} from "./explore-data/popup/metadata-container.component";
 import {MetadataColumnsComponent} from "./explore-data/popup/metadata-columns.component";
@@ -51,11 +51,12 @@ import {CreateWorkbenchModule} from "../workbench/component/create-workbench/ref
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 import {ExploreCatalogLayerComponent} from "./explore-data/component/explore-catalog-layer.component";
 import {CreateWorkbookModule} from "../workbook/component/create-workbook/refactoring/create-workbook.module";
-import {ConfirmRefModalComponent} from "../common/component/modal/confirm/confirm-ref.component";
 import {MetadataUsedWorkspaceComponent} from "./explore-data/component/metadata-used-workspace.component";
 import {ExploreDataUtilService} from "./explore-data/service/explore-data-util.service";
 import {UpdatedTimeRadioFilter} from "./explore-data/component/updated-time-radio-filter.component";
 import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.module";
+import {MetadataDataCreatorDataListComponent} from "./explore-data/popup/metadata-data-creator-data-list.component";
+import {DataCreatorDetailComponent} from "./favorite/data-creator-detail.component";
 
 @NgModule({
   imports: [
@@ -67,15 +68,14 @@ import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.m
       {path: '', redirectTo: 'view', pathMatch: 'full'},
       {path: 'view', component: ExploreDataComponent},
       {path: 'favorite/data', component: FavoriteDataComponent},
-      {path: 'favorite/creator', component: FavoriteCreatorComponent}
+      {path: 'favorite/creator', component: DataCreatorComponent},
+      {path: 'favorite/creator/:username', component: DataCreatorDetailComponent}
     ]),
     DataStorageCriteriaModule,
   ],
   declarations: [
-    ConfirmRefModalComponent,
     ExploreDataInformationComponent,
     ExploreDataUserCardComponent,
-    MetadataTypeBoxTagComponent,
     PopularityLayerComponent,
     LogicalNameLayerComponent,
     MetadataSvgComponent,
@@ -86,7 +86,9 @@ import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.m
     CatalogFolderComponent,
     ExploreDataComponent,
     FavoriteDataComponent,
-    FavoriteCreatorComponent,
+    DataCreatorComponent,
+    DataCreatorDetailComponent,
+    MetadataDataCreatorDataListComponent,
     MetadataContainerComponent,
     MetadataColumnsComponent,
     MetadataOverviewComponent,
@@ -99,7 +101,6 @@ import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.m
     ExploreDataListComponent,
     ExploreDataSearchComponent,
     ExploreDataLnbComponent,
-    MetadataTypeBoxTagComponent
   ],
   providers: [
     MetadataService,

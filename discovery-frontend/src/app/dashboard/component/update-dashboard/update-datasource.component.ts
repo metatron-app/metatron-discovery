@@ -16,13 +16,15 @@ import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
+  EventEmitter,
   Injector,
   Input,
-  OnInit,
   OnDestroy,
-  ViewChild,
-  EventEmitter,
-  Output, SimpleChanges, SimpleChange
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
@@ -115,9 +117,9 @@ export class UpdateDatasourceComponent extends AbstractPopupComponent implements
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 다음 단계로 이동
+   * 저장
    */
-  public next() {
+  public save() {
     if( this.networkBoardComp.isInvalidate() ) {
       return;
     }
@@ -131,12 +133,16 @@ export class UpdateDatasourceComponent extends AbstractPopupComponent implements
       // 데이터소스 & 연관관계 설정
       this.dashboard = DashboardUtil.setDataSourceAndRelations( this.dashboard, data.boardDataSources, data.relations );
       this.dashboard.configuration.dataSource = this.dashboard.dataSource;
-      this.dashboard.dataSources = data.dataSources;
+      this.dashboard.dataSources = data.dataSources.map(ds => {
+        // 대시보드에 데이터소스를 add 할 수 있다는 건 이미 valid 하다는 것을 의미
+        ds.valid = true;
+        return ds;
+      });
 
       this.onDoneEvent.emit( this.dashboard );
     };
     CommonUtil.confirm(modal);
-  } // function - next
+  } // function - save
 
   /**
    * 컴포넌트 닫기
@@ -155,8 +161,9 @@ export class UpdateDatasourceComponent extends AbstractPopupComponent implements
    * Done 완료 가능 여부 체크
    * @param {boolean} isDenyDone
    */
-  public checkAllowDone(isDenyDone:boolean) {
-    this.isDenyDone = isDenyDone;
+  public checkAllowDone(data: { isDenyNext?: boolean, isShowButtons?: boolean }) {
+    (data.hasOwnProperty('isDenyNext')) && (this.isDenyDone = data.isDenyNext);
+    this.safelyDetectChanges();
   } // function - checkAllowDone
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -33,8 +33,8 @@
       </tr>
       </tbody>
     </table>
-    <div class="ddp-wrap-datapreview">
-      <div class="ddp-box-preview" *ngIf="clearGrid">
+    <div class="ddp-wrap-datapreview" style="padding-bottom: 0;">
+      <div *ngIf="clearGrid" class="ddp-box-preview" >
         <div class="ddp-ui-empty" >
           {{'msg.dp.ui.no.preview' | translate}}
         </div>

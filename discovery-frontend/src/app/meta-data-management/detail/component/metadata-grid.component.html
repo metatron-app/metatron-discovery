@@ -14,6 +14,7 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
+
   <!-- guide message -->
   <div class="ddp-box-message" *ngIf="isDatasourceTypeMetadata() && isLinkedSourceType()">
     <!-- if only linked source -->
@@ -110,7 +111,9 @@
     -->
     <div class="ddp-fix-grid meta-grid-type" grid-component
          [class.meta-grid]="isDatasourceTypeMetadata()" [class.ddp-msg-info2]="isDatasourceTypeMetadata() && isLinkedSourceType() && isExistCreatedField"
-         (onHeaderRowCellRendered)="extendGridHeader($event)">
+         (onHeaderRowCellRendered)="extendGridHeader($event)"
+         [ngStyle]="{'top' : isDatasourceTypeMetadata() && isLinkedSourceType() ? '260px' : ''}"
+    >
     </div>
     <!-- //fix grid -->
   </div>

@@ -18,6 +18,8 @@ import static app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes.P
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_JDBC_CONNECTION_ERROR;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_TO;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_SERIALIZE_INTO_JSON;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_UNNEST_EMPTY_COLUMN;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_NOT_CONTINUOUS;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_NOT_FOUND;
 import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_TEDDY_COLUMN_TYPE_SHOULD_BE_DOUBLE_OR_LONG;
@@ -79,6 +81,8 @@ import app.metatron.discovery.common.exception.ErrorCodes;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotCastFromException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotCastToException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotUnnestEmptyColumnException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotContinuousException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnTypeShouldBeDoubleOrLongException;
@@ -216,6 +220,10 @@ public class PrepException extends MetatronException {
       return fromTeddy(e, MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM);
     } else if (e instanceof CannotCastToException) {
       return fromTeddy(e, MSG_DP_ALERT_TEDDY_CANNOT_CAST_TO);
+    } else if (e instanceof CannotSerializeIntoJsonException) {
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_CANNOT_SERIALIZE_INTO_JSON);
+    } else if (e instanceof CannotUnnestEmptyColumnException) {
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_CANNOT_UNNEST_EMPTY_COLUMN);
     } else if (e instanceof ColumnNotContinuousException) {
       return fromTeddy(e, MSG_DP_ALERT_TEDDY_COLUMN_NOT_CONTINUOUS);
     } else if (e instanceof WrongMapKeyException) {
@@ -268,6 +276,10 @@ public class PrepException extends MetatronException {
       return fromTeddy(e, MSG_DP_ALERT_TEDDY_RIGHT_PREDICATE_NOT_FOUND);
     } else if (e instanceof RuleNotSupportedException) {
       return fromTeddy(e, MSG_DP_ALERT_TEDDY_RULE_NOT_SUPPORTED);
+    } else if (e instanceof CannotSerializeIntoJsonException) {
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TARGET_COLUMN_NOT_FOUND);
+    } else if (e instanceof TargetColumnNotFoundException) {
+      return fromTeddy(e, MSG_DP_ALERT_TEDDY_TARGET_COLUMN_NOT_FOUND);
     } else if (e instanceof TargetColumnNotFoundException) {
       return fromTeddy(e, MSG_DP_ALERT_TEDDY_TARGET_COLUMN_NOT_FOUND);
     } else if (e instanceof TooManyPivotedColumnsException) {

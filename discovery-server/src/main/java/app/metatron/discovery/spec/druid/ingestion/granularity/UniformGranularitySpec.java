@@ -34,7 +34,7 @@ public class UniformGranularitySpec implements GranularitySpec {
 
   Boolean rollup;
 
-  Boolean append = true;
+  Boolean append;
 
   public UniformGranularitySpec() {
   }

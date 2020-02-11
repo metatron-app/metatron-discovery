@@ -76,6 +76,7 @@ import {Shelf, ShelfLayers} from "../../../domain/workbook/configurations/shelf/
 import {CommonConstant} from "../../../common/constant/common.constant";
 
 declare let $;
+declare let moment;
 
 @Component({
   selector: 'page-widget',
@@ -100,6 +101,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   @ViewChild(DataDownloadComponent)
   private _dataDownComp: DataDownloadComponent;
+
+  @ViewChild('userFuncInput')
+  private _userFuncInput: ElementRef;
+
+  @ViewChild('userFuncInputContainer')
+  private _userFuncInputContainer: ElementRef;
 
   // 프로세스 실행 여부
   private _isDuringProcess: boolean = false;
@@ -133,6 +140,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public userCustomFunction: string;
 
   public widget: PageWidget = new PageWidget();
   public parentWidget: Widget;
@@ -152,6 +160,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
+  public isShowEvtTriggerEditor: boolean = false;
 
   // Limit 정보
   public limitInfo: ChartLimitInfo = {id: '', isShow: false, currentCnt: 0, maxCnt: 0};
@@ -185,6 +194,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isOriginDown: boolean = false;
   public srchText: string = '';
   public isCanNotDownAggr: boolean = false;
+
+  public isRealTimeDs: boolean = false;
+  public isRealTimeWidget: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -321,9 +333,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     // 선택 필터 설정
     this.subscriptions.push(
       this.broadCaster.on<any>('SET_SELECTION_FILTER').subscribe(data => {
-        if (data.widgetId && data.widgetId === this.widget.id) {
-          this._search(null, data.filters);
-        } else if (data.excludeWidgetId !== this.widget.id) {
+        if ((data.widgetId && data.widgetId === this.widget.id) || (data.excludeWidgetId !== this.widget.id)) {
+          if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
+            let strScript = '(' + this.userCustomFunction + ')';
+            // ( new Function( 'return ' + strScript ) )();
+            try {
+              if (eval(strScript)({name: 'SelectionFilterEvent', data: data.filters})) {
+                return;
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
           this._search(null, data.filters);
         }
 
@@ -750,6 +771,35 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public openUserFuncInput() {
+    this.isShowEvtTriggerEditor = true;
+    this.safelyDetectChanges();
+    $(this._userFuncInput.nativeElement).trigger('focus');
+  } // function - openUserFuncInput
+
+  public saveUserFunc() {
+    this.userCustomFunction = $(this._userFuncInput.nativeElement).val();
+
+    // 스펙 변경
+    this.loadingShow();
+    this.widget.configuration.customFunction = this.userCustomFunction;
+    const param = {configuration: _.cloneDeep(this.widget.configuration)};
+    param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
+    this.widgetService.updateWidget(this.widget.id, param)
+      .then((widget) => {
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        this.closeUserFuncInput();
+        this.loadingHide();
+        this._search();
+      })
+      .catch(err => this.commonExceptionHandler(err));
+  } // function - saveUserFunc
+
+  public closeUserFuncInput() {
+    this.isShowEvtTriggerEditor = false;
+    this.safelyDetectChanges();
+  } // function - closeUserFuncInput
+
   /**
    * 데이터소스 이름 조회
    * @return {string}
@@ -992,7 +1042,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
       this._dataDownComp.openGridDown(event, this._dataGridComp);
     } else {
-      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
+      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown, this.query);
     }
   } // function - showDownloadLayer
 
@@ -1128,7 +1178,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * redraw chart
    */
   public changeDraw() {
-    this._search();
+    this._search(null, this._currentSelectionFilters);
+  }
+
+  public toggleSync() {
+    this.isRealTimeWidget = !this.isRealTimeWidget;
+    this.widget.configuration.sync = this.isRealTimeWidget;
+    this._setSync();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1147,6 +1203,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.chartType = this.widgetConfiguration.chart.type.toString();
     this.parentWidget = null;
     if (widget.dashBoard.configuration) {
+
+      if (this.widgetConfiguration.customFunction && '' !== this.widgetConfiguration.customFunction) {
+        this.userCustomFunction = this.widgetConfiguration.customFunction;
+      }
 
       if (ChartType.MAP === (<PageWidgetConfiguration>this.widget.configuration).chart.type) {
 
@@ -1276,20 +1336,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     // RealTime 데이터갱신 설정
-    if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
-      const syncOpts: BoardSyncOptions = boardConf.options.sync;
-      this._interval = setInterval(() => {
-        this.safelyDetectChanges();
-        if (this.parentWidget) {
-          // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
-          this.processStart();
-          this._isDuringProcess = true;
-          this.updateComplete();
-        } else {
-          this._search();
-        }
-      }, syncOpts.interval * 1000);
-    }
+    this.isRealTimeDs = (boardConf.options.sync && boardConf.options.sync.enabled);
+    this.isRealTimeWidget = (this.isRealTimeDs && false !== widget.configuration.sync);
+    this._setSync();
 
     this.safelyDetectChanges();
 
@@ -1302,6 +1351,29 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this._search();
     }
   } // function - _setCommonConfig
+
+  private _setSync() {
+    const boardConf: BoardConfiguration = this.widget.dashBoard.configuration;
+    if (this.layoutMode !== LayoutMode.EDIT && this.isRealTimeWidget) {
+      const syncOpts: BoardSyncOptions = boardConf.options.sync;
+      this._interval = setInterval(() => {
+        this.safelyDetectChanges();
+        if (this.parentWidget) {
+          // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+          this.processStart();
+          this._isDuringProcess = true;
+          this.updateComplete();
+        } else {
+          this._search();
+        }
+      }, syncOpts.interval * 1000);
+    } else {
+      if (this._interval) {
+        clearInterval(this._interval);
+        this._interval = undefined;
+      }
+    }
+  }
 
   /**
    * 데이터 검색
@@ -1504,20 +1576,54 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this._currentSelectionFilters = currentSelectionFilters;
     this._currentSelectionFilterString = JSON.stringify(currentSelectionFilters);
     this._currentGlobalFilterString = JSON.stringify(globalFilters);
+    const disableCache: boolean = this.isRealTimeWidget;
 
-    this.datasourceService.searchQuery(cloneQuery).then((data) => {
+    this.datasourceService.searchQuery(cloneQuery, disableCache).then((data) => {
 
-      this.resultData = {
-        data,
-        config: query,
-        uiOption: this.uiOption,
-        params: {
-          widgetId: this.widget.id,
-          externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
-          // 현재 차트가 선택한 필터목록
-          selectFilterListList: this._selectFilterList
-        }
-      };
+      if (this.resultData && this.isRealTimeWidget && cloneQuery.pivot.columns.some(item => 'TIMESTAMP' === item.subRole)) {
+
+        // let time = moment(data.rows[data.rows.length - 1]);
+        // for (let idx = 0; idx < 1; idx++) {
+        //   time.add(5, 's');
+        //   data.rows.push(time.format('MMM D, YYYY HH:mm:ss'));
+        //   data.columns[0].value.push(Math.floor((Math.random() * 12) - 9));
+        // }
+
+        const columnSize = data.columns.length;
+        let newData = data.rows.map((rowItem, rowIndex) => {
+          let columnValues = [];
+          for(let columnIdx = 0; columnIdx < columnSize; ++columnIdx){
+            let columnValue = data.columns[columnIdx].value;
+            columnValues.push(columnValue[rowIndex]);
+          }
+          return {
+            row: rowItem,
+            col: columnValues
+          };
+        }).sort((a, b) => {
+          return moment(a.row).isBefore(moment(b.row));
+        });
+        newData.forEach(newItem => {
+          if (!this.resultData.data.rows.some(row => row === newItem.row)) {
+            this.resultData.data.rows.push(newItem.row);
+            for(let columnIdx = 0; columnIdx < columnSize; ++columnIdx){
+              this.resultData.data.columns[columnIdx].value.push(newItem.col[columnIdx]);
+            }
+          }
+        });
+      } else {
+        this.resultData = {
+          data,
+          config: query,
+          uiOption: this.uiOption,
+          params: {
+            widgetId: this.widget.id,
+            externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
+            // 현재 차트가 선택한 필터목록
+            selectFilterListList: this._selectFilterList
+          }
+        };
+      }
 
       let optionKeys = Object.keys(this.uiOption);
       if (optionKeys && optionKeys.length === 1) {

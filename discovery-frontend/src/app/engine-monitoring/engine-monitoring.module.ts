@@ -14,7 +14,6 @@
 
 import {NgModule} from '@angular/core';
 import {IngestionComponent} from './ingestion/ingestion.component';
-import {QueryComponent} from './component/query/query.component';
 import {EngineMonitoringComponent} from './engine-monitoring.component';
 import {CommonModule} from '../common/common.module';
 import {RouterModule} from '@angular/router';
@@ -33,7 +32,12 @@ import {WorkerDetailComponent} from "./ingestion/component/worker/worker-detail.
 import {DataStorageCriteriaModule} from "../data-storage/data-storage-criteria.module";
 import {TaskDetailComponent} from "./ingestion/component/task/task-detail.component";
 import {SupervisorDetailComponent} from "./ingestion/component/supervisor/supervisor-detail.component";
+import {QueryComponent} from "./query/query.component";
 import {DatasourceManagementGuard} from "../common/gaurd/datasource-management.guard";
+import {DatasourceComponent} from "./datasource/datasource.component";
+import {DatasourceDetailComponent} from "./datasource/datasource-detail.component";
+import {DatasourceRuleComponent} from "./datasource/datasource-rule.component";
+import {DatasourceColumnComponent} from "./datasource/datasource-column.component";
 
 const _routes = [
   {
@@ -72,7 +76,20 @@ const _routes = [
   },
   { path: 'ingestion/task/:taskId', component: TaskDetailComponent, canActivate: [DatasourceManagementGuard]},
   { path: 'ingestion/supervisor/:supervisorId', component: SupervisorDetailComponent, canActivate: [DatasourceManagementGuard]},
-  { path: 'ingestion/worker/:host', component: WorkerDetailComponent, canActivate: [DatasourceManagementGuard]}
+  { path: 'ingestion/worker/:host', component: WorkerDetailComponent, canActivate: [DatasourceManagementGuard]},
+  {
+    path: Engine.ContentType.QUERY,
+    component: EngineMonitoringComponent,
+    data: {'type': Engine.ContentType.QUERY},
+    canActivate: [DatasourceManagementGuard]
+  },
+  {
+    path: Engine.ContentType.DATASOURCE,
+    component: EngineMonitoringComponent,
+    data: {'type': Engine.ContentType.DATASOURCE},
+    canActivate: [DatasourceManagementGuard]
+  },
+  { path: 'datasource/:datasource', component: DatasourceDetailComponent, canActivate: [DatasourceManagementGuard]},
 ];
 
 @NgModule({
@@ -96,7 +113,11 @@ const _routes = [
     WorkerComponent,
     WorkerDetailComponent,
     TaskDetailComponent,
-    SupervisorDetailComponent
+    SupervisorDetailComponent,
+    DatasourceComponent,
+    DatasourceDetailComponent,
+    DatasourceRuleComponent,
+    DatasourceColumnComponent
   ],
   providers: [
     EngineService

@@ -58,6 +58,7 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
   public searchText:string = '';
 
   @Input('enableInfo') public isEnableInfo: boolean = false;
+  @Input('enableEditAssociationJoin') public isEnableEditAssociationJoin: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor

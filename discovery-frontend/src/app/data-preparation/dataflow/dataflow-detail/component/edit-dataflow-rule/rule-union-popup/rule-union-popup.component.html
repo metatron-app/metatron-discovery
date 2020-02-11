@@ -128,7 +128,7 @@
                 <tr *ngFor="let fieldList of fieldMatrix" [class.ddp-disabled]="isDisableFieldRow(fieldList)">
                   <td *ngFor="let field of fieldList" >
                     <div [ngClass]="{
-                            'ddp-box-column' : 'LACK' !== field.unionType,
+                            'ddp-box-column' : true,
                             'ddp-disabled' : 'CORRECT' !== field.unionType
                           }" >
                       <em [ngClass]="getIconType(field.type)"></em>

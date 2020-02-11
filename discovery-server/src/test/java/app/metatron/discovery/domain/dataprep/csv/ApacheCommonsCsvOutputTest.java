@@ -1,6 +1,17 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
-import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.hadoop.conf.Configuration;
+import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -9,17 +20,8 @@ import app.metatron.discovery.domain.dataprep.file.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.file.PrepParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Row;
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.hadoop.conf.Configuration;
-import org.junit.Test;
+
+import static app.metatron.discovery.domain.dataprep.file.PrepFileUtil.getReader;
 
 public class ApacheCommonsCsvOutputTest {
 
@@ -70,7 +72,7 @@ public class ApacheCommonsCsvOutputTest {
   }
 
   private void useCSVPrinter(DataFrame df, String strUri, Configuration conf) {
-    CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, conf);
+    CSVPrinter printer = PrepCsvUtil.DEFAULT.withHadoopConf(conf).getPrinter(strUri);
     String errmsg = null;
 
     try {
@@ -117,7 +119,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/minimal_quote_mode_and_quote_escaped.csv");
     cat(strUri, null);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -132,7 +134,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/sale.csv");
     cat(strUri, null);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -147,7 +149,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line.csv");
     cat(strUri, null);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -162,7 +164,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
     cat(strUri, null);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -177,7 +179,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_unmatched_bs_escape.csv");
     cat(strUri, null);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -192,7 +194,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/unstructured.csv");
     cat(strUri, null);
 
-    PrepParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    PrepParseResult result = PrepCsvUtil.DEFAULT.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();

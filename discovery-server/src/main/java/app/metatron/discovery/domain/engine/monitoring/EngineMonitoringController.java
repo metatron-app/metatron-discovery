@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.engine.monitoring;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
@@ -153,9 +154,9 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(monitoringQueryService.getSize());
   }
 
-  @RequestMapping(value = "/monitoring/datasource/list", method = RequestMethod.GET)
-  public ResponseEntity<?> getDatasourceList() {
-    return ResponseEntity.ok(monitoringQueryService.getDatasourceList());
+  @RequestMapping(value = "/monitoring/datasource/count", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasourceCount() {
+    return ResponseEntity.ok(monitoringQueryService.getDatasourceCount());
   }
 
   @RequestMapping(value = "/monitoring/segment/count", method = RequestMethod.GET)
@@ -212,7 +213,8 @@ public class EngineMonitoringController {
 
   @RequestMapping(value = "/monitoring/ingestion/task/{taskId}/log", method = RequestMethod.GET)
   public ResponseEntity<?> getTaskLogById(@PathVariable String taskId,
-                                          @RequestParam(value = "offset", required = false) Integer offset) {
+                                          @RequestParam(value = "offset", required = false) Integer offset,
+                                          @RequestParam(value = "download", required = false) Boolean download) {
     EngineIngestionService.EngineTaskLog taskLog;
     try {
       taskLog = engineIngestionService.getIngestionTaskLog(taskId, offset);
@@ -222,7 +224,7 @@ public class EngineMonitoringController {
       throw new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
     }
 
-    if (offset == null) {
+    if (offset == null && BooleanUtils.isNotTrue(download)) {
       return ResponseEntity.ok("<pre style=\"font-family: 'SpoqaHanSans',sans-serif;font-size:14px;\">"+taskLog.getLogs()+"</pre>");
     } else {
       return ResponseEntity.ok(taskLog.getLogs());
@@ -281,6 +283,113 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(engineRepository.getMiddleManagerNodes().get());
   }
 
+  @RequestMapping(value = "/monitoring/queries/list", method = RequestMethod.POST)
+  public ResponseEntity<?> getQueryList(@RequestBody EngineMonitoringQueryRequest engineMonitoringQueryRequest) {
+    return ResponseEntity.ok(monitoringQueryService.getQueryList(engineMonitoringQueryRequest));
+  }
 
+  @RequestMapping(value = "/monitoring/query/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteriaInQuery() {
+    List<ListCriterion> listCriteria = monitoringQueryService.getListCriterionInQuery();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/query/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetailInQuery(@PathVariable(value = "criterionKey") String criterionKey) {
+    EngineMonitoringCriterionKey criterionKeyEnum = EngineMonitoringCriterionKey.valueOf(criterionKey);
+
+    if (criterionKeyEnum == null) {
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = monitoringQueryService.getListCriterionInQueryByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
+
+  @RequestMapping(value = "/monitoring/datasources/list", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasource() {
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("datasourceList", monitoringQueryService.getDatasourceList());
+    response.put("datasourceListIncludeDisabled", monitoringQueryService.getDatasourceListIncludeDisabled());
+    response.put("datasourceLoadStatus", monitoringQueryService.getDatasourceLoadStatus());
+    response.put("datasourceRules", monitoringQueryService.getDatasourceRules());
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasource(@PathVariable String datasource) {
+    HashMap<String, Object> response = new HashMap<>();
+    Map result = monitoringQueryService.getDatasourceDetail(datasource);
+    Map datasourceLoadStatus = monitoringQueryService.getDatasourceLoadStatus();
+    if (datasourceLoadStatus.containsKey(datasource)) {
+      result.put("status", datasourceLoadStatus.get(datasource));
+    } else {
+      result.put("status", -1);
+    }
+    response.put("datasource", result);
+    response.put("datasourceRule", monitoringQueryService.getDatasourceRule(datasource));
+    response.put("datasourceDefaultRule", monitoringQueryService.getDatasourceRule("_default"));
+    response.put("datasourceStatus", monitoringQueryService.getDatasourceStatus(datasource));
+    response.put("datasourceIntervals", monitoringQueryService.getDatasourceIntervals(datasource));
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}/{interval}", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasourceIntervalStatus(@PathVariable String datasource, @PathVariable String interval) {
+    return ResponseEntity.ok(monitoringQueryService.getDatasourceIntervalStatus(datasource, interval));
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}/rule", method = RequestMethod.GET)
+  public ResponseEntity<?> getDatasourceRule(@PathVariable String datasource) {
+    return ResponseEntity.ok(monitoringQueryService.getDatasourceRule(datasource));
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}/rule", method = RequestMethod.POST)
+  public ResponseEntity<?> setDatasourceRule(@PathVariable String datasource, @RequestBody List<Object> retentionRequest) {
+    monitoringQueryService.setDatasourceRule(datasource, retentionRequest);
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteriaInDatasource() {
+    List<ListCriterion> listCriteria = monitoringQueryService.getListCriterionInDatasource();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetailInDatasource(@PathVariable(value = "criterionKey") String criterionKey) {
+    EngineMonitoringCriterionKey criterionKeyEnum = EngineMonitoringCriterionKey.valueOf(criterionKey);
+
+    if (criterionKeyEnum == null) {
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = monitoringQueryService.getListCriterionInDatasourceByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.POST)
+  public ResponseEntity<?> enableDatasource(@PathVariable(value = "datasource") String datasource) {
+    monitoringQueryService.enableDatasource(datasource);
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/monitoring/datasource/{datasource}", method = RequestMethod.DELETE)
+  public ResponseEntity<?> deleteDatasource(@PathVariable(value = "datasource") String datasource, @RequestParam(value = "kill", required = false) Boolean kill) {
+    if (BooleanUtils.isTrue(kill)) {
+      monitoringQueryService.permanentlyDeleteDataSource(datasource);
+    } else {
+      monitoringQueryService.disableDatasource(datasource);
+    }
+    return ResponseEntity.noContent().build();
+  }
 
 }

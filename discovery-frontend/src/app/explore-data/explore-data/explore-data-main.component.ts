@@ -33,7 +33,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
   popularMetadataList: Metadata[] = [];
   updatedMetadataList: Metadata[] = [];
   favoriteMetadataList: Metadata[] = [];
-  favoriteCreatorMetadataList: Metadata[] = [];
+  favoriteCreatorList: Metadata[] = [];
 
   favoriteMetadataTotalCount: number = -1;
 
@@ -65,7 +65,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
       await this._setUpdatedMetadataList();
       // await this._setRecommendedMetadataList();
       await this.setMyFavoriteMetadataList();
-      // await this._setCreatorFavoriteMetadataList();
+      await this._setFavoriteCreatorList();
     };
     initial().then(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL)).catch(() => this.broadcaster.broadcast(ExploreDataConstant.BroadCastKey.EXPLORE_INITIAL));
   }
@@ -149,11 +149,13 @@ export class ExploreDataMainComponent extends AbstractComponent {
   }
 
   public async setMyFavoriteMetadataList() {
-    const result = await this._metadataService.getMetadataListByMyFavorite({size: 4, page: 0, projection: 'forListView', sort: 'createdTime,desc'});
+    const result = await this._metadataService.getMetadataListByMyFavorite({size: 4, page: 0, sort: 'createdTime,desc'});
     if (!_.isNil(result._embedded)) {
       this.favoriteMetadataList = result._embedded.metadatas;
       this.favoriteMetadataTotalCount = result.page.totalElements;
-
+    } else {
+      this.favoriteMetadataList = [];
+      this.favoriteMetadataTotalCount = result.page.totalElements;
     }
   }
 
@@ -178,11 +180,11 @@ export class ExploreDataMainComponent extends AbstractComponent {
     }
   }
 
-
-  private async _setCreatorFavoriteMetadataList() {
-    const result = await this._metadataService.getMetadataListByCreatorFavorite({size: 10, page: 0, projection: 'forListView'});
-    if (!_.isNil(result._embedded)) {
-      this.favoriteCreatorMetadataList = result._embedded.metadatas;
+  // change when api is ready
+  private async _setFavoriteCreatorList() {
+    const result = await this._metadataService.getFavoriteCreatorList({size: 4, page: 0});
+    if (!_.isNil(result)) {
+      // this.favoriteCreatorList = result;
     }
   }
 

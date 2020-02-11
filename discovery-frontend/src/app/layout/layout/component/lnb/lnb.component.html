@@ -98,23 +98,19 @@
           <!-- submenu -->
           <ul class="ddp-list-sublnb">
             <li [ngClass]="{'ddp-selected': lnbManager.exploreData.data.fold == false}" *ngIf="permission.exploreDataView">
-              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_DATA'); move('exploredata/view')">
-                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.favorite.data' | translate}}
+              <a href="javascript:" (click)=" move('exploredata/view')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.data' | translate}}
               </a>
             </li>
-            <li *ngIf="permission.exploreFavorite" [ngClass]="{'ddp-selected': lnbManager.exploreData.favorite.fold == false}">
-              <a href="javascript:" (click)="exploreDataMenuClickListener('EXPLOREDATA_FAVORITE')">
-                <em class="ddp-icon-dot"></em>
-                {{'msg.comm.menu.explore-data.favorite' | translate}}
+            <li [ngClass]="{'ddp-selected': lnbManager.exploreData.data.fold == false}" *ngIf="permission.exploreData">
+              <a href="javascript:" (click)="move('exploredata/favorite/data')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.my.favorite.data' | translate}}
               </a>
-              <ul class="ddp-list-sublnb-2depth">
-                <li>
-                  <a href="javascript:" (click)="move('exploredata/favorite/data')">{{'msg.comm.menu.explore-data.favorite.data' | translate}}</a>
-                </li>
-                <li>
-                  <a href="javascript:" (click)="move('exploredata/favorite/creator')">{{'msg.comm.menu.explore-data.favorite.creator' | translate}}</a>
-                </li>
-              </ul>
+            </li>
+            <li [ngClass]="{'ddp-selected': lnbManager.exploreData.data.fold == false}" *ngIf="permission.exploreFavorite">
+              <a href="javascript:" (click)=" move('exploredata/favorite/creator')">
+                <em class="ddp-icon-data"></em>{{'msg.comm.menu.explore-data.favorite.creator' | translate}}
+              </a>
             </li>
           </ul>
           <!-- //submenu -->
@@ -240,17 +236,22 @@
                 <li>
                   <a href="javascript:" (click)="move('management/engine-monitoring/ingestion')">{{'msg.comm.menu.manage.engine.monitoring.ingestion' | translate}}</a>
                 </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/query')">{{'msg.comm.menu.manage.engine.monitoring.query' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/engine-monitoring/datasource')">{{'msg.comm.menu.manage.storage.ds' | translate}}</a>
+                </li>
               </ul>
             </li>
-            <ng-container *ngIf="permission.managementDatasource">
-              <li *ngFor="let item of getManagementExtensions"
-                  [ngClass]="{'ddp-selected': extentionSelected(item.name)}">
+            <ng-container *ngFor="let item of getExtensions('management')">
+              <li [ngClass]="{'ddp-selected': isExtensionSelected('management', item.name)}" *ngIf="extensionPermission(item)">
                 <a href="javascript:" (click)="mgmtMenuClickListener(item.name)">
                   <em class="ddp-icon-dot"></em> {{item.name}}
                 </a>
                 <ul class="ddp-list-sublnb-2depth">
                   <li *ngFor="let subKey of ObjectKeys(item.subContents)">
-                    <a href="javascript:" (click)="move('external/' + item.parent + '_' + item.name + '_' + subKey)">{{subKey}}</a>
+                    <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
                   </li>
                 </ul>
               </li>
@@ -305,6 +306,20 @@
                 </li>
               </ul>
             </li>
+
+            <ng-container *ngFor="let item of getExtensions('administration')">
+              <li [ngClass]="{'ddp-selected': isExtensionSelected('administration', item.name)}" *ngIf="extensionPermission(item)">
+                <a href="javascript:" (click)="adminMenuClickListener(item.name)">
+                  <em class="ddp-icon-dot"></em> {{item.name}}
+                </a>
+                <ul class="ddp-list-sublnb-2depth">
+                  <li *ngFor="let subKey of ObjectKeys(item.subContents)">
+                    <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
+                  </li>
+                </ul>
+              </li>
+            </ng-container>
+
           </ul>
           <!-- //submenu -->
         </div>
@@ -312,6 +327,37 @@
       </div>
     </li>
     <!-- //ADMINSTRATION -->
+    <ng-container *ngFor="let item of getExtensions('ROOT')">
+      <li [ngClass]="{'ddp-selected': lnbManager[item.name]['fold'] == false}" *ngIf="extensionPermission(item)">
+        <div class="ddp-wrap-listmenu">
+          <a href="javascript:" (click)="depth1Menu1ClickListener(item.name)">
+            <span class="ddp-txt-lnbmenu">{{item.name}}</span>
+            <em class="ddp-icon-menuview"></em>
+          </a>
+          <!-- sub -->
+          <div class="ddp-list-sub">
+            <!-- submenu -->
+            <ul class="ddp-list-sublnb">
+              <ng-container *ngFor="let secondDepth of getExtensions(item.name)">
+                <li [ngClass]="{'ddp-selected': isExtensionSelected(item.name, secondDepth.name)}" *ngIf="extensionPermission(secondDepth)">
+                  <a href="javascript:" (click)="rootExtensionMenuClickListener(item.name, secondDepth.name)">
+                    <em class="ddp-icon-dot"></em> {{secondDepth.name}}
+                  </a>
+                  <ul class="ddp-list-sublnb-2depth">
+                    <li *ngFor="let subKey of ObjectKeys(secondDepth.subContents)">
+                      <a href="javascript:" (click)="moveExtension(secondDepth, subKey)">{{subKey}}</a>
+                    </li>
+                  </ul>
+                </li>
+              </ng-container>
+
+            </ul>
+            <!-- //submenu -->
+          </div>
+          <!-- //sub -->
+        </div>
+      </li>
+    </ng-container>
   </ul>
 
   <!-- help -->

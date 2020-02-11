@@ -97,6 +97,12 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
         if (!_.isEmpty(params)) {
 
+          if (!isNullOrUndefined(params['backFromDetail'])) {
+            if( params['backFromDetail']==='true' ) {
+              params = this.dataflowService.getParamsForDataflowList();
+            }
+          }
+
           if (!isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
@@ -160,6 +166,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
    * @param dfId
    */
   public goToDfDetail(dfId) {
+    const params = this._getDfParams();
+    this.dataflowService.setParamsForDataflowList(params);
     this.router.navigate(
       ['/management/datapreparation/dataflow',dfId])
       .then();

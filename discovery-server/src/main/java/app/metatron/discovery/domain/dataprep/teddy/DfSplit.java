@@ -14,21 +14,16 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Split;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +40,6 @@ public class DfSplit extends DataFrame {
     List<Object> preparedArgs = new ArrayList<>();
     Split split = (Split) rule;
 
-    List<String> targetColNames = new ArrayList<>();
     Map<String, List<String>> splitedColNameList = new HashMap<>();
     Expression targetColExpr = split.getCol();
     Expression expr = split.getOn();
@@ -53,33 +47,26 @@ public class DfSplit extends DataFrame {
     Integer limit = split.getLimit();
     Boolean ignoreCase = split.getIgnoreCase();
     String patternStr;
-    String quoteStr = null;
-    String regExQuoteStr = null;
-    int targetColno = -1;
-    int colno;
+    String quoteStr;
+    int targetColno;
 
     if (limit == null) {
-      limit = 0;
+      limit = 1;
     }
 
-    if (targetColExpr instanceof Identifier.IdentifierExpr) {
-      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
-    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
-      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
-    } else {
-      throw new WrongTargetColumnExpressionException(
-              "DfSplit.prepare(): wrong target column expression: " + targetColExpr.toString());
+    List<String> targetColNames = TeddyUtil.getIdentifierList(targetColExpr);
+    if (targetColNames.isEmpty()) {
+      throw new WrongTargetColumnExpressionException("DfSplit.prepare(): wrong target column: " + split);
     }
+    interestedColNames.addAll(targetColNames);
 
     for (String targetColName : targetColNames) {
-      //Type Check
+      // Type Check
       if (prevDf.getColTypeByColName(targetColName) != ColumnType.STRING) {
         throw new WorksOnlyOnStringException(
                 String.format("DfSplit.prepare(): works only on STRING: targetColName=%s type=%s",
                         targetColName, prevDf.getColTypeByColName(targetColName)));
       }
-      //Highlighted Column List
-      interestedColNames.add(targetColName);
     }
 
     int colIndex = 0;
@@ -89,9 +76,9 @@ public class DfSplit extends DataFrame {
       if (targetColNames.contains(targetColName)) {
         List<String> splitedColNames = new ArrayList<>();
 
-        for (int i = 1; i <= limit + 1; i++) {
+        for (int i = 1; i <= limit; i++) {
           String newColName = "split_" + targetColName + i;
-          newColName = addColumn(colIndex++, newColName, ColumnType.STRING);  // 중간 삽입
+          newColName = addColumn(colIndex++, newColName, ColumnType.STRING);  // Add in the middle
           splitedColNames.add(newColName);
           interestedColNames.add(newColName);
         }
@@ -104,40 +91,12 @@ public class DfSplit extends DataFrame {
 
     assert !(expr.toString().equals("''") || expr.toString().equals("//")) : "You can not split with empty string!";
 
-    //패턴에 대한 처리. 1. 문자열 1-1. 대소문자 무시 2.정규식
-    if (expr instanceof Constant.StringExpr) {
-      patternStr = ((Constant.StringExpr) expr).getEscapedValue();
-      patternStr = disableRegexSymbols(patternStr);
-
-      if (ignoreCase != null && ignoreCase) {
-        patternStr = makeCaseInsensitive(patternStr);
-      }
-
-    } else if (expr instanceof RegularExpr) {
-      patternStr = ((RegularExpr) expr).getEscapedValue();
-    } else {
-      throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + expr.toString());
-    }
-
-    //콰트에 대한 처리. 1. 문자열 2.정규식
-    if (quote == null) {
-      quoteStr = "";
-    } else if (quote instanceof Constant.StringExpr) {
-      quoteStr = ((Constant.StringExpr) quote).getEscapedValue();
-      regExQuoteStr = disableRegexSymbols(quoteStr);
-    } else if (expr instanceof RegularExpr) {
-      regExQuoteStr = ((RegularExpr) quote).getEscapedValue();
-    } else {
-      throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + quote.toString());
-    }
-
-    if (quoteStr != "") {
-      patternStr = compilePatternWithQuote(patternStr, regExQuoteStr);
-    }
+    patternStr = TeddyUtil.getPatternStr(expr, ignoreCase);
+    quoteStr = TeddyUtil.getQuoteStr(quote);
+    patternStr = TeddyUtil.modifyPatternStrWithQuote(patternStr, quoteStr);
 
     preparedArgs.add(targetColNames);
     preparedArgs.add(patternStr);
-    preparedArgs.add(regExQuoteStr);
     preparedArgs.add(quoteStr);
     preparedArgs.add(limit);
     preparedArgs.add(splitedColNameList);
@@ -152,9 +111,8 @@ public class DfSplit extends DataFrame {
     List<String> targetColNames = (List<String>) preparedArgs.get(0);
     String patternStr = (String) preparedArgs.get(1);
     String quoteStr = (String) preparedArgs.get(2);
-    String originalQuoteStr = (String) preparedArgs.get(3);
-    int splitLimit = (int) preparedArgs.get(4);
-    Map<String, List<String>> splitedColNameList = (Map<String, List<String>>) preparedArgs.get(5);
+    int splitLimit = (int) preparedArgs.get(3);
+    Map<String, List<String>> splitedColNameList = (Map<String, List<String>>) preparedArgs.get(4);
     int colno;
 
     LOGGER.trace("DfSplit.gather(): start: offset={} length={} targetColno={}", offset, length, targetColNames);
@@ -165,37 +123,22 @@ public class DfSplit extends DataFrame {
 
       for (colno = 0; colno < prevDf.colCnt; colno++) {
         if (targetColNames.contains(prevDf.getColName(colno))) {
-          String targetStr = (String) row.get(colno);
-          String[] tokens = new String[splitLimit + 1];
-          int index = 0;
-
-          if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 == 0) {
-            String[] tempTokens = targetStr.split(patternStr, splitLimit + 1);
-            if (tempTokens.length <= limit) {
-              for (index = 0; index < tempTokens.length; index++) {
-                tokens[index] = tempTokens[index];
-              }
-            } else {
-              tokens = tempTokens;
-            }
-          } else {
-            int lastQuoteMark = targetStr.lastIndexOf(originalQuoteStr);
-
-            String[] firstHalf = targetStr.substring(0, lastQuoteMark).split(patternStr, splitLimit + 1);
-
-            for (int i = 0; i < firstHalf.length; i++) {
-              tokens[i] = firstHalf[i];
-              index = i;
-            }
-            tokens[index] = tokens[index] + targetStr.substring(lastQuoteMark);
+          String coldata = (String) row.get(colno);
+          if (coldata == null) {
+            continue;
           }
+          String[] tokens = TeddyUtil.split(coldata, patternStr, quoteStr, splitLimit);
 
-          // 새 컬럼들 추가
-          for (int i = 0; i <= splitLimit; i++) {
+          // Add new columns. The original columns is deleted.
+          int i = 0;
+          for (/* NOP */; i < tokens.length; i++) {
             newRow.add(splitedColNameList.get(prevDf.getColName(colno)).get(i), tokens[i]);
           }
-
+          for (/* NOP */; i < splitLimit; i++) {
+            newRow.add(splitedColNameList.get(prevDf.getColName(colno)).get(i), null);
+          }
         } else {
+          // Leave irrelevant columns as they were
           newRow.add(prevDf.getColName(colno), row.get(colno));
         }
       }

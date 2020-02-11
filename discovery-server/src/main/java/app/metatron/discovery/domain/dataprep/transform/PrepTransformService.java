@@ -14,37 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import com.google.common.collect.Maps;
-
-import com.facebook.presto.jdbc.internal.guava.collect.Lists;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.StandardEnvironment;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -79,14 +55,34 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnName
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_METASTORE_URI;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
+import com.facebook.presto.jdbc.internal.guava.collect.Lists;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PrepTransformService {
@@ -159,25 +155,10 @@ public class PrepTransformService {
     NOT_USED
   }
 
-  // Properties along the ETL program kinds are gathered into a single JSON properties string.
-  // Currently, the ETL programs kinds are the embedded engine and Apache Spark.
-  private String getJsonPrepPropertiesInfo(String dsId, PrepSnapshotRequestPost requestPost)
-          throws JsonProcessingException, URISyntaxException {
-    PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
-
-    boolean ssHdfs = (ssType == PrSnapshot.SS_TYPE.URI && (new URI(requestPost.getStoredUri())).getScheme()
-            .equals("hdfs"));
-    boolean ssStagingDb = (ssType == PrSnapshot.SS_TYPE.STAGING_DB);
-
-    // check polaris.dataprep.hadoopConfDir
-    if (ssHdfs || ssStagingDb) {
-      prepProperties.getHadoopConfDir(true);
-      prepProperties.getStagingBaseDir(true);
-    }
-
+  private String getJsonPrepPropertiesInfo(PrSnapshot snapshot) throws JsonProcessingException {
     Map<String, Object> mapEveryForEtl = prepProperties.getEveryForEtl();
 
-    // if the value is null, that means storage.stagedb is not in a yaml. NOT using STAGING_DB
+    // Add stage db information from storageProperties
     if (storageProperties != null && storageProperties.getStagedb() != null) {
       StageDBConnection stageDB = storageProperties.getStagedb();
       mapEveryForEtl.put(STAGEDB_HOSTNAME, stageDB.getHostname());
@@ -185,7 +166,7 @@ public class PrepTransformService {
       mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
       mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
 
-      if (requestPost.getEngine() == ENGINE.SPARK) {
+      if (snapshot.getEngine() == ENGINE.SPARK) {
         mapEveryForEtl.put(STAGEDB_METASTORE_URI, stageDB.getMetastoreUri());
       }
     }
@@ -193,34 +174,38 @@ public class PrepTransformService {
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapEveryForEtl);
   }
 
-  private String getJsonSnapshotInfo(PrepSnapshotRequestPost requestPost, String ssId) throws JsonProcessingException {
+  private String getJsonSnapshotInfo(PrSnapshot snapshot) throws JsonProcessingException {
+    String ssId = snapshot.getSsId();
+
     Map<String, Object> map = new HashMap();
-    PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
-    PrSnapshot.ENGINE engine = requestPost.getEngine();
-    PrSnapshot.APPEND_MODE appendMode = requestPost.getAppendMode();
+    PrSnapshot.SS_TYPE ssType = snapshot.getSsType();
+    PrSnapshot.ENGINE engine = snapshot.getEngine();
+    PrSnapshot.APPEND_MODE appendMode = snapshot.getAppendMode();
 
-    // 공통
+    // Put common properties for every types
     map.put("ssId", ssId);
-    map.put("ssName", requestPost.getSsName());
+    map.put("ssName", snapshot.getSsName());
     map.put("ssType", ssType.name());
+    map.put("launchTime", snapshot.getLaunchTime());
     map.put("engine", engine.name());
-    map.put("hiveFileFormat", requestPost.getHiveFileFormat());
-    map.put("hiveFileCompression", requestPost.getHiveFileCompression());
-    map.put("localBaseDir", prepProperties.getLocalBaseDir());
 
+    // Put specific properties for each type
     switch (ssType) {
       case URI:
-        String storedUri = requestPost.getStoredUri();
+        String storedUri = snapshot.getStoredUri();
         assert storedUri != null;
+        map.put("localBaseDir", prepProperties.getLocalBaseDir());
         map.put("storedUri", storedUri);
         break;
       case STAGING_DB:
-        map.put("partitionColNames", requestPost.getPartitionColNames());
-        map.put("appendMode", appendMode.name());
-        map.put("dbName", requestPost.getDbName());
-        map.put("tblName", requestPost.getTblName());
-
         map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
+        map.put("dbName", snapshot.getDbName());
+        map.put("tblName", snapshot.getTblName());
+
+        map.put("hiveFileFormat", snapshot.getHiveFileFormat());
+        map.put("hiveFileCompression", snapshot.getHiveFileCompression());
+        map.put("appendMode", appendMode.name());
+        map.put("partitionColNames", snapshot.getPartitionColNames());
         break;
       default:
         assert false : ssType;
@@ -321,7 +306,7 @@ public class PrepTransformService {
 
     PrepTransformResponse response = new PrepTransformResponse(wrangledDsId);
     response.setWrangledDsId(wrangledDsId);
-    this.putAddedInfo(response, wrangledDataset);
+    putAddedInfo(response, wrangledDataset);
 
     // Auto type detection and conversion (except cloning case)
     if (cloningDsName == null && prepProperties.isAutoTypingEnabled()) {
@@ -335,10 +320,7 @@ public class PrepTransformService {
             transform(wrangledDsId, OP_TYPE.APPEND, i, ruleString, jsonRuleString, true);
           }
           break;
-        case DATABASE:
-        case STAGING_DB:
-        case DRUID:
-          /* NOP */
+        default:
           break;
       }
     }
@@ -413,7 +395,7 @@ public class PrepTransformService {
       // Uncache the affected target so that it can be reloaded
       teddyImpl.remove(rule.getDataset().getDsId());
 
-      if (false == affectedDsIds.contains(rule.getDataset().getDsId())) {
+      if (!affectedDsIds.contains(rule.getDataset().getDsId())) {
         // It must be wrangled dataset, but not chaining wrangled
         affectedDsIds.add(rule.getDataset().getDsId());
       }
@@ -431,7 +413,6 @@ public class PrepTransformService {
     List<PrDataset> datasets = dataflow.getDatasets();
     for (PrDataset dataset : datasets) {
       if (dataset.getDsId().equals(oldDsId)) {
-        datasets.remove(dataset);
         if (!datasets.contains(newDataset)) {
           datasets.add(newDataset);
         }
@@ -448,9 +429,7 @@ public class PrepTransformService {
   @Transactional(rollbackFor = Exception.class)
   public void after_swap(List<String> affectedDsIds) throws Exception {
     for (String affectedDsId : affectedDsIds) {
-      PrepTransformResponse response = this.fetch(affectedDsId, null);
-      DataFrame dataFrame = response.getGridResponse();
-      this.previewLineService.putPreviewLines(affectedDsId, dataFrame);
+      previewLineService.savePreviewLines(affectedDsId);
     }
   }
 
@@ -503,7 +482,7 @@ public class PrepTransformService {
       for (String upstreamDsId : upstreamDsIds) {
         loadWrangledDataset(upstreamDsId);
 
-        PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
+        datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
       }
     }
 
@@ -690,7 +669,7 @@ public class PrepTransformService {
         updateTransformRules(dsId);
         response = fetch_internal(dsId, dataset.getRuleCurIdx());
         dataset.setTotalLines((long) response.getGridResponse().rows.size());
-        this.previewLineService.putPreviewLines(dsId, response.getGridResponse());
+        previewLineService.putPreviewLines(dsId, response.getGridResponse());
         break;
       case JUMP:
         response = fetch_internal(dsId, dataset.getRuleCurIdx());
@@ -863,6 +842,7 @@ public class PrepTransformService {
           case URI:
             datasetInfo.put("storedUri", upstreamDataset.getStoredUri());
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
+            datasetInfo.put("quoteChar", upstreamDataset.getQuoteChar());
             datasetInfo.put("manualColumnCount", upstreamDataset.getManualColumnCount());
             break;
 
@@ -870,7 +850,7 @@ public class PrepTransformService {
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             String dcId = upstreamDataset.getDcId();
             datasetInfo.put("dcId", dcId);
-            DataConnection dataConnection = this.connectionRepository.getOne(dcId);
+            DataConnection dataConnection = connectionRepository.getOne(dcId);
 
             datasetInfo.put("implementor", dataConnection.getImplementor());
             datasetInfo.put("connectUri", DataConnectionHelper.getConnectionUrl(dataConnection));
@@ -882,7 +862,7 @@ public class PrepTransformService {
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             break;
 
-          case DRUID:
+          default:
             assert false : upstreamDataset.getImportType();
         }
       } else {
@@ -915,15 +895,37 @@ public class PrepTransformService {
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo);
   }
 
-  private void runTransformer(String wrangledDsId, PrepSnapshotRequestPost requestPost, String ssId,
-          String authorization) throws Throwable {
+  private void checkHadoopConf(PrSnapshot snapshot) throws URISyntaxException {
+    PrSnapshot.SS_TYPE ssType = snapshot.getSsType();
 
-    String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(wrangledDsId, requestPost);
+    switch (ssType) {
+      case URI:
+        if ((new URI(snapshot.getStoredUri())).getScheme().equals("hdfs")) {
+          prepProperties.getHadoopConfDir(true);
+          prepProperties.getStagingBaseDir(true);
+        }
+        break;
+      case STAGING_DB:
+        prepProperties.getHadoopConfDir(true);
+        prepProperties.getStagingBaseDir(true);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private void runTransformer(String wrangledDsId, PrSnapshot snapshot, String authorization) throws Throwable {
+
+    LOGGER.debug("runTransformer(): ssName={} engine={}", snapshot.getSsName(), snapshot.getEngine());
+
+    checkHadoopConf(snapshot);
+
+    String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(snapshot);
     String jsonDatasetInfo = getJsonDatasetInfo(wrangledDsId);
-    String jsonSnapshotInfo = getJsonSnapshotInfo(requestPost, ssId);
+    String jsonSnapshotInfo = getJsonSnapshotInfo(snapshot);
     String jsonCallbackInfo = getJsonCallbackInfo(authorization);
 
-    switch (requestPost.getEngine()) {
+    switch (snapshot.getEngine()) {
       case EMBEDDED:
         runTeddy(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo);
         break;
@@ -931,7 +933,7 @@ public class PrepTransformService {
         runSpark(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, jsonCallbackInfo);
         break;
       default:
-        assert false : requestPost.getEngine();
+        assert false : snapshot.getEngine();
     }
   }
 
@@ -941,7 +943,7 @@ public class PrepTransformService {
       return serverPort;
     }
 
-    return ((StandardEnvironment) this.env).getPropertySources().get("server.ports")
+    return ((StandardEnvironment) env).getPropertySources().get("server.ports")
             .getProperty("local.server.port").toString();
   }
 
@@ -1002,8 +1004,7 @@ public class PrepTransformService {
     PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
     String ssName = requestPost.getSsName();
 
-    LOGGER.trace("transform_snapshot(): start: ssType={} ssName={} dsId={} ", ssType, ssName,
-            wrangledDsId);
+    LOGGER.debug("transform_snapshot(): start: ssType={} ssName={} dsId={} ", ssType, ssName, wrangledDsId);
 
     if (ssName == null || ssName.equals("")) {
       throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,
@@ -1122,9 +1123,8 @@ public class PrepTransformService {
 
     snapshotRepository.saveAndFlush(snapshot);
 
-    if (requestPost.getSsType() == PrSnapshot.SS_TYPE.URI ||
-            requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
-      runTransformer(wrangledDsId, requestPost, snapshot.getSsId(), authorization);
+    if (requestPost.getSsType() == PrSnapshot.SS_TYPE.URI || requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
+      runTransformer(wrangledDsId, snapshot, authorization);
       LOGGER.info("transform_snapshot(): snapshot generation successfully start");
     } else {
       throw new IllegalArgumentException(requestPost.toString());
@@ -1134,7 +1134,7 @@ public class PrepTransformService {
 
     response = new PrepSnapshotResponse(snapshot.getSsId(), snapshot.getSsName());
 
-    LOGGER.trace("transform_snapshot(): end");
+    LOGGER.debug("transform_snapshot(): end");
     return response;
   }
 
@@ -1168,19 +1168,19 @@ public class PrepTransformService {
 
     if (cloningDsName == null) {
       cloningDsName = importedDataset.getDsName().replaceFirst(
-          " \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$", "");
+              " \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$", "");
     }
 
     List<String> dsNames = new ArrayList();
     for (PrDataset dataset : dataflow.getDatasets()) {
-      if(dataset.getDsType()!= PrDataset.DS_TYPE.IMPORTED) {
+      if (dataset.getDsType() != PrDataset.DS_TYPE.IMPORTED) {
         dsNames.add(dataset.getDsName());
       }
     }
 
     String newDsName = cloningDsName;
     for (int i = 0; /* NOP */ ; i++) {
-      if(i!=0) {
+      if (i != 0) {
         newDsName = String.format("%s (%d)", cloningDsName, i);
       }
 
@@ -1257,20 +1257,10 @@ public class PrepTransformService {
       case UPLOAD:
       case URI:
         String storedUri = importedDataset.getStoredUri();
-        LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
+        LOGGER.debug("storedUri={}", storedUri);
 
-        if (importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.CSV ||
-                importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL ||
-                importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
-          Integer columnCount = importedDataset.getManualColumnCount();
-          gridResponse = teddyImpl
-                  .loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), columnCount,
-                          wrangledDataset.getDsName());
-        } else {
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                  PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
-                  "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
-        }
+        gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(),
+                importedDataset.getQuoteChar(), importedDataset.getManualColumnCount(), wrangledDataset.getDsName());
         break;
 
       case DATABASE:
@@ -1279,15 +1269,14 @@ public class PrepTransformService {
           queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
         }
 
-        DataConnection dataConnection = this.connectionRepository.getOne(importedDataset.getDcId());
+        DataConnection dataConnection = connectionRepository.getOne(importedDataset.getDcId());
         Hibernate.initialize(dataConnection);
         if (dataConnection instanceof HibernateProxy) {
           dataConnection = (DataConnection) ((HibernateProxy) dataConnection)
                   .getHibernateLazyInitializer().getImplementation();
         }
 
-        gridResponse = teddyImpl
-                .loadJdbcDataset(wrangledDsId, dataConnection, queryStmt, wrangledDataset.getDsName());
+        gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, queryStmt, wrangledDataset.getDsName());
         break;
 
       case STAGING_DB:
@@ -1324,20 +1313,20 @@ public class PrepTransformService {
       PrDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
       assert (null != wrangledDataset);
       DateTime launchTime = DateTime.now(DateTimeZone.UTC);
-      String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(), launchTime);
+      String ssName = snapshotService.makeSnapshotName(wrangledDataset.getDsName(), launchTime);
       configuration.put("ss_name", ssName);
 
       if (prepProperties.isFileSnapshotEnabled()) {
         Map<String, Object> fileUri = Maps.newHashMap();
 
         // TODO: "LOCAL", "HDFS" will be replaced by location presets from application.yaml (later)
-        String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
-        localDir = this.snapshotService.escapeUri(localDir);
+        String localDir = snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
+        localDir = snapshotService.escapeUri(localDir);
         fileUri.put("LOCAL", "file://" + localDir);
 
         try {
-          String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
-          hdfsDir = this.snapshotService.escapeUri(hdfsDir);
+          String hdfsDir = snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
+          hdfsDir = snapshotService.escapeUri(hdfsDir);
           fileUri.put("HDFS", hdfsDir);
         } catch (Exception e) {
           // Suppress

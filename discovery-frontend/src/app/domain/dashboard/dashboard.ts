@@ -133,6 +133,16 @@ export class JoinMapping {
   public engineName: string;    // ui에서만 사용하지만 BoardDataSource와의 필드명을 맞추기 위해 ui prefix를 붙이지 않음
 } // structure - JoinMapping
 
+export class JoinMappingDataSource {
+  public joinMappings: JoinMapping[];
+  public candidateDataSources: Datasource[];
+
+  constructor(joinMappings: JoinMapping[], candidateDataSources: Datasource[]) {
+    this.joinMappings = joinMappings;
+    this.candidateDataSources = candidateDataSources;
+  }
+}
+
 /**
  * 데이터소스 연계정보
  */

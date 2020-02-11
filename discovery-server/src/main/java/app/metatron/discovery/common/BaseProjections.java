@@ -54,4 +54,8 @@ public class BaseProjections {
 
     return projectionsMap.get(name);
   }
+
+  public interface BaseProjectionCls{
+
+  }
 }

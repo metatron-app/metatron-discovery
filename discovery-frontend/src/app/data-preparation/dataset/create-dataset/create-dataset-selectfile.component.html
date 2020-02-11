@@ -35,7 +35,7 @@
 
           <div class="ddp-txt-file-info" >
             <div class="ddp-link-file">
-              <input type="file" #pickfiles />
+              <input type="file" accept=".txt, .csv, .json, .xls, .xlsx" #pickfiles />
               Import
             </div>
             or drop file here
@@ -135,10 +135,10 @@
             <!-- list -->
 
             <!-- import file -->
-            <div class="ddp-import-file" [ngClass]="{'ddp-disabled':!isNext}" #drop_container2 >
+            <div class="ddp-import-file" [ngClass]="{'ddp-disabled':upFiles.length===0}" #drop_container2 >
               <div class="ddp-txt-file-info">
                 <div class="ddp-link-file">
-                  <input type="file" #pickfiles2 />
+                  <input type="file" accept=".txt, .csv, .json, .xls, .xlsx" #pickfiles2 />
                   Import
                 </div>
                 or drop file here

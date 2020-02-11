@@ -20,7 +20,7 @@
     <groupId>app.metatron.discovery</groupId>
     <artifactId>metatron-discovery</artifactId>
     <packaging>pom</packaging>
-    <version>3.4.0-rc2</version>
+    <version>3.4.0-rc4</version>
 
     <modules>
         <module>discovery-frontend</module>
@@ -74,7 +74,7 @@
         <junit.version>4.12</junit.version>
 
         <jackson.version>2.9.9</jackson.version>
-        <jackson.databind.version>2.9.9.2</jackson.databind.version>
+        <jackson.databind.version>2.9.10.1</jackson.databind.version>
 
         <metatron.metis.version>2.0.0-SNAPSHOT</metatron.metis.version>
 
@@ -100,6 +100,15 @@
         <pf4j.version>2.5.0</pf4j.version>
         <pf4j.spring.version>0.5.0</pf4j.spring.version>
 
+        <!-- liquibase -->
+        <!-- The javassist version should match the one managed by
+        https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
+        <javassist.version>3.24.0-GA</javassist.version>
+        <!-- The liquibase version should match the one managed by
+        https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
+        <liquibase.version>3.5.3</liquibase.version>
+        <liquibase-hibernate5.version>3.6</liquibase-hibernate5.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
     </properties>
     <build>
         <plugins>

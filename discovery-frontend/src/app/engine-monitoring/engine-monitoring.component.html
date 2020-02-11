@@ -27,6 +27,12 @@
   <ng-template [ngIf]="isSelectedContent.isIngestion()">
     <div ingestion [tab]="selectedIngestionContentType"></div>
   </ng-template>
+  <ng-template [ngIf]="isSelectedContent.isQuery()">
+    <div query></div>
+  </ng-template>
+  <ng-template [ngIf]="isSelectedContent.isDatasource()">
+    <div datasource></div>
+  </ng-template>
   <!-- //contents det -->
 
 </div>

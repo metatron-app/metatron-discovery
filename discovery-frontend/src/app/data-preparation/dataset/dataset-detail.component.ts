@@ -612,11 +612,13 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       (this.dataset.dsType === DsType.IMPORTED && this.dataset.importType === ImportType.URI)
     ) {
 
-      if (this.dataset.fileFormat.toString().toLowerCase() === 'excel') {
+      let ext = this.prepCommonUtil.getFileFormatWithExtension( this.dataset.filenameBeforeUpload );
+
+      if (ext.toString().toLowerCase() === 'excel') {
         fileFormat = 'csv';
         downloadFileName = this.dataset.dsName + '.csv';
       } else {
-        fileFormat = this.dataset.fileFormat.toString().toLowerCase();
+        fileFormat = ext.toString().toLowerCase();
         downloadFileName = this.dataset.filenameBeforeUpload;
       }
 

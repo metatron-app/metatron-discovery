@@ -13,6 +13,6 @@
  */
 
 export class EngineMonitoringData {
-  refresh: number = 0;
+  refresh: number = 5;
   duration: string = '1DAY';
 }

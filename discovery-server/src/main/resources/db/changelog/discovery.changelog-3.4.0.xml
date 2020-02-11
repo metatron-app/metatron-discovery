@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog dbchangelog-3.8.xsd">
+    <changeSet author="sohncw (generated)" id="1572393007722-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="favorite"/>
+            </not>
+        </preConditions>
+        <createTable tableName="favorite">
+            <column name="id" type="VARCHAR(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="created_time" type="datetime"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="modified_time" type="datetime"/>
+            <column name="version" type="BIGINT"/>
+            <column name="favorite_domain" type="VARCHAR(255)"/>
+            <column name="favorite_target" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="sohncw (generated)" id="1572393007722-2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="pr_dataset" columnName="quote_char" />
+            </not>
+        </preConditions>
+        <addColumn tableName="pr_dataset">
+            <column name="quote_char" type="${varchar.type}(255)" />
+        </addColumn>
+    </changeSet>
+    <changeSet author="sohncw" id="1574830584206-0">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="hibernate_sequence"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="hibernate_sequence" cycle="false" incrementBy="1" ordered="true" startValue="0"/>
+    </changeSet>
+    <changeSet author="sohncw" id="1574830584206-1">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="hibernate_sequence" />
+                <tableIsEmpty tableName="hibernate_sequence" />
+            </and>
+        </preConditions>
+        <insert tableName="hibernate_sequence">
+            <column name="next_val" value="1" />
+        </insert>
+    </changeSet>
+</databaseChangeLog>

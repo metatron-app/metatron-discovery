@@ -469,7 +469,7 @@ export class ExploreDataListComponent extends AbstractComponent {
         endDate = betweenTo;
         endDateStr = moment(betweenTo).format(returnFormat);
       }
-    // if filter type is not between
+      // if filter type is not between
     } else {
       this.startTime = betweenFrom;
       this.finishTime = betweenTo;
