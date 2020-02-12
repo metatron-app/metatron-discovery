@@ -14,7 +14,7 @@
 
 package app.metatron.discovery.config;
 
-import app.metatron.discovery.common.MetatronProperties;
+import app.metatron.discovery.domain.idcube.IdCubeProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
@@ -240,7 +240,7 @@ public class OAuth2ServerConfig {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private MetatronProperties metatronProperties;
+    private IdCubeProperties idCubeProperties;
 
     //@Autowired
     //private AuthorizationEndpoint authorizationEndpoint;
@@ -278,9 +278,9 @@ public class OAuth2ServerConfig {
       defaultTokenServices.setSupportRefreshToken(true);
 
       // accessToken, refreshToken time 설정
-      if(metatronProperties.getJwtExpirationSeconds() > 0) {
-        defaultTokenServices.setAccessTokenValiditySeconds(metatronProperties.getJwtExpirationSeconds());
-        defaultTokenServices.setRefreshTokenValiditySeconds(metatronProperties.getJwtExpirationSeconds());
+      if(idCubeProperties.getAuth().getSessionTimeoutSeconds() > 0) {
+        defaultTokenServices.setAccessTokenValiditySeconds(idCubeProperties.getAuth().getSessionTimeoutSeconds());
+        defaultTokenServices.setRefreshTokenValiditySeconds(idCubeProperties.getAuth().getSessionTimeoutSeconds());
       }
       //defaultTokenServices.setClientDetailsService(jdbcClientDetailsService());
       return defaultTokenServices;

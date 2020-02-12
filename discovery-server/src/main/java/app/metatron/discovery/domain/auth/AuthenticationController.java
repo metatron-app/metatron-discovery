@@ -14,9 +14,9 @@
 
 package app.metatron.discovery.domain.auth;
 
-import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
+import app.metatron.discovery.domain.idcube.IdCubeProperties;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
@@ -108,7 +108,7 @@ public class AuthenticationController {
   WorkspaceService workspaceService;
 
   @Autowired
-  MetatronProperties metatronProperties;
+  IdCubeProperties idCubeProperties;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -421,12 +421,12 @@ public class AuthenticationController {
 
   @RequestMapping(value = "/auth/login-delegation", method = RequestMethod.GET)
   public ResponseEntity<Map<String, String>> getLoginDelegationURL() {
-    if(StringUtils.isEmpty(metatronProperties.getLoginDelegationUrl())) {
+    if(StringUtils.isEmpty(idCubeProperties.getAuth().getLoginDelegationUrl())) {
       return ResponseEntity.notFound().build();
     }
 
     Map<String, String> loginDelegationURL = new HashMap<>();
-    loginDelegationURL.put("url", metatronProperties.getLoginDelegationUrl());
+    loginDelegationURL.put("url", idCubeProperties.getAuth().getLoginDelegationUrl());
 
     return ResponseEntity.ok(loginDelegationURL);
   }

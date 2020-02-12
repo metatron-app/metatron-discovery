@@ -14,16 +14,16 @@
 
 package app.metatron.discovery.domain.dataconnection;
 
+import app.metatron.discovery.domain.idcube.IdCubeProperties;
+import app.metatron.discovery.domain.idcube.security.AES;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
-import org.springframework.data.rest.core.annotation.HandleBeforeLinkDelete;
-import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.data.rest.core.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Set;
@@ -45,9 +45,12 @@ public class DataConnectionEventHandler {
   @Autowired
   ActivityStreamService activityStreamService;
 
+  @Autowired
+  IdCubeProperties idCubeProperties;
+
   @HandleBeforeCreate
   public void handleBeforeCreate(DataConnection dataConnection) {
-    if(BooleanUtils.isNotTrue(dataConnection.getPublished()) && CollectionUtils.isNotEmpty(dataConnection.getWorkspaces())) {
+    if (BooleanUtils.isNotTrue(dataConnection.getPublished()) && CollectionUtils.isNotEmpty(dataConnection.getWorkspaces())) {
       dataConnection.setLinkedWorkspaces(dataConnection.getWorkspaces().size());
     }
   }
@@ -59,19 +62,19 @@ public class DataConnectionEventHandler {
     // a value is injected to linked object when PATCH,
     // but not injected when PUT request so doesn't check linked object.
 
-    if(BooleanUtils.isNotTrue(dataConnection.getPublished())) {
+    if (BooleanUtils.isNotTrue(dataConnection.getPublished())) {
       dataConnection.setLinkedWorkspaces(dataConnection.getWorkspaces().size());
 
       // Insert ActivityStream for saving grant history.
-      if(!CollectionUtils.sizeIsEmpty(linked) && CollectionUtils.get(linked, 0) instanceof Workspace) {
+      if (!CollectionUtils.sizeIsEmpty(linked) && CollectionUtils.get(linked, 0) instanceof Workspace) {
         for (int i = 0; i < CollectionUtils.size(linked); i++) {
           Workspace linkedWorkspace = (Workspace) CollectionUtils.get(linked, i);
           if (!linkedWorkspace.getDataConnections().contains(dataConnection)) {
             activityStreamService.addActivity(new ActivityStreamV2(
                 null, null, "Accept", null, null
-                , new ActivityObject(dataConnection.getId(),"DATACONNECTION")
+                , new ActivityObject(dataConnection.getId(), "DATACONNECTION")
                 , new ActivityObject(linkedWorkspace.getId(), "WORKSPACE"),
-                new ActivityGenerator("WEBAPP",""), DateTime.now()));
+                new ActivityGenerator("WEBAPP", ""), DateTime.now()));
 
             LOGGER.debug("[Activity] Accept workspace ({}) to dataconnection ({})", linkedWorkspace.getId(), dataConnection.getId());
           }
@@ -86,13 +89,13 @@ public class DataConnectionEventHandler {
     // Count connected workspaces.
     Set<Workspace> preWorkspaces = connectionRepository.findWorkspacesInDataConnection(dataConnection.id);
     // Not a public workspace and linked entity type is Workspace.
-    if(BooleanUtils.isNotTrue(dataConnection.getPublished()) &&
+    if (BooleanUtils.isNotTrue(dataConnection.getPublished()) &&
         !CollectionUtils.sizeIsEmpty(preWorkspaces)) {
       dataConnection.setLinkedWorkspaces(dataConnection.getWorkspaces().size());
       LOGGER.debug("DELETED: Set linked workspace in dataconnection({}) : {}", dataConnection.getId(), dataConnection.getLinkedWorkspaces());
 
       for (Workspace workspace : preWorkspaces) {
-        if(!dataConnection.getWorkspaces().contains(workspace)) {
+        if (!dataConnection.getWorkspaces().contains(workspace)) {
           activityStreamService.addActivity(new ActivityStreamV2(
               null, null, "Block", null, null,
               new ActivityObject(dataConnection.getId(), "DATACONNECTION"),
@@ -102,9 +105,16 @@ public class DataConnectionEventHandler {
           LOGGER.debug("[Activity] Block workspace ({}) from dataconnection ({})", workspace.getId(), dataConnection.getId());
         }
       }
-
     }
-
   }
 
+  @HandleBeforeSave
+  public void handleBeforeSave(DataConnection dataConnection) {
+    if(StringUtils.isNotEmpty(idCubeProperties.getSecurity().getCipherSecretKey())) {
+      String decryptPassword = AES.decrypt(dataConnection.getPassword(), idCubeProperties.getSecurity().getCipherSecretKey());
+      if(decryptPassword != null) {
+        dataConnection.setPassword(decryptPassword);
+      }
+    }
+  }
 }

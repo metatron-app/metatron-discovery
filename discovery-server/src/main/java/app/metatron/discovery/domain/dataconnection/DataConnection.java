@@ -15,12 +15,16 @@
 package app.metatron.discovery.domain.dataconnection;
 
 
+import app.metatron.discovery.domain.idcube.IdCubeProperties;
+import app.metatron.discovery.domain.idcube.security.AES;
+import app.metatron.discovery.util.ApplicationContextProvider;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.projection.ProjectionFactory;
@@ -385,5 +389,24 @@ public class DataConnection extends AbstractHistoryEntity implements MetatronDom
 
   public enum SourceType {
     FILE, JDBC //, VIEW
+  }
+
+  public String getEncryptPassword() {
+    IdCubeProperties idCubeProperties = ApplicationContextProvider.getApplicationContext().getBean(IdCubeProperties.class);
+
+    if(idCubeProperties != null) {
+      if(StringUtils.isNotEmpty(idCubeProperties.getSecurity().getCipherSecretKey())) {
+        String encryptPassword = AES.encrypt(password, idCubeProperties.getSecurity().getCipherSecretKey());
+        if(encryptPassword == null) {
+          return this.password;
+        } else {
+          return encryptPassword;
+        }
+      } else {
+        return this.password;
+      }
+    } else {
+      return this.password;
+    }
   }
 }

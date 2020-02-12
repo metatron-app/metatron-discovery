@@ -54,6 +54,7 @@ public class DataConnectionProjections {
 
     String getUsername();
 
+    @Value("#{target.getEncryptPassword()}")
     String getPassword();
 
     Boolean getPublished();

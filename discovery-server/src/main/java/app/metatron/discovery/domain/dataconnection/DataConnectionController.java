@@ -33,6 +33,8 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultR
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.idcube.IdCubeProperties;
+import app.metatron.discovery.domain.idcube.security.AES;
 import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
@@ -113,6 +115,9 @@ public class DataConnectionController {
   @Autowired
   ConnectionConfigProperties connectionConfigProperties;
 
+  @Autowired
+  IdCubeProperties idCubeProperties;
+
   /**
    * 서비스에서 이용가능한 JDBC 종류 전달
    *
@@ -180,6 +185,14 @@ public class DataConnectionController {
 
   @RequestMapping(value = "/connections/query/check", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> queryForConnection(@RequestBody ConnectionRequest checkRequest) {
+
+    System.out.println("idCubeProperties.getCipherSecretKey():" + idCubeProperties.getSecurity().getCipherSecretKey());
+    if(StringUtils.isNotEmpty(idCubeProperties.getSecurity().getCipherSecretKey())) {
+      String decryptPassword = AES.decrypt(checkRequest.getConnection().getPassword(), idCubeProperties.getSecurity().getCipherSecretKey());
+      if(decryptPassword != null) {
+        checkRequest.getConnection().setPassword(decryptPassword);
+      }
+    }
 
     // 추가 유효성 체크
     Map<String, Object> resultMap = connectionService.checkConnection(checkRequest.getConnection());
