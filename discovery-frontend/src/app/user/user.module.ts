@@ -27,6 +27,7 @@ import { WorkspaceService } from '../workspace/service/workspace.service';
 import { KorPolicyComponent } from './login/kor-policy.component';
 import { EngPolicyComponent } from './login/eng-policy.component';
 import { PermissionService } from './service/permission.service';
+import {LoginLogoComponent} from "./login/component/logo/login-logo.component";
 
 const userRoutes: Routes = [
   {
@@ -46,7 +47,8 @@ const userRoutes: Routes = [
     JoinCompleteComponent,
     ResetPasswordComponent,
     KorPolicyComponent,
-    EngPolicyComponent
+    EngPolicyComponent,
+    LoginLogoComponent
   ],
   providers: [
     UserService,
