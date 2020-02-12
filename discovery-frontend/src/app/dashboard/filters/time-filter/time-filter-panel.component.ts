@@ -217,35 +217,49 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
    * TimeRangeFilter 설정
    */
   public setTimeRangeFilter() {
-    let cloneFilter = JSON.parse(JSON.stringify(this.filter));
-    if( this._tempRangeFilter) {
-      cloneFilter = this._tempRangeFilter;
-    } else {
-      cloneFilter = FilterUtil.getTimeRangeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType, this.dataSource );
+    if( this.isDashboardMode ) {
+      let cloneFilter = JSON.parse(JSON.stringify(this.filter));
+      if( this._tempRangeFilter) {
+        cloneFilter = this._tempRangeFilter;
+      } else {
+        cloneFilter = FilterUtil.getTimeRangeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType, this.dataSource );
+      }
+      this._updateFilter(cloneFilter);
     }
-    this._updateFilter(cloneFilter);
-/*
-    if( this._tempRangeFilter) {
-      this.filter = this._tempRangeFilter;
-    } else {
-      this.filter = FilterUtil.getTimeRangeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+    else {
+      if( this._tempRangeFilter) {
+        this.filter = this._tempRangeFilter;
+      } else {
+        this.filter = FilterUtil.getTimeRangeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+      }
+      ( this.originalFilter.ui.widgetId ) && ( this.filter.ui.widgetId = this.originalFilter.ui.widgetId );
+      this.originalFilter = _.cloneDeep( this.filter );
+      this._setStatus();
     }
-    this.originalFilter = _.cloneDeep( this.filter );
-    this._setStatus();
- */
   } // function - setTimeRangeFilter
 
   /**
    * TimeRelativeFilter 설정
    */
   public setTimeRelativeFilter() {
-    if( this._tempRelativeFilter ) {
-      this.filter = this._tempRelativeFilter;
+    if( this.isDashboardMode ) {
+      let cloneFilter = JSON.parse(JSON.stringify(this.filter));
+      if( this._tempRelativeFilter ) {
+        cloneFilter = this._tempRelativeFilter;
+      } else {
+        cloneFilter = FilterUtil.getTimeRelativeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType );
+      }
+      this._updateFilter(cloneFilter);
     } else {
-      this.filter = FilterUtil.getTimeRelativeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+      if( this._tempRelativeFilter ) {
+        this.filter = this._tempRelativeFilter;
+      } else {
+        this.filter = FilterUtil.getTimeRelativeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+      }
+      ( this.originalFilter.ui.widgetId ) && ( this.filter.ui.widgetId = this.originalFilter.ui.widgetId );
+      this.originalFilter = _.cloneDeep( this.filter );
+      this._setStatus();
     }
-    this.originalFilter = _.cloneDeep( this.filter );
-    this._setStatus();
   } // function - setTimeRelativeFilter
 
   /**
@@ -264,6 +278,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
         this.filter.ui.importanceType
       );
     }
+    ( this.originalFilter.ui.widgetId ) && ( this.filter.ui.widgetId = this.originalFilter.ui.widgetId );
     this.originalFilter = _.cloneDeep( this.filter );
     this._setStatus();
   } // function - setTimeListFilter
