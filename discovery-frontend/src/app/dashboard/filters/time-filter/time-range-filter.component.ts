@@ -39,6 +39,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private _isRunningCandidate: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -103,13 +104,18 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
     if (filterChanges) {
       const prevFilter: TimeRangeFilter = filterChanges.previousValue;
       const currFilter: TimeRangeFilter = filterChanges.currentValue;
-      if (currFilter && (
+      if (this.isLoaded && currFilter && (
         !prevFilter || prevFilter.field !== currFilter.field ||
         0 < _.difference(prevFilter.intervals, currFilter.intervals).length)) {
         this.setData(filterChanges.currentValue, !filterChanges.firstChange);
       }
     }
   } // function - ngOnChanges
+
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.setData(this.inputFilter, true);
+  }
 
   /**
    * 컴포넌트 제거
@@ -127,18 +133,24 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @param {boolean} isBroadcast
    */
   public setData(filter: TimeRangeFilter, isBroadcast: boolean = false) {
-    this.loadingShow();
-    const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);
-    this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
-      this.targetFilter = this._setRangeFilter(result, cloneFilter);
-      this.safelyDetectChanges();
+    if( !this._isRunningCandidate ) {
+      this._isRunningCandidate = true;
+      this.loadingShow();
+      const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);
+      this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
+        this.targetFilter = this._setRangeFilter(result, cloneFilter);
+        this.safelyDetectChanges();
 
-      // 변경사항 전파
-      (isBroadcast) && (this._broadcastChange());
+        // 변경사항 전파
+        (isBroadcast) && (this._broadcastChange());
 
-      this.loadingHide();
-    }).catch(err => this.commonExceptionHandler(err));
-
+        this._isRunningCandidate = false;
+        this.loadingHide();
+      }).catch(err => {
+        this._isRunningCandidate = false;
+        this.commonExceptionHandler(err);
+      });
+    }
   } // function - setData
 
   /**
@@ -269,7 +281,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
     this.timeRangeList[idx] = date;
     this.targetFilter.intervals = this.timeRangeList.map(item => item.startDate + '/' + item.endDate);
 
-    if(this.mode && this.mode !== 'WIDGET') {
+    if (this.mode && this.mode !== 'WIDGET') {
       this._broadcastChange();
     }
   } // function -  onDateChange

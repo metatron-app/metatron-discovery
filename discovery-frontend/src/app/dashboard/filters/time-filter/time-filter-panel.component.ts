@@ -113,6 +113,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
    */
   public ngOnInit() {
     super.ngOnInit();
+    console.info( '>>>> time-filter-panel init' );
   }
 
   /**
@@ -204,36 +205,61 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
   /**
    * TimeAllFilter 설정
    */
+/*
   public setTimeAllFilter() {
     this.filter = FilterUtil.getTimeAllFilter( this.filter.clzField, this.filter.ui.importanceType );
     this._setStatus();
     this._updateFilter( this.filter );
   } // function - setTimeAllFilter
+ */
 
   /**
    * TimeRangeFilter 설정
    */
   public setTimeRangeFilter() {
-    if( this._tempRangeFilter) {
-      this.filter = this._tempRangeFilter;
-    } else {
-      this.filter = FilterUtil.getTimeRangeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+    if( this.isDashboardMode ) {
+      let cloneFilter = JSON.parse(JSON.stringify(this.filter));
+      if( this._tempRangeFilter) {
+        cloneFilter = this._tempRangeFilter;
+      } else {
+        cloneFilter = FilterUtil.getTimeRangeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType, this.dataSource );
+      }
+      this._updateFilter(cloneFilter);
     }
-    this.originalFilter = _.cloneDeep( this.filter );
-    this._setStatus();
+    else {
+      if( this._tempRangeFilter) {
+        this.filter = this._tempRangeFilter;
+      } else {
+        this.filter = FilterUtil.getTimeRangeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+      }
+      ( this.originalFilter.ui.widgetId ) && ( this.filter.ui.widgetId = this.originalFilter.ui.widgetId );
+      this.originalFilter = _.cloneDeep( this.filter );
+      this._setStatus();
+    }
   } // function - setTimeRangeFilter
 
   /**
    * TimeRelativeFilter 설정
    */
   public setTimeRelativeFilter() {
-    if( this._tempRelativeFilter ) {
-      this.filter = this._tempRelativeFilter;
+    if( this.isDashboardMode ) {
+      let cloneFilter = JSON.parse(JSON.stringify(this.filter));
+      if( this._tempRelativeFilter ) {
+        cloneFilter = this._tempRelativeFilter;
+      } else {
+        cloneFilter = FilterUtil.getTimeRelativeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType );
+      }
+      this._updateFilter(cloneFilter);
     } else {
-      this.filter = FilterUtil.getTimeRelativeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+      if( this._tempRelativeFilter ) {
+        this.filter = this._tempRelativeFilter;
+      } else {
+        this.filter = FilterUtil.getTimeRelativeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
+      }
+      ( this.originalFilter.ui.widgetId ) && ( this.filter.ui.widgetId = this.originalFilter.ui.widgetId );
+      this.originalFilter = _.cloneDeep( this.filter );
+      this._setStatus();
     }
-    this.originalFilter = _.cloneDeep( this.filter );
-    this._setStatus();
   } // function - setTimeRelativeFilter
 
   /**
@@ -252,6 +278,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
         this.filter.ui.importanceType
       );
     }
+    ( this.originalFilter.ui.widgetId ) && ( this.filter.ui.widgetId = this.originalFilter.ui.widgetId );
     this.originalFilter = _.cloneDeep( this.filter );
     this._setStatus();
   } // function - setTimeListFilter
@@ -311,7 +338,9 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     if(TimeUnit.NONE !== data.unit) {
       currFilter = FilterUtil.getTimeListFilter( currFilter.clzField, data.discontinuous, data.unit, data.byUnit, currFilter.ui.importanceType );
     } else {
-      currFilter = FilterUtil.getTimeAllFilter( currFilter.clzField, currFilter.ui.importanceType );
+      currFilter = FilterUtil.getTimeRangeFilter(
+        currFilter.clzField, TimeUnit.NONE, currFilter.ui.importanceType, this.dataSource
+      );
     }
     this._initialize(currFilter, true);
   } // function - selectTimeUnit

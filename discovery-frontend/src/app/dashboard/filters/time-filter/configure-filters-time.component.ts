@@ -142,16 +142,21 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
   /**
    * TimeAllFilter 설정
    */
+  /*
   public setTimeAllFilter() {
     this.targetFilter = FilterUtil.getTimeAllFilter( this.targetFilter.clzField, this.targetFilter.ui.importanceType );
     this._setStatus();
   } // function - setTimeAllFilter
+   */
 
   /**
    * TimeRangeFilter 설정
    */
   public setTimeRangeFilter() {
-    this.targetFilter = FilterUtil.getTimeRangeFilter( this.targetFilter.clzField, this.targetFilter.timeUnit, this.targetFilter.ui.importanceType );
+    this.targetFilter = FilterUtil.getTimeRangeFilter(
+      this.targetFilter.clzField, this.targetFilter.timeUnit, this.targetFilter.ui.importanceType,
+      this.dashboard.dataSources.find( ds => ds.engineName === this.targetFilter.dataSource )
+    );
     this._setStatus();
   } // function - setTimeRangeFilter
 
@@ -184,7 +189,10 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
     if(TimeUnit.NONE !== data.unit) {
       currFilter = FilterUtil.getTimeListFilter( currFilter.clzField, data.discontinuous, data.unit, data.byUnit, currFilter.ui.importanceType );
     } else {
-      currFilter = FilterUtil.getTimeAllFilter( currFilter.clzField, currFilter.ui.importanceType );
+      currFilter = FilterUtil.getTimeRangeFilter(
+        currFilter.clzField, TimeUnit.NONE, currFilter.ui.importanceType,
+        this.dashboard.dataSources.find( ds => ds.engineName === this.targetFilter.dataSource )
+      );
     }
     this.targetFilter = currFilter;
     this._setStatus();

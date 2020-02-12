@@ -1567,15 +1567,23 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.chart['setQuery'] = this.query;
     }
 
+    const cloneGlobalFilters = _.cloneDeep( globalFilters );
+    if( cloneGlobalFilters ) {
+      cloneGlobalFilters.forEach( gf => {
+        delete gf['clzField'];
+        delete gf['fieldObj'];
+      });
+    }
+
     // 차트 클리어 여부 판단
     const isClear: boolean = (this.chart && 'function' === typeof this.chart.clear
       && (this._currentSelectionFilterString !== JSON.stringify(currentSelectionFilters)
-        || this._currentGlobalFilterString !== JSON.stringify(globalFilters)));
+        || this._currentGlobalFilterString !== JSON.stringify(cloneGlobalFilters)));
 
     // 필터 정보 저장
     this._currentSelectionFilters = currentSelectionFilters;
     this._currentSelectionFilterString = JSON.stringify(currentSelectionFilters);
-    this._currentGlobalFilterString = JSON.stringify(globalFilters);
+    this._currentGlobalFilterString = JSON.stringify(cloneGlobalFilters);
     const disableCache: boolean = this.isRealTimeWidget;
 
     this.datasourceService.searchQuery(cloneQuery, disableCache).then((data) => {

@@ -15,7 +15,7 @@
 import * as _ from 'lodash';
 import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {BoardConfiguration} from '../../domain/dashboard/dashboard';
+import {BoardConfiguration, Dashboard} from '../../domain/dashboard/dashboard';
 import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
 import {Datasource, Field, FieldRole, LogicalType} from '../../domain/datasource/datasource';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
@@ -32,6 +32,9 @@ import {isNullOrUndefined, isUndefined} from 'util';
 import {DashboardUtil} from '../util/dashboard.util';
 import {Alert} from '../../common/util/alert.util';
 import {TimeRelativeFilter} from "../../domain/workbook/configurations/filter/time-relative-filter";
+import {TimeRangeFilter} from "../../domain/workbook/configurations/filter/time-range-filter";
+import {DashboardService} from "../service/dashboard.service";
+import * as moment from "moment";
 
 @Component({
   selector: 'app-config-filter-select',
@@ -236,7 +239,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
         }
       } else {
         if (field['isEditable']) {
-          const timeFilter: TimeFilter = field['filter'];
+          const timeFilter: TimeFilter = field['filter'] ? field['filter'] : field['someChartFilter'];
           this.editTimestampFilter(field, timeFilter.timeUnit, timeFilter.byTimeUnit);
         } else {
           this.addTimestampFilter(field);
@@ -307,7 +310,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     let timeFilter: TimeFilter;
     if (isNullOrUndefined(unit)) {
       // timeFilter = new TimeAllFilter(<Field>field);
-      timeFilter = new TimeRelativeFilter(<Field>field);
+      timeFilter = FilterUtil.getTimeRangeFilter(<Field>field, undefined, undefined, this.selectedDataSource );
     } else {
       timeFilter = new TimeListFilter(<Field>field);
       timeFilter.timeUnit = unit;
@@ -335,9 +338,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     } else {
       if (this.widget && field['useBoardFilter']) {
         // 보드 필터를 차트 필터로 변경
-        this._openConfirmToChartFilter(field['filter']);
+        this._openConfirmToChartFilter(field['thisChartFilter'] ? field['thisChartFilter'] : field['filter']);
       } else {
-        this.setFilterEvent.emit({key: 'EDIT', filter: field['filter']});
+        this.setFilterEvent.emit({key: 'EDIT', filter: field['thisChartFilter'] ? field['thisChartFilter'] : field['filter']});
       }
     }
   } // function - editFilter
@@ -360,11 +363,18 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     const isToBoardFilter: boolean = (field.hasOwnProperty('someChartFilter'));
     const timeFilter: TimeFilter = (isToBoardFilter) ? field['someChartFilter'] : field['filter'];
     if (isNullOrUndefined(unit) || TimeUnit.NONE === unit) {
-      timeFilter.type = 'time_all';
+      timeFilter.type = 'time_relative';
     } else {
       timeFilter.type = 'time_list';
       timeFilter.timeUnit = unit;
       (byUnit) && (timeFilter.byTimeUnit = byUnit);
+    }
+
+    if( !timeFilter.clzField ) {
+      console.info( timeFilter );
+      // 필드 설정
+      let totalFields: (Field | CustomField)[] = DashboardUtil.getFieldsForMainDataSource(this._boardConf, timeFilter.dataSource);
+      timeFilter.clzField = totalFields.find( field => field.name === timeFilter.field ) as Field;
     }
 
     if (isToBoardFilter) {

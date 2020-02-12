@@ -666,13 +666,24 @@ export class FilterUtil {
    * @param {Field} field
    * @param {TimeUnit} timeUnit
    * @param {string} importanceType
+   * @param {Datasource} ds
    * @returns {TimeRangeFilter}
    */
-  public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string): TimeRangeFilter {
+  public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string, ds?: Datasource): TimeRangeFilter {
     const timeFilter = new TimeRangeFilter(field);
     timeFilter.timeUnit = isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
+
+    if( !timeFilter.intervals
+      && ds && ds.summary
+      && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime ) {
+      ( timeFilter as TimeRangeFilter ).intervals = [
+        FilterUtil.getDateTimeFormat( ds.summary.ingestionMinTime, TimeUnit.SECOND)
+        + '/'
+        + FilterUtil.getDateTimeFormat( ds.summary.ingestionMaxTime, TimeUnit.SECOND)
+      ];
+    }
 
     return timeFilter;
   } // function - getTimeRangeFilter

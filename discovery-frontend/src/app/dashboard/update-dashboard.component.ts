@@ -387,6 +387,16 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       case 'page' :
         widget.dashBoard = this.dashboard;
         // (<PageWidgetConfiguration>widget.configuration).dataSource = DashboardUtil.getBoardDataSource(this.dashboard);
+
+        const pageWidgetConf = widget.configuration as PageWidgetConfiguration;
+        if( pageWidgetConf.filters ) {
+          pageWidgetConf.filters.forEach( filter => {
+            if( !filter['clzField'] ) {
+              filter['clzField'] = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field );
+            }
+          });
+        }
+
         this.selectedPageWidget = <PageWidget>widget;
         this.isShowPage = true;
         break;

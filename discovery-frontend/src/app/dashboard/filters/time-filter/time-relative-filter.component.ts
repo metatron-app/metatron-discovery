@@ -273,7 +273,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public isSelectedRelative(inputType: string, tense: string, timeUnit?: string): boolean {
     let isSelected: boolean = (
       this.targetFilter.tense === TimeRelativeTense[tense]
-      && (('BUTTON' === inputType) ? 1 === this.targetFilter.value : 1 < this.targetFilter.value)
+      && (('BUTTON' === inputType) ? 1 === Number(this.targetFilter.value) : 1 < Number(this.targetFilter.value) )
     );
     if (timeUnit) {
       isSelected = isSelected && (this.targetFilter.relTimeUnit === TimeUnit[timeUnit]);

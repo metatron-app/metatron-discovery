@@ -13,15 +13,16 @@
  */
 
 import {
+  ApplicationRef,
   Component,
+  ComponentFactoryResolver,
   ElementRef,
-  OnInit,
-  Injector,
-  OnDestroy,
-  Input,
-  Output,
   EventEmitter,
-  ComponentFactoryResolver, ApplicationRef
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
 } from '@angular/core';
 import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
 import {Filter} from '../../../domain/workbook/configurations/filter/filter';
@@ -30,9 +31,7 @@ import {DatasourceService} from '../../../datasource/service/datasource.service'
 import {FilterUtil} from '../../util/filter.util';
 import * as _ from 'lodash';
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {
-  InclusionFilter
-} from '../../../domain/workbook/configurations/filter/inclusion-filter';
+import {InclusionFilter} from '../../../domain/workbook/configurations/filter/inclusion-filter';
 import {BoundFilter} from '../../../domain/workbook/configurations/filter/bound-filter';
 import {Alert} from '../../../common/util/alert.util';
 import {CommonConstant} from '../../../common/constant/common.constant';
@@ -42,13 +41,13 @@ import {ConfigureFiltersBoundComponent} from '../bound-filter/configure-filters-
 import {ConfigureFiltersTimeComponent} from '../time-filter/configure-filters-time.component';
 import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
 import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
-import {FilteringType} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {FilteringType, TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
 import {MeasureInequalityFilter} from '../../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {WildCardFilter} from '../../../domain/workbook/configurations/filter/wild-card-filter';
 import {MeasurePositionFilter} from '../../../domain/workbook/configurations/filter/measure-position-filter';
 import {AdvancedFilter} from '../../../domain/workbook/configurations/filter/advanced-filter';
 import {DashboardUtil} from '../../util/dashboard.util';
-import { Message } from '@stomp/stompjs';
+import {Message} from '@stomp/stompjs';
 
 @Component({
   selector: 'app-essential-filter',
@@ -357,7 +356,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       if (field.filtering) {
         if (FieldRole.DIMENSION === field.role) {
           if (field.logicalType === LogicalType.TIMESTAMP) {
-            filters.push(FilterUtil.getTimeAllFilter(field, 'essential'));
+            filters.push(FilterUtil.getTimeRangeFilter(field, TimeUnit.NONE, 'essential'));
           } else {
             const inclusionFilter: InclusionFilter = FilterUtil.getBasicInclusionFilter(field, 'essential');
             // 정렬을 위함 임시정보 설정

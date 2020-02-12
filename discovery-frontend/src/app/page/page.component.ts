@@ -1929,7 +1929,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       let newFilter:Filter;
       if (selectedField.logicalType === LogicalType.TIMESTAMP) {
         // 시간 필터
-        const timeFilter = FilterUtil.getTimeAllFilter(selectedField);
+        const timeFilter = FilterUtil.getTimeRangeFilter(selectedField, undefined, undefined, this.dataSource);
 
         // widgetId set
         timeFilter.ui.widgetId = this.widget.id;
