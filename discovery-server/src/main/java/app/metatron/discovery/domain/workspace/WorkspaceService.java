@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.workspace;
 
+import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
+import app.metatron.discovery.domain.activities.spec.ActivityObject;
+import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -255,6 +258,15 @@ public class WorkspaceService {
             LOGGER.debug("Added member in workspace({}) : {}, {}", workspace.getId(), memberId, patch.getValue("role"));
           }
 
+          try {
+            activityStreamService.addActivity(new ActivityStreamV2(
+                null, null, "Accept", null, null
+                , new ActivityObject(workspace.getId(),"WORKSPACE")
+                , new ActivityObject(memberId, "MEMBER_GROUP"),
+                new ActivityGenerator("WEBAPP",""), DateTime.now()));
+          } catch (RuntimeException re) {
+            LOGGER.error("Error [Activity] Accept workspace ({}) to member/group ({})", workspace.getId(), memberId, re);
+          }
           break;
         case REMOVE:
           if (memberMap.containsKey(memberId)) {
@@ -262,6 +274,15 @@ public class WorkspaceService {
             LOGGER.debug("Deleted member in workspace({}) : {}", workspace.getId(), memberId);
             // 즐겨찾기가 등록되어 있는 경우 삭제
             workspaceFavoriteRepository.deleteByUsernameAndWorkspaceId(memberId, workspace.getId());
+          }
+          try {
+            activityStreamService.addActivity(new ActivityStreamV2(
+                null, null, "Block", null, null
+                , new ActivityObject(workspace.getId(),"WORKSPACE")
+                , new ActivityObject(memberId, "MEMBER_GROUP"),
+                new ActivityGenerator("WEBAPP",""), DateTime.now()));
+          } catch (RuntimeException re) {
+            LOGGER.error("Error [Activity] Block workspace ({}) to member/group ({})", workspace.getId(), memberId, re);
           }
           break;
         default:
