@@ -20,6 +20,10 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.idcube.IdCubeProperties;
+import app.metatron.discovery.domain.idcube.security.AES;
+import app.metatron.discovery.util.ApplicationContextProvider;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by kyungtaak on 2016. 6. 20..
@@ -40,6 +44,15 @@ public class ConnectionRequest {
   List<Map<String, Object>> partitions;
 
   public DataConnection getConnection() {
+    IdCubeProperties idCubeProperties = ApplicationContextProvider.getApplicationContext().getBean(IdCubeProperties.class);
+    if(idCubeProperties != null) {
+      if (StringUtils.isNotEmpty(idCubeProperties.getSecurity().getCipherSecretKey())) {
+        String decryptPassword = AES.decrypt(connection.getPassword(), idCubeProperties.getSecurity().getCipherSecretKey());
+        if (decryptPassword != null) {
+          connection.setPassword(decryptPassword);
+        }
+      }
+    }
     return connection;
   }
 
