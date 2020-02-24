@@ -57,31 +57,45 @@ export class UserService extends AbstractService {
         .then(response => Promise.resolve(true))
         .catch(error => scope.isLoggedInErrorHandler(scope, error));
     } else {
-      const apiURL = this.API_URL + 'auth/login-delegation';
-      const currentURL = location.href;
-      this.http.get(apiURL)
-        .toPromise()
-        .then(res => {
-          if(res['url']) {
-            //http://localhost:4200/app/v2/workbook/ec157f05-1122-4d4e-9d41-2905f020702b
-            let existQueryString = false;
-            if(res['url'].indexOf('?') !== -1) {
-              existQueryString = true;
+      if(this.isLoginRedirect() == true) {
+        this.getLoginDelegationURL().then(res => {
+            if(res['url']) {
+              this.moveToRedirectPage(res['url']);
+            } else {
+              CommonUtil.moveToStartPage( this.router );
             }
-
-            const queryString = (existQueryString ? "&" : "?") + "redirectURL=" + encodeURIComponent(currentURL);
-            const loginDelegationURL = res['url'] + queryString;
-            CommonUtil.moveToStartPage( this.router, loginDelegationURL);
-          } else {
+          })
+          .catch(error => {
             CommonUtil.moveToStartPage( this.router );
-          }
-        })
-        .catch(error => {
-          CommonUtil.moveToStartPage( this.router );
-        });
+          });
+      } else {
+        CommonUtil.moveToStartPage( this.router );
+      }
 
       return Promise.resolve(false);
     }
+  }
+
+  public getLoginDelegationURL(): Promise<any> {
+    const apiURL = this.API_URL + 'auth/login-delegation';
+    return this.http.get(apiURL)
+      .toPromise();
+  }
+
+  public isLoginRedirect() {
+    const currentURL = location.href;
+    return currentURL.indexOf("redirect=false") == -1 ? true : false;
+  }
+
+  public moveToRedirectPage(url: string) {
+    let existQueryString = false;
+    if(url.indexOf('?') !== -1) {
+      existQueryString = true;
+    }
+    const currentURL = location.href;
+    const queryString = (existQueryString ? "&" : "?") + "redirectURL=" + encodeURIComponent(currentURL);
+    const loginDelegationURL = url + queryString;
+    CommonUtil.moveToStartPage( this.router, loginDelegationURL);
   }
 
   // 사용자 정보가 없을 경우 리플레시 토큰이 있으면 토큰을 갱신
@@ -97,11 +111,35 @@ export class UserService extends AbstractService {
         this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, token.refresh_token, 0, "/");
         return true;
       }).catch(() => {
-        this.router.navigate(['/user/login']);
+        if(this.isLoginRedirect() == true) {
+          this.getLoginDelegationURL().then(res => {
+            if(res['url']) {
+              this.moveToRedirectPage(res['url']);
+            } else {
+              CommonUtil.moveToStartPage( this.router );
+            }
+          }).catch(error => {
+            this.router.navigate(['/user/login']);
+          });
+        } else {
+          this.router.navigate(['/user/login']);
+        }
         return false;
       });
     }  else {
-      this.router.navigate(['/user/login']);
+      if(this.isLoginRedirect() == true) {
+        this.getLoginDelegationURL().then(res => {
+          if(res['url']) {
+            this.moveToRedirectPage(res['url']);
+          } else {
+            CommonUtil.moveToStartPage( this.router );
+          }
+        }).catch(error => {
+          this.router.navigate(['/user/login']);
+        });
+      } else {
+        this.router.navigate(['/user/login']);
+      }
       return Promise.resolve(false);
     }
   }

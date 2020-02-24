@@ -112,6 +112,14 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
       } else {
         this.router.navigate(['/workspace']).then();
       }
+    } else {
+      if(this.userService.isLoginRedirect() == true) {
+        this.userService.getLoginDelegationURL().then(res => {
+          if(res['url']) {
+            this.userService.moveToRedirectPage(res['url']);
+          }
+        }).catch(error => {});
+      }
     }
   }
 
