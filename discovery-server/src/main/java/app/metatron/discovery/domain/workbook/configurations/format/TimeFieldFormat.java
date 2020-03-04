@@ -14,18 +14,16 @@
 
 package app.metatron.discovery.domain.workbook.configurations.format;
 
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.domain.engine.EngineQueryProperties;
+import app.metatron.discovery.util.EnumUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Locale;
-
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.domain.engine.EngineQueryProperties;
-import app.metatron.discovery.util.EnumUtils;
 
 public abstract class TimeFieldFormat {
 
@@ -284,6 +282,53 @@ public abstract class TimeFieldFormat {
 
       return dateTime;
     }
+
+    public DateTime resetDateTimeByUnit(DateTime dateTime) {
+
+      switch (this) {
+        case YEAR:
+          return dateTime.withMonthOfYear(1).withDayOfMonth(1).withTime(0, 0, 0, 0);
+        case MONTH:
+          return dateTime.withDayOfMonth(1).withTime(0, 0, 0, 0);
+        case WEEK:
+          return dateTime.withDayOfWeek(1).withTime(0, 0, 0, 0);
+        case DAY:
+          return dateTime.withTime(0, 0, 0, 0);
+        case HOUR:
+          return dateTime.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+        case MINUTE:
+          return dateTime.withSecondOfMinute(0).withMillisOfSecond(0);
+        case SECOND:
+          return dateTime.withMillisOfSecond(0);
+      }
+
+      return dateTime;
+
+    }
+
+    public DateTime maxDateTimeByUnit(DateTime dateTime) {
+
+      switch (this) {
+        case YEAR:
+          return dateTime.withMonthOfYear(12).withDayOfMonth(31).withTime(23, 59, 59, 999);
+        case MONTH:
+          return dateTime.dayOfMonth().withMaximumValue().millisOfDay().withMaximumValue();
+        case WEEK:
+          return dateTime.dayOfWeek().withMaximumValue().millisOfDay().withMaximumValue();
+        case DAY:
+          return dateTime.millisOfDay().withMaximumValue();
+        case HOUR:
+          return dateTime.withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+        case MINUTE:
+          return dateTime.withSecondOfMinute(59).withMillisOfSecond(999);
+        case SECOND:
+          return dateTime.withMillisOfSecond(999);
+      }
+
+      return dateTime;
+
+    }
+
   }
 
   public enum ByTimeUnit {

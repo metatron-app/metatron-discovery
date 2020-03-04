@@ -14,23 +14,20 @@
 
 package app.metatron.discovery.domain.workbook.configurations.filter;
 
-import com.google.common.collect.Lists;
-
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
+import app.metatron.discovery.util.EnumUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.util.List;
-
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
-import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
-import app.metatron.discovery.util.EnumUtils;
 
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
 
@@ -105,7 +102,7 @@ public class TimeRelativeFilter extends TimeFilter {
 
     List<DateTime> rangeDateTimes = rangeDateTimes(datasourceField.backwardTime());
 
-    String field = null;
+    String field;
     if (datasourceField.getRole() == TIMESTAMP) {
       field = "__time";
     } else {
@@ -125,22 +122,29 @@ public class TimeRelativeFilter extends TimeFilter {
   private List<DateTime> rangeDateTimes(boolean backward) {
 
     DateTime currentTime = backward ?
-        utcFakeNow(DateTimeZone.forID(timeZone)) : DateTime.now(DateTimeZone.forID(timeZone));
+            utcFakeNow(DateTimeZone.forID(timeZone)) : DateTime.now(DateTimeZone.forID(timeZone));
+
+    TimeFieldFormat.TimeUnit standardTimeUnit = realTimeUnit();
+
+    DateTime startTime;
+    DateTime endTime;
 
     switch (tense) {
       case NEXT:
-        DateTime nextTime = currentTime.plus(Period.parse(realTimeUnit().peridFormat(this.value)));
-        return Lists.newArrayList(currentTime, nextTime);
+        startTime = standardTimeUnit.resetDateTimeByUnit(currentTime);
+        endTime = startTime.plus(Period.parse(standardTimeUnit.peridFormat(this.value)));
+        break;
       case PREVIOUS:
-        DateTime previousTime = currentTime.minus(Period.parse(realTimeUnit().peridFormat(this.value)));
-        return Lists.newArrayList(previousTime, currentTime);
-      case CURRENT:
-        DateTime startDateTime = realTimeUnit().atStartDateTime(currentTime);
-        DateTime endDateTime = realTimeUnit().atEndDateTime(currentTime);
-        return Lists.newArrayList(startDateTime, endDateTime);
+        DateTime previousTime = currentTime.minus(Period.parse(standardTimeUnit.peridFormat(this.value)));
+        startTime = standardTimeUnit.resetDateTimeByUnit(previousTime);
+        endTime = standardTimeUnit.maxDateTimeByUnit(currentTime);
+        break;
+      default:
+        startTime = standardTimeUnit.resetDateTimeByUnit(currentTime);
+        endTime = standardTimeUnit.maxDateTimeByUnit(currentTime);
     }
 
-    return Lists.newArrayList(currentTime, currentTime.plusMonths(1));
+    return Lists.newArrayList(startTime, endTime);
   }
 
   private TimeFieldFormat.TimeUnit realTimeUnit() {
