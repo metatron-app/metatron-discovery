@@ -199,6 +199,7 @@ export class DashboardService extends AbstractService {
       if (param['configuration']) {
         const boardConf: BoardConfiguration = param['configuration'] as BoardConfiguration;
         if (boardConf.dataSource) {
+          boardConf.dataSource.name = boardConf.dataSource.engineName;
           delete boardConf.dataSource.connType;
           delete boardConf.dataSource.engineName;
           delete boardConf.dataSource.uiFields;
