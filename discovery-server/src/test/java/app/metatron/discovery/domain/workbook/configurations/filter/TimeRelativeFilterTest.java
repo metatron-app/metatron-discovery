@@ -14,12 +14,11 @@
 
 package app.metatron.discovery.domain.workbook.configurations.filter;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TimeRelativeFilterTest {
 
@@ -51,13 +50,13 @@ public class TimeRelativeFilterTest {
   public void getEngineIntervals() {
 
     TimeRelativeFilter timeRelativeFilter = new TimeRelativeFilter("test field",
-                                                                   "ref",
-                                                                   "HOUR",
-                                                                   null,
-                                                                   "previous",
-                                                                   5,
-                                                                   "Asia/Seoul",
-                                                                   "ko"
+            "ref",
+            "DAY",
+            null,
+            "current",
+            5,
+            "Asia/Seoul",
+            "ko"
     );
 
     System.out.println(timeRelativeFilter.getEngineIntervals(dataSourceField));
