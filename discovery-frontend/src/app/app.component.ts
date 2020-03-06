@@ -12,27 +12,29 @@
  * limitations under the License.
  */
 
-import { ChangeDetectorRef, Component, Injector } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import {ChangeDetectorRef, Component, Injector, OnInit} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
 import {
-  Router,
-  // import as RouterEvent to avoid confusion with the DOM Event
   Event as RouterEvent,
-  NavigationStart,
-  NavigationEnd,
   NavigationCancel,
-  NavigationError
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router
 } from '@angular/router';
 
+import {BnNgIdleService} from 'bn-ng-idle';
+
 import * as _ from 'lodash';
-import { EventBroadcaster } from './common/event/event.broadcaster';
+import {EventBroadcaster} from './common/event/event.broadcaster';
+import {UserService} from "./user/service/user.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   public isLoggedIn:boolean = false;
   public routerLoading: boolean = false;
@@ -43,7 +45,9 @@ export class AppComponent {
   constructor(private translateService: TranslateService,
               private broadCaster: EventBroadcaster,
               private router: Router,
-              protected injector: Injector) {
+              protected injector: Injector,
+              private bnIdle: BnNgIdleService,
+              private userService: UserService) {
 
     this.changeDetect = injector.get(ChangeDetectorRef);
 
@@ -85,6 +89,19 @@ export class AppComponent {
     });
 
   } // constructor
+
+  public ngOnInit() {
+    this.userService.getLoginSessionIdleTime().then(res => {
+      if(res['timeout'] && res['timeout'] > 0) {
+        const idleTimeout = res['timeout'];
+        this.bnIdle.startWatching(idleTimeout).subscribe((res: boolean) => {
+          if (res) {
+            this.userService.logout();
+          }
+        });
+      }
+    }).catch(error => {});
+  }
 
   // Shows and hides the loading spinner during RouterEvent changes
   navigationInterceptor(event: RouterEvent): void {

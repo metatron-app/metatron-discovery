@@ -430,4 +430,15 @@ public class AuthenticationController {
 
     return ResponseEntity.ok(loginDelegationURL);
   }
+
+  @RequestMapping(value = "/auth/login-session-idle-timeout", method = RequestMethod.GET)
+  public ResponseEntity<Map<String, Object>> getLoginSessionIdleTimeout() {
+    if(idCubeProperties.getAuth().getSessionTimeoutSeconds() > 0) {
+      Map<String, Object> loginDelegationURL = new HashMap<>();
+      loginDelegationURL.put("timeout", idCubeProperties.getAuth().getSessionTimeoutSeconds());
+      return ResponseEntity.ok(loginDelegationURL);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
+  }
 }
