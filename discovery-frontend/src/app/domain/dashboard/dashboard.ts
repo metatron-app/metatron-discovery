@@ -107,7 +107,7 @@ export class BoardDataSource {
   public static convertDsToMetaDs(ds: Datasource):BoardDataSource {
     const metaDs = new BoardDataSource();
     metaDs.id = ds.id;
-    metaDs.name = ds.name;
+    metaDs.name = ds.engineName;
     metaDs.uiDescription = ds.description;
     metaDs.engineName = ds.engineName;
     metaDs.uiFields = ds.fields;
