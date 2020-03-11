@@ -33,13 +33,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.oauth.CookieManager;
 import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
@@ -200,30 +199,16 @@ public class DashBoardController {
       throw new ResourceNotFoundException(id);
     }
 
-    if(WebUtils.getCookie(request, "LOGIN_TOKEN") == null) {
+    if(CookieManager.getAccessToken(request) == null) {
 
       String authorization = request.getHeader("Authorization");
       String[] splitedAuth = StringUtils.split(authorization, " ");
 
-      Cookie cookie = new Cookie("LOGIN_TOKEN", splitedAuth[1]);
-      cookie.setPath("/");
-      cookie.setMaxAge(60*60*24) ;
-      response.addCookie(cookie);
+      CookieManager.addCookie(CookieManager.ACCESS_TOKEN, splitedAuth[1], response);
+      CookieManager.addCookie(CookieManager.TOKEN_TYPE, splitedAuth[0], response);
+      CookieManager.addCookie(CookieManager.REFRESH_TOKEN, "", response);
+      CookieManager.addCookie(CookieManager.LOGIN_ID, AuthUtils.getAuthUserName(), response);
 
-      cookie = new Cookie("LOGIN_TOKEN_TYPE", splitedAuth[0]);
-      cookie.setPath("/");
-      cookie.setMaxAge(60*60*24) ;
-      response.addCookie(cookie);
-
-      cookie = new Cookie("REFRESH_LOGIN_TOKEN", "");
-      cookie.setPath("/");
-      cookie.setMaxAge(60*60*24);
-      response.addCookie(cookie);
-
-      cookie = new Cookie("LOGIN_USER_ID", AuthUtils.getAuthUserName());
-      cookie.setPath("/");
-      cookie.setMaxAge(60*60*24) ;
-      response.addCookie(cookie);
     }
 
     StringBuilder pathBuilder = new StringBuilder();

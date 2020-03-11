@@ -17,11 +17,10 @@ package app.metatron.discovery.common.saml;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
-import java.util.Arrays;
-
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.common.oauth.CookieManager;
 
 public class CustomSecurityContextLogoutHandler extends SecurityContextLogoutHandler {
 
@@ -33,14 +32,7 @@ public class CustomSecurityContextLogoutHandler extends SecurityContextLogoutHan
 
     //Logout 시점에 Cookie 삭제
     if(clearCookie){
-      String[] cookies = new String[]{"LOGIN_TOKEN", "LOGIN_TOKEN_TYPE", "REFRESH_LOGIN_TOKEN", "LOGIN_USER_ID", "PERMISSION"};
-
-      Arrays.stream(cookies).forEach(cookieName -> {
-        Cookie cookie = new Cookie(cookieName, "");
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-      });
+      CookieManager.removeAllToken(response);
     }
   }
 
