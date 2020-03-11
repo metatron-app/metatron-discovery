@@ -336,8 +336,11 @@ export class DatasourceService extends AbstractService {
     // datasource 설정 추가
     query.dataSource = _.cloneDeep(pageConf.dataSource);
     delete query.dataSource['fields']; // 불필요 항목 제거
+
     // EngineName 처리
-    query.dataSource.name = query.dataSource.engineName;
+    if (!isNullOrUndefined(query.dataSource.engineName)) {
+      query.dataSource.name = query.dataSource.engineName;
+    }
 
     // 파라미터 치환
     // set alias list by pivot or shelf list, Datasource setting
