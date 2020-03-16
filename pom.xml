@@ -807,7 +807,7 @@
         <repository>
             <id>metatron-public</id>
             <name>Metatron Public Repository</name>
-            <url>http://52.231.187.35:9081/nexus/content/repositories/metatron-public/</url>
+            <url>https://nexus.metatron.app/content/repositories/metatron-public/</url>
         </repository>
 
     </repositories>
