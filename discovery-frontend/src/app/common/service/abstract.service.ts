@@ -94,7 +94,7 @@ export class AbstractService {
    * Token 갱신
    * accessUrl API요청 URL
    */
-  protected refleshToken(): Promise<any> {
+  protected refreshToken(): Promise<any> {
 
     // this
     const scope: any = this;
@@ -473,7 +473,7 @@ export class AbstractService {
       const refreshToken = this.cookieService.get(CookieConstant.KEY.REFRESH_LOGIN_TOKEN);
       const userId: string = CommonUtil.getLoginUserId();
       if (refreshToken != null && userId != null && method != null) {
-        return this.refleshToken().then((token) => {
+        return this.refreshToken().then((token) => {
 
           // 쿠키 저장
           service.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, token.access_token, 0, '/');

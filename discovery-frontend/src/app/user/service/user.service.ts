@@ -68,7 +68,7 @@ export class UserService extends AbstractService {
     const refreshToken = this.cookieService.get(CookieConstant.KEY.REFRESH_LOGIN_TOKEN);
     const userId:string = CommonUtil.getLoginUserId();
     if (refreshToken != null && userId != null) {
-      return this.refleshToken().then((token) => {
+      return this.refreshToken().then((token) => {
         // 쿠키 저장
         this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, token.access_token, 0, "/");
         this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, token.token_type, 0, "/");
