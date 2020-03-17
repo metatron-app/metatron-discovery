@@ -36,10 +36,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import app.metatron.discovery.common.oauth.CookieManager;
 import app.metatron.discovery.util.AuthUtils;
 
 public class SAMLAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
@@ -105,30 +105,11 @@ public class SAMLAuthenticationSuccessHandler extends SavedRequestAwareAuthentic
   }
 
   private void getResponse(OAuth2AccessToken accessToken, HttpServletResponse response, String userName, List<String> permissions) {
-    Cookie cookie = new Cookie("LOGIN_TOKEN", accessToken.getValue());
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
-
-    cookie = new Cookie("LOGIN_TOKEN_TYPE", accessToken.getTokenType());
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
-
-    cookie = new Cookie("REFRESH_LOGIN_TOKEN", accessToken.getRefreshToken().getValue());
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24);
-    response.addCookie(cookie);
-
-    cookie = new Cookie("LOGIN_USER_ID", userName);
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
-
-    cookie = new Cookie( "PERMISSION", String.join( "==", permissions ) );
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
+    CookieManager.addCookie(CookieManager.ACCESS_TOKEN, accessToken.getValue(), response);
+    CookieManager.addCookie(CookieManager.TOKEN_TYPE, accessToken.getTokenType(), response);
+    CookieManager.addCookie(CookieManager.REFRESH_TOKEN, accessToken.getRefreshToken().getValue(), response);
+    CookieManager.addCookie(CookieManager.LOGIN_ID, userName, response);
+    CookieManager.addCookie(CookieManager.PERMISSIONS, String.join( "==", permissions ), response);
 
     response.setHeader("P3P","CP=\"IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT\"");
 

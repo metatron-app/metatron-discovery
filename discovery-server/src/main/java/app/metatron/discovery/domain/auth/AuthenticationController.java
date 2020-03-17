@@ -57,12 +57,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.oauth.CookieManager;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
@@ -153,25 +153,10 @@ public class AuthenticationController {
                              @RequestParam("refreshToken") String refreshToken, @RequestParam("userId") String userId,
                              @RequestParam("forwardUrl") String forwardUrl, HttpServletResponse response) {
 
-    Cookie cookie = new Cookie("LOGIN_TOKEN", token);
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
-
-    cookie = new Cookie("LOGIN_TOKEN_TYPE", type);
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
-
-    cookie = new Cookie("REFRESH_LOGIN_TOKEN", refreshToken);
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24);
-    response.addCookie(cookie);
-
-    cookie = new Cookie("LOGIN_USER_ID", userId);
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
+    CookieManager.addCookie(CookieManager.ACCESS_TOKEN, token, response);
+    CookieManager.addCookie(CookieManager.TOKEN_TYPE, type, response);
+    CookieManager.addCookie(CookieManager.REFRESH_TOKEN, refreshToken, response);
+    CookieManager.addCookie(CookieManager.LOGIN_ID, userId, response);
 
     User user = userService.findUser(userId);
     Set<Permission> perms =  user.getPermissions();
@@ -183,10 +168,7 @@ public class AuthenticationController {
           }
         });
     }
-    cookie = new Cookie( "PERMISSION", String.join( "==", arrPerm ) );
-    cookie.setPath("/");
-    cookie.setMaxAge(60*60*24) ;
-    response.addCookie(cookie);
+    CookieManager.addCookie(CookieManager.PERMISSIONS, String.join( "==", arrPerm ), response);
 
     response.setHeader("P3P","CP=\"IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT\"");
 
@@ -281,11 +263,16 @@ public class AuthenticationController {
     ModelAndView mav = new ModelAndView("oauth/login");
     try {
       String clientId = request.getParameter("client_id");
-      String clientSecret = jdbcClientDetailsService.loadClientByClientId(clientId).getClientSecret();
+      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+      String clientSecret = clientDetails.getClientSecret();
       String token = clientId+":"+clientSecret;
       String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
+      String clientName = String.valueOf(clientDetails.getAdditionalInformation()
+                                                      .getOrDefault("clientName", "metatron Discovery"));
+      LOGGER.info("clientName {}", clientName);
       LOGGER.info("basicHeader {}", basicHeader);
       mav.addObject("basicHeader", "Basic "+basicHeader);
+      mav.addObject("clientName", clientName);
     } catch (Exception e) {
       throw new MetatronException(e);
     }
@@ -296,25 +283,7 @@ public class AuthenticationController {
   @RequestMapping(value = "/oauth/client/logout")
   public void oauthLogout(HttpServletRequest request, HttpServletResponse response) {
     try {
-      Cookie cookie = new Cookie("LOGIN_TOKEN", null);
-      cookie.setPath("/");
-      cookie.setMaxAge(0) ;
-      response.addCookie(cookie);
-
-      cookie = new Cookie("LOGIN_TOKEN_TYPE", null);
-      cookie.setPath("/");
-      cookie.setMaxAge(0) ;
-      response.addCookie(cookie);
-
-      cookie = new Cookie("REFRESH_LOGIN_TOKEN", null);
-      cookie.setPath("/");
-      cookie.setMaxAge(0) ;
-      response.addCookie(cookie);
-
-      cookie = new Cookie("LOGIN_USER_ID", null);
-      cookie.setPath("/");
-      cookie.setMaxAge(0) ;
-      response.addCookie(cookie);
+      CookieManager.removeAllToken(response);
 
       String clientId = request.getParameter("client_id");
       ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
