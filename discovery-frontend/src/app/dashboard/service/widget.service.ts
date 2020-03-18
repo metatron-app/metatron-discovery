@@ -272,6 +272,10 @@ export class WidgetService extends AbstractService {
           });
         }
       }
+      if (conf && conf.dataSource && conf.dataSource.engineName) {
+        param.configuration.dataSource.name = conf.dataSource.engineName;
+        delete conf.dataSource.engineName;
+      }
     }
     return param;
   } // function - _convertSpecToServer

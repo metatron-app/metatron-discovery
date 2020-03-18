@@ -265,7 +265,7 @@ export class DashboardUtil {
    */
   public static isSameDataSource(boardDs: BoardDataSource, dataSource: Datasource): boolean {
     return (boardDs.name === dataSource.name || boardDs.name === dataSource.engineName);
-    // return boardDs.engineName === dataSource.engineName;
+    // return (boardDs.engineName === dataSource.engineName || boardDs.id === dataSource.id);
   } // function - isSameDataSource
 
   /**
