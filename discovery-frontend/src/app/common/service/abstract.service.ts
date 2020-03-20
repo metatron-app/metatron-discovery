@@ -84,7 +84,7 @@ export class AbstractService {
 
     // 호출
     return this.http.post(
-      url, 'grant_type=password&scope=write&username=' + user.username + '&password=' + user.password,
+      url, 'grant_type=password&scope=write&username=' + user.username + '&password=' + encodeURIComponent(user.password),
       { headers })
       .toPromise()
       .catch(error => scope.errorHandler(scope, error));
