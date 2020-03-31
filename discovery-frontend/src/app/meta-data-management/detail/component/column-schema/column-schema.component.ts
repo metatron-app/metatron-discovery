@@ -15,7 +15,7 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, HostListener,
   Injector,
   Input,
   OnDestroy,
@@ -49,6 +49,7 @@ import {StringUtil} from '../../../../common/util/string.util';
 import {StorageService} from '../../../../data-storage/service/storage.service';
 import {Metadata} from '../../../../domain/meta-data-management/metadata';
 import {DatetimeValidPopupComponent} from '../../../../shared/datasource-metadata/component/datetime-valid-popup.component';
+import {isNullOrUndefined} from "util";
 
 class Order {
   key: string = 'physicalName';
@@ -150,6 +151,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private readonly _chooseCodeTableEvent = new EventEmitter();
   @Output('chooseDictionaryEvent')
   private readonly _chooseDictionaryEvent = new EventEmitter();
+
+  @HostListener('click', ['$event'])
+  public clickListener() {
+    this._hideTypeListPopup();
+  }
 
   /**
    * Field List Original
@@ -306,7 +312,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
       return;
     }
 
-    if (this.isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn) === false) {
+    if (!this.isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn)) {
+      if (!metadataColumn['typeListFl']) {
+        this._hideTypeListPopup();
+      }
       metadataColumn['typeListFl'] = !metadataColumn['typeListFl'];
       // detect changes
       this.changeDetect.detectChanges();
@@ -666,7 +675,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   }
 
   public onClickTypeSelectAndTimestampValidWrapElement(event: MouseEvent, metadataColumn: MetadataColumn, typeElement, typeListElement) {
-
+    event.stopPropagation();
     if (this._checkIfElementContainsClassName(this._getTargetElementClassList(event), this.TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT)) {
       this.onShowLogicalTypeList(metadataColumn, typeElement, typeListElement);
       return;
@@ -1117,5 +1126,14 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public blurMetadataColumnSchemaNameInput(index: number) {
     this.renderer.setElementClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected', false);
+  }
+
+  private _hideTypeListPopup() {
+    if (!isNullOrUndefined(this.getColumns())) {
+      this.getColumns().forEach(item => {
+        item['typeListFl'] = false;
+        item['codeTableShowFl'] = false;
+      })
+    }
   }
 }
