@@ -188,7 +188,7 @@
                      (ngModelChange)="column.logicalName = $event;">
             </td>
             <td class="ddp-inherit ddp-info" [class.ddp-selected]="column.isShowTypeList || column.format?.isShowTimestampValidPopup" [ngClass]="TYPE_SELECT_LIST_WRAP_ELEMENT"
-                (click)="onChangeTypeListShowFlag(column, $event)" (clickOutside)="column.isShowTypeList = false;">
+                (click)="onChangeTypeListShowFlag(column, $event)">
               <!-- select -->
               <div class="ddp-ui-selected-option" [class.ddp-selected]="column.isShowTypeList" [ngClass]="TYPE_SELECT_LIST_WRAP_ELEMENT">
                 <span class="ddp-link-text ddp-txt-icon" [ngClass]="TYPE_SELECTED_LABEL_ELEMENT">
