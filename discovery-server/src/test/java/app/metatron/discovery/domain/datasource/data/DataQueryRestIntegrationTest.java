@@ -287,7 +287,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesForDownload() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -3377,6 +3377,27 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             .then()
             .statusCode(HttpStatus.SC_OK)
             .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchSqlQuery() {
+
+    SqlQueryRequest request = new SqlQueryRequest("select * from asset_trace_poc_asset_model_01 limit 5", null);
+
+    // @formatter:off
+    given()
+        .auth().oauth2(oauth_token)
+        .body(GlobalObjectMapper.writeValueAsString(request))
+        .contentType(ContentType.JSON)
+        .log().all()
+    .when()
+        .post("/api/datasources/query/sql")
+    .then()
+        .log().all()
+        .statusCode(HttpStatus.SC_OK);
     // @formatter:on
 
   }

@@ -14,8 +14,8 @@
 
 package app.metatron.discovery.domain.engine;
 
+import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +26,11 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResponseErrorHandler;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
-import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 
 import static app.metatron.discovery.domain.engine.EngineProperties.*;
 
@@ -79,6 +76,10 @@ public class DruidEngineRepository extends AbstractEngineRepository {
     return call(SEARCH_QUERY, Maps.newHashMap(), spec, clazz);
   }
 
+  public <T> Optional<T> sql(String spec, Class<T> clazz) {
+    return call(SQL_QUERY, Maps.newHashMap(), spec, clazz);
+  }
+
   public <T> Optional<T> health(String url, Class<T> clazz) {
     return callByUrl(url + HEALTH_CHECK, HttpMethod.GET, Maps.newHashMap(), null, clazz);
   }
@@ -87,7 +88,7 @@ public class DruidEngineRepository extends AbstractEngineRepository {
     return callByUrl(url + PROPERTIES_CHECK, HttpMethod.GET, Maps.newHashMap(), null, clazz);
   }
 
-  public Optional<List> getHistoricalNodes(){
+  public Optional<List> getHistoricalNodes() {
     Map paramMap = Maps.newHashMap();
     paramMap.put("simple", null);
     return call(GET_HISTORICAL_NODE, paramMap, List.class);
