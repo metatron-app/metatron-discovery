@@ -106,19 +106,28 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
     const arrUrl:string[] = this._url.split('_');
     if( 0 < CommonService.extensions.length ) {
       const menuItem = CommonService.extensions.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
-      this._openExternalView(menuItem.subContents[arrUrl[2]]);
+      this._openExternalView(this._getRouteUrl(menuItem, arrUrl[2]));
       this.loadingHide();
     } else {
       this.commonService.getExtensions('lnb').then( items => {
         if( items && 0 < items.length ) {
           const exts:Extension[] = items;
           const menuItem = exts.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
-          this._openExternalView(menuItem.subContents[arrUrl[2]]);
+          this._openExternalView(this._getRouteUrl(menuItem, arrUrl[2]));
           this.loadingHide();
         }
       });
     }
   } // function - _loadMenu
+
+  private _getRouteUrl(menuItem: Extension, name: string):string{
+    if (menuItem.subContents != undefined) {
+      return menuItem.subContents[name];
+    } else if (menuItem.subMenus != undefined) {
+      const subMenuItem = menuItem.subMenus.filter( item => item.name == name)[0];
+      return subMenuItem.route;
+    }
+  }
 
   /**
    * Open external view in iframe

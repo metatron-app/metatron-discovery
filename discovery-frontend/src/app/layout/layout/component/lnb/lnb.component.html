@@ -250,9 +250,16 @@
                   <em class="ddp-icon-dot"></em> {{item.name}}
                 </a>
                 <ul class="ddp-list-sublnb-2depth">
-                  <li *ngFor="let subKey of ObjectKeys(item.subContents)">
-                    <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
-                  </li>
+                  <ng-container *ngIf="item.subContents != undefined">
+                    <li *ngFor="let subKey of ObjectKeys(item.subContents)" >
+                      <a href="javascript:" (click)="moveExtension(item, subKey)">{{subKey}}</a>
+                    </li>
+                  </ng-container>
+                  <ng-container *ngIf="item.subMenus != undefined">
+                    <li *ngFor="let subMenuItem of item.subMenus">
+                      <a href="javascript:" (click)="moveExtensionFromSubMenu(subMenuItem, item)">{{subMenuItem.name}}</a>
+                    </li>
+                  </ng-container>
                 </ul>
               </li>
             </ng-container>
