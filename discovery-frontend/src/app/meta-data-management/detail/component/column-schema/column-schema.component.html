@@ -360,8 +360,7 @@
             [class.ddp-disabled]="isSelectedMetadataColumnInColumnDictionaryDefined(column)"
             [class.ddp-selected]="column['typeListFl'] || column.format?.isShowTimestampValidPopup"
             [ngClass]="[TYPE_SELECT_AND_TIMESTAMP_VALID_WRAP_ELEMENT]"
-            (click)="onClickTypeSelectAndTimestampValidWrapElement($event, column, logicalType, logicalTypeList)"
-            (clickOutside)="column['typeListFl'] = false;">
+            (click)="onClickTypeSelectAndTimestampValidWrapElement($event, column, logicalType, logicalTypeList)">
           <div class="ddp-wrap-type-option">
             <!-- select -->
             <div #logicalType class="ddp-ui-selected-option"
@@ -486,8 +485,7 @@
                [ngClass]="['ddp-pop-select']"
                [class.ddp-selected]="column['codeTableShowFl']"
                (mouseleave)="onHideCodeTable(column)"
-               (mouseenter)="onHoverCodeTable(column, index)"
-               (clickOutside)="column['codeTableShowFl'] = false">
+               (mouseenter)="onHoverCodeTable(column, index)">
             <a
               href="javascript:"
               (click)="onClickSearchCodeTable(column)"

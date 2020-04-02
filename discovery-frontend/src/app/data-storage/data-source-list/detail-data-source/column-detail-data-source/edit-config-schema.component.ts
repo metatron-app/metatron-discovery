@@ -12,7 +12,17 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output, QueryList, Renderer, ViewChildren} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Output,
+  QueryList,
+  Renderer,
+  ViewChildren
+} from '@angular/core';
 import {
   ConnectionType,
   Datasource,
@@ -42,12 +52,18 @@ import {DatetimeValidPopupComponent} from "../../../../shared/datasource-metadat
 import Role = Type.Role;
 import {CommonUtil} from "../../../../common/util/common.util";
 import {MetadataColumn} from "../../../../domain/meta-data-management/metadata-column";
+import {clone} from "@turf/turf";
 
 @Component({
   selector: 'edit-config-schema',
   templateUrl: './edit-config-schema.component.html'
 })
 export class EditConfigSchemaComponent extends AbstractComponent {
+
+  @HostListener('click', ['$event'])
+  public clickListener() {
+    this._hideTypeListPopup();
+  }
 
   @ViewChildren(DatetimeValidPopupComponent)
   private readonly _datetimePopupComponentList: QueryList<DatetimeValidPopupComponent>;
@@ -145,8 +161,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     this._updateFilteredFieldList();
     // set field data list
     this._setFieldDataList(datasource);
-    // flag
-    this.isShowPopup = true;
   }
 
   /**
@@ -307,6 +321,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @param logicalType
    */
   public onChangeLogicalType(targetField: Field, typeToChange): void {
+    event.stopPropagation()
     // if different type
     if (targetField.logicalType !== typeToChange.value) {
       // prev logical type
@@ -356,14 +371,13 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @param {Field} field
    */
   public onChangeTypeListShowFlag(field: Field, event: MouseEvent): void {
-    const targetElement = event.target['classList'];
+    event.stopPropagation();
+    const targetField = _.clone(field);
+    this._hideTypeListPopup();
     // if not derived and TIMESTAMP
-    if ((targetElement.contains(this.TYPE_SELECT_LIST_ICON_ELEMENT) || targetElement.contains(this.TYPE_SELECT_LIST_WRAP_ELEMENT) || targetElement.contains(this.TYPE_SELECTED_ICON_ELEMENT)) || targetElement.contains(this.TYPE_SELECTED_LABEL_ELEMENT)
-      && !this.isDisableChangeType(field)) {
-      if (!field.isShowTypeList) {
-        this._setConvertedTypeList(field);
-      }
-      field.isShowTypeList = !field.isShowTypeList;
+    if (!targetField.isShowTypeList && !this.isDisableChangeType(field)) {
+      this._setConvertedTypeList(field);
+      field.isShowTypeList = true;
     }
   }
 
@@ -511,6 +525,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
           this.fieldDataList = result.data;
           // 로딩 hide
           this.loadingHide();
+          // flag
+          this.isShowPopup = true;
         })
         .catch(error => this.commonExceptionHandler(error));
     } else if (datasource.connType === ConnectionType.ENGINE) { // Engine datasource
@@ -527,6 +543,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
           this.fieldDataList = result;
           // 로딩 hide
           this.loadingHide();
+          // flag
+          this.isShowPopup = true;
         })
         .catch(error => this.commonExceptionHandler(error));
     }
@@ -540,7 +558,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   private descriptionTds: QueryList<ElementRef>;
 
   public focusDescriptionInput(index: number) {
-
+    event.stopPropagation();
+    this._hideTypeListPopup();
     this.descriptionInputs.toArray()[ index ].nativeElement.focus();
     this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
   }
@@ -556,11 +575,21 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   private nameTds: QueryList<ElementRef>;
 
   public focusNameInput(index: number) {
+    event.stopPropagation();
+    this._hideTypeListPopup();
     this.nameInputs.toArray()[ index ].nativeElement.focus();
     this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
   }
 
   public blurNameInput(index: number) {
     this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
+  }
+
+  private _hideTypeListPopup() {
+    if (!isNullOrUndefined(this.filteredFieldList)) {
+      this.filteredFieldList.forEach(item => {
+        item.isShowTypeList = false;
+      })
+    }
   }
 }
