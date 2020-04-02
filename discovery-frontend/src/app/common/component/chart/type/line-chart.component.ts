@@ -244,7 +244,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
         connectNulls: true,
         showAllSymbol: true,
         symbol: SymbolType.CIRCLE,
-        sampling: 'max',
+        // sampling: 'max',
         itemStyle: optGen.ItemStyle.auto(),
         label: optGen.LabelStyle.defaultLabelStyle(false, Position.TOP),
         uiData: column
