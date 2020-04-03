@@ -66,6 +66,11 @@ public class ExtensionProperties {
     String parent;
     Integer level;
     List<String> permissions;
+    List<Lnb> subMenus;
+    String openTarget = "frame";
+    String route;
+
+    /* deprectaed */
     Map<String, String> subContents;
 
     public Lnb() {
@@ -111,6 +116,30 @@ public class ExtensionProperties {
 
     public void setSubContents(Map<String, String> subContents) {
       this.subContents = subContents;
+    }
+
+    public String getOpenTarget() {
+      return openTarget;
+    }
+
+    public void setOpenTarget(String openTarget) {
+      this.openTarget = openTarget;
+    }
+
+    public List<Lnb> getSubMenus() {
+      return subMenus;
+    }
+
+    public void setSubMenus(List<Lnb> subMenus) {
+      this.subMenus = subMenus;
+    }
+
+    public String getRoute() {
+      return route;
+    }
+
+    public void setRoute(String route) {
+      this.route = route;
     }
   }
 }

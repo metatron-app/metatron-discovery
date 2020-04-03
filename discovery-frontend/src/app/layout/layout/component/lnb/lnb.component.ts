@@ -643,11 +643,27 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   } // function - move
 
-  public moveExtension(ext: Extension, subKey) {
+  public moveExtension(ext: Extension, subKey: string) {
     if (ext.subContents[subKey].startsWith('http')) {
       this.move('external/' + ext.parent + '_' + ext.name + '_' + subKey);
     } else {
       this.move(ext.subContents[subKey]);
+    }
+  }
+
+  public moveExtensionFromSubMenu(ext: Extension, parent: Extension) {
+    if(ext.openTarget != undefined && ext.route != undefined){
+      switch (ext.openTarget) {
+        case 'frame' :
+          this.move('external/' + parent.parent + '_' + parent.name + '_' + ext.name);
+          break;
+        case 'blank' :
+          window.open(ext.route, '_blank')
+          break;
+        default :
+          this.move(ext.subContents[ext.name]);
+          break;
+      }
     }
   }
 

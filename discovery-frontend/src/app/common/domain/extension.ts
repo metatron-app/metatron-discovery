@@ -18,4 +18,7 @@ export class Extension {
   public level: number;
   public permissions: string[];
   public subContents:{ [key: string]: string };
+  public openTarget: string;
+  public route: string;
+  public subMenus: Extension[];
 }
