@@ -35,8 +35,17 @@
           <div class="ddp-ui-edit-db">
             <div class="ddp-ui-textarea">
               <div class="ddp-ui-search-db ddp-clear">
-                <component-select #sourceDatabaseSelect [array]="databases" [isFull]="false" [usePlaceholder]="true" [defaultIndex]="-1"
-                                  [unselectedMessage]="'데이터베이스를 선택하세요.'" (onSelected)="onSelectedSourceDatabaseName($event)"></component-select>
+                <component-paging-search-select
+                  (onSelected)="onSelectedSourceDatabaseName($event)"
+                  (onSearchText)="searchTextSourceDatabaseName = $event"
+                  [array]="databases"
+                  [usePlaceholder]="true"
+                  [unselectedMessage]="'데이터베이스를 선택하세요.'"
+                  [searchPlaceHolderText]="'데이터베이스 이름을 입력해 주세요'"
+                  [searchText]="searchTextSourceDatabaseName"
+                  [isEnableInternalPaging]="true"
+                  [isSearchOptions]="true">
+                </component-paging-search-select>
               </div>
               <div class="ddp-wrap-edit">
                 <div class="ddp-ui-edit">
@@ -67,12 +76,30 @@
             <div class="ddp-ui-textarea">
               <div class="ddp-ui-search-db ddp-clear">
                 <div style="display: inline-block;">
-                  <component-select #targetDatabaseSelect [array]="databases" [isFull]="false" [usePlaceholder]="true" [defaultIndex]="-1"
-                                    [unselectedMessage]="'데이터베이스를 선택하세요.'" (onSelected)="onSelectedTargetDatabaseName($event)"></component-select>
+                  <component-paging-search-select
+                    (onSelected)="onSelectedTargetDatabaseName($event)"
+                    (onSearchText)="searchTextTargetDatabaseName = $event"
+                    [array]="databases"
+                    [usePlaceholder]="true"
+                    [unselectedMessage]="'데이터베이스를 선택하세요.'"
+                    [searchPlaceHolderText]="'데이터베이스 이름을 입력해 주세요'"
+                    [searchText]="searchTextTargetDatabaseName"
+                    [isEnableInternalPaging]="true"
+                    [isSearchOptions]="true">
+                  </component-paging-search-select>
                 </div>
                 <div style="display: inline-block;">
-                  <component-select #targetTableSelect [array]="tables" [isFull]="false" [usePlaceholder]="true" [defaultIndex]="-1"
-                                    [unselectedMessage]="'테이블을 선택하세요.'" (onSelected)="onSelectedTargetTableName($event)"></component-select>
+                  <component-paging-search-select
+                    (onSelected)="onSelectedTargetTableName($event)"
+                    (onSearchText)="searchTextTargetTableName = $event"
+                    [array]="tables"
+                    [usePlaceholder]="true"
+                    [unselectedMessage]="'테이블을 선택하세요.'"
+                    [searchPlaceHolderText]="'테이블 이름을 입력해 주세요'"
+                    [searchText]="searchTextTargetTableName"
+                    [isEnableInternalPaging]="true"
+                    [isSearchOptions]="true">
+                  </component-paging-search-select>
                 </div>
               </div>
             </div>

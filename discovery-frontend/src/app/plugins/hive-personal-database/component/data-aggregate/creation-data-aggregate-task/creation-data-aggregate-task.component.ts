@@ -96,6 +96,10 @@ export class CreationDataAggregateTaskComponent extends AbstractPopupComponent i
 
   private dataConnectionId: string = "";
 
+  public searchTextSourceDatabaseName: string;
+  public searchTextTargetDatabaseName: string;
+  public searchTextTargetTableName: string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
