@@ -38,7 +38,7 @@
                 <component-paging-search-select
                   (onSelected)="onSelectedSourceDatabaseName($event)"
                   (onSearchText)="searchTextSourceDatabaseName = $event"
-                  [array]="databases"
+                  [array]="sourceDatabases"
                   [usePlaceholder]="true"
                   [unselectedMessage]="'데이터베이스를 선택하세요.'"
                   [searchPlaceHolderText]="'데이터베이스 이름을 입력해 주세요'"
@@ -79,7 +79,7 @@
                   <component-paging-search-select
                     (onSelected)="onSelectedTargetDatabaseName($event)"
                     (onSearchText)="searchTextTargetDatabaseName = $event"
-                    [array]="databases"
+                    [array]="targetDatabases"
                     [usePlaceholder]="true"
                     [unselectedMessage]="'데이터베이스를 선택하세요.'"
                     [searchPlaceHolderText]="'데이터베이스 이름을 입력해 주세요'"

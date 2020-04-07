@@ -76,7 +76,8 @@ export class CreationDataAggregateTaskComponent extends AbstractPopupComponent i
   public isShow = false;
 
   public queryText: string = "";
-  public databases: string[] = [];
+  public sourceDatabases: string[] = [];
+  public targetDatabases: string[] = [];
   private webSocketId: string = "";
   public tables: string[] = [];
   public schemaTableColumnList: any[] = [];
@@ -137,9 +138,11 @@ export class CreationDataAggregateTaskComponent extends AbstractPopupComponent i
     this.isShow = true;
     this.dataConnectionId = dataConnectionId;
     if(CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_SYSTEM)) {
-      this.databases = databases;
+      this.sourceDatabases = databases;
+      this.targetDatabases = databases;
     } else {
-      this.databases = [dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName']];
+      this.sourceDatabases = databases;
+      this.targetDatabases = [dataConnection.hivePersonalDatasourceInformation['ownPersonalDatabaseName']];
     }
     this.webSocketId = webSocketId;
     if(dataAggregate) {
