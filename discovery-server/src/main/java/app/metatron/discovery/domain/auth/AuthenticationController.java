@@ -42,7 +42,10 @@ import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -61,6 +64,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.oauth.CookieManager;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
@@ -206,7 +210,7 @@ public class AuthenticationController {
     return ResponseEntity.noContent().build();
   }
 
-  @RequestMapping(value = "/oauth/{clientId}", method = RequestMethod.GET)
+  @GetMapping(value = "/oauth/{clientId}")
   public ResponseEntity<?> getClient(@PathVariable("clientId") String clientId) {
     return ResponseEntity.ok(jdbcClientDetailsService.loadClientByClientId(clientId));
   }
@@ -214,6 +218,8 @@ public class AuthenticationController {
   @RequestMapping(value = "/oauth/generate")
   public ResponseEntity<?> generateClient(@RequestParam("clientName") String clientName,
                                           @RequestParam("redirectUri") String redirectUri,
+                                          @RequestParam(value = "logoFilePath", required = false) String logoFilePath,
+                                          @RequestParam(value = "backgroundFilePath", required = false) String backgroundFilePath,
                                           HttpServletRequest request) {
 
     String userName = "UNKNOWN";
@@ -238,24 +244,65 @@ public class AuthenticationController {
 
     Map<String, String> additionalInformation = new HashMap<String, String>();
     additionalInformation.put("clientName", clientName);
+    if (StringUtils.isNotEmpty(logoFilePath)) {
+      additionalInformation.put("logoFile", logoFilePath);
+    }
+    if (StringUtils.isNotEmpty(backgroundFilePath)) {
+      additionalInformation.put("backgroundFilePath", backgroundFilePath);
+    }
     additionalInformation.put("userName", userName);
     additionalInformation.put("dateTime", DateTime.now(DateTimeZone.UTC).toString());
     baseClientDetails.setAdditionalInformation(additionalInformation);
 
     jdbcClientDetailsService.addClientDetails(baseClientDetails);
+    LOGGER.info("Add ClientId {}", GlobalObjectMapper.writeValueAsString(baseClientDetails));
 
     Map<String, String> result = new HashMap<String, String>();
-    try{
+    try {
       result.put("clientName", clientName);
       result.put("clientId", clientId);
       result.put("clientSecret", clientSecret);
       String token = clientId + ":" + clientSecret;
       result.put("basicHeader", new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8"));
-    }catch (Exception e){
-      e.printStackTrace();
+    } catch (Exception e){
+      throw new MetatronException(e);
     }
 
     return ResponseEntity.ok(result);
+  }
+  @PostMapping(value = "/oauth/{clientId}/update")
+  public ResponseEntity<?> updateClient(@PathVariable("clientId") String clientId,
+                                          @RequestParam(value = "clientName", required = false) String clientName,
+                                          @RequestParam(value = "redirectUri", required = false) String redirectUri,
+                                          @RequestParam(value = "logoFilePath", required = false) String logoFilePath,
+                                          @RequestParam(value = "backgroundFilePath", required = false) String backgroundFilePath,
+                                          HttpServletRequest request) {
+    BaseClientDetails baseClientDetails = (BaseClientDetails)jdbcClientDetailsService.loadClientByClientId(clientId);
+    Map additionalInformation = baseClientDetails.getAdditionalInformation();
+    if (StringUtils.isNotEmpty(clientName)) {
+      additionalInformation.put("clientName", clientName);
+    }
+    if (StringUtils.isNotEmpty(logoFilePath)) {
+      additionalInformation.put("logoFilePath", logoFilePath);
+    }
+    if (StringUtils.isNotEmpty(backgroundFilePath)) {
+      additionalInformation.put("backgroundFilePath", backgroundFilePath);
+    }
+    baseClientDetails.setAdditionalInformation(additionalInformation);
+    if (StringUtils.isNotEmpty(redirectUri)) {
+      Set redirectUris = org.springframework.util.StringUtils.commaDelimitedListToSet(redirectUri);
+      baseClientDetails.setRegisteredRedirectUri(redirectUris);
+    }
+    jdbcClientDetailsService.updateClientDetails(baseClientDetails);
+    LOGGER.info("Update ClientId {}", GlobalObjectMapper.writeValueAsString(baseClientDetails));
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping(value = "/oauth/{clientId}")
+  public ResponseEntity<?> deleteClient(@PathVariable("clientId") String clientId) {
+    jdbcClientDetailsService.removeClientDetails(clientId);
+    LOGGER.info("Delete ClientId {}", clientId);
+    return ResponseEntity.noContent().build();
   }
 
   @RequestMapping(value = "/oauth/client/login")
@@ -269,10 +316,17 @@ public class AuthenticationController {
       String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
       String clientName = String.valueOf(clientDetails.getAdditionalInformation()
                                                       .getOrDefault("clientName", "metatron Discovery"));
-      LOGGER.info("clientName {}", clientName);
+      String logoFilePath = String.valueOf(clientDetails.getAdditionalInformation()
+                                                      .getOrDefault("logoFilePath", ""));
+      String backgroundFilePath = String.valueOf(clientDetails.getAdditionalInformation()
+                                                        .getOrDefault("backgroundFilePath", ""));
+      LOGGER.info("clientName {}, logoFilePath {}, backgroundFilePath {}",
+                  clientName, logoFilePath, backgroundFilePath);
       LOGGER.info("basicHeader {}", basicHeader);
       mav.addObject("basicHeader", "Basic "+basicHeader);
       mav.addObject("clientName", clientName);
+      mav.addObject("logoFilePath", logoFilePath);
+      mav.addObject("backgroundFilePath", backgroundFilePath);
     } catch (Exception e) {
       throw new MetatronException(e);
     }
