@@ -55,6 +55,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -270,7 +271,7 @@ public class AuthenticationController {
 
     return ResponseEntity.ok(result);
   }
-  @PostMapping(value = "/oauth/{clientId}/update")
+  @PostMapping(value = "/oauth/{clientId}")
   public ResponseEntity<?> updateClient(@PathVariable("clientId") String clientId,
                                           @RequestParam(value = "clientName", required = false) String clientName,
                                           @RequestParam(value = "redirectUri", required = false) String redirectUri,
@@ -278,9 +279,9 @@ public class AuthenticationController {
                                           @RequestParam(value = "backgroundFilePath", required = false) String backgroundFilePath,
                                           HttpServletRequest request) {
     BaseClientDetails baseClientDetails = (BaseClientDetails)jdbcClientDetailsService.loadClientByClientId(clientId);
-    Map additionalInformation = baseClientDetails.getAdditionalInformation();
-    if (additionalInformation == null) {
-      additionalInformation = new HashMap<String, String>();
+    Map additionalInformation = new HashMap<String, String>();
+    if (baseClientDetails.getAdditionalInformation() != null) {
+      additionalInformation = new HashMap<>(baseClientDetails.getAdditionalInformation());
     }
     if (StringUtils.isNotEmpty(clientName)) {
       additionalInformation.put("clientName", clientName);
