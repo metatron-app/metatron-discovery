@@ -232,7 +232,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     ApplicationHome home = new ApplicationHome(MetatronDiscoveryApplication.class);
     // LOGGER.info("Application Home : " + home.getDir().getAbsolutePath());
     registry.addResourceHandler("/static/**")
-            .addResourceLocations(home.getDir().getAbsolutePath() + "/static/");
+            .addResourceLocations("file:" + home.getDir().getAbsolutePath() + "/static/");
 
     //add resource for extension
     // /plugins/plugin-id/**  -->  file:/plugin-path/classes/
