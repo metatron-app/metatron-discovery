@@ -279,6 +279,9 @@ public class AuthenticationController {
                                           HttpServletRequest request) {
     BaseClientDetails baseClientDetails = (BaseClientDetails)jdbcClientDetailsService.loadClientByClientId(clientId);
     Map additionalInformation = baseClientDetails.getAdditionalInformation();
+    if (additionalInformation == null) {
+      additionalInformation = new HashMap<String, String>();
+    }
     if (StringUtils.isNotEmpty(clientName)) {
       additionalInformation.put("clientName", clientName);
     }
