@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.ApplicationHome;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
@@ -227,6 +228,11 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
             .addResourceLocations("classpath:resource/assets/");
     registry.addResourceHandler("/webjars/**")
             .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+    ApplicationHome home = new ApplicationHome(MetatronDiscoveryApplication.class);
+    // LOGGER.info("Application Home : " + home.getDir().getAbsolutePath());
+    registry.addResourceHandler("/static/**")
+            .addResourceLocations("file:" + home.getDir().getAbsolutePath() + "/static/");
 
     //add resource for extension
     // /plugins/plugin-id/**  -->  file:/plugin-path/classes/
