@@ -207,9 +207,8 @@ public class WorkspacePredicate {
     BooleanBuilder builder = new BooleanBuilder();
     QWorkspace workspace = QWorkspace.workspace;
 
-    if (CollectionUtils.isNotEmpty(joinedWorkspaceIds)) {
-      builder.and(workspace.id.in(joinedWorkspaceIds));
-    }
+    //Always check the permissions of the target workspace
+    builder.and(workspace.id.in(joinedWorkspaceIds));
 
     if (CollectionUtils.isNotEmpty(dataSourceIds)) {
       builder.and(workspace.dataSources.any().id.in(dataSourceIds));
