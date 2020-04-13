@@ -338,7 +338,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     if ((<UIGridChart>this.uiOption).dataType == GridViewType.MASTER) {
 
       // for setting aggregations original name
-      let originAggregations: any = this.fieldInfo.aggs.map((name) => {
+      let originAggregations: any = this.fieldOriginInfo.aggs.map((name) => {
         return {name, digits: 2};
       });
 
