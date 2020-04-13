@@ -147,6 +147,10 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   @Transient
   private RoleService roleService;
 
+  @Transient
+  @JsonProperty
+  private String confirmPassword;
+
   public User() {
   }
 
@@ -345,6 +349,14 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
 
   public void setUserOrigin(String userOrigin) {
     this.userOrigin = userOrigin;
+  }
+
+  public String getConfirmPassword() {
+    return confirmPassword;
+  }
+
+  public void setConfirmPassword(String confirmPassword) {
+    this.confirmPassword = confirmPassword;
   }
 
   @Override

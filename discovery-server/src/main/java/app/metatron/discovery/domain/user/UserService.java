@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.user;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.transaction.Transactional;
 
@@ -59,6 +62,9 @@ public class UserService {
 
   @Autowired
   ActivityStreamService activityStreamService;
+
+  @Autowired
+  UserPasswordProperties userPasswordProperties;
 
   public boolean checkDuplicated(DuplicatedTarget target, String value) {
     Long count = 0L;
@@ -136,5 +142,36 @@ public class UserService {
 
   public enum DuplicatedTarget {
     USERNAME, EMAIL
+  }
+
+  public Boolean validateUserPassword(String username, User user){
+    String password = user.getPassword();
+    String confirmPassword = user.getConfirmPassword();
+
+    if(StringUtils.isEmpty(password) || StringUtils.isEmpty(confirmPassword)){
+      throw new UserException(UserErrorCodes.INVALID_PASSWORD_PARAMETER,
+                              "User password parameter not valid ( " + user.getPassword() + "," + user.getConfirmPassword() + ")");
+    }
+
+    //password not matched
+    if(!password.equals(confirmPassword)){
+      throw new UserException(UserErrorCodes.PASSWORD_NOT_MATCHED, "Password not matched");
+    }
+
+    //check password strength
+    String passwordStrengthExpr = userPasswordProperties.getStrength().getPasswordRegExp();
+    Pattern passwordStrengthPattern = Pattern.compile(passwordStrengthExpr);
+    Matcher matcher = passwordStrengthPattern.matcher(password);
+    Boolean strengthMatcher = matcher.matches();
+    if(!strengthMatcher){
+      throw new UserException(UserErrorCodes.INVALID_PASSWORD_STRENGTH, "Invalid password strength");
+    }
+
+    //similar with id
+    if(password.contains(username)){
+      throw new UserException(UserErrorCodes.PASSWORD_SIMILAR_ID, "Password contains username");
+    }
+
+    return true;
   }
 }
