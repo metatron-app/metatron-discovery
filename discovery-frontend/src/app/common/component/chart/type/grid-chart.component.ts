@@ -320,9 +320,9 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     if( this.pivot && this.pivot.aggregations && 0 < this.pivot.aggregations.length ) {
       aggregations = this.pivot.aggregations.map((pivot) => {
         if( pivot.field && pivot.field.logicalType ) {
-          return {name : pivot.name, digits: 2, type : pivot.field.logicalType };
+          return {name : _.isUndefined(pivot.alias) ? pivot.name : pivot.alias, digits: 2, type : pivot.field.logicalType };
         } else {
-          return {name : pivot.name, digits: 2 };
+          return {name : _.isUndefined(pivot.alias) ? pivot.name : pivot.alias, digits: 2 };
         }
       });
     } else {
