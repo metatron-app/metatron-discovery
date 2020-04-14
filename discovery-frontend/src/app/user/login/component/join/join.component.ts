@@ -123,6 +123,7 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
         this.isShow = false;
         this.joinComplete.emit({ code : 'SUCCESS'});
       }).catch(err=> {
+        this.loadingHide();
         this.joinComplete.emit({ code : 'FAIL', msg : err.details ? err.details : '' });
       });
 
