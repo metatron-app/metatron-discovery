@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.scheduling.engine;
 
+import com.google.common.collect.Lists;
+
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -63,8 +65,21 @@ public class EngineMonitoringSetter extends QuartzJobBean {
   protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 
     LOGGER.debug("########### engine monitoring job : find target servers");
-
     Map<String, String> hostnames = engineProperties.getHostname();
+    for (String hostname : hostnames.keySet()) {
+      try {
+        URI uri = new URI(hostnames.get(hostname));
+        List<EngineMonitoring> engineMonitoringList =
+            monitoringRepository.findByHostnameAndPortAndType(uri.getHost(), String.valueOf(uri.getPort()), hostname);
+        if (engineMonitoringList.isEmpty() || monitoringRepository.findByType(Lists.newArrayList(hostname)).size() > 1) {
+          LOGGER.debug("########### engine monitoring init : delete all servers");
+          monitoringRepository.deleteAll();
+          break;
+        }
+      } catch (URISyntaxException e) {
+        LOGGER.error("You have set wrong uri format. check your configuration.");
+      }
+    }
 
     if (monitoringRepository.findAll().isEmpty()) {
       LOGGER.debug("## You didn't set any hosts, initialize with YAML CONFIGURATION.");
@@ -79,7 +94,7 @@ public class EngineMonitoringSetter extends QuartzJobBean {
       }
     }
 
-
+    List<EngineMonitoring> existingHistoricalList = monitoringRepository.findByType(Lists.newArrayList("historical"));
     Optional<List> historicalNodes = engineRepository.getHistoricalNodes();
     for (Object o : historicalNodes.get()) {
       Map<String, Object> k = (Map<String, Object>) o;
@@ -107,12 +122,26 @@ public class EngineMonitoringSetter extends QuartzJobBean {
               new EngineMonitoring(fullHost.getHost(), String.valueOf(fullHost.getPort()), serverType));
         } else {
           LOGGER.debug("Already added target.");
+
+          for (EngineMonitoring engineMonitoring: existingHistoricalList) {
+            EngineMonitoring historical = targetHistorical.get(0);
+            if (engineMonitoring.getHostname().equals(historical.getHostname())
+              && engineMonitoring.getPort().equals(historical.getPort())) {
+              existingHistoricalList.remove(engineMonitoring);
+              break;
+            }
+          }
         }
       }
     }
 
-    Optional<List> middleManagerNodes = engineRepository.getMiddleManagerNodes();
+    if (!existingHistoricalList.isEmpty()) {
+      LOGGER.debug("########### engine monitoring delete : historical");
+      monitoringRepository.delete(existingHistoricalList);
+    }
 
+    List<EngineMonitoring> existingMiddleManagerList = monitoringRepository.findByType(Lists.newArrayList("middleManager"));
+    Optional<List> middleManagerNodes = engineRepository.getMiddleManagerNodes();
     for (Object o : middleManagerNodes.get()) {
       Map<String, Map<String, Object>> k = (Map<String, Map<String, Object>>) o;
       Map<String, Object> workers = k.get("worker");
@@ -137,7 +166,22 @@ public class EngineMonitoringSetter extends QuartzJobBean {
             new EngineMonitoring(fullHost.getHost(), String.valueOf(fullHost.getPort()), "middleManager"));
       } else {
         LOGGER.debug("Already added target.");
+
+        for (EngineMonitoring engineMonitoring: existingMiddleManagerList) {
+          EngineMonitoring middleManager = targetMiddle.get(0);
+          if (engineMonitoring.getHostname().equals(middleManager.getHostname())
+              && engineMonitoring.getPort().equals(middleManager.getPort())) {
+            existingMiddleManagerList.remove(engineMonitoring);
+            break;
+          }
+        }
       }
     }
+
+    if (!existingMiddleManagerList.isEmpty()) {
+      LOGGER.debug("########### engine monitoring delete : middleManager");
+      monitoringRepository.delete(existingMiddleManagerList);
+    }
+
   }
 }
