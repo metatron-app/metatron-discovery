@@ -82,7 +82,7 @@
           <span class="ddp-txt-status type-{{getDatasourceStatus(datasource)}}">{{getDatasourceStatusLabel(datasource)}}</span>
         </td>
         <td>
-          {{datasource.disabled ? '' : (datasource.segments.minTime | date : 'yyyy-MM-ddTHH' : 'UTC') + ' ~ ' + (datasource.segments.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC')}}
+          {{datasource.disabled ? '' : (datasource.segments?.minTime | date : 'yyyy-MM-ddTHH' : 'UTC') + ' ~ ' + (datasource.segments?.maxTime | date : 'yyyy-MM-ddTHH' : 'UTC')}}
         </td>
         <td>
           {{datasource.disabled ? '' : getDatasourceSize(datasource)}}
