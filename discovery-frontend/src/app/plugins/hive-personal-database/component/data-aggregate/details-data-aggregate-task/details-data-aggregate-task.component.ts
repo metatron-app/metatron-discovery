@@ -117,4 +117,8 @@ export class DetailsDataAggregateTaskComponent extends AbstractComponent impleme
     modal.isScroll = true;
     CommonUtil.confirm(modal);
   }
+
+  public refresh() {
+    this.loadDataAggregateTaskDetails();
+  }
 }

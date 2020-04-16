@@ -52,7 +52,7 @@ public class DataAggregateQuery {
     return rangeOfValues.toArray(new String[rangeOfValues.size()]);
   }
 
-  public String generateDynamicQuery(String value) {
+  public String generateSelectQuery(String value) {
     String selectQuery;
     if(this.taskInformation.getLoopRange().getType().equalsIgnoreCase("date")) {
       selectQuery = this.taskInformation.getSource().getQuery().replaceAll(Pattern.quote("${date_range}"), String.format("'%s'", value));
@@ -62,18 +62,24 @@ public class DataAggregateQuery {
       throw new IllegalArgumentException("No support DataAggregate loop range type");
     }
 
-    selectQuery = selectQuery.replaceAll(";", "");
-    // TODO 멀티 파티션인 경우에는 어떻게 하나???
+    return selectQuery.replaceAll(";", "");
+  }
+
+  public String generateInsertQuery(String hdfsDataFilePath, String rangeOfValue) {
     if(StringUtils.isNotEmpty(this.partitionColumn)) {
-      return String.format("INSERT INTO %s.%s PARTITION(%s) %s",
-          this.taskInformation.getTarget().getDatabase(), this.taskInformation.getTarget().getTable(), this.partitionColumn, selectQuery);
+      return String.format("LOAD DATA INPATH '%s' INTO TABLE %s.%s PARTITION(%s='%s')",
+          hdfsDataFilePath,
+          this.taskInformation.getTarget().getDatabase(), this.taskInformation.getTarget().getTable(),
+          this.partitionColumn, rangeOfValue);
     } else {
-      return String.format("INSERT INTO %s.%s %s",
-          this.taskInformation.getTarget().getDatabase(), this.taskInformation.getTarget().getTable(), selectQuery);
+      return String.format("LOAD DATA INPATH '%s' INTO TABLE %s.%s",
+          hdfsDataFilePath,
+          this.taskInformation.getTarget().getDatabase(), this.taskInformation.getTarget().getTable());
     }
   }
 
   public String getUseDatabase() {
     return this.taskInformation.getSource().getDatabase();
   }
+
 }

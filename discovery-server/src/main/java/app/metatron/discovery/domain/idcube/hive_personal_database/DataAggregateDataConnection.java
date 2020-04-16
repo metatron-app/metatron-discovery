@@ -21,8 +21,9 @@ public class DataAggregateDataConnection implements JdbcConnectInformation {
   private String password;
   private String adminUsername;
   private String adminUserPassword;
+  private String hdfsConfPath;
 
-  public DataAggregateDataConnection(DataConnection dataConnection, String adminUsername, String adminUserPassword) {
+  public DataAggregateDataConnection(DataConnection dataConnection, String adminUsername, String adminUserPassword, String hdfsConfPath) {
     authenticationType = dataConnection.getAuthenticationType();
     implementor = dataConnection.getImplementor();
     url = dataConnection.getUrl();
@@ -37,6 +38,7 @@ public class DataAggregateDataConnection implements JdbcConnectInformation {
     password = dataConnection.getPassword();
     this.adminUsername = adminUsername;
     this.adminUserPassword = adminUserPassword;
+    this.hdfsConfPath = hdfsConfPath;
   }
 
   @Override
@@ -110,5 +112,9 @@ public class DataAggregateDataConnection implements JdbcConnectInformation {
 
   public String getAdminUserPassword() {
     return adminUserPassword;
+  }
+
+  public String getHdfsConfPath() {
+    return hdfsConfPath;
   }
 }

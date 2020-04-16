@@ -50,7 +50,7 @@ export class DataAggregateComponent extends AbstractComponent implements OnInit,
 
     this.subscriptions.push(
       this.broadCaster.on<any>('COMPLETE_HIVE_PERSONAL_DATABASE_CREATE_DATA_AGGREGATE_TASK').subscribe(() => {
-        this.loadDataAggregateTasks();
+        this.loadDataAggregateTasks(false);
       }),
     );
   }

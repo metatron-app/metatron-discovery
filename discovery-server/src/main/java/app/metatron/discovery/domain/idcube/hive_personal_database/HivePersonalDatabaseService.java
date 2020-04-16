@@ -354,7 +354,7 @@ public class HivePersonalDatabaseService {
     final String hivePersonalDataSourceName = workbench.getDataConnection().getPropertiesMap().get(HiveDialect.PROPERTY_KEY_PROPERTY_GROUP_NAME);
     HivePersonalDatasource hivePersonalDataSource = findHivePersonalDataSourceByName(hivePersonalDataSourceName);
     DataAggregateDataConnection dataAggregateDataConnection =
-        new DataAggregateDataConnection(workbench.getDataConnection(), hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword());
+        new DataAggregateDataConnection(workbench.getDataConnection(), hivePersonalDataSource.getAdminName(), hivePersonalDataSource.getAdminPassword(), hivePersonalDataSource.getHdfsConfPath());
 
     final String workThreadName = java.util.UUID.randomUUID().toString().toUpperCase();
 

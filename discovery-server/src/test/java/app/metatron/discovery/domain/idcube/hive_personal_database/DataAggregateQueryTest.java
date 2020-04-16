@@ -54,7 +54,7 @@ public class DataAggregateQueryTest {
     ), "");
 
     // when
-    String query = dataAggregateQuery.generateDynamicQuery("20191225");
+    String query = dataAggregateQuery.generateSelectQuery("20191225");
 
     // then
     assertThat(query).isEqualTo("select '20191225' as dt, sum(sale_amt) as tot_amt from dt_sample where dt = '20191225'");
@@ -70,7 +70,7 @@ public class DataAggregateQueryTest {
     ), "");
 
     // when
-    String query = dataAggregateQuery.generateDynamicQuery("02");
+    String query = dataAggregateQuery.generateSelectQuery("02");
 
     // then
     assertThat(query).isEqualTo("select '02' as hh, sum(amt) as tot_amt from sample where dt = '20191212' and hh = '02'");

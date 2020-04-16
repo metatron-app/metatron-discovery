@@ -11,6 +11,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<script src="../data-aggregate.component.ts"></script>
 <div class="ddp-pop-preview ddp-type" *ngIf="isShow">
   <!-- top -->
   <div class="ddp-ui-top">
@@ -73,7 +74,10 @@
 
       <div class="ddp-wrap-table-detail">
         <div class="ddp-wrap-edit3">
-          <div class="ddp-ui-label-name">실행 이력</div>
+          <div class="ddp-ui-label-name">
+            실행 이력
+            <a class="ddp-icon-query-loop-refresh" href="javascript:" style="position: static;" (click)="refresh()"></a>
+          </div>
           <table class="ddp-table-form ddp-table-type3" style="width:100%">
             <colgroup>
               <col width="170px">
