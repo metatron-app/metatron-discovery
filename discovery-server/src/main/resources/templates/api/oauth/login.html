@@ -17,11 +17,12 @@
       xmlns:th="http://www.thymeleaf.org" th:with="lang=${#locale.language}" th:lang="${lang}">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title th:text="${clientName} == '' ? 'metatron Discovery' : ${clientName}"></title>
+    <title th:text="${clientName}"></title>
 
     <!-- disable IE compatible view -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" th:href="${faviconPath}">
     <style>
       * {
         margin: 0;
@@ -360,22 +361,28 @@
         letter-spacing: -1px;
       }
     </style>
+    <script src="/assets/js/jquery.min.js"></script>
+    <script type="text/javascript">
+      function backgroundImageInit() {
+          $('.ddp-wrap-login').css('background-image', 'url(/assets/images/login.jpg)');
+          $('.ddp-wrap-login .ddp-blur2').css('background-image', 'url(/assets/images/login.jpg)');
+      }
+    </script>
   </head>
   <!-- login -->
   <body>
-    <div class="ddp-wrap-login" th:style="${backgroundFilePath} != '' ? 'background-image:url(' + ${backgroundFilePath} + ');' : 'background-image:url(/assets/images/login.jpg);'">
+    <div class="ddp-wrap-login" th:style="'background-image:url(' + ${backgroundFilePath} + ')'">
       <em class="ddp-bg-login"></em>
-      <em class="ddp-blur2" th:style="${backgroundFilePath} != '' ? 'background-image:url(' + ${backgroundFilePath} + ');' : 'background-image:url(/assets/images/login.jpg);'"></em>
+      <em class="ddp-blur2" th:style="'background-image:url(' + ${backgroundFilePath} + ')'"></em>
       <!-- login -->
       <div class="ddp-ui-header">
-        <img src="/assets/images/oauth/metatron.png">
-        <span th:text="#{message.app.oauth.login.header}"></span>
+        <img th:src="${smallLogoFilePath}" onerror="this.onerror=null;this.style.display = 'none'">
+        <span th:text="${smallLogoDesc}"></span>
       </div>
       <div class="ddp-ui-login" style="position:absolute; top:0; left:50%; margin-left:-205px;">
         <div class="ddp-box-login">
           <div class="ddp-ui-logo">
             <img th:src="${logoFilePath}" onerror="this.onerror=null;this.src='/assets/images/oauth/logo.svg'">
-            <div class="ddp-ui-desc" th:utext="#{message.app.oauth.home(${clientName})}"></div>
           </div>
 
           <!-- login form -->
@@ -426,7 +433,7 @@
         <!-- footer -->
         <div class="ddp-layout-footer">
           <div class="ddp-ui-footer">
-            <span class="ddp-ui-copy">Copyright © SK Telecom Co., Ltd. All rights reserved.</span>
+            <span class="ddp-ui-copy" th:utext="${copyrightHtml}"></span>
           </div>
         </div>
         <!-- // footer -->
@@ -435,34 +442,34 @@
       <!-- //login -->
 
     </div>
-    <script src="/assets/js/jquery.min.js"></script>
+    <img th:src="${backgroundFilePath}" onerror="this.onerror=null;backgroundImageInit()" style="display:none;">
     <script type="text/javascript" th:inline="javascript">
       /* <![CDATA[ */
       var oauthLogin = {
         basicHeader: /*[[${basicHeader}]]*/,
         bind: function () {
           $("a[name=loginBtn]").bind('click', function () {
-              oauthLogin.login();
+            oauthLogin.login();
           });
 
           $("input[name=username], input[name=password]").bind('focus', function () {
-              oauthLogin.init();
+            oauthLogin.init();
           });
 
           $("input[name=password]").bind('keyup', function (e) {
-              if (e.keyCode == '13') {
-                  oauthLogin.login();
-              }
+            if (e.keyCode == '13') {
+              oauthLogin.login();
+            }
           });
 
           $("em[name=usernameErrorIcon]").bind('click', function () {
-              $("input[name=username]").val('');
-              oauthLogin.init();
+            $("input[name=username]").val('');
+            oauthLogin.init();
           });
 
           $("em[name=passwordErrorIcon]").bind('click', function () {
-              $("input[name=password]").val('');
-              oauthLogin.init();
+            $("input[name=password]").val('');
+            oauthLogin.init();
           });
           $("input[name=username]").focus();
         },
@@ -471,20 +478,20 @@
           var header = {Authorization: oauthLogin.basicHeader};
           var url = '/oauth/token';
           var param = {
-              username: $("input[name=username]").val(),
-              password: $("input[name=password]").val(),
-              grant_type: 'password',
-              scope: 'write'
+            username: $("input[name=username]").val(),
+            password: $("input[name=password]").val(),
+            grant_type: 'password',
+            scope: 'write'
           };
           var success = function (result) {
-              document.cookie = 'LOGIN_TOKEN=' + result.access_token + ';path=/';
-              document.cookie = 'LOGIN_TOKEN_TYPE=' + result.token_type + ';path=/';
-              document.cookie = 'REFRESH_LOGIN_TOKEN=' + result.refresh_token + ';path=/';
-              document.cookie = 'LOGIN_USER_ID=' + $("input[name=username]").val() + ';path=/';
-              oauthLogin.permission(result.token_type + ' ' + result.access_token);
+            document.cookie = 'LOGIN_TOKEN=' + result.access_token + ';path=/';
+            document.cookie = 'LOGIN_TOKEN_TYPE=' + result.token_type + ';path=/';
+            document.cookie = 'REFRESH_LOGIN_TOKEN=' + result.refresh_token + ';path=/';
+            document.cookie = 'LOGIN_USER_ID=' + $("input[name=username]").val() + ';path=/';
+            oauthLogin.permission(result.token_type + ' ' + result.access_token);
           };
           var error = function (err) {
-              oauthLogin.loginFail(err.responseJSON.details);
+            oauthLogin.loginFail(err.responseJSON.details);
           };
           oauthLogin.ajax(method, header, url, param, success, error);
         },
@@ -493,11 +500,11 @@
           var header = {Authorization: authHeader};
           var url = '/api/auth/SYSTEM/permissions';
           var success = function (result) {
-              document.cookie = 'PERMISSION=' + result.join('==') + ';path=/';
-              location.replace(document.location.href);
+            document.cookie = 'PERMISSION=' + result.join('==') + ';path=/';
+            location.replace(document.location.href);
           };
           var error = function () {
-              location.replace(document.location.href);
+            location.replace(document.location.href);
           };
           oauthLogin.ajax(method, header, url, null, success, error);
         },
