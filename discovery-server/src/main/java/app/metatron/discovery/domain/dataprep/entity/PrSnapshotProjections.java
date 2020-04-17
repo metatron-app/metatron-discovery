@@ -168,4 +168,38 @@ public class PrSnapshotProjections {
     UserProfile getModifiedBy();
   }
 
+  @Projection(name = "listing", types = {PrSnapshot.class})
+  public interface ListingProjection {
+
+    String getSsId();
+
+    String getSsName();
+
+    PrSnapshot.SS_TYPE getSsType();
+
+    PrSnapshot.STATUS getStatus();
+
+    DateTime getLaunchTime();
+
+    DateTime getFinishTime();
+
+    String getStoredUri();
+
+    String getDfName();
+
+    String getDsName();
+
+    Map<String, Long> getElapsedTime();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+  }
+
 }
