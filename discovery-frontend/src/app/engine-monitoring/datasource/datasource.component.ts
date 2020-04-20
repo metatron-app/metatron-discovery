@@ -245,7 +245,12 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   }
 
   public getDatasourceSize(datasource) {
-    return CommonUtil.formatBytes(datasource.segments.size, 2);
+    const size = datasource.segments ? datasource.segments.size : 0;
+    return CommonUtil.formatBytes(size, 2);
+  }
+
+  public notExistSegments(datasource) {
+    return datasource.disabled || _.isNil(datasource.segments);
   }
 
   private _filteringDatasourceList(): any[] {
