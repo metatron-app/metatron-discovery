@@ -434,7 +434,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       // 열/행 여부
       let pivotType: ChartPivotType;
 
-      let fieldInfo = _.cloneDeep(this.fieldInfo);
+      let fieldInfo = _.cloneDeep(this.fieldOriginInfo);
 
       // 열/행/교차 여부 및 몇번째 필드인지 확인
       _.forEach(fieldInfo, (value, key) => {

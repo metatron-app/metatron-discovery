@@ -320,9 +320,9 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     if( this.pivot && this.pivot.aggregations && 0 < this.pivot.aggregations.length ) {
       aggregations = this.pivot.aggregations.map((pivot) => {
         if( pivot.field && pivot.field.logicalType ) {
-          return {name : pivot.name, digits: 2, type : pivot.field.logicalType };
+          return {name : _.isUndefined(pivot.alias) ? pivot.name : pivot.alias, digits: 2, type : pivot.field.logicalType };
         } else {
-          return {name : pivot.name, digits: 2 };
+          return {name : _.isUndefined(pivot.alias) ? pivot.name : pivot.alias, digits: 2 };
         }
       });
     } else {
@@ -338,7 +338,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     if ((<UIGridChart>this.uiOption).dataType == GridViewType.MASTER) {
 
       // for setting aggregations original name
-      let originAggregations: any = this.fieldInfo.aggs.map((name) => {
+      let originAggregations: any = this.fieldOriginInfo.aggs.map((name) => {
         return {name, digits: 2};
       });
 
