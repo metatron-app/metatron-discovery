@@ -300,17 +300,7 @@ public class OAuth2ServerConfig {
 
       // @formatter:off
 			builder
-          .jdbcClientDetailsService(jdbcClientDetailsService())
-            .withClient("polaris_client")
-              .authorizedGrantTypes("authorization_code", "implicit", "password", "refresh_token", "client_credentials")
-              .authorities("ROLE_CLIENT")
-              .scopes("read", "write")
-              .secret("polaris")
-          .and()
-            .withClient("polaris_trusted").secret("secret")
-              .authorities("ROLE_TRUSTED_CLIENT")
-              .authorizedGrantTypes("client_credentials", "implicit", "password", "authorization_code", "refresh_token")
-              .scopes("read", "write", "trust");
+          .jdbcClientDetailsService(jdbcClientDetailsService());
 			// @formatter:on
 
       clients.setBuilder(builder);

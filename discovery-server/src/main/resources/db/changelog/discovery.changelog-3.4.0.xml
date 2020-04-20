@@ -48,4 +48,26 @@
             <column name="next_val" value="1" />
         </insert>
     </changeSet>
+    <changeSet author="minhyun2" id="1587338284530-0">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="oauth_client_details" />
+                <tableIsEmpty tableName="oauth_client_details" />
+            </and>
+        </preConditions>
+        <insert tableName="oauth_client_details">
+            <column name="client_id" value="polaris_client" />
+            <column name="client_secret" value="polaris" />
+            <column name="authorized_grant_types" value="authorization_code,implicit,password,refresh_token,client_credentials" />
+            <column name="authorities" value="ROLE_CLIENT" />
+            <column name="scope" value="read,write" />
+        </insert>
+        <insert tableName="oauth_client_details">
+            <column name="client_id" value="polaris_trusted" />
+            <column name="client_secret" value="secret" />
+            <column name="authorized_grant_types" value="client_credentials,implicit,password,authorization_code,refresh_token" />
+            <column name="authorities" value="ROLE_TRUSTED_CLIENT" />
+            <column name="scope" value="read,write,trust" />
+        </insert>
+    </changeSet>
 </databaseChangeLog>
