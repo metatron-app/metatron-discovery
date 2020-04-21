@@ -161,5 +161,6 @@ polaris:
         - name: Engine Monitoring   # for Engine(Druid) Monitoring
           permissions:
             - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users with permissions in the upper depth menu can access.
+  static-path:     # Specify the absolute path of "/static/*" resources.
 ----
 
