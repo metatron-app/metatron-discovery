@@ -273,7 +273,8 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
   private _updatePassword(): void {
     // 로딩 show
     this.loadingShow();
-    this.userService.updateUser(this._userId, {password: this.newPassword})
+    const param = {password: this.newPassword, confirmPassword: this.rePassword};
+    this.userService.updateUser(this._userId, param)
       .then((result) => {
         // 로딩 hide
         this.loadingHide();
@@ -282,9 +283,9 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
         // close
         this.closeChangePassword();
       })
-      .catch(() => {
+      .catch((err) => {
         // error alert
-        Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail'));
+        Alert.error(err.details ? err.details : this.translateService.instant('msg.comm.alert.profile.password.fail'));
         // 로딩 hide
         this.loadingHide();
       })

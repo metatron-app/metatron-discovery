@@ -230,6 +230,7 @@ public class UserController {
     }
 
     if (user.getPassword() != null){
+      userService.validateUserPassword(username, user);
       String encodedPassword = passwordEncoder.encode(user.getPassword());
       updatedUser.setPassword(encodedPassword);
     }
@@ -273,9 +274,12 @@ public class UserController {
     }
 
     // email 중복 체크
-    if (userService.checkDuplicated(USERNAME, user.getUsername())) {
+    if (userService.checkDuplicated(EMAIL, user.getEmail())) {
       throw new UserException(UserErrorCodes.DUPLICATED_EMAIL_CODE, "Duplicated e-mail : " + user.getEmail());
     }
+
+    //password expr check
+    userService.validateUserPassword(user.getUsername(), user);
 
     if (StringUtils.isBlank(user.getFullName())) {
       user.setFullName(user.getUsername());
