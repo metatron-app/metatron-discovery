@@ -36,6 +36,7 @@ public interface ActivityStreamRepository extends JpaRepository<ActivityStream, 
                                           QueryDslPredicateExecutor<ActivityStream>, ActivityStreamRepositoryExtends {
 
   ActivityStream findTop1ByActorOrderByPublishedTimeDesc(String actor);
+  ActivityStream findTop1ByActorAndActionAndResultOrderByPublishedTimeDesc(String actor, ActivityType action, String result);
 //  List<Object> findWorkspaceViewStat(String workspaceId, TimeFieldFormat.TimeUnit timeUnit, DateTime from, DateTime to);
 
   @Query("SELECT MAX(activityStream.id) AS ID, COUNT(activityStream.actor) AS CNT " +

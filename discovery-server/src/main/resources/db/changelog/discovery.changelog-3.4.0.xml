@@ -70,4 +70,18 @@
             <column name="scope" value="read,write,trust" />
         </insert>
     </changeSet>
+
+    <changeSet author="sohncw" id="1587645092123-0">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="activity_stream" />
+                <not>
+                    <columnExists tableName="activity_stream" columnName="activity_result" />
+                </not>
+            </and>
+        </preConditions>
+        <addColumn tableName="activity_stream">
+            <column name="activity_result" type="${varchar.type}(255)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

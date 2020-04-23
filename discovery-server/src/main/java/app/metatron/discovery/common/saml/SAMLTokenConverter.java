@@ -18,6 +18,7 @@ import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -30,8 +31,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+
 public class SAMLTokenConverter extends JwtAccessTokenConverter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SAMLTokenConverter.class);
+
+  @Autowired
+  ActivityStreamService activityStreamService;
 
   @Override
   public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
@@ -78,6 +85,14 @@ public class SAMLTokenConverter extends JwtAccessTokenConverter {
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(samlAdditionalMap);
           } catch (MessageEncodingException e){
             e.printStackTrace();
+          }
+        } else {
+          ActivityStream activityStream = activityStreamService.getLastLoginActivityStream(userAuthentication.getName());
+
+          if(activityStream != null){
+            final Map<String, Object> additionalInfo = new HashMap<>();
+            additionalInfo.put("last_login", activityStream.getPublishedTime());
+            ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
           }
         }
       }

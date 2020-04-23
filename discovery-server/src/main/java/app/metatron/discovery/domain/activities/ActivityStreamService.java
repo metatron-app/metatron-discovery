@@ -14,12 +14,17 @@
 
 package app.metatron.discovery.domain.activities;
 
+import com.querydsl.core.types.Predicate;
+
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
@@ -79,5 +84,24 @@ public class ActivityStreamService {
     ActivityStream userLastActivity = activityStreamRepository.findTop1ByActorOrderByPublishedTimeDesc(username);
     return userLastActivity;
   }
+
+  public ActivityStream getLastLoginActivityStream(String username){
+    ActivityStream userLastActivity
+        = activityStreamRepository.findTop1ByActorAndActionAndResultOrderByPublishedTimeDesc(username, ActivityType.ARRIVE, "SUCCESS");
+    return userLastActivity;
+  }
+
+  public Page<ActivityStream> findActivityStreams(String actor, List<ActivityType> activityTypes,
+                                                  String nameContains, String clientContains,
+                                                  DateTime from, DateTime to, Pageable pageable){
+    Predicate predicate = ActivityStreamPredicate.searchList(actor, activityTypes, nameContains, clientContains, from, to);
+    Page<ActivityStream> pagedActivity = activityStreamRepository.findAll(predicate, pageable);
+    return pagedActivity;
+  }
+
+  public ActivityStream addActivityStream(ActivityStream activityStream){
+    return activityStreamRepository.save(activityStream);
+  }
+
 
 }

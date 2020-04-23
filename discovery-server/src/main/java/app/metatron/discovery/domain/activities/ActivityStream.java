@@ -84,6 +84,9 @@ public class ActivityStream implements MetatronDomain<Long> {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   DateTime publishedTime;
 
+  @Column(name = "activity_result")
+  String result;
+
   public ActivityStream() {
   }
 
@@ -197,6 +200,30 @@ public class ActivityStream implements MetatronDomain<Long> {
 
   public void setPublishedTime(DateTime publishedTime) {
     this.publishedTime = publishedTime;
+  }
+
+  public GeneratorType getGeneratorType() {
+    return generatorType;
+  }
+
+  public void setGeneratorType(GeneratorType generatorType) {
+    this.generatorType = generatorType;
+  }
+
+  public String getGeneratorName() {
+    return generatorName;
+  }
+
+  public void setGeneratorName(String generatorName) {
+    this.generatorName = generatorName;
+  }
+
+  public String getResult() {
+    return result;
+  }
+
+  public void setResult(String result) {
+    this.result = result;
   }
 
   public enum GeneratorType {
