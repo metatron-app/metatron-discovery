@@ -34,7 +34,8 @@ import { UserManagementPermissionComponent } from './component/permission/user-m
 import { DetailUserManagementPermissionComponent } from './component/permission/detail-user-management-permission.component';
 import { SetMemberGroupComponent } from './component/permission/set-member-group.component';
 import { SetMemberGroupContainerComponent } from './component/permission/set-member-group-container.component';
-import {ChangeWorksspaceOwnerModalModule} from './component/members/change-workspace-owner-modal/change-worksspace-owner-modal.module';
+import { ChangeWorksspaceOwnerModalModule } from './component/members/change-workspace-owner-modal/change-worksspace-owner-modal.module';
+import { UserManagementAccessComponent } from './component/access/user-management-access.component';
 
 @NgModule({
   imports: [
@@ -44,7 +45,7 @@ import {ChangeWorksspaceOwnerModalModule} from './component/members/change-works
       { path: ':tabId', component: UserManagementComponent },
       { path: 'members/:userId', component: DetailUserManagementMembersComponent},
       { path: 'groups/:groupId', component: DetailUserManagementGroupsComponent},
-      { path: 'permission/:roleId', component: DetailUserManagementPermissionComponent}
+      { path: 'permission/:roleId', component: DetailUserManagementPermissionComponent},
     ]),
     ChangeWorksspaceOwnerModalModule
   ],
@@ -63,7 +64,8 @@ import {ChangeWorksspaceOwnerModalModule} from './component/members/change-works
     UpdateUserManagementGroupsComponent,
     DetailUserManagementPermissionComponent,
     SetMemberGroupComponent,
-    SetMemberGroupContainerComponent
+    SetMemberGroupContainerComponent,
+    UserManagementAccessComponent
   ],
   providers: [
     MembersService,

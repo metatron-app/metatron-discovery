@@ -34,6 +34,9 @@
       <li [ngClass]="{'ddp-selected': tabId == 'permission'}">
         <a (click)="gotoTab('permission')" href="javascript:">{{'msg.comm.menu.admin.user.permission' | translate}}</a>
       </li>
+      <li [ngClass]="{'ddp-selected': tabId == 'access'}">
+        <a (click)="gotoTab('access')" href="javascript:">{{'msg.comm.menu.access.history' | translate}}</a>
+      </li>
     </ul>
     <!-- //tab -->
 
@@ -52,5 +55,8 @@
   <!-- Discovery permission -->
   <app-user-management-permission *ngIf="'permission' == tabId"></app-user-management-permission>
   <!-- // Discovery permission -->
+  <!-- Access History -->
+  <app-user-management-access *ngIf="'access' == tabId"></app-user-management-access>
+  <!-- // Access History -->
 
 </div>

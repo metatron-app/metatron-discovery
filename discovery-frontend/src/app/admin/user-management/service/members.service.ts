@@ -187,6 +187,17 @@ export class MembersService extends AbstractService {
     return this.post(url,{});
   }
 
+  public getAccessHistory(param : any): Promise<any> {
+    // URL
+    let url: string = this.API_URL + 'activities';
+
+    if (param) {
+      url += '?' + CommonUtil.objectToUrlString(param);
+    }
+
+    return this.get(url + '&projection=detail');
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

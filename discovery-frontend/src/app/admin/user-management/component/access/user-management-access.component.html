@@ -1,0 +1,145 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contents-list">
+  <div class="ddp-wrap-option">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear" *ngIf="false">
+
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.log.th.status' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <label class="ddp-label-radio">
+            <input [checked]="'ARRIVE,LEAVE' == action" type="radio" (change)="changeAction('ARRIVE,LEAVE')">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
+          </label>
+          <label class="ddp-label-radio" (change)="changeAction('ARRIVE')">
+            <input [checked]="'ARRIVE' == action" type="radio">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">ARRIVE</span>
+          </label>
+          <label class="ddp-label-radio" (change)="changeAction('LEAVE')">
+            <input [checked]="'LEAVE' == action" type="radio">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">LEAVE</span>
+          </label>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <div class="ddp-ui-rightoption" (click)="refreshFilters()">
+        <a href="javascript:" class="ddp-link-reset"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+      </div>
+    </div>
+    <!-- //option -->
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <component-period
+        [startDateDefault]="initialPeriodData?.startDate"
+        [endDateDefault]="initialPeriodData?.endDate"
+        [defaultType]="initialPeriodData?.type"
+        [title]="'msg.mem.th.request.date' | translate"
+        [dateType]="false"
+        (changeDate)="onFilterDate($event)"
+      ></component-period>
+      <!-- //edit -->
+    </div>
+    <!-- //option -->
+
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.mem.search.description' | translate}}" [(ngModel)]="searchKeyword" (keyup)="searchUser($event)" >
+        <em class="ddp-btn-search-close" *ngIf="searchKeyword !== ''" (click)="clearSearchKeyword()"></em>
+      </div>
+      <!-- //검색 -->
+      <div class="ddp-ui-rightoption">
+        <span class="ddp-data-total ddp-only">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements } }}</span>
+      </div>
+    </div>
+    <!-- //option -->
+  </div>
+
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="200px">
+      <col width="150px">
+      <col width="200px">
+      <col width="*">
+      <col width="100px">
+      <col width="*">
+    </colgroup>
+    <thead>
+      <tr>
+        <th (click)="sortList('publishedTime')">
+          Access Time
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'publishedTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key !== 'publishedTime' || selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key !== 'publishedTime' || selectedContentSort.sort === 'desc'"></em>
+        </th>
+        <th>
+          Username
+        </th>
+        <th>
+          IP
+        </th>
+        <th>
+          Product
+        </th>
+        <th >
+          Action
+        </th>
+        <th >
+          User-agent
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of activities; let index = index">
+        <td>
+          {{item.publishedTime | mdate : 'YYYY-MM-DD HH:mm'}}
+        </td>
+        <td>
+          {{item.actor}}
+        </td>
+        <td>
+          {{item.targetId}}
+        </td>
+        <td>
+          {{item.objectId}}
+        </td>
+        <td>
+          {{item.action}}
+        </td>
+        <td>
+          {{item.generatorName}}
+        </td>
+        <!--<td>-->
+
+        <!--</td>-->
+      </tr>
+    </tbody>
+  </table>
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
+
+</div>
+
