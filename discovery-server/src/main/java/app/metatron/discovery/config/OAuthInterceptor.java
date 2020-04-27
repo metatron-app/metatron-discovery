@@ -106,9 +106,8 @@ public class OAuthInterceptor implements HandlerInterceptor {
       activityStream.setGeneratorName(userAgent);
       activityStream.setGeneratorType(ActivityStream.GeneratorType.WEBAPP);
 
-      //Target (user host)
-      activityStream.setTargetId(userHost);
-      activityStream.setTargetType(ActivityStream.MetatronObjectType.UNKNOWN);
+      //user host
+      activityStream.setRemoteHost(userHost);
 
       activityStream.setResult(loginStatus == 200 ? "SUCCESS" : "FAIL");
       activityStream.setPublishedTime(DateTime.now());

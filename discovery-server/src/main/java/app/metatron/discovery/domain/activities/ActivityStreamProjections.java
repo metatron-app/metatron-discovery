@@ -36,6 +36,8 @@ public class ActivityStreamProjections {
     String getObjectId();
 
     DateTime getPublishedTime();
+
+    String getRemoteHost();
   }
 
   @Projection(types = ActivityStream.class, name = "detail")
@@ -59,6 +61,8 @@ public class ActivityStreamProjections {
     String getGeneratorName();
 
     DateTime getPublishedTime();
+
+    String getRemoteHost();
   }
 
   @Projection(types = ActivityStream.class, name = "list")
@@ -78,6 +82,8 @@ public class ActivityStreamProjections {
     String getGeneratorName();
 
     DateTime getPublishedTime();
+
+    String getRemoteHost();
   }
 
 }

@@ -221,6 +221,7 @@
   "msg.comm.menu.usr.information.mngt": "사용자 정보 관리",
   "msg.comm.menu.profile": "프로필",
   "msg.comm.menu.access.history": "접속 이력",
+  "msg.comm.menu.login.history": "로그인 이력",
   "msg.comm.menu.lang": "언어",
   "msg.comm.menu.lang.ko": "한국어",
   "msg.comm.menu.lang.en": "영어",

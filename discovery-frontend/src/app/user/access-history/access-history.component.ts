@@ -220,6 +220,6 @@ export class AccessHistoryComponent extends AbstractComponent implements OnInit,
 }
 
 class Order {
-  key: string = 'name';
-  sort: string = 'default';
+  key: string = 'publishedTime';
+  sort: string = 'desc';
 }

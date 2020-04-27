@@ -23,4 +23,5 @@ export class Activity {
   public actor: string;
   public publishedTime: string;
   public generatorName: string;
+  public remoteHost: string;
 }

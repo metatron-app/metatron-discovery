@@ -21,7 +21,7 @@
             {{'msg.comm.menu.access.history' | translate}}
         </span>
       <div class="ddp-ui-pop-buttons">
-        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.close' | translate}}</a>
       </div>
     </div>
     <!-- //title -->
@@ -94,7 +94,7 @@
                   {{activity.publishedTime |mdate : 'YYYY-MM-DD HH:mm'}}
                 </td>
                 <td class="ddp-txt-ellipsis">
-                  {{activity.targetId}}
+                  {{activity.remoteHost}}
                 </td>
                 <td>
                   <div class="ddp-txt-ellipsis">

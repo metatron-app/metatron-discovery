@@ -91,7 +91,8 @@ public class SAMLTokenConverter extends JwtAccessTokenConverter {
 
           if(activityStream != null){
             final Map<String, Object> additionalInfo = new HashMap<>();
-            additionalInfo.put("last_login", activityStream.getPublishedTime());
+            additionalInfo.put("last_login_time", activityStream.getPublishedTime());
+            additionalInfo.put("last_login_ip", activityStream.getRemoteHost());
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
           }
         }

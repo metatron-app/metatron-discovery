@@ -87,6 +87,9 @@ public class ActivityStream implements MetatronDomain<Long> {
   @Column(name = "activity_result")
   String result;
 
+  @Column(name = "activity_remote_host")
+  String remoteHost;
+
   public ActivityStream() {
   }
 
@@ -224,6 +227,14 @@ public class ActivityStream implements MetatronDomain<Long> {
 
   public void setResult(String result) {
     this.result = result;
+  }
+
+  public String getRemoteHost() {
+    return remoteHost;
+  }
+
+  public void setRemoteHost(String remoteHost) {
+    this.remoteHost = remoteHost;
   }
 
   public enum GeneratorType {

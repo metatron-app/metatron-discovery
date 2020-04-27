@@ -205,10 +205,10 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
               // 페이지 이동
               if (this.forwardURL !== 'NONE') {
                 // this.router.navigate([this.forwardURL]).then();
-                this._showAccessLog(loginToken.last_login, this.forwardURL);
+                this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip, this.forwardURL);
               } else {
                 // this.router.navigate(['/workspace']).then();
-                this._showAccessLog(loginToken.last_login, '/workspace');
+                this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip, '/workspace');
               }
             }).catch(() => {
               this._logout();
@@ -217,7 +217,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
             });
           } else {
             // this.router.navigate(['/workspace']).then();
-            this._showAccessLog(loginToken.last_login, '/workspace');
+            this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip, '/workspace');
           }
         });
 
@@ -261,12 +261,15 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     }
   } // function - _logout
 
-  private _showAccessLog(lastLogin: string, forwardUrl: string) {
+  private _showAccessLog(lastLoginTime: string, lastLoginIp:string, forwardUrl: string) {
     this.loadingHide();
     const modal = new Modal();
     modal.name = this.translateService.instant( 'msg.login.access.title' );
     modal.description = this.translateService.instant( 'msg.login.access.description' )
-                          + moment(lastLogin).format('YYYY-MM-DD HH:mm:ss');
+                          + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
+    if(lastLoginIp != undefined){
+      modal.description = modal.description + ' (' + lastLoginIp + ')';
+    }
     modal.data = forwardUrl;
     // confirm modal
     this._confirmModal.init(modal);
