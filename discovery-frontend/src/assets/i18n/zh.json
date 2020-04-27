@@ -46,6 +46,8 @@
   "msg.comm.ui.soring.alphnumeric.asc": "英文字母升序",
   "msg.comm.ui.soring.alphnumeric.desc": "英文字母降序",
   "msg.comm.ui.beforeunload": "更改事项可能未被保存",
+  "msg.comm.ui.success": "成功",
+  "msg.comm.ui.fail": "失败",
   "msg.comm.menu.title.workspace": "WORKSPACE",
   "msg.comm.menu.title.explore-data" : "EXPLORATION",
   "msg.comm.menu.title.management": "MANAGEMENT",

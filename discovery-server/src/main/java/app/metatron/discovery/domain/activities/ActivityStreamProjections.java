@@ -54,6 +54,8 @@ public class ActivityStreamProjections {
 
     String getTargetId();
 
+    String getResult();
+
     ActivityStream.MetatronObjectType getTargetType();
 
     ActivityStream.GeneratorType getGeneratorType();

@@ -170,6 +170,9 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
    * 로그인
    */
   public login() {
+    if (this._confirmModal.isShow) {
+      return;
+    }
 
     this.loadingShow();
 

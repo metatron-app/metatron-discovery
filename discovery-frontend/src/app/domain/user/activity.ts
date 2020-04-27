@@ -24,4 +24,5 @@ export class Activity {
   public publishedTime: string;
   public generatorName: string;
   public remoteHost: string;
+  public result: string
 }

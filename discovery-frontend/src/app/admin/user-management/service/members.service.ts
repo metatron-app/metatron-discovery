@@ -195,7 +195,7 @@ export class MembersService extends AbstractService {
       url += '?' + CommonUtil.objectToUrlString(param);
     }
 
-    return this.get(url + '&projection=detail');
+    return this.get(url + '&projection=list');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

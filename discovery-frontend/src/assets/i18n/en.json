@@ -48,6 +48,8 @@
   "msg.comm.ui.soring.alphnumeric.asc" : "Alpahnumeric ascending",
   "msg.comm.ui.soring.alphnumeric.desc" : "Alpahnumeric descending",
   "msg.comm.ui.beforeunload" : "Are you sure you want to leave?",
+  "msg.comm.ui.success": "Success",
+  "msg.comm.ui.fail": "Fail",
   "msg.comm.menu.title.workspace": "WORKSPACE",
   "msg.comm.menu.title.explore-data" : "EXPLORATION",
   "msg.comm.menu.title.management": "MANAGEMENT",

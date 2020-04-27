@@ -25,7 +25,7 @@
       </div>
       <!-- buttons -->
       <div class="ddp-ui-buttons2" *ngIf="!useCancelBtn">
-        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+        <a #doneElm href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
            (click)="done()">{{'msg.comm.btn.close' | translate}}</a>
       </div>
       <div class="ddp-ui-buttons2" *ngIf="useCancelBtn">

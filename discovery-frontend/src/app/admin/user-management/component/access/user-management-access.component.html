@@ -85,6 +85,7 @@
       <col width="*">
       <col width="100px">
       <col width="*">
+      <col width="100px">
     </colgroup>
     <thead>
       <tr>
@@ -103,33 +104,39 @@
         <th>
           Product
         </th>
-        <th >
+        <th>
           Action
         </th>
-        <th >
+        <th>
           User-agent
+        </th>
+        <th>
+          Result
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let item of activities; let index = index">
+      <tr *ngFor="let activity of activities; let index = index">
         <td>
-          {{item.publishedTime | mdate : 'YYYY-MM-DD HH:mm'}}
+          {{activity.publishedTime | mdate : 'YYYY-MM-DD HH:mm'}}
         </td>
         <td>
-          {{item.actor}}
+          {{activity.actor}}
         </td>
         <td>
-          {{item.remoteHost}}
+          {{activity.remoteHost}}
         </td>
         <td>
-          {{item.objectId}}
+          {{activity.objectId}}
         </td>
         <td>
-          {{item.action}}
+          {{activity.action}}
         </td>
         <td>
-          {{item.generatorName}}
+          {{activity.generatorName}}
+        </td>
+        <td>
+          {{(activity.result === 'SUCCESS' ? 'msg.comm.ui.success' : 'msg.comm.ui.fail') | translate}}
         </td>
         <!--<td>-->
 

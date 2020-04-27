@@ -47,6 +47,8 @@
   "msg.comm.ui.soring.alphnumeric.asc": "영숫자 오름차순",
   "msg.comm.ui.soring.alphnumeric.desc": "영숫자 내림차순",
   "msg.comm.ui.beforeunload": "나가시겠습니까?",
+  "msg.comm.ui.success": "성공",
+  "msg.comm.ui.fail": "실패",
   "msg.comm.menu.title.workspace": "WORKSPACE",
   "msg.comm.menu.title.explore-data": "EXPLORATION",
   "msg.comm.menu.title.management": "MANAGEMENT",

@@ -12,7 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { AbstractComponent } from '../../abstract.component';
 import { Modal } from '../../../domain/modal';
 
@@ -25,6 +35,8 @@ export class ConfirmSmallComponent extends AbstractComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild('doneElm')
+  private _doneElm: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -80,6 +92,11 @@ export class ConfirmSmallComponent extends AbstractComponent implements OnInit, 
   public init(modal: Modal) {
     this.isShow = true;
     this.modal = modal;
+    if (!this.useCancelBtn) {
+      setTimeout(()=>{
+        this._doneElm.nativeElement.focus();
+      },0)
+    }
   }
 
   // 확인

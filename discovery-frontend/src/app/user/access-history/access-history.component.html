@@ -45,11 +45,12 @@
           <div class="ddp-ui-gridhead">
             <table class="ddp-table-form ddp-table-type2">
               <colgroup>
-                <col width="200px">
-                <col width="120px">
+                <col width="160px">
+                <col width="150px">
                 <col width="150px">
                 <col width="100px">
                 <col width="*">
+                <col width="100px">
               </colgroup>
               <thead>
               <tr>
@@ -71,6 +72,9 @@
                 <th>
                   User-Agent
                 </th>
+                <th>
+                  Result
+                </th>
               </tr>
               </thead>
 
@@ -82,11 +86,12 @@
           <div class="ddp-ui-gridbody">
             <table class="ddp-table-form ddp-table-type2">
               <colgroup>
-                <col width="200px">
-                <col width="120px">
+                <col width="160px">
+                <col width="150px">
                 <col width="150px">
                 <col width="100px">
                 <col width="*">
+                <col width="100px">
               </colgroup>
               <tbody>
               <tr *ngFor="let activity of activities">
@@ -108,6 +113,11 @@
                 </td>
                 <td class="ddp-txt-ellipsis" title="{{activity.generatorName}}">
                   {{activity.generatorName}}
+                </td>
+                <td>
+                  <div class="ddp-txt-ellipsis">
+                    {{(activity.result === 'SUCCESS' ? 'msg.comm.ui.success' : 'msg.comm.ui.fail') | translate}}
+                  </div>
                 </td>
               </tr>
               </tbody>
