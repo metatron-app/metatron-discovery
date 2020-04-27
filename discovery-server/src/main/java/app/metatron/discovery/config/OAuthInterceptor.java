@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamController;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityType;
 import app.metatron.discovery.domain.activities.spec.Actor;
@@ -66,12 +65,20 @@ public class OAuthInterceptor implements HandlerInterceptor {
     String requestURI = request.getRequestURI();
     LOGGER.debug("requestURI : {}", requestURI);
     if(requestURI.equals("/oauth/token")){
+      String grantType = request.getParameter("grant_type");
+
+      //exclude refresh_token
+      if(grantType.equals("refresh_token")){
+        return;
+      }
+
       String username = request.getParameter("username");
       String userAgent = request.getHeader("user-agent");
       String clientId = request.getRemoteUser();
       String userHost = request.getRemoteHost();
       int loginStatus = response.getStatus();
       String referer = request.getHeader("referer");
+
 
       //getting client info
       String clientName = null;
@@ -89,6 +96,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
       Map<String, Object> additionalInfo = new HashMap<>();
       additionalInfo.put("requestURI", requestURI);
       additionalInfo.put("referer", referer);
+      additionalInfo.put("grantType", grantType);
 
       ActivityStream activityStream = new ActivityStream();
 
