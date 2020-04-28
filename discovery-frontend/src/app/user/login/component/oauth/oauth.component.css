@@ -152,7 +152,7 @@ input:-ms-input-placeholder {
 
 .ddp-form-login .ddp-form-input label {
   display: block;
-  padding: 30px 0 0 0;
+  padding: 30px 0 0;
   color: rgba(39, 41, 80, 0.7);
   font-size: 13px;
 }
@@ -236,18 +236,14 @@ input:-ms-input-placeholder {
 }
 
 .ddp-ui-input-form .ddp-input-check em.ddp-icon-error {
-  display: inline-block;
-  position: absolute;
-  top: 50%;
-  right: 0;
-  background: url(/assets/images/icon_message.png) no-repeat;
-}
-
-.ddp-ui-input-form .ddp-input-check em.ddp-icon-error {
   display: none;
   width: 9px;
   height: 9px;
   margin-top: -5px;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  background: url(/assets/images/icon_message.png) no-repeat;
 }
 
 .ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-error {
@@ -333,7 +329,7 @@ input:-ms-input-placeholder {
 .ddp-ui-footer span.ddp-ui-copy {
   float: left;
   display: inline-block;
-  padding: 3px 0 0 0;
+  padding: 3px 0 0;
   color: rgba(39, 41, 80, 0.6);
   font-size: 12px;
   letter-spacing: -1px;

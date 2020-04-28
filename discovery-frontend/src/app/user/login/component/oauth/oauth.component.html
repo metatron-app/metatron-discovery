@@ -33,7 +33,7 @@
           <!-- login form -->
           <div class="ddp-form-login">
             <!-- ID 입력 -->
-            <div class="ddp-form-input ddp-ui-input-form" [ngClass]="{'ddp-type-error' : loginFailMsg != ''}" style="padding-bottom:0px;">
+            <div class="ddp-form-input ddp-ui-input-form" [ngClass]="{'ddp-type-error' : loginFailMsg != ''}" style="padding-bottom:0;">
               <label class="ddp-label-type">{{'msg.comm.usr.name.title' | translate}}</label>
               <div class="ddp-input-check">
               <span class="ddp-input-type">
@@ -41,13 +41,13 @@
                        [(ngModel)]="user.username" placeholder="{{'msg.comm.usr.name.title.ph' | translate}}"
                        style="border-bottom:none;"/>
               </span>
-                <em class="ddp-icon-error" name="usernameErrorIcon"></em>
+                <em class="ddp-icon-error" (click)="user.username='';loginFailMsg='';" *ngIf="loginFailMsg"></em>
               </div>
             </div>
             <!-- // ID 입력 -->
 
             <!-- Password 입력 -->
-            <div class="ddp-form-input ddp-ui-input-form" [ngClass]="{'ddp-type-error' : loginFailMsg != ''}" style="padding-bottom:0px;">
+            <div class="ddp-form-input ddp-ui-input-form" [ngClass]="{'ddp-type-error' : loginFailMsg != ''}" style="padding-bottom:0;">
               <label class="ddp-label-type">{{'msg.comm.usr.pw.title' | translate}}</label>
               <div class="ddp-input-check">
               <span class="ddp-input-type">
@@ -56,7 +56,7 @@
                        (keyup)="$event.keyCode == 13 ? login() : null;"
                        style="border-bottom:none;"/>
               </span>
-                <em class="ddp-icon-error" name="passwordErrorIcon"></em>
+                <em class="ddp-icon-error" (click)="user.password='';loginFailMsg='';" *ngIf="loginFailMsg"></em>
               </div>
               <!-- error 메시지 -->
               <span class="ddp-ui-error" style="bottom:-45px;" name="loginFailMsg">{{loginFailMsg}}</span>
