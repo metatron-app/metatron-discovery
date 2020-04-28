@@ -160,13 +160,27 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
       this.newPasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.new.empty');
       return;
     }
-    // 패스워드 확인
-    if (!StringUtil.isPassword(this.newPassword)) {
-      this.resultNewPassword = false;
-      this.newPasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.new.match.not');
-      return;
+    const param = {
+      username: this._userId,
+      password: this.newPassword
     }
+    this.userService.validatePassword(param)
+      .then((result) => {
+        this.resultNewPassword = true;
+      }).catch((error) => {
+      this.loadingHide();
+      this.resultNewPassword = false;
+      if (StringUtil.isNotEmpty(error.code)) {
+        this.newPasswordMessage = this.translateService.instant('login.ui.fail.'+error.code);
+      }
+      return;
+    });
     this.resultNewPassword = true;
+
+    if (StringUtil.isNotEmpty(this.rePassword)) {
+      this.initRePasswordValidation();
+      this.rePasswordValidation();
+    }
     return;
   }
 
@@ -284,10 +298,10 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
         this.closeChangePassword();
       })
       .catch((err) => {
-        // error alert
-        Alert.error(err.details ? err.details : this.translateService.instant('msg.comm.alert.profile.password.fail'));
         // 로딩 hide
         this.loadingHide();
+        // error alert
+        Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail'));
       })
   }
 }

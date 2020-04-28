@@ -62,6 +62,8 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
   // 새로 변경할 패스워드 확인
   public rePassword: string;
 
+  // 기존 패스워드 결과
+  public resultPassword: boolean;
   // 새로 변경할 패스워드 결과
   public resultNewPassword: boolean;
   // 새로 변경할 패스워드 결과 확인
@@ -111,11 +113,14 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
    * init
    * @param {string} userId
    */
-  public init(userId: string): void {
+  public init(userId: string, status: string): void {
     // ui init
     this._initView();
     // 유저 아이디
     this._userId = userId;
+
+    // Display User Status
+
   }
 
   /**
@@ -136,6 +141,38 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
     }
   }
 
+  /**
+   * 현재 패스워드 validation
+   */
+  public passwordValidation(): void {
+    // 비밀번호가 비어 있다면
+    if (isUndefined(this.password) || this.password === '') {
+      this.resultPassword = false;
+      this.passwordMessage = this.translateService.instant('msg.comm.alert.profile.password.empty');
+      return;
+    }
+    const param = {
+      username: this._userId,
+      initialPassword: this.password
+    }
+    this.userService.validatePassword(param)
+      .then((result) => {
+        this.resultPassword = true;
+      }).catch((error) => {
+      this.loadingHide();
+      this.resultPassword = false;
+      if (error.code === 'UR0008') {
+        this.passwordMessage = this.translateService.instant('msg.comm.alert.profile.password.match.not');
+      } else if (StringUtil.isNotEmpty(error.code)) {
+        this.passwordMessage = this.translateService.instant('login.ui.fail.'+error.code);
+      }
+      return;
+    });
+    this.resultPassword = true;
+
+    return;
+  }
+
 
   /**
    * 새로운 패스워드 validation
@@ -147,13 +184,27 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
       this.newPasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.new.empty');
       return;
     }
-    // 패스워드 확인
-    if (!StringUtil.isPassword(this.newPassword)) {
-      this.resultNewPassword = false;
-      this.newPasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.new.match.not');
-      return;
+    const param = {
+      username: this._userId,
+      password: this.newPassword
     }
+    this.userService.validatePassword(param)
+      .then((result) => {
+        this.resultNewPassword = true;
+      }).catch((error) => {
+      this.loadingHide();
+      this.resultNewPassword = false;
+      if (StringUtil.isNotEmpty(error.code)) {
+        this.newPasswordMessage = this.translateService.instant('login.ui.fail.'+error.code);
+      }
+      return;
+    });
     this.resultNewPassword = true;
+
+    if (StringUtil.isNotEmpty(this.rePassword)) {
+      this.initRePasswordValidation();
+      this.rePasswordValidation();
+    }
     return;
   }
 
@@ -175,6 +226,13 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
     }
     this.resultRePassword = true;
     return;
+  }
+
+  /**
+   * init password validation
+   */
+  public initPasswordValidation(): void {
+    this.resultPassword = undefined;
   }
 
   /**
@@ -213,6 +271,8 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
     // 새로 변경할 패스워드 확인
     this.rePassword = undefined;
 
+    // 기존 패스워드 결과
+    this.resultPassword = undefined;
     // 새로 변경할 패스워드 결과
     this.resultNewPassword = undefined;
     // 새로 변경할 패스워드 결과 확인
@@ -229,6 +289,11 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
    * @private
    */
   private _doneValidation(): boolean {
+    // 현재 비밀번호가 맞는지
+    if (!this.resultPassword) {
+      this.passwordValidation();
+      return false;
+    }
     // 새로운 비밀번호
     if (!this.resultNewPassword) {
       this.newPasswordValidation();
@@ -239,7 +304,7 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
       this.rePasswordValidation();
       return false;
     }
-    return this.resultNewPassword && this.resultRePassword;
+    return this.resultPassword && this.resultNewPassword && this.resultRePassword;
   }
 
   /**
@@ -265,10 +330,10 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
         this.closeChangePassword();
       })
       .catch((err) => {
-        // error alert
-        Alert.error(err.details ? err.details : this.translateService.instant('msg.comm.alert.profile.password.fail'));
         // 로딩 hide
         this.loadingHide();
+        // error alert
+        Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail'));
       })
   }
 }

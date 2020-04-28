@@ -158,6 +158,15 @@ public class UserService {
       throw new UserException(UserErrorCodes.PASSWORD_NOT_MATCHED, "Password not matched");
     }
 
+    return validatePassword(username, password);
+  }
+
+  public Boolean validatePassword(String username, String password) {
+    if(StringUtils.isEmpty(password)){
+      throw new UserException(UserErrorCodes.INVALID_PASSWORD_PARAMETER,
+                              "User password parameter not valid ( " + password + " )");
+    }
+
     //check password strength
     String passwordStrengthExpr = userPasswordProperties.getStrength().getPasswordRegExp();
     Pattern passwordStrengthPattern = Pattern.compile(passwordStrengthExpr);

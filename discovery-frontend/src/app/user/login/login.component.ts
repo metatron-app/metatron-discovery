@@ -240,8 +240,8 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     }).catch((err) => {
       // 로딩 hide
       this.loadingHide();
-      if (err.details === 'PASSWORD_CHANGE') {
-        this.initialChangePasswordComponent.init(this.user.username);
+      if (err.details === 'INITIAL' || err.details === 'EXPIRED') {
+        this.initialChangePasswordComponent.init(this.user.username, err.details);
       } else {
         this.loginFailMsg = err.details;
       }

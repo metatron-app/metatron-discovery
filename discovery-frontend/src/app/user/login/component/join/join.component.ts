@@ -25,7 +25,6 @@ import { CommonConstant } from '../../../../common/constant/common.constant';
 import { Alert } from '../../../../common/util/alert.util';
 import { isUndefined } from 'util';
 
-
 @Component({
   selector: 'app-join',
   templateUrl: './join.component.html',
@@ -329,25 +328,43 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
       this.joinValidation.email = true;
     }
     // password confirm validation
-    else if ('password' === type || 'confirmPassword' === type) {
+    else if ('password' === type) {
       if (text.length === 0) {
         return;
       }
-      if (!passwordReg.test(text)) {
-        this.joinValidation[type] = false;
-        this.joinValidation[type + 'Message']
-          = this.translateService.instant('LOGIN_JOIN_VALID_PASSWORD2');
+      this.userService.validatePassword(this.user)
+        .then((result) => {
+          this.joinValidation.password = true;
+        }).catch((error) => {
+        this.loadingHide();
+        this.joinValidation.password = false;
+        if (StringUtil.isNotEmpty(error.code)) {
+          this.joinValidation.passwordMessage
+            = this.translateService.instant('login.ui.fail.'+error.code);
+        } else {
+          this.joinValidation.passwordMessage
+            = this.translateService.instant('LOGIN_JOIN_VALID_PASSWORD2');
+        }
         return;
+      });
+      this.joinValidation.password = true;
+      if (StringUtil.isNotEmpty(this.user.confirmPassword)) {
+        this.validation('confirmPassword');
       }
     }
-    // check if password and confirmpassword is same
-    if (this.user.password && this.user.confirmPassword && 0 !== this.user.password.length && 0 !== this.user.confirmPassword.length) {
-      if (this.user.password !== this.user.confirmPassword) {
-        this.joinValidation.confirmPassword = false;
-        this.joinValidation.confirmPasswordMessage = this.translateService.instant('LOGIN_JOIN_NOMATCH_PASSWORD');
+    else if ('confirmPassword' === type) {
+      if (text.length === 0) {
         return;
-      } else {
-        this.joinValidation.confirmPassword = true;
+      }
+      // check if password and confirmpassword is same
+      if (this.user.password && this.user.confirmPassword && 0 !== this.user.password.length && 0 !== this.user.confirmPassword.length) {
+        if (this.user.password !== this.user.confirmPassword) {
+          this.joinValidation.confirmPassword = false;
+          this.joinValidation.confirmPasswordMessage = this.translateService.instant('LOGIN_JOIN_NOMATCH_PASSWORD');
+          return;
+        } else {
+          this.joinValidation.confirmPassword = true;
+        }
       }
     }
 

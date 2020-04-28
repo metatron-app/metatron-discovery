@@ -39,8 +39,9 @@ public class CustomUserStatusPostChecker implements UserDetailsChecker {
 
     switch (status) {
       case INITIAL:
+        throw new InactivatedStatusException("INITIAL");
       case EXPIRED:
-        throw new InactivatedStatusException("PASSWORD_CHANGE");
+        throw new InactivatedStatusException("EXPIRED");
     }
   }
 

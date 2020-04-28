@@ -319,7 +319,7 @@ public class UserController {
     }
 
     if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
-      throw new UserException("Fail to update password. It does not match the initial password.");
+      throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED, "Fail to update password. It does not match the initial password.");
     }
 
     updatedUser.setStatus(User.Status.ACTIVATED);
@@ -484,6 +484,25 @@ public class UserController {
     mailer.sendPasswordResetMail(user, temporaryPassword, isAdmin);
 
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(path = "/users/password/validate", method = RequestMethod.POST)
+  public ResponseEntity<?> validatePassword(@RequestBody User user) {
+
+    if (StringUtils.isNotEmpty(user.getInitialPassword())) {
+      User updatedUser = userRepository.findByUsername(user.getUsername());
+      if (updatedUser == null) {
+        throw new ResourceNotFoundException(user.getUsername());
+      } else if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
+        throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED, "Fail to update password. It does not match the initial password.");
+      }
+    } else {
+      userService.validatePassword(user.getUsername(), user.getPassword());
+    }
+
+
+
+    return ResponseEntity.ok().build();
   }
 
   /**
