@@ -45,6 +45,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import app.metatron.discovery.common.oauth.BasePermissionEvaluator;
 import app.metatron.discovery.common.oauth.CustomDaoAuthenticationProvider;
 import app.metatron.discovery.common.oauth.CustomUserStatusChecker;
+import app.metatron.discovery.common.oauth.CustomUserStatusPostChecker;
 
 
 /**
@@ -163,6 +164,7 @@ public class WebSecurityDefaultConfiguration extends WebSecurityConfigurerAdapte
     provider.setUserDetailsService(userDetailsService);
     provider.setMessageSource(messageSource);
     provider.setPreAuthenticationChecks(customUserStatusChecker());
+    provider.setPostAuthenticationChecks(new CustomUserStatusPostChecker());
     provider.setPasswordEncoder(passwordEncoder());
     return provider;
   }

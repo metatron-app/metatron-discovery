@@ -1,0 +1,340 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  box-sizing: content-box;
+  line-height: 1.3em;
+}
+
+*:focus {
+  outline: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  min-width: 1200px;
+  line-height: 1.3em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  background-color: #fff;
+}
+
+body, p, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, table, th, td, form, fieldset, legend, input, textarea, button, select {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: #4b515b;
+}
+
+a, u, a:hover {
+  text-decoration: none;
+  color: #707070;
+}
+
+a {
+  outline: 0;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+input::placeholder {
+  color: #b7b9c2;
+  font-family: sans-serif;
+  line-height: 1.3em;
+}
+
+input::-webkit-input-placeholder {
+  color: #b7b9c2;
+  font-family: sans-serif;
+  line-height: 1.3em;
+}
+
+input:-ms-input-placeholder {
+  color: #b7b9c2;
+  font-family: sans-serif;
+  line-height: 1.3em;
+}
+
+.ddp-wrap-login {
+  height: 100%;
+  min-height: 800px;
+
+
+  background: no-repeat center center fixed;
+  background-size: cover;
+}
+
+.ddp-wrap-login .ddp-blur2 {
+  display: block;
+  background: no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden;
+  content: '';
+  filter: blur(5px);
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  height: 100%;
+  width: 410px;
+  margin-left:-205px;
+}
+
+.ddp-ui-header {
+  font-size: 14px;
+  color: #272950;
+  position:absolute;
+  top:10px;
+  left:50%;
+  margin-left:-190px;
+  z-index: 10;
+}
+
+.ddp-ui-header img {
+  position:relative;
+  top:1px;
+  width: 13px;
+  height: 13px;
+}
+
+.ddp-ui-login {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -205px;
+  width: 410px;
+  height: 100%;
+  min-height: 800px;
+  padding: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.ddp-ui-login .ddp-box-login {
+  width: 278px;
+  margin: 0 auto;
+}
+
+.ddp-ui-login .ddp-ui-logo {
+  padding-bottom: 20px;
+}
+
+.ddp-ui-login .ddp-ui-logo .ddp-ui-desc{
+  text-align: center;
+  position: relative;
+  top: 5px;
+  font-size: 15px;
+}
+
+.ddp-ui-login .ddp-ui-logo .ddp-ui-desc span{
+  font-weight: bold;
+  color: #272950;
+}
+
+.ddp-form-login .ddp-form-input {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ddp-form-login .ddp-form-input label {
+  display: block;
+  padding: 30px 0 0 0;
+  color: rgba(39, 41, 80, 0.7);
+  font-size: 13px;
+}
+
+.ddp-form-login .ddp-form-input span.ddp-input-type {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+}
+
+.ddp-form-login .ddp-form-input span.ddp-input-type input {
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid #b5b5cc;
+  background-color: transparent;
+  color: #272950;
+  font-size: 18px;
+}
+
+.ddp-form-login .ddp-form-input span.ddp-input-type input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset;
+}
+
+.ddp-form-login .ddp-form-input span.ddp-input-type input:focus {
+  border-bottom: 1px solid #272950;
+}
+
+.ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox label {
+  position: relative;
+  font-size: 14px;
+  color: #272950;
+}
+
+.ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox input[type="checkbox"] {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-top: -6px;
+  z-index: 1;
+}
+
+.ddp-form-login .ddp-ui-login-option .ddp-wrap-input-checkbox input[type="checkbox"]:checked + label {
+  font-weight: bold;
+}
+
+.ddp-ui-input-form {
+  position: relative;
+  padding-bottom: 35px;
+}
+
+.ddp-ui-input-form .ddp-ui-error {
+  display: block;
+  position: absolute;
+  bottom: 15px;
+  color: #eb5f58;
+  font-size: 12px;
+}
+
+.ddp-ui-input-form .ddp-ui-error em.ddp-icon-error {
+  display: none;
+  position: relative;
+  top: -1px;
+  margin-right: 5px;
+  width: 11px;
+  height: 11px;
+  background: url(/assets/images/icon_info.png) no-repeat;
+  background-position: -16px 0;
+  vertical-align: middle;
+}
+
+.ddp-ui-input-form .ddp-input-check {
+  position: relative;
+  padding-right: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.ddp-ui-input-form .ddp-input-check input {
+  border-bottom: none;
+}
+
+.ddp-ui-input-form .ddp-input-check em.ddp-icon-error {
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  background: url(/assets/images/icon_message.png) no-repeat;
+}
+
+.ddp-ui-input-form .ddp-input-check em.ddp-icon-error {
+  display: none;
+  width: 9px;
+  height: 9px;
+  margin-top: -5px;
+}
+
+.ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-error {
+  display: block;
+}
+
+.ddp-ui-login-buttons {
+  padding-bottom: 15px;
+  margin-top: 55px;
+}
+
+.ddp-ui-login-buttons a.ddp-btn {
+  display: inline-block;
+  width: 100%;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+  line-height: 38px;
+  font-weight: bold;
+  border-radius: 3px;
+  background-color: #272950;
+}
+
+.ddp-ui-login-buttons a.ddp-btn:hover {
+  background-color: #7575ea;
+}
+
+.ddp-layout-footer {
+  position: absolute;
+  left: 66px;
+  bottom: 80px;
+  width: 278px;
+  text-align: center;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.ddp-ui-footer {
+  display: inline-block;
+  position: relative;
+  text-align: left;
+}
+
+.ddp-ui-footer ul.ddp-list-footer li {
+  float: left;
+}
+
+.ddp-ui-footer ul.ddp-list-footer li a {
+  display: block;
+  position: relative;
+  padding: 0 7px 0 6px;
+  color: #272950;
+  font-weight: 300;
+}
+
+.ddp-ui-footer ul.ddp-list-footer li a:hover {
+  text-decoration: underline;
+}
+
+.ddp-ui-footer ul.ddp-list-footer li a em {
+  display: none;
+}
+
+.ddp-ui-footer ul.ddp-list-footer li:first-of-type a:after {
+  display: none;
+}
+
+.ddp-ui-footer ul.ddp-list-footer li a:after {
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-top: -7px;
+  content: '';
+  height: 13px;
+  border-right: 1px solid #909090;
+}
+
+.ddp-ui-footer ul.ddp-list-footer li:first-child a {
+  padding-left: 0;
+}
+
+.ddp-ui-footer span.ddp-ui-copy {
+  float: left;
+  display: inline-block;
+  padding: 3px 0 0 0;
+  color: rgba(39, 41, 80, 0.6);
+  font-size: 12px;
+  letter-spacing: -1px;
+}

@@ -1,0 +1,98 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<ng-container *ngIf="oauthClientInformation">
+  <div class="ddp-wrap-login" [ngStyle]="{ 'background-image': 'url('+oauthClientInformation.backgroundFilePath+')'}">
+    <em class="ddp-bg-login"></em>
+    <em class="ddp-blur2" [ngStyle]="{ 'background-image': 'url('+oauthClientInformation.backgroundFilePath+')'}"></em>
+    <!-- login -->
+    <div class="ddp-ui-header">
+      <img src="{{oauthClientInformation.smallLogoFilePath}}" (error)="oauthClientInformation.smallLogoFilePath = undefined"
+        *ngIf="oauthClientInformation.smallLogoFilePath">
+      <span>{{oauthClientInformation.smallLogoDesc}}</span>
+    </div>
+    <div class="ddp-ui-login" style="position:absolute; top:0; left:50%; margin-left:-205px;">
+      <div style="position:relative;top:20%;height:80%;">
+        <div class="ddp-box-login">
+          <div class="ddp-ui-logo">
+            <img src="{{oauthClientInformation.logoFilePath}}" (error)="oauthClientInformation.logoFilePath='/assets/images/oauth/logo.svg'">
+            <div class="ddp-ui-desc" [innerHTML]="oauthClientInformation?.logoDesc ?
+                oauthClientInformation.logoDesc : ''"></div>
+          </div>
+
+          <!-- login form -->
+          <div class="ddp-form-login">
+            <!-- ID 입력 -->
+            <div class="ddp-form-input ddp-ui-input-form" [ngClass]="{'ddp-type-error' : loginFailMsg != ''}" style="padding-bottom:0px;">
+              <label class="ddp-label-type">{{'msg.comm.usr.name.title' | translate}}</label>
+              <div class="ddp-input-check">
+              <span class="ddp-input-type">
+                <input type="text" name="username"
+                       [(ngModel)]="user.username" placeholder="{{'msg.comm.usr.name.title.ph' | translate}}"
+                       style="border-bottom:none;"/>
+              </span>
+                <em class="ddp-icon-error" name="usernameErrorIcon"></em>
+              </div>
+            </div>
+            <!-- // ID 입력 -->
+
+            <!-- Password 입력 -->
+            <div class="ddp-form-input ddp-ui-input-form" [ngClass]="{'ddp-type-error' : loginFailMsg != ''}" style="padding-bottom:0px;">
+              <label class="ddp-label-type">{{'msg.comm.usr.pw.title' | translate}}</label>
+              <div class="ddp-input-check">
+              <span class="ddp-input-type">
+                <input #pwElm type="password" name="password"
+                       [(ngModel)]="user.password" placeholder="{{'msg.comm.usr.pw.title.ph' | translate}}"
+                       (keyup)="$event.keyCode == 13 ? login() : null;"
+                       style="border-bottom:none;"/>
+              </span>
+                <em class="ddp-icon-error" name="passwordErrorIcon"></em>
+              </div>
+              <!-- error 메시지 -->
+              <span class="ddp-ui-error" style="bottom:-45px;" name="loginFailMsg">{{loginFailMsg}}</span>
+              <!-- //error 메시지 -->
+            </div>
+            <!-- // Password 입력 -->
+
+            <!-- button -->
+            <div class="ddp-ui-login-buttons">
+              <a href="javascript:" class="ddp-btn" name="loginBtn" (click)="login()">{{'msg.comm.usr.login' | translate}}</a>
+            </div>
+            <!-- //button -->
+
+          </div>
+          <!-- //login form -->
+        </div>
+
+        <!-- footer -->
+        <div class="ddp-layout-footer">
+          <div class="ddp-ui-footer">
+          <span class="ddp-ui-copy"
+                [innerHTML]="oauthClientInformation?.copyrightHtml ?
+                oauthClientInformation.copyrightHtml : 'Copyright © SK Telecom Co., Ltd. All rights reserved.'">
+          </span>
+          </div>
+        </div>
+        <!-- // footer -->
+      </div>
+    </div>
+    <!-- //login -->
+  </div>
+  <img src="{{oauthClientInformation.backgroundFilePath}}" (error)="backgroundImageInit()" style="display:none;">
+  <!-- 초기 비밀번호 변경 -->
+  <app-initial-change-password (closeInitPw)="initialComplete()"></app-initial-change-password>
+  <!-- 초기 비밀번호 변경 -->
+
+  <app-confirm-small-modal (confirm)="confirmComplete($event)"></app-confirm-small-modal>
+
+</ng-container>

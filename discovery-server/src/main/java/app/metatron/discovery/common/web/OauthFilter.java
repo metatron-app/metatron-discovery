@@ -21,7 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
@@ -33,6 +32,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import app.metatron.discovery.common.oauth.CookieManager;
+import app.metatron.discovery.config.ApiResourceConfig;
 
 /**
  * Created by kyungtaak on 2016. 11. 20..
@@ -42,6 +45,8 @@ public class OauthFilter implements Filter {
   private static Logger LOGGER = LoggerFactory.getLogger(OauthFilter.class);
 
   private AuthenticationManager authenticationManager;
+
+  public final String OAUTH_URL = "/api/oauth/client/login";
 
   public OauthFilter(AuthenticationManager authenticationManager) {
     this.authenticationManager = authenticationManager;
@@ -56,10 +61,11 @@ public class OauthFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
     HttpServletRequest req = (HttpServletRequest) request;
+    HttpServletResponse res = (HttpServletResponse) response;
 
     String requestUrl = req.getRequestURL().toString();
     if (requestUrl.endsWith("/oauth/authorize")) {
-      Cookie loginToken = WebUtils.getCookie(req, "LOGIN_TOKEN");
+      Cookie loginToken = CookieManager.getAccessToken(req);
       if (loginToken != null) {
         LOGGER.debug("loginToken.getValue() : {}", loginToken.getValue());
         try {
@@ -68,11 +74,13 @@ public class OauthFilter implements Filter {
           LOGGER.info("authentication is {}", authentication);
         } catch (OAuth2Exception e) {
           LOGGER.error(e.getSummary());
-          req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
+          // req.getRequestDispatcher(OAUTH_URL).forward(request, response);
+          res.sendRedirect(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + req.getQueryString());
           return;
         }
       } else {
-        req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
+        // req.getRequestDispatcher(OAUTH_URL).forward(request, response);
+        res.sendRedirect(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + req.getQueryString());
         return;
       }
     }

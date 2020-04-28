@@ -54,9 +54,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -214,8 +214,17 @@ public class AuthenticationController {
   }
 
   @GetMapping(value = "/oauth/{clientId}")
-  public ResponseEntity<?> getClient(@PathVariable("clientId") String clientId) {
-    return ResponseEntity.ok(jdbcClientDetailsService.loadClientByClientId(clientId));
+  public ResponseEntity<?> getClient(@PathVariable("clientId") String clientId) throws UnsupportedEncodingException {
+    ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+    Map additionalInformation = new HashMap<String, String>();
+    if (clientDetails.getAdditionalInformation() != null) {
+      additionalInformation = new HashMap<>(clientDetails.getAdditionalInformation());
+    }
+    String clientSecret = clientDetails.getClientSecret();
+    String token = clientId+":"+clientSecret;
+    String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
+    additionalInformation.put("basicHeader", "Basic " + basicHeader);
+    return ResponseEntity.ok(additionalInformation);
   }
 
   @RequestMapping(value = "/oauth/generate")
@@ -266,7 +275,8 @@ public class AuthenticationController {
       result.put("clientId", clientId);
       result.put("clientSecret", clientSecret);
       String token = clientId + ":" + clientSecret;
-      result.put("basicHeader", new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8"));
+      String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
+      result.put("basicHeader", "Basic " + basicHeader);
     } catch (Exception e){
       throw new MetatronException(e);
     }
@@ -320,6 +330,8 @@ public class AuthenticationController {
                                              .getOrDefault("faviconPath", ""));
       String logoFilePath = String.valueOf(additionalInformation
                                                .getOrDefault("logoFilePath", ""));
+      String logoDesc = String.valueOf(additionalInformation
+                                               .getOrDefault("logoDesc", ""));
       String backgroundFilePath = String.valueOf(additionalInformation
                                                      .getOrDefault("backgroundFilePath", ""));
       String smallLogoFilePath = String.valueOf(additionalInformation
@@ -336,6 +348,7 @@ public class AuthenticationController {
       mav.addObject("clientName", clientName);
       mav.addObject("faviconPath", faviconPath);
       mav.addObject("logoFilePath", logoFilePath);
+      mav.addObject("logoDesc", logoDesc);
       mav.addObject("backgroundFilePath", backgroundFilePath);
       mav.addObject("smallLogoFilePath", smallLogoFilePath);
       mav.addObject("smallLogoDesc", smallLogoDesc);
@@ -353,7 +366,7 @@ public class AuthenticationController {
       CookieManager.removeAllToken(response);
 
       String clientId = request.getParameter("client_id");
-      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+      BaseClientDetails clientDetails = (BaseClientDetails)jdbcClientDetailsService.loadClientByClientId(clientId);
       if (clientDetails == null) {
         response.sendRedirect("/");
       } else {
@@ -366,7 +379,7 @@ public class AuthenticationController {
         stringBuffer.append("&redirect_uri=");
         stringBuffer.append(redirect_uri);
         stringBuffer.append("&scope=");
-        stringBuffer.append(StringUtils.join(clientDetails.getScope(), " "));
+        stringBuffer.append(StringUtils.join(clientDetails.getAutoApproveScopes(), " "));
 
         response.sendRedirect(stringBuffer.toString());
       }
@@ -385,6 +398,9 @@ public class AuthenticationController {
     }
     if (StringUtils.isNotEmpty(oauthClientInformation.getLogoFilePath())) {
       additionalInformation.put("logoFilePath", oauthClientInformation.getLogoFilePath());
+    }
+    if (StringUtils.isNotEmpty(oauthClientInformation.getLogoDesc())) {
+      additionalInformation.put("logoDesc", oauthClientInformation.getLogoFilePath());
     }
     if (StringUtils.isNotEmpty(oauthClientInformation.getBackgroundFilePath())) {
       additionalInformation.put("backgroundFilePath", oauthClientInformation.getBackgroundFilePath());

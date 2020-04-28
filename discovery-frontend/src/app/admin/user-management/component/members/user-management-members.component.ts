@@ -210,7 +210,8 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * @returns {any}
    */
   public getUserStatus(status: Status) {
-    return status === Status.ACTIVATED ? this.translateService.instant('msg.mem.ui.active') : this.translateService.instant('msg.mem.ui.inactive');
+    return status === Status.ACTIVATED || status === Status.INITIAL
+      ? this.translateService.instant('msg.mem.ui.active') : this.translateService.instant('msg.mem.ui.inactive');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

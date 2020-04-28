@@ -304,6 +304,38 @@ public class UserController {
   }
 
   /**
+   * 최초 접속시 패스워드 수정
+   */
+  @RequestMapping(path = "/users/password", method = RequestMethod.POST)
+  public ResponseEntity<?> updateInitialUser(@RequestBody User user) {
+
+    User updatedUser = userRepository.findByUsername(user.getUsername());
+    if (updatedUser == null) {
+      throw new ResourceNotFoundException(user.getUsername());
+    }
+
+    if (!User.Status.INITIAL.equals(updatedUser.getStatus())) {
+      throw new UserException("Fail to update password. Only for initial access users.");
+    }
+
+    if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
+      throw new UserException("Fail to update password. It does not match the initial password.");
+    }
+
+    updatedUser.setStatus(User.Status.ACTIVATED);
+    if (user.getPassword() != null){
+      userService.validateUserPassword(user.getUsername(), user);
+      String encodedPassword = passwordEncoder.encode(user.getPassword());
+      updatedUser.setPassword(encodedPassword);
+    }
+
+    userRepository.saveAndFlush(updatedUser);
+
+    return ResponseEntity.ok(updatedUser);
+
+  }
+
+  /**
    * 관리자용 사용자 등록
    */
   @Transactional
@@ -439,6 +471,8 @@ public class UserController {
     String encodedPassword = passwordEncoder.encode(temporaryPassword);
     user.setPassword(encodedPassword);
 
+    user.setStatus(User.Status.INITIAL);
+
     userRepository.saveAndFlush(user);
 
     boolean isAdmin = false;
@@ -508,7 +542,7 @@ public class UserController {
       throw new ResourceNotFoundException(username);
     }
 
-    user.setStatus(User.Status.ACTIVATED);
+    user.setStatus(User.Status.INITIAL);
 
     // 기본 그룹에 포함
     Group defaultGroup = groupService.getDefaultGroup();
