@@ -314,8 +314,8 @@ public class UserController {
       throw new ResourceNotFoundException(user.getUsername());
     }
 
-    if (!User.Status.INITIAL.equals(updatedUser.getStatus())) {
-      throw new UserException("Fail to update password. Only for initial access users.");
+    if (!(User.Status.INITIAL.equals(updatedUser.getStatus()) || User.Status.EXPIRED.equals(updatedUser.getStatus()))) {
+      throw new UserException("Fail to update password. Only for initial access or expired users.");
     }
 
     if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
