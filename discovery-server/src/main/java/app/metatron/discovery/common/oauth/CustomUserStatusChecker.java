@@ -42,11 +42,12 @@ public class CustomUserStatusChecker implements UserDetailsChecker {
           "AccountStatusUserDetailsChecker.locked", "User account is locked"));
     }
 
-    if (!user.isAccountNonExpired()) {
+    // Move to CustomUserStatusPostChecker
+    /*if (!user.isAccountNonExpired()) {
       throw new AccountExpiredException(
           messages.getMessage("AccountStatusUserDetailsChecker.expired",
               "User account has expired"));
-    }
+    }*/
 
     if (!user.isCredentialsNonExpired()) {
       throw new CredentialsExpiredException(messages.getMessage(
