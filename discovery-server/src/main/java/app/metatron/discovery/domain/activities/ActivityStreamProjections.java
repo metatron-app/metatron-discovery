@@ -14,7 +14,11 @@
 
 package app.metatron.discovery.domain.activities;
 
+import org.joda.time.DateTime;
 import org.springframework.data.rest.core.config.Projection;
+
+import app.metatron.discovery.domain.activities.spec.ActivityType;
+import app.metatron.discovery.domain.activities.spec.Actor;
 
 /**
  *
@@ -23,7 +27,65 @@ public class ActivityStreamProjections {
 
   @Projection(types = ActivityStream.class, name = "default")
   public interface DefaultProjection {
+    ActivityType getAction();
 
+    String getActor();
+
+    Actor.ActorType getActorType();
+
+    String getObjectId();
+
+    DateTime getPublishedTime();
+
+    String getRemoteHost();
+  }
+
+  @Projection(types = ActivityStream.class, name = "detail")
+  public interface DetailProjection {
+    ActivityType getAction();
+
+    String getActor();
+
+    Actor.ActorType getActorType();
+
+    String getObjectId();
+
+    ActivityStream.MetatronObjectType getObjectType();
+
+    String getTargetId();
+
+    String getResult();
+
+    ActivityStream.MetatronObjectType getTargetType();
+
+    ActivityStream.GeneratorType getGeneratorType();
+
+    String getGeneratorName();
+
+    DateTime getPublishedTime();
+
+    String getRemoteHost();
+  }
+
+  @Projection(types = ActivityStream.class, name = "list")
+  public interface ListProjection {
+    ActivityType getAction();
+
+    String getActor();
+
+    String getObjectId();
+
+    ActivityStream.MetatronObjectType getObjectType();
+
+    String getTargetId();
+
+    String getResult();
+
+    String getGeneratorName();
+
+    DateTime getPublishedTime();
+
+    String getRemoteHost();
   }
 
 }

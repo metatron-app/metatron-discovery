@@ -247,6 +247,9 @@ public class OAuth2ServerConfig {
     //@Autowired
     //private AuthorizationEndpoint authorizationEndpoint;
 
+    @Autowired
+    OAuthInterceptor oAuthInterceptor;
+
     private DataSource dataSource;
 
     public AuthorizationServerConfiguration(@Qualifier("dataSource") DataSource dataSource) {
@@ -329,6 +332,7 @@ public class OAuth2ServerConfig {
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
       // @formatter:off
       endpoints
+        .addInterceptor(oAuthInterceptor)
         .tokenStore(tokenStore())
 //        .pathMapping("/oauth/token", "/api/oauth/token")
 //        .pathMapping("/oauth/authorize", "/api/oauth/authorize")
@@ -337,7 +341,6 @@ public class OAuth2ServerConfig {
         .exceptionTranslator(exceptionTranslator())
         .tokenServices(tokenServices())
         .authorizationCodeServices(authorizationServerTokenServices()) // /oauth/authorize code(oauth_code) jdbc 사용(default inmemory)
-
 //        .accessTokenConverter(tokenEnhancer())
         .approvalStoreDisabled();
 //        .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST); // to allow get for password grant

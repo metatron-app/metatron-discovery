@@ -27,6 +27,9 @@ import { PermissionService } from '../service/permission.service';
 import { ConfirmSmallComponent } from '../../common/component/modal/confirm-small/confirm-small.component';
 import { Modal } from '../../common/domain/modal';
 import { CommonUtil } from '../../common/util/common.util';
+import { isNullOrUndefined } from 'util';
+
+declare let moment: any;
 
 @Component({
   selector: 'app-login',
@@ -149,7 +152,13 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     // confirm modal
     this._confirmModal.init(modal);
 
-    this.joinCompleteComponent.init();
+    //this.joinCompleteComponent.init();
+  }
+
+  public confirmComplete(data) {
+    if (!isNullOrUndefined(data)) {
+      this.router.navigate([data]).then();
+    }
   }
 
   // 비밀번호 찾기
@@ -161,6 +170,9 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
    * 로그인
    */
   public login() {
+    if (this._confirmModal.isShow) {
+      return;
+    }
 
     this.loadingShow();
 
@@ -195,9 +207,11 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
 
               // 페이지 이동
               if (this.forwardURL !== 'NONE') {
-                this.router.navigate([this.forwardURL]).then();
+                // this.router.navigate([this.forwardURL]).then();
+                this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip, this.forwardURL);
               } else {
-                this.router.navigate(['/workspace']).then();
+                // this.router.navigate(['/workspace']).then();
+                this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip, '/workspace');
               }
             }).catch(() => {
               this._logout();
@@ -205,7 +219,8 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
               this.loadingHide();
             });
           } else {
-            this.router.navigate(['/workspace']).then();
+            // this.router.navigate(['/workspace']).then();
+            this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip, '/workspace');
           }
         });
 
@@ -248,5 +263,19 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
       this.cookieService.delete(CookieConstant.KEY.PERMISSION, '/');
     }
   } // function - _logout
+
+  private _showAccessLog(lastLoginTime: string, lastLoginIp:string, forwardUrl: string) {
+    this.loadingHide();
+    const modal = new Modal();
+    modal.name = this.translateService.instant( 'msg.login.access.title' );
+    modal.description = this.translateService.instant( 'msg.login.access.description' )
+                          + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
+    if(lastLoginIp != undefined){
+      modal.description = modal.description + ' (' + lastLoginIp + ')';
+    }
+    modal.data = forwardUrl;
+    // confirm modal
+    this._confirmModal.init(modal);
+  }
 
 }

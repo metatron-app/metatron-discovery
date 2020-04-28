@@ -298,6 +298,9 @@
                 <li>
                   <a href="javascript:" (click)="move('admin/user/permission')">{{'msg.comm.menu.admin.user.permission' | translate}}</a>
                 </li>
+                <li>
+                  <a href="javascript:" (click)="move('admin/user/access')">{{'msg.comm.menu.access.history' | translate}}</a>
+                </li>
               </ul>
             </li>
             <li [ngClass]="{'ddp-selected': lnbManager.administration.workspaces.fold == false}" *ngIf="permission.workspaceAdmin" >

@@ -28,7 +28,7 @@ export class UserManagementComponent extends AbstractComponent {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 탭 리스트
-  private tabList = [{ id: 'members' }, { id: 'groups' }, { id: 'approval' }, { id: 'permission' }];
+  private tabList = [{ id: 'members' }, { id: 'groups' }, { id: 'approval' }, { id: 'permission' }, {id: 'access'}];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables

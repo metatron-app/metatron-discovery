@@ -97,7 +97,7 @@
 
 <app-join (joinComplete)="joinComplete($event)"></app-join>
 <!-- 확인 팝업창 -->
-<app-confirm-small-modal></app-confirm-small-modal>
+<app-confirm-small-modal (confirm)="confirmComplete($event)"></app-confirm-small-modal>
 <!-- //확인 팝업창 -->
 <!-- 비밀번호 변경 -->
 <app-reset-password></app-reset-password>

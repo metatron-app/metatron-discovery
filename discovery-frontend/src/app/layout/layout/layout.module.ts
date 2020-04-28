@@ -34,6 +34,8 @@ import {StagedbEnabledGuard} from '../../common/gaurd/stagedb-enabled.guard';
 import {StorageService} from '../../data-storage/service/storage.service';
 import {ConnectionListGuard} from "../../common/gaurd/connection-list.guard";
 import {LNBLogoComponent} from "./component/logo/lnb-logo.component";
+import {AccessHistoryComponent} from "../../user/access-history/access-history.component";
+import {ActivityService} from "../../user/service/activity.service";
 
 const layoutRoutes: Routes = [
   {
@@ -101,7 +103,8 @@ const layoutRoutes: Routes = [
     GnbComponent,
     ProfileComponent,
     ChangePasswordComponent,
-    LNBLogoComponent
+    LNBLogoComponent,
+    AccessHistoryComponent
   ],
   exports: [
    LNBComponent
@@ -112,6 +115,7 @@ const layoutRoutes: Routes = [
     MembersService,
     WorkspaceService,
     CommonService,
+    ActivityService,
     MetadataManagementGuard,
     DatasourceManagementGuard,
     StorageService,

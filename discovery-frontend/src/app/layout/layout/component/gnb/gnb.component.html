@@ -34,6 +34,13 @@
           </a>
         </li>
         <li>
+          <a href="javscript:" (click)="showAccessHistory()">
+            <span class="ddp-txt-list">
+                <em class="ddp-icon-info-profile"></em>{{'msg.comm.menu.access.history' | translate}}
+            </span>
+          </a>
+        </li>
+        <li>
           <a href="javscript:" class="ddp-cursor-default" (click)="$event.stopImmediatePropagation();">
             <span class="ddp-txt-list">
                 <em class="ddp-icon-info-language"></em>{{'msg.comm.menu.lang' | translate}}
@@ -95,3 +102,4 @@
 </div>
 
 <app-profile (completeUpdate)="updatedUser($event)"></app-profile>
+<app-access-history></app-access-history>

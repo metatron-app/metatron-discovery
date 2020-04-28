@@ -1,0 +1,139 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+            {{'msg.comm.menu.access.history' | translate}}
+        </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.close' | translate}}</a>
+      </div>
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-type-top-option">
+        <!-- 검색 -->
+        <div class="ddp-form-search">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{'msg.space.ui.product.search.placeholder' | translate}}"
+                 [(ngModel)]="searchText"
+                 (keyup.enter)="searchEvent()" (keyup.esc)="searchText=''; searchEvent()">
+          <em class="ddp-btn-search-close" *ngIf="searchText !== ''"
+              (click)="searchText=''; searchEvent()"></em>
+        </div>
+      </div>
+
+      <div class="ddp-wrap-viewtable">
+        <!-- 테이블 -->
+        <div class="ddp-box-viewtable">
+          <!-- gridhead -->
+          <div class="ddp-ui-gridhead">
+            <table class="ddp-table-form ddp-table-type2">
+              <colgroup>
+                <col width="160px">
+                <col width="150px">
+                <col width="150px">
+                <col width="100px">
+                <col width="*">
+                <col width="100px">
+              </colgroup>
+              <thead>
+              <tr>
+                <th class="ddp-cursor" (click)="changeOrder('publishedTime')">
+                  Access Time
+                  <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.sort === 'default'"></em>
+                  <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.sort === 'asc'"></em>
+                  <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.sort === 'desc'"></em>
+                </th>
+                <th>
+                  Access IP
+                </th>
+                <th>
+                  Product
+                </th>
+                <th>
+                  Device
+                </th>
+                <th>
+                  User-Agent
+                </th>
+                <th>
+                  Result
+                </th>
+              </tr>
+              </thead>
+
+            </table>
+          </div>
+          <!--// gridhead -->
+
+          <!-- gridbody -->
+          <div class="ddp-ui-gridbody">
+            <table class="ddp-table-form ddp-table-type2">
+              <colgroup>
+                <col width="160px">
+                <col width="150px">
+                <col width="150px">
+                <col width="100px">
+                <col width="*">
+                <col width="100px">
+              </colgroup>
+              <tbody>
+              <tr *ngFor="let activity of activities">
+                <td class="ddp-txt-ellipsis">
+                  {{activity.publishedTime |mdate : 'YYYY-MM-DD HH:mm'}}
+                </td>
+                <td class="ddp-txt-ellipsis">
+                  {{activity.remoteHost}}
+                </td>
+                <td>
+                  <div class="ddp-txt-ellipsis">
+                    {{activity.objectId}}
+                  </div>
+                </td>
+                <td>
+                  <div class="ddp-txt-ellipsis">
+                    {{activity.generatorType}}
+                  </div>
+                </td>
+                <td class="ddp-txt-ellipsis" title="{{activity.generatorName}}">
+                  {{activity.generatorName}}
+                </td>
+                <td>
+                  <div class="ddp-txt-ellipsis">
+                    {{(activity.result === 'SUCCESS' ? 'msg.comm.ui.success' : 'msg.comm.ui.fail') | translate}}
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!--// gridbody -->
+
+        </div>
+        <!-- //테이블 -->
+        <!-- 더보기 -->
+        <div class="ddp-box-add-link"
+             (click)="getMoreList()">
+          <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+        </div>
+        <!-- //더보기 -->
+      </div>
+    </div>
+  </div>
+</div>

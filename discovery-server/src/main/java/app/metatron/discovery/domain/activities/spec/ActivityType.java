@@ -20,8 +20,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * https://www.w3.org/TR/activitystreams-vocabulary/#activity-types
  */
 public enum ActivityType {
-  @JsonProperty("Login")
-  LOGIN,
+  @JsonProperty("Arrive")
+  ARRIVE,
+  @JsonProperty("Leave")
+  LEAVE,
   @JsonProperty("View")
   VIEW,
   @JsonProperty("Join")

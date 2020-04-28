@@ -22,6 +22,7 @@ import {CommonUtil} from '../../../../common/util/common.util';
 import {LocalStorageConstant} from "../../../../common/constant/local-storage.constant";
 import {Language, Theme, UserSetting} from "../../../../common/value/user.setting.value";
 import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
+import {AccessHistoryComponent} from "../../../../user/access-history/access-history.component";
 
 @Component({
   selector: 'app-gnb',
@@ -50,6 +51,9 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
 
   @ViewChild(ProfileComponent)
   public profileComponent: ProfileComponent;
+
+  @ViewChild(AccessHistoryComponent)
+  public accessHistoryComponent: AccessHistoryComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -142,6 +146,10 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     CommonUtil.setThemeCss(theme);
     this.broadCaster.broadcast('CHANGE_THEME', theme);
     this._saveUserSetting(theme, null);
+  }
+
+  public showAccessHistory(): void {
+    this.accessHistoryComponent.init();
   }
 
   public logout() {
