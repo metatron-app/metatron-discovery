@@ -42,7 +42,7 @@
           <label class="ddp-label-type">{{'msg.comm.usr.pw.title' | translate}}</label>
           <div class="ddp-input-check">
             <span class="ddp-input-type">
-              <input type="password" placeholder="{{'msg.comm.usr.pw.title.ph' | translate}}"
+              <input #pwElm type="password" placeholder="{{'msg.comm.usr.pw.title.ph' | translate}}"
                      [(ngModel)]="user.password" (keyup)="$event.keyCode == 13 ? login() : null;"
                      (focus)="loginFailMsg='';" style="border-bottom:none;" />
             </span>
@@ -106,3 +106,7 @@
 <app-eng-policy *ngIf="isShowTerms && translateService.getBrowserLang() == 'en'" (closeEvent)="isShowTerms=false"></app-eng-policy>
 <app-kor-policy *ngIf="isShowTerms && translateService.getBrowserLang() == 'ko'" (closeEvent)="isShowTerms=false"></app-kor-policy>
 <!-- //popup wrap -->
+
+<!-- 초기 비밀번호 변경 -->
+<app-initial-change-password (closeInitPw)="initialComplete()"></app-initial-change-password>
+<!-- 초기 비밀번호 변경 -->

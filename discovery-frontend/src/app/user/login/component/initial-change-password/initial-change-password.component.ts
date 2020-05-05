@@ -12,18 +12,24 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { UserService } from '../../service/user.service';
+import { AbstractComponent } from '../../../../common/component/abstract.component';
+import {
+  Component,
+  ElementRef, EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit, Output, ViewChild
+} from '@angular/core';
+import { UserService } from '../../../service/user.service';
 import { isUndefined } from 'util';
-import { StringUtil } from '../../../common/util/string.util';
-import { Alert } from '../../../common/util/alert.util';
+import { StringUtil } from '../../../../common/util/string.util';
+import { Alert } from '../../../../common/util/alert.util';
 
 @Component({
-  selector: 'app-change-password',
-  templateUrl: './change-password.component.html'
+  selector: 'app-initial-change-password',
+  templateUrl: './initial-change-password.component.html'
 })
-export class ChangePasswordComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class InitialChangePasswordComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -31,6 +37,12 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
 
   // 사용자 아이디
   private _userId: string;
+
+  @ViewChild('pwElm')
+  private _pwElm: ElementRef;
+
+  @Output('closeInitPw')
+  public closeInitPw: EventEmitter<any> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -41,7 +53,7 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // show flag
-  public isShowFl: boolean;
+  public isShowFl: boolean = false;
 
   // 기존 패스워드
   public password: string;
@@ -101,11 +113,14 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
    * init
    * @param {string} userId
    */
-  public init(userId: string): void {
+  public init(userId: string, status: string): void {
     // ui init
     this._initView();
     // 유저 아이디
     this._userId = userId;
+
+    // Display User Status
+
   }
 
   /**
@@ -113,17 +128,18 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
    */
   public closeChangePassword(): void {
     this.isShowFl = false;
+    this.closeInitPw.emit();
   }
 
   /**
    * done
    */
   public doneChangePassword(): void {
+    this.rePasswordValidation();
     if (this._doneValidation()) {
       this._updatePassword();
     }
   }
-
 
   /**
    * 현재 패스워드 validation
@@ -135,20 +151,28 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
       this.passwordMessage = this.translateService.instant('msg.comm.alert.profile.password.empty');
       return;
     }
-    // 비밀번호 체크
-    this.userService.checkUserPassword(this._userId, this.password)
+    const param = {
+      username: this._userId,
+      initialPassword: this.password
+    }
+    this.userService.validatePassword(param)
       .then((result) => {
-        if (result['matched'] === true) {
-          this.resultPassword = true;
-        } else {
-          this.resultPassword = false;
-          this.passwordMessage = this.translateService.instant('msg.comm.alert.profile.password.match.not');
-        }
-      })
-      .catch((error) => {
-        this.resultPassword = false;
-      });
+        this.resultPassword = true;
+      }).catch((error) => {
+      this.loadingHide();
+      this.resultPassword = false;
+      if (error.code === 'UR0008') {
+        this.passwordMessage = this.translateService.instant('msg.comm.alert.profile.password.match.not');
+      } else if (StringUtil.isNotEmpty(error.code)) {
+        this.passwordMessage = this.translateService.instant('login.ui.fail.'+error.code);
+      }
+      return;
+    });
+    this.resultPassword = true;
+
+    return;
   }
+
 
   /**
    * 새로운 패스워드 validation
@@ -211,7 +235,6 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
     this.resultPassword = undefined;
   }
 
-
   /**
    * init new password validation
    */
@@ -254,6 +277,10 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
     this.resultNewPassword = undefined;
     // 새로 변경할 패스워드 결과 확인
     this.resultRePassword = undefined;
+
+    setTimeout(()=>{
+      this._pwElm.nativeElement.focus();
+    },0);
   }
 
   /**
@@ -287,8 +314,13 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
   private _updatePassword(): void {
     // 로딩 show
     this.loadingShow();
-    const param = {password: this.newPassword, confirmPassword: this.rePassword};
-    this.userService.updateUser(this._userId, param)
+    const param = {
+      username: this._userId,
+      initialPassword: this.password,
+      password: this.newPassword,
+      confirmPassword: this.rePassword
+    };
+    this.userService.updateInitialUser(this._userId, param)
       .then((result) => {
         // 로딩 hide
         this.loadingHide();

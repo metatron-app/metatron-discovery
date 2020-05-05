@@ -304,6 +304,38 @@ public class UserController {
   }
 
   /**
+   * 최초 접속시 패스워드 수정
+   */
+  @RequestMapping(path = "/users/password", method = RequestMethod.POST)
+  public ResponseEntity<?> updateInitialUser(@RequestBody User user) {
+
+    User updatedUser = userRepository.findByUsername(user.getUsername());
+    if (updatedUser == null) {
+      throw new ResourceNotFoundException(user.getUsername());
+    }
+
+    if (!(User.Status.INITIAL.equals(updatedUser.getStatus()) || User.Status.EXPIRED.equals(updatedUser.getStatus()))) {
+      throw new UserException("Fail to update password. Only for initial access or expired users.");
+    }
+
+    if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
+      throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED, "Fail to update password. It does not match the initial password.");
+    }
+
+    updatedUser.setStatus(User.Status.ACTIVATED);
+    if (user.getPassword() != null){
+      userService.validateUserPassword(user.getUsername(), user);
+      String encodedPassword = passwordEncoder.encode(user.getPassword());
+      updatedUser.setPassword(encodedPassword);
+    }
+
+    userRepository.saveAndFlush(updatedUser);
+
+    return ResponseEntity.ok(updatedUser);
+
+  }
+
+  /**
    * 관리자용 사용자 등록
    */
   @Transactional
@@ -439,6 +471,8 @@ public class UserController {
     String encodedPassword = passwordEncoder.encode(temporaryPassword);
     user.setPassword(encodedPassword);
 
+    user.setStatus(User.Status.INITIAL);
+
     userRepository.saveAndFlush(user);
 
     boolean isAdmin = false;
@@ -450,6 +484,25 @@ public class UserController {
     mailer.sendPasswordResetMail(user, temporaryPassword, isAdmin);
 
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(path = "/users/password/validate", method = RequestMethod.POST)
+  public ResponseEntity<?> validatePassword(@RequestBody User user) {
+
+    if (StringUtils.isNotEmpty(user.getInitialPassword())) {
+      User updatedUser = userRepository.findByUsername(user.getUsername());
+      if (updatedUser == null) {
+        throw new ResourceNotFoundException(user.getUsername());
+      } else if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
+        throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED, "Fail to update password. It does not match the initial password.");
+      }
+    } else {
+      userService.validatePassword(user.getUsername(), user.getPassword());
+    }
+
+
+
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -508,7 +561,7 @@ public class UserController {
       throw new ResourceNotFoundException(username);
     }
 
-    user.setStatus(User.Status.ACTIVATED);
+    user.setStatus(User.Status.INITIAL);
 
     // 기본 그룹에 포함
     Group defaultGroup = groupService.getDefaultGroup();

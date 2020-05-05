@@ -151,6 +151,10 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   @JsonProperty
   private String confirmPassword;
 
+  @Transient
+  @JsonProperty
+  private String initialPassword;
+
   public User() {
   }
 
@@ -359,6 +363,10 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
     this.confirmPassword = confirmPassword;
   }
 
+  public String getInitialPassword() { return initialPassword; }
+
+  public void setInitialPassword(String initialPassword) { this.initialPassword = initialPassword; }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -392,7 +400,8 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
     LOCKED,
     DELETED,
     REQUESTED,
-    ACTIVATED
+    ACTIVATED,
+    INITIAL
   }
 
 }

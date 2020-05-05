@@ -25,6 +25,7 @@ import {CommonUtil} from '../util/common.util';
 import {Observable} from 'rxjs';
 import {map} from "rxjs/operators";
 import {catchError} from "rxjs/internal/operators";
+import {isNullOrUndefined} from "util";
 
 
 /*
@@ -67,7 +68,7 @@ export class AbstractService {
   /*
   * Token 생성
   */
-  protected getToken(user: User): Promise<any> {
+  protected getToken(user: User, basicHeader?: string): Promise<any> {
 
     // this
     const scope: any = this;
@@ -78,7 +79,8 @@ export class AbstractService {
     // 헤더
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==',
+      Authorization: isNullOrUndefined(basicHeader) ?
+        'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==' : basicHeader,
     });
 
     // 호출

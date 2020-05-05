@@ -28,6 +28,7 @@ import { ConfirmSmallComponent } from '../../common/component/modal/confirm-smal
 import { Modal } from '../../common/domain/modal';
 import { CommonUtil } from '../../common/util/common.util';
 import { isNullOrUndefined } from 'util';
+import { InitialChangePasswordComponent } from "./component/initial-change-password/initial-change-password.component";
 
 declare let moment: any;
 
@@ -57,6 +58,12 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   // 확인 팝업 컴포넌트
   @ViewChild(ConfirmSmallComponent)
   private _confirmModal: ConfirmSmallComponent;
+
+  @ViewChild(InitialChangePasswordComponent)
+  private initialChangePasswordComponent: InitialChangePasswordComponent;
+
+  @ViewChild('pwElm')
+  private _pwElm: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -233,10 +240,19 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     }).catch((err) => {
       // 로딩 hide
       this.loadingHide();
-      this.loginFailMsg = err.details;
+      if (err.details === 'INITIAL' || err.details === 'EXPIRED') {
+        this.initialChangePasswordComponent.init(this.user.username, err.details);
+      } else {
+        this.loginFailMsg = err.details;
+      }
       // this.commonExceptionHandler(err);
     });
   } // function - login
+
+  public initialComplete() {
+    this.user.password = '';
+    this._pwElm.nativeElement.focus();
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method

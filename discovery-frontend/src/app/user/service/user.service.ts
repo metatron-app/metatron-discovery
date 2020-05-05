@@ -85,8 +85,8 @@ export class UserService extends AbstractService {
   }
 
   // 로그인
-  public login(user: User): Promise<any> {
-    return this.getToken(user);
+  public login(user: User, basicHeader?: string): Promise<any> {
+    return this.getToken(user, basicHeader);
   }
 
   // 유저정보
@@ -107,6 +107,10 @@ export class UserService extends AbstractService {
   // 이메일 중복 체크
   public duplicateEmail(email: string): Promise<any> {
     return this.getWithoutToken(this.URL_USER + `/email/${email}/duplicated`);
+  }
+
+  public validatePassword(params: any): Promise<any> {
+    return this.postWithoutToken(this.API_URL + 'users/password/validate', params);
   }
 
   // 비밀번호 reset API
@@ -141,6 +145,10 @@ export class UserService extends AbstractService {
     return this.patch(this.URL_USER + `/${username}`, params);
   }
 
+  public updateInitialUser(username: string, params: any): Promise<any> {
+    return this.postWithoutToken(this.URL_USER + `/password`, params);
+  }
+
   /**
    * 사용자 비밀번호 체크
    * @param {string} username
@@ -149,6 +157,10 @@ export class UserService extends AbstractService {
    */
   public checkUserPassword(username: string, password: string) {
     return this.post(this.URL_USER + `/${username}/check/password`, {password: password});
+  }
+
+  public getClientDetail(clientId:string) {
+    return this.getWithoutToken(this.API_URL +`oauth/${clientId}`);
   }
 
 }

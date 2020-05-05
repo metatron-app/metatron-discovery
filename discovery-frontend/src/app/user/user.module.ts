@@ -28,11 +28,16 @@ import { KorPolicyComponent } from './login/kor-policy.component';
 import { EngPolicyComponent } from './login/eng-policy.component';
 import { PermissionService } from './service/permission.service';
 import {LoginLogoComponent} from "./login/component/logo/login-logo.component";
+import {OauthComponent} from "./login/component/oauth/oauth.component";
+import {InitialChangePasswordComponent} from "./login/component/initial-change-password/initial-change-password.component";
 
 const userRoutes: Routes = [
   {
     path: '', component: LoginComponent,
   },
+  {
+    path: 'oauth', component: OauthComponent,
+  }
 ];
 
 @NgModule({
@@ -48,7 +53,9 @@ const userRoutes: Routes = [
     ResetPasswordComponent,
     KorPolicyComponent,
     EngPolicyComponent,
-    LoginLogoComponent
+    LoginLogoComponent,
+    OauthComponent,
+    InitialChangePasswordComponent
   ],
   providers: [
     UserService,

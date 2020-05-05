@@ -42,6 +42,8 @@ export class User extends AbstractHistoryEntity {
    * for UI
    */
   public confirmPassword: string;
+
+  public statusShowFl?: boolean;
 }
 
 export enum Status {
@@ -51,6 +53,7 @@ export enum Status {
   DELETED = <any>'DELETED',
   REQUESTED = <any>'REQUESTED',
   ACTIVATED = <any>'ACTIVATED',
+  INITIAL = <any>'INITIAL'
 }
 
 /**

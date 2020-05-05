@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { User } from '../../../../../domain/user/user';
-import { ActivatedRoute } from '@angular/router';
-import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../../../common/domain/modal';
-import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Alert } from '../../../../../common/util/alert.util';
-import { UpdateUserManagementMembersComponent } from '../update-member/update-user-management-members.component';
-import { PermissionService } from '../../../../../user/service/permission.service';
-import { CommonUtil } from '../../../../../common/util/common.util';
-import { Group } from '../../../../../domain/user/group';
-import { ChangeWorkspaceOwnerModalComponent } from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
-import { Location } from "@angular/common";
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Status, User} from '../../../../../domain/user/user';
+import {ActivatedRoute} from '@angular/router';
+import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
+import {Modal} from '../../../../../common/domain/modal';
+import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
+import {Alert} from '../../../../../common/util/alert.util';
+import {UpdateUserManagementMembersComponent} from '../update-member/update-user-management-members.component';
+import {PermissionService} from '../../../../../user/service/permission.service';
+import {CommonUtil} from '../../../../../common/util/common.util';
+import {Group} from '../../../../../domain/user/group';
+import {ChangeWorkspaceOwnerModalComponent} from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'app-member-detail',
@@ -185,7 +185,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    * @returns {string}
    */
   public getUserStatus(): string {
-    if (this.userData.status) {
+    if (this.userData.status && this.userData.status != Status.INITIAL) {
       return this.userStatusList.filter((item) => {
         return item.value === this.userData.status.toString();
       })[0].label;

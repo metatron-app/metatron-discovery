@@ -105,12 +105,12 @@
 
       .ddp-wrap-login .ddp-blur2 {
         display: block;
-        background: no-repeat fixed;
+        background: no-repeat center center fixed;
         background-size: cover;
         overflow: hidden;
         content: '';
         filter: blur(5px);
-        position: absolute;
+        position: fixed;
         left: 50%;
         bottom: 0;
         height: 100%;
@@ -136,10 +136,14 @@
       }
 
       .ddp-ui-login {
-        position: relative;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        margin-left: -205px;
         width: 410px;
         height: 100%;
-        padding: 192px 0 0 0;
+        min-height: 800px;
+        padding: 0;
         background-color: rgba(255, 255, 255, 0.7);
         z-index: 1;
         box-sizing: border-box;
@@ -379,64 +383,67 @@
         <img th:src="${smallLogoFilePath}" onerror="this.onerror=null;this.style.display = 'none'">
         <span th:text="${smallLogoDesc}"></span>
       </div>
-      <div class="ddp-ui-login" style="position:absolute; top:0; left:50%; margin-left:-205px;">
-        <div class="ddp-box-login">
-          <div class="ddp-ui-logo">
-            <img th:src="${logoFilePath}" onerror="this.onerror=null;this.src='/assets/images/oauth/logo.svg'">
-          </div>
+      <div class="ddp-ui-login">
+        <div style="position:relative;top:20%;height:80%;">
+          <div class="ddp-box-login">
+            <div class="ddp-ui-logo">
+              <img th:src="${logoFilePath}" onerror="this.onerror=null;this.src='/assets/images/oauth/logo.svg'">
+              <div class="ddp-ui-desc" th:utext="${logoDesc}"></div>
+            </div>
 
-          <!-- login form -->
-          <div class="ddp-form-login">
-            <!-- ID 입력 -->
-            <div class="ddp-form-input ddp-ui-input-form" style="padding-bottom:0px;">
-              <label class="ddp-label-type"
-                     th:text="#{message.app.oauth.login.name.title}"></label>
-              <div class="ddp-input-check">
-                <span class="ddp-input-type">
-                  <input type="text" name="username"
-                         th:placeholder="#{message.app.oauth.login.name.title.ph}"
-                         style="border-bottom:none;"/>
-                </span>
-                <em class="ddp-icon-error" name="usernameErrorIcon"></em>
+            <!-- login form -->
+            <div class="ddp-form-login">
+              <!-- ID 입력 -->
+              <div class="ddp-form-input ddp-ui-input-form" style="padding-bottom:0px;">
+                <label class="ddp-label-type"
+                       th:text="#{message.app.oauth.login.name.title}"></label>
+                <div class="ddp-input-check">
+                  <span class="ddp-input-type">
+                    <input type="text" name="username"
+                           th:placeholder="#{message.app.oauth.login.name.title.ph}"
+                           style="border-bottom:none;"/>
+                  </span>
+                  <em class="ddp-icon-error" name="usernameErrorIcon"></em>
+                </div>
               </div>
-            </div>
-            <!-- // ID 입력 -->
+              <!-- // ID 입력 -->
 
-            <!-- Password 입력 -->
-            <div class="ddp-form-input ddp-ui-input-form" style="padding-bottom:0px;">
-              <label class="ddp-label-type"
-                     th:text="#{message.app.oauth.login.pw.title}"></label>
-              <div class="ddp-input-check">
-                <span class="ddp-input-type">
-                  <input type="password" th:placeholder="#{message.app.oauth.login.pw.title.ph}"
-                         name="password" style="border-bottom:none;"/>
-                </span>
-                <em class="ddp-icon-error" name="passwordErrorIcon"></em>
+              <!-- Password 입력 -->
+              <div class="ddp-form-input ddp-ui-input-form" style="padding-bottom:0px;">
+                <label class="ddp-label-type"
+                       th:text="#{message.app.oauth.login.pw.title}"></label>
+                <div class="ddp-input-check">
+                  <span class="ddp-input-type">
+                    <input type="password" th:placeholder="#{message.app.oauth.login.pw.title.ph}"
+                           name="password" style="border-bottom:none;"/>
+                  </span>
+                  <em class="ddp-icon-error" name="passwordErrorIcon"></em>
+                </div>
+                <!-- error 메시지 -->
+                <span class="ddp-ui-error" style="bottom:-45px;" name="loginFailMsg"></span>
+                <!-- //error 메시지 -->
               </div>
-              <!-- error 메시지 -->
-              <span class="ddp-ui-error" style="bottom:-45px;" name="loginFailMsg"></span>
-              <!-- //error 메시지 -->
+              <!-- // Password 입력 -->
+
+              <!-- button -->
+              <div class="ddp-ui-login-buttons">
+                <a href="javascript:" class="ddp-btn" name="loginBtn"
+                   th:text="#{message.app.oauth.login}"></a>
+              </div>
+              <!-- //button -->
+
             </div>
-            <!-- // Password 입력 -->
+            <!-- //login form -->
+          </div>
 
-            <!-- button -->
-            <div class="ddp-ui-login-buttons">
-              <a href="javascript:" class="ddp-btn" name="loginBtn"
-                 th:text="#{message.app.oauth.login}"></a>
+          <!-- footer -->
+          <div class="ddp-layout-footer">
+            <div class="ddp-ui-footer">
+              <span class="ddp-ui-copy" th:utext="${copyrightHtml}"></span>
             </div>
-            <!-- //button -->
-
           </div>
-          <!-- //login form -->
+          <!-- // footer -->
         </div>
-
-        <!-- footer -->
-        <div class="ddp-layout-footer">
-          <div class="ddp-ui-footer">
-            <span class="ddp-ui-copy" th:utext="${copyrightHtml}"></span>
-          </div>
-        </div>
-        <!-- // footer -->
 
       </div>
       <!-- //login -->

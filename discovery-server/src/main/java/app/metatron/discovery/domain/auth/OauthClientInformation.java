@@ -30,6 +30,8 @@ public class OauthClientInformation implements Serializable {
 
   String logoFilePath;
 
+  String logoDesc;
+
   String backgroundFilePath;
 
   String autoApprove;
@@ -83,6 +85,10 @@ public class OauthClientInformation implements Serializable {
   public void setLogoFilePath(String logoFilePath) {
     this.logoFilePath = logoFilePath;
   }
+
+  public String getLogoDesc() { return logoDesc; }
+
+  public void setLogoDesc(String logoDesc) { this.logoDesc = logoDesc; }
 
   public String getBackgroundFilePath() {
     return backgroundFilePath;

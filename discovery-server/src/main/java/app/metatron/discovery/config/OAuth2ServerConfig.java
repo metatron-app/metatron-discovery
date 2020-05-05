@@ -15,6 +15,7 @@
 package app.metatron.discovery.config;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -57,6 +58,7 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import app.metatron.discovery.common.oauth.CustomAccessDeniedHandler;
+import app.metatron.discovery.common.oauth.CustomDaoAuthenticationProvider;
 import app.metatron.discovery.common.oauth.CustomEntryPoint;
 import app.metatron.discovery.common.oauth.CustomJdbcClientDetailsServiceBuilder;
 import app.metatron.discovery.common.oauth.CustomWebResponseExceptionTranslator;
@@ -179,6 +181,7 @@ public class OAuth2ServerConfig {
           // 사용자 등록 관련 허용
           .antMatchers(HttpMethod.GET, "/api/images/load/**").permitAll()
           .antMatchers(HttpMethod.POST, "/api/users/password").permitAll()
+          .antMatchers(HttpMethod.POST, "/api/users/password/validate").permitAll()
           .antMatchers(HttpMethod.POST, "/api/users").permitAll()
           .antMatchers(HttpMethod.PATCH, "/api/users/**").permitAll()
           .antMatchers(HttpMethod.GET, "/api/users/*/duplicated").permitAll()
@@ -206,6 +209,7 @@ public class OAuth2ServerConfig {
           //별도 로그인 처리
           .antMatchers("/api/oauth/client/login").permitAll()
           .antMatchers("/api/oauth/client/logout").permitAll()
+          .antMatchers(HttpMethod.GET, "/api/oauth/*").permitAll()
 
           //.antMatchers("/oauth/check_token").permitAll()
 
@@ -242,7 +246,7 @@ public class OAuth2ServerConfig {
     public OauthProperties oauthProperties;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    CustomDaoAuthenticationProvider customAuthProvider;
 
     //@Autowired
     //private AuthorizationEndpoint authorizationEndpoint;
@@ -299,11 +303,12 @@ public class OAuth2ServerConfig {
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-      CustomJdbcClientDetailsServiceBuilder builder =  new CustomJdbcClientDetailsServiceBuilder();
+      CustomJdbcClientDetailsServiceBuilder builder = new CustomJdbcClientDetailsServiceBuilder();
 
       // @formatter:off
 			builder
           .jdbcClientDetailsService(jdbcClientDetailsService());
+
 			// @formatter:on
 
       clients.setBuilder(builder);
@@ -336,7 +341,7 @@ public class OAuth2ServerConfig {
         .tokenStore(tokenStore())
 //        .pathMapping("/oauth/token", "/api/oauth/token")
 //        .pathMapping("/oauth/authorize", "/api/oauth/authorize")
-        .authenticationManager(authenticationManager)
+        .authenticationManager(providerManager())
 //        .accessTokenConverter(accessTokenConverter())
         .exceptionTranslator(exceptionTranslator())
         .tokenServices(tokenServices())
@@ -371,6 +376,10 @@ public class OAuth2ServerConfig {
       // @formatter:on
     }
 
-  }
+    @Bean
+    public ProviderManager providerManager() {
+      return new ProviderManager(Lists.newArrayList(customAuthProvider));
+    }
 
+  }
 }

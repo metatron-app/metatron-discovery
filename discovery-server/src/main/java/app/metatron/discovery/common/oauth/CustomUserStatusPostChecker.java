@@ -25,10 +25,7 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
 
 import app.metatron.discovery.domain.user.User;
 
-/**
- * Created by kyungtaak on 2017. 2. 19..
- */
-public class CustomUserStatusChecker implements UserDetailsChecker {
+public class CustomUserStatusPostChecker implements UserDetailsChecker {
 
   private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -37,36 +34,14 @@ public class CustomUserStatusChecker implements UserDetailsChecker {
 
     User user = (User) toCheck;
 
-    if (!user.isAccountNonLocked()) {
-      throw new LockedException(messages.getMessage(
-          "AccountStatusUserDetailsChecker.locked", "User account is locked"));
-    }
-
-    // Move to CustomUserStatusPostChecker
-    /*if (!user.isAccountNonExpired()) {
-      throw new AccountExpiredException(
-          messages.getMessage("AccountStatusUserDetailsChecker.expired",
-              "User account has expired"));
-    }*/
-
-    if (!user.isCredentialsNonExpired()) {
-      throw new CredentialsExpiredException(messages.getMessage(
-          "AccountStatusUserDetailsChecker.credentialsExpired",
-          "User credentials have expired"));
-    }
-
     // Check Custom Status
     User.Status status = user.getStatus();
 
     switch (status) {
-      case REQUESTED:
-        throw new RequestStatusException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.userRequested",
-            "Your username is being approved by system administrator. Pleases wait a minute"));
-      case LOCKED:
-      case REJECTED:
-      case DELETED:
-        throw new InactivatedStatusException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.userInactivated",
-            "Username is not available. Please contact your system administrator separately."));
+      case INITIAL:
+        throw new InactivatedStatusException("INITIAL");
+      case EXPIRED:
+        throw new InactivatedStatusException("EXPIRED");
     }
   }
 
