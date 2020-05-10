@@ -130,6 +130,7 @@ input:-ms-input-placeholder {
 
 .ddp-ui-login .ddp-ui-logo {
   padding-bottom: 20px;
+  height: auto;
 }
 
 .ddp-ui-login .ddp-ui-logo .ddp-ui-desc{

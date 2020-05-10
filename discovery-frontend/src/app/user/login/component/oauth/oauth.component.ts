@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from "../../../../common/component/abstract.component";
 import {ConfirmSmallComponent} from "../../../../common/component/modal/confirm-small/confirm-small.component";
 import {User} from "../../../../domain/user/user";
@@ -22,7 +22,7 @@ import {ActivatedRoute} from "@angular/router";
 import {CookieConstant} from "../../../../common/constant/cookie.constant";
 import {Alert} from "../../../../common/util/alert.util";
 import {Modal} from "../../../../common/domain/modal";
-import { isNullOrUndefined } from 'util';
+import {isNullOrUndefined} from 'util';
 import * as $ from "jquery";
 import * as _ from 'lodash';
 import {InitialChangePasswordComponent} from "../initial-change-password/initial-change-password.component";
@@ -138,7 +138,8 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
           if (permission && 0 < permission.length) {
             this.cookieService.set(CookieConstant.KEY.PERMISSION, permission.join('=='), 0, '/');
           }
-          this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip, '/oauth/authorize?' + location.href.split('?')[1]);
+          this._showAccessLog(loginToken.last_login_time, loginToken.last_login_ip,
+            '/oauth/authorize?' + location.href.split('?')[1], this.oauthClientInformation.clientName);
         });
 
       } else {
@@ -197,13 +198,16 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
     this.cookieService.delete(CookieConstant.KEY.PERMISSION, '/');
   } // function - _logout
 
-  private _showAccessLog(lastLoginTime: string, lastLoginIp:string, forwardUrl: string) {
+  private _showAccessLog(lastLoginTime: string, lastLoginIp: string, forwardUrl: string, clientName: string) {
     this.loadingHide();
     const modal = new Modal();
-    modal.name = this.translateService.instant( 'msg.login.access.title' );
-    modal.description = this.translateService.instant( 'msg.login.access.description' )
+    if (_.isEmpty(clientName)) {
+      clientName = 'Metatron';
+    }
+    modal.name = this.translateService.instant('msg.login.access.title', {client: clientName});
+    modal.description = this.translateService.instant('msg.login.access.description')
       + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
-    if(lastLoginIp != undefined){
+    if (lastLoginIp != undefined) {
       modal.description = modal.description + ' (' + lastLoginIp + ')';
     }
     modal.data = forwardUrl;

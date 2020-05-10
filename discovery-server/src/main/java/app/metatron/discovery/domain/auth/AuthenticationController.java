@@ -14,8 +14,16 @@
 
 package app.metatron.discovery.domain.auth;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.oauth.CookieManager;
+import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.role.Permission;
+import app.metatron.discovery.util.AuthUtils;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,39 +50,16 @@ import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.common.oauth.CookieManager;
-import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.role.Permission;
-import app.metatron.discovery.util.AuthUtils;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.*;
 
 /**
  * Created by kyungtaak on 2017. 6. 20..
@@ -400,7 +385,7 @@ public class AuthenticationController {
       additionalInformation.put("logoFilePath", oauthClientInformation.getLogoFilePath());
     }
     if (StringUtils.isNotEmpty(oauthClientInformation.getLogoDesc())) {
-      additionalInformation.put("logoDesc", oauthClientInformation.getLogoFilePath());
+      additionalInformation.put("logoDesc", oauthClientInformation.getLogoDesc());
     }
     if (StringUtils.isNotEmpty(oauthClientInformation.getBackgroundFilePath())) {
       additionalInformation.put("backgroundFilePath", oauthClientInformation.getBackgroundFilePath());
