@@ -39,8 +39,6 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private forwardURL: string;
-
   // 비밀번호 변경 팝업 컴포넌트
   @ViewChild(InitialChangePasswordComponent)
   private initialChangePasswordComponent: InitialChangePasswordComponent;
@@ -202,9 +200,10 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
     this.loadingHide();
     const modal = new Modal();
     if (_.isEmpty(clientName)) {
-      clientName = 'Metatron';
+      modal.name = this.translateService.instant('msg.login.access.title');
+    } else {
+      modal.name = this.translateService.instant('msg.oauth.access.title', {client: clientName});
     }
-    modal.name = this.translateService.instant('msg.login.access.title', {client: clientName});
     modal.description = this.translateService.instant('msg.login.access.description')
       + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
     if (lastLoginIp != undefined) {
