@@ -462,6 +462,7 @@
   "msg.alert.del": "确认是否删除？",
   "msg.alert.ds.retrieve.fail": "数据源查询失败",
   "msg.alert.edit.description.len": "说明以韩文为基准最多可输入630字（630字节）",
+  "msg.oauth.access.title": "欢迎来到{{client}}",
   "msg.login.access.title": "欢迎来到Metatron。",
   "msg.login.access.description": "上次访问时间 : ",
   "msg.login.join.title": "用户申请",

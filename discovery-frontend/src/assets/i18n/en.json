@@ -485,6 +485,7 @@
   "msg.alert.del": "Are you sure you want to delete?",
   "msg.alert.ds.retrieve.fail": "Failed to retrieve datasource",
   "msg.alert.edit.description.len": "The description can be up to 2000 characters (2000 bytes)",
+  "msg.oauth.access.title": "Welcome to {{client}}",
   "msg.login.access.title": "Welcome to Metatron.",
   "msg.login.access.description": "Last access time : ",
   "msg.login.join.title": "Sign Up",
