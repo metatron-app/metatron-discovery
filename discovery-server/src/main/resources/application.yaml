@@ -16,6 +16,12 @@ spring:
     admin:
       client:
         enabled: false
+  jpa:
+    properties:
+      org:
+        hibernate:
+          envers:
+            store_data_at_delete: true
 liquibase:
   change-log: classpath:db/changelog/db.changelog-master.xml
 server:

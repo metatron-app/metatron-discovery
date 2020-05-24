@@ -317,6 +317,7 @@
   "msg.comm.alert.profile.password.re.match.not": "새로운 비밀번호와 일치하지 않습니다",
   "msg.comm.alert.profile.password.success": "비밀번호가 변경되었습니다",
   "msg.comm.alert.profile.password.fail": "비밀번호 변경에 실패하였습니다",
+  "msg.comm.alert.profile.password.fail.minimum": "비밀번호 최소 사용 기간이 충족되지 않았습니다.",
   "msg.comm.btn.profile.password.change": "변경",
   "msg.comm.alert.access-denied.title": "접근 불가",
   "msg.comm.alert.access-denied.desc": "이 리소스를 볼 수있는 권한이 없습니다",

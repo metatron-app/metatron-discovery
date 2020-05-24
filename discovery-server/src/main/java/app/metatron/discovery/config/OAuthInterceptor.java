@@ -14,13 +14,16 @@
 
 package app.metatron.discovery.config;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -35,11 +38,16 @@ import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityType;
 import app.metatron.discovery.domain.activities.spec.Actor;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserPasswordProperties;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.UserService;
 
 /**
  *
  */
 @Component
+@Transactional
 public class OAuthInterceptor implements HandlerInterceptor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OAuthInterceptor.class);
@@ -50,8 +58,54 @@ public class OAuthInterceptor implements HandlerInterceptor {
   @Autowired
   JdbcClientDetailsService jdbcClientDetailsService;
 
+  @Autowired
+  UserService userService;
+
+  @Autowired
+  UserRepository userRepository;
+
+  @Autowired
+  UserPasswordProperties userPasswordProperties;
+
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+    //if need password expire check
+    if(StringUtils.isNotEmpty(userPasswordProperties.getRequiredChangePeriod())) {
+      String username = request.getParameter("username");
+
+      //getting user
+      User user = userRepository.findByUsername(username);
+
+      //check user status
+      if(user != null && user.getStatus() == User.Status.ACTIVATED) {
+        Period requiredChangePeriod = null;
+        try{
+          //parse to period
+          requiredChangePeriod = Period.parse(userPasswordProperties.getRequiredChangePeriod());
+          LOGGER.debug("requiredChangePeriod : {}", requiredChangePeriod);
+
+          //getting last update datetime
+          DateTime passwordChangedDate = userService.getLastPasswordUpdatedDate(username);
+          LOGGER.debug("{}'s passwordChangedDate : {}", username, passwordChangedDate);
+          if(requiredChangePeriod != null && passwordChangedDate != null){
+
+            //expired password required change period
+            DateTime validPasswordDate = passwordChangedDate.plus(requiredChangePeriod);
+            LOGGER.debug("{}'s validPasswordDate : {}", username, validPasswordDate);
+            if(DateTime.now().getMillis() > validPasswordDate.getMillis()) {
+              //update status to EXPIRED
+              user.setStatus(User.Status.EXPIRED);
+              userRepository.saveAndFlush(user);
+              LOGGER.debug("{}'s password change date expired. set status to EXPIRED", username);
+            }
+          }
+        } catch (Exception e){
+
+        }
+      }
+    }
+
     return true;
   }
 

@@ -17,6 +17,8 @@ package app.metatron.discovery.domain.user.role;
 import org.codehaus.jackson.annotate.JsonBackReference;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.joda.time.DateTime;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -27,6 +29,7 @@ import app.metatron.discovery.domain.user.UserProfile;
 
 @Entity
 @Table(name = "role_directory")
+@Audited(withModifiedFlag = true, targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class RoleDirectory {
 
   @Id

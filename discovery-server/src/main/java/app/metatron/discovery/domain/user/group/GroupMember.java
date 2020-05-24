@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,7 +29,6 @@ import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.UserProfile;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 
 /**
  * Created by kyungtaak on 2016. 1. 5..
@@ -37,6 +37,7 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 @Table(name = "user_group_member", indexes = {
     @Index(name = "i_user_member_id", columnList = "member_id")
 })
+@Audited(withModifiedFlag = true)
 public class GroupMember implements MetatronDomain<Long> {
 
   @Id
@@ -47,7 +48,6 @@ public class GroupMember implements MetatronDomain<Long> {
 
   @Column(name = "member_id")
   @NotNull
-  @JsonProperty(access = WRITE_ONLY)
   String memberId;
 
   @Column(name = "member_name")

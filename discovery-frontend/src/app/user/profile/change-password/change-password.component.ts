@@ -300,8 +300,13 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
       .catch((err) => {
         // 로딩 hide
         this.loadingHide();
+
         // error alert
-        Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail'));
+        if(err.code == 'UR0009'){
+          Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail.minimum'));
+        } else {
+          Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail'));
+        }
       })
   }
 }

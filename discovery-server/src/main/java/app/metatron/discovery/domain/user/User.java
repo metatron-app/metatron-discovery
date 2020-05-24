@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
@@ -68,6 +69,7 @@ import static org.hibernate.search.annotations.Index.NO;
     @Index(name = "i_user_username_status", columnList = "user_name,user_status")
 })
 @Indexed
+@Audited(withModifiedFlag = true)
 public class User extends AbstractHistoryEntity implements UserDetails, MetatronDomain<String> {
 
   @Id
