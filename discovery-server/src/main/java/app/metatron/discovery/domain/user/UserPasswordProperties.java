@@ -23,7 +23,12 @@ import java.util.regex.Pattern;
 @Component
 @ConfigurationProperties(prefix = "polaris.user.password")
 public class UserPasswordProperties {
+
   private PasswordStrength strength = new PasswordStrength();
+
+  String requiredChangePeriod;
+  String minimumUsePeriod;
+  Integer countOfHistory = 3;
 
   public PasswordStrength getStrength() {
     return strength;
@@ -31,6 +36,30 @@ public class UserPasswordProperties {
 
   public void setStrength(PasswordStrength strength) {
     this.strength = strength;
+  }
+
+  public String getRequiredChangePeriod() {
+    return requiredChangePeriod;
+  }
+
+  public void setRequiredChangePeriod(String requiredChangePeriod) {
+    this.requiredChangePeriod = requiredChangePeriod;
+  }
+
+  public String getMinimumUsePeriod() {
+    return minimumUsePeriod;
+  }
+
+  public void setMinimumUsePeriod(String minimumUsePeriod) {
+    this.minimumUsePeriod = minimumUsePeriod;
+  }
+
+  public Integer getCountOfHistory() {
+    return countOfHistory;
+  }
+
+  public void setCountOfHistory(Integer countOfHistory) {
+    this.countOfHistory = countOfHistory;
   }
 
   public static class PasswordStrength implements Serializable {
@@ -136,6 +165,14 @@ public class UserPasswordProperties {
 
     public void setMaxLength(Integer maxLength) {
       this.maxLength = maxLength;
+    }
+
+    public Integer getRepeatLimit() {
+      return repeatLimit;
+    }
+
+    public void setRepeatLimit(Integer repeatLimit) {
+      this.repeatLimit = repeatLimit;
     }
   }
 }

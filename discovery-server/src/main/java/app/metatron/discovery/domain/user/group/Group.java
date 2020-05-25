@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
@@ -59,6 +60,7 @@ import app.metatron.discovery.domain.context.ContextEntity;
 @Entity
 @Table(name = "user_group")
 @Indexed
+@Audited(withModifiedFlag = true)
 public class Group extends AbstractHistoryEntity implements MetatronDomain<String>, ContextEntity {
 
   @Id

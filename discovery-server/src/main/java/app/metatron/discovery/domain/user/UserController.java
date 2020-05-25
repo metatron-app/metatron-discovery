@@ -22,6 +22,7 @@ import com.querydsl.core.types.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +125,9 @@ public class UserController {
 
   @Autowired
   PasswordEncoder passwordEncoder;
+
+  @Autowired
+  UserPasswordProperties userPasswordProperties;
 
   /**
    * User 목록 조회
@@ -230,9 +234,36 @@ public class UserController {
     }
 
     if (user.getPassword() != null){
-      userService.validateUserPassword(username, user);
-      String encodedPassword = passwordEncoder.encode(user.getPassword());
-      updatedUser.setPassword(encodedPassword);
+      //check password changed
+      if(!passwordEncoder.matches(updatedUser.getPassword(), user.getPassword())){
+        //if config minimum password change date exist..
+        if(StringUtils.isNotEmpty(userPasswordProperties.getMinimumUsePeriod())){
+          //parse to period
+          Period minimumUsePeriod = Period.parse(userPasswordProperties.getMinimumUsePeriod());
+          LOGGER.debug("minimumUsePeriod : {}", minimumUsePeriod);
+
+          //getting last update datetime
+          DateTime passwordChangedDate = userService.getLastPasswordUpdatedDate(username);
+          LOGGER.debug("{}'s passwordChangedDate : {}", username, passwordChangedDate);
+          if(minimumUsePeriod != null && passwordChangedDate != null){
+
+            //must user password period
+            DateTime mustUsePasswordDate = passwordChangedDate.plus(minimumUsePeriod);
+            LOGGER.debug("{} must use password to {}", username, mustUsePasswordDate);
+            if(DateTime.now().getMillis() < mustUsePasswordDate.getMillis()) {
+              //user cannot update password
+              LOGGER.debug("{} cannot change password.", username);
+              throw new UserException(UserErrorCodes.PASSWORD_USE_PERIOD_NOT_PASSED,
+                                      "The minimum password usage period has not passed.(" + mustUsePasswordDate + ")");
+            }
+          }
+
+          userService.validateUserPassword(username, user);
+          String encodedPassword = passwordEncoder.encode(user.getPassword());
+          updatedUser.setPassword(encodedPassword);
+        }
+
+      }
     }
 
     if (user.getFullName() != null) updatedUser.setFullName(user.getFullName());
@@ -377,7 +408,7 @@ public class UserController {
 
     // Group 정보가 없을 경우 기본그룹 지정
     if (CollectionUtils.isNotEmpty(user.getGroupNames())) {
-      userService.setUserToGroups(user, user.getGroupNames(), false);
+      userService.setUserToGroups(user, user.getGroupNames());
     } else {
       Group defaultGroup = groupService.getDefaultGroup();
       if (defaultGroup == null) {
@@ -417,7 +448,7 @@ public class UserController {
       return ResponseEntity.notFound().build();
     }
 
-    userService.setUserToGroups(updatedUser, user.getGroupNames(), true);
+    userService.setUserToGroups(updatedUser, user.getGroupNames());
     updatedUser.setFullName(user.getFullName());
     updatedUser.setEmail(user.getEmail());
     updatedUser.setTel(user.getTel());

@@ -14,26 +14,36 @@
 
 package app.metatron.discovery.domain.user;
 
-import com.google.common.collect.Lists;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
 
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.images.Image;
 import app.metatron.discovery.domain.images.ImageRepository;
+import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
 import app.metatron.discovery.domain.user.group.Group;
 import app.metatron.discovery.domain.user.group.GroupMember;
 import app.metatron.discovery.domain.user.group.GroupMemberRepository;
@@ -65,6 +75,9 @@ public class UserService {
 
   @Autowired
   UserPasswordProperties userPasswordProperties;
+
+  @Autowired
+  EntityManager entityManager;
 
   public boolean checkDuplicated(DuplicatedTarget target, String value) {
     Long count = 0L;
@@ -115,16 +128,49 @@ public class UserService {
   }
 
   @Transactional
-  public void setUserToGroups(User user, List<String> groupNames, boolean clear) {
+  public void setUserToGroups(User user, List<String> groupNames) {
 
-    if(clear) {
-      groupMemberRepository.deleteByMemberIds(Lists.newArrayList(user.getUsername()));
+    //user's all group
+    List<Group> groupList = groupRepository.findJoinedGroups(user.getUsername());
+    List<String> groupNameList = groupList.stream().map(group -> group.getName()).collect(Collectors.toList());
+    System.out.println("as-is groupNameList = " + groupNameList);
+
+    //removed group name
+    List<String> removedGroup = groupNameList.stream()
+                                             .filter(beforeGroupName -> !groupNames.contains(beforeGroupName))
+                                             .collect(Collectors.toList());
+    System.out.println("removedGroup = " + removedGroup);
+
+    //newly added group name
+    List<String> addedGroup = groupNames.stream()
+                                        .filter(newGroupName -> !groupNameList.contains(newGroupName))
+                                        .collect(Collectors.toList());
+    System.out.println("addedGroup = " + addedGroup);
+
+//    if(clear) {
+//      groupMemberRepository.deleteByMemberIds(Lists.newArrayList(user.getUsername()));
+//    }
+
+    for (String removedGroupName : removedGroup) {
+      Group group = groupRepository.findByName(removedGroupName);
+      if(group == null) {
+        LOGGER.debug("Group({}) not found. skip!", removedGroupName);
+        continue;
+      }
+
+      List<GroupMember> groupMembers = group.getMembers();
+      if(groupMembers != null && !groupMembers.isEmpty()){
+        GroupMember groupMember = groupMemberRepository.findByGroupAndMemberId(group, user.getUsername());
+        if(groupMember != null){
+          group.removeGroupMember(groupMember);
+        }
+      }
     }
 
-    for (String groupName : groupNames) {
-      Group group = groupRepository.findByName(groupName);
+    for (String addedGroupName : addedGroup) {
+      Group group = groupRepository.findByName(addedGroupName);
       if(group == null) {
-        LOGGER.debug("Group({}) not found. skip!", groupName);
+        LOGGER.debug("Group({}) not found. skip!", addedGroupName);
         continue;
       }
 
@@ -182,5 +228,60 @@ public class UserService {
     }
 
     return true;
+  }
+
+  public DateTime getLastPasswordUpdatedDate(String username){
+    AuditReader auditReader = AuditReaderFactory.get(entityManager);
+    AuditQuery userAuditQuery = auditReader.createQuery()
+                                               .forRevisionsOfEntityWithChanges(User.class, true)
+                                               .add(AuditEntity.id().eq(username))
+                                               .add(AuditEntity.property("password").hasChanged())
+                                               .addOrder(AuditEntity.revisionNumber().desc())
+                                               .setMaxResults(1);
+    try{
+      Object[] lastUpdatedUserRevision = (Object[]) userAuditQuery.getSingleResult();
+      MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) lastUpdatedUserRevision[1];
+      return new DateTime(revisionEntity.getRevisionDate());
+    } catch (NoResultException e){
+      LOGGER.debug("User({}) has no password change revision.", username);
+    }
+
+    User user = userRepository.findByUsername(username);
+
+    if(user != null){
+      return user.getModifiedTime();
+    }
+
+    return null;
+  }
+
+  public List<Map<String, Object>> getUpdatedPasswordList(String username, int limit){
+    AuditReader auditReader = AuditReaderFactory.get(entityManager);
+    AuditQuery userAuditQuery = auditReader.createQuery()
+                                           .forRevisionsOfEntityWithChanges(User.class, true)
+                                           .add(AuditEntity.id().eq(username))
+                                           .add(AuditEntity.property("password").hasChanged())
+                                           .addOrder(AuditEntity.revisionNumber().desc());
+    if(limit > 0){
+      userAuditQuery.setMaxResults(limit);
+    }
+
+    List<Object[]> userAuditList = userAuditQuery.getResultList();
+    List historyList = new ArrayList();
+    userAuditList.stream().forEach(objectArr -> {
+      User userEntity = (User) objectArr[0];
+      MetatronRevisionEntity revisionEntity = (MetatronRevisionEntity) objectArr[1];
+      RevisionType revisionType = (RevisionType) objectArr[2];
+
+      Map<String, Object> revisionMap = new HashMap<>();
+      revisionMap.put("createdTime", revisionEntity.getRevisionDate());
+      revisionMap.put("username", userEntity.getUsername());
+      revisionMap.put("modifiedBy", revisionEntity.getUsername());
+      revisionMap.put("password", userEntity.getPassword());
+      revisionMap.put("revisionType", revisionType);
+      revisionMap.put("revisionId", revisionEntity.getId());
+      historyList.add(revisionMap);
+    });
+    return historyList;
   }
 }

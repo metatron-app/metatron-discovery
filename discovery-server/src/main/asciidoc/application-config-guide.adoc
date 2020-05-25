@@ -53,6 +53,10 @@ spring:
         order_inserts: true
         order_updates: true
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+      org:
+        hibernate:
+          envers:
+            store_data_at_delete: true
 server:
   port: 8180 # If you want to change the port
   tomcat:
@@ -162,5 +166,17 @@ polaris:
           permissions:
             - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users with permissions in the upper depth menu can access.
   static-path:     # Specify the absolute path of "/static/*" resources.
+  user:
+    password:
+      strength:                           # Password management settings
+        numberOfNumericCharacter: 1       # Number of numeric Character (default : 1), -1 to disable
+        numberOfAlphabeticalCharacter: 1  # Number of alphabetical Character (default : 1), -1 to disable
+        numberOfSpecialCharacter: 1       # Number of special Character (default : 1), -1 to disable
+        minLength: 10                     # Minimum length (default : 10)
+        maxLength: 20                     # Maximum length (default : 20)
+        repeatLimit: 4                    # Maximum character repeatability (default : 4), -1 to disable
+      requiredChangePeriod: P6M           # The password must be changed within that period. (ISO 8601 Duration Format)
+      minimumUsePeriod: P1D               # The password cannot be changed again within that period. (ISO 8601 Duration Format)
+
 ----
 
