@@ -27,6 +27,11 @@ import de.codecentric.boot.admin.jackson.ApplicationDeserializer;
 import de.codecentric.boot.admin.model.Application;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.envers.boot.internal.EnversService;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
@@ -81,8 +86,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.persistence.EntityManagerFactory;
+
 import app.metatron.discovery.MetatronDiscoveryApplication;
 import app.metatron.discovery.common.MetatronProperties;
+import app.metatron.discovery.common.revision.CustomEnversPostInsertEventListener;
 import app.metatron.discovery.domain.comment.Comment;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionEventHandler;
@@ -565,6 +573,17 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
                         "Access-Control-Max-Age",
                         "Access-Control-Request-Headers",
                         "Access-Control-Request-Method");
+  }
+
+  @Bean
+  public EventListenerRegistry listenerRegistry(EntityManagerFactory entityManagerFactory) {
+    ServiceRegistryImplementor serviceRegistry = entityManagerFactory.unwrap(SessionFactoryImpl.class).getServiceRegistry();
+
+    final EnversService enversService = serviceRegistry.getService(EnversService.class);
+    EventListenerRegistry listenerRegistry = serviceRegistry.getService(EventListenerRegistry.class);
+
+    listenerRegistry.setListeners(EventType.POST_INSERT, new CustomEnversPostInsertEventListener(enversService));
+    return listenerRegistry;
   }
 
 }
