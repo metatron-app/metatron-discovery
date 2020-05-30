@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.workbook.configurations.format;
 
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.domain.engine.EngineQueryProperties;
+import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
 import app.metatron.discovery.util.EnumUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
@@ -329,6 +330,28 @@ public abstract class TimeFieldFormat {
 
     }
 
+    public SimpleGranularity getGranularity() {
+      switch (this) {
+        case SECOND:
+          return new SimpleGranularity("second");
+        case MINUTE:
+          return new SimpleGranularity("minute");
+        case HOUR:
+          return new SimpleGranularity("hour");
+        case DAY:
+          return new SimpleGranularity("day");
+        case WEEK:
+          return new SimpleGranularity("week");
+        case MONTH:
+          return new SimpleGranularity("month");
+        case QUARTER:
+          return new SimpleGranularity("quarter");
+        case YEAR:
+          return new SimpleGranularity("year");
+        default:
+          return new SimpleGranularity("all");
+      }
+    }
   }
 
   public enum ByTimeUnit {

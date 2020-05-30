@@ -28,21 +28,19 @@
 
 package app.metatron.discovery.domain.workbook.configurations.field;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
+import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
+import app.metatron.discovery.util.EnumUtils;
+import app.metatron.discovery.util.PolarisUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
-
-import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
-import app.metatron.discovery.util.EnumUtils;
-import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.workbook.configurations.field.MeasureField.AggregationType.NONE;
 import static app.metatron.discovery.domain.workbook.configurations.field.MeasureField.AggregationType.SUM;
@@ -109,6 +107,14 @@ public class MeasureField extends Field {
           setParamValue("value", Double.parseDouble(parsedMap.get("value")));
         } else {
           setParamValue("value", 0.75); // 기본값 처리
+        }
+        break;
+      case LAST:
+      case FIRST:
+        if (parsedMap.containsKey("includeTimestamp")) {
+          setParamValue("includeTimestamp", BooleanUtils.toBoolean(parsedMap.get("includeTimestamp")));
+        } else {
+          setParamValue("includeTimestamp", false);
         }
         break;
       default:

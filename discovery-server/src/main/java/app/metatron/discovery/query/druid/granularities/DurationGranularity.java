@@ -14,21 +14,25 @@
 
 package app.metatron.discovery.query.druid.granularities;
 
+import app.metatron.discovery.query.druid.Granularity;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import app.metatron.discovery.query.druid.Granularity;
-
 @JsonTypeName("duration")
-public class DurationGranularity implements Granularity {
+public class DurationGranularity extends AbstractGranularity implements Granularity {
+
   String duration;
+
   String origin;
 
-  public DurationGranularity(){
+  public DurationGranularity() {
     super();
   }
 
-  public DurationGranularity(String duration, String origin){
-    this();
+  @JsonCreator
+  public DurationGranularity(@JsonProperty("duration") String duration,
+          @JsonProperty("origin") String origin) {
     this.duration = duration;
     this.origin = origin;
   }
@@ -37,15 +41,7 @@ public class DurationGranularity implements Granularity {
     return duration;
   }
 
-  public void setDuration(String duration) {
-    this.duration = duration;
-  }
-
   public String getOrigin() {
     return origin;
-  }
-
-  public void setOrigin(String origin) {
-    this.origin = origin;
   }
 }

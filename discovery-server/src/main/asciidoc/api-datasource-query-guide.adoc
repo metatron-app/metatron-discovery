@@ -234,7 +234,9 @@ then the Select statement is performed; otherwise, the GroupBy statement is perf
 |granularity
 |Enum
 |(timestamp) timeserise aggregation unit, "SECOND", "MINUTE", "HOUR", "DAYOFWEEK", "WEEK", "MONTH", "QUARTER", "YEAR"
-|
+|In addition to fixed granularity, duration can be specified.
+ex1. ISO8601 Period format : {"type":"period","period":"P2M","timeZone":"UTC","origin":"2000-01-01T00:00:00.000Z"}
+ex2. Millisecond format : {"type": "duration","duration": "5184000000","origin": "2000-01-01T00:00:00Z"}
 
 |timeUnit
 |Enum
