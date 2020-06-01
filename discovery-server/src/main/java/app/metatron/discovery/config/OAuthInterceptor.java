@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityType;
@@ -174,6 +175,14 @@ public class OAuthInterceptor implements HandlerInterceptor {
       activityStream.setResult(loginStatus == 200 ? "SUCCESS" : "FAIL");
       activityStream.setPublishedTime(DateTime.now());
       activityStreamService.addActivityStream(activityStream);
+
+      try {
+        if (loginStatus == 200) {
+          StatLogger.login(username, clientId, userHost, userAgent);
+        }
+      } catch (Exception e) {
+        LOGGER.error(e.getMessage(), e);
+      }
     }
   }
 }

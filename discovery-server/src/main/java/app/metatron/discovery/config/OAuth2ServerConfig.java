@@ -189,6 +189,8 @@ public class OAuth2ServerConfig {
 
           .antMatchers(HttpMethod.POST, "/api/sso").permitAll()
 
+          .antMatchers(HttpMethod.GET, "/api/logout").permitAll()
+
           //SSO SAML
           .antMatchers(HttpMethod.POST, "/saml/*").permitAll()
           .antMatchers(HttpMethod.GET, "/saml/*").permitAll()
