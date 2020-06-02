@@ -150,7 +150,8 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   private String workspaceType;
 
   @Transient
-  private RoleService roleService;
+  @JsonIgnore
+  private transient RoleService roleService;
 
   @Transient
   @JsonProperty

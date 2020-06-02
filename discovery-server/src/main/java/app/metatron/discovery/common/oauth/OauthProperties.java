@@ -33,6 +33,8 @@ public class OauthProperties {
 
   List<Matcher> permitAll;
 
+  Integer timeout = -1;
+
   public OauthProperties() {
   }
 
@@ -58,6 +60,14 @@ public class OauthProperties {
 
   public void setPermitAll(List<Matcher> permitAll) {
     this.permitAll = permitAll;
+  }
+
+  public Integer getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(Integer timeout) {
+    this.timeout = timeout;
   }
 
   public static class Matcher {
