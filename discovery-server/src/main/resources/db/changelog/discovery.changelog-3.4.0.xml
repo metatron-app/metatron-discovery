@@ -225,7 +225,7 @@
             </not>
         </preConditions>
         <addColumn tableName="users">
-            <column name="user_fail_cnt" type="${tinyint.type}" />
+            <column name="user_fail_cnt" type="${int.type}" />
         </addColumn>
     </changeSet>
 
@@ -236,7 +236,7 @@
             </not>
         </preConditions>
         <addColumn tableName="users_AUD">
-            <column name="user_fail_cnt" type="${tinyint.type}" />
+            <column name="user_fail_cnt" type="${int.type}" />
             <column name="failCnt_MOD" type="${boolean.type}" />
         </addColumn>
     </changeSet>
