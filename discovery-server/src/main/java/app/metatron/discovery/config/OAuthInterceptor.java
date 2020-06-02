@@ -178,6 +178,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
 
       try {
         if (loginStatus == 200) {
+          userService.initFailCount(username);
           StatLogger.login(username, clientId, userHost, userAgent);
         }
       } catch (Exception e) {

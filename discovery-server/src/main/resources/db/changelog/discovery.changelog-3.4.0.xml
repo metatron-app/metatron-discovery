@@ -218,4 +218,27 @@
         </createTable>
     </changeSet>
 
+    <changeSet author="minhyun2 (generated)" id="1590968388389-0">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="user_fail_cnt" />
+            </not>
+        </preConditions>
+        <addColumn tableName="users">
+            <column name="user_fail_cnt" type="${tinyint.type}" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="minhyun2 (generated)" id="1590968388389-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users_AUD" columnName="failCnt_MOD" />
+            </not>
+        </preConditions>
+        <addColumn tableName="users_AUD">
+            <column name="user_fail_cnt" type="${tinyint.type}" />
+            <column name="failCnt_MOD" type="${boolean.type}" />
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

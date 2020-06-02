@@ -126,6 +126,9 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   @Column(name = "user_image_Url")
   private String imageUrl;
 
+  @Column(name = "user_fail_cnt")
+  private Integer failCnt;
+
   @Transient
   @JsonProperty(access = WRITE_ONLY)
   private List<String> groupNames;
@@ -285,6 +288,12 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   public void setStatusMessage(String statusMessage) {
     this.statusMessage = statusMessage;
   }
+
+  public Integer getFailCnt() {
+    return failCnt == null ? 0 : failCnt;
+  }
+
+  public void setFailCnt(Integer failCnt) { this.failCnt = failCnt; }
 
   @Override
   @JsonIgnore

@@ -68,7 +68,6 @@ import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
@@ -396,7 +395,8 @@ public class UserController {
 
     // mail 전송을 수행하지 않고 패스워드를 지정하지 않은 경우 시스템에서 비번 생성
     if (!user.getPassMailer() || StringUtils.isEmpty(user.getPassword())) {
-      user.setPassword(PolarisUtils.createTemporaryPassword(8));
+      String temporaryPassword = userService.createTemporaryPassword(user.getUsername());
+      user.setPassword(temporaryPassword);
     }
 
     //encode password
@@ -498,11 +498,12 @@ public class UserController {
       throw new BadRequestException("User not found by email( " + email + " )");
     }
 
-    String temporaryPassword = PolarisUtils.createTemporaryPassword(8);
+    String temporaryPassword = userService.createTemporaryPassword(user.getUsername());
     String encodedPassword = passwordEncoder.encode(temporaryPassword);
     user.setPassword(encodedPassword);
 
     user.setStatus(User.Status.INITIAL);
+    user.setFailCnt(null);
 
     userRepository.saveAndFlush(user);
 

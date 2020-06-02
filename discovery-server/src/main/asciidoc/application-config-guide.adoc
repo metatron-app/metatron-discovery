@@ -177,6 +177,7 @@ polaris:
         repeatLimit: 4                    # Maximum character repeatability (default : 4), -1 to disable
       requiredChangePeriod: P6M           # The password must be changed within that period. (ISO 8601 Duration Format)
       minimumUsePeriod: P1D               # The password cannot be changed again within that period. (ISO 8601 Duration Format)
+      lockCount: 5                        # The Password must match within that number.
 
 ----
 
