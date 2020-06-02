@@ -54,6 +54,9 @@ export class ConfirmSmallComponent extends AbstractComponent implements OnInit, 
   @Input()
   public useCancelBtn: boolean = false;
 
+  @Input()
+  public useCloseBtn: boolean = true;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

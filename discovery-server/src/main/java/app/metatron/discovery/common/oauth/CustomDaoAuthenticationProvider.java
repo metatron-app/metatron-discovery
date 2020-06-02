@@ -14,19 +14,56 @@
 
 package app.metatron.discovery.common.oauth;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.servlet.http.HttpServletRequest;
+
+import app.metatron.discovery.domain.user.UserPasswordProperties;
+import app.metatron.discovery.domain.user.UserService;
 
 /**
  * Created by kyungtaak on 2017. 1. 25..
  */
 public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
 
+  @Autowired
+  private HttpServletRequest request;
+
+  @Autowired
+  private UserService userService;
+
+  @Autowired
+  UserPasswordProperties userPasswordProperties;
+
   protected void additionalAuthenticationChecks(UserDetails userDetails,
                                                 UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 
-    super.additionalAuthenticationChecks(userDetails, authentication);
+    try {
+      super.additionalAuthenticationChecks(userDetails, authentication);
+    } catch (BadCredentialsException e) {
+      if (userPasswordProperties.getLockCount() != null) {
+        Integer failCnt = userService.addFailCount(request.getParameter("username"));
+        if (failCnt != null && userPasswordProperties.getLockCount() != null) {
+          String message;
+          if (failCnt == userPasswordProperties.getLockCount()) {
+            message = messages.getMessage(
+                "AccountStatusUserDetailsChecker.passwordLocked", new Integer[]{userPasswordProperties.getLockCount()},
+                "User password is incorrect "+ userPasswordProperties.getLockCount() +" times in a row.");
+          } else {
+            message = messages.getMessage("AccountStatusUserDetailsChecker.passwordNotMatched"
+                , new Integer[]{failCnt, userPasswordProperties.getLockCount()}
+                , e.getMessage());
+          }
+          throw new BadCredentialsException(message);
+        }
+      }
+      throw new BadCredentialsException(e.getMessage());
+    }
+
   }
 }
