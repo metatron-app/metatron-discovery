@@ -115,7 +115,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     //remove whitelist token
     AccessTokenCacheRepository.CachedAccessToken cachedAccessToken = accessTokenCacheRepository.getCachedAccessToken(token.getValue());
     if(cachedAccessToken != null){
-      whitelistTokenCacheRepository.removeWhitelistToken(cachedAccessToken.getUsername(), cachedAccessToken.getClientId());
+      // whitelistTokenCacheRepository.removeWhitelistToken(cachedAccessToken.getUsername(), cachedAccessToken.getClientId());
     }
     accessTokenCacheRepository.removeAccessToken(token.getValue());
   }

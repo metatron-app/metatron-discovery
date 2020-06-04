@@ -40,18 +40,18 @@ public class WhitelistTokenCacheRepository {
 
   @Cacheable(key = "#username + '|' + #clientId")
   public CachedWhitelistToken getCachedWhitelistToken(String username, String clientId){
-    String key = username + clientId;
+    String key = username + "|" + clientId;
     return cacheManager.getCache("token-whitelist-cache").get(key, CachedWhitelistToken.class);
   }
 
-  @CachePut(key = "#username + '|' +#clientId")
+  @CachePut(key = "#username + '|' + #clientId")
   public CachedWhitelistToken putWhitelistToken(String tokenKey, String username, String clientId, String userHost){
     LOGGER.debug("store White list Token : {}|{}, {}", username, clientId, userHost);
     CachedWhitelistToken accessToken = new CachedWhitelistToken(tokenKey, username, clientId, userHost);
     return accessToken;
   }
 
-  @CacheEvict(key = "#username + '|' +#clientId")
+  @CacheEvict(key = "#username + '|' + #clientId")
   public void removeWhitelistToken(String username, String clientId){
     LOGGER.debug("remove White list Token : {}|{}", username, clientId);
     cacheManager.getCache("token-whitelist-cache").evict(username + "|" + clientId);

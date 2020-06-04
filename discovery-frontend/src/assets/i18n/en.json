@@ -27,6 +27,8 @@
   "msg.usr.role.system.admin": "System manager",
   "msg.usr.role.system.supervisor": "Data manager",
   "msg.usr.role.system.user": "User",
+  "msg.sso.ui.session.expired": "Your session has expired.",
+  "msg.sso.ui.not.matched.userip": "Access from other IPs and restrict access.",
   "msg.sso.ui.loading" : "Please wait, page is loading",
   "msg.sso.ui.welcome.title" : "Welcome to Metatron Discovery!",
   "msg.sso.ui.welcome.desc1" : "Metatron Discovery provides real-time visualizations based on big data analysis.",

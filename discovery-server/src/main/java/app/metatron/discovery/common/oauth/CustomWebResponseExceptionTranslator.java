@@ -71,7 +71,10 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
       String userHost = HttpUtils.getClientIp(request);
       String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-      StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+      if ("password".equals(request.getParameter("grant_type"))) {
+        StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+      }
+    } catch (IllegalStateException ex) {
     } catch (Exception ex) {
       LOGGER.error(ex.getMessage(), ex);
     }

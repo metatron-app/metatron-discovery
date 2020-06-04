@@ -136,14 +136,14 @@ public class OAuthInterceptor implements HandlerInterceptor {
           // getting username, clientid, clientip
           String username = authFromToken.getName();
           String clientId = authFromToken.getOAuth2Request().getClientId();
-          String userHost = HttpUtils.getClientIp(request);;
+          String userHost = HttpUtils.getClientIp(request);
 
           LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
           WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
               = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
 
           if (cachedWhitelistToken == null) {
-            LOGGER.info("cachedWhitelistToken is not exist({}, clientId)", username, clientId);
+            LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
             throw new InvalidTokenException("User ip is not in whitelist.");
           }
 

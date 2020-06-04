@@ -14,7 +14,7 @@
 
 import * as moment from 'moment';
 import {APP_BASE_HREF} from '@angular/common';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from '@angular/common/http';
 import {BrowserModule} from '@angular/platform-browser';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {AppComponent} from './app.component';
@@ -30,6 +30,7 @@ import {SsoGuard} from './common/gaurd/sso.guard';
 import {UserService} from './user/service/user.service';
 import {CookieService} from 'ng2-cookies';
 import {ClipboardModule} from 'ngx-clipboard';
+import {LoaderInterceptor} from "./common/interceptor/loader-interceptor";
 
 // 다국어 파일 경로 지정
 export function createTranslateLoader(http: HttpClient) {
@@ -70,6 +71,7 @@ const appRoutes: Routes = [
   ],
   providers: [
     {provide: APP_BASE_HREF, useValue: environment.baseHref},
+    {provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true },
     PopupService,
     SsoGuard,
     UserService,

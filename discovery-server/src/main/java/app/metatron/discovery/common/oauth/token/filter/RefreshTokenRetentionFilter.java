@@ -87,7 +87,8 @@ public class RefreshTokenRetentionFilter implements Filter {
 
             Date newRefreshTokenExpiration = DateTime.now().plusSeconds(oauthProperties.getTimeout()).toDate();
 
-            LOGGER.debug("Refresh token ({}) expiration retention to {} from {}", newRefreshTokenExpiration, cachedRefreshToken.getExpiration());
+            LOGGER.debug("Refresh token ({}) expiration retention to {} from {}", JwtTokenUtil.getTokenForDebug(refreshTokenKey),
+                         newRefreshTokenExpiration, cachedRefreshToken.getExpiration());
             // update refresh token expiration in cache
             refreshTokenCacheRepository.putRefreshToken(refreshTokenKey, newRefreshTokenExpiration);
           }
