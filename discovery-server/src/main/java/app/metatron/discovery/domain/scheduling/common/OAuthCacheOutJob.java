@@ -63,9 +63,6 @@ public class OAuthCacheOutJob extends QuartzJobBean {
       if(expiration.getTime() < System.currentTimeMillis()){
         LOGGER.debug("Access Token expired : {}", key);
         accessTokenCacheRepository.removeAccessToken(key.toString());
-        whitelistTokenCacheRepository.removeWhitelistToken(
-            ((AccessTokenCacheRepository.CachedAccessToken) cachedAccessToken).getUsername(),
-            ((AccessTokenCacheRepository.CachedAccessToken) cachedAccessToken).getClientId());
       }
     });
     LOGGER.info("## End batch job for checking expired oauth refresh token.");
