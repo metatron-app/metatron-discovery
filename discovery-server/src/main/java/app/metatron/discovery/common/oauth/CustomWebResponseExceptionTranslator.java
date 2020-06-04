@@ -75,6 +75,7 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
         StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
       }
     } catch (IllegalStateException ex) {
+      LOGGER.error(ex.getMessage());
     } catch (Exception ex) {
       LOGGER.error(ex.getMessage(), ex);
     }
