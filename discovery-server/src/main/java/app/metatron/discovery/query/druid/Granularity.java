@@ -15,20 +15,27 @@
 package app.metatron.discovery.query.druid;
 
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import app.metatron.discovery.query.druid.granularities.DurationGranularity;
 import app.metatron.discovery.query.druid.granularities.PeriodGranularity;
 import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME,
-    include= JsonTypeInfo.As.EXTERNAL_PROPERTY, property="type",
-    defaultImpl = SimpleGranularity.class)
+import java.beans.Transient;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type",
+        defaultImpl = SimpleGranularity.class)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = SimpleGranularity.class, name = "simple"),
-    @JsonSubTypes.Type(value = DurationGranularity.class, name = "duration"),
-    @JsonSubTypes.Type(value = PeriodGranularity.class, name = "period")
+        @JsonSubTypes.Type(value = SimpleGranularity.class, name = "simple"),
+        @JsonSubTypes.Type(value = DurationGranularity.class, name = "duration"),
+        @JsonSubTypes.Type(value = PeriodGranularity.class, name = "period")
 })
 public interface Granularity {
+
+  @Transient
+  String getAlias();
+
+  void setAlias(String alias);
+
 }

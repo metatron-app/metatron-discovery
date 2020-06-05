@@ -29,9 +29,14 @@ import app.metatron.discovery.domain.workbook.configurations.analysis.TrendAnaly
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
+import app.metatron.discovery.query.druid.Granularity;
+import app.metatron.discovery.query.druid.PostAggregation;
+import app.metatron.discovery.query.druid.PostProcessor;
 import app.metatron.discovery.query.druid.limits.PivotColumn;
 import app.metatron.discovery.query.druid.limits.PivotSpec;
 import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
+import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
+import app.metatron.discovery.query.druid.postprocessor.PostAggregationProcessor;
 import app.metatron.discovery.query.druid.queries.GroupingSet;
 import app.metatron.discovery.util.EnumUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -43,7 +48,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -83,6 +88,8 @@ public class PivotResultFormat extends SearchResultFormat {
 
   Boolean includePercentage = false;
 
+  transient List<String> replacedKeyFields;
+
   public PivotResultFormat() {
   }
 
@@ -102,6 +109,7 @@ public class PivotResultFormat extends SearchResultFormat {
     Preconditions.checkArgument(CollectionUtils.isNotEmpty(pivots), "pivots required.");
     Preconditions.checkArgument(CollectionUtils.isNotEmpty(aggregations), "aggregations required.");
     this.keyFields = keyFields;
+    this.replacedKeyFields = keyFields;
     this.pivots = pivots;
     this.aggregations = aggregations;
     this.expressions = expressions;
@@ -134,11 +142,32 @@ public class PivotResultFormat extends SearchResultFormat {
     expressions.add(expression);
   }
 
+  public void processingGranularity(Granularity granularity, PostProcessor postProcessor) {
+    if (granularity == null || StringUtils.isEmpty(granularity.getAlias())) {
+      return;
+    }
+
+    replacedKeyFields = keyFields.stream()
+            .map(s -> s.equals(granularity.getAlias()) ? "__time" : s)
+            .collect(Collectors.toList());
+
+    if (postProcessor instanceof PostAggregationProcessor) {
+      List<PostAggregation> postAggregations = ((PostAggregationProcessor) postProcessor).getPostAggregations();
+      if (CollectionUtils.isNotEmpty(postAggregations)
+              && postAggregations.get(0) instanceof MathPostAggregator) {
+        MathPostAggregator postAggregation = (MathPostAggregator) postAggregations.get(0);
+        String expression = "\"__time\" = " + postAggregation.getExpression();
+
+        addExpression(new PivotSpec.ConditionExpression(expression));
+      }
+    }
+  }
+
   public PivotWindowingSpec toEnginePivotSpec(String... expressions) {
     PivotWindowingSpec spec = new PivotWindowingSpec();
 
     // 키필드 지정
-    spec.setPartitionColumns(keyFields);
+    spec.setPartitionColumns(replacedKeyFields);
 
     // 피봇 필드 지정
     PivotSpec pivotSpec = new PivotSpec();
@@ -407,6 +436,48 @@ public class PivotResultFormat extends SearchResultFormat {
     return null;
   }
 
+  /**
+   * GrouppingSet 지정 <br/>
+   * ex) [[key1, pivot1, pivot2], [key1, pivot1], [key1]]
+   *
+   * @return
+   */
+  public GroupingSet toGroupingSet() {
+    // Grouping Set 지정
+    List<String> allOfGroupByColumn = Lists.newArrayList(this.getKeyFields());
+    List<String> pivotColumn = Lists.newArrayList();
+    for (PivotResultFormat.Pivot pivot : this.getPivots()) {
+      pivotColumn.add(pivot.getFieldName());
+      allOfGroupByColumn.add(pivot.getFieldName());
+    }
+
+    List<List<String>> groupNames = Lists.newArrayList();
+    groupNames.add(allOfGroupByColumn);
+    for (int i = pivotColumn.size(); i > 0; i--) {
+      List<String> names = Lists.newArrayList(replacedKeyFields);
+
+      for (int j = 0; j < i - 1; j++) {
+        names.add(pivotColumn.get(j));
+      }
+
+      groupNames.add(names);
+    }
+
+    if (groupingSize != null) {
+      int diff = groupNames.size() - groupingSize;
+      if (groupNames.size() > diff) {
+        for (int i = 0; i < diff; i++) {
+          groupNames.remove(i + 1);
+        }
+      }
+    }
+
+    // GroupingSize 재지정
+    groupingSize = groupNames.size();
+
+    return new GroupingSet.Names(groupNames);
+  }
+
   public String getSeparator() {
     return separator;
   }
@@ -421,6 +492,7 @@ public class PivotResultFormat extends SearchResultFormat {
 
   public void setKeyFields(List<String> keyFields) {
     this.keyFields = keyFields;
+    this.replacedKeyFields = keyFields;
   }
 
   public List<Pivot> getPivots() {
@@ -471,46 +543,12 @@ public class PivotResultFormat extends SearchResultFormat {
     this.includePercentage = includePercentage;
   }
 
-  /**
-   * GrouppingSet 지정 <br/>
-   * ex) [[key1, pivot1, pivot2], [key1, pivot1], [key1]]
-   *
-   * @return
-   */
-  public GroupingSet toGroupingSet() {
-    // Grouping Set 지정
-    List<String> allOfGroupByColumn = Lists.newArrayList(this.getKeyFields());
-    List<String> pivotColumn = Lists.newArrayList();
-    for (PivotResultFormat.Pivot pivot : this.getPivots()) {
-      pivotColumn.add(pivot.getFieldName());
-      allOfGroupByColumn.add(pivot.getFieldName());
-    }
+  public List<String> getReplacedKeyFields() {
+    return replacedKeyFields;
+  }
 
-    List<List<String>> groupNames = Lists.newArrayList();
-    groupNames.add(allOfGroupByColumn);
-    for (int i = pivotColumn.size(); i > 0; i--) {
-      List<String> names = Lists.newArrayList(keyFields);
-
-      for (int j = 0; j < i - 1; j++) {
-        names.add(pivotColumn.get(j));
-      }
-
-      groupNames.add(names);
-    }
-
-    if (groupingSize != null) {
-      int diff = groupNames.size() - groupingSize;
-      if (groupNames.size() > diff) {
-        for (int i = 0; i < diff; i++) {
-          groupNames.remove(i + 1);
-        }
-      }
-    }
-
-    // GroupingSize 재지정
-    groupingSize = groupNames.size();
-
-    return new GroupingSet.Names(groupNames);
+  public void setReplacedKeyFields(List<String> replacedKeyFields) {
+    this.replacedKeyFields = replacedKeyFields;
   }
 
   public static class Pivot {

@@ -39,6 +39,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.*;
 import app.metatron.discovery.domain.workbook.configurations.field.*;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
@@ -47,6 +48,7 @@ import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 import app.metatron.discovery.query.druid.ShapeFormat;
 import app.metatron.discovery.query.druid.SpatialOperations;
 import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
+import app.metatron.discovery.query.druid.granularities.PeriodGranularity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -215,23 +217,23 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     List<Field> projections = Lists.newArrayList(
             new DimensionField("Category"),
-            new MeasureField("Sales", MeasureField.AggregationType.LAST)
+            new MeasureField("Sales", null, null, "LAST", null, "includeTimestamp=true")
     );
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
 
     // @formatter:off
     given()
-            .auth().oauth2(oauth_token)
-            .body(request)
-            .contentType(ContentType.JSON)
-            .log().all()
-            .when()
-            .post("/api/datasources/query/search")
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .body("size()", is(3))
-            .log().all();
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("size()", is(3))
+      .log().all();
     // @formatter:on
 
   }
@@ -287,7 +289,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesForDownload() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -832,13 +834,13 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithTimestamp() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
     limit.setLimit(1000000);
     limit.setSort(Lists.newArrayList(
-            //        new Sort("ShipDate","ASC")
+            new Sort("ShipDate", "ASC")
     ));
 
     List<Filter> filters = Lists.newArrayList(
@@ -901,7 +903,24 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             new MeasureField("Sales", MeasureField.AggregationType.AVG)
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
+    // Case5, Granularity
+    Pivot pivot5 = new Pivot();
+    TimestampField originalTimeField5 = new TimestampField("OrderDate", "DAY(OrderDate)", null,
+            new PeriodGranularity("P2M", "UTC", "2000-01-01T00:00:00.000Z"),
+            //            new DurationGranularity(Long.toString(1000*60*60*24*60L), "2000-01-01T00:00:00Z"),
+            //            new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.DAY.name(), null));
+            new CustomDateTimeFormat(TimeFieldFormat.DEFAULT_DATETIME_FORMAT));
+
+    pivot5.setColumns(Lists.newArrayList(originalTimeField5, new DimensionField("Category")));
+    pivot5.setAggregations(Lists.newArrayList(
+            new MeasureField("Sales", MeasureField.AggregationType.AVG)
+    ));
+
+    limit.setSort(Lists.newArrayList(
+            new Sort("DAY(OrderDate)", "DESC")
+    ));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, null, pivot5, limit);
 
     // @formatter:off
     given()
@@ -1329,9 +1348,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Case 6. 타임 디멘젼
     Pivot pivot6 = new Pivot();
-    TimestampField field1 = new TimestampField("OrderDate", "MONTH(OrderDate)", null,
+    TimestampField field1 = new TimestampField("OrderDate", "MONTH(OrderDate)", null, null,
             new ContinuousTimeFormat(false, "MONTH", null));
-    TimestampField field2 = new TimestampField("OrderDate", "DAY(OrderDate)", null,
+    TimestampField field2 = new TimestampField("OrderDate", "DAY(OrderDate)", null, null,
             new ContinuousTimeFormat(false, "DAY", null));
     pivot6.setColumns(Lists.newArrayList(field1));
     pivot6.setRows(Lists.newArrayList(field2));
@@ -1341,9 +1360,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Case 6. 타임 디멘젼
     Pivot pivot7 = new Pivot();
-    TimestampField field3 = new TimestampField("OrderDate", "MONTH(OrderDate)", null,
+    TimestampField field3 = new TimestampField("OrderDate", "MONTH(OrderDate)", null, null,
             new ContinuousTimeFormat(false, "MONTH", null));
-    TimestampField field4 = new TimestampField("OrderDate", "DAY(OrderDate)", null,
+    TimestampField field4 = new TimestampField("OrderDate", "DAY(OrderDate)", null, null,
             new ContinuousTimeFormat(false, "DAY", null));
     pivot7.setColumns(Lists.newArrayList(field3));
     pivot7.setRows(Lists.newArrayList());
@@ -1378,7 +1397,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithLineChart() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -1394,7 +1413,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     pivot1.setColumns(Lists.newArrayList(new DimensionField("Category"))); //, new DimensionField("Sub-Category")));
     pivot1.setAggregations(Lists.newArrayList(
             new MeasureField("Discount", MeasureField.AggregationType.SUM),
-            new TimestampField("OrderDate", "MONTH(OrderDate)", null, new ContinuousTimeFormat(true, "MONTH", null)
+            new TimestampField("OrderDate", "MONTH(OrderDate)", null, null,
+                    new ContinuousTimeFormat(true, "MONTH", null)
             )));
 
     // Case 2.
@@ -1406,11 +1426,22 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             new MeasureField("Discount", MeasureField.AggregationType.SUM)
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot2, limit);
+    // Case 3.
+    Pivot pivot3 = new Pivot();
+    pivot3.setColumns(Lists.newArrayList(new TimestampField("OrderDate", "P2M(OrderDate)", null,
+            new PeriodGranularity("P2M", "UTC", "2000-01-01T00:00:00.000Z"),
+            new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.MONTH.name(), null))));
+    pivot3.setRows(null);
+    pivot3.setAggregations(Lists.newArrayList(
+            new DimensionField("Category"),
+            new MeasureField("Discount", MeasureField.AggregationType.SUM)
+    ));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot3, limit);
     ChartResultFormat format = new ChartResultFormat("line");
-    //    format.addOptions("showPercentage", true);
-    //    format.addOptions("showCategory", true);
-    format.addOptions("isCumulative", true);
+    format.addOptions("showPercentage", true);
+    //     format.addOptions("showCategory", true);
+    //     format.addOptions("isCumulative", true);
     format.addOptions("addMinMax", true);
     request.setResultFormat(format);
 
@@ -3377,6 +3408,27 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             .then()
             .statusCode(HttpStatus.SC_OK)
             .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchSqlQuery() {
+
+    SqlQueryRequest request = new SqlQueryRequest("select * from asset_trace_poc_asset_model_01 limit 5", null);
+
+    // @formatter:off
+    given()
+        .auth().oauth2(oauth_token)
+        .body(GlobalObjectMapper.writeValueAsString(request))
+        .contentType(ContentType.JSON)
+        .log().all()
+    .when()
+        .post("/api/datasources/query/sql")
+    .then()
+        .log().all()
+        .statusCode(HttpStatus.SC_OK);
     // @formatter:on
 
   }

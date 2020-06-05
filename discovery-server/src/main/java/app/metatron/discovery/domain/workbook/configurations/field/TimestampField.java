@@ -18,6 +18,7 @@ import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.query.druid.Granularity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 @JsonTypeName("timestamp")
 public class TimestampField extends Field {
 
+  Granularity granularity;
+
   FieldFormat format;
 
   public TimestampField() {
@@ -37,12 +40,16 @@ public class TimestampField extends Field {
 
   @JsonCreator
   public TimestampField(
-      @JsonProperty("name") String name,
-      @JsonProperty("alias") String alias,
-      @JsonProperty("ref") String ref,
-      @JsonProperty("format") FieldFormat format) {
+          @JsonProperty("name") String name,
+          @JsonProperty("alias") String alias,
+          @JsonProperty("ref") String ref,
+          @JsonProperty("granularity") Granularity granularity,
+          @JsonProperty("format") FieldFormat format) {
 
     super(name, alias, ref);
+
+    this.granularity = granularity;
+
     if (format != null) {
       if (format instanceof TimeFieldFormat) {
         this.format = format;
@@ -57,11 +64,11 @@ public class TimestampField extends Field {
   }
 
   public TimestampField(String name, String ref) {
-    this(name, null, ref, new CustomDateTimeFormat(TimeFieldFormat.DEFAULT_DATETIME_FORMAT));
+    this(name, null, ref, null, new CustomDateTimeFormat(TimeFieldFormat.DEFAULT_DATETIME_FORMAT));
   }
 
   public TimestampField(String name, String ref, FieldFormat format) {
-    this(name, null, ref, format);
+    this(name, null, ref, null, format);
   }
 
   public void emptyFormat() {
@@ -71,6 +78,10 @@ public class TimestampField extends Field {
   @Override
   public FieldFormat getFormat() {
     return format;
+  }
+
+  public Granularity getGranularity() {
+    return granularity;
   }
 
   @JsonIgnore

@@ -28,27 +28,25 @@
 
 package app.metatron.discovery.domain.engine;
 
+import app.metatron.discovery.common.fileloader.FileLoaderProperties;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.util.Map;
-
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
-
-import app.metatron.discovery.common.fileloader.FileLoaderProperties;
+import java.net.URI;
+import java.util.Map;
 
 @Component
 @ConfigurationProperties(prefix = "polaris.engine")
 public class EngineProperties {
 
   public final static String SEARCH_QUERY = "query";
+  public final static String SQL_QUERY = "sql";
   public final static String BULK_LOAD = "load";
   public final static String GET_PROGRESS = "getProgress";
   public final static String GET_LOAD_DATASOURCE = "getLoadDatasourceInfo";

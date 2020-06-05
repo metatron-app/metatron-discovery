@@ -14,19 +14,18 @@
 
 package app.metatron.discovery.domain.engine;
 
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.data.CovarianceQueryRequest;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.data.SummaryQueryRequest;
+import app.metatron.discovery.domain.datasource.data.*;
 
 /**
- * Created by kyungtaak on 2016. 9. 22..
+ * Query service interface
  */
 public interface QueryService {
 
   Object preview(SearchQueryRequest request);
 
   Object search(SearchQueryRequest request);
+
+  Object sql(SqlQueryRequest request);
 
   Object candidate(CandidateQueryRequest request);
 
