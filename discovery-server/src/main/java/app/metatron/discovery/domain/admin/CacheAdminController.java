@@ -22,6 +22,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -65,6 +66,31 @@ public class CacheAdminController {
     );
 
     return ResponseEntity.ok(entries);
+  }
+
+  @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER')")
+  @RequestMapping(value = "/caches/{cacheName}/{cacheKey}", method = RequestMethod.GET, produces = "application/json")
+  public ResponseEntity<?> getCacheData(@PathVariable("cacheName") String cacheName, @PathVariable("cacheKey") String cacheKey) {
+
+    Cache cache = cacheManager.getCache(cacheName);
+    if(cache == null) {
+      throw new ResourceNotFoundException("Cache( " + cacheName + " ) not found.");
+    }
+
+    return ResponseEntity.ok(cacheManager.getCache(cacheName).get(cacheKey));
+  }
+
+  @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER')")
+  @RequestMapping(value = "/caches/{cacheName}/{cacheKey}", method = RequestMethod.DELETE, produces = "application/json")
+  public ResponseEntity<?> deleteCacheData(@PathVariable("cacheName") String cacheName, @PathVariable("cacheKey") String cacheKey) {
+
+    Cache cache = cacheManager.getCache(cacheName);
+    if(cache == null) {
+      throw new ResourceNotFoundException("Cache( " + cacheName + " ) not found.");
+    }
+
+    cacheManager.getCache(cacheName).evict(cacheKey);
+    return ResponseEntity.noContent().build();
   }
 
 }

@@ -14,38 +14,43 @@
 
 package app.metatron.discovery.query.druid.granularities;
 
+import app.metatron.discovery.query.druid.Granularity;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import app.metatron.discovery.query.druid.Granularity;
-
 @JsonTypeName("period")
-public class PeriodGranularity implements Granularity {
+public class PeriodGranularity extends AbstractGranularity implements Granularity {
+
   String period;
+
   String timeZone;
 
-  public PeriodGranularity(){
+  String origin;
+
+  public PeriodGranularity() {
     super();
   }
 
-  public PeriodGranularity(String period, String timeZone){
+  @JsonCreator
+  public PeriodGranularity(@JsonProperty("period") String period,
+          @JsonProperty("timeZone") String timeZone,
+          @JsonProperty("origin") String origin) {
     this();
     this.period = period;
     this.timeZone = timeZone;
+    this.origin = origin;
   }
 
   public String getPeriod() {
     return period;
   }
 
-  public void setPeriod(String period) {
-    this.period = period;
-  }
-
   public String getTimeZone() {
     return timeZone;
   }
 
-  public void setTimeZone(String timeZone) {
-    this.timeZone = timeZone;
+  public String getOrigin() {
+    return origin;
   }
 }

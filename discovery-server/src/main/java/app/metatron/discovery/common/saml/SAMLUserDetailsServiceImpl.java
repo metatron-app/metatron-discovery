@@ -25,7 +25,6 @@ import app.metatron.discovery.domain.user.role.RoleSetRepository;
 import app.metatron.discovery.domain.user.role.RoleSetService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceRepository;
-import app.metatron.discovery.util.PolarisUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.opensaml.saml2.core.Attribute;
@@ -38,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.stereotype.Component;
@@ -86,6 +86,9 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
 
 	@Autowired
   SAMLProperties samlProperties;
+
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDetails loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException{
@@ -139,7 +142,9 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
 		}
 
 		// mail 전송을 수행하지 않고 패스워드를 지정하지 않은 경우 시스템에서 비번 생성
-		metatronUser.setPassword(PolarisUtils.createTemporaryPassword(8));
+		String temporaryPassword = userService.createTemporaryPassword(nameID);
+		String encodedPassword = passwordEncoder.encode(temporaryPassword);
+		metatronUser.setPassword(encodedPassword);
 
     //기본은 deactivated
 		metatronUser.setStatus(app.metatron.discovery.domain.user.User.Status.ACTIVATED);

@@ -219,9 +219,32 @@
             <column name="username_MOD" type="${boolean.type}"/>
         </createTable>
     </changeSet>
+  
+    <changeSet author="minhyun2 (generated)" id="1590968388389-0">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="user_fail_cnt" />
+            </not>
+        </preConditions>
+        <addColumn tableName="users">
+            <column name="user_fail_cnt" type="${int.type}" />
+        </addColumn>
+    </changeSet>
 
+    <changeSet author="minhyun2 (generated)" id="1590968388389-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users_AUD" columnName="failCnt_MOD" />
+            </not>
+        </preConditions>
+        <addColumn tableName="users_AUD">
+            <column name="user_fail_cnt" type="${int.type}" />
+            <column name="failCnt_MOD" type="${boolean.type}" />
+        </addColumn>
+    </changeSet>
+  
     <!-- for organization -->
-    <changeSet author="kyungtaak" id="1587645092123-6">
+    <changeSet author="kyungtaak" id="1590968388390-0">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_org"/>
@@ -261,7 +284,7 @@
             <column name="org_group_count" value="0"/>
         </insert>
     </changeSet>
-    <changeSet author="kyungtaak" id="1587645092123-7">
+    <changeSet author="kyungtaak" id="1590968388390-1">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_org_member"/>
@@ -285,4 +308,6 @@
             <column name="member_id"/>
         </createIndex>
     </changeSet>
+
+
 </databaseChangeLog>

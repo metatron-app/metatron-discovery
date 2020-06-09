@@ -28,6 +28,7 @@ public class UserPasswordProperties {
   String minimumUsePeriod;
 
   Integer countOfHistory = 3;
+  Integer lockCount;
 
   public UserPasswordProperties() {
     // Empty Constructor
@@ -63,6 +64,14 @@ public class UserPasswordProperties {
 
   public void setCountOfHistory(Integer countOfHistory) {
     this.countOfHistory = countOfHistory;
+  }
+
+  public Integer getLockCount() {
+    return lockCount;
+  }
+
+  public void setLockCount(Integer lockCount) {
+    this.lockCount = lockCount;
   }
 
   public static class PasswordStrength implements Serializable {

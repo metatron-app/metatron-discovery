@@ -64,6 +64,24 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.common.Mailer;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.images.Image;
+import app.metatron.discovery.domain.images.ImageService;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.user.role.RoleSetRepository;
+import app.metatron.discovery.domain.user.role.RoleSetService;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.util.AuthUtils;
+
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
 
@@ -398,7 +416,8 @@ public class UserController {
 
     // If password is not specified without mail transmission, the system generates password
     if (!user.getPassMailer() || StringUtils.isEmpty(user.getPassword())) {
-      user.setPassword(PolarisUtils.createTemporaryPassword(8));
+      String temporaryPassword = userService.createTemporaryPassword(user.getUsername());
+      user.setPassword(temporaryPassword);
     }
 
     //encode password
@@ -505,11 +524,12 @@ public class UserController {
       throw new BadRequestException("User not found by email( " + email + " )");
     }
 
-    String temporaryPassword = PolarisUtils.createTemporaryPassword(8);
+    String temporaryPassword = userService.createTemporaryPassword(user.getUsername());
     String encodedPassword = passwordEncoder.encode(temporaryPassword);
     user.setPassword(encodedPassword);
 
     user.setStatus(User.Status.INITIAL);
+    user.setFailCnt(null);
 
     userRepository.saveAndFlush(user);
 

@@ -15,21 +15,20 @@
 package app.metatron.discovery.query.druid.granularities;
 
 
+import app.metatron.discovery.query.druid.Granularity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import app.metatron.discovery.query.druid.Granularity;
-
 @JsonTypeName("simple")
-public class SimpleGranularity implements Granularity {
+public class SimpleGranularity extends AbstractGranularity implements Granularity {
 
   String value;
 
-  public SimpleGranularity(){
+  public SimpleGranularity() {
   }
 
   @JsonCreator
-  public SimpleGranularity(String value){
+  public SimpleGranularity(String value) {
     this.value = value;
   }
 
@@ -42,7 +41,7 @@ public class SimpleGranularity implements Granularity {
   }
 
   @Override
-  public String toString(){
+  public String toString() {
     return value;
   }
 }

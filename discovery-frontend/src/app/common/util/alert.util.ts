@@ -90,11 +90,14 @@ export class Alert {
    * Error Alert
    * @param {string} message
    */
-  public static error(message: string): void {
-    this._setDefaultOpts();
-    setTimeout(() => {
-      toastr.error(message, 'Error');
-    }, Math.random() * 1000);
+  public static error(message: string, isShow:boolean = false): void {
+    console.log(isShow);
+    if (location.href.indexOf('user/login') < 0 || isShow) {
+      this._setDefaultOpts();
+      setTimeout(() => {
+        toastr.error(message, 'Error');
+      }, Math.random() * 1000);
+    }
   } // function - error
 
   /**

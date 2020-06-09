@@ -26,6 +26,8 @@ import {Observable} from 'rxjs';
 import {map} from "rxjs/operators";
 import {catchError} from "rxjs/internal/operators";
 import {isNullOrUndefined} from "util";
+import {Alert} from "../util/alert.util";
+import {TranslateService} from "@ngx-translate/core";
 
 
 /*
@@ -54,13 +56,13 @@ export class AbstractService {
 
   protected router: Router;
 
-
-
+  protected translateService: TranslateService;
 
   // 생성자
   constructor(protected injector: Injector) {
     this.http = injector.get(HttpClient);
     this.cookieService = injector.get(CookieService);
+    this.translateService = injector.get(TranslateService);
     this.router = injector.get(Router);
   }
 
@@ -492,24 +494,24 @@ export class AbstractService {
           // 기존 API를 다시 호출
           // const resolve = Promise.resolve;
           if (method === httpMethod.GET) {
-            this.http.get(error.url, { headers }).toPromise()
+            return this.http.get(error.url, { headers }).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
               .catch(error => scope.reRequestErrorHandle(scope, error));
           } else if (method === httpMethod.POST) {
-            this.http.post(error.url, data, { headers }).toPromise()
+            return this.http.post(error.url, data, { headers }).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
               .catch(error => scope.reRequestErrorHandle(scope, error));
           } else if (method === httpMethod.PUT) {
-            this.http.put(error.url, data, { headers }).toPromise()
+            return this.http.put(error.url, data, { headers }).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
               .catch(error => scope.reRequestErrorHandle(scope, error));
           } else if (method === httpMethod.DELETE) {
-            this.http.delete(error.url, { headers }).toPromise()
+            return this.http.delete(error.url, { headers }).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
               .catch(error => scope.reRequestErrorHandle(scope, error));
           }
 
-        }).catch(() => {
+        }).catch((error) => {
           // 토큰 갱신시 에러가 발생하면
           this._logout(scope);
         });
@@ -547,7 +549,9 @@ export class AbstractService {
   // Token 갱신 실패
   protected tokenRefreshFail(scope: any, error: any): void {
     // 로그인 화면으로
-    this.router.navigate(['/user/login']);
+    //this.router.navigate(['/user/login']);
+    Alert.error(this.translateService.instant('msg.sso.ui.session.expired'));
+    throw error;
   }
 
   /**
@@ -566,7 +570,7 @@ export class AbstractService {
       this.cookieService.delete(CookieConstant.KEY.MY_WORKSPACE, '/');
       this.cookieService.delete(CookieConstant.KEY.PERMISSION, '/');
 
-      if (scope && scope.router) {
+      if (scope && scope.router && scope.router.url != '/user/login') {
         const navigationExtras: NavigationExtras = {
           queryParams: {
             forwardURL: scope.router.url

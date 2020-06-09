@@ -27,6 +27,8 @@
   "msg.usr.role.system.admin": "系统管理员",
   "msg.usr.role.system.supervisor": "数据管理员",
   "msg.usr.role.system.user": "一般用户",
+  "msg.sso.ui.session.expired": "您的会话已过期。",
+  "msg.sso.ui.not.matched.userip": "从其他IP访问并限制访问。",
   "msg.sso.ui.loading": "加载中，请稍后",
   "msg.sso.ui.welcome.title": "欢迎来到Metatron！",
   "msg.sso.ui.welcome.desc1": "Metatron是基于大数据分析的实时可视化工具",

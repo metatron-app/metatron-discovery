@@ -14,7 +14,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule as AngularCommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { TranslateModule } from '@ngx-translate/core';
@@ -68,6 +68,7 @@ import * as SockJS from 'sockjs-client';
 import {FilterSelectBoxComponent} from "./component/select/filter-select-box.component";
 import {ConfirmRefModalComponent} from "./component/modal/confirm/confirm-ref.component";
 import {MetadataTypeBoxTagComponent} from "../explore-data/explore-data/component/metadata-type-box-tag.component";
+import {LoaderInterceptor} from "./interceptor/loader-interceptor";
 
 
 export function socketProvider() {
@@ -184,6 +185,7 @@ const stompConfig: StompConfig = {
     MetadataTypeBoxTagComponent
   ],
   providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true },
     {
       provide: COMPOSITION_BUFFER_MODE,
       useValue: false

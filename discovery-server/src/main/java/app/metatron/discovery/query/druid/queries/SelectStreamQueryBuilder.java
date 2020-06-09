@@ -159,7 +159,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
         }
 
         FieldFormat format = dimensionField.getFormat();
-        if (format != null || datasourceField.getLogicalType() == LogicalType.TIMESTAMP) {
+        if (format != null && datasourceField.getLogicalType() == LogicalType.TIMESTAMP) {
           TimeFieldFormat originalTimeFormat = (TimeFieldFormat) originalFormat;
           TimeFieldFormat timeFormat = (TimeFieldFormat) format;
 

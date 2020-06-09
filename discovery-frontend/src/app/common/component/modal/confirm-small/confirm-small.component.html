@@ -18,7 +18,7 @@
   <div class="ddp-ui-popup-in">
     <!-- popup -->
     <div class="ddp-ui-popup">
-      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+      <a href="javascript:" class="ddp-btn-close" (click)="close()" *ngIf="useCloseBtn"></a>
       <span class="ddp-ui-pop-title">{{modal.name}}</span>
       <div class="ddp-txt-pop-info ddp-padt0">
         {{modal.description}} <br *ngIf="modal.description" /> {{modal.subDescription}}

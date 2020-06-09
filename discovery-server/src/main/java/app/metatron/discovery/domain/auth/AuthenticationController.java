@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.auth;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.oauth.CookieManager;
@@ -23,6 +24,8 @@ import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.role.Permission;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.HttpUtils;
+
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -43,9 +46,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -53,6 +59,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -81,6 +88,9 @@ public class AuthenticationController {
 
   @Autowired
   JdbcClientDetailsService jdbcClientDetailsService;
+
+  @Autowired
+  TokenStore tokenStore;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -195,6 +205,12 @@ public class AuthenticationController {
       return ResponseEntity.ok(idps);
     }
 
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/logout", method = RequestMethod.GET)
+  public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+    logoutProcess(request, response);
     return ResponseEntity.noContent().build();
   }
 
@@ -348,7 +364,7 @@ public class AuthenticationController {
   @RequestMapping(value = "/oauth/client/logout")
   public void oauthLogout(HttpServletRequest request, HttpServletResponse response) {
     try {
-      CookieManager.removeAllToken(response);
+      logoutProcess(request, response);
 
       String clientId = request.getParameter("client_id");
       BaseClientDetails clientDetails = (BaseClientDetails)jdbcClientDetailsService.loadClientByClientId(clientId);
@@ -399,6 +415,24 @@ public class AuthenticationController {
     if (StringUtils.isNotEmpty(oauthClientInformation.getCopyrightHtml())) {
       additionalInformation.put("copyrightHtml", oauthClientInformation.getCopyrightHtml());
     }
+  }
+
+  private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
+    Cookie accessToken = CookieManager.getAccessToken(request);
+    if (accessToken != null) {
+      try {
+        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), HttpUtils.getClientIp(request), request.getHeader(HttpHeaders.USER_AGENT));
+      } catch (Exception e) {
+        LOGGER.error(e.getMessage(), e);
+      }
+      this.tokenStore.removeAccessToken(new DefaultOAuth2AccessToken(accessToken.getValue()));
+    }
+    Cookie refreshToken = CookieManager.getRefreshToken(request);
+    if (refreshToken != null) {
+      this.tokenStore.removeRefreshToken(new DefaultOAuth2RefreshToken(refreshToken.getValue()));
+    }
+
+    CookieManager.removeAllToken(response);
   }
 
 }
