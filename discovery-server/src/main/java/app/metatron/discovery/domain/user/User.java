@@ -14,46 +14,29 @@
 
 package app.metatron.discovery.domain.user;
 
-import com.google.common.collect.Sets;
-
+import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.MetatronDomain;
+import app.metatron.discovery.domain.user.role.Permission;
+import app.metatron.discovery.domain.user.role.Role;
+import app.metatron.discovery.domain.user.role.RoleService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
-import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Fields;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.SortableField;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.Index;
+import javax.persistence.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import app.metatron.discovery.domain.AbstractHistoryEntity;
-import app.metatron.discovery.domain.MetatronDomain;
-import app.metatron.discovery.domain.user.role.Permission;
-import app.metatron.discovery.domain.user.role.Role;
-import app.metatron.discovery.domain.user.role.RoleService;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 import static org.hibernate.search.annotations.Index.NO;
@@ -125,6 +108,10 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
    */
   @Column(name = "user_image_Url")
   private String imageUrl;
+
+  @Transient
+  @JsonProperty
+  private List<String> orgCodes;
 
   @Transient
   @JsonProperty(access = WRITE_ONLY)
@@ -268,6 +255,14 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
 
   public void setImageUrl(String imageUrl) {
     this.imageUrl = imageUrl;
+  }
+
+  public List<String> getOrgCodes() {
+    return orgCodes;
+  }
+
+  public void setOrgCodes(List<String> orgCodes) {
+    this.orgCodes = orgCodes;
   }
 
   public Status getStatus() {

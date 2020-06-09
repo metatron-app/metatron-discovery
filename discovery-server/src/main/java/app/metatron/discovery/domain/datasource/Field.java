@@ -28,36 +28,6 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-import com.google.common.primitives.Longs;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.validator.constraints.NotBlank;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
-import java.io.Serializable;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.common.datasource.DataType;
@@ -71,23 +41,34 @@ import app.metatron.discovery.domain.mdm.MetadataColumn;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
-import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.*;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.query.druid.Aggregation;
-import app.metatron.discovery.query.druid.aggregations.ApproxHistogramFoldAggregation;
-import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
-import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
-import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
-import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
+import app.metatron.discovery.query.druid.aggregations.*;
 import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
 import app.metatron.discovery.util.TimeUnits;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+import com.google.common.primitives.Longs;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.validator.constraints.NotBlank;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.workbook.configurations.field.MeasureField.AggregationType.NONE;
 
@@ -436,8 +417,13 @@ public class Field implements MetatronDomain<Long> {
   public boolean isGeoType() {
     LogicalType logicalType = getLogicalType();
     return logicalType == LogicalType.GEO_POINT
-        || logicalType == LogicalType.GEO_LINE
-        || logicalType == LogicalType.GEO_POLYGON;
+            || logicalType == LogicalType.GEO_LINE
+            || logicalType == LogicalType.GEO_POLYGON;
+  }
+
+  @JsonIgnore
+  public boolean isRelayType() {
+    return isGeoType() || (getFormatObject() instanceof RelayStringFormat);
   }
 
   public void setColumnType(JdbcDialect jdbcDialect, String columnType) {

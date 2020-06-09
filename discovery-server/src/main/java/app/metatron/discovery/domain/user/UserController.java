@@ -14,11 +14,28 @@
 
 package app.metatron.discovery.domain.user;
 
+import app.metatron.discovery.common.Mailer;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.images.Image;
+import app.metatron.discovery.domain.images.ImageService;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.user.role.RoleSetRepository;
+import app.metatron.discovery.domain.user.role.RoleSetService;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import com.querydsl.core.types.Predicate;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -41,40 +58,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.common.Mailer;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.images.Image;
-import app.metatron.discovery.domain.images.ImageService;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupService;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.domain.user.role.RoleService;
-import app.metatron.discovery.domain.user.role.RoleSetRepository;
-import app.metatron.discovery.domain.user.role.RoleSetService;
-import app.metatron.discovery.domain.workspace.Workspace;
-import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
-import app.metatron.discovery.domain.workspace.WorkspaceService;
-import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.PolarisUtils;
-
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
 
 /**
- * Created by kyungtaak on 2016. 7. 21..
+ *
  */
 @RepositoryRestController
 public class UserController {
@@ -86,6 +80,9 @@ public class UserController {
 
   @Autowired
   GroupService groupService;
+
+  @Autowired
+  OrganizationService orgService;
 
   @Autowired
   RoleSetService roleSetService;
@@ -127,7 +124,7 @@ public class UserController {
   PasswordEncoder passwordEncoder;
 
   @Autowired
-  UserPasswordProperties userPasswordProperties;
+  UserProperties userProperties;
 
   /**
    * User 목록 조회
@@ -237,15 +234,15 @@ public class UserController {
       //check password changed
       if(!passwordEncoder.matches(updatedUser.getPassword(), user.getPassword())){
         //if config minimum password change date exist..
-        if(StringUtils.isNotEmpty(userPasswordProperties.getMinimumUsePeriod())){
+        if (StringUtils.isNotEmpty(userProperties.getPassword().getMinimumUsePeriod())) {
           //parse to period
-          Period minimumUsePeriod = Period.parse(userPasswordProperties.getMinimumUsePeriod());
+          Period minimumUsePeriod = Period.parse(userProperties.getPassword().getMinimumUsePeriod());
           LOGGER.debug("minimumUsePeriod : {}", minimumUsePeriod);
 
           //getting last update datetime
           DateTime passwordChangedDate = userService.getLastPasswordUpdatedDate(username);
           LOGGER.debug("{}'s passwordChangedDate : {}", username, passwordChangedDate);
-          if(minimumUsePeriod != null && passwordChangedDate != null){
+          if (minimumUsePeriod != null && passwordChangedDate != null) {
 
             //must user password period
             DateTime mustUsePasswordDate = passwordChangedDate.plus(minimumUsePeriod);
@@ -299,12 +296,12 @@ public class UserController {
   @RequestMapping(path = "/users/signup", method = RequestMethod.POST)
   public ResponseEntity<?> createUserBySignup(@RequestBody User user) {
 
-    // Username 중복 체크
+    // Check if username is duplicate
     if (userService.checkDuplicated(USERNAME, user.getUsername())) {
       throw new UserException(UserErrorCodes.DUPLICATED_USERNAME_CODE, "Duplicated username : " + user.getUsername());
     }
 
-    // email 중복 체크
+    // Check if e-mail is duplicate
     if (userService.checkDuplicated(EMAIL, user.getEmail())) {
       throw new UserException(UserErrorCodes.DUPLICATED_EMAIL_CODE, "Duplicated e-mail : " + user.getEmail());
     }
@@ -320,7 +317,7 @@ public class UserController {
       userService.updateUserImage(user.getUsername());
     }
 
-    if (user.getPassword() != null){
+    if (user.getPassword() != null) {
       String encodedPassword = passwordEncoder.encode(user.getPassword());
       user.setPassword(encodedPassword);
     }
@@ -328,6 +325,11 @@ public class UserController {
     user.setStatus(User.Status.REQUESTED);
 
     userRepository.save(user);
+
+    // Add Organization
+    if (userProperties.getUseOrganization()) {
+      orgService.addMembers(user.getOrgCodes(), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    }
 
     mailer.sendSignUpRequestMail(user, false);
 
@@ -376,12 +378,12 @@ public class UserController {
 
     String userEmail = user.getEmail();
 
-    // Username 중복 체크
+    // Check if username is duplicate
     if (userService.checkDuplicated(USERNAME, user.getUsername())) {
       throw new UserException(UserErrorCodes.DUPLICATED_USERNAME_CODE, "Duplicated username : " + user.getUsername());
     }
 
-    // email 중복 체크
+    // Check if e-mail is duplicate
     if (StringUtils.isNotEmpty(userEmail) && userService.checkDuplicated(EMAIL, user.getEmail())) {
       throw new UserException(UserErrorCodes.DUPLICATED_EMAIL_CODE, "Duplicated e-mail : " + user.getEmail());
     }
@@ -394,7 +396,7 @@ public class UserController {
       userService.updateUserImage(user.getUsername());
     }
 
-    // mail 전송을 수행하지 않고 패스워드를 지정하지 않은 경우 시스템에서 비번 생성
+    // If password is not specified without mail transmission, the system generates password
     if (!user.getPassMailer() || StringUtils.isEmpty(user.getPassword())) {
       user.setPassword(PolarisUtils.createTemporaryPassword(8));
     }
@@ -406,7 +408,7 @@ public class UserController {
 
     user.setStatus(User.Status.ACTIVATED);
 
-    // Group 정보가 없을 경우 기본그룹 지정
+    // If there is no group information, specify the default group
     if (CollectionUtils.isNotEmpty(user.getGroupNames())) {
       userService.setUserToGroups(user, user.getGroupNames());
     } else {
@@ -418,10 +420,15 @@ public class UserController {
       }
     }
 
-    // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
+    // Create Workspace (create if there is no registered workspace)
     Workspace createdWorkspace = workspaceService.createWorkspaceByUserCreation(user, false);
 
     userRepository.save(user);
+
+    // Add Organization
+    if (userProperties.getUseOrganization()) {
+      orgService.addMembers(user.getOrgCodes(), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    }
 
     if (!user.getPassMailer()) {
       mailer.sendSignUpApprovedMail(user, true, decryptedPassword);

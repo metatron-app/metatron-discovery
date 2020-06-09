@@ -14,6 +14,15 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.activities.spec.ActivityType;
+import app.metatron.discovery.domain.activities.spec.Actor;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserProperties;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -27,21 +36,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.activities.spec.ActivityType;
-import app.metatron.discovery.domain.activities.spec.Actor;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserPasswordProperties;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.UserService;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -65,24 +63,24 @@ public class OAuthInterceptor implements HandlerInterceptor {
   UserRepository userRepository;
 
   @Autowired
-  UserPasswordProperties userPasswordProperties;
+  UserProperties userProperties;
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
     //if need password expire check
-    if(StringUtils.isNotEmpty(userPasswordProperties.getRequiredChangePeriod())) {
+    if (StringUtils.isNotEmpty(userProperties.getPassword().getRequiredChangePeriod())) {
       String username = request.getParameter("username");
 
       //getting user
       User user = userRepository.findByUsername(username);
 
       //check user status
-      if(user != null && user.getStatus() == User.Status.ACTIVATED) {
+      if (user != null && user.getStatus() == User.Status.ACTIVATED) {
         Period requiredChangePeriod = null;
-        try{
+        try {
           //parse to period
-          requiredChangePeriod = Period.parse(userPasswordProperties.getRequiredChangePeriod());
+          requiredChangePeriod = Period.parse(userProperties.getPassword().getRequiredChangePeriod());
           LOGGER.debug("requiredChangePeriod : {}", requiredChangePeriod);
 
           //getting last update datetime

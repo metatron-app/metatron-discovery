@@ -14,6 +14,47 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.MetatronDiscoveryApplication;
+import app.metatron.discovery.common.MetatronProperties;
+import app.metatron.discovery.common.PageImplJacksonSerializer;
+import app.metatron.discovery.domain.comment.Comment;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionEventHandler;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceAlias;
+import app.metatron.discovery.domain.datasource.DataSourceEventHandler;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.mdm.*;
+import app.metatron.discovery.domain.mdm.catalog.Catalog;
+import app.metatron.discovery.domain.mdm.catalog.CatalogEventHandler;
+import app.metatron.discovery.domain.notebook.*;
+import app.metatron.discovery.domain.notebook.connector.JupyterConnector;
+import app.metatron.discovery.domain.notebook.connector.ZeppelinConnector;
+import app.metatron.discovery.domain.tag.Tag;
+import app.metatron.discovery.domain.tag.TagDomain;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserEventHandler;
+import app.metatron.discovery.domain.user.role.Role;
+import app.metatron.discovery.domain.user.role.RoleEventHandler;
+import app.metatron.discovery.domain.user.role.RoleSet;
+import app.metatron.discovery.domain.user.role.RoleSetEventHandler;
+import app.metatron.discovery.domain.workbench.QueryEditor;
+import app.metatron.discovery.domain.workbench.QueryHistory;
+import app.metatron.discovery.domain.workbench.Workbench;
+import app.metatron.discovery.domain.workbench.WorkbenchEventHandler;
+import app.metatron.discovery.domain.workbook.DashBoard;
+import app.metatron.discovery.domain.workbook.DashBoardEventHandler;
+import app.metatron.discovery.domain.workbook.WorkBook;
+import app.metatron.discovery.domain.workbook.WorkBookEventHandler;
+import app.metatron.discovery.domain.workbook.widget.*;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceEventHandler;
+import app.metatron.discovery.domain.workspace.folder.Folder;
+import app.metatron.discovery.domain.workspace.folder.FolderEventHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.Version;
@@ -22,10 +63,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-
 import de.codecentric.boot.admin.jackson.ApplicationDeserializer;
 import de.codecentric.boot.admin.model.Application;
-
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
@@ -58,12 +97,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -80,62 +114,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import app.metatron.discovery.MetatronDiscoveryApplication;
-import app.metatron.discovery.common.MetatronProperties;
-import app.metatron.discovery.domain.comment.Comment;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.DataConnectionEventHandler;
-import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceAlias;
-import app.metatron.discovery.domain.datasource.DataSourceEventHandler;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.mdm.CodeTable;
-import app.metatron.discovery.domain.mdm.CodeValuePair;
-import app.metatron.discovery.domain.mdm.ColumnDictionary;
-import app.metatron.discovery.domain.mdm.Metadata;
-import app.metatron.discovery.domain.mdm.MetadataEventHandler;
-import app.metatron.discovery.domain.mdm.catalog.Catalog;
-import app.metatron.discovery.domain.mdm.catalog.CatalogEventHandler;
-import app.metatron.discovery.domain.notebook.Notebook;
-import app.metatron.discovery.domain.notebook.NotebookAPI;
-import app.metatron.discovery.domain.notebook.NotebookConnector;
-import app.metatron.discovery.domain.notebook.NotebookConnectorEventHandler;
-import app.metatron.discovery.domain.notebook.NotebookEventHandler;
-import app.metatron.discovery.domain.notebook.NotebookModel;
-import app.metatron.discovery.domain.notebook.NotebookModelEventHandler;
-import app.metatron.discovery.domain.notebook.NotebookModelHistory;
-import app.metatron.discovery.domain.notebook.connector.JupyterConnector;
-import app.metatron.discovery.domain.notebook.connector.ZeppelinConnector;
-import app.metatron.discovery.domain.tag.Tag;
-import app.metatron.discovery.domain.tag.TagDomain;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserEventHandler;
-import app.metatron.discovery.domain.user.role.Role;
-import app.metatron.discovery.domain.user.role.RoleEventHandler;
-import app.metatron.discovery.domain.user.role.RoleSet;
-import app.metatron.discovery.domain.user.role.RoleSetEventHandler;
-import app.metatron.discovery.domain.workbench.QueryEditor;
-import app.metatron.discovery.domain.workbench.QueryHistory;
-import app.metatron.discovery.domain.workbench.Workbench;
-import app.metatron.discovery.domain.workbench.WorkbenchEventHandler;
-import app.metatron.discovery.domain.workbook.DashBoard;
-import app.metatron.discovery.domain.workbook.DashBoardEventHandler;
-import app.metatron.discovery.domain.workbook.WorkBook;
-import app.metatron.discovery.domain.workbook.WorkBookEventHandler;
-import app.metatron.discovery.domain.workbook.widget.FilterWidget;
-import app.metatron.discovery.domain.workbook.widget.PageWidget;
-import app.metatron.discovery.domain.workbook.widget.TextWidget;
-import app.metatron.discovery.domain.workbook.widget.Widget;
-import app.metatron.discovery.domain.workbook.widget.WidgetEventHandler;
-import app.metatron.discovery.domain.workspace.Workspace;
-import app.metatron.discovery.domain.workspace.WorkspaceEventHandler;
-import app.metatron.discovery.domain.workspace.folder.Folder;
-import app.metatron.discovery.domain.workspace.folder.FolderEventHandler;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS;
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
@@ -188,7 +166,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   static class Routes {
 
     @RequestMapping({
-        "/"
+            "/"
     })
     public String index() {
       return REDIRECT_URL;
@@ -203,7 +181,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   static class ApiRoutes {
 
     @RequestMapping({
-        "/browser"
+            "/browser"
     })
     public String index() {
       return "redirect:/api/browser/browser.html";
@@ -218,11 +196,13 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     ofNullable(cacheControlMaxAge).ifPresent(value -> {
       try {
-        registry.addResourceHandler(COMMON_JS, RUNTIME_JS, MAIN_JS, POLYFILLS_JS, SCRIPTS_JS, OTHER_JS, STYLES_CSS, PNG, JPG, WOFF, EOF, TTF)
+        registry.addResourceHandler(COMMON_JS, RUNTIME_JS, MAIN_JS, POLYFILLS_JS, SCRIPTS_JS, OTHER_JS, STYLES_CSS, PNG,
+                JPG, WOFF, EOF, TTF)
                 .addResourceLocations("classpath:resource/")
                 .setCacheControl(CacheControl.maxAge(value, TimeUnit.SECONDS).cachePublic());
       } catch (Exception e) {
-        LOGGER.debug("Please check the value of \"polaris.resources.cache.cacheControl.max-age\" in application.yaml. Resource caching is not enabled.");
+        LOGGER.debug(
+                "Please check the value of \"polaris.resources.cache.cacheControl.max-age\" in application.yaml. Resource caching is not enabled.");
       }
     });
 
@@ -335,7 +315,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   public StringHttpMessageConverter stringHttpMessageConverter() {
     final StringHttpMessageConverter stringConverter = new StringHttpMessageConverter(Charset.forName("UTF-8"));
     stringConverter.setSupportedMediaTypes(
-        Arrays.asList(MediaType.TEXT_PLAIN, MediaType.TEXT_HTML, MediaType.APPLICATION_JSON));
+            Arrays.asList(MediaType.TEXT_PLAIN, MediaType.TEXT_HTML, MediaType.APPLICATION_JSON));
     return stringConverter;
   }
 
@@ -343,7 +323,8 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   public ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
     final ByteArrayHttpMessageConverter byteArrayHttpMessageConverter = new ByteArrayHttpMessageConverter();
     byteArrayHttpMessageConverter.setSupportedMediaTypes(Arrays.asList(
-        MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF, MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL
+            MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF, MediaType.APPLICATION_OCTET_STREAM,
+            MediaType.ALL
     ));
 
     return byteArrayHttpMessageConverter;
@@ -361,12 +342,13 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     hibernate5Module.disable(Hibernate5Module.Feature.USE_TRANSIENT_ANNOTATION);
 
     builder.indentOutput(false)
-           .dateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
-           .failOnUnknownProperties(false)
-           .featuresToEnable(ALLOW_NON_NUMERIC_NUMBERS)
-           .featuresToEnable(ALLOW_SINGLE_QUOTES)
-           .serializationInclusion(JsonInclude.Include.NON_NULL)
-           .modules(new JodaModule(), hibernate5Module, simpleModule);
+            .dateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
+            .failOnUnknownProperties(false)
+            .featuresToEnable(ALLOW_NON_NUMERIC_NUMBERS)
+            .featuresToEnable(ALLOW_SINGLE_QUOTES)
+            .serializers(new PageImplJacksonSerializer())
+            .serializationInclusion(JsonInclude.Include.NON_NULL)
+            .modules(new JodaModule(), hibernate5Module, simpleModule);
     return builder;
   }
 
@@ -388,18 +370,19 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
         // 리턴되는 결과 값내 ID 항목을 표시할 Entity 정보 기록
         config.exposeIdsFor(Workspace.class, WorkBook.class, DashBoard.class, Widget.class,
-                            DataSource.class, Field.class, DataSourceAlias.class, IngestionHistory.class,
-                            DataConnection.class,
-                            Notebook.class, Workbench.class, Folder.class, NotebookModel.class, NotebookModelHistory.class, NotebookAPI.class,
-                            Widget.class, PageWidget.class, TextWidget.class, FilterWidget.class,
-                            QueryEditor.class, QueryHistory.class,
-                            Comment.class,
-                            PrDataflow.class, PrDataset.class, PrTransformRule.class,
-                            NotebookConnector.class, ZeppelinConnector.class, JupyterConnector.class,
-                            User.class, Role.class, RoleSet.class,
-                            Metadata.class, Catalog.class,
-                            ColumnDictionary.class, CodeTable.class, CodeValuePair.class,
-                            Tag.class, TagDomain.class);
+                DataSource.class, Field.class, DataSourceAlias.class, IngestionHistory.class,
+                DataConnection.class,
+                Notebook.class, Workbench.class, Folder.class, NotebookModel.class, NotebookModelHistory.class,
+                NotebookAPI.class,
+                Widget.class, PageWidget.class, TextWidget.class, FilterWidget.class,
+                QueryEditor.class, QueryHistory.class,
+                Comment.class,
+                PrDataflow.class, PrDataset.class, PrTransformRule.class,
+                NotebookConnector.class, ZeppelinConnector.class, JupyterConnector.class,
+                User.class, Role.class, RoleSet.class,
+                Metadata.class, Catalog.class,
+                ColumnDictionary.class, CodeTable.class, CodeValuePair.class,
+                Tag.class, TagDomain.class);
       }
 
       /**
@@ -419,8 +402,10 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AnnotationTypeFilter(JsonTypeName.class));
-        for (BeanDefinition candidate : provider.findCandidateComponents(MetatronDiscoveryApplication.class.getPackage().getName())) {
-          objectMapper.registerSubtypes(ClassUtils.resolveClassName(candidate.getBeanClassName(), ClassUtils.getDefaultClassLoader()));
+        for (BeanDefinition candidate : provider
+                .findCandidateComponents(MetatronDiscoveryApplication.class.getPackage().getName())) {
+          objectMapper.registerSubtypes(
+                  ClassUtils.resolveClassName(candidate.getBeanClassName(), ClassUtils.getDefaultClassLoader()));
         }
 
       }
@@ -555,16 +540,16 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     //        }
 
     registry
-        .addMapping("/**")
-        .allowedOrigins("*")
-        .allowedMethods("*")
-        .allowedHeaders("*")
-        .exposedHeaders("Access-Control-Allow-Origin",
-                        "Access-Control-Allow-Methods",
-                        "Access-Control-Allow-Headers",
-                        "Access-Control-Max-Age",
-                        "Access-Control-Request-Headers",
-                        "Access-Control-Request-Method");
+            .addMapping("/**")
+            .allowedOrigins("*")
+            .allowedMethods("*")
+            .allowedHeaders("*")
+            .exposedHeaders("Access-Control-Allow-Origin",
+                    "Access-Control-Allow-Methods",
+                    "Access-Control-Allow-Headers",
+                    "Access-Control-Max-Age",
+                    "Access-Control-Request-Headers",
+                    "Access-Control-Request-Method");
   }
 
 }

@@ -31,13 +31,13 @@
     <!--<logger name="org.apache.catalina.webresources.Cache" level="error"/>-->
 
     <!-- show hibernate sql -->
-    <logger name="org.hibernate.SQL" level="info"/>
+    <logger name="org.hibernate.SQL" level="debug"/>
 
     <!-- hide warn HibernateJpaDialect, because release_mode : after_transaction -->
     <logger name="org.springframework.orm.jpa.vendor" level="error"/>
 
     <!-- show bound hibernate parameters with trace -->
-    <logger name="org.hibernate.type" level="info"/>
+  <logger name="org.hibernate.type" level="debug"/>
 
     <logger name="org.springframework.web" level="info"/>
 

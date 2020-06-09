@@ -14,45 +14,29 @@
 
 package app.metatron.discovery.domain.user.group;
 
-import com.google.common.collect.Lists;
-
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.envers.Audited;
-import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Fields;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.SortableField;
-import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.BooleanBridge;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.rest.core.annotation.RestResource;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.PostPersist;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.common.bridge.PredefinedRoleBridge;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.*;
+import org.hibernate.search.bridge.builtin.BooleanBridge;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.rest.core.annotation.RestResource;
+
+import javax.persistence.*;
+import javax.validation.constraints.Size;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kyungtaak on 2016. 1. 5..
@@ -67,59 +51,63 @@ public class Group extends AbstractHistoryEntity implements MetatronDomain<Strin
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")
   @Column(name = "id")
-  String id;
+  private String id;
 
   @Column(name = "group_name")
   @FieldBridge(impl = PredefinedRoleBridge.class)
   @Fields({
-      @Field(name = "name", analyze = Analyze.YES, store = Store.YES),
-      @Field(name = "name.sort", analyze = Analyze.NO, store = Store.NO)
+          @Field(name = "name", analyze = Analyze.YES, store = Store.YES),
+          @Field(name = "name.sort", analyze = Analyze.NO, store = Store.NO)
   })
   @SortableField(forField = "name.sort")
   @NotBlank
   @Size(max = 150)
-  String name;
+  private String name;
 
   @Column(name = "group_desc", length = 1000)
   @Size(max = 900)
-  String description;
+  private String description;
 
 
   @Column(name = "group_predefined")
   @Field(analyze = Analyze.NO, store = Store.YES)
   @FieldBridge(impl = BooleanBridge.class)
   @SortableField
-  Boolean predefined = false;
+  private Boolean predefined = false;
 
   /**
    * 기본 그룹 여부
    */
   @Column(name = "group_default")
-  Boolean defaultGroup;
+  private Boolean defaultGroup;
 
   /**
    * 화면내에서 수정할 수 없도록 구성하는 플래그
    */
   @Column(name = "group_read_only")
-  Boolean readOnly;
+  private Boolean readOnly;
 
   @Column(name = "group_member_count")
-//  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  Integer memberCount = 0;
+  //  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private Integer memberCount = 0;
 
-  @OneToMany(mappedBy = "group", cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true)
   @RestResource(exported = false)
   @BatchSize(size = 100)
-  List<GroupMember> members = Lists.newArrayList();
+  private List<GroupMember> members = Lists.newArrayList();
 
   /**
    * Spring data rest 제약으로 인한 Dummy Property.
-   *  - Transient 어노테이션 구성시 HandleBeforeSave 에서 인식 못하는 문제 발생
+   * - Transient 어노테이션 구성시 HandleBeforeSave 에서 인식 못하는 문제 발생
    */
   @Column(name = "group_contexts", length = 10000)
   @JsonRawValue
   @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
-  String contexts;
+  private String contexts;
+
+  @Transient
+  @JsonProperty
+  private List<String> orgCodes;
 
   public Group() {
     // Empty Constructor
@@ -212,6 +200,14 @@ public class Group extends AbstractHistoryEntity implements MetatronDomain<Strin
 
   public void setMemberCount(Integer memberCount) {
     this.memberCount = memberCount;
+  }
+
+  public List<String> getOrgCodes() {
+    return orgCodes;
+  }
+
+  public void setOrgCodes(List<String> orgCodes) {
+    this.orgCodes = orgCodes;
   }
 
   public List<GroupMember> getMembers() {

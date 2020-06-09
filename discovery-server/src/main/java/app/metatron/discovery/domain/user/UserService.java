@@ -14,6 +14,16 @@
 
 package app.metatron.discovery.domain.user;
 
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.images.Image;
+import app.metatron.discovery.domain.images.ImageRepository;
+import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupMemberRepository;
+import app.metatron.discovery.domain.user.group.GroupRepository;
+import app.metatron.discovery.domain.user.role.RoleRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.AuditReader;
@@ -27,6 +37,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,21 +47,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.transaction.Transactional;
-
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.images.Image;
-import app.metatron.discovery.domain.images.ImageRepository;
-import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupMemberRepository;
-import app.metatron.discovery.domain.user.group.GroupRepository;
-import app.metatron.discovery.domain.user.role.RoleRepository;
 
 @Component
 public class UserService {
@@ -74,7 +72,7 @@ public class UserService {
   ActivityStreamService activityStreamService;
 
   @Autowired
-  UserPasswordProperties userPasswordProperties;
+  UserProperties userProperties;
 
   @Autowired
   EntityManager entityManager;
@@ -214,7 +212,7 @@ public class UserService {
     }
 
     //check password strength
-    String passwordStrengthExpr = userPasswordProperties.getStrength().getPasswordRegExp();
+    String passwordStrengthExpr = userProperties.getPassword().getStrength().getPasswordRegExp();
     Pattern passwordStrengthPattern = Pattern.compile(passwordStrengthExpr);
     Matcher matcher = passwordStrengthPattern.matcher(password);
     Boolean strengthMatcher = matcher.matches();

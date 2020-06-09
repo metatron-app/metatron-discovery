@@ -14,22 +14,21 @@
 
 package app.metatron.discovery.domain.user.group;
 
-import com.google.common.collect.Lists;
-
+import app.metatron.discovery.domain.user.AbstractDirectoryProfile;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.role.Permission;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import app.metatron.discovery.domain.user.DirectoryProfile;
-import app.metatron.discovery.domain.user.role.Permission;
-
 /**
  * Created by kyungtaak on 2017. 1. 22..
  */
 @JsonTypeName("group")
-public class GroupProfile implements DirectoryProfile {
+public class GroupProfile extends AbstractDirectoryProfile implements DirectoryProfile {
 
   public static final String UNKNOWN_GROUPNAME = "Unknown group";
 
@@ -48,6 +47,12 @@ public class GroupProfile implements DirectoryProfile {
     this.name = name;
   }
 
+  public GroupProfile(String id, String name, List<String> orgCodes) {
+    this.id = id;
+    this.name = name;
+    super.organizations = orgCodes;
+  }
+
   public GroupProfile(String id, String name, String... permissions) {
     this(id, name);
     this.permissions = Lists.newArrayList(permissions);
@@ -58,7 +63,7 @@ public class GroupProfile implements DirectoryProfile {
       return null;
     }
 
-    GroupProfile profile = new GroupProfile(group.getId(), group.getName());
+    GroupProfile profile = new GroupProfile(group.getId(), group.getName(), group.getOrgCodes());
 
     return profile;
   }
