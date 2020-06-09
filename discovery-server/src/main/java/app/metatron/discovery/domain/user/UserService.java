@@ -24,6 +24,7 @@ import app.metatron.discovery.domain.user.group.GroupMember;
 import app.metatron.discovery.domain.user.group.GroupMemberRepository;
 import app.metatron.discovery.domain.user.group.GroupRepository;
 import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.util.PolarisUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.AuditReader;
@@ -47,22 +48,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.transaction.Transactional;
-
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.images.Image;
-import app.metatron.discovery.domain.images.ImageRepository;
-import app.metatron.discovery.domain.revision.MetatronRevisionEntity;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupMemberRepository;
-import app.metatron.discovery.domain.user.group.GroupRepository;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.util.PolarisUtils;
 
 @Component
 public class UserService {
@@ -300,7 +285,7 @@ public class UserService {
   }
 
   public String createTemporaryPassword(String username) {
-    int passwordLength = Math.max(0, userPasswordProperties.getStrength().getMinLength());
+    int passwordLength = Math.max(0, userProperties.getPassword().getStrength().getMinLength());
     String temporaryPassword = PolarisUtils.createTemporaryPassword(passwordLength);
     while(true) {
       try {
@@ -314,7 +299,7 @@ public class UserService {
   }
 
   public Integer addFailCount(String username) {
-    if (userPasswordProperties.getLockCount() != null) {
+    if (userProperties.getPassword().getLockCount() != null) {
       User user = userRepository.findByUsername(username);
       if (user != null) {
         user.setFailCnt(user.getFailCnt() + 1);
@@ -326,7 +311,7 @@ public class UserService {
   }
 
   public void initFailCount(String username) {
-    if (userPasswordProperties.getLockCount() != null) {
+    if (userProperties.getPassword().getLockCount() != null) {
       User user = userRepository.findByUsername(username);
       if (user != null) {
         user.setFailCnt(null);

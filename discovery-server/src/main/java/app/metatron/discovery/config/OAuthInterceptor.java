@@ -15,6 +15,9 @@
 package app.metatron.discovery.config;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.StatLogger;
+import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityType;
@@ -23,6 +26,7 @@ import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserProperties;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.UserService;
+import app.metatron.discovery.util.HttpUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -41,23 +45,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.StatLogger;
-import app.metatron.discovery.common.oauth.OauthProperties;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.activities.spec.ActivityType;
-import app.metatron.discovery.domain.activities.spec.Actor;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserPasswordProperties;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.UserService;
-import app.metatron.discovery.util.HttpUtils;
 
 /**
  *
@@ -113,31 +102,31 @@ public class OAuthInterceptor implements HandlerInterceptor {
           //getting last update datetime
           DateTime passwordChangedDate = userService.getLastPasswordUpdatedDate(username);
           LOGGER.debug("{}'s passwordChangedDate : {}", username, passwordChangedDate);
-          if(requiredChangePeriod != null && passwordChangedDate != null){
+          if (requiredChangePeriod != null && passwordChangedDate != null) {
 
             //expired password required change period
             DateTime validPasswordDate = passwordChangedDate.plus(requiredChangePeriod);
             LOGGER.debug("{}'s validPasswordDate : {}", username, validPasswordDate);
-            if(DateTime.now().getMillis() > validPasswordDate.getMillis()) {
+            if (DateTime.now().getMillis() > validPasswordDate.getMillis()) {
               //update status to EXPIRED
               user.setStatus(User.Status.EXPIRED);
               userRepository.saveAndFlush(user);
               LOGGER.debug("{}'s password change date expired. set status to EXPIRED", username);
             }
           }
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
       }
     }
 
     // cannot refresh token not in whitelist cache
-    if(oauthProperties.getTimeout() > -1){
+    if (oauthProperties.getTimeout() > -1) {
       String requestURI = request.getRequestURI();
       LOGGER.debug("requestURI : {}", requestURI);
-      if(requestURI.equals("/oauth/token")){
+      if (requestURI.equals("/oauth/token")) {
         String grantType = request.getParameter("grant_type");
-        if(grantType.equals("refresh_token")){
+        if (grantType.equals("refresh_token")) {
           String refreshToken = request.getParameter("refresh_token");
 
           OAuth2Authentication authFromToken = tokenStore.readAuthentication(refreshToken);
@@ -149,7 +138,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
 
           LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
           WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
-              = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+                  = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
 
           if (cachedWhitelistToken == null) {
             LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
@@ -170,19 +159,21 @@ public class OAuthInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+  public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+          ModelAndView modelAndView) throws Exception {
 
   }
 
   @Override
-  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+          throws Exception {
     String requestURI = request.getRequestURI();
     LOGGER.debug("requestURI : {}", requestURI);
-    if(requestURI.equals("/oauth/token")){
+    if (requestURI.equals("/oauth/token")) {
       String grantType = request.getParameter("grant_type");
 
       //exclude refresh_token
-      if(grantType.equals("refresh_token")){
+      if (grantType.equals("refresh_token")) {
         return;
       }
 
@@ -196,9 +187,9 @@ public class OAuthInterceptor implements HandlerInterceptor {
       //getting client info
       String clientName = null;
       ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
-      if(clientDetails != null){
+      if (clientDetails != null) {
         Map<String, Object> clientAdditionalInformation = clientDetails.getAdditionalInformation();
-        if(clientAdditionalInformation != null && clientAdditionalInformation.containsKey("clientName")){
+        if (clientAdditionalInformation != null && clientAdditionalInformation.containsKey("clientName")) {
           clientName = clientAdditionalInformation.get("clientName").toString();
         }
       }

@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.common.oauth;
 
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -23,18 +25,15 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserPasswordProperties;
-
 /**
- * Created by kyungtaak on 2017. 2. 19..
+ *
  */
 public class CustomUserStatusChecker implements UserDetailsChecker {
 
   private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
   @Autowired
-  UserPasswordProperties userPasswordProperties;
+  UserProperties userProperties;
 
   @Override
   public void check(UserDetails toCheck) {
@@ -43,14 +42,15 @@ public class CustomUserStatusChecker implements UserDetailsChecker {
 
     if (!user.isAccountNonLocked()) {
       throw new LockedException(messages.getMessage(
-          "AccountStatusUserDetailsChecker.locked", "User account is locked"));
+              "AccountStatusUserDetailsChecker.locked", "User account is locked"));
     }
 
-    if (userPasswordProperties.getLockCount() != null && user.getFailCnt() != null
-        && user.getFailCnt() >= userPasswordProperties.getLockCount()) {
+    if (userProperties.getPassword().getLockCount() != null && user.getFailCnt() != null
+            && user.getFailCnt() >= userProperties.getPassword().getLockCount()) {
       throw new LockedException(messages.getMessage(
-          "AccountStatusUserDetailsChecker.passwordLocked", new Integer[]{userPasswordProperties.getLockCount()},
-          "User password is incorrect "+ userPasswordProperties.getLockCount() +" times in a row."));
+              "AccountStatusUserDetailsChecker.passwordLocked",
+              new Integer[]{userProperties.getPassword().getLockCount()},
+              "User password is incorrect " + userProperties.getPassword().getLockCount() + " times in a row."));
     }
 
     // Move to CustomUserStatusPostChecker
@@ -62,8 +62,8 @@ public class CustomUserStatusChecker implements UserDetailsChecker {
 
     if (!user.isCredentialsNonExpired()) {
       throw new CredentialsExpiredException(messages.getMessage(
-          "AccountStatusUserDetailsChecker.credentialsExpired",
-          "User credentials have expired"));
+              "AccountStatusUserDetailsChecker.credentialsExpired",
+              "User credentials have expired"));
     }
 
     // Check Custom Status
@@ -72,12 +72,13 @@ public class CustomUserStatusChecker implements UserDetailsChecker {
     switch (status) {
       case REQUESTED:
         throw new RequestStatusException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.userRequested",
-            "Your username is being approved by system administrator. Pleases wait a minute"));
+                "Your username is being approved by system administrator. Pleases wait a minute"));
       case LOCKED:
       case REJECTED:
       case DELETED:
-        throw new InactivatedStatusException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.userInactivated",
-            "Username is not available. Please contact your system administrator separately."));
+        throw new InactivatedStatusException(
+                messages.getMessage("AbstractUserDetailsAuthenticationProvider.userInactivated",
+                        "Username is not available. Please contact your system administrator separately."));
     }
   }
 
