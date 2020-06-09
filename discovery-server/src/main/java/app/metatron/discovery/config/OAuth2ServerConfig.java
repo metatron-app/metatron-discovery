@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,7 @@ import org.springframework.security.oauth2.provider.code.AuthorizationCodeServic
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -63,6 +65,12 @@ import app.metatron.discovery.common.oauth.CustomEntryPoint;
 import app.metatron.discovery.common.oauth.CustomJdbcClientDetailsServiceBuilder;
 import app.metatron.discovery.common.oauth.CustomWebResponseExceptionTranslator;
 import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.filter.RefreshTokenRetentionFilter;
+import app.metatron.discovery.common.oauth.token.filter.WhitelistAuthenticationFilter;
+import app.metatron.discovery.common.oauth.token.store.RefreshRetentionJwtTokenStore;
 import app.metatron.discovery.common.saml.SAMLTokenConverter;
 import app.metatron.discovery.common.web.OauthFilter;
 
@@ -172,9 +180,9 @@ public class OAuth2ServerConfig {
                       "/oauth/clients/**",
                       "/me");
 
-			for (OauthProperties.Matcher matcher : oauthProperties.getPermitAll()) {
+      for (OauthProperties.Matcher matcher : oauthProperties.getPermitAll()) {
         http.authorizeRequests().antMatchers(matcher.getMethod(), matcher.getApi()).permitAll();
-			}
+      }
 
 			http.authorizeRequests()
 
@@ -256,6 +264,15 @@ public class OAuth2ServerConfig {
     @Autowired
     OAuthInterceptor oAuthInterceptor;
 
+    @Autowired
+    RefreshTokenCacheRepository refreshTokenCacheRepository;
+
+    @Autowired
+    AccessTokenCacheRepository accessTokenCacheRepository;
+
+    @Autowired
+    WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+
     private DataSource dataSource;
 
     public AuthorizationServerConfiguration(@Qualifier("dataSource") DataSource dataSource) {
@@ -269,8 +286,12 @@ public class OAuth2ServerConfig {
     }
 
     @Bean
-    public JwtTokenStore tokenStore() {
-      return new JwtTokenStore(accessTokenConverter());
+    public TokenStore tokenStore() {
+      if(oauthProperties.getTimeout() > -1){
+        return new RefreshRetentionJwtTokenStore(accessTokenConverter());
+      } else {
+        return new JwtTokenStore(accessTokenConverter());
+      }
     }
 
     @Bean
@@ -287,8 +308,10 @@ public class OAuth2ServerConfig {
       defaultTokenServices.setTokenStore(tokenStore());
       defaultTokenServices.setTokenEnhancer(accessTokenConverter());
       defaultTokenServices.setSupportRefreshToken(true);
-      // accessToken, refreshToken time 설정
-      //defaultTokenServices.setClientDetailsService(jdbcClientDetailsService());
+      if(oauthProperties.getTimeout() > -1){
+        defaultTokenServices.setRefreshTokenValiditySeconds(oauthProperties.getTimeout());
+        defaultTokenServices.setAccessTokenValiditySeconds(oauthProperties.getTimeout());
+      }
       return defaultTokenServices;
     }
 
@@ -324,12 +347,33 @@ public class OAuth2ServerConfig {
 
       FilterRegistrationBean registrationBean = new FilterRegistrationBean();
       OauthFilter oauthFilter = new OauthFilter(oAuth2AuthenticationManager);
-      //OauthFilter oauthFilter = new OauthFilter(authenticationManager);
       registrationBean.setFilter(oauthFilter);
       registrationBean.setOrder(-5);
       return registrationBean;
     }
 
+    @Bean
+    @ConditionalOnExpression("${polaris.oauth2.timeout:-1} gt -1")
+    public FilterRegistrationBean refreshTokenRetentionFilterRegistrationBean(){
+      FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+      RefreshTokenRetentionFilter refreshTokenCacheFilter = new RefreshTokenRetentionFilter();
+      refreshTokenCacheFilter.setRefreshTokenCacheRepository(refreshTokenCacheRepository);
+      refreshTokenCacheFilter.setAccessTokenCacheRepository(accessTokenCacheRepository);
+      refreshTokenCacheFilter.setOauthProperties(oauthProperties);
+      registrationBean.setFilter(refreshTokenCacheFilter);
+      return registrationBean;
+    }
+
+    @Bean
+    @ConditionalOnExpression("${polaris.oauth2.timeout:-1} gt -1")
+    public FilterRegistrationBean whitelistCheckFilterRegistrationBean(){
+      FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+      WhitelistAuthenticationFilter whitelistAuthenticationFilter = new WhitelistAuthenticationFilter();
+      whitelistAuthenticationFilter.setWhitelistTokenCacheRepository(whitelistTokenCacheRepository);
+      whitelistAuthenticationFilter.setJwtTokenStore(tokenStore());
+      registrationBean.setFilter(whitelistAuthenticationFilter);
+      return registrationBean;
+    }
     @Bean
     public CustomWebResponseExceptionTranslator exceptionTranslator() {
       return new CustomWebResponseExceptionTranslator();

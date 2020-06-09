@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.domain.scheduling.common.OAuthCacheOutJob;
 import app.metatron.discovery.domain.scheduling.dataprep.DatasetCacheOutJob;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +95,8 @@ public class SchedulingConfig {
                                        timeoutWorkbenchConnectionCloseJob().getObject(),
                                        engineMonitoringJob().getObject(),
                                        engineMonitoringSetter().getObject(),
-                                       datasetCacheOutJob().getObject());
+                                       datasetCacheOutJob().getObject(),
+                                       oAuthTokenCacheOutJob().getObject());
     schedulerFactoryBean.setTriggers(dataSourceCheckTrigger().getObject(),
                                      dataSourceIngestionCheckTrigger().getObject(),
                                      dataSourceSizeCheckTrigger().getObject(),
@@ -105,7 +107,8 @@ public class SchedulingConfig {
                                      timeoutWorkbenchConnectionCloseTrigger().getObject(),
                                      engineMonitoringTrigger().getObject(),
                                      engineMonitoringSetterTrigger().getObject(),
-                                     datasetCacheOutTrigger().getObject());
+                                     datasetCacheOutTrigger().getObject(),
+                                     oAuthCacheOutTrigger().getObject());
 
     return schedulerFactoryBean;
   }
@@ -422,6 +425,36 @@ public class SchedulingConfig {
     triggerFactory.setName("dataset-cache-out-trigger");
     triggerFactory.setGroup(JOB_GROUP_CLEANER);
     triggerFactory.setCronExpression("0 0 0/3 1/1 * ? *");
+    return triggerFactory;
+  }
+
+  /**
+   * Cache-out expired oauth token
+   *
+   * @return
+   */
+  @Bean
+  public JobDetailFactoryBean oAuthTokenCacheOutJob() {
+    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+    jobDetailFactory.setName("oauth-cache-out");
+    jobDetailFactory.setGroup(JOB_GROUP_CLEANER);
+    jobDetailFactory.setJobClass(OAuthCacheOutJob.class);
+    jobDetailFactory.setDurability(true);
+    return jobDetailFactory;
+  }
+
+  /**
+   * Every 30 min
+   *
+   * @return
+   */
+  @Bean
+  public CronTriggerFactoryBean oAuthCacheOutTrigger() {
+    CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
+    triggerFactory.setJobDetail(oAuthTokenCacheOutJob().getObject());
+    triggerFactory.setName("oauth-cache-out-trigger");
+    triggerFactory.setGroup(JOB_GROUP_CLEANER);
+    triggerFactory.setCronExpression("0 0/30 * 1/1 * ? *");
     return triggerFactory;
   }
 }

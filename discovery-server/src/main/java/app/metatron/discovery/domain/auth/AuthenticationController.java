@@ -24,6 +24,8 @@ import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.role.Permission;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.HttpUtils;
+
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -419,7 +421,7 @@ public class AuthenticationController {
     Cookie accessToken = CookieManager.getAccessToken(request);
     if (accessToken != null) {
       try {
-        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), request.getRemoteHost(), request.getHeader(HttpHeaders.USER_AGENT));
+        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), HttpUtils.getClientIp(request), request.getHeader(HttpHeaders.USER_AGENT));
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
       }

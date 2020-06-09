@@ -20,8 +20,11 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -35,6 +38,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
+import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityType;
@@ -43,6 +48,7 @@ import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserPasswordProperties;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.UserService;
+import app.metatron.discovery.util.HttpUtils;
 
 /**
  *
@@ -67,6 +73,15 @@ public class OAuthInterceptor implements HandlerInterceptor {
 
   @Autowired
   UserPasswordProperties userPasswordProperties;
+
+  @Autowired
+  OauthProperties oauthProperties;
+
+  @Autowired
+  TokenStore tokenStore;
+
+  @Autowired
+  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -107,6 +122,41 @@ public class OAuthInterceptor implements HandlerInterceptor {
       }
     }
 
+    // cannot refresh token not in whitelist cache
+    if(oauthProperties.getTimeout() > -1){
+      String requestURI = request.getRequestURI();
+      LOGGER.debug("requestURI : {}", requestURI);
+      if(requestURI.equals("/oauth/token")){
+        String grantType = request.getParameter("grant_type");
+        if(grantType.equals("refresh_token")){
+          String refreshToken = request.getParameter("refresh_token");
+
+          OAuth2Authentication authFromToken = tokenStore.readAuthentication(refreshToken);
+
+          // getting username, clientid, clientip
+          String username = authFromToken.getName();
+          String clientId = authFromToken.getOAuth2Request().getClientId();
+          String userHost = HttpUtils.getClientIp(request);
+
+          LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
+          WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
+              = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+
+          if (cachedWhitelistToken == null) {
+            LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
+            throw new InvalidTokenException("User ip is not in whitelist.");
+          }
+
+          String cachedUserHost = cachedWhitelistToken.getUserHost();
+          // if not matched in whitelist cache, throw exception
+          if (!userHost.equals(cachedUserHost)) {
+            LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+            throw new InvalidTokenException("User ip is not in whitelist.");
+          }
+        }
+      }
+    }
+
     return true;
   }
 
@@ -130,10 +180,9 @@ public class OAuthInterceptor implements HandlerInterceptor {
       String username = request.getParameter("username");
       String userAgent = request.getHeader("user-agent");
       String clientId = request.getRemoteUser();
-      String userHost = request.getRemoteHost();
+      String userHost = HttpUtils.getClientIp(request);
       int loginStatus = response.getStatus();
       String referer = request.getHeader("referer");
-
 
       //getting client info
       String clientName = null;

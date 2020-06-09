@@ -27,6 +27,8 @@
   "msg.usr.role.system.admin": "시스템 관리자",
   "msg.usr.role.system.supervisor": "데이터 관리자",
   "msg.usr.role.system.user": "일반 사용자",
+  "msg.sso.ui.session.expired": "세션이 만료되었습니다.",
+  "msg.sso.ui.not.matched.userip": "다른 IP에서 접속하여, 접근을 제한합니다.",
   "msg.sso.ui.loading": "로딩하는 중입니다. 잠시만 기다려 주세요",
   "msg.sso.ui.welcome.title": "메타트론 디스커버리에 오신 것을 환영합니다!",
   "msg.sso.ui.welcome.desc1": "메타트론 디스커버리는 빅데이터 기반으로 실시간 데이터의 시각화 분석이 가능합니다",

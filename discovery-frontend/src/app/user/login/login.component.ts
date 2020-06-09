@@ -123,6 +123,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
         this.router.navigate(['/workspace']).then();
       }
     }
+
   }
 
   ngOnDestroy() {
@@ -222,7 +223,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
               }
             }).catch(() => {
               this._logout();
-              Alert.error(this.translateService.instant('login.ui.failed'));
+              Alert.error(this.translateService.instant('login.ui.failed'), true);
               this.loadingHide();
             });
           } else {
@@ -233,7 +234,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
 
       } else {
         this._logout();
-        Alert.error(this.translateService.instant('login.ui.failed'));
+        Alert.error(this.translateService.instant('login.ui.failed'), true);
         this.loadingHide();
       }
 

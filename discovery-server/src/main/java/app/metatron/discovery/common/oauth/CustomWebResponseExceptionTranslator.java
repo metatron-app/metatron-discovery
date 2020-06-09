@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.provider.error.DefaultWebResponseExce
 import javax.servlet.http.HttpServletRequest;
 
 import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import app.metatron.discovery.util.HttpUtils;
 
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_GRANT;
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_TOKEN;
@@ -68,9 +69,13 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
     try {
       String userName = request.getParameter("username");
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      String userHost = request.getRemoteHost();
+      String userHost = HttpUtils.getClientIp(request);
       String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-      StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+      if ("password".equals(request.getParameter("grant_type"))) {
+        StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+      }
+    } catch (IllegalStateException ex) {
+      LOGGER.error(ex.getMessage());
     } catch (Exception ex) {
       LOGGER.error(ex.getMessage(), ex);
     }
