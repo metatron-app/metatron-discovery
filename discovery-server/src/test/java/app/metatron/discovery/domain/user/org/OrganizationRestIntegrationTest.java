@@ -26,6 +26,7 @@ import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.Map;
 
@@ -38,6 +39,34 @@ public class OrganizationRestIntegrationTest extends AbstractRestIntegrationTest
   @Before
   public void setUp() {
     RestAssured.port = serverPort;
+  }
+
+  @Test
+  @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
+  @Sql(value = {"/sql/test_organization.sql"})
+  public void searchOrganizations() {
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .accept(ContentType.JSON)
+      .param("nameContains", "name")
+      .param("searchDateBy", "created")
+      .param("from", "2020-05-10T00:00:00.0Z")
+      .param("to", "2020-05-15T00:00:00.0Z")
+      .param("projection", "forListView")
+      .param("page", 0)
+      .param("size", 3)
+      .param("sort", "name,desc")
+      .param("sort", "createdTime,desc")
+      .log().all()
+    .when()
+      .get("/api/organizations")
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
   }
 
   /**
@@ -55,6 +84,7 @@ public class OrganizationRestIntegrationTest extends AbstractRestIntegrationTest
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
       .body(organization)
+      .log().all()
     .when()
       .post("/api/organizations");
 
@@ -70,6 +100,7 @@ public class OrganizationRestIntegrationTest extends AbstractRestIntegrationTest
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
       .param("projection", "forDetailView")
+      .log().all()
     .when()
       .get("/api/organizations/{code}", orgCode)
     .then()

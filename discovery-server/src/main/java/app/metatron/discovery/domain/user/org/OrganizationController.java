@@ -29,9 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -87,24 +85,10 @@ public class OrganizationController {
     // Validate request parameter
     SearchParamValidator.range(searchDateBy, from, to);
 
-    // 기본 정렬 조건 셋팅
-    if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
-      Sort newSort = new Sort(Sort.Direction.DESC, "predefined");
-      newSort.and(new Sort(Sort.Direction.ASC, "name"));
-
-      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), newSort);
-    } else {
-      Sort newSort = new Sort(Sort.Direction.DESC, "predefined");
-      newSort = newSort.and(pageable.getSort());
-
-      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), newSort);
-    }
-
     Page<Organization> results = orgService.search(nameContains, searchDateBy, from, to, pageable);
 
     return ResponseEntity.ok(
-            pagedResourcesAssembler.toResource(ProjectionUtils.
-                    toPageResource(projectionFactory, orgProjections.getProjectionByName(projection), results))
+            ProjectionUtils.toPageResource(projectionFactory, orgProjections.getProjectionByName(projection), results)
     );
   }
 

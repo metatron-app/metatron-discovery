@@ -167,6 +167,7 @@ polaris:
             - PERM_NAME     # Specify a list of PERM_NAME. If not specified, all users with permissions in the upper depth menu can access.
   static-path:     # Specify the absolute path of "/static/*" resources.
   user:
+    use_organization: false               # if true, the organization concept is activated
     password:
       strength:                           # Password management settings
         numberOfNumericCharacter: 1       # Number of numeric Character (default : 1), -1 to disable
