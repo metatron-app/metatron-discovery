@@ -519,6 +519,8 @@
   "msg.login.alert.reset.passwd.email.not.found": "등록되지 않은 이메일 주소입니다",
   "msg.login.alert.reset.passwd.email.success": "해당 이메일로 임시 비밀번호가 발송되었습니다",
   "msg.login.alert.reset.passwd.email.fail": "임시 비밀번호 발송에 실패하였습니다",
+  "msg.login.alert.invalidwhitelist.title": "알림",
+  "msg.login.alert.invalidwhitelist.description": "다른 기기({{ value }}) 에서 접속 중입니다. 로그인을 계속하시겠습니까?",
   "msg.book.ui.list.usr.conf": "사용자 설정",
   "msg.book.ui.list.name.asc": "이름 ㄱㄴㄷ순",
   "msg.book.ui.list.name.desc": "이름 ㅎㅍㅌ순",

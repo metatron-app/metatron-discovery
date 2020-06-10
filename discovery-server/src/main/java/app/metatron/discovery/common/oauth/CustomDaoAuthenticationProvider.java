@@ -21,8 +21,11 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.servlet.http.HttpServletRequest;
 
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.domain.user.UserPasswordProperties;
 import app.metatron.discovery.domain.user.UserService;
 
@@ -39,6 +42,13 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
 
   @Autowired
   UserPasswordProperties userPasswordProperties;
+
+  @Autowired
+  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+
+  @Autowired
+  OauthProperties oauthProperties;
+
 
   protected void additionalAuthenticationChecks(UserDetails userDetails,
                                                 UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
@@ -65,5 +75,27 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
       throw new BadCredentialsException(e.getMessage());
     }
 
+    //Check Whitelist clientIp
+    if(oauthProperties.getTimeout() > -1){
+      try{
+        Boolean isForceLogin = Boolean.valueOf(request.getParameter("forceLogin"));
+        if(!isForceLogin){
+          String username = userDetails.getUsername();
+          String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
+          String userHost = request.getRemoteHost();
+
+          WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
+              = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+          if(cachedWhitelistToken != null){
+            String cachedUserHost = cachedWhitelistToken.getUserHost();
+            if(!userHost.equals(cachedUserHost)){
+              throw new WhitelistException(cachedWhitelistToken.getUserHost());
+            }
+          }
+        }
+      } catch (UnsupportedEncodingException e){
+
+      }
+    }
   }
 }

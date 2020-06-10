@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
-import app.metatron.discovery.util.HttpUtils;
 
 /**
  *
@@ -64,32 +63,53 @@ public class WhitelistAuthenticationFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-    Authentication authentication = tokenExtractor.extract(httpServletRequest);
-    // find access token in whitelist cache
-    if(authentication != null) {
-      String token = authentication.getPrincipal().toString();
-      OAuth2Authentication authFromToken = jwtTokenStore.readAuthentication(token);
 
-      // getting username, clientid, clientip
-      String username = authFromToken.getName();
-      String clientId = authFromToken.getOAuth2Request().getClientId();
-      String userHost = HttpUtils.getClientIp(httpServletRequest);
+    String requestURI = ((HttpServletRequest) request).getRequestURI();
+    LOGGER.debug("requestURI : {}", requestURI);
 
-      // getting whitelist in cache
-      WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
-          = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-      if (cachedWhitelistToken == null) {
-        LOGGER.info("cachedWhitelistToken is not exist({}, clientId)", username, clientId);
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
+    // bypass oauth token grant
+    if(requestURI.startsWith("/oauth/token")){
+      String grantType = request.getParameter("grant_type");
+
+      if(!grantType.equals("refresh_token")){
+        chain.doFilter(request, response);
         return;
       }
+    }
+    // bypass api logout
+    if(requestURI.equals("/api/logout")){
+      chain.doFilter(request, response);
+      return;
+    }
 
-      String cachedUserHost = cachedWhitelistToken.getUserHost();
-      // if not matched in whitelist cache, throw exception
-      if (!userHost.equals(cachedUserHost)) {
-        LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
-        return;
+    if(requestURI.startsWith("/api")){
+      Authentication authentication = tokenExtractor.extract(httpServletRequest);
+      // find access token in whitelist cache
+      if(authentication != null) {
+        String token = authentication.getPrincipal().toString();
+        OAuth2Authentication authFromToken = jwtTokenStore.readAuthentication(token);
+
+        // getting username, clientid, clientip
+        String username = authFromToken.getName();
+        String clientId = authFromToken.getOAuth2Request().getClientId();
+        String userHost = httpServletRequest.getRemoteHost();
+
+        // getting whitelist in cache
+        WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
+            = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+        if (cachedWhitelistToken == null) {
+          LOGGER.info("cachedWhitelistToken is not exist({}, clientId)", username, clientId);
+          httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
+          return;
+        }
+
+        String cachedUserHost = cachedWhitelistToken.getUserHost();
+        // if not matched in whitelist cache, throw exception
+        if (!userHost.equals(cachedUserHost)) {
+          LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+          httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
+          return;
+        }
       }
     }
 

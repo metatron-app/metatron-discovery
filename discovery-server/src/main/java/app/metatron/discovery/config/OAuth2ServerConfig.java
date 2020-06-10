@@ -64,6 +64,7 @@ import app.metatron.discovery.common.oauth.CustomDaoAuthenticationProvider;
 import app.metatron.discovery.common.oauth.CustomEntryPoint;
 import app.metatron.discovery.common.oauth.CustomJdbcClientDetailsServiceBuilder;
 import app.metatron.discovery.common.oauth.CustomWebResponseExceptionTranslator;
+import app.metatron.discovery.common.oauth.OAuthInterceptor;
 import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheRepository;
@@ -361,6 +362,7 @@ public class OAuth2ServerConfig {
       refreshTokenCacheFilter.setAccessTokenCacheRepository(accessTokenCacheRepository);
       refreshTokenCacheFilter.setOauthProperties(oauthProperties);
       registrationBean.setFilter(refreshTokenCacheFilter);
+      registrationBean.setOrder(-3);
       return registrationBean;
     }
 
@@ -372,6 +374,7 @@ public class OAuth2ServerConfig {
       whitelistAuthenticationFilter.setWhitelistTokenCacheRepository(whitelistTokenCacheRepository);
       whitelistAuthenticationFilter.setJwtTokenStore(tokenStore());
       registrationBean.setFilter(whitelistAuthenticationFilter);
+      registrationBean.setOrder(-4);
       return registrationBean;
     }
     @Bean

@@ -14,9 +14,6 @@
 
 package app.metatron.discovery.common.oauth;
 
-import app.metatron.discovery.common.StatLogger;
-import app.metatron.discovery.common.exception.ErrorResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +24,10 @@ import org.springframework.security.oauth2.provider.error.DefaultWebResponseExce
 
 import javax.servlet.http.HttpServletRequest;
 
+import app.metatron.discovery.common.StatLogger;
+import app.metatron.discovery.common.exception.ErrorResponse;
 import app.metatron.discovery.common.exception.GlobalErrorCodes;
-import app.metatron.discovery.util.HttpUtils;
+import app.metatron.discovery.common.exception.MetatronException;
 
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_GRANT;
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_TOKEN;
@@ -49,6 +48,14 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
 
     ErrorResponse errorResponse;
     OAuth2Exception oAuth2Exception = responseEntity.getBody();
+
+    if(e instanceof MetatronException){
+      errorResponse = new ErrorResponse(((MetatronException) e).getCode(),
+                                        e.getMessage(),
+                                        oAuth2Exception.getMessage());
+      return new ResponseEntity<>(new CustomOAuth2Exception(errorResponse, oAuth2Exception), headers, responseEntity.getStatusCode());
+    }
+
     switch (oAuth2Exception.getOAuth2ErrorCode()) {
       case INVALID_TOKEN:
         errorResponse = new ErrorResponse(GlobalErrorCodes.INVALID_TOKEN_CODE,
@@ -69,7 +76,7 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
     try {
       String userName = request.getParameter("username");
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      String userHost = HttpUtils.getClientIp(request);
+      String userHost = request.getRemoteHost();
       String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
       if ("password".equals(request.getParameter("grant_type"))) {
         StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);

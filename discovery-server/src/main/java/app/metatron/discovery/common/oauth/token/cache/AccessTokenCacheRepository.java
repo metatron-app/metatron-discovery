@@ -36,6 +36,7 @@ import app.metatron.discovery.common.oauth.token.JwtTokenUtil;
 public class AccessTokenCacheRepository {
 
   private static Logger LOGGER = LoggerFactory.getLogger(AccessTokenCacheRepository.class);
+  public static String REFRESH_TO_ACCESS = "REFRESH_TO_ACCESS:";
 
   @Autowired
   CacheManager cacheManager;
@@ -53,10 +54,26 @@ public class AccessTokenCacheRepository {
     return accessToken;
   }
 
+  @CachePut(key = "T(app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository).REFRESH_TO_ACCESS + #refreshToken")
+  public CachedAccessToken putAccessTokenByRefreshToken(String tokenKey, String refreshToken, String username, Date expiration,
+                                          String clientId, String clientIp){
+    LOGGER.debug("store Access Token By Refresh Token : {}", JwtTokenUtil.getTokenForDebug(tokenKey));
+    CachedAccessToken accessToken = new CachedAccessToken(tokenKey, refreshToken, username, expiration, clientId, clientIp);
+    return accessToken;
+  }
+
   @CacheEvict
   public void removeAccessToken(String tokenKey){
     LOGGER.debug("remove Access Token : {}", JwtTokenUtil.getTokenForDebug(tokenKey));
     cacheManager.getCache("access-token-cache").evict(tokenKey);
+  }
+
+  public CachedAccessToken getCachedAccessTokenByRefreshToken(String refreshTokenKey){
+    return this.getCachedAccessToken(REFRESH_TO_ACCESS + refreshTokenKey);
+  }
+
+  public void removeAccessTokenByRefreshToken(String refreshTokenKey){
+    this.removeAccessToken(REFRESH_TO_ACCESS + refreshTokenKey);
   }
 
   public class CachedAccessToken implements Serializable {

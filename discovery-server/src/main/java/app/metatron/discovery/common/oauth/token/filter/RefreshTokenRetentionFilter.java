@@ -68,7 +68,8 @@ public class RefreshTokenRetentionFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     try{
-      if(oauthProperties.getTimeout() > -1){
+      String requestURI = ((HttpServletRequest) request).getRequestURI();
+      if(requestURI.startsWith("/api")){
         final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         Authentication authentication = tokenExtractor.extract(httpServletRequest);
         if(authentication != null){

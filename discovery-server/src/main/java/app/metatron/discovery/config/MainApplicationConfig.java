@@ -25,12 +25,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.hateoas.config.EnableEntityLinks;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -96,5 +98,13 @@ public class MainApplicationConfig {
     registrationBean.setOrder(2);
 
     return registrationBean;
+  }
+
+  @Bean
+  public FilterRegistrationBean forwardedHeaderFilter() {
+    FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+    filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
+    filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    return filterRegistrationBean;
   }
 }

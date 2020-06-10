@@ -70,7 +70,7 @@ export class AbstractService {
   /*
   * Token 생성
   */
-  protected getToken(user: User, basicHeader?: string): Promise<any> {
+  protected getToken(user: User, basicHeader?: string, forceLogin?: boolean): Promise<any> {
 
     // this
     const scope: any = this;
@@ -85,9 +85,14 @@ export class AbstractService {
         'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==' : basicHeader,
     });
 
+    var requestParam: string = 'grant_type=password&scope=write&username=' + user.username + '&password=' + user.password;
+
+    if(!isNullOrUndefined(forceLogin)){
+      requestParam = requestParam + '&forceLogin=' + forceLogin;
+    }
     // 호출
     return this.http.post(
-      url, 'grant_type=password&scope=write&username=' + user.username + '&password=' + user.password,
+      url, requestParam,
       { headers })
       .toPromise()
       .catch(error => scope.errorHandler(scope, error));

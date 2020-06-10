@@ -12,7 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component, ComponentRef,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 import { User } from '../../domain/user/user';
 import { UserService } from '../service/user.service';
 import { CookieConstant } from '../../common/constant/cookie.constant';
@@ -25,6 +33,7 @@ import { ActivatedRoute } from '@angular/router';
 import { WorkspaceService } from '../../workspace/service/workspace.service';
 import { PermissionService } from '../service/permission.service';
 import { ConfirmSmallComponent } from '../../common/component/modal/confirm-small/confirm-small.component';
+import { ConfirmModalComponent } from '../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../common/domain/modal';
 import { CommonUtil } from '../../common/util/common.util';
 import { isNullOrUndefined } from 'util';
@@ -55,15 +64,17 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   @ViewChild(ResetPasswordComponent)
   private resetPasswordComponent: ResetPasswordComponent;
 
-  // 확인 팝업 컴포넌트
-  @ViewChild(ConfirmSmallComponent)
-  private _confirmModal: ConfirmSmallComponent;
-
   @ViewChild(InitialChangePasswordComponent)
   private initialChangePasswordComponent: InitialChangePasswordComponent;
 
   @ViewChild('pwElm')
   private _pwElm: ElementRef;
+
+  @ViewChild('accessLogModal')
+  private _confirmAccessLogModal: ConfirmSmallComponent;
+
+  @ViewChild('whiteListModal')
+  private _confirmWhiteListModal: ConfirmSmallComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -158,15 +169,20 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
       ( '' !== data.msg ) && ( modal.description = data.msg );
     }
     // confirm modal
-    this._confirmModal.init(modal);
+    this._confirmAccessLogModal.init(modal);
 
     //this.joinCompleteComponent.init();
   }
 
-  public confirmComplete(data) {
+  public confirmOnAccessLog(data) {
     if (!isNullOrUndefined(data)) {
       this.router.navigate([data]).then();
     }
+  }
+
+  public confirmOnWhiteList(data) {
+    // this._confirmSmallModal.close();
+    this.login(true);
   }
 
   // 비밀번호 찾기
@@ -177,8 +193,8 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   /**
    * 로그인
    */
-  public login() {
-    if (this._confirmModal.isShow) {
+  public login(forceLogin?: boolean) {
+    if (this._confirmAccessLogModal.isShow) {
       return;
     }
 
@@ -188,7 +204,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loginFailMsg = '';
 
-    this.userService.login(this.user).then((loginToken) => {
+    this.userService.login(this.user, undefined, forceLogin).then((loginToken) => {
       if (loginToken.access_token) {
 
         // 쿠키 저장
@@ -243,6 +259,8 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
       this.loadingHide();
       if (err.details === 'INITIAL' || err.details === 'EXPIRED') {
         this.initialChangePasswordComponent.init(this.user.username, err.details);
+      } else if(err.code === 'GB0007'){
+        this._showInvalidWhitelistModal(err.details);
       } else {
         this.loginFailMsg = err.details;
       }
@@ -292,7 +310,23 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     }
     modal.data = forwardUrl;
     // confirm modal
-    this._confirmModal.init(modal);
+    // this._confirmSmallModal.confirm.subscribe(() =>{});
+    // this._confirmSmallModal.useCancelBtn = false;
+    this._confirmAccessLogModal.init(modal);
+  }
+
+  private _showInvalidWhitelistModal(userHost: string) {
+    this.loadingHide();
+    const modal: Modal = new Modal();
+    modal.name = this.translateService.instant( 'msg.login.alert.invalidwhitelist.title' );
+    modal.description = this.translateService.instant( 'msg.login.alert.invalidwhitelist.description', {value: userHost} );
+    modal.btnName = this.translateService.instant('msg.comm.ui.ok');
+    // this._confirmSmallModal.confirm.subscribe(() => {
+    //   this._confirmSmallModal.close();
+    //   this.login(true);
+    // });
+    // this._confirmSmallModal.useCancelBtn = true;
+    this._confirmWhiteListModal.init(modal);
   }
 
 }

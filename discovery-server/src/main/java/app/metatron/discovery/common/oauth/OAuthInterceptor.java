@@ -3,7 +3,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -11,8 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package app.metatron.discovery.config;
+package app.metatron.discovery.common.oauth;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -20,6 +19,7 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
-import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
@@ -48,7 +47,6 @@ import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserPasswordProperties;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.UserService;
-import app.metatron.discovery.util.HttpUtils;
 
 /**
  *
@@ -136,7 +134,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
           // getting username, clientid, clientip
           String username = authFromToken.getName();
           String clientId = authFromToken.getOAuth2Request().getClientId();
-          String userHost = HttpUtils.getClientIp(request);
+          String userHost = request.getRemoteHost();
 
           LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
           WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
@@ -144,6 +142,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
 
           if (cachedWhitelistToken == null) {
             LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
+            removeAccessTokenByRefreshToken(refreshToken);
             throw new InvalidTokenException("User ip is not in whitelist.");
           }
 
@@ -151,6 +150,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
           // if not matched in whitelist cache, throw exception
           if (!userHost.equals(cachedUserHost)) {
             LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+            removeAccessTokenByRefreshToken(refreshToken);
             throw new InvalidTokenException("User ip is not in whitelist.");
           }
         }
@@ -180,7 +180,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
       String username = request.getParameter("username");
       String userAgent = request.getHeader("user-agent");
       String clientId = request.getRemoteUser();
-      String userHost = HttpUtils.getClientIp(request);
+      String userHost = request.getRemoteHost();
       int loginStatus = response.getStatus();
       String referer = request.getHeader("referer");
 
@@ -234,5 +234,13 @@ public class OAuthInterceptor implements HandlerInterceptor {
         LOGGER.error(e.getMessage(), e);
       }
     }
+  }
+
+  public void removeAccessTokenByRefreshToken(String refreshToken){
+    //remove access token
+    tokenStore.removeAccessTokenUsingRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
+
+    //remove refresh token
+    tokenStore.removeRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
   }
 }

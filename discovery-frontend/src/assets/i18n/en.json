@@ -523,7 +523,8 @@
   "msg.login.alert.reset.passwd.email.not.found" : "Unregistered email address",
   "msg.login.alert.reset.passwd.email.success" : "A temporary password has been sent to this email",
   "msg.login.alert.reset.passwd.email.fail" : "Failed to send temporary password",
-
+  "msg.login.alert.invalidwhitelist.title": "Notification",
+  "msg.login.alert.invalidwhitelist.description": "You are connecting from another device ({{ value }}). Would you like to continue logging in?",
   "msg.book.ui.list.usr.conf": "User settings",
   "msg.book.ui.list.name.asc": "Name Ascending",
   "msg.book.ui.list.name.desc": "Name Descending",
