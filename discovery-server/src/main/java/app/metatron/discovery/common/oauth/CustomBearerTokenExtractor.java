@@ -23,8 +23,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
-import app.metatron.discovery.util.HttpUtils;
-
 @Component
 public class CustomBearerTokenExtractor extends BearerTokenExtractor {
 
@@ -33,9 +31,11 @@ public class CustomBearerTokenExtractor extends BearerTokenExtractor {
   @Override
   public Authentication extract(HttpServletRequest httpServletRequest) {
     Authentication result = super.extract(httpServletRequest);
+    String userHost = httpServletRequest.getRemoteHost();
+    String userAgent = httpServletRequest.getHeader("user-agent");
     if (result != null) {
       result = new PreAuthenticatedAuthenticationToken(
-          result.getPrincipal() + "|" + HttpUtils.getClientIp(httpServletRequest), "");
+          result.getPrincipal() + "|" + userHost, "");
     }
     return result;
   }

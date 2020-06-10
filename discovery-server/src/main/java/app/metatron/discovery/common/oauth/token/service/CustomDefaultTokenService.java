@@ -57,7 +57,7 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
               = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
           if (cachedWhitelistToken != null) {
             OAuth2AccessToken whiteListAccessToken = this.readAccessToken(cachedWhitelistToken.getToken());
-            if (whiteListAccessToken.isExpired()) {
+            if (whiteListAccessToken != null && whiteListAccessToken.isExpired()) {
               whitelistTokenCacheRepository.removeWhitelistToken(cachedWhitelistToken.getUsername(), cachedWhitelistToken.getClientId());
             } else {
               String cachedUserHost = cachedWhitelistToken.getUserHost();

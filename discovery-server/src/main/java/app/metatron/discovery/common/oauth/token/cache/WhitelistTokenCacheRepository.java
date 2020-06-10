@@ -24,7 +24,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
@@ -55,6 +54,16 @@ public class WhitelistTokenCacheRepository {
   public void removeWhitelistToken(String username, String clientId){
     LOGGER.debug("remove White list Token : {}|{}", username, clientId);
     cacheManager.getCache("token-whitelist-cache").evict(username + "|" + clientId);
+  }
+
+  public void removeWhitelistTokenByCachedAccessToken(AccessTokenCacheRepository.CachedAccessToken cachedAccessToken){
+    if(cachedAccessToken != null){
+      WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
+          = this.getCachedWhitelistToken(cachedAccessToken.getUsername(), cachedAccessToken.getClientId());
+      if(cachedWhitelistToken != null && cachedAccessToken.getToken().equals(cachedWhitelistToken.getToken())){
+        this.removeWhitelistToken(cachedAccessToken.getUsername(), cachedAccessToken.getClientId());
+      }
+    }
   }
 
   public class CachedWhitelistToken implements Serializable {

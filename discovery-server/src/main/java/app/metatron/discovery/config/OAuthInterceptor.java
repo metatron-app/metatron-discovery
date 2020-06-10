@@ -14,6 +14,30 @@
 
 package app.metatron.discovery.config;
 
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.oauth.OauthProperties;
@@ -27,27 +51,6 @@ import app.metatron.discovery.domain.user.UserProperties;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.UserService;
 import app.metatron.discovery.util.HttpUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -149,11 +152,13 @@ public class OAuthInterceptor implements HandlerInterceptor {
               // if not matched in whitelist cache, throw exception
               if (!userHost.equals(cachedUserHost)) {
                 LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+                removeAccessTokenByRefreshToken(refreshToken);
                 throw new InvalidTokenException("User ip is not in whitelist.");
               }
             }
           } else {
             LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
+            removeAccessTokenByRefreshToken(refreshToken);
           }
         }
       }
@@ -184,7 +189,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
       String username = request.getParameter("username");
       String userAgent = request.getHeader("user-agent");
       String clientId = request.getRemoteUser();
-      String userHost = HttpUtils.getClientIp(request);
+      String userHost = request.getRemoteHost();
       int loginStatus = response.getStatus();
       String referer = request.getHeader("referer");
 
@@ -238,5 +243,13 @@ public class OAuthInterceptor implements HandlerInterceptor {
         LOGGER.error(e.getMessage(), e);
       }
     }
+  }
+
+  public void removeAccessTokenByRefreshToken(String refreshToken){
+    //remove access token
+    tokenStore.removeAccessTokenUsingRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
+
+    //remove refresh token
+    tokenStore.removeRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
   }
 }
