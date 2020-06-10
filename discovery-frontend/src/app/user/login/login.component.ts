@@ -82,7 +82,9 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   // 이용약관 표시 여부
   public isShowTerms: boolean = false;
 
-  public loginFailMsg:string;
+  public loginFailMsg: string;
+
+  public useCancelBtn: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -158,6 +160,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
       ( '' !== data.msg ) && ( modal.description = data.msg );
     }
     // confirm modal
+    this.useCancelBtn = false;
     this._confirmModal.init(modal);
 
     //this.joinCompleteComponent.init();
@@ -195,6 +198,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
         modal.description = this.translateService.instant('msg.sso.ui.confirm.userip', {value: host});
         modal.data = this.user;
         // confirm modal
+        this.useCancelBtn = true;
         this._confirmModal.init(modal);
       } else {
         this.login();
@@ -324,6 +328,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     }
     modal.data = forwardUrl;
     // confirm modal
+    this.useCancelBtn = false;
     this._confirmModal.init(modal);
   }
 

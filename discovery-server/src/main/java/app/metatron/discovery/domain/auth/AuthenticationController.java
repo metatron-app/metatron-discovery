@@ -26,13 +26,11 @@ import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.role.Permission;
 import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.HttpUtils;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tools.ant.taskdefs.condition.Http;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
@@ -225,7 +223,7 @@ public class AuthenticationController {
           whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
       if (cachedWhitelistToken != null) {
         OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedWhitelistToken.getToken());
-        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(HttpUtils.getClientIp(request))) {
+        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(request.getRemoteHost())) {
           return ResponseEntity.ok().build();
         } else {
           return ResponseEntity.ok(cachedWhitelistToken.getUserHost());
@@ -247,6 +245,11 @@ public class AuthenticationController {
   @GetMapping(value = "/oauth/{clientId}")
   public ResponseEntity<?> getClient(@PathVariable("clientId") String clientId) throws UnsupportedEncodingException {
     ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+    if (clientDetails.getRegisteredRedirectUri() == null
+        || clientDetails.getRegisteredRedirectUri().isEmpty()) {
+      LOGGER.debug("client_id({}) redirectUri is empty",  clientId);
+      throw new BadRequestException("redirectUri is empty");
+    }
     Map additionalInformation = new HashMap<String, String>();
     if (clientDetails.getAdditionalInformation() != null) {
       additionalInformation = new HashMap<>(clientDetails.getAdditionalInformation());
@@ -450,9 +453,10 @@ public class AuthenticationController {
   private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
     Cookie accessToken = CookieManager.getAccessToken(request);
     if (accessToken != null) {
-      String userHost = HttpUtils.getClientIp(request);
+      String userHost = request.getRemoteHost();
+      String userAgent = request.getHeader("user-agent");
       try {
-        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), userHost, request.getHeader(HttpHeaders.USER_AGENT));
+        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), userHost, userAgent);
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
       }

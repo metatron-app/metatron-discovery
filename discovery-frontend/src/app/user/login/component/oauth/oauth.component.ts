@@ -61,11 +61,13 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
   // 유저 엔티티
   public user: User = new User();
 
-  public loginFailMsg:string = '';
+  public loginFailMsg: string = '';
 
-  public queryString;string;
+  public queryString; string;
   public oauthClientInformation: OauthClientInformation;
-  public clientId:string;
+  public clientId: string;
+
+  public useCancelBtn: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -95,6 +97,8 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
       if (!_.isNil(this.oauthClientInformation.clientName)) {
         document.title = this.oauthClientInformation.clientName;
       }
+    }).catch((error) => {
+      Alert.error(error.message, true);
     });
   }
 
@@ -128,6 +132,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
         modal.description = this.translateService.instant('msg.sso.ui.confirm.userip', {value: host});
         modal.data = this.user;
         // confirm modal
+        this.useCancelBtn = true;
         this._confirmModal.init(modal);
       } else {
         this.login();
@@ -173,7 +178,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
       } else {
         this._logout();
-        Alert.error(this.translateService.instant('login.ui.failed'));
+        Alert.error(this.translateService.instant('login.ui.failed'), true);
         this.loadingHide();
       }
 
@@ -246,6 +251,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
     }
     modal.data = forwardUrl;
     // confirm modal
+    this.useCancelBtn = false;
     this._confirmModal.init(modal);
   }
 

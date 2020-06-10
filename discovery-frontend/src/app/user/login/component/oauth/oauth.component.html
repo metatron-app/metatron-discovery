@@ -93,6 +93,6 @@
   <app-initial-change-password (closeInitPw)="initialComplete()"></app-initial-change-password>
   <!-- 초기 비밀번호 변경 -->
 
-  <app-confirm-small-modal [useCloseBtn]="false" (confirm)="confirmComplete($event)"></app-confirm-small-modal>
+  <app-confirm-small-modal [useCloseBtn]="false" [useCancelBtn]="useCancelBtn" (confirm)="confirmComplete($event)"></app-confirm-small-modal>
 
 </ng-container>
