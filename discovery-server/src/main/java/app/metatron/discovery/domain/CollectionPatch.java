@@ -14,15 +14,13 @@
 
 package app.metatron.discovery.domain;
 
-import com.google.common.collect.Maps;
-
+import app.metatron.discovery.common.entity.SearchParamValidator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-
+import com.google.common.collect.Maps;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,16 +28,13 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.domain.workbook.WorkbookController;
-
 /**
  * 도메인내 Collection 타입의 업데이트(PATCH)가 필요시 표준 모델 정의
  * JsonCreator 어노테이션과 JsonAnySetter 가 함께 사용하는 내용이 정의 되지 않아 별도 Deserialize 정의
  */
 public class CollectionPatch implements Serializable {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(WorkbookController.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(CollectionPatch.class);
 
   CollectionAction op = CollectionAction.ADD;
 

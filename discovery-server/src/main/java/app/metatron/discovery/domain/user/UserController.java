@@ -14,11 +14,27 @@
 
 package app.metatron.discovery.domain.user;
 
+import app.metatron.discovery.common.Mailer;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.images.Image;
+import app.metatron.discovery.domain.images.ImageService;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.user.role.RoleSetRepository;
+import app.metatron.discovery.domain.user.role.RoleSetService;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.util.AuthUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import com.querydsl.core.types.Predicate;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -41,39 +57,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.common.Mailer;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.images.Image;
-import app.metatron.discovery.domain.images.ImageService;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupService;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.domain.user.role.RoleService;
-import app.metatron.discovery.domain.user.role.RoleSetRepository;
-import app.metatron.discovery.domain.user.role.RoleSetService;
-import app.metatron.discovery.domain.workspace.Workspace;
-import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
-import app.metatron.discovery.domain.workspace.WorkspaceService;
-import app.metatron.discovery.util.AuthUtils;
-
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
 
 /**
- * Created by kyungtaak on 2016. 7. 21..
+ *
  */
 @RepositoryRestController
 public class UserController {
@@ -85,6 +79,9 @@ public class UserController {
 
   @Autowired
   GroupService groupService;
+
+  @Autowired
+  OrganizationService orgService;
 
   @Autowired
   RoleSetService roleSetService;
@@ -126,22 +123,22 @@ public class UserController {
   PasswordEncoder passwordEncoder;
 
   @Autowired
-  UserPasswordProperties userPasswordProperties;
+  UserProperties userProperties;
 
   /**
    * User 목록 조회
    */
   @RequestMapping(path = "/users", method = RequestMethod.GET)
   public ResponseEntity<?> findUsers(@RequestParam(value = "level", required = false) String level,
-                                     @RequestParam(value = "active", required = false) Boolean active,
-                                     @RequestParam(value = "status", required = false) List<String> status,
-                                     @RequestParam(value = "nameContains", required = false) String nameContains,
-                                     @RequestParam(value = "searchDateBy", required = false) String searchDateBy,
-                                     @RequestParam(value = "from", required = false)
-                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) DateTime from,
-                                     @RequestParam(value = "to", required = false)
-                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) DateTime to,
-                                     Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+          @RequestParam(value = "active", required = false) Boolean active,
+          @RequestParam(value = "status", required = false) List<String> status,
+          @RequestParam(value = "nameContains", required = false) String nameContains,
+          @RequestParam(value = "searchDateBy", required = false) String searchDateBy,
+          @RequestParam(value = "from", required = false)
+          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) DateTime from,
+          @RequestParam(value = "to", required = false)
+          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) DateTime to,
+          Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
 
     List<User.Status> reqStatus = null;
     if (CollectionUtils.isNotEmpty(status)) {
@@ -152,16 +149,16 @@ public class UserController {
     }
 
     // Get Predicate
-    Predicate searchPredicated = UserPredicate.searchList(level, active, reqStatus, nameContains, searchDateBy, from, to);
+    Predicate searchPredicated = UserPredicate
+            .searchList(level, active, reqStatus, nameContains, searchDateBy, from, to);
 
     // 기본 정렬 조건 셋팅
     if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
       pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
-                                 new Sort(Sort.Direction.ASC, "fullName"));
+              new Sort(Sort.Direction.ASC, "fullName"));
     }
 
     Page<User> users = userRepository.findAll(searchPredicated, pageable);
-
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(users, resourceAssembler));
 
@@ -172,7 +169,7 @@ public class UserController {
    */
   @RequestMapping(path = "/users/{username:.+}", method = RequestMethod.GET)
   public ResponseEntity<?> findDetailUser(@PathVariable("username") String username,
-                                          PersistentEntityResourceAssembler resourceAssembler) {
+          PersistentEntityResourceAssembler resourceAssembler) {
 
     User user = userRepository.findByUsername(username);
     if (user == null) {
@@ -232,28 +229,28 @@ public class UserController {
       throw new UserException("Fail to update permission. only user(" + username + ") can update.");
     }
 
-    if (user.getPassword() != null){
+    if (user.getPassword() != null) {
       //check password changed
-      if(!passwordEncoder.matches(updatedUser.getPassword(), user.getPassword())){
+      if (!passwordEncoder.matches(updatedUser.getPassword(), user.getPassword())) {
         //if config minimum password change date exist..
-        if(StringUtils.isNotEmpty(userPasswordProperties.getMinimumUsePeriod())){
+        if (StringUtils.isNotEmpty(userProperties.getPassword().getMinimumUsePeriod())) {
           //parse to period
-          Period minimumUsePeriod = Period.parse(userPasswordProperties.getMinimumUsePeriod());
+          Period minimumUsePeriod = Period.parse(userProperties.getPassword().getMinimumUsePeriod());
           LOGGER.debug("minimumUsePeriod : {}", minimumUsePeriod);
 
           //getting last update datetime
           DateTime passwordChangedDate = userService.getLastPasswordUpdatedDate(username);
           LOGGER.debug("{}'s passwordChangedDate : {}", username, passwordChangedDate);
-          if(minimumUsePeriod != null && passwordChangedDate != null){
+          if (minimumUsePeriod != null && passwordChangedDate != null) {
 
             //must user password period
             DateTime mustUsePasswordDate = passwordChangedDate.plus(minimumUsePeriod);
             LOGGER.debug("{} must use password to {}", username, mustUsePasswordDate);
-            if(DateTime.now().getMillis() < mustUsePasswordDate.getMillis()) {
+            if (DateTime.now().getMillis() < mustUsePasswordDate.getMillis()) {
               //user cannot update password
               LOGGER.debug("{} cannot change password.", username);
               throw new UserException(UserErrorCodes.PASSWORD_USE_PERIOD_NOT_PASSED,
-                                      "The minimum password usage period has not passed.(" + mustUsePasswordDate + ")");
+                      "The minimum password usage period has not passed.(" + mustUsePasswordDate + ")");
             }
           }
 
@@ -265,9 +262,15 @@ public class UserController {
       }
     }
 
-    if (user.getFullName() != null) updatedUser.setFullName(user.getFullName());
-    if (user.getEmail() != null) updatedUser.setEmail(user.getEmail());
-    if (user.getTel() != null) updatedUser.setTel(user.getTel());
+    if (user.getFullName() != null) {
+      updatedUser.setFullName(user.getFullName());
+    }
+    if (user.getEmail() != null) {
+      updatedUser.setEmail(user.getEmail());
+    }
+    if (user.getTel() != null) {
+      updatedUser.setTel(user.getTel());
+    }
     if (user.getImageUrl() != null) {
       if (StringUtils.isBlank(user.getImageUrl())) {
         userService.deleteUserImage(updatedUser.getUsername());
@@ -298,12 +301,12 @@ public class UserController {
   @RequestMapping(path = "/users/signup", method = RequestMethod.POST)
   public ResponseEntity<?> createUserBySignup(@RequestBody User user) {
 
-    // Username 중복 체크
+    // Check if username is duplicate
     if (userService.checkDuplicated(USERNAME, user.getUsername())) {
       throw new UserException(UserErrorCodes.DUPLICATED_USERNAME_CODE, "Duplicated username : " + user.getUsername());
     }
 
-    // email 중복 체크
+    // Check if e-mail is duplicate
     if (userService.checkDuplicated(EMAIL, user.getEmail())) {
       throw new UserException(UserErrorCodes.DUPLICATED_EMAIL_CODE, "Duplicated e-mail : " + user.getEmail());
     }
@@ -319,7 +322,7 @@ public class UserController {
       userService.updateUserImage(user.getUsername());
     }
 
-    if (user.getPassword() != null){
+    if (user.getPassword() != null) {
       String encodedPassword = passwordEncoder.encode(user.getPassword());
       user.setPassword(encodedPassword);
     }
@@ -327,6 +330,11 @@ public class UserController {
     user.setStatus(User.Status.REQUESTED);
 
     userRepository.save(user);
+
+    // Add Organization
+    if (userProperties.getUseOrganization()) {
+      orgService.addMembers(user.getOrgCodes(), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    }
 
     mailer.sendSignUpRequestMail(user, false);
 
@@ -349,11 +357,12 @@ public class UserController {
     }
 
     if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
-      throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED, "Fail to update password. It does not match the initial password.");
+      throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED,
+              "Fail to update password. It does not match the initial password.");
     }
 
     updatedUser.setStatus(User.Status.ACTIVATED);
-    if (user.getPassword() != null){
+    if (user.getPassword() != null) {
       userService.validateUserPassword(user.getUsername(), user);
       String encodedPassword = passwordEncoder.encode(user.getPassword());
       updatedUser.setPassword(encodedPassword);
@@ -375,12 +384,12 @@ public class UserController {
 
     String userEmail = user.getEmail();
 
-    // Username 중복 체크
+    // Check if username is duplicate
     if (userService.checkDuplicated(USERNAME, user.getUsername())) {
       throw new UserException(UserErrorCodes.DUPLICATED_USERNAME_CODE, "Duplicated username : " + user.getUsername());
     }
 
-    // email 중복 체크
+    // Check if e-mail is duplicate
     if (StringUtils.isNotEmpty(userEmail) && userService.checkDuplicated(EMAIL, user.getEmail())) {
       throw new UserException(UserErrorCodes.DUPLICATED_EMAIL_CODE, "Duplicated e-mail : " + user.getEmail());
     }
@@ -393,7 +402,7 @@ public class UserController {
       userService.updateUserImage(user.getUsername());
     }
 
-    // mail 전송을 수행하지 않고 패스워드를 지정하지 않은 경우 시스템에서 비번 생성
+    // If password is not specified without mail transmission, the system generates password
     if (!user.getPassMailer() || StringUtils.isEmpty(user.getPassword())) {
       String temporaryPassword = userService.createTemporaryPassword(user.getUsername());
       user.setPassword(temporaryPassword);
@@ -406,7 +415,7 @@ public class UserController {
 
     user.setStatus(User.Status.ACTIVATED);
 
-    // Group 정보가 없을 경우 기본그룹 지정
+    // If there is no group information, specify the default group
     if (CollectionUtils.isNotEmpty(user.getGroupNames())) {
       userService.setUserToGroups(user, user.getGroupNames());
     } else {
@@ -418,10 +427,15 @@ public class UserController {
       }
     }
 
-    // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
+    // Create Workspace (create if there is no registered workspace)
     Workspace createdWorkspace = workspaceService.createWorkspaceByUserCreation(user, false);
 
     userRepository.save(user);
+
+    // Add Organization
+    if (userProperties.getUseOrganization()) {
+      orgService.addMembers(user.getOrgCodes(), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
+    }
 
     if (!user.getPassMailer()) {
       mailer.sendSignUpApprovedMail(user, true, decryptedPassword);
@@ -481,7 +495,6 @@ public class UserController {
   }
 
   /**
-   *
    * @param additionalInfo
    * @return
    */
@@ -526,25 +539,24 @@ public class UserController {
       if (updatedUser == null) {
         throw new ResourceNotFoundException(user.getUsername());
       } else if (!passwordEncoder.matches(user.getInitialPassword(), updatedUser.getPassword())) {
-        throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED, "Fail to update password. It does not match the initial password.");
+        throw new UserException(UserErrorCodes.INITIAL_PASSWORD_NOT_MATCHED,
+                "Fail to update password. It does not match the initial password.");
       }
     } else {
       userService.validatePassword(user.getUsername(), user.getPassword());
     }
 
-
-
     return ResponseEntity.ok().build();
   }
 
   /**
-   *
    * @param username
    * @param additionalInfo
    * @return
    */
   @RequestMapping(path = "/users/{username}/check/password", method = RequestMethod.POST)
-  public ResponseEntity<?> checkPassword(@PathVariable("username") String username, @RequestBody Map<String, Object> additionalInfo) {
+  public ResponseEntity<?> checkPassword(@PathVariable("username") String username,
+          @RequestBody Map<String, Object> additionalInfo) {
 
     if (!additionalInfo.containsKey("password")) {
       throw new BadRequestException("password required");
@@ -563,16 +575,16 @@ public class UserController {
   }
 
   /**
-   *
    * @param target
    * @param value
    * @return
    */
   @RequestMapping(path = "/users/{target}/{value}/duplicated", method = RequestMethod.GET)
-  public ResponseEntity<?> checkDuplicatedValue(@PathVariable("target") String target, @PathVariable("value") String value) {
+  public ResponseEntity<?> checkDuplicatedValue(@PathVariable("target") String target,
+          @PathVariable("value") String value) {
 
     UserService.DuplicatedTarget targetType = SearchParamValidator
-        .enumUpperValue(UserService.DuplicatedTarget.class, target, "target");
+            .enumUpperValue(UserService.DuplicatedTarget.class, target, "target");
 
     Map<String, Boolean> duplicated = Maps.newHashMap();
     duplicated.put("duplicated", userService.checkDuplicated(targetType, value));
@@ -617,7 +629,7 @@ public class UserController {
   @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER')")
   @RequestMapping(path = "/users/{username}/rejected", method = RequestMethod.POST)
   public ResponseEntity<?> rejectedJoinedUser(@PathVariable("username") String username,
-                                              @RequestBody Map<String, Object> additionalInfo) {
+          @RequestBody Map<String, Object> additionalInfo) {
     User user = userRepository.findByUsername(username);
     if (user == null) {
       throw new ResourceNotFoundException(username);
@@ -639,7 +651,7 @@ public class UserController {
   @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER')")
   @RequestMapping(path = "/users/{username}/status/{status}", method = RequestMethod.POST)
   public ResponseEntity<?> changeStatus(@PathVariable("username") String username,
-                                        @PathVariable("status") String status) {
+          @PathVariable("status") String status) {
 
     User user = userRepository.findByUsername(username);
     if (user == null) {
@@ -647,7 +659,7 @@ public class UserController {
     }
 
     User.Status reqStatus = SearchParamValidator
-        .enumUpperValue(User.Status.class, status, "status");
+            .enumUpperValue(User.Status.class, status, "status");
 
     switch (reqStatus) {
       case ACTIVATED:

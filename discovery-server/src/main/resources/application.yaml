@@ -344,11 +344,6 @@ polaris:
     maxFetchSize: 1000
     tempHdfsPath: /tmp/hive
     tempCSVPath: /tmp
-  geoserver:
-    baseUrl: http://localhost:9090
-    username: admin
-    password: geoserver
-    defaultWorkspace: metatron
   storage:
     stagedb:
       hostname: localhost
@@ -363,12 +358,15 @@ polaris:
           password:
   dataprep:
     localBaseDir: ${user.home}/dataprep
-#    hadoopConfDir: /etc/hadoop
-#    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
-#    sampling:
-#      timeout: 20
-#    etl:
-#      timeout: 36000
+  #    hadoopConfDir: /etc/hadoop
+  #    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
+  #    sampling:
+  #      timeout: 20
+  #    etl:
+  #      timeout: 36000
+  user:
+    use_organization: false
+
 ---
 # (mysql DB 생성 script)
 # create database polaris CHARACTER SET utf8;

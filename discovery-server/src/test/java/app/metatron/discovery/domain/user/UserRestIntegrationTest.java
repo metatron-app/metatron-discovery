@@ -14,13 +14,15 @@
 
 package app.metatron.discovery.domain.user;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +32,6 @@ import org.springframework.test.context.jdbc.Sql;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -325,12 +323,13 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
    */
   @Test
   @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
-  @Sql(value = "/sql/test_roleset.sql")
-  public void createUserWithRoleSetManually() {
+  @Sql(value = {"/sql/test_roleset.sql", "/sql/test_organization.sql"})
+  public void createUserWithRoleSetAndOrgManually() {
 
     // 가입 신청
     //
     String username = "test";
+    String targetOrgCode = "ORG01";
 
     Map<String, Object> reqMap = Maps.newHashMap();
     reqMap.put("username", username);
@@ -338,6 +337,7 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
     reqMap.put("email", testEmail);
     reqMap.put("groupNames", Lists.newArrayList("SYSTEM_ADMIN", "SYSTEM_USER"));
     reqMap.put("roleSetName", "TEST_ROLE_SET");
+    reqMap.put("orgCodes", Lists.newArrayList(targetOrgCode));
 
     // @formatter:off
     Response createdUserRes =
@@ -351,6 +351,18 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
     createdUserRes.then()
       .statusCode(HttpStatus.SC_CREATED)
       .log().all();
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .accept(ContentType.JSON)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/organizations/{id}/members", targetOrgCode)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
     // @formatter:on
   }
 

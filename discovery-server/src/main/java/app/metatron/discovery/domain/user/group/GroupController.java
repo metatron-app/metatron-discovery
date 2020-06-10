@@ -14,12 +14,23 @@
 
 package app.metatron.discovery.domain.user.group;
 
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.context.ContextService;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserProperties;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.PermissionRepository;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import com.querydsl.core.types.Predicate;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -35,26 +46,11 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.context.ContextService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.role.PermissionRepository;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 
 /**
  *
@@ -66,6 +62,9 @@ public class GroupController {
 
   @Autowired
   GroupService groupService;
+
+  @Autowired
+  OrganizationService orgService;
 
   @Autowired
   ContextService contextService;
@@ -87,6 +86,9 @@ public class GroupController {
 
   @Autowired
   WorkspaceMemberRepository workspaceMemberRepository;
+
+  @Autowired
+  UserProperties userProperties;
 
   @Autowired
   ProjectionFactory projectionFactory;
@@ -137,21 +139,10 @@ public class GroupController {
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(groups, resourceAssembler));
   }
 
-//  @RequestMapping(path = "/groups/{groupId}", method = RequestMethod.GET)
-//  public ResponseEntity<?> findGroup(@PathVariable("groupId") String groupId,
-//                                     PersistentEntityResourceAssembler resourceAssembler) {
-//    Group group = groupRepository.findOne(groupId);
-//    if(group == null) {
-//      throw new ResourceNotFoundException(groupId);
-//    }
-//
-//    return ResponseEntity.ok(resourceAssembler.toResource(group));
-//  }
-
   @RequestMapping(path = "/groups", method = RequestMethod.POST)
   public ResponseEntity<?> createGroups(@RequestBody Group group) {
 
-    if(groupService.checkDuplicatedName(group.getName())) {
+    if (groupService.checkDuplicatedName(group.getName())) {
       throw new BadRequestException("Duplicated group name : " + group.getName());
     }
 
@@ -159,6 +150,11 @@ public class GroupController {
 
     // Context 저장
     contextService.saveContextFromDomain(group);
+
+    // Add Organization
+    if (userProperties.getUseOrganization()) {
+      orgService.addMembers(group.getOrgCodes(), result.getId(), result.getName(), DirectoryProfile.Type.GROUP);
+    }
 
     return ResponseEntity.created(URI.create("")).body(result);
   }

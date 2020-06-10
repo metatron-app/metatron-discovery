@@ -14,13 +14,18 @@
 
 package app.metatron.discovery.domain.user.group;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.user.role.Role;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,18 +34,9 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.util.Map;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.user.role.Role;
-
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 /**
  * Created by kyungtaak on 2016. 5. 16..
@@ -83,20 +79,59 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
   public void createGroup() {
 
-    Role role = new Role("test group");
+    Group group = new Group("test group");
 
     // @formatter:off
     given()
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
       .accept(ContentType.JSON)
-      .body(role)
+      .body(group)
     .when()
       .post("/api/groups")
     .then()
       .statusCode(HttpStatus.SC_CREATED)
       .log().all();
     // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
+  @Sql("/sql/test_organization.sql")
+  public void createGroupWithOrg() {
+
+    String targetOrgCode = "ORG01";
+
+    Map<String, Object> requestMap = Maps.newHashMap();
+    requestMap.put("name", "test group");
+    requestMap.put("orgCodes", Lists.newArrayList(targetOrgCode));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .accept(ContentType.JSON)
+      .body(requestMap)
+      .log().all()
+    .when()
+      .post("/api/groups")
+    .then()
+      .statusCode(HttpStatus.SC_CREATED)
+      .log().all();
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .accept(ContentType.JSON)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/organizations/{id}/members", targetOrgCode)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+
   }
 
   @Test
@@ -123,7 +158,6 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
       .body("name", equalTo(updateGroupName))
       .log().all();
     // @formatter:on
-
 
   }
 
@@ -155,7 +189,6 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
       .statusCode(HttpStatus.SC_NOT_FOUND)
       .log().all();
     // @formatter:on
-
 
   }
 

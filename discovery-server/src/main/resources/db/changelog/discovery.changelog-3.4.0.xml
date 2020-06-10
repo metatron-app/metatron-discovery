@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog dbchangelog-3.8.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog dbchangelog-3.8.xsd">
     <changeSet author="sohncw (generated)" id="1572393007722-1">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -208,16 +210,16 @@
             <column name="user_status" type="${varchar.type}(255)" />
             <column name="status_MOD" type="${boolean.type}" />
             <column name="user_status_msg" type="${varchar.type}(3000)" />
-            <column name="statusMessage_MOD" type="${boolean.type}" />
-            <column name="user_tel" type="${varchar.type}(255)" />
-            <column name="tel_MOD" type="${boolean.type}" />
-            <column name="user_origin" type="${varchar.type}(255)" />
-            <column name="userOrigin_MOD" type="${boolean.type}" />
-            <column name="user_name" type="${varchar.type}(50)" />
-            <column name="username_MOD" type="${boolean.type}" />
+            <column name="statusMessage_MOD" type="${boolean.type}"/>
+            <column name="user_tel" type="${varchar.type}(255)"/>
+            <column name="tel_MOD" type="${boolean.type}"/>
+            <column name="user_origin" type="${varchar.type}(255)"/>
+            <column name="userOrigin_MOD" type="${boolean.type}"/>
+            <column name="user_name" type="${varchar.type}(50)"/>
+            <column name="username_MOD" type="${boolean.type}"/>
         </createTable>
     </changeSet>
-
+  
     <changeSet author="minhyun2 (generated)" id="1590968388389-0">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -240,5 +242,72 @@
             <column name="failCnt_MOD" type="${boolean.type}" />
         </addColumn>
     </changeSet>
+  
+    <!-- for organization -->
+    <changeSet author="kyungtaak" id="1590968388390-0">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_org"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_org">
+            <column name="id" type="${varchar.type}(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="created_by" type="${varchar.type}(255)"/>
+            <column name="created_time" type="${datetime.type}"/>
+            <column name="modified_by" type="${varchar.type}(255)"/>
+            <column name="modified_time" type="${datetime.type}"/>
+            <column name="version" type="${bigint.type}"/>
+            <column name="org_name" type="${varchar.type}(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="org_desc" type="${varchar.type}(900)"/>
+            <column name="org_code" type="${varchar.type}(20)"/>
+            <column name="org_user_count" type="${int.type}"/>
+            <column name="org_group_count" type="${int.type}"/>
+        </createTable>
+        <createIndex indexName="i_user_org_code" tableName="user_org">
+            <column name="org_code"/>
+        </createIndex>
+        <insert tableName="user_org">
+            <column name="id" value="ID_ORG_DEFAULT"/>
+            <column name="created_by" value="admin"/>
+            <column name="created_time" valueDate="${now}"/>
+            <column name="modified_by" value="admin"/>
+            <column name="modified_time" valueDate="${now}"/>
+            <column name="version" value="0"/>
+            <column name="org_desc" value=""/>
+            <column name="org_name" value="DEFAULT_ORG"/>
+            <column name="org_code" value="DEFAULT_ORG"/>
+            <column name="org_user_count" value="0"/>
+            <column name="org_group_count" value="0"/>
+        </insert>
+    </changeSet>
+    <changeSet author="kyungtaak" id="1590968388390-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_org_member"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_org_member">
+            <column autoIncrement="true" name="id" type="${bigint.type}">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="member_id" type="${varchar.type}(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="member_name" type="${varchar.type}(255)"/>
+            <column name="member_type" type="${varchar.type}(10)"/>
+            <column name="org_id" type="${varchar.type}(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="org_id" baseTableName="user_org_member"
+          constraintName="FK_USER_ORG_MEMBER_ORG_ID" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT"
+          onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user_org" validate="true"/>
+        <createIndex indexName="i_org_member_id" tableName="user_org_member">
+            <column name="member_id"/>
+        </createIndex>
+    </changeSet>
+
 
 </databaseChangeLog>
