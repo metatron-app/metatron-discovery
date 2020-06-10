@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 
 import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 
 public class CustomDefaultTokenService extends DefaultTokenServices {
@@ -53,7 +54,7 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
 
         if (!oAuth2AccessToken.isExpired()) {
           // getting whitelist in cache
-          WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
+          CachedWhitelistToken cachedWhitelistToken
               = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
           if (cachedWhitelistToken != null) {
             OAuth2AccessToken whiteListAccessToken = this.readAccessToken(cachedWhitelistToken.getToken());

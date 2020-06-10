@@ -20,6 +20,7 @@ import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.oauth.BasicTokenExtractor;
 import app.metatron.discovery.common.oauth.CookieManager;
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
 import app.metatron.discovery.domain.user.CachedUserService;
@@ -219,7 +220,7 @@ public class AuthenticationController {
     try {
       String username = request.getParameter("username");
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken =
+      CachedWhitelistToken cachedWhitelistToken =
           whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
       if (cachedWhitelistToken != null) {
         OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedWhitelistToken.getToken());
@@ -464,8 +465,7 @@ public class AuthenticationController {
       OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken.getValue());
       String username = authFromToken.getName();
       String clientId = authFromToken.getOAuth2Request().getClientId();
-      WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
-          = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+      CachedWhitelistToken cachedWhitelistToken = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
       if (cachedWhitelistToken != null && cachedWhitelistToken.getUserHost().equals(userHost)) {
         whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
       }

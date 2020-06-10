@@ -29,6 +29,8 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedAccessToken;
+import app.metatron.discovery.common.oauth.token.cache.CachedRefreshToken;
 import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 
@@ -100,7 +102,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   public OAuth2RefreshToken readRefreshToken(String tokenValue) {
     OAuth2RefreshToken refreshToken = super.readRefreshToken(tokenValue);
     if(refreshToken instanceof ExpiringOAuth2RefreshToken){
-      RefreshTokenCacheRepository.CachedRefreshToken cachedRefreshToken
+      CachedRefreshToken cachedRefreshToken
           = refreshTokenCacheRepository.getCachedRefreshToken(refreshToken.getValue());
       if(cachedRefreshToken != null){
         LOGGER.debug("refresh token expiration replaced by cache : {}", cachedRefreshToken.getExpiration());
@@ -126,8 +128,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     LOGGER.debug("Remove Refresh Token");
     //remove whitelist token
     String refreshTokenKey = token.getValue();
-    AccessTokenCacheRepository.CachedAccessToken cachedAccessToken
-        = accessTokenCacheRepository.getCachedAccessTokenByRefreshToken(refreshTokenKey);
+    CachedAccessToken cachedAccessToken = accessTokenCacheRepository.getCachedAccessTokenByRefreshToken(refreshTokenKey);
     if(cachedAccessToken != null){
       whitelistTokenCacheRepository.removeWhitelistTokenByCachedAccessToken(cachedAccessToken);
     }
@@ -143,8 +144,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     super.removeAccessTokenUsingRefreshToken(refreshToken);
     LOGGER.debug("Remove Access Token using Refresh Token");
     String refreshTokenKey = refreshToken.getValue();
-    AccessTokenCacheRepository.CachedAccessToken cachedAccessToken
-        = accessTokenCacheRepository.getCachedAccessTokenByRefreshToken(refreshTokenKey);
+    CachedAccessToken cachedAccessToken = accessTokenCacheRepository.getCachedAccessTokenByRefreshToken(refreshTokenKey);
     if(cachedAccessToken != null){
       accessTokenCacheRepository.removeAccessToken(cachedAccessToken.getToken());
     }

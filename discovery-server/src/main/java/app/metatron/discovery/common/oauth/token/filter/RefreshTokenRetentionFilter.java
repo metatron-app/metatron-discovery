@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.JwtTokenUtil;
 import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedAccessToken;
+import app.metatron.discovery.common.oauth.token.cache.CachedRefreshToken;
 import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheRepository;
 
 /**
@@ -73,14 +75,14 @@ public class RefreshTokenRetentionFilter implements Filter {
         Authentication authentication = tokenExtractor.extract(httpServletRequest);
         if(authentication != null){
           String accessToken = authentication.getPrincipal().toString();
-          AccessTokenCacheRepository.CachedAccessToken cachedAccessToken
+          CachedAccessToken cachedAccessToken
               = accessTokenCacheRepository.getCachedAccessToken(authentication.getPrincipal().toString());
 
           LOGGER.debug("Access token for cached token {}", JwtTokenUtil.getTokenForDebug(accessToken));
 
           if(cachedAccessToken != null){
             String refreshTokenKey = cachedAccessToken.getRefreshToken();
-            RefreshTokenCacheRepository.CachedRefreshToken cachedRefreshToken
+            CachedRefreshToken cachedRefreshToken
                 = refreshTokenCacheRepository.getCachedRefreshToken(refreshTokenKey);
 
             LOGGER.debug("Refresh token in cached token {}", JwtTokenUtil.getTokenForDebug(refreshTokenKey));

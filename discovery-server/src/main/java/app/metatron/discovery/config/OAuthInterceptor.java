@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
@@ -141,7 +142,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
           String userHost = request.getRemoteHost();
 
           LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
-          WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
+          CachedWhitelistToken cachedWhitelistToken
               = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
           if (cachedWhitelistToken != null) {
             OAuth2AccessToken whiteListAccessToken = tokenStore.readAccessToken(cachedWhitelistToken.getToken());
