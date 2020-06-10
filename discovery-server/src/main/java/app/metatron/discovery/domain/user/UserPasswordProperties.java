@@ -14,22 +14,25 @@
 
 package app.metatron.discovery.domain.user;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
-import java.util.regex.Pattern;
 
-@Component
-@ConfigurationProperties(prefix = "polaris.user.password")
+/**
+ *
+ */
 public class UserPasswordProperties {
 
-  private PasswordStrength strength = new PasswordStrength();
+  PasswordStrength strength = new PasswordStrength();
 
   String requiredChangePeriod;
+
   String minimumUsePeriod;
+
   Integer countOfHistory = 3;
   Integer lockCount;
+
+  public UserPasswordProperties() {
+    // Empty Constructor
+  }
 
   public PasswordStrength getStrength() {
     return strength;
@@ -72,15 +75,21 @@ public class UserPasswordProperties {
   }
 
   public static class PasswordStrength implements Serializable {
+
     Integer numberOfNumericCharacter = 1;
+
     Integer numberOfAlphabeticalCharacter = 1;
+
     Integer numberOfSpecialCharacter = 1;
+
     Integer minLength = 10;
+
     Integer maxLength = 20;
+
     Integer repeatLimit = 4;
 
     public PasswordStrength(){
-
+      // Empty Constructor
     }
 
     public String getPasswordRegExp(){

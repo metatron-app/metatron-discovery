@@ -20,10 +20,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.security.Principal;
 
 /**
- * Created by kyungtaak on 2016. 5. 18..
+ *
  */
 @JsonTypeName("user")
-public class UserProfile implements DirectoryProfile {
+public class UserProfile extends AbstractDirectoryProfile implements DirectoryProfile {
 
   public static final String UNKNOWN_USERNAME = "Unknown user";
 
@@ -100,6 +100,7 @@ public class UserProfile implements DirectoryProfile {
     userProfile.setFullName(user.getFullName());
     userProfile.setEmail(user.getEmail());
     userProfile.setImageUrl(user.getImageUrl());
+    userProfile.setOrganizations(user.getOrgCodes());
 
     return userProfile;
   }

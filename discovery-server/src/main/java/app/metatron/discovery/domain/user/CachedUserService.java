@@ -14,8 +14,14 @@
 
 package app.metatron.discovery.domain.user;
 
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupProfile;
+import app.metatron.discovery.domain.user.group.GroupRepository;
+import app.metatron.discovery.domain.user.org.OrganizationRepository;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.workspace.WorkspaceMember;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupProfile;
-import app.metatron.discovery.domain.user.group.GroupRepository;
-import app.metatron.discovery.domain.user.role.RoleService;
-import app.metatron.discovery.domain.workspace.WorkspaceMember;
 
 /**
  * Created by kyungtaak on 2016. 5. 18..
@@ -46,14 +46,20 @@ public class CachedUserService {
   RoleService roleService;
 
   @Autowired
+  OrganizationService orgService;
+
+  @Autowired
   UserRepository userRepository;
 
   @Autowired
   GroupRepository groupRepository;
 
+  @Autowired
+  OrganizationRepository organizationRepository;
+
   public User findUser(String username) {
 
-    if(StringUtils.isBlank(username)) {
+    if (StringUtils.isBlank(username)) {
       return null;
     }
 
@@ -66,6 +72,7 @@ public class CachedUserService {
         return null;
       } else {
         user.setRoleService(roleService);
+        user.setOrgCodes(orgService.findCodesOfMembersOrg(user.getUsername()));
         userMap.put(username, user);
         return user;
       }
@@ -73,14 +80,22 @@ public class CachedUserService {
   }
 
   public void removeCachedUser(String userId) {
-    if(userMap.containsKey(userId)) {
+    if (userMap.containsKey(userId)) {
       userMap.remove(userId);
+    }
+  }
+
+  public void removeCacheByType(String id, DirectoryProfile.Type type) {
+    if (type == DirectoryProfile.Type.USER) {
+      userMap.remove(id);
+    } else {
+      groupMap.remove(id);
     }
   }
 
   public Group findGroup(String groupId) {
 
-    if(groupId == null) {
+    if (groupId == null) {
       return null;
     }
 
@@ -88,6 +103,7 @@ public class CachedUserService {
       return groupMap.get(groupId);
     } else {
       Group group = groupRepository.findOne(groupId);
+      group.setOrgCodes(orgService.findCodesOfMembersOrg(group.getId()));
       if (group == null) {
         LOGGER.debug("Role({}) not found. Return empty Role object.", groupId);
         return null;

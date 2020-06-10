@@ -14,26 +14,28 @@
 
 package app.metatron.discovery.domain.user;
 
+import app.metatron.discovery.domain.user.group.GroupProfile;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
-
-import app.metatron.discovery.domain.user.group.GroupProfile;
+import java.util.List;
 
 /**
  * Created by kyungtaak on 2017. 1. 22..
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = UserProfile.class, name = "user"),
-    @JsonSubTypes.Type(value = GroupProfile.class, name = "group")
+        @JsonSubTypes.Type(value = UserProfile.class, name = "user"),
+        @JsonSubTypes.Type(value = GroupProfile.class, name = "group")
 })
 public interface DirectoryProfile extends Serializable {
 
   String getId();
 
   String getName();
+
+  List<String> getOrganizations();
 
   enum Type {
     USER, GROUP
