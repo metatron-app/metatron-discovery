@@ -45,7 +45,6 @@ import org.springframework.security.oauth2.provider.client.JdbcClientDetailsServ
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
@@ -60,6 +59,7 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import app.metatron.discovery.common.oauth.CustomAccessDeniedHandler;
+import app.metatron.discovery.common.oauth.CustomBearerTokenExtractor;
 import app.metatron.discovery.common.oauth.CustomDaoAuthenticationProvider;
 import app.metatron.discovery.common.oauth.CustomEntryPoint;
 import app.metatron.discovery.common.oauth.CustomJdbcClientDetailsServiceBuilder;
@@ -70,6 +70,7 @@ import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheReposito
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.filter.RefreshTokenRetentionFilter;
 import app.metatron.discovery.common.oauth.token.filter.WhitelistAuthenticationFilter;
+import app.metatron.discovery.common.oauth.token.service.CustomDefaultTokenService;
 import app.metatron.discovery.common.oauth.token.store.RefreshRetentionJwtTokenStore;
 import app.metatron.discovery.common.saml.SAMLTokenConverter;
 import app.metatron.discovery.common.web.OauthFilter;
@@ -91,10 +92,14 @@ public class OAuth2ServerConfig {
     @Autowired
     public OauthProperties oauthProperties;
 
+    @Autowired
+    public CustomBearerTokenExtractor customBearerTokenExtractor;
+
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
       resources
         .resourceId(POLARIS_RESOURCE_ID)
+        .tokenExtractor(customBearerTokenExtractor)
         .expressionHandler(webExpressionHandler())
         .authenticationEntryPoint(customAuthEntryPoint())
         .stateless(true);
@@ -216,6 +221,8 @@ public class OAuth2ServerConfig {
           .antMatchers("/oauth/token").permitAll()
           // 인증 관련 처리
           .antMatchers("/oauth/authorize").permitAll()
+
+          .antMatchers(HttpMethod.POST, "/api/oauth/client/check").permitAll()
           //별도 로그인 처리
           .antMatchers("/api/oauth/client/login").permitAll()
           .antMatchers("/api/oauth/client/logout").permitAll()
@@ -303,8 +310,8 @@ public class OAuth2ServerConfig {
 
     @Bean
     @Primary
-    public DefaultTokenServices tokenServices() {
-      DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+    public CustomDefaultTokenService tokenServices() {
+      CustomDefaultTokenService defaultTokenServices = new CustomDefaultTokenService();
       defaultTokenServices.setTokenStore(tokenStore());
       defaultTokenServices.setTokenEnhancer(accessTokenConverter());
       defaultTokenServices.setSupportRefreshToken(true);
@@ -364,7 +371,7 @@ public class OAuth2ServerConfig {
       return registrationBean;
     }
 
-    @Bean
+    //@Bean
     @ConditionalOnExpression("${polaris.oauth2.timeout:-1} gt -1")
     public FilterRegistrationBean whitelistCheckFilterRegistrationBean(){
       FilterRegistrationBean registrationBean = new FilterRegistrationBean();
@@ -374,6 +381,7 @@ public class OAuth2ServerConfig {
       registrationBean.setFilter(whitelistAuthenticationFilter);
       return registrationBean;
     }
+
     @Bean
     public CustomWebResponseExceptionTranslator exceptionTranslator() {
       return new CustomWebResponseExceptionTranslator();

@@ -18,7 +18,9 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.oauth.BasicTokenExtractor;
 import app.metatron.discovery.common.oauth.CookieManager;
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
@@ -30,6 +32,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.taskdefs.condition.Http;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
@@ -48,7 +51,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -91,6 +96,9 @@ public class AuthenticationController {
 
   @Autowired
   TokenStore tokenStore;
+
+  @Autowired
+  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -206,6 +214,28 @@ public class AuthenticationController {
     }
 
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/oauth/client/check", method = RequestMethod.POST)
+  public ResponseEntity<?> checkOauth(HttpServletRequest request) {
+    try {
+      String username = request.getParameter("username");
+      String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
+      WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken =
+          whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+      if (cachedWhitelistToken != null) {
+        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedWhitelistToken.getToken());
+        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(HttpUtils.getClientIp(request))) {
+          return ResponseEntity.ok().build();
+        } else {
+          return ResponseEntity.ok(cachedWhitelistToken.getUserHost());
+        }
+      } else {
+        return ResponseEntity.ok().build();
+      }
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @RequestMapping(value = "/logout", method = RequestMethod.GET)
@@ -420,11 +450,22 @@ public class AuthenticationController {
   private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
     Cookie accessToken = CookieManager.getAccessToken(request);
     if (accessToken != null) {
+      String userHost = HttpUtils.getClientIp(request);
       try {
-        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), HttpUtils.getClientIp(request), request.getHeader(HttpHeaders.USER_AGENT));
+        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), userHost, request.getHeader(HttpHeaders.USER_AGENT));
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
       }
+
+      OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken.getValue());
+      String username = authFromToken.getName();
+      String clientId = authFromToken.getOAuth2Request().getClientId();
+      WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
+          = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+      if (cachedWhitelistToken != null && cachedWhitelistToken.getUserHost().equals(userHost)) {
+        whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
+      }
+
       this.tokenStore.removeAccessToken(new DefaultOAuth2AccessToken(accessToken.getValue()));
     }
     Cookie refreshToken = CookieManager.getRefreshToken(request);

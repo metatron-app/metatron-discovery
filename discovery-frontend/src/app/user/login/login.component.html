@@ -43,7 +43,7 @@
           <div class="ddp-input-check">
             <span class="ddp-input-type">
               <input #pwElm type="password" placeholder="{{'msg.comm.usr.pw.title.ph' | translate}}"
-                     [(ngModel)]="user.password" (keyup)="$event.keyCode == 13 ? login() : null;"
+                     [(ngModel)]="user.password" (keyup)="$event.keyCode == 13 ? checkIp() : null;"
                      (focus)="loginFailMsg='';" style="border-bottom:none;" />
             </span>
             <em class="ddp-icon-error" (click)="user.password='';loginFailMsg='';" *ngIf="loginFailMsg"></em>
@@ -66,7 +66,7 @@
 
         <!-- button -->
         <div class="ddp-ui-login-buttons">
-          <a href="javascript:" class="ddp-btn" (click)="login()">{{'msg.comm.usr.login' | translate}}</a>
+          <a href="javascript:" class="ddp-btn" (click)="checkIp()">{{'msg.comm.usr.login' | translate}}</a>
         </div>
         <!-- //button -->
 

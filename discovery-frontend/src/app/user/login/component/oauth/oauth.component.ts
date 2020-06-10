@@ -111,10 +111,41 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public checkIp() {
+    if (this._confirmModal.isShow) {
+      return;
+    }
+
+    this.loadingShow();
+
+    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+
+    this.userService.checkUserIp(this.user, this.oauthClientInformation.basicHeader).then((host) => {
+      if (!isNullOrUndefined(host)) {
+        this.loadingHide();
+        const modal = new Modal();
+        modal.name = this.translateService.instant( 'msg.login.access.title' );
+        modal.description = this.translateService.instant('msg.sso.ui.confirm.userip', {value: host});
+        modal.data = this.user;
+        // confirm modal
+        this._confirmModal.init(modal);
+      } else {
+        this.login();
+      }
+    }).catch(() => {
+      this._logout();
+      Alert.error(this.translateService.instant('login.ui.failed'), true);
+      this.loadingHide();
+    });
+  }
+
   /**
    * 로그인
    */
   public login() {
+    if (this._confirmModal.isShow) {
+      return;
+    }
 
     this.loadingShow();
 
@@ -165,7 +196,11 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
   public confirmComplete(data) {
     if (!isNullOrUndefined(data)) {
-      location.href = data;
+      if (data === this.user) {
+        this.login();
+      } else {
+        this.router.navigate([data]).then();
+      }
     }
   }
 

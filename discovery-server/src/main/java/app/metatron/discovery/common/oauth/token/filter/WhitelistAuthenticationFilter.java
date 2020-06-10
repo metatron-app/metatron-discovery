@@ -79,7 +79,7 @@ public class WhitelistAuthenticationFilter implements Filter {
       WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
           = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
       if (cachedWhitelistToken == null) {
-        LOGGER.info("cachedWhitelistToken is not exist({}, clientId)", username, clientId);
+        LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
         return;
       }

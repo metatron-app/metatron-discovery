@@ -20,6 +20,7 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -126,32 +127,33 @@ public class OAuthInterceptor implements HandlerInterceptor {
     if(oauthProperties.getTimeout() > -1){
       String requestURI = request.getRequestURI();
       LOGGER.debug("requestURI : {}", requestURI);
-      if(requestURI.equals("/oauth/token")){
-        String grantType = request.getParameter("grant_type");
-        if(grantType.equals("refresh_token")){
+      if("/oauth/token".equals(requestURI)) {
+        if ("refresh_token".equals(request.getParameter("grant_type"))) {
           String refreshToken = request.getParameter("refresh_token");
 
           OAuth2Authentication authFromToken = tokenStore.readAuthentication(refreshToken);
-
           // getting username, clientid, clientip
           String username = authFromToken.getName();
           String clientId = authFromToken.getOAuth2Request().getClientId();
           String userHost = HttpUtils.getClientIp(request);
 
-          LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
+          // getting whitelist in cache
           WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
               = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-
-          if (cachedWhitelistToken == null) {
+          if (cachedWhitelistToken != null) {
+            OAuth2AccessToken whiteListAccessToken = tokenStore.readAccessToken(cachedWhitelistToken.getToken());
+            if (whiteListAccessToken.isExpired()) {
+              whitelistTokenCacheRepository.removeWhitelistToken(cachedWhitelistToken.getUsername(), cachedWhitelistToken.getClientId());
+            } else {
+              String cachedUserHost = cachedWhitelistToken.getUserHost();
+              // if not matched in whitelist cache, throw exception
+              if (!userHost.equals(cachedUserHost)) {
+                LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+                throw new InvalidTokenException("User ip is not in whitelist.");
+              }
+            }
+          } else {
             LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
-            throw new InvalidTokenException("User ip is not in whitelist.");
-          }
-
-          String cachedUserHost = cachedWhitelistToken.getUserHost();
-          // if not matched in whitelist cache, throw exception
-          if (!userHost.equals(cachedUserHost)) {
-            LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-            throw new InvalidTokenException("User ip is not in whitelist.");
           }
         }
       }
