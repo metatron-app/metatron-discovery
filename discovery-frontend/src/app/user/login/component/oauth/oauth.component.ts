@@ -204,7 +204,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
       if (data === this.user) {
         this.login();
       } else {
-        this.router.navigate([data]).then();
+        location.href = data;
       }
     }
   }
