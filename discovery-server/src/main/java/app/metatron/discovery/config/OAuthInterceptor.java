@@ -125,7 +125,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
     // cannot refresh token not in whitelist cache
     if (oauthProperties.getTimeout() > -1) {
       String requestURI = request.getRequestURI();
-      LOGGER.debug("requestURI : {}", requestURI);
+      LOGGER.debug("preHandle - requestURI : {}", requestURI);
       if (requestURI.equals("/oauth/token")) {
         String grantType = request.getParameter("grant_type");
         if (grantType.equals("refresh_token")) {
@@ -172,10 +172,9 @@ public class OAuthInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-          throws Exception {
+  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
     String requestURI = request.getRequestURI();
-    LOGGER.debug("requestURI : {}", requestURI);
+    LOGGER.debug("afterCompletion - requestURI : {}", requestURI);
     if (requestURI.equals("/oauth/token")) {
       String grantType = request.getParameter("grant_type");
 
@@ -183,8 +182,6 @@ public class OAuthInterceptor implements HandlerInterceptor {
       if (grantType.equals("refresh_token") || grantType.equals("client_credentials")) {
         return;
       }
-
-      LOGGER.info("[DUMMY] grant type : {}", grantType);
 
       String username = request.getParameter("username");
       String userAgent = request.getHeader("user-agent");
@@ -196,8 +193,6 @@ public class OAuthInterceptor implements HandlerInterceptor {
       //getting client info
       String clientName = null;
       ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
-
-      LOGGER.info("[DUMMY] get client Detail :  {}", clientDetails);
 
       if (clientDetails != null) {
         Map<String, Object> clientAdditionalInformation = clientDetails.getAdditionalInformation();
@@ -222,7 +217,6 @@ public class OAuthInterceptor implements HandlerInterceptor {
       activityStream.setAction(ActivityType.ARRIVE);
       activityStream.setActorType(Actor.ActorType.PERSON);
 
-      LOGGER.info("[DUMMY] additional info :  {} ", additionalInfo);
       //Object(client)
       activityStream.setObjectType(ActivityStream.MetatronObjectType.UNKNOWN);
       activityStream.setObjectId(clientName);
@@ -239,12 +233,9 @@ public class OAuthInterceptor implements HandlerInterceptor {
       activityStream.setPublishedTime(DateTime.now());
       activityStreamService.addActivityStream(activityStream);
 
-      LOGGER.info("[DUMMY] saved activity");
-
       try {
         if (loginStatus == 200) {
           userService.initFailCount(username);
-          LOGGER.info("[DUMMY] init ");
           StatLogger.login(username, clientId, userHost, userAgent);
         }
       } catch (Exception e) {
