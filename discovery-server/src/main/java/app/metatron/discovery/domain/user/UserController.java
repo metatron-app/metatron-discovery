@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.user;
 
 import app.metatron.discovery.common.Mailer;
+import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
@@ -406,6 +407,8 @@ public class UserController {
     if (!user.getPassMailer() || StringUtils.isEmpty(user.getPassword())) {
       String temporaryPassword = userService.createTemporaryPassword(user.getUsername());
       user.setPassword(temporaryPassword);
+
+      StatLogger.generateTempPassword("User Creation", user.getUsername(), temporaryPassword);
     }
 
     //encode password
@@ -514,6 +517,7 @@ public class UserController {
     String temporaryPassword = userService.createTemporaryPassword(user.getUsername());
     String encodedPassword = passwordEncoder.encode(temporaryPassword);
     user.setPassword(encodedPassword);
+    StatLogger.generateTempPassword("Rest Password", user.getUsername(), temporaryPassword);
 
     user.setStatus(User.Status.INITIAL);
     user.setFailCnt(null);

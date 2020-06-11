@@ -14,6 +14,7 @@
 
 package app.metatron.discovery;
 
+import app.metatron.discovery.config.MainApplicationConfig;
 import org.apache.catalina.connector.Connector;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -21,8 +22,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
-
-import app.metatron.discovery.config.MainApplicationConfig;
 
 /**
  * metatron Discovery Application
@@ -57,6 +56,7 @@ public class MetatronDiscoveryApplication { //extends SpringBootServletInitializ
   public static void main(String[] args) throws Exception {
 
     // Set Default JVM properties
+    System.setProperty("jgroups.log_class", "org.jgroups.logging.Slf4jLogImpl");
     System.setProperty("java.net.preferIPv4Stack", "true");
     System.setProperty("file.encoding", "UTF-8");
     System.setProperty("user.timezone", "UTC");

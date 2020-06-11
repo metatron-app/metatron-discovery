@@ -15,52 +15,56 @@
 
 <configuration>
 
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <property name="CONSOLE_PATTERN"
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%X{ip}-%X{username}]){magenta} %clr([%thread]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>${CONSOLE_PATTERN}</pattern>
-            <charset>utf8</charset>
-        </encoder>
-    </appender>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <property name="CONSOLE_PATTERN"
+    value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%X{ip}-%X{username}]){magenta} %clr([%thread]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${CONSOLE_PATTERN}</pattern>
+      <charset>utf8</charset>
+    </encoder>
+  </appender>
 
-    <!-- tomcat 8 workaround
-         http://stackoverflow.com/questions/26893297/tomcat-8-throwing-org-apache-catalina-webresources-cache-getresource-unable-to
-    -->
-    <!--<logger name="org.apache.catalina.webresources.Cache" level="error"/>-->
+  <!-- tomcat 8 workaround
+       http://stackoverflow.com/questions/26893297/tomcat-8-throwing-org-apache-catalina-webresources-cache-getresource-unable-to
+  -->
+  <!--<logger name="org.apache.catalina.webresources.Cache" level="error"/>-->
 
-    <!-- show hibernate sql -->
-    <logger name="org.hibernate.SQL" level="debug"/>
+  <!-- show hibernate sql -->
+  <logger name="org.hibernate.SQL" level="debug"/>
 
-    <!-- hide warn HibernateJpaDialect, because release_mode : after_transaction -->
-    <logger name="org.springframework.orm.jpa.vendor" level="error"/>
+  <!-- hide warn HibernateJpaDialect, because release_mode : after_transaction -->
+  <logger name="org.springframework.orm.jpa.vendor" level="error"/>
 
-    <!-- show bound hibernate parameters with trace -->
+  <!-- show bound hibernate parameters with trace -->
   <logger name="org.hibernate.type" level="debug"/>
 
-    <logger name="org.springframework.web" level="info"/>
+  <logger name="org.springframework.web" level="info"/>
 
-    <logger name="org.springframework.web.client" level="info"/>
+  <logger name="org.springframework.web.client" level="info"/>
 
   <logger name="org.springframework.web.servlet.mvc" level="info"/>
 
-    <logger name="org.apache.http" level="info"/>
+  <logger name="org.apache.http" level="info"/>
 
-    <logger name="org.springframework.data.rest" level="info"/>
+  <logger name="org.springframework.data.rest" level="info"/>
 
-    <logger name="org.springframework.security" level="info"/>
+  <logger name="org.springframework.security" level="info"/>
 
-    <logger name="org.springframework.session" level="info"/>
+  <logger name="org.springframework.session" level="info"/>
 
-    <logger name="org.apache.hadoop" level="warn"/>
+  <logger name="org.apache.hadoop" level="warn"/>
 
-    <logger name="app.metatron.discovery" level="debug"/>
+  <logger name="org.infinispan" level="info"/>
 
-    <root level="WARN">
-        <appender-ref ref="CONSOLE"/>
-    </root>
+  <logger name="org.jgroups" level="info"/>
 
-    <jmxConfigurator/>
+  <logger name="app.metatron.discovery" level="debug"/>
+
+  <root level="WARN">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+
+  <jmxConfigurator/>
 
 </configuration>
