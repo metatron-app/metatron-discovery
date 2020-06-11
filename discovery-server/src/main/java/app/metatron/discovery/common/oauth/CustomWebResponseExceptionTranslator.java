@@ -16,7 +16,8 @@ package app.metatron.discovery.common.oauth;
 
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.exception.ErrorResponse;
-
+import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,6 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 
 import javax.servlet.http.HttpServletRequest;
-
-import app.metatron.discovery.common.exception.GlobalErrorCodes;
 
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_GRANT;
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_TOKEN;
@@ -66,12 +65,15 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
     }
 
     try {
-      String userName = request.getParameter("username");
-      String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      String userHost = request.getRemoteHost();
-      String userAgent = request.getHeader("user-agent");
-      if ("password".equals(request.getParameter("grant_type"))) {
-        StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+      String authHeader = request.getHeader("Authorization");
+      if (StringUtils.isNotEmpty(authHeader) && !authHeader.startsWith("Bearer")) {
+        String userName = request.getParameter("username");
+        String clientId = BasicTokenExtractor.extractClientId(authHeader);
+        String userHost = request.getRemoteHost();
+        String userAgent = request.getHeader("user-agent");
+        if ("password".equals(request.getParameter("grant_type"))) {
+          StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+        }
       }
     } catch (IllegalStateException ex) {
       LOGGER.error(ex.getMessage());
