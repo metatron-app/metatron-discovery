@@ -311,6 +311,7 @@ public class UserService {
   }
 
   public void initFailCount(String username) {
+    LOGGER.info("[DUMMY] properties::  " + userProperties.getPassword());
     if (userProperties.getPassword().getLockCount() != null) {
       User user = userRepository.findByUsername(username);
       if (user != null) {

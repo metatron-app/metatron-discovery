@@ -184,6 +184,8 @@ public class OAuthInterceptor implements HandlerInterceptor {
         return;
       }
 
+      LOGGER.info("[DUMMY] grant type : {}", grantType);
+
       String username = request.getParameter("username");
       String userAgent = request.getHeader("user-agent");
       String clientId = request.getRemoteUser();
@@ -194,9 +196,13 @@ public class OAuthInterceptor implements HandlerInterceptor {
       //getting client info
       String clientName = null;
       ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+
+      LOGGER.info("[DUMMY] get client Detail :  {}", clientDetails);
+
       if (clientDetails != null) {
         Map<String, Object> clientAdditionalInformation = clientDetails.getAdditionalInformation();
         if (clientAdditionalInformation != null && clientAdditionalInformation.containsKey("clientName")) {
+          LOGGER.info("[DUMMY] client name :  {}", clientAdditionalInformation.get("clientName"));
           clientName = clientAdditionalInformation.get("clientName").toString();
         }
       }
@@ -216,6 +222,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
       activityStream.setAction(ActivityType.ARRIVE);
       activityStream.setActorType(Actor.ActorType.PERSON);
 
+      LOGGER.info("[DUMMY] additional info :  {} ", additionalInfo);
       //Object(client)
       activityStream.setObjectType(ActivityStream.MetatronObjectType.UNKNOWN);
       activityStream.setObjectId(clientName);
@@ -232,13 +239,16 @@ public class OAuthInterceptor implements HandlerInterceptor {
       activityStream.setPublishedTime(DateTime.now());
       activityStreamService.addActivityStream(activityStream);
 
+      LOGGER.info("[DUMMY] saved activity");
+
       try {
         if (loginStatus == 200) {
           userService.initFailCount(username);
+          LOGGER.info("[DUMMY] init ");
           StatLogger.login(username, clientId, userHost, userAgent);
         }
       } catch (Exception e) {
-        LOGGER.error(e.getMessage(), e);
+        LOGGER.error("Error :: {} ", e.getMessage());
       }
     }
   }
