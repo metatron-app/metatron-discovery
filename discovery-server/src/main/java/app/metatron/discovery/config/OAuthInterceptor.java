@@ -14,6 +14,19 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.StatLogger;
+import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.activities.spec.ActivityType;
+import app.metatron.discovery.domain.activities.spec.Actor;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserProperties;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -32,26 +45,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.StatLogger;
-import app.metatron.discovery.common.oauth.OauthProperties;
-import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-import app.metatron.discovery.domain.activities.spec.ActivityType;
-import app.metatron.discovery.domain.activities.spec.Actor;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserProperties;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.UserService;
-import app.metatron.discovery.util.HttpUtils;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -182,8 +179,8 @@ public class OAuthInterceptor implements HandlerInterceptor {
     if (requestURI.equals("/oauth/token")) {
       String grantType = request.getParameter("grant_type");
 
-      //exclude refresh_token
-      if (grantType.equals("refresh_token")) {
+      //exclude refresh_token or client_credentials
+      if (grantType.equals("refresh_token") || grantType.equals("client_credentials")) {
         return;
       }
 
