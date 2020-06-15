@@ -22,6 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 public class JwtTokenUtil {
 
   public static String getTokenForDebug(String tokenKey){
+    if (tokenKey.length() <= 10) {
+      return tokenKey;
+    }
+
     return StringUtils.truncate(tokenKey, 10) + "..." + StringUtils.truncate(tokenKey, tokenKey.length() - 10, 10);
   }
 }
