@@ -352,11 +352,10 @@ public class AuthenticationController {
   }
 
   @RequestMapping(value = "/oauth/client/login")
-  public ModelAndView oauthLogin(HttpServletRequest request) {
+  public RedirectView oauthLogin(HttpServletRequest request) {
     String queryStr = request.getQueryString();
     LOGGER.info("[CHK] QueryString :: {}", queryStr);
-    return new ModelAndView(new RedirectView(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr,
-                                             false, true, false));
+    return new RedirectView(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr);
   }
 
   @RequestMapping(value = "/oauth/client/logout")
