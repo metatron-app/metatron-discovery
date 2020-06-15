@@ -15,7 +15,6 @@
 package app.metatron.discovery.common.web;
 
 import app.metatron.discovery.common.oauth.CookieManager;
-import app.metatron.discovery.config.ApiResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,8 +38,6 @@ public class OauthFilter implements Filter {
 
   private AuthenticationManager authenticationManager;
 
-  public final String OAUTH_URL = "/api/oauth/client/login";
-
   public OauthFilter(AuthenticationManager authenticationManager) {
     this.authenticationManager = authenticationManager;
   }
@@ -58,7 +55,7 @@ public class OauthFilter implements Filter {
 
     String requestUrl = req.getRequestURL().toString();
     LOGGER.info("[CHK] requestURL : {}", requestUrl);
-    LOGGER.info("[CHK] requestURL : {}", req.getRequestURI());
+    LOGGER.info("[CHK] requestURI : {}", req.getRequestURI());
     if (requestUrl.endsWith("/oauth/authorize")) {
       Cookie loginToken = CookieManager.getAccessToken(req);
       if (loginToken != null) {
@@ -70,11 +67,12 @@ public class OauthFilter implements Filter {
           LOGGER.info("authentication is {}", authentication);
         } catch (OAuth2Exception e) {
           LOGGER.error(e.getSummary());
-          req.getRequestDispatcher(OAUTH_URL).forward(request, response);
+          req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
           return;
         }
       } else {
-        req.getRequestDispatcher(OAUTH_URL).forward(request, response);
+        LOGGER.debug("loginToken.getValue() : null");
+        req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
         return;
       }
     }
