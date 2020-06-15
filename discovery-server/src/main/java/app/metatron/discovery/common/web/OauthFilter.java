@@ -70,17 +70,11 @@ public class OauthFilter implements Filter {
           LOGGER.info("authentication is {}", authentication);
         } catch (OAuth2Exception e) {
           LOGGER.error(e.getSummary());
-          // req.getRequestDispatcher(OAUTH_URL).forward(request, response);
-          String queryStr = req.getQueryString();
-          LOGGER.info("[CHK] QueryString :: {}", queryStr);
-          res.sendRedirect(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr);
+          req.getRequestDispatcher(OAUTH_URL).forward(request, response);
           return;
         }
       } else {
-        // req.getRequestDispatcher(OAUTH_URL).forward(request, response);
-        String queryStr = req.getQueryString();
-        LOGGER.info("[CHK] QueryString :: {}", queryStr);
-        res.sendRedirect(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr);
+        req.getRequestDispatcher(OAUTH_URL).forward(request, response);
         return;
       }
     }

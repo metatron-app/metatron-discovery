@@ -23,6 +23,7 @@ import app.metatron.discovery.common.oauth.CookieManager;
 import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
+import app.metatron.discovery.config.ApiResourceConfig;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.role.Permission;
@@ -62,6 +63,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -351,48 +353,10 @@ public class AuthenticationController {
 
   @RequestMapping(value = "/oauth/client/login")
   public ModelAndView oauthLogin(HttpServletRequest request) {
-    ModelAndView mav = new ModelAndView("oauth/login");
-    try {
-      String clientId = request.getParameter("client_id");
-      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
-      String clientSecret = clientDetails.getClientSecret();
-      String token = clientId+":"+clientSecret;
-      String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
-      Map additionalInformation = clientDetails.getAdditionalInformation();
-      String clientName = String.valueOf(additionalInformation
-                                             .getOrDefault("clientName", "metatron Discovery"));
-      String faviconPath = String.valueOf(additionalInformation
-                                             .getOrDefault("faviconPath", ""));
-      String logoFilePath = String.valueOf(additionalInformation
-                                               .getOrDefault("logoFilePath", ""));
-      String logoDesc = String.valueOf(additionalInformation
-                                               .getOrDefault("logoDesc", ""));
-      String backgroundFilePath = String.valueOf(additionalInformation
-                                                     .getOrDefault("backgroundFilePath", ""));
-      String smallLogoFilePath = String.valueOf(additionalInformation
-                                                    .getOrDefault("smallLogoFilePath", ""));
-      String smallLogoDesc = String.valueOf(additionalInformation
-                                                .getOrDefault("smallLogoDesc", ""));
-      String copyrightHtml = String.valueOf(additionalInformation
-                                                .getOrDefault("copyrightHtml"
-                                                                 , "Copyright © SK Telecom Co., Ltd. All rights reserved."));
-      LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
-      LOGGER.debug("additionalInformation {}",
-                   GlobalObjectMapper.writeValueAsString(additionalInformation));
-      mav.addObject("basicHeader", "Basic "+basicHeader);
-      mav.addObject("clientName", clientName);
-      mav.addObject("faviconPath", faviconPath);
-      mav.addObject("logoFilePath", logoFilePath);
-      mav.addObject("logoDesc", logoDesc);
-      mav.addObject("backgroundFilePath", backgroundFilePath);
-      mav.addObject("smallLogoFilePath", smallLogoFilePath);
-      mav.addObject("smallLogoDesc", smallLogoDesc);
-      mav.addObject("copyrightHtml", copyrightHtml);
-    } catch (Exception e) {
-      throw new MetatronException(e);
-    }
-
-    return mav;
+    String queryStr = request.getQueryString();
+    LOGGER.info("[CHK] QueryString :: {}", queryStr);
+    return new ModelAndView(new RedirectView(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr,
+                                             false, true, false));
   }
 
   @RequestMapping(value = "/oauth/client/logout")
