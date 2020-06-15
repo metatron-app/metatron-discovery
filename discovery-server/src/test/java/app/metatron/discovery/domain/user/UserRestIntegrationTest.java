@@ -349,8 +349,8 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
     .when()
       .post("/api/users/manual");
     createdUserRes.then()
-      .statusCode(HttpStatus.SC_CREATED)
-      .log().all();
+      .log().all()
+      .statusCode(HttpStatus.SC_CREATED);
     // @formatter:on
 
     // @formatter:off
@@ -360,6 +360,18 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
       .contentType(ContentType.JSON)
     .when()
       .get("/api/organizations/{id}/members", targetOrgCode)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .param("projection", "forDetailView")
+    .when()
+      .get("/api/users/{username}", username)
     .then()
       .log().all()
       .statusCode(HttpStatus.SC_OK);

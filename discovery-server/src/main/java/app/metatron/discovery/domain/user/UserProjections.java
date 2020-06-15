@@ -41,6 +41,7 @@ public class UserProjections extends BaseProjections {
 
     String getImageUrl();
 
+    @Value("#{@organizationService.findCodesOfMembersOrg(target.getUsername())}")
     List<String> getOrgCodes();
   }
 
@@ -70,6 +71,7 @@ public class UserProjections extends BaseProjections {
     @Value("#{@groupService.getJoinedGroupsForProjection(target.getUsername(), true)}")
     List<Map<String, Object>> getGroups();
 
+    @Value("#{@organizationService.findCodesOfMembersOrg(target.getUsername())}")
     List<String> getOrgCodes();
 
     DateTime getCreatedTime();
@@ -101,8 +103,6 @@ public class UserProjections extends BaseProjections {
     @Value("#{@groupService.getJoinedGroupsForProjection(target.getUsername(), false)}")
     List<Map<String, Object>> getGroups();
 
-    List<String> getOrgCodes();
-
     DateTime getCreatedTime();
   }
 
@@ -122,8 +122,6 @@ public class UserProjections extends BaseProjections {
 
     @Value("#{@groupService.getJoinedGroupsForProjection(target.getUsername(), false)}")
     List<Map<String, Object>> getGroups();
-
-    List<String> getOrgCodes();
 
   }
 

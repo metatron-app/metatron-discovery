@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.common.oauth.token.service;
 
+import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +25,6 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-
-import app.metatron.discovery.common.oauth.OauthProperties;
-import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 
 public class CustomDefaultTokenService extends DefaultTokenServices {
 
@@ -42,7 +41,7 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
     if (accessTokenValue.indexOf("|") > -1) {
       String userHost = accessTokenValue.substring(accessTokenValue.indexOf("|") + 1);
       accessTokenValue = accessTokenValue.substring(0, accessTokenValue.indexOf("|"));
-      LOGGER.debug("accessToken: {}, userHost: {}", accessTokenValue, userHost);
+      LOGGER.debug("loadAuthentication() - accessToken: {}, userHost: {}", accessTokenValue, userHost);
 
       // cannot refresh token not in whitelist cache
       if(oauthProperties.getTimeout() > -1){

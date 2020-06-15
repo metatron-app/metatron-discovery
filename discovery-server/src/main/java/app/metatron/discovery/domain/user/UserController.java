@@ -172,7 +172,7 @@ public class UserController {
   public ResponseEntity<?> findDetailUser(@PathVariable("username") String username,
           PersistentEntityResourceAssembler resourceAssembler) {
 
-    User user = cachedUserService.findUser(username);
+    User user = userRepository.findByUsername(username);
     if (user == null) {
       return ResponseEntity.notFound().build();
     }

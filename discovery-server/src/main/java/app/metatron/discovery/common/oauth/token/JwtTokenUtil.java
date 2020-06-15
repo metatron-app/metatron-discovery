@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 public class JwtTokenUtil {
 
   public static String getTokenForDebug(String tokenKey){
-    if (tokenKey.length() <= 10) {
+    if (StringUtils.isEmpty(tokenKey) || tokenKey.length() <= 10) {
       return tokenKey;
     }
 
