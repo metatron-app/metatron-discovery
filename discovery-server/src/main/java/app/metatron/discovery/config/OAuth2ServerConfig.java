@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
 
 import app.metatron.discovery.common.oauth.CustomAccessDeniedHandler;
@@ -356,6 +357,7 @@ public class OAuth2ServerConfig {
       OauthFilter oauthFilter = new OauthFilter(oAuth2AuthenticationManager);
       registrationBean.setFilter(oauthFilter);
       registrationBean.setOrder(-5);
+      registrationBean.setDispatcherTypes(DispatcherType.REQUEST);
       return registrationBean;
     }
 
