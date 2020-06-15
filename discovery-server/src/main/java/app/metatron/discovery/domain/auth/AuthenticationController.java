@@ -352,10 +352,10 @@ public class AuthenticationController {
   }
 
   @RequestMapping(value = "/oauth/client/login")
-  public RedirectView oauthLogin(HttpServletRequest request) {
+  public void oauthLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String queryStr = request.getQueryString();
     LOGGER.info("[CHK] QueryString :: {}", queryStr);
-    return new RedirectView(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr);
+    response.sendRedirect(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr);
   }
 
   @RequestMapping(value = "/oauth/client/logout")
