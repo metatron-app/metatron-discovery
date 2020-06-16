@@ -609,7 +609,7 @@ public class UserController {
       throw new ResourceNotFoundException(username);
     }
 
-    user.setStatus(User.Status.INITIAL);
+    user.setStatus(User.Status.ACTIVATED);
 
     // 기본 그룹에 포함
     Group defaultGroup = groupService.getDefaultGroup();
