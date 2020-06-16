@@ -14,6 +14,8 @@
 package app.metatron.discovery.common.oauth.token.store;
 
 import app.metatron.discovery.common.oauth.token.cache.*;
+import app.metatron.discovery.util.HttpUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +70,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     // get user host IP address
     String userHost;
     try {
-      userHost = httpServletRequest.getRemoteHost();
+      userHost = HttpUtils.getClientIp(httpServletRequest);
     } catch (IllegalStateException ise) {
       userHost = getRemoteAddress();
     }

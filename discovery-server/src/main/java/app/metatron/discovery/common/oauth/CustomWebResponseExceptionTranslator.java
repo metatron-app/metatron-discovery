@@ -17,6 +17,8 @@ package app.metatron.discovery.common.oauth;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.exception.ErrorResponse;
 import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import app.metatron.discovery.util.HttpUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +71,7 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
       if (StringUtils.isNotEmpty(authHeader) && !authHeader.startsWith("Bearer")) {
         String userName = request.getParameter("username");
         String clientId = BasicTokenExtractor.extractClientId(authHeader);
-        String userHost = request.getRemoteHost();
+        String userHost = HttpUtils.getClientIp(request);
         String userAgent = request.getHeader("user-agent");
         if ("password".equals(request.getParameter("grant_type"))) {
           StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);

@@ -27,6 +27,8 @@ import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserProperties;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.UserService;
+import app.metatron.discovery.util.HttpUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -136,7 +138,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
           // getting username, clientid, clientip
           String username = authFromToken.getName();
           String clientId = authFromToken.getOAuth2Request().getClientId();
-          String userHost = request.getRemoteHost();
+          String userHost = HttpUtils.getClientIp(request);
 
           LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
           CachedWhitelistToken cachedWhitelistToken
@@ -186,7 +188,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
       String username = request.getParameter("username");
       String userAgent = request.getHeader("user-agent");
       String clientId = request.getRemoteUser();
-      String userHost = request.getRemoteHost();
+      String userHost = HttpUtils.getClientIp(request);
       int loginStatus = response.getStatus();
       String referer = request.getHeader("referer");
 

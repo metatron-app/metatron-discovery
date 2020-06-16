@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.util.HttpUtils;
 
 /**
  *
@@ -73,7 +74,7 @@ public class WhitelistAuthenticationFilter implements Filter {
       // getting username, clientid, clientip
       String username = authFromToken.getName();
       String clientId = authFromToken.getOAuth2Request().getClientId();
-      String userHost = httpServletRequest.getRemoteHost();
+      String userHost = HttpUtils.getClientIp(httpServletRequest);
       String userAgent = httpServletRequest.getHeader("user-agent");
 
       // getting whitelist in cache

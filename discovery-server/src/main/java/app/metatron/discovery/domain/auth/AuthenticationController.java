@@ -28,6 +28,7 @@ import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.role.Permission;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.HttpUtils;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
@@ -226,7 +227,8 @@ public class AuthenticationController {
           whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
       if (cachedWhitelistToken != null) {
         OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedWhitelistToken.getToken());
-        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(request.getRemoteHost())) {
+        String userHost = HttpUtils.getClientIp(request);
+        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(userHost)) {
           return ResponseEntity.ok().build();
         } else {
           return ResponseEntity.ok(cachedWhitelistToken.getUserHost());
@@ -419,7 +421,7 @@ public class AuthenticationController {
   private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
     Cookie accessToken = CookieManager.getAccessToken(request);
     if (accessToken != null) {
-      String userHost = request.getRemoteHost();
+      String userHost = HttpUtils.getClientIp(request);
       String userAgent = request.getHeader("user-agent");
       try {
         StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), userHost, userAgent);
