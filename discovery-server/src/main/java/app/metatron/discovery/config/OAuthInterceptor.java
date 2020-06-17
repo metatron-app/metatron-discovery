@@ -180,8 +180,8 @@ public class OAuthInterceptor implements HandlerInterceptor {
     if (requestURI.equals("/oauth/token")) {
       String grantType = request.getParameter("grant_type");
 
-      //exclude refresh_token or client_credentials
-      if (grantType.equals("refresh_token") || grantType.equals("client_credentials")) {
+      //exclude refresh_token or client_credentials or authorization_code
+      if (grantType.equals("refresh_token") || grantType.equals("client_credentials")|| grantType.equals("authorization_code")) {
         return;
       }
 
