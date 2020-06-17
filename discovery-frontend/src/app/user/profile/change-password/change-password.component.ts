@@ -160,6 +160,12 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
       this.newPasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.new.empty');
       return;
     }
+    // password not changed from current password
+    if (this.password === this.newPassword) {
+      this.resultNewPassword = false;
+      this.newPasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.matched.current');
+      return;
+    }
     const param = {
       username: this._userId,
       password: this.newPassword
@@ -200,6 +206,13 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
       this.rePasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.re.match.not');
       return;
     }
+    // password not changed from current password
+    if (this.password === this.rePassword) {
+      this.resultRePassword = false;
+      this.rePasswordMessage = this.translateService.instant('msg.comm.alert.profile.password.matched.current');
+      return;
+    }
+
     this.resultRePassword = true;
     return;
   }

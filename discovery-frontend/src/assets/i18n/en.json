@@ -322,6 +322,7 @@
   "msg.comm.alert.profile.password.success": "Password changed",
   "msg.comm.alert.profile.password.fail": "Failed to change password",
   "msg.comm.alert.profile.password.fail.minimum": "The minimum password usage period has not passed",
+  "msg.comm.alert.profile.password.matched.current": "Same as current password",
   "msg.comm.alert.profile.password.fail.matched.past": "Password used in the past",
   "msg.comm.btn.profile.password.change": "Change",
   "msg.comm.alert.access-denied.title" : "Access denied",
