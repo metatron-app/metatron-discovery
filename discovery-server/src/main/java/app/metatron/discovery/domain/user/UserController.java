@@ -254,12 +254,16 @@ public class UserController {
                       "The minimum password usage period has not passed.(" + mustUsePasswordDate + ")");
             }
           }
-
-          userService.validateUserPassword(username, user);
-          String encodedPassword = passwordEncoder.encode(user.getPassword());
-          updatedUser.setPassword(encodedPassword);
         }
 
+        //check password validation
+        userService.validateUserPassword(username, user);
+
+        //check matched previous password
+        userService.getMatchedPreviousPassword(username, user.getPassword());
+
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        updatedUser.setPassword(encodedPassword);
       }
     }
 

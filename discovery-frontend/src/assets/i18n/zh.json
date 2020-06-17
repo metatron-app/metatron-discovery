@@ -316,6 +316,7 @@
   "msg.comm.alert.profile.password.success": "密码已变更",
   "msg.comm.alert.profile.password.fail": "密码变更失败",
   "msg.comm.alert.profile.password.fail.minimum": "The minimum password usage period has not passed",
+  "msg.comm.alert.profile.password.fail.matched.past": "Password used in the past",
   "msg.comm.btn.profile.password.change": "变更",
   "msg.comm.alert.access-denied.title": "访问被拒",
   "msg.comm.alert.access-denied.desc": "无权查看本资源",

@@ -27,7 +27,7 @@ public class UserPasswordProperties {
 
   String minimumUsePeriod;
 
-  Integer countOfHistory = 3;
+  Integer countOfHistory = -1;
   Integer lockCount;
 
   public UserPasswordProperties() {

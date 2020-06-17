@@ -36,6 +36,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -77,6 +78,9 @@ public class UserService {
 
   @Autowired
   EntityManager entityManager;
+
+  @Autowired
+  PasswordEncoder passwordEncoder;
 
   public boolean checkDuplicated(DuplicatedTarget target, String value) {
     Long count = 0L;
@@ -227,6 +231,22 @@ public class UserService {
     }
 
     return true;
+  }
+
+  public Boolean getMatchedPreviousPassword(String username, String password){
+    int countOfHistory = userProperties.getPassword().getCountOfHistory();
+    if(countOfHistory > 0){
+      //getting password change history
+      List<Map<String, Object>> passwordChangeHistoryList = getUpdatedPasswordList(username, countOfHistory);
+      for(Map<String, Object> historyMap : passwordChangeHistoryList){
+        String prevPassword = historyMap.get("password").toString();
+        if(passwordEncoder.matches(password, prevPassword)){
+          throw new UserException(UserErrorCodes.PASSWORD_USED_PAST, "Password used in the past");
+        }
+      }
+    }
+
+    return false;
   }
 
   public DateTime getLastPasswordUpdatedDate(String username){

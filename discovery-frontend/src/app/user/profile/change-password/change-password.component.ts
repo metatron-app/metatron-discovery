@@ -302,8 +302,10 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
         this.loadingHide();
 
         // error alert
-        if(err.code == 'UR0009'){
+        if(err.code == 'UR0009') {
           Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail.minimum'));
+        } else if(err.code == 'UR0010'){
+            Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail.matched.past'));
         } else {
           Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail'));
         }
