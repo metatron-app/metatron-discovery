@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_GRANT;
@@ -77,6 +79,12 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
           StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
         }
       }
+    } catch (UnsupportedEncodingException ex) {
+      LOGGER.debug("authHeader : {}", request.getHeader("Authorization"));
+      LOGGER.debug("userName : {}", request.getParameter("username"));
+      LOGGER.debug("userHost : {}", HttpUtils.getClientIp(request));
+      LOGGER.debug("userAgent : {}", request.getHeader("user-agent"));
+      LOGGER.error(ex.getMessage());
     } catch (IllegalStateException ex) {
       LOGGER.error(ex.getMessage());
     } catch (Exception ex) {

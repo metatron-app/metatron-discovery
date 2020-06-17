@@ -17,6 +17,8 @@ package app.metatron.discovery.domain.admin;
 import com.google.common.collect.Maps;
 
 import org.infinispan.spring.provider.SpringEmbeddedCacheManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -36,6 +38,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 public class CacheAdminController {
+  private static Logger LOGGER = LoggerFactory.getLogger(CacheAdminController.class);
 
   @Autowired
   CacheManager cacheManager;
@@ -90,6 +93,7 @@ public class CacheAdminController {
     }
 
     cacheManager.getCache(cacheName).evict(cacheKey);
+    LOGGER.info("cacheName({}) - cacheKey({}) is deleted", cacheName, cacheKey);
     return ResponseEntity.noContent().build();
   }
 
