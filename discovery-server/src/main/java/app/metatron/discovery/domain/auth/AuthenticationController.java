@@ -72,6 +72,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.*;
 
@@ -379,7 +380,7 @@ public class AuthenticationController {
         StringBuffer stringBuffer = new StringBuffer("/oauth/authorize?response_type=code&client_id=");
         stringBuffer.append(clientId);
         stringBuffer.append("&redirect_uri=");
-        stringBuffer.append(redirect_uri);
+        stringBuffer.append(URLEncoder.encode(redirect_uri, "UTF-8"));
         stringBuffer.append("&scope=");
         stringBuffer.append(StringUtils.join(clientDetails.getAutoApproveScopes(), " "));
 
