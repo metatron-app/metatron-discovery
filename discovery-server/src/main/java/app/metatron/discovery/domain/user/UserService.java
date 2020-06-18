@@ -253,7 +253,7 @@ public class UserService {
     AuditReader auditReader = AuditReaderFactory.get(entityManager);
     AuditQuery userAuditQuery = auditReader.createQuery()
                                                .forRevisionsOfEntityWithChanges(User.class, true)
-                                               .add(AuditEntity.id().eq(username))
+                                               .add(AuditEntity.property("username").eq(username))
                                                .add(AuditEntity.property("password").hasChanged())
                                                .addOrder(AuditEntity.revisionNumber().desc())
                                                .setMaxResults(1);
@@ -278,7 +278,7 @@ public class UserService {
     AuditReader auditReader = AuditReaderFactory.get(entityManager);
     AuditQuery userAuditQuery = auditReader.createQuery()
                                            .forRevisionsOfEntityWithChanges(User.class, true)
-                                           .add(AuditEntity.id().eq(username))
+                                           .add(AuditEntity.property("username").eq(username))
                                            .add(AuditEntity.property("password").hasChanged())
                                            .addOrder(AuditEntity.revisionNumber().desc());
     if(limit > 0){
