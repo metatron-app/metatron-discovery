@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.common.exception;
 
+import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -36,10 +39,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
-
-import app.metatron.discovery.common.CommonLocalVariable;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 
 @RestControllerAdvice(basePackages = {"app.metatron.discovery", "org.springframework.security"})
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -83,6 +82,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     if (responseStatus != null) {
       status = responseStatus.code();
       response = new ErrorResponse(ex.getCode(), ex.getMessage(), details);
+      ex.printStackTrace();
+      LOGGER.info("TEST:: " + ex.toString());
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       response = new ErrorResponse(ex.getCode(), MetatronException.DEFAULT_GLOBAL_MESSAGE, details);

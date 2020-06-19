@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.common.saml;
 
+import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.UserService;
 import app.metatron.discovery.domain.user.group.Group;
@@ -134,8 +135,9 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
       attrMap.put("name", attr.getName());
       attrMap.put("friendlyName", attr.getFriendlyName());
       attrMap.put("value", credential.getAttributeAsString(attr.getName()));
-			LOGGER.debug("name : {}, value : {}, friendlyName : {}", attrMap.get("name"), attrMap.get("value"), attrMap.get("friendlyName"));
-    }
+			LOGGER.debug("name : {}, value : {}, friendlyName : {}", attrMap.get("name"), attrMap.get("value"),
+							attrMap.get("friendlyName"));
+		}
 
 		if (StringUtils.isBlank(metatronUser.getFullName())) {
 			metatronUser.setFullName(metatronUser.getUsername());
@@ -144,9 +146,10 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
 		// mail 전송을 수행하지 않고 패스워드를 지정하지 않은 경우 시스템에서 비번 생성
 		String temporaryPassword = userService.createTemporaryPassword(nameID);
 		String encodedPassword = passwordEncoder.encode(temporaryPassword);
+		StatLogger.generateTempPassword("User Creation", nameID, temporaryPassword);
 		metatronUser.setPassword(encodedPassword);
 
-    //기본은 deactivated
+		//기본은 deactivated
 		metatronUser.setStatus(app.metatron.discovery.domain.user.User.Status.ACTIVATED);
 
 		// Group 정보가 없을 경우 기본그룹 지정

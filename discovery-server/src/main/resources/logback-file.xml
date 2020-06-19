@@ -15,72 +15,88 @@
 
 <configuration>
 
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <property name="LOG_FILE"
-              value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/metatron.log}"/>
+  <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/metatron.log}"/>
 
-    <property name="FILE_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} [%15.15X{ip}-%12.12X{username}] [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+  <property name="SEC_LOG_FILE"
+    value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/metatron_security.log}"/>
 
-    <appender name="FILE_SIZE"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_FILE}</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>${LOG_FILE}.%i</fileNamePattern>
-        </rollingPolicy>
-        <triggeringPolicy
-                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>10MB</MaxFileSize>
-        </triggeringPolicy>
-    </appender>
+  <property name="FILE_PATTERN"
+    value="%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} [%15.15X{ip}-%12.12X{username}] [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
 
-    <appender name="FILE_TIME" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_FILE}</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxHistory>10</maxHistory>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <!-- or whenever the file size reaches 512MB -->
-                <maxFileSize>512MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-        </rollingPolicy>
-    </appender>
+  <appender name="APP_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_FILE}</file>
+    <encoder>
+      <pattern>${FILE_PATTERN}</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <maxHistory>10</maxHistory>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <!-- or whenever the file size reaches 512MB -->
+        <maxFileSize>512MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+  </appender>
 
-    <!-- show hibernate sql with debug -->
-    <logger name="org.hibernate.SQL" level="info"/>
+  <appender name="SECURITY" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${SEC_LOG_FILE}</file>
+    <encoder>
+      <pattern>${FILE_PATTERN}</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
+        <expression>
+          return logger.startsWith("app.metatron.discovery.common.StatLogger");
+        </expression>
+      </evaluator>
+      <OnMatch>ACCEPT</OnMatch>
+      <OnMismatch>DENY</OnMismatch>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${SEC_LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <maxHistory>10</maxHistory>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <!-- or whenever the file size reaches 512MB -->
+        <maxFileSize>512MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+  </appender>
 
-    <!-- show bound hibernate parameters with trace -->
-    <logger name="org.hibernate.type" level="info" />
+  <!-- show hibernate sql with debug -->
+  <logger name="org.hibernate.SQL" level="info"/>
 
-    <logger name="org.springframework.web" level="info"/>
+  <!-- show bound hibernate parameters with trace -->
+  <logger name="org.hibernate.type" level="info"/>
 
-    <logger name="org.springframework.web.client" level="info"/>
+  <logger name="org.springframework.web" level="info"/>
 
-    <logger name="org.springframework.web.servlet.mvc" level="info"/>
+  <logger name="org.springframework.web.client" level="info"/>
 
-    <logger name="org.apache.http" level="warn"/>
+  <logger name="org.springframework.web.servlet.mvc" level="info"/>
 
-    <logger name="org.springframework.data.rest" level="info"/>
+  <logger name="org.apache.http" level="warn"/>
 
-    <logger name="org.springframework.security" level="info"/>
+  <logger name="org.springframework.data.rest" level="info"/>
 
-    <logger name="org.springframework.session" level="info"/>
+  <logger name="org.springframework.security" level="info"/>
 
-    <logger name="org.apache.hadoop" level="warn"/>
+  <logger name="org.springframework.session" level="info"/>
 
-    <logger name="app.metatron.discovery" level="info"/>
+  <logger name="org.apache.hadoop" level="warn"/>
 
-    <root level="WARN">
-        <appender-ref ref="FILE_TIME"/>
-    </root>
+  <logger name="org.infinispan" level="info"/>
 
-    <jmxConfigurator/>
+  <logger name="org.jgroups" level="info"/>
+
+  <logger name="app.metatron.discovery" level="info"/>
+
+  <root level="WARN">
+    <appender-ref ref="APP_ALL"/>
+    <appender-ref ref="SECURITY"/>
+  </root>
+
+  <jmxConfigurator/>
 
 </configuration>

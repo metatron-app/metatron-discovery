@@ -33,6 +33,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.util.HttpUtils;
 
@@ -74,12 +75,12 @@ public class WhitelistAuthenticationFilter implements Filter {
       String username = authFromToken.getName();
       String clientId = authFromToken.getOAuth2Request().getClientId();
       String userHost = HttpUtils.getClientIp(httpServletRequest);
+      String userAgent = httpServletRequest.getHeader("user-agent");
 
       // getting whitelist in cache
-      WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
-          = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+      CachedWhitelistToken cachedWhitelistToken = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
       if (cachedWhitelistToken == null) {
-        LOGGER.info("cachedWhitelistToken is not exist({}, clientId)", username, clientId);
+        LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
         return;
       }

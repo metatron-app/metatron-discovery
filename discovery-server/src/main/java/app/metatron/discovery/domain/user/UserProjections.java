@@ -14,14 +14,13 @@
 
 package app.metatron.discovery.domain.user;
 
+import app.metatron.discovery.common.BaseProjections;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.common.BaseProjections;
 
 /**
  * Created by kyungtaak on 2016. 5. 16..
@@ -41,6 +40,9 @@ public class UserProjections extends BaseProjections {
     String getEmail();
 
     String getImageUrl();
+
+    @Value("#{@organizationService.findCodesOfMembersOrg(target.getUsername())}")
+    List<String> getOrgCodes();
   }
 
   @Projection(types = User.class, name = "forDetailView")
@@ -68,6 +70,9 @@ public class UserProjections extends BaseProjections {
 
     @Value("#{@groupService.getJoinedGroupsForProjection(target.getUsername(), true)}")
     List<Map<String, Object>> getGroups();
+
+    @Value("#{@organizationService.findCodesOfMembersOrg(target.getUsername())}")
+    List<String> getOrgCodes();
 
     DateTime getCreatedTime();
 

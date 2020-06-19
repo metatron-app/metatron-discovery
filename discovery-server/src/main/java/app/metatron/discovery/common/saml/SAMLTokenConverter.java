@@ -14,6 +14,10 @@
 
 package app.metatron.discovery.common.saml;
 
+import app.metatron.discovery.domain.activities.ActivityStream;
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.UserProfile;
 import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
 import org.slf4j.Logger;
@@ -31,24 +35,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.domain.activities.ActivityStream;
-import app.metatron.discovery.domain.activities.ActivityStreamService;
-
 public class SAMLTokenConverter extends JwtAccessTokenConverter {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SAMLTokenConverter.class);
 
   @Autowired
   ActivityStreamService activityStreamService;
 
+  @Autowired
+  CachedUserService cachedUserService;
+
   @Override
   public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
 
     //SAMLCredential 정보를 Token에 추가
-    if(accessToken instanceof DefaultOAuth2AccessToken){
+    if (accessToken instanceof DefaultOAuth2AccessToken) {
       LOGGER.debug("accessToken : {}", accessToken);
       Authentication userAuthentication = authentication.getUserAuthentication();
-      if(userAuthentication != null){
-        if(userAuthentication.getCredentials() != null && userAuthentication.getCredentials() instanceof SAMLCredential){
+      if (userAuthentication != null) {
+        if (userAuthentication.getCredentials() != null && userAuthentication
+                .getCredentials() instanceof SAMLCredential) {
           try{
 
             SAMLAuthenticationInfo samlAuthenticationInfo = new SAMLAuthenticationInfo(userAuthentication);
@@ -80,21 +86,29 @@ public class SAMLTokenConverter extends JwtAccessTokenConverter {
             nameIDMap.put("Value", samlCredential.getNameID().getValue());
             credentialMap.put("nameID", nameIDMap);
 
-//            samlAdditionalMap.put("credential", credentialMap);
-
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(samlAdditionalMap);
+
           } catch (MessageEncodingException e){
             e.printStackTrace();
           }
         } else {
-          ActivityStream activityStream = activityStreamService.getLastLoginActivityStream(userAuthentication.getName());
 
-          if(activityStream != null){
-            final Map<String, Object> additionalInfo = new HashMap<>();
+          // Set last login time and ip
+          ActivityStream activityStream = activityStreamService
+                  .getLastLoginActivityStream(userAuthentication.getName());
+          final Map<String, Object> additionalInfo = new HashMap<>();
+          if (activityStream != null) {
             additionalInfo.put("last_login_time", activityStream.getPublishedTime());
             additionalInfo.put("last_login_ip", activityStream.getRemoteHost());
-            ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
           }
+
+          // Set user organization codes
+          UserProfile profile = cachedUserService.findUserProfile(userAuthentication.getName());
+          if (profile != null) {
+            additionalInfo.put("org_codes", profile.getOrganizations());
+          }
+
+          ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
         }
       }
     }

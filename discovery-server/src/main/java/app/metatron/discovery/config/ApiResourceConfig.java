@@ -102,6 +102,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
@@ -225,7 +226,8 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     // LOGGER.info("staticPath {}", StringUtils.defaultIfBlank(staticPath, "file:" + home.getDir().getAbsolutePath() + "/static/"));
 
     registry.addResourceHandler("/static/**")
-            .addResourceLocations("file:" + StringUtils.defaultIfBlank(staticPath, home.getDir().getAbsolutePath() + "/static/"));
+            .addResourceLocations(
+                    "file:" + StringUtils.defaultIfBlank(staticPath, home.getDir().getAbsolutePath() + "/static/"));
 
     //add resource for extension
     // /plugins/plugin-id/**  -->  file:/plugin-path/classes/
@@ -561,13 +563,19 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
   @Bean
   public EventListenerRegistry listenerRegistry(EntityManagerFactory entityManagerFactory) {
-    ServiceRegistryImplementor serviceRegistry = entityManagerFactory.unwrap(SessionFactoryImpl.class).getServiceRegistry();
+    ServiceRegistryImplementor serviceRegistry = entityManagerFactory.unwrap(SessionFactoryImpl.class)
+            .getServiceRegistry();
 
     final EnversService enversService = serviceRegistry.getService(EnversService.class);
     EventListenerRegistry listenerRegistry = serviceRegistry.getService(EventListenerRegistry.class);
 
     listenerRegistry.setListeners(EventType.POST_INSERT, new CustomEnversPostInsertEventListener(enversService));
     return listenerRegistry;
+  }
+
+  @Bean
+  public RequestContextListener requestContextListener() {
+    return new RequestContextListener();
   }
 
 }

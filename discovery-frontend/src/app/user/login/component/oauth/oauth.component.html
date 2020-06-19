@@ -53,7 +53,7 @@
               <span class="ddp-input-type">
                 <input #pwElm type="password" name="password"
                        [(ngModel)]="user.password" placeholder="{{'msg.comm.usr.pw.title.ph' | translate}}"
-                       (keyup)="$event.keyCode == 13 ? login() : null;"
+                       (keyup)="$event.keyCode == 13 ? checkIp() : null;"
                        style="border-bottom:none;"/>
               </span>
                 <em class="ddp-icon-error" (click)="user.password='';loginFailMsg='';" *ngIf="loginFailMsg"></em>
@@ -66,7 +66,7 @@
 
             <!-- button -->
             <div class="ddp-ui-login-buttons">
-              <a href="javascript:" class="ddp-btn" name="loginBtn" (click)="login()">{{'msg.comm.usr.login' | translate}}</a>
+              <a href="javascript:" class="ddp-btn" name="loginBtn" (click)="checkIp()">{{'msg.comm.usr.login' | translate}}</a>
             </div>
             <!-- //button -->
 
@@ -93,6 +93,6 @@
   <app-initial-change-password (closeInitPw)="initialComplete()"></app-initial-change-password>
   <!-- 초기 비밀번호 변경 -->
 
-  <app-confirm-small-modal [useCloseBtn]="false" (confirm)="confirmComplete($event)"></app-confirm-small-modal>
+  <app-confirm-small-modal [useCloseBtn]="false" [useCancelBtn]="useCancelBtn" (confirm)="confirmComplete($event)"></app-confirm-small-modal>
 
 </ng-container>

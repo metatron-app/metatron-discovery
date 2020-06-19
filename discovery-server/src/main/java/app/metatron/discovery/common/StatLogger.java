@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.common;
 
+import app.metatron.discovery.common.exception.ErrorResponse;
+import app.metatron.discovery.domain.revision.MetatronRevisionDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -21,10 +23,8 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import app.metatron.discovery.common.exception.ErrorResponse;
-import app.metatron.discovery.domain.revision.MetatronRevisionDto;
-
 public class StatLogger {
+
   private static Logger LOGGER = LoggerFactory.getLogger(StatLogger.class);
 
   public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -60,18 +60,24 @@ public class StatLogger {
   public static void logout(OAuth2Authentication oAuth2Authentication, String userHost, String userAgent) {
     if (LOGGER.isInfoEnabled()) {
       StringBuffer stringBuffer = print("LOGOUT", oAuth2Authentication.getPrincipal().toString(),
-                                        oAuth2Authentication.getOAuth2Request().getClientId(), userHost, userAgent);
+              oAuth2Authentication.getOAuth2Request().getClientId(), userHost, userAgent);
       LOGGER.info(stringBuffer.toString());
+    }
+  }
+
+  public static void generateTempPassword(String action, String username, String password) {
+    if (LOGGER.isInfoEnabled()) {
+      LOGGER.info("[TEMPPW] {} - {} - {}", action, username, password);
     }
   }
 
   private static StringBuffer print(String mode, String userName, String clientId, String userHost, String userAgent) {
     StringBuffer stringBuffer = new StringBuffer(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
     stringBuffer.append(DELIMITER).append(mode)
-                .append(DELIMITER).append(userName)
-                .append(DELIMITER).append(clientId)
-                .append(DELIMITER).append(userHost)
-                .append(DELIMITER).append(userAgent);
+            .append(DELIMITER).append(userName)
+            .append(DELIMITER).append(clientId)
+            .append(DELIMITER).append(userHost)
+            .append(DELIMITER).append(userAgent);
     return stringBuffer;
   }
 

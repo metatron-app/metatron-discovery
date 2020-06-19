@@ -82,7 +82,9 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   // 이용약관 표시 여부
   public isShowTerms: boolean = false;
 
-  public loginFailMsg:string;
+  public loginFailMsg: string;
+
+  public useCancelBtn: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -158,6 +160,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
       ( '' !== data.msg ) && ( modal.description = data.msg );
     }
     // confirm modal
+    this.useCancelBtn = false;
     this._confirmModal.init(modal);
 
     //this.joinCompleteComponent.init();
@@ -165,13 +168,46 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
 
   public confirmComplete(data) {
     if (!isNullOrUndefined(data)) {
-      this.router.navigate([data]).then();
+      if (data === this.user) {
+        this.login();
+      } else {
+        this.router.navigate([data]).then();
+      }
     }
   }
 
   // 비밀번호 찾기
   public resetPassword() {
     this.resetPasswordComponent.init();
+  }
+
+  public checkIp() {
+    if (this._confirmModal.isShow) {
+      return;
+    }
+
+    this.loadingShow();
+
+    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+
+    this.userService.checkUserIp(this.user).then((host) => {
+      if (!isNullOrUndefined(host)) {
+        this.loadingHide();
+        const modal = new Modal();
+        modal.name = this.translateService.instant( 'msg.login.access.title' );
+        modal.description = this.translateService.instant('msg.sso.ui.confirm.userip', {value: host});
+        modal.data = this.user;
+        // confirm modal
+        this.useCancelBtn = true;
+        this._confirmModal.init(modal);
+      } else {
+        this.login();
+      }
+    }).catch(() => {
+      this._logout();
+      Alert.error(this.translateService.instant('login.ui.failed'), true);
+      this.loadingHide();
+    });
   }
 
   /**
@@ -292,6 +328,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     }
     modal.data = forwardUrl;
     // confirm modal
+    this.useCancelBtn = false;
     this._confirmModal.init(modal);
   }
 

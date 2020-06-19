@@ -119,6 +119,29 @@ export class AbstractService {
       .catch(error => scope.tokenRefreshFail(scope, error));
   }
 
+  protected checkIp(user: User, basicHeader?: string): Promise<any> {
+
+    // this
+    const scope: any = this;
+
+    // URL
+    const url = this.API_URL + 'oauth/client/check';
+
+    // 헤더
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: isNullOrUndefined(basicHeader) ?
+        'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==' : basicHeader,
+    });
+
+    // 호출
+    return this.http.post(
+      url, 'username=' + user.username,
+      { headers })
+      .toPromise()
+      .catch(error => scope.errorHandler(scope, error));
+  }
+
 
   // Get 방식
   protected get(url: string, timeout?): Promise<any> {

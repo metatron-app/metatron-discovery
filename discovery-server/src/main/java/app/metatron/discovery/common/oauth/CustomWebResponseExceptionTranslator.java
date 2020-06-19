@@ -16,7 +16,10 @@ package app.metatron.discovery.common.oauth;
 
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.exception.ErrorResponse;
+import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import app.metatron.discovery.util.HttpUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +28,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 
-import app.metatron.discovery.common.exception.GlobalErrorCodes;
-import app.metatron.discovery.util.HttpUtils;
+import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_GRANT;
 import static org.springframework.security.oauth2.common.exceptions.OAuth2Exception.INVALID_TOKEN;
@@ -67,13 +69,22 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
     }
 
     try {
-      String userName = request.getParameter("username");
-      String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      String userHost = HttpUtils.getClientIp(request);
-      String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-      if ("password".equals(request.getParameter("grant_type"))) {
-        StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+      String authHeader = request.getHeader("Authorization");
+      if (StringUtils.isNotEmpty(authHeader) && !authHeader.startsWith("Bearer")) {
+        String userName = request.getParameter("username");
+        String clientId = BasicTokenExtractor.extractClientId(authHeader);
+        String userHost = HttpUtils.getClientIp(request);
+        String userAgent = request.getHeader("user-agent");
+        if ("password".equals(request.getParameter("grant_type"))) {
+          StatLogger.loginFail(errorResponse, userName, clientId, userHost, userAgent);
+        }
       }
+    } catch (UnsupportedEncodingException ex) {
+      LOGGER.debug("authHeader : {}", request.getHeader("Authorization"));
+      LOGGER.debug("userName : {}", request.getParameter("username"));
+      LOGGER.debug("userHost : {}", HttpUtils.getClientIp(request));
+      LOGGER.debug("userAgent : {}", request.getHeader("user-agent"));
+      LOGGER.error(ex.getMessage());
     } catch (IllegalStateException ex) {
       LOGGER.error(ex.getMessage());
     } catch (Exception ex) {

@@ -91,7 +91,6 @@ export class Alert {
    * @param {string} message
    */
   public static error(message: string, isShow:boolean = false): void {
-    console.log(isShow);
     if (location.href.indexOf('user/login') < 0 || isShow) {
       this._setDefaultOpts();
       setTimeout(() => {

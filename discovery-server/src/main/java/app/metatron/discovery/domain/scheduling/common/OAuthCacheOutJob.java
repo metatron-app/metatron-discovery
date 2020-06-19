@@ -29,8 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 
 import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedAccessToken;
+import app.metatron.discovery.common.oauth.token.cache.CachedRefreshToken;
 import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+
+import static app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository.REFRESH_TO_ACCESS;
 
 @Component
 @Transactional(readOnly = true, isolation = Isolation.READ_UNCOMMITTED)
@@ -59,10 +63,14 @@ public class OAuthCacheOutJob extends QuartzJobBean {
     LOGGER.info("## Start batch job for checking expired oauth access token.");
     SpringCache accessTokenCache = (SpringCache) cacheManager.getCache("access-token-cache");
     accessTokenCache.getNativeCache().forEach((key, cachedAccessToken) -> {
-      Date expiration = ((AccessTokenCacheRepository.CachedAccessToken) cachedAccessToken).getExpiration();
-      if(expiration.getTime() < System.currentTimeMillis()){
-        LOGGER.debug("Access Token expired : {}", key);
-        accessTokenCacheRepository.removeAccessToken(key.toString());
+      String tokenKey = key.toString();
+      if(!tokenKey.startsWith(REFRESH_TO_ACCESS)){
+        Date expiration = ((CachedAccessToken) cachedAccessToken).getExpiration();
+        if(expiration.getTime() < System.currentTimeMillis()){
+          LOGGER.debug("Access Token expired : {}", key);
+          accessTokenCacheRepository.removeAccessToken(key.toString());
+          whitelistTokenCacheRepository.removeWhitelistTokenByCachedAccessToken((CachedAccessToken) cachedAccessToken);
+        }
       }
     });
     LOGGER.info("## End batch job for checking expired oauth refresh token.");
@@ -70,10 +78,11 @@ public class OAuthCacheOutJob extends QuartzJobBean {
     LOGGER.info("## Start batch job for checking expired oauth refresh token.");
     SpringCache refreshTokenCache = (SpringCache) cacheManager.getCache("refresh-token-cache");
     refreshTokenCache.getNativeCache().forEach((key, cachedRefreshToken) -> {
-      Date expiration = ((RefreshTokenCacheRepository.CachedRefreshToken) cachedRefreshToken).getExpiration();
+      Date expiration = ((CachedRefreshToken) cachedRefreshToken).getExpiration();
       if(expiration.getTime() < System.currentTimeMillis()){
         LOGGER.debug("Refresh Token expired : {}", key);
         refreshTokenCacheRepository.removeRefreshToken(key.toString());
+        accessTokenCacheRepository.removeAccessTokenByRefreshToken(key.toString());
       }
     });
     LOGGER.info("## End batch job for checking expired oauth refresh token.");

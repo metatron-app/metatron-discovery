@@ -36,6 +36,7 @@ import app.metatron.discovery.common.oauth.token.JwtTokenUtil;
 public class AccessTokenCacheRepository {
 
   private static Logger LOGGER = LoggerFactory.getLogger(AccessTokenCacheRepository.class);
+  public static String REFRESH_TO_ACCESS = "REFRESH_TO_ACCESS:";
 
   @Autowired
   CacheManager cacheManager;
@@ -53,75 +54,25 @@ public class AccessTokenCacheRepository {
     return accessToken;
   }
 
+  @CachePut(key = "T(app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository).REFRESH_TO_ACCESS + #refreshToken")
+  public CachedAccessToken putAccessTokenByRefreshToken(String tokenKey, String refreshToken, String username, Date expiration,
+                                                        String clientId, String clientIp){
+    LOGGER.debug("store Access Token By Refresh Token : {}", JwtTokenUtil.getTokenForDebug(tokenKey));
+    CachedAccessToken accessToken = new CachedAccessToken(tokenKey, refreshToken, username, expiration, clientId, clientIp);
+    return accessToken;
+  }
+
   @CacheEvict
   public void removeAccessToken(String tokenKey){
     LOGGER.debug("remove Access Token : {}", JwtTokenUtil.getTokenForDebug(tokenKey));
     cacheManager.getCache("access-token-cache").evict(tokenKey);
   }
 
-  public class CachedAccessToken implements Serializable {
-    public String token;
-    public String refreshToken;
-    public String username;
-    public String clientId;
-    public String clientIp;
-    public Date expiration;
+  public CachedAccessToken getCachedAccessTokenByRefreshToken(String refreshTokenKey){
+    return this.getCachedAccessToken(REFRESH_TO_ACCESS + refreshTokenKey);
+  }
 
-    public CachedAccessToken(String token, String refreshToken, String username, Date expiration, String clientId, String clientIp) {
-      this.token = token;
-      this.refreshToken = refreshToken;
-      this.username = username;
-      this.expiration = expiration;
-      this.clientId = clientId;
-      this.clientIp = clientIp;
-    }
-
-    public String getToken() {
-      return token;
-    }
-
-    public void setToken(String token) {
-      this.token = token;
-    }
-
-    public String getRefreshToken() {
-      return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-      this.refreshToken = refreshToken;
-    }
-
-    public String getUsername() {
-      return username;
-    }
-
-    public void setUsername(String username) {
-      this.username = username;
-    }
-
-    public String getClientId() {
-      return clientId;
-    }
-
-    public void setClientId(String clientId) {
-      this.clientId = clientId;
-    }
-
-    public String getClientIp() {
-      return clientIp;
-    }
-
-    public void setClientIp(String clientIp) {
-      this.clientIp = clientIp;
-    }
-
-    public Date getExpiration() {
-      return expiration;
-    }
-
-    public void setExpiration(Date expiration) {
-      this.expiration = expiration;
-    }
+  public void removeAccessTokenByRefreshToken(String refreshTokenKey){
+    this.removeAccessToken(REFRESH_TO_ACCESS + refreshTokenKey);
   }
 }

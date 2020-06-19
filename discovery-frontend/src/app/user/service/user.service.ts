@@ -93,6 +93,10 @@ export class UserService extends AbstractService {
     return this.get(this.API_URL + 'logout');
   }
 
+  public checkUserIp(user: User, basicHeader?: string): Promise<any> {
+    return this.checkIp(user, basicHeader);
+  }
+
   // 유저정보
   public getUser(username: string): Promise<User> {
     return this.get(this.URL_USER + '/' + username);

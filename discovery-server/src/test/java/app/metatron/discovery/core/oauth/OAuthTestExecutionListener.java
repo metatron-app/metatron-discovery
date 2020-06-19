@@ -15,7 +15,6 @@
 package app.metatron.discovery.core.oauth;
 
 import com.google.common.collect.Sets;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
@@ -33,12 +33,11 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static java.util.Arrays.asList;
 
@@ -50,13 +49,14 @@ public class OAuthTestExecutionListener extends AbstractTestExecutionListener {
   private static Logger LOGGER = LoggerFactory.getLogger(OAuthTestExecutionListener.class);
 
   public static final String OAUTH_TOKEN_VALUE = "token";
-  private final OAuth2AccessToken accessToken;
-  private final OAuth2Request clientAuthentication;
+  private OAuth2AccessToken accessToken;
+  private OAuth2Request clientAuthentication;
 
   public OAuthTestExecutionListener() {
-    accessToken = new DefaultOAuth2AccessToken(OAUTH_TOKEN_VALUE);
+
     // TODO no magic constants! These should probably come from the OAuthResourceServer Configuration!
-    clientAuthentication = new OAuth2Request(new HashMap<>(), "polaris-client", null, true, Sets.newHashSet("read", "write"), Sets.newHashSet("polaris"), null, null, null);
+    clientAuthentication = new OAuth2Request(new HashMap<>(), "polaris-client", null, true,
+            Sets.newHashSet("read", "write"), Sets.newHashSet("polaris"), null, null, null);
   }
 
   @Override
@@ -75,12 +75,22 @@ public class OAuthTestExecutionListener extends AbstractTestExecutionListener {
   }
 
   private void insertOauthTokenIntoStore(TestContext testContext, @Nonnull OAuthRequest token) throws InvocationTargetException, IllegalAccessException {
-    TokenStore tokenStore = testContext.getApplicationContext().getBean(TokenStore.class);
-    OAuth2Authentication authentication = new OAuth2Authentication(clientAuthentication, getAuthenticationFromAnnotation(token));
-    tokenStore.storeAccessToken(accessToken, authentication);
 
-    JwtAccessTokenConverter jwtAccessTokenConverter = testContext.getApplicationContext().getBean("accessTokenConverter", JwtAccessTokenConverter.class);
-    OAuth2AccessToken jwtToken = jwtAccessTokenConverter.enhance(accessToken, authentication);
+    DefaultOAuth2AccessToken defaultToken = new DefaultOAuth2AccessToken(OAUTH_TOKEN_VALUE);
+    defaultToken.setRefreshToken(new DefaultOAuth2RefreshToken(OAUTH_TOKEN_VALUE + "_refresh"));
+
+    TokenStore tokenStore = testContext.getApplicationContext().getBean(TokenStore.class);
+    OAuth2Authentication authentication = new OAuth2Authentication(clientAuthentication,
+            getAuthenticationFromAnnotation(token));
+
+    JwtAccessTokenConverter jwtAccessTokenConverter = testContext.getApplicationContext()
+            .getBean("accessTokenConverter", JwtAccessTokenConverter.class);
+    OAuth2AccessToken jwtToken = jwtAccessTokenConverter.enhance(defaultToken, authentication);
+    defaultToken.setValue(jwtToken.getValue());
+
+    this.accessToken = defaultToken;
+
+    tokenStore.storeAccessToken(accessToken, authentication);
 
     BeanUtils.setProperty(testContext.getTestInstance(), "oauth_token", jwtToken.getValue());
   }

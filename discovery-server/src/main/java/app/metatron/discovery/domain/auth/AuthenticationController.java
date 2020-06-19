@@ -18,8 +18,12 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.oauth.BasicTokenExtractor;
 import app.metatron.discovery.common.oauth.CookieManager;
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
+import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
+import app.metatron.discovery.config.ApiResourceConfig;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.role.Permission;
@@ -48,7 +52,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -58,6 +64,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -65,6 +72,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.*;
 
@@ -91,6 +99,9 @@ public class AuthenticationController {
 
   @Autowired
   TokenStore tokenStore;
+
+  @Autowired
+  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -208,6 +219,29 @@ public class AuthenticationController {
     return ResponseEntity.noContent().build();
   }
 
+  @RequestMapping(value = "/oauth/client/check", method = RequestMethod.POST)
+  public ResponseEntity<?> checkOauth(HttpServletRequest request) {
+    try {
+      String username = request.getParameter("username");
+      String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
+      CachedWhitelistToken cachedWhitelistToken =
+          whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+      if (cachedWhitelistToken != null) {
+        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedWhitelistToken.getToken());
+        String userHost = HttpUtils.getClientIp(request);
+        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(userHost)) {
+          return ResponseEntity.ok().build();
+        } else {
+          return ResponseEntity.ok(cachedWhitelistToken.getUserHost());
+        }
+      } else {
+        return ResponseEntity.ok().build();
+      }
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().build();
+    }
+  }
+
   @RequestMapping(value = "/logout", method = RequestMethod.GET)
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
     logoutProcess(request, response);
@@ -217,6 +251,11 @@ public class AuthenticationController {
   @GetMapping(value = "/oauth/{clientId}")
   public ResponseEntity<?> getClient(@PathVariable("clientId") String clientId) throws UnsupportedEncodingException {
     ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+    if (clientDetails.getRegisteredRedirectUri() == null
+        || clientDetails.getRegisteredRedirectUri().isEmpty()) {
+      LOGGER.debug("client_id({}) redirectUri is empty",  clientId);
+      throw new BadRequestException("redirectUri is empty");
+    }
     Map additionalInformation = new HashMap<String, String>();
     if (clientDetails.getAdditionalInformation() != null) {
       additionalInformation = new HashMap<>(clientDetails.getAdditionalInformation());
@@ -317,47 +356,10 @@ public class AuthenticationController {
 
   @RequestMapping(value = "/oauth/client/login")
   public ModelAndView oauthLogin(HttpServletRequest request) {
+    String queryStr = request.getQueryString();
     ModelAndView mav = new ModelAndView("oauth/login");
-    try {
-      String clientId = request.getParameter("client_id");
-      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
-      String clientSecret = clientDetails.getClientSecret();
-      String token = clientId+":"+clientSecret;
-      String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
-      Map additionalInformation = clientDetails.getAdditionalInformation();
-      String clientName = String.valueOf(additionalInformation
-                                             .getOrDefault("clientName", "metatron Discovery"));
-      String faviconPath = String.valueOf(additionalInformation
-                                             .getOrDefault("faviconPath", ""));
-      String logoFilePath = String.valueOf(additionalInformation
-                                               .getOrDefault("logoFilePath", ""));
-      String logoDesc = String.valueOf(additionalInformation
-                                               .getOrDefault("logoDesc", ""));
-      String backgroundFilePath = String.valueOf(additionalInformation
-                                                     .getOrDefault("backgroundFilePath", ""));
-      String smallLogoFilePath = String.valueOf(additionalInformation
-                                                    .getOrDefault("smallLogoFilePath", ""));
-      String smallLogoDesc = String.valueOf(additionalInformation
-                                                .getOrDefault("smallLogoDesc", ""));
-      String copyrightHtml = String.valueOf(additionalInformation
-                                                .getOrDefault("copyrightHtml"
-                                                                 , "Copyright © SK Telecom Co., Ltd. All rights reserved."));
-      LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
-      LOGGER.debug("additionalInformation {}",
-                   GlobalObjectMapper.writeValueAsString(additionalInformation));
-      mav.addObject("basicHeader", "Basic "+basicHeader);
-      mav.addObject("clientName", clientName);
-      mav.addObject("faviconPath", faviconPath);
-      mav.addObject("logoFilePath", logoFilePath);
-      mav.addObject("logoDesc", logoDesc);
-      mav.addObject("backgroundFilePath", backgroundFilePath);
-      mav.addObject("smallLogoFilePath", smallLogoFilePath);
-      mav.addObject("smallLogoDesc", smallLogoDesc);
-      mav.addObject("copyrightHtml", copyrightHtml);
-    } catch (Exception e) {
-      throw new MetatronException(e);
-    }
-
+    mav.addObject("redirectUri", ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr);
+    LOGGER.info("[CHK] QueryString :: {}", queryStr);
     return mav;
   }
 
@@ -378,7 +380,7 @@ public class AuthenticationController {
         StringBuffer stringBuffer = new StringBuffer("/oauth/authorize?response_type=code&client_id=");
         stringBuffer.append(clientId);
         stringBuffer.append("&redirect_uri=");
-        stringBuffer.append(redirect_uri);
+        stringBuffer.append(URLEncoder.encode(redirect_uri, "UTF-8"));
         stringBuffer.append("&scope=");
         stringBuffer.append(StringUtils.join(clientDetails.getAutoApproveScopes(), " "));
 
@@ -420,11 +422,22 @@ public class AuthenticationController {
   private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
     Cookie accessToken = CookieManager.getAccessToken(request);
     if (accessToken != null) {
+      String userHost = HttpUtils.getClientIp(request);
+      String userAgent = request.getHeader("user-agent");
       try {
-        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), HttpUtils.getClientIp(request), request.getHeader(HttpHeaders.USER_AGENT));
+        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), userHost, userAgent);
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
       }
+
+      OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken.getValue());
+      String username = authFromToken.getName();
+      String clientId = authFromToken.getOAuth2Request().getClientId();
+      CachedWhitelistToken cachedWhitelistToken = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+      if (cachedWhitelistToken != null && cachedWhitelistToken.getUserHost().equals(userHost)) {
+        whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
+      }
+
       this.tokenStore.removeAccessToken(new DefaultOAuth2AccessToken(accessToken.getValue()));
     }
     Cookie refreshToken = CookieManager.getRefreshToken(request);

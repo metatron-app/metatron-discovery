@@ -27,7 +27,7 @@ public class UserPasswordProperties {
 
   String minimumUsePeriod;
 
-  Integer countOfHistory = 3;
+  Integer countOfHistory = -1;
   Integer lockCount;
 
   public UserPasswordProperties() {
@@ -124,9 +124,9 @@ public class UserPasswordProperties {
       }
 
       //repeat limit
-      if(repeatLimit != null && repeatLimit > 0){
+      if(repeatLimit != null && repeatLimit > 1){
         stringBuilder.append("(?!.*(.)");
-        for(int i = 0; i < repeatLimit; ++i){
+        for(int i = 0; i < repeatLimit - 1; ++i){
           stringBuilder.append("\\1");
         }
         stringBuilder.append(")");

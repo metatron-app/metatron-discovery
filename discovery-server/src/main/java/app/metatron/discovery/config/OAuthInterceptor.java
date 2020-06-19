@@ -17,6 +17,7 @@ package app.metatron.discovery.config;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.oauth.OauthProperties;
+import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
@@ -27,12 +28,15 @@ import app.metatron.discovery.domain.user.UserProperties;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.UserService;
 import app.metatron.discovery.util.HttpUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -123,7 +127,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
     // cannot refresh token not in whitelist cache
     if (oauthProperties.getTimeout() > -1) {
       String requestURI = request.getRequestURI();
-      LOGGER.debug("requestURI : {}", requestURI);
+      LOGGER.debug("preHandle - requestURI : {}", requestURI);
       if (requestURI.equals("/oauth/token")) {
         String grantType = request.getParameter("grant_type");
         if (grantType.equals("refresh_token")) {
@@ -137,19 +141,24 @@ public class OAuthInterceptor implements HandlerInterceptor {
           String userHost = HttpUtils.getClientIp(request);
 
           LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
-          WhitelistTokenCacheRepository.CachedWhitelistToken cachedWhitelistToken
-                  = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-
-          if (cachedWhitelistToken == null) {
+          CachedWhitelistToken cachedWhitelistToken
+              = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
+          if (cachedWhitelistToken != null) {
+            OAuth2AccessToken whiteListAccessToken = tokenStore.readAccessToken(cachedWhitelistToken.getToken());
+            if (whiteListAccessToken.isExpired()) {
+              whitelistTokenCacheRepository.removeWhitelistToken(cachedWhitelistToken.getUsername(), cachedWhitelistToken.getClientId());
+            } else {
+              String cachedUserHost = cachedWhitelistToken.getUserHost();
+              // if not matched in whitelist cache, throw exception
+              if (!userHost.equals(cachedUserHost)) {
+                LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+                removeAccessTokenByRefreshToken(refreshToken);
+                throw new InvalidTokenException("User ip is not in whitelist.");
+              }
+            }
+          } else {
             LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
-            throw new InvalidTokenException("User ip is not in whitelist.");
-          }
-
-          String cachedUserHost = cachedWhitelistToken.getUserHost();
-          // if not matched in whitelist cache, throw exception
-          if (!userHost.equals(cachedUserHost)) {
-            LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-            throw new InvalidTokenException("User ip is not in whitelist.");
+            removeAccessTokenByRefreshToken(refreshToken);
           }
         }
       }
@@ -165,15 +174,14 @@ public class OAuthInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-          throws Exception {
+  public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
     String requestURI = request.getRequestURI();
-    LOGGER.debug("requestURI : {}", requestURI);
+    LOGGER.debug("afterCompletion - requestURI : {}", requestURI);
     if (requestURI.equals("/oauth/token")) {
       String grantType = request.getParameter("grant_type");
 
-      //exclude refresh_token
-      if (grantType.equals("refresh_token")) {
+      //exclude refresh_token or client_credentials or authorization_code
+      if (grantType.equals("refresh_token") || grantType.equals("client_credentials")|| grantType.equals("authorization_code")) {
         return;
       }
 
@@ -187,9 +195,11 @@ public class OAuthInterceptor implements HandlerInterceptor {
       //getting client info
       String clientName = null;
       ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+
       if (clientDetails != null) {
         Map<String, Object> clientAdditionalInformation = clientDetails.getAdditionalInformation();
         if (clientAdditionalInformation != null && clientAdditionalInformation.containsKey("clientName")) {
+          LOGGER.info("[DUMMY] client name :  {}", clientAdditionalInformation.get("clientName"));
           clientName = clientAdditionalInformation.get("clientName").toString();
         }
       }
@@ -231,8 +241,16 @@ public class OAuthInterceptor implements HandlerInterceptor {
           StatLogger.login(username, clientId, userHost, userAgent);
         }
       } catch (Exception e) {
-        LOGGER.error(e.getMessage(), e);
+        LOGGER.error("Error :: {} ", e.getMessage());
       }
     }
+  }
+
+  public void removeAccessTokenByRefreshToken(String refreshToken){
+    //remove access token
+    tokenStore.removeAccessTokenUsingRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
+
+    //remove refresh token
+    tokenStore.removeRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
   }
 }

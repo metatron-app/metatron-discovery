@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.common.web;
 
+import app.metatron.discovery.common.oauth.CookieManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,20 +23,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import app.metatron.discovery.common.oauth.CookieManager;
-import app.metatron.discovery.config.ApiResourceConfig;
+import java.io.IOException;
 
 /**
  * Created by kyungtaak on 2016. 11. 20..
@@ -45,8 +37,6 @@ public class OauthFilter implements Filter {
   private static Logger LOGGER = LoggerFactory.getLogger(OauthFilter.class);
 
   private AuthenticationManager authenticationManager;
-
-  public final String OAUTH_URL = "/api/oauth/client/login";
 
   public OauthFilter(AuthenticationManager authenticationManager) {
     this.authenticationManager = authenticationManager;
@@ -64,23 +54,25 @@ public class OauthFilter implements Filter {
     HttpServletResponse res = (HttpServletResponse) response;
 
     String requestUrl = req.getRequestURL().toString();
+    LOGGER.info("[CHK] requestURL : {}", requestUrl);
+    LOGGER.info("[CHK] requestURI : {}", req.getRequestURI());
     if (requestUrl.endsWith("/oauth/authorize")) {
       Cookie loginToken = CookieManager.getAccessToken(req);
       if (loginToken != null) {
         LOGGER.debug("loginToken.getValue() : {}", loginToken.getValue());
         try {
-          Authentication authentication = authenticationManager.authenticate(new PreAuthenticatedAuthenticationToken(loginToken.getValue(), ""));
+          Authentication authentication = authenticationManager
+                  .authenticate(new PreAuthenticatedAuthenticationToken(loginToken.getValue(), ""));
           SecurityContextHolder.getContext().setAuthentication(authentication);
           LOGGER.info("authentication is {}", authentication);
         } catch (OAuth2Exception e) {
           LOGGER.error(e.getSummary());
-          // req.getRequestDispatcher(OAUTH_URL).forward(request, response);
-          res.sendRedirect(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + req.getQueryString());
+          req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
           return;
         }
       } else {
-        // req.getRequestDispatcher(OAUTH_URL).forward(request, response);
-        res.sendRedirect(ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + req.getQueryString());
+        LOGGER.debug("loginToken.getValue() : null");
+        req.getRequestDispatcher("/api/oauth/client/login").forward(request, response);
         return;
       }
     }
