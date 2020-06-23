@@ -58,7 +58,7 @@ public class WhitelistTokenCacheRepository {
     if(cachedAccessToken != null){
       CachedWhitelistToken cachedWhitelistToken
           = this.getCachedWhitelistToken(cachedAccessToken.getUsername(), cachedAccessToken.getClientId());
-      if(cachedWhitelistToken != null && cachedAccessToken.getToken().equals(cachedWhitelistToken.getToken())){
+      if(cachedWhitelistToken == null || cachedAccessToken.getToken().equals(cachedWhitelistToken.getToken())){
         this.removeWhitelistToken(cachedAccessToken.getUsername(), cachedAccessToken.getClientId());
       }
     }

@@ -70,7 +70,7 @@ export class AbstractService {
   /*
   * Token 생성
   */
-  protected getToken(user: User, basicHeader?: string): Promise<any> {
+  protected getToken(user: User): Promise<any> {
 
     // this
     const scope: any = this;
@@ -81,8 +81,7 @@ export class AbstractService {
     // 헤더
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: isNullOrUndefined(basicHeader) ?
-        'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==' : basicHeader,
+      Authorization: 'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==',
     });
 
     // 호출

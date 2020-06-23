@@ -86,6 +86,9 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.activatedRoute.queryParams.subscribe((params) => {
       this.clientId = params['client_id'];
+      if (params['error'] === 'IP') {
+        Alert.error(this.translateService.instant('msg.sso.ui.not.matched.userip'), true);
+      }
     });
 
     // this.user.username = 'admin';
@@ -158,7 +161,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loginFailMsg = '';
 
-    this.userService.login(this.user, this.oauthClientInformation.basicHeader).then((loginToken) => {
+    this.userService.login(this.user).then((loginToken) => {
       if (loginToken.access_token) {
 
         // 쿠키 저장

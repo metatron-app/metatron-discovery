@@ -17,6 +17,8 @@ package app.metatron.discovery.common.oauth.token.service;
 import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.util.HttpUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class CustomDefaultTokenService extends DefaultTokenServices {
 
@@ -36,11 +40,23 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
   @Autowired
   WhitelistTokenCacheRepository whitelistTokenCacheRepository;
 
+  @Autowired
+  HttpServletRequest httpServletRequest;
+
   @Override
   public OAuth2Authentication loadAuthentication(String accessTokenValue) throws AuthenticationException, InvalidTokenException {
+    try {
+      if (accessTokenValue.indexOf("|") < 0) {
+        accessTokenValue = accessTokenValue + "|" + HttpUtils.getClientIp(httpServletRequest);
+      }
+    } catch (Exception e) {
+      LOGGER.error(e.getMessage());
+    }
+
+
     if (accessTokenValue.indexOf("|") > -1) {
-      String userHost = accessTokenValue.substring(accessTokenValue.indexOf("|") + 1);
-      accessTokenValue = accessTokenValue.substring(0, accessTokenValue.indexOf("|"));
+      String userHost = accessTokenValue.split("\\|")[1];
+      accessTokenValue = accessTokenValue.split("\\|")[0];
       LOGGER.debug("loadAuthentication() - accessToken: {}, userHost: {}", accessTokenValue, userHost);
 
       // cannot refresh token not in whitelist cache
@@ -51,7 +67,7 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
         String username = (String) oAuth2AccessToken.getAdditionalInformation().get("user_name");
         String clientId = this.getClientId(accessTokenValue);
 
-        if (!oAuth2AccessToken.isExpired()) {
+        if (username != null && !oAuth2AccessToken.isExpired()) {
           // getting whitelist in cache
           CachedWhitelistToken cachedWhitelistToken
               = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);

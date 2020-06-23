@@ -235,6 +235,7 @@ public class AuthenticationController {
           return ResponseEntity.ok(cachedWhitelistToken.getUserHost());
         }
       } else {
+        whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
         return ResponseEntity.ok().build();
       }
     } catch (Exception e) {
@@ -434,7 +435,7 @@ public class AuthenticationController {
       String username = authFromToken.getName();
       String clientId = authFromToken.getOAuth2Request().getClientId();
       CachedWhitelistToken cachedWhitelistToken = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-      if (cachedWhitelistToken != null && cachedWhitelistToken.getUserHost().equals(userHost)) {
+      if (cachedWhitelistToken == null || cachedWhitelistToken.getUserHost().equals(userHost)) {
         whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
       }
 

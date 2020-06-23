@@ -11,8 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package app.metatron.discovery.common.oauth.token.filter;
 
+import app.metatron.discovery.common.oauth.CustomBearerTokenExtractor;
 import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.JwtTokenUtil;
 import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
@@ -23,7 +25,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 
 import javax.servlet.*;
@@ -44,7 +45,7 @@ public class RefreshTokenRetentionFilter implements Filter {
 
   private OauthProperties oauthProperties;
 
-  private TokenExtractor tokenExtractor = new BearerTokenExtractor();
+  private TokenExtractor tokenExtractor = new CustomBearerTokenExtractor();
 
   public void setAccessTokenCacheRepository(AccessTokenCacheRepository accessTokenCacheRepository) {
     this.accessTokenCacheRepository = accessTokenCacheRepository;
@@ -71,9 +72,10 @@ public class RefreshTokenRetentionFilter implements Filter {
         final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         Authentication authentication = tokenExtractor.extract(httpServletRequest);
         if (authentication != null) {
-          String accessToken = authentication.getPrincipal().toString();
+          String accessToken = getAccessToken(authentication);
+
           CachedAccessToken cachedAccessToken
-                  = accessTokenCacheRepository.getCachedAccessToken(authentication.getPrincipal().toString());
+                  = accessTokenCacheRepository.getCachedAccessToken(accessToken);
 
           LOGGER.debug("Access token for cached token {}", JwtTokenUtil.getTokenForDebug(accessToken));
 
@@ -91,6 +93,8 @@ public class RefreshTokenRetentionFilter implements Filter {
                     newRefreshTokenExpiration, cachedRefreshToken.getExpiration());
             // update refresh token expiration in cache
             refreshTokenCacheRepository.putRefreshToken(refreshTokenKey, newRefreshTokenExpiration);
+          } else {
+            accessTokenCacheRepository.removeAccessToken(accessToken);
           }
         }
       }
@@ -103,5 +107,13 @@ public class RefreshTokenRetentionFilter implements Filter {
   @Override
   public void destroy() {
 
+  }
+
+  private String getAccessToken(Authentication authentication) {
+    String accessToken = authentication.getPrincipal().toString();
+    if (accessToken.indexOf("|") > -1) {
+      accessToken = accessToken.split("\\|")[0];
+    }
+    return accessToken;
   }
 }

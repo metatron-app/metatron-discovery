@@ -93,14 +93,11 @@ public class OAuth2ServerConfig {
     @Autowired
     public OauthProperties oauthProperties;
 
-    @Autowired
-    public CustomBearerTokenExtractor customBearerTokenExtractor;
-
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
       resources
         .resourceId(POLARIS_RESOURCE_ID)
-        .tokenExtractor(customBearerTokenExtractor)
+        .tokenExtractor(new CustomBearerTokenExtractor())
         .expressionHandler(webExpressionHandler())
         .authenticationEntryPoint(customAuthEntryPoint())
         .stateless(true);

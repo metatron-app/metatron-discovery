@@ -159,6 +159,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
           } else {
             LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
             removeAccessTokenByRefreshToken(refreshToken);
+            whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
           }
         }
       }

@@ -88,6 +88,7 @@ public class HttpUtils {
         if (clientIp == null || clientIp.length() == 0 || "unknown".equalsIgnoreCase(clientIp)) {
             clientIp = request.getRemoteAddr();
         }
+
         return clientIp;
     }
 
