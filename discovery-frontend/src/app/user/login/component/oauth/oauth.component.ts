@@ -161,7 +161,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loginFailMsg = '';
 
-    this.userService.login(this.user).then((loginToken) => {
+    this.userService.login(this.user, this.oauthClientInformation.basicHeader).then((loginToken) => {
       if (loginToken.access_token) {
 
         // 쿠키 저장

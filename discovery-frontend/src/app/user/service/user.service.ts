@@ -85,8 +85,8 @@ export class UserService extends AbstractService {
   }
 
   // 로그인
-  public login(user: User): Promise<any> {
-    return this.getToken(user);
+  public login(user: User, basicHeader?: string): Promise<any> {
+    return this.getToken(user, basicHeader);
   }
 
   public logout(): Promise<any> {

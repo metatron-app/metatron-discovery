@@ -26,6 +26,7 @@ import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
 import app.metatron.discovery.config.ApiResourceConfig;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.role.Permission;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.HttpUtils;
@@ -64,7 +65,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -102,6 +102,9 @@ public class AuthenticationController {
 
   @Autowired
   WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+
+  @Autowired
+  UserRepository userRepository;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -247,6 +250,11 @@ public class AuthenticationController {
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
     logoutProcess(request, response);
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(path = "/oauth/user/info", method = RequestMethod.GET)
+  public ResponseEntity<User> getUser() {
+    return ResponseEntity.ok(userRepository.findByUsername(AuthUtils.getAuthUserName()));
   }
 
   @GetMapping(value = "/oauth/{clientId}")
