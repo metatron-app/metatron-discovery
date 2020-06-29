@@ -40,7 +40,10 @@ public class StorageController {
           return ResponseEntity.noContent().build();
         }
         StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
-
+        //masking username, password
+        stageDBConnection.setUsername(null);
+        stageDBConnection.setPassword(null);
+        stageDBConnection.setMetastore(null);
         return ResponseEntity.ok(stageDBConnection);
       default:
         throw new IllegalArgumentException("Not supported type " + storageType);
