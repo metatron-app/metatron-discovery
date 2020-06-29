@@ -196,7 +196,9 @@ public class StorageProperties {
       String schema = null;
       String username = null;
       String password = null;
-      String jdbcUrl = this.getMetastore().includeJdbc() ? this.getMetastore().getJdbc().getUrl() : null;
+      String jdbcUrl = this.getMetastore() != null && this.getMetastore().includeJdbc()
+          ? this.getMetastore().getJdbc().getUrl()
+          : null;
       if(StringUtils.isNotEmpty(jdbcUrl) && jdbcUrl.length() > 5) {
         URI uri = URI.create(jdbcUrl.substring(5));
         host = uri.getHost();
