@@ -63,8 +63,10 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
     super.storeAccessToken(token, authentication);
 
-    if ("password".equals(authentication.getOAuth2Request().getGrantType())
-        || "authorization_code".equals(authentication.getOAuth2Request().getGrantType()) ) {
+    String grantType = authentication.getOAuth2Request().getGrantType();
+    if ("password".equals(grantType)
+        || "authorization_code".equals(grantType)
+        || authentication.getOAuth2Request().getRefreshTokenRequest() != null) {
       LOGGER.debug("Store Access Token with refresh token and white-list");
 
       OAuth2Request oAuth2Request = authentication.getOAuth2Request();
@@ -125,8 +127,11 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   public void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication) {
     super.storeRefreshToken(refreshToken, authentication);
 
-    if ("password".equals(authentication.getOAuth2Request().getGrantType())
-        || "authorization_code".equals(authentication.getOAuth2Request().getGrantType()) ) {
+    String grantType = authentication.getOAuth2Request().getGrantType();
+    LOGGER.debug("GrantType : {}", grantType);
+    if ("password".equals(grantType)
+        || "authorization_code".equals(grantType)
+        || authentication.getOAuth2Request().getRefreshTokenRequest() != null) {
       LOGGER.debug("Store Refresh Token");
       if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
         refreshTokenCacheRepository
@@ -135,6 +140,11 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     } else {
       LOGGER.debug("GrantType({}) does not need to store cache", authentication.getOAuth2Request().getGrantType());
     }
+  }
+
+  @Override
+  public OAuth2AccessToken readAccessToken(String tokenValue) {
+    return super.readAccessToken(tokenValue);
   }
 
   @Override
