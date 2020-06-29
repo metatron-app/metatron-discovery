@@ -143,11 +143,6 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   }
 
   @Override
-  public OAuth2AccessToken readAccessToken(String tokenValue) {
-    return super.readAccessToken(tokenValue);
-  }
-
-  @Override
   public OAuth2RefreshToken readRefreshToken(String tokenValue) {
     OAuth2RefreshToken refreshToken = super.readRefreshToken(tokenValue);
     if(refreshToken instanceof ExpiringOAuth2RefreshToken){
