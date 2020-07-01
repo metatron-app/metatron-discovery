@@ -70,7 +70,7 @@ public class CustomWebResponseExceptionTranslator extends DefaultWebResponseExce
 
     try {
       String authHeader = request.getHeader("Authorization");
-      if (StringUtils.isNotEmpty(authHeader) && !authHeader.startsWith("Bearer")) {
+      if (StringUtils.isNotEmpty(authHeader) && authHeader.toLowerCase().startsWith("basic")) {
         String userName = request.getParameter("username");
         String clientId = BasicTokenExtractor.extractClientId(authHeader);
         String userHost = HttpUtils.getClientIp(request);

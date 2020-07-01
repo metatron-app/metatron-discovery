@@ -51,7 +51,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
@@ -227,10 +226,9 @@ public class AuthenticationController {
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
       CachedToken cachedToken =
           tokenCacheRepository.getCachedToken(username, clientId);
-      if (cachedToken != null) {
-        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedToken.getAccessToken());
+      if (cachedToken != null && cachedToken.getExpiration() != null) {
         String userHost = HttpUtils.getClientIp(request);
-        if (oAuth2AccessToken.isExpired() || cachedToken.getUserIp().equals(userHost)) {
+        if (System.currentTimeMillis() > cachedToken.getExpiration().getTime() || cachedToken.getUserIp().equals(userHost)) {
           return ResponseEntity.ok().build();
         } else {
           return ResponseEntity.ok(cachedToken.getUserIp());
