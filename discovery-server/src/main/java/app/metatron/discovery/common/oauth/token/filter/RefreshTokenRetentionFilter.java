@@ -16,16 +16,16 @@ package app.metatron.discovery.common.oauth.token.filter;
 
 import app.metatron.discovery.common.oauth.CustomBearerTokenExtractor;
 import app.metatron.discovery.common.oauth.OauthProperties;
-import app.metatron.discovery.common.oauth.token.JwtTokenUtil;
-import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
-import app.metatron.discovery.common.oauth.token.cache.CachedAccessToken;
-import app.metatron.discovery.common.oauth.token.cache.CachedRefreshToken;
-import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedToken;
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -39,25 +39,23 @@ public class RefreshTokenRetentionFilter implements Filter {
 
   private static Logger LOGGER = LoggerFactory.getLogger(RefreshTokenRetentionFilter.class);
 
-  private AccessTokenCacheRepository accessTokenCacheRepository;
-
-  private RefreshTokenCacheRepository refreshTokenCacheRepository;
+  private TokenCacheRepository tokenCacheRepository;
 
   private OauthProperties oauthProperties;
 
   private TokenExtractor tokenExtractor = new CustomBearerTokenExtractor();
 
-  public void setAccessTokenCacheRepository(AccessTokenCacheRepository accessTokenCacheRepository) {
-    this.accessTokenCacheRepository = accessTokenCacheRepository;
-  }
+  private TokenStore tokenStore;
 
-  public void setRefreshTokenCacheRepository(RefreshTokenCacheRepository refreshTokenCacheRepository) {
-    this.refreshTokenCacheRepository = refreshTokenCacheRepository;
+  public void setTokenCacheRepository(TokenCacheRepository tokenCacheRepository) {
+    this.tokenCacheRepository = tokenCacheRepository;
   }
 
   public void setOauthProperties(OauthProperties oauthProperties) {
     this.oauthProperties = oauthProperties;
   }
+
+  public void setTokenStore(TokenStore tokenStore) { this.tokenStore = tokenStore; }
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
@@ -73,28 +71,15 @@ public class RefreshTokenRetentionFilter implements Filter {
         Authentication authentication = tokenExtractor.extract(httpServletRequest);
         if (authentication != null) {
           String accessToken = getAccessToken(authentication);
-
-          CachedAccessToken cachedAccessToken
-                  = accessTokenCacheRepository.getCachedAccessToken(accessToken);
-
-          LOGGER.debug("Access token for cached token {}", JwtTokenUtil.getTokenForDebug(accessToken));
-
-          if (cachedAccessToken != null) {
-            String refreshTokenKey = cachedAccessToken.getRefreshToken();
-            CachedRefreshToken cachedRefreshToken
-                    = refreshTokenCacheRepository.getCachedRefreshToken(refreshTokenKey);
-
-            LOGGER.debug("Refresh token in cached token {}", JwtTokenUtil.getTokenForDebug(refreshTokenKey));
-
+          OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(accessToken);
+          String username = oAuth2Authentication.getName();
+          String clientId = oAuth2Authentication.getOAuth2Request().getClientId();
+          CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
+          if (cachedToken != null) {
             Date newRefreshTokenExpiration = DateTime.now().plusSeconds(oauthProperties.getTimeout()).toDate();
-
-            LOGGER.debug("Refresh token ({}) expiration retention to {} from {}",
-                    JwtTokenUtil.getTokenForDebug(refreshTokenKey),
-                    newRefreshTokenExpiration, cachedRefreshToken.getExpiration());
-            // update refresh token expiration in cache
-            refreshTokenCacheRepository.putRefreshToken(refreshTokenKey, newRefreshTokenExpiration);
-          } else {
-            accessTokenCacheRepository.removeAccessToken(accessToken);
+            LOGGER.debug("Token ({}) expiration retention to {} from {}", username + "|" + clientId,
+                         newRefreshTokenExpiration, cachedToken.getExpiration());
+            tokenCacheRepository.extendRefreshCachedToken(oAuth2Authentication, newRefreshTokenExpiration);
           }
         }
       }

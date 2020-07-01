@@ -20,8 +20,8 @@ import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.oauth.BasicTokenExtractor;
 import app.metatron.discovery.common.oauth.CookieManager;
-import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedToken;
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
 import app.metatron.discovery.config.ApiResourceConfig;
 import app.metatron.discovery.domain.user.CachedUserService;
@@ -51,8 +51,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -101,7 +99,7 @@ public class AuthenticationController {
   TokenStore tokenStore;
 
   @Autowired
-  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+  TokenCacheRepository tokenCacheRepository;
 
   @Autowired
   UserRepository userRepository;
@@ -227,18 +225,17 @@ public class AuthenticationController {
     try {
       String username = request.getParameter("username");
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      CachedWhitelistToken cachedWhitelistToken =
-          whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-      if (cachedWhitelistToken != null) {
-        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedWhitelistToken.getToken());
+      CachedToken cachedToken =
+          tokenCacheRepository.getCachedToken(username, clientId);
+      if (cachedToken != null) {
+        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedToken.getAccessToken());
         String userHost = HttpUtils.getClientIp(request);
-        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(userHost)) {
+        if (oAuth2AccessToken.isExpired() || cachedToken.getUserIp().equals(userHost)) {
           return ResponseEntity.ok().build();
         } else {
-          return ResponseEntity.ok(cachedWhitelistToken.getUserHost());
+          return ResponseEntity.ok(cachedToken.getUserIp());
         }
       } else {
-        whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
         return ResponseEntity.ok().build();
       }
     } catch (Exception e) {
@@ -442,18 +439,8 @@ public class AuthenticationController {
       OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken.getValue());
       String username = authFromToken.getName();
       String clientId = authFromToken.getOAuth2Request().getClientId();
-      CachedWhitelistToken cachedWhitelistToken = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-      if (cachedWhitelistToken == null || cachedWhitelistToken.getUserHost().equals(userHost)) {
-        whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
-      }
-
-      this.tokenStore.removeAccessToken(new DefaultOAuth2AccessToken(accessToken.getValue()));
+      tokenCacheRepository.removeCachedToken(username + "|" + clientId);
     }
-    Cookie refreshToken = CookieManager.getRefreshToken(request);
-    if (refreshToken != null) {
-      this.tokenStore.removeRefreshToken(new DefaultOAuth2RefreshToken(refreshToken.getValue()));
-    }
-
     CookieManager.removeAllToken(response);
   }
 

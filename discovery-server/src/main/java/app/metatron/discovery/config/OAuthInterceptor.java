@@ -17,8 +17,8 @@ package app.metatron.discovery.config;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
 import app.metatron.discovery.common.oauth.OauthProperties;
-import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedToken;
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.activities.spec.ActivityType;
@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -83,7 +82,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
   TokenStore tokenStore;
 
   @Autowired
-  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+  TokenCacheRepository tokenCacheRepository;
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -140,26 +139,17 @@ public class OAuthInterceptor implements HandlerInterceptor {
           String clientId = authFromToken.getOAuth2Request().getClientId();
           String userHost = HttpUtils.getClientIp(request);
 
-          LOGGER.debug("Cached Whitelist token for {}, {}", username, clientId);
-          CachedWhitelistToken cachedWhitelistToken
-              = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-          if (cachedWhitelistToken != null) {
-            OAuth2AccessToken whiteListAccessToken = tokenStore.readAccessToken(cachedWhitelistToken.getToken());
-            if (whiteListAccessToken.isExpired()) {
-              whitelistTokenCacheRepository.removeWhitelistToken(cachedWhitelistToken.getUsername(), cachedWhitelistToken.getClientId());
-            } else {
-              String cachedUserHost = cachedWhitelistToken.getUserHost();
+          if (username != null) {
+            // getting whitelist in cache
+            CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
+            if (cachedToken != null) {
+              String cachedUserHost = cachedToken.getUserIp();
               // if not matched in whitelist cache, throw exception
               if (!userHost.equals(cachedUserHost)) {
                 LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-                removeAccessTokenByRefreshToken(refreshToken);
                 throw new InvalidTokenException("User ip is not in whitelist.");
               }
             }
-          } else {
-            LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
-            removeAccessTokenByRefreshToken(refreshToken);
-            whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
           }
         }
       }
@@ -247,11 +237,4 @@ public class OAuthInterceptor implements HandlerInterceptor {
     }
   }
 
-  public void removeAccessTokenByRefreshToken(String refreshToken){
-    //remove access token
-    tokenStore.removeAccessTokenUsingRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
-
-    //remove refresh token
-    tokenStore.removeRefreshToken(new DefaultOAuth2RefreshToken(refreshToken));
-  }
 }
