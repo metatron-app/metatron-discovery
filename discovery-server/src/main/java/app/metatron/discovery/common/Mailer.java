@@ -14,8 +14,10 @@
 
 package app.metatron.discovery.common;
 
+import app.metatron.discovery.domain.user.SmsSender;
+import app.metatron.discovery.domain.user.User;
 import com.google.common.collect.Lists;
-
+import liquibase.util.StringUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +31,8 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.List;
-import java.util.Locale;
-
 import javax.mail.internet.MimeMessage;
-
-import app.metatron.discovery.domain.user.User;
+import java.util.List;
 
 /**
  * Created by kyungtaak on 2017. 1. 26..
@@ -49,6 +47,9 @@ public class Mailer {
 
   @Autowired(required = false)
   private JavaMailSenderImpl javaMailSender;
+
+  @Autowired(required = false)
+  SmsSender smsSender;
 
   @Autowired
   private MessageSource messageSource;
@@ -90,10 +91,14 @@ public class Mailer {
     context.setVariable("baseUrl", metatronProperties.getMail().getBaseUrl());
 
     String templateName;
-    if(isAdmin) {
+    if (isAdmin) {
       templateName = "email/user_reset_password_by_admin";
     } else {
       templateName = "email/user_reset_password";
+    }
+
+    if (smsSender != null && StringUtils.isNotEmpty(user.getTel())) {
+      smsSender.sendSms(user.getTel(), "[Temporary Password] " + temporaryPassword);
     }
 
     String content = templateEngine.process(templateName, context);

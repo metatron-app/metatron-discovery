@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.activities;
 
+import app.metatron.discovery.domain.activities.spec.ActivityType;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-
-import app.metatron.discovery.domain.activities.spec.ActivityType;
 
 
 /**
@@ -58,7 +57,7 @@ public class ActivityStreamController {
    * @param resourceAssembler
    * @return
    */
-  @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER')")
+  @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_USER') or #oauth2.hasScope('trust')")
   @RequestMapping(path = "/activities", method = RequestMethod.GET)
   public ResponseEntity<?> findActivityStreams(@RequestParam(name = "action", required = false) List<ActivityType> actions,
                                                @RequestParam(value = "nameContains", required = false) String nameContains,
@@ -82,7 +81,7 @@ public class ActivityStreamController {
    * @param resourceAssembler
    * @return
    */
-  @PreAuthorize("authentication.name == #username or hasAuthority('PERM_SYSTEM_MANAGE_USER')")
+  //@PreAuthorize("authentication.name == #username or hasAuthority('PERM_SYSTEM_MANAGE_USER') or #oauth2.hasScope('trust')")
   @RequestMapping(path = "/activities/user/{username:.+}", method = RequestMethod.GET)
   public ResponseEntity<?> findUserActivities(@PathVariable("username") String username,
                                               @RequestParam(name = "action", required = false) List<ActivityType> actions,

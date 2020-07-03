@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,scheduling #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
+    active: local,h2-default-db,logging-console-debug,scheduling, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -366,6 +366,7 @@ polaris:
   #      timeout: 36000
   user:
     use_organization: false
+    #sms: http://localhost:8080/api/notifications/sms
 
 ---
 # (mysql DB 생성 script)
