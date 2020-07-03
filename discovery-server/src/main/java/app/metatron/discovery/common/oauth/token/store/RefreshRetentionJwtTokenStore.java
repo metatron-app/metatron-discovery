@@ -111,11 +111,10 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
 
     OAuth2AccessToken accessToken = super.readAccessToken(tokenValue);
     if (accessToken != null && cachedToken != null
-        && accessToken instanceof DefaultOAuth2AccessToken
-        && accessToken.getRefreshToken() == null && cachedToken.getRefreshToken() != null) {
+        && accessToken instanceof DefaultOAuth2AccessToken && accessToken.getRefreshToken() == null
+        && cachedToken.getRefreshToken() != null && cachedToken.getExpiration() != null) {
       DefaultOAuth2AccessToken defaultOAuth2AccessToken = (DefaultOAuth2AccessToken) accessToken;
-      defaultOAuth2AccessToken.setRefreshToken(cachedToken.getExpiration() != null ?
-        new DefaultExpiringOAuth2RefreshToken(cachedToken.getRefreshToken(), cachedToken.getExpiration()) : new DefaultOAuth2RefreshToken(cachedToken.getRefreshToken()));
+      defaultOAuth2AccessToken.setRefreshToken(new DefaultExpiringOAuth2RefreshToken(cachedToken.getRefreshToken(), cachedToken.getExpiration()));
       return defaultOAuth2AccessToken;
     }
     return accessToken;
@@ -127,9 +126,8 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2Authentication authentication = readAuthentication(tokenValue);
     String cacheKey = getCacheKey(authentication);
     CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
-    if (cachedToken != null) {
-      return cachedToken.getExpiration() != null ?
-          new DefaultExpiringOAuth2RefreshToken(tokenValue, cachedToken.getExpiration()) : new DefaultOAuth2RefreshToken(tokenValue);
+    if (cachedToken != null && cachedToken.getExpiration() != null) {
+      return new DefaultExpiringOAuth2RefreshToken(tokenValue, cachedToken.getExpiration());
     }
     return refreshToken;
   }
