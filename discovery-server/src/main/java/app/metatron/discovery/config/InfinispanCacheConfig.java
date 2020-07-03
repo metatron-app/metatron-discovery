@@ -114,4 +114,17 @@ public class InfinispanCacheConfig {
     Cache<String, String> tokenCache = cacheManager.getCache("token-whitelist-cache");
     return tokenCache;
   }
+
+  @Bean("tokenCache")
+  public Cache<String, String> tokenCache(SpringEmbeddedCacheManager springEmbeddedCacheManager) {
+    ConfigurationBuilder config = new ConfigurationBuilder();
+    // refresh token expire in 30 days (DefaultTokenServices.refreshTokenValiditySeconds default value)
+    config.expiration().lifespan(30, TimeUnit.DAYS);
+    config.clustering().cacheMode(CacheMode.DIST_SYNC);
+
+    EmbeddedCacheManager cacheManager = springEmbeddedCacheManager.getNativeCacheManager();
+    cacheManager.defineConfiguration("token-cache", config.build());
+    Cache<String, String> tokenCache = cacheManager.getCache("token-cache");
+    return tokenCache;
+  }
 }

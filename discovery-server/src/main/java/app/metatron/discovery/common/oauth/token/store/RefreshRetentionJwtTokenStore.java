@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package app.metatron.discovery.common.oauth.token.store;
 
 import app.metatron.discovery.common.oauth.token.cache.*;
@@ -19,11 +20,12 @@ import app.metatron.discovery.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -31,7 +33,6 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 
 /**
  *
@@ -41,16 +42,13 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   private static Logger LOGGER = LoggerFactory.getLogger(RefreshRetentionJwtTokenStore.class);
 
   @Autowired
-  RefreshTokenCacheRepository refreshTokenCacheRepository;
-
-  @Autowired
-  AccessTokenCacheRepository accessTokenCacheRepository;
-
-  @Autowired
-  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+  TokenCacheRepository tokenCacheRepository;
 
   @Autowired
   HttpServletRequest httpServletRequest;
+
+  @Autowired
+  JwtAccessTokenConverter jwtTokenEnhancer;
 
   /**
    * Create a JwtTokenStore with this token enhancer (should be shared with the DefaultTokenServices if used).
@@ -63,11 +61,9 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
     super.storeAccessToken(token, authentication);
 
-    LOGGER.debug("Store Access Token with refresh token and white-list");
+    String grantType = authentication.getOAuth2Request().getGrantType();
+    LOGGER.debug("Store accessToken Token (GrantType-{})", grantType);
 
-    OAuth2Request oAuth2Request = authentication.getOAuth2Request();
-
-    // get user host IP address
     String userHost;
     try {
       userHost = HttpUtils.getClientIp(httpServletRequest);
@@ -75,25 +71,9 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
       userHost = getRemoteAddress();
     }
 
-    //store access token
-    accessTokenCacheRepository.putAccessToken(token.getValue(), token.getRefreshToken().getValue(),
-            authentication.getName(), token.getExpiration(),
-            oAuth2Request.getClientId(), userHost);
-
-    accessTokenCacheRepository.putAccessTokenByRefreshToken(token.getValue(), token.getRefreshToken().getValue(),
-            authentication.getName(), token.getExpiration(),
-            oAuth2Request.getClientId(), userHost);
-
-    //store access token to whitelist
-    whitelistTokenCacheRepository.putWhitelistToken(token.getValue(), authentication.getName(),
-            oAuth2Request.getClientId(), userHost);
-
-    //store refresh token
-    OAuth2RefreshToken oAuth2RefreshToken = token.getRefreshToken();
-    if (oAuth2RefreshToken != null && oAuth2RefreshToken instanceof ExpiringOAuth2RefreshToken) {
-      ExpiringOAuth2RefreshToken expiringOAuth2RefreshToken = (ExpiringOAuth2RefreshToken) oAuth2RefreshToken;
-      refreshTokenCacheRepository
-              .putRefreshToken(expiringOAuth2RefreshToken.getValue(), expiringOAuth2RefreshToken.getExpiration());
+    tokenCacheRepository.putAccessCachedToken(authentication.getName(), authentication.getOAuth2Request().getClientId(), token.getValue(), userHost);
+    if (token.getRefreshToken() != null) {
+      storeRefreshToken(token.getRefreshToken(), authentication);
     }
   }
 
@@ -117,25 +97,37 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   @Override
   public void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication) {
     super.storeRefreshToken(refreshToken, authentication);
-    LOGGER.debug("Store Refresh Token");
-    if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
-      refreshTokenCacheRepository
-              .putRefreshToken(refreshToken.getValue(), ((ExpiringOAuth2RefreshToken) refreshToken).getExpiration());
+
+    String grantType = authentication.getOAuth2Request().getGrantType();
+    LOGGER.debug("Store Refresh Token (GrantType-{})", grantType);
+    tokenCacheRepository.putRefreshCachedToken(authentication.getName(), authentication.getOAuth2Request().getClientId(), refreshToken.getValue());
+  }
+
+  @Override
+  public OAuth2AccessToken readAccessToken(String tokenValue) {
+    OAuth2Authentication authentication = readAuthentication(tokenValue);
+    String cacheKey = getCacheKey(authentication);
+    CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
+
+    OAuth2AccessToken accessToken = super.readAccessToken(tokenValue);
+    if (accessToken != null && cachedToken != null
+        && accessToken instanceof DefaultOAuth2AccessToken && accessToken.getRefreshToken() == null
+        && cachedToken.getRefreshToken() != null && cachedToken.getExpiration() != null) {
+      DefaultOAuth2AccessToken defaultOAuth2AccessToken = (DefaultOAuth2AccessToken) accessToken;
+      defaultOAuth2AccessToken.setRefreshToken(new DefaultExpiringOAuth2RefreshToken(cachedToken.getRefreshToken(), cachedToken.getExpiration()));
+      return defaultOAuth2AccessToken;
     }
+    return accessToken;
   }
 
   @Override
   public OAuth2RefreshToken readRefreshToken(String tokenValue) {
     OAuth2RefreshToken refreshToken = super.readRefreshToken(tokenValue);
-    if(refreshToken instanceof ExpiringOAuth2RefreshToken){
-      CachedRefreshToken cachedRefreshToken
-          = refreshTokenCacheRepository.getCachedRefreshToken(refreshToken.getValue());
-      if(cachedRefreshToken != null){
-        LOGGER.debug("refresh token expiration replaced by cache : {}", cachedRefreshToken.getExpiration());
-        RefreshRetentionToken refreshRetentionToken = new RefreshRetentionToken(refreshToken);
-        refreshRetentionToken.setExpiration(cachedRefreshToken.getExpiration());
-        return refreshRetentionToken;
-      }
+    OAuth2Authentication authentication = readAuthentication(tokenValue);
+    String cacheKey = getCacheKey(authentication);
+    CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
+    if (cachedToken != null && cachedToken.getExpiration() != null) {
+      return new DefaultExpiringOAuth2RefreshToken(tokenValue, cachedToken.getExpiration());
     }
     return refreshToken;
   }
@@ -143,67 +135,48 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   @Override
   public void removeAccessToken(OAuth2AccessToken token) {
     super.removeAccessToken(token);
+
     LOGGER.debug("Remove Access Token");
-    //remove access token
-    accessTokenCacheRepository.removeAccessToken(token.getValue());
+    OAuth2Authentication authentication = readAuthentication(token.getValue());
+    String username = authentication.getName();
+    String clientId = authentication.getOAuth2Request().getClientId();
+    tokenCacheRepository.removeAccessCachedToken(username,clientId);
   }
 
   @Override
   public void removeRefreshToken(OAuth2RefreshToken token) {
     super.removeRefreshToken(token);
+
     LOGGER.debug("Remove Refresh Token");
-    //remove whitelist token
-    String refreshTokenKey = token.getValue();
-    CachedAccessToken cachedAccessToken = accessTokenCacheRepository.getCachedAccessTokenByRefreshToken(refreshTokenKey);
-    if(cachedAccessToken != null){
-      whitelistTokenCacheRepository.removeWhitelistTokenByCachedAccessToken(cachedAccessToken);
-    }
-
-    //remove access token by refresh token
-    accessTokenCacheRepository.removeAccessTokenByRefreshToken(refreshTokenKey);
-
-    refreshTokenCacheRepository.removeRefreshToken(token.getValue());
+    OAuth2Authentication authentication = readAuthentication(token.getValue());
+    String username = authentication.getName();
+    String clientId = authentication.getOAuth2Request().getClientId();
+    tokenCacheRepository.removeRefreshCachedToken(username,clientId);
   }
 
   @Override
   public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {
     super.removeAccessTokenUsingRefreshToken(refreshToken);
+
     LOGGER.debug("Remove Access Token using Refresh Token");
-    String refreshTokenKey = refreshToken.getValue();
-    CachedAccessToken cachedAccessToken = accessTokenCacheRepository.getCachedAccessTokenByRefreshToken(refreshTokenKey);
-    if(cachedAccessToken != null){
-      accessTokenCacheRepository.removeAccessToken(cachedAccessToken.getToken());
+    OAuth2Authentication authentication = readAuthentication(refreshToken.getValue());
+    String username = authentication.getName();
+    String clientId = authentication.getOAuth2Request().getClientId();
+    tokenCacheRepository.removeAccessCachedToken(username,clientId);
+  }
+
+  @Override
+  public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication) {
+    String cacheKey = getCacheKey(authentication);
+    CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
+    if (cachedToken != null && cachedToken.getAccessToken() != null) {
+      return readAccessToken(cachedToken.getAccessToken());
+    } else {
+      return null;
     }
   }
 
-  public class RefreshRetentionToken implements ExpiringOAuth2RefreshToken{
-    OAuth2RefreshToken nativeToken;
-    Date expiration;
-
-    public RefreshRetentionToken(OAuth2RefreshToken oAuth2RefreshToken) {
-      this.nativeToken = oAuth2RefreshToken;
-    }
-
-    public void setExpiration(Date expiration) {
-      this.expiration = expiration;
-    }
-
-    @Override
-    public String getValue() {
-      if(nativeToken != null)
-        return nativeToken.getValue();
-      return null;
-    }
-
-    @Override
-    public Date getExpiration() {
-      if(expiration != null)
-        return expiration;
-
-      if(nativeToken != null && nativeToken instanceof ExpiringOAuth2RefreshToken)
-        return ((ExpiringOAuth2RefreshToken) nativeToken).getExpiration();
-
-      return null;
-    }
+  private String getCacheKey(OAuth2Authentication authentication) {
+    return authentication.getName() + "|" + authentication.getOAuth2Request().getClientId();
   }
 }

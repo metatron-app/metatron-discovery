@@ -68,6 +68,7 @@ import app.metatron.discovery.common.oauth.CustomWebResponseExceptionTranslator;
 import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.AccessTokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.cache.RefreshTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.filter.RefreshTokenRetentionFilter;
 import app.metatron.discovery.common.oauth.token.filter.WhitelistAuthenticationFilter;
@@ -93,14 +94,11 @@ public class OAuth2ServerConfig {
     @Autowired
     public OauthProperties oauthProperties;
 
-    @Autowired
-    public CustomBearerTokenExtractor customBearerTokenExtractor;
-
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
       resources
         .resourceId(POLARIS_RESOURCE_ID)
-        .tokenExtractor(customBearerTokenExtractor)
+        .tokenExtractor(new CustomBearerTokenExtractor())
         .expressionHandler(webExpressionHandler())
         .authenticationEntryPoint(customAuthEntryPoint())
         .stateless(true);
@@ -281,6 +279,9 @@ public class OAuth2ServerConfig {
     @Autowired
     WhitelistTokenCacheRepository whitelistTokenCacheRepository;
 
+    @Autowired
+    TokenCacheRepository tokenCacheRepository;
+
     private DataSource dataSource;
 
     public AuthorizationServerConfiguration(@Qualifier("dataSource") DataSource dataSource) {
@@ -366,9 +367,11 @@ public class OAuth2ServerConfig {
     public FilterRegistrationBean refreshTokenRetentionFilterRegistrationBean(){
       FilterRegistrationBean registrationBean = new FilterRegistrationBean();
       RefreshTokenRetentionFilter refreshTokenCacheFilter = new RefreshTokenRetentionFilter();
-      refreshTokenCacheFilter.setRefreshTokenCacheRepository(refreshTokenCacheRepository);
-      refreshTokenCacheFilter.setAccessTokenCacheRepository(accessTokenCacheRepository);
+      //refreshTokenCacheFilter.setRefreshTokenCacheRepository(refreshTokenCacheRepository);
+      //refreshTokenCacheFilter.setAccessTokenCacheRepository(accessTokenCacheRepository);
       refreshTokenCacheFilter.setOauthProperties(oauthProperties);
+      refreshTokenCacheFilter.setTokenCacheRepository(tokenCacheRepository);
+      refreshTokenCacheFilter.setTokenStore(tokenStore());
       registrationBean.setFilter(refreshTokenCacheFilter);
       return registrationBean;
     }

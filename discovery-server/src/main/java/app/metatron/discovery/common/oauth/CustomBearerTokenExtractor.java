@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import app.metatron.discovery.util.HttpUtils;
 
-@Component
 public class CustomBearerTokenExtractor extends BearerTokenExtractor {
 
   private static Logger LOGGER = LoggerFactory.getLogger(CustomBearerTokenExtractor.class);
@@ -38,7 +37,11 @@ public class CustomBearerTokenExtractor extends BearerTokenExtractor {
     if (result != null) {
       result = new PreAuthenticatedAuthenticationToken(
           result.getPrincipal() + "|" + userHost, "");
+    } else if ("/oauth/check_token".equals(httpServletRequest.getRequestURI())) {
+      result = new PreAuthenticatedAuthenticationToken(
+          httpServletRequest.getParameter("token") + "|" + userHost, "");
     }
     return result;
   }
+
 }

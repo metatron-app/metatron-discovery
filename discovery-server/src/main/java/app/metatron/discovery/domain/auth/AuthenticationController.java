@@ -20,12 +20,13 @@ import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.oauth.BasicTokenExtractor;
 import app.metatron.discovery.common.oauth.CookieManager;
-import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedToken;
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
 import app.metatron.discovery.config.ApiResourceConfig;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.role.Permission;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.HttpUtils;
@@ -50,9 +51,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
@@ -64,7 +62,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -101,7 +98,10 @@ public class AuthenticationController {
   TokenStore tokenStore;
 
   @Autowired
-  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+  TokenCacheRepository tokenCacheRepository;
+
+  @Autowired
+  UserRepository userRepository;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -224,15 +224,14 @@ public class AuthenticationController {
     try {
       String username = request.getParameter("username");
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      CachedWhitelistToken cachedWhitelistToken =
-          whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-      if (cachedWhitelistToken != null) {
-        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(cachedWhitelistToken.getToken());
+      CachedToken cachedToken =
+          tokenCacheRepository.getCachedToken(username, clientId);
+      if (cachedToken != null && cachedToken.getExpiration() != null) {
         String userHost = HttpUtils.getClientIp(request);
-        if (oAuth2AccessToken.isExpired() || cachedWhitelistToken.getUserHost().equals(userHost)) {
+        if (System.currentTimeMillis() > cachedToken.getExpiration().getTime() || cachedToken.getUserIp().equals(userHost)) {
           return ResponseEntity.ok().build();
         } else {
-          return ResponseEntity.ok(cachedWhitelistToken.getUserHost());
+          return ResponseEntity.ok(cachedToken.getUserIp());
         }
       } else {
         return ResponseEntity.ok().build();
@@ -246,6 +245,11 @@ public class AuthenticationController {
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
     logoutProcess(request, response);
     return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(path = "/oauth/user/info", method = RequestMethod.GET)
+  public ResponseEntity<User> getUser() {
+    return ResponseEntity.ok(userRepository.findByUsername(AuthUtils.getAuthUserName()));
   }
 
   @GetMapping(value = "/oauth/{clientId}")
@@ -433,18 +437,8 @@ public class AuthenticationController {
       OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken.getValue());
       String username = authFromToken.getName();
       String clientId = authFromToken.getOAuth2Request().getClientId();
-      CachedWhitelistToken cachedWhitelistToken = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-      if (cachedWhitelistToken != null && cachedWhitelistToken.getUserHost().equals(userHost)) {
-        whitelistTokenCacheRepository.removeWhitelistToken(username, clientId);
-      }
-
-      this.tokenStore.removeAccessToken(new DefaultOAuth2AccessToken(accessToken.getValue()));
+      tokenCacheRepository.removeCachedToken(username + "|" + clientId);
     }
-    Cookie refreshToken = CookieManager.getRefreshToken(request);
-    if (refreshToken != null) {
-      this.tokenStore.removeRefreshToken(new DefaultOAuth2RefreshToken(refreshToken.getValue()));
-    }
-
     CookieManager.removeAllToken(response);
   }
 

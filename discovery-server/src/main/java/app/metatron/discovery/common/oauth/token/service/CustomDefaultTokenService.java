@@ -15,8 +15,10 @@
 package app.metatron.discovery.common.oauth.token.service;
 
 import app.metatron.discovery.common.oauth.OauthProperties;
-import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedToken;
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
+import app.metatron.discovery.util.HttpUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class CustomDefaultTokenService extends DefaultTokenServices {
 
@@ -34,13 +39,28 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
   OauthProperties oauthProperties;
 
   @Autowired
-  WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+  TokenCacheRepository tokenCacheRepository;
+
+  @Autowired
+  HttpServletRequest httpServletRequest;
+
+  @Autowired
+  TokenStore tokenStore;
 
   @Override
   public OAuth2Authentication loadAuthentication(String accessTokenValue) throws AuthenticationException, InvalidTokenException {
+    try {
+      if (accessTokenValue.indexOf("|") < 0) {
+        accessTokenValue = accessTokenValue + "|" + HttpUtils.getClientIp(httpServletRequest);
+      }
+    } catch (Exception e) {
+      LOGGER.error(e.getMessage());
+    }
+
+
     if (accessTokenValue.indexOf("|") > -1) {
-      String userHost = accessTokenValue.substring(accessTokenValue.indexOf("|") + 1);
-      accessTokenValue = accessTokenValue.substring(0, accessTokenValue.indexOf("|"));
+      String userHost = accessTokenValue.split("\\|")[1];
+      accessTokenValue = accessTokenValue.split("\\|")[0];
       LOGGER.debug("loadAuthentication() - accessToken: {}, userHost: {}", accessTokenValue, userHost);
 
       // cannot refresh token not in whitelist cache
@@ -51,24 +71,16 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
         String username = (String) oAuth2AccessToken.getAdditionalInformation().get("user_name");
         String clientId = this.getClientId(accessTokenValue);
 
-        if (!oAuth2AccessToken.isExpired()) {
+        if (username != null && !oAuth2AccessToken.isExpired()) {
           // getting whitelist in cache
-          CachedWhitelistToken cachedWhitelistToken
-              = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-          if (cachedWhitelistToken != null) {
-            OAuth2AccessToken whiteListAccessToken = this.readAccessToken(cachedWhitelistToken.getToken());
-            if (whiteListAccessToken != null && whiteListAccessToken.isExpired()) {
-              whitelistTokenCacheRepository.removeWhitelistToken(cachedWhitelistToken.getUsername(), cachedWhitelistToken.getClientId());
-            } else {
-              String cachedUserHost = cachedWhitelistToken.getUserHost();
-              // if not matched in whitelist cache, throw exception
-              if (!userHost.equals(cachedUserHost)) {
-                LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-                throw new InvalidTokenException("User ip is not in whitelist.");
-              }
+          CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
+          if (cachedToken != null) {
+            String cachedUserHost = cachedToken.getUserIp();
+            // if not matched in whitelist cache, throw exception
+            if (!userHost.equals(cachedUserHost)) {
+              LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+              throw new InvalidTokenException("User ip is not in whitelist.");
             }
-          } else {
-            LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
           }
         }
       }
