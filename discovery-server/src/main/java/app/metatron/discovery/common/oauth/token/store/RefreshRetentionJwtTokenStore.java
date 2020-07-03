@@ -20,7 +20,9 @@ import app.metatron.discovery.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -31,7 +33,6 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 
 /**
  *
@@ -71,6 +72,9 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     }
 
     tokenCacheRepository.putAccessCachedToken(authentication.getName(), authentication.getOAuth2Request().getClientId(), token.getValue(), userHost);
+    if (token.getRefreshToken() != null) {
+      storeRefreshToken(token.getRefreshToken(), authentication);
+    }
   }
 
   /**
@@ -101,8 +105,19 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
 
   @Override
   public OAuth2AccessToken readAccessToken(String tokenValue) {
-    OAuth2AccessToken accessToken = super.readAccessToken(tokenValue);
     OAuth2Authentication authentication = readAuthentication(tokenValue);
+    String cacheKey = getCacheKey(authentication);
+    CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
+
+    OAuth2AccessToken accessToken = super.readAccessToken(tokenValue);
+    if (accessToken != null && cachedToken != null
+        && accessToken instanceof DefaultOAuth2AccessToken
+        && accessToken.getRefreshToken() == null && cachedToken.getRefreshToken() != null) {
+      DefaultOAuth2AccessToken defaultOAuth2AccessToken = (DefaultOAuth2AccessToken) accessToken;
+      defaultOAuth2AccessToken.setRefreshToken(cachedToken.getExpiration() != null ?
+        new DefaultExpiringOAuth2RefreshToken(cachedToken.getRefreshToken(), cachedToken.getExpiration()) : new DefaultOAuth2RefreshToken(cachedToken.getRefreshToken()));
+      return defaultOAuth2AccessToken;
+    }
     return accessToken;
   }
 
@@ -112,10 +127,9 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2Authentication authentication = readAuthentication(tokenValue);
     String cacheKey = getCacheKey(authentication);
     CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
-    if (cachedToken != null && cachedToken.getExpiration() != null) {
-      RefreshRetentionToken refreshRetentionToken = new RefreshRetentionToken(refreshToken);
-      refreshRetentionToken.setExpiration(cachedToken.getExpiration());
-      return refreshRetentionToken;
+    if (cachedToken != null) {
+      return cachedToken.getExpiration() != null ?
+          new DefaultExpiringOAuth2RefreshToken(tokenValue, cachedToken.getExpiration()) : new DefaultOAuth2RefreshToken(tokenValue);
     }
     return refreshToken;
   }
@@ -160,37 +174,6 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     if (cachedToken != null && cachedToken.getAccessToken() != null) {
       return readAccessToken(cachedToken.getAccessToken());
     } else {
-      return null;
-    }
-  }
-
-  public class RefreshRetentionToken implements ExpiringOAuth2RefreshToken{
-    OAuth2RefreshToken nativeToken;
-    Date expiration;
-
-    public RefreshRetentionToken(OAuth2RefreshToken oAuth2RefreshToken) {
-      this.nativeToken = oAuth2RefreshToken;
-    }
-
-    public void setExpiration(Date expiration) {
-      this.expiration = expiration;
-    }
-
-    @Override
-    public String getValue() {
-      if(nativeToken != null)
-        return nativeToken.getValue();
-      return null;
-    }
-
-    @Override
-    public Date getExpiration() {
-      if(expiration != null)
-        return expiration;
-
-      if(nativeToken != null && nativeToken instanceof ExpiringOAuth2RefreshToken)
-        return ((ExpiringOAuth2RefreshToken) nativeToken).getExpiration();
-
       return null;
     }
   }
