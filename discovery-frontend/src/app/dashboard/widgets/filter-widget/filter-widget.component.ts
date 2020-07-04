@@ -231,9 +231,11 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    */
   public mouseoutWidget() {
     if (this.filterSelectComponent && this.filterSelectComponent.isShowSelectList ) {
-      this.filterSelectComponent.isShowSelectList = false;
-      this.safelyDetectChanges();
-      this.toggleOptionsSelectComp(false);
+
+      this.filterSelectComponent.toggleSelectList();
+      // this.filterSelectComponent.isShowSelectList = false;
+      // this.safelyDetectChanges();
+      // this.toggleOptionsSelectComp(false);
     }
   } // function - mouseoutWidget
 

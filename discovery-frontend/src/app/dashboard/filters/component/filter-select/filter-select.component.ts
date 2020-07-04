@@ -250,7 +250,12 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   /**
    * 셀렉트박스 클릭 토클 이벤트
    */
-  public toggleSelectList() {
+  public toggleSelectList(event?:MouseEvent) {
+    if( event ) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+    }
+
     this._setViewListPosition();
     this.isShowSelectList = !this.isShowSelectList;
 
@@ -473,10 +478,10 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
       const $ddpOffSetEl = $(this.ddpOffSet.nativeElement);
       const $dropboxTop = $ddpOffSetEl.offset();
       const $dropboxWidth = $ddpOffSetEl.width();
-      $ddpOffSetEl.find('.ddp-drop').css({
-        top : $dropboxTop.top,
-        left : $dropboxTop.left ,
-        width : $dropboxWidth
+      $ddpOffSetEl.find('.ddp-wrap-popup2').css({
+        top : $dropboxTop.top + 30,
+        left : $dropboxTop.left,
+        width : $dropboxWidth  + 30
       });
     }
   }// function _setViewListPosition

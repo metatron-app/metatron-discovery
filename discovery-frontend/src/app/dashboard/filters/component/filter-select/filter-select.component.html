@@ -16,13 +16,14 @@
 
   <div class="ddp-type-selectbox ddp-type-search-select " #ddpOffSet
        [ngClass]="{'ddp-del' : searchText !== '', 'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-offset' : viewType === 'widget'}"
-       (click)="isShowSelectList = true; setViewListPosition()">
+       (click)="toggleSelectList($event)">
     <span class="ddp-txt-selectbox">{{viewText}}</span>
     <input type="text" class="ddp-input-selectbox" placeholder="Search" [(ngModel)]="searchText" [disabled]="isMockup"
            (keyup)="setViewListPosition(); setCandidatePage(1, true);">
     <a href="javascript:" class="ddp-btn-del" (click)="searchText = ''; setCandidatePage(1, true);"></a>
 
-    <div class="ddp-wrap-popup2 ddp-scroll-none">
+    <div class="ddp-wrap-popup2 ddp-scroll-none"
+         [ngStyle]="(viewType === 'widget') ?  {'position': 'fixed'} : {}">
       <!-- 결과 없음 -->
       <div class="ddp-no-result" *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
         <div class="ddp-wrap-info">
@@ -65,7 +66,7 @@
                 <span class="ddp-txt-radio">{{isStringArray ? item : item[viewKey]}}</span>
               </label>
             </a>
-            <a href="javascript:" *ngIf="isSelectorTypeMulti()">
+            <a href="javascript:" *ngIf="isSelectorTypeMulti()" (click)="$event.stopPropagation();">
               <label class="ddp-label-checkbox">
                 <input type="checkbox" (click)="selectCandidateItem(item);"
                        [checked]="isSelectedItem(item)">
