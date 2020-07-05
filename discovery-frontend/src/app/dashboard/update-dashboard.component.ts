@@ -131,7 +131,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public isShowDetailMenu = false;            // 디테일 메뉴
   public isShowDashboardList = false;         // 대시보드 리스트 보이기 유무
   public isAppendLayout: boolean = false;     // 생성 후 바로 위젯 추가 여부
-  public isChartTest: boolean;                // 차트 테스트용
   public isUpdateDataSource: boolean = false;  // 데이터소스 수정 여부
   public isShowPage: boolean = false;         // 페이지 상세 show/hide
   public isShowChartPanelTooltip: boolean = false;
@@ -193,11 +192,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
               protected activatedRoute: ActivatedRoute,
               protected injector: Injector) {
     super(broadCaster, widgetService, datasourceService, popupService, appRef, componentFactoryResolver, elementRef, injector);
-
-    // TODO:  테스트용
-    if (this.router.url.indexOf('/test') != -1) {
-      this.isChartTest = true;
-    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

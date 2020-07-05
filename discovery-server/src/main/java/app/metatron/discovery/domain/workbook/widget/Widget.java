@@ -96,7 +96,7 @@ public abstract class Widget extends AbstractHistoryEntity implements MetatronDo
    * Parent Dashboard
    *
    */
-  @ManyToOne(fetch = FetchType.LAZY,  cascade = CascadeType.MERGE)
+  @ManyToOne(fetch = FetchType.EAGER,  cascade = CascadeType.MERGE)
   @JoinColumn(name="board_id")
   protected DashBoard dashBoard;
 
