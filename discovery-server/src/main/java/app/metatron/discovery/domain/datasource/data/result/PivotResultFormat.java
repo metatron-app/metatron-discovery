@@ -156,9 +156,24 @@ public class PivotResultFormat extends SearchResultFormat {
       if (CollectionUtils.isNotEmpty(postAggregations)
               && postAggregations.get(0) instanceof MathPostAggregator) {
         MathPostAggregator postAggregation = (MathPostAggregator) postAggregations.get(0);
-        String expression = "\"__time\" = " + postAggregation.getExpression();
 
-        addExpression(new PivotSpec.ConditionExpression(expression));
+        /*
+         * To handle the granularity configuration, there is a limitation in displaying the alias value of the timestamp field.
+         * If the pivot column does not exist, aliasing is possible according to the order,
+         * but if it does exist, it is difficult to process and it is passed as'__time' value.
+         * Unfortunately, when processing the Pivot result due to the current structure,
+         * it can be properly processed only when the key column is only one field of the timestamp type.
+         */
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append("\"");
+        if (CollectionUtils.isEmpty(pivots)) {
+          exprBuilder.append(granularity.getAlias());
+        } else {
+          exprBuilder.append("__time");
+        }
+        exprBuilder.append("\" = ").append(postAggregation.getExpression());
+
+        addExpression(new PivotSpec.ConditionExpression(exprBuilder.toString()));
       }
     }
   }

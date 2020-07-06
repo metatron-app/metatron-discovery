@@ -781,21 +781,36 @@ public abstract class AbstractQueryBuilder {
         aggregations.add(new VarianceAggregation(aliasName, fieldName));
         break;
       case FIRST:
-        aggregations.add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MIN.name()));
+        aggregations
+                .add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MIN.name()));
         break;
       case LAST:
-        aggregations.add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MAX.name()));
+        aggregations
+                .add(new RelayAggregation(aliasName, fieldName, "double", RelayAggregation.RelayType.TIME_MAX.name()));
         break;
     }
 
     return;
   }
 
+  /**
+   * Add aggregation by user-defined field
+   *
+   * @param field
+   */
   protected void addUserDefinedAggregationFunction(MeasureField field) {
 
     ExpressionField expressionField = (ExpressionField) userFieldsMap.get(field.getName());
 
-    String curExpr = expressionField.getExpr();
+    String curExpr;
+    if (expressionField.isAggregated()) {
+      curExpr = expressionField.getExpr();
+      virtualColumns.remove(field.getColunm());
+      unUsedVirtualColumnName.remove(field.getColunm());
+    } else {
+      curExpr = field.getColunm();
+      unUsedVirtualColumnName.remove(field.getColunm());
+    }
 
     switch (field.getAggregationType()) {
 
@@ -836,8 +851,8 @@ public abstract class AbstractQueryBuilder {
         break;
     }
 
-    ComputationalField.makeAggregationFunctionsIn(field, aggregations
-            , postAggregations, windowingSpecs, userFieldsMap, context);
+    ComputationalField.makeAggregationFunctionsIn(field, curExpr,
+            aggregations, postAggregations, windowingSpecs, userFieldsMap, context);
 
   }
 

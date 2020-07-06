@@ -310,10 +310,9 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
           aggregations.add(new RelayAggregation(engineColumnName, aliasName, "double", relayType.name()));
         } else {
           if (UserDefinedField.REF_NAME.equals(refName) && virtualColumns.containsKey(fieldName)) {
+            // Set up aggregations by user-defined field
             addUserDefinedAggregationFunction(measureField);
 
-            virtualColumns.remove(fieldName);
-            unUsedVirtualColumnName.remove(fieldName);
           } else {
             addAggregationFunction(measureField);
 
