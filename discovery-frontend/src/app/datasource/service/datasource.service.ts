@@ -324,7 +324,7 @@ export class DatasourceService extends AbstractService {
 
     if (pageConf.customFields) {
       query.userFields = CommonUtil.objectToArray(pageConf.customFields).filter(item => {
-        return item.dataSource === pageConf.dataSource.engineName;
+        return item.dataSource === pageConf.dataSource.engineName || item.dataSource === pageConf.dataSource.name;
       });
     }
 

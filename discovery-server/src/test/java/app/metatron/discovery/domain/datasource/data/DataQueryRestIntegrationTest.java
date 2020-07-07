@@ -1433,16 +1433,16 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.MONTH.name(), null))));
     pivot3.setRows(null);
     pivot3.setAggregations(Lists.newArrayList(
-            new DimensionField("Category"),
+            //new DimensionField("Category"),
             new MeasureField("Discount", MeasureField.AggregationType.SUM)
     ));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot3, limit);
     ChartResultFormat format = new ChartResultFormat("line");
-    format.addOptions("showPercentage", true);
+    //    format.addOptions("showPercentage", true);
     //     format.addOptions("showCategory", true);
     //     format.addOptions("isCumulative", true);
-    format.addOptions("addMinMax", true);
+    //    format.addOptions("addMinMax", true);
     request.setResultFormat(format);
 
     // @formatter:off
@@ -2885,7 +2885,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void groupbyQueryForUserDefined() throws JsonProcessingException {
+  public void groupByQueryForUserDefined() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
@@ -2929,7 +2929,47 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void groupbyNestedQueryForUserDefined() throws JsonProcessingException {
+  public void groupByMeasureQueryForUserDefined() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(50000);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    DimensionField dimField = new DimensionField("Category");
+
+    ExpressionField expressionField1 = new ExpressionField("sales_plus", "\"Sales\"+1", "measure", false);
+
+    MeasureField mField1 = new MeasureField("sales_plus", "user_defined", MeasureField.AggregationType.AVG);
+
+    SearchQueryRequest request = new SearchQueryRequest();
+    request.setDataSource(dataSource1);
+    request.setFilters(filters);
+    request.setProjections(Lists.newArrayList(dimField, mField1));
+    request.setUserFields(Lists.newArrayList(expressionField1));
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void groupByNestedQueryForUserDefined() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
@@ -2941,10 +2981,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     ExpressionField expressionField1 = new ExpressionField("r_symbol", "SUBSTRING( \"Region\" , 0, 1 )", "dimension",
             false);
-    ExpressionField expressionField2 = new ExpressionField("case_test",
+    ExpressionField expressionField2 = new ExpressionField("count_sales", "COUNTOF( \"Sales\" )", "measure", true);
+    ExpressionField expressionField3 = new ExpressionField("case_test",
             "CASE( \"r_symbol\" == 'C',  count_sales, \"r_symbol\" == 'E',  count_sales, 0 )", "measure", true);
-    ExpressionField expressionField3 = new ExpressionField("count_sales", "COUNTOF( \"Sales\" )", "measure", true);
-    ExpressionField expressionField4 = new ExpressionField("sales_plus", "\"Sales\"+1", "measure", false);
 
     DimensionField dimField = new DimensionField("r_symbol", "r_symbol", "user_defined", null);
     MeasureField mField1 = new MeasureField("case_test", "case_test", "user_defined");

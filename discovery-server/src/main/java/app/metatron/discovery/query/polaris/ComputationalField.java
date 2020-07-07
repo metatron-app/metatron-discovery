@@ -590,7 +590,7 @@ public class ComputationalField {
 
       String identifierName = node.getText().replaceAll("^\"|\"$", "");
 
-      String expression = generateAggregationExpression(identifierName, mapHistoryField, userDefinedFieldMap);
+      String expression = generateAggregationExpression(identifierName, true, mapHistoryField, userDefinedFieldMap);
 
       // skip if identifierName is field name
       if (expression.equals(identifierName)) {
@@ -607,6 +607,7 @@ public class ComputationalField {
         ((IdentifierExprContext) node).removeLastChild();
         ((IdentifierExprContext) node).addChild(terminalNode);
       }
+
     } else {
       for (int i = 0; i < node.getChildCount(); i++) {
         searchInFieldName(node.getChild(i), mapHistoryField, userDefinedFieldMap);
@@ -614,34 +615,46 @@ public class ComputationalField {
     }
   }
 
-  public static String generateAggregationExpression(String fieldName, Map<String, String> mapHistoryField,
+  public static String generateAggregationExpression(String fieldName, boolean isIdentifier,
+          Map<String, String> mapHistoryField,
           Map<String, UserDefinedField> userDefinedFieldMap) {
 
-    String cleanFieldName = fieldName.replaceAll("^\"|\"$", "");
+    if (isIdentifier) {
 
-    if (!userDefinedFieldMap.containsKey(cleanFieldName)) {
-      return fieldName;
-    }
+      String cleanFieldName = fieldName.replaceAll("^\"|\"$", "");
 
-    if (mapHistoryField.containsKey(cleanFieldName)) {
-      return mapHistoryField.get(cleanFieldName);
-    }
-
-    ExpressionField expressionField = (ExpressionField) userDefinedFieldMap.get(cleanFieldName);
-
-    ParseTree tree = getParseTree(expressionField.getExpr());
-
-    if (tree instanceof IdentifierExprContext) {
-      searchInFieldName(tree, mapHistoryField, userDefinedFieldMap);
-    } else {
-      for (int i = 0; i < tree.getChildCount(); i++) {
-        searchInFieldName(tree.getChild(i), mapHistoryField, userDefinedFieldMap);
+      if (userDefinedFieldMap.containsKey(cleanFieldName)) {
+        ExpressionField expressionField = (ExpressionField) userDefinedFieldMap.get(cleanFieldName);
+        // convert expression if user-defined field is aggregated.
+        if (expressionField.isAggregated()) {
+          return expressionField.getExpr();
+        } else {
+          return cleanFieldName;
+        }
+      } else {
+        return cleanFieldName;
       }
+
+    } else {
+
+      if (mapHistoryField.containsKey(fieldName)) {
+        return mapHistoryField.get(fieldName);
+      }
+
+      ParseTree tree = getParseTree(fieldName);
+
+      if (tree instanceof IdentifierExprContext) {
+        searchInFieldName(tree, mapHistoryField, userDefinedFieldMap);
+      } else {
+        for (int i = 0; i < tree.getChildCount(); i++) {
+          searchInFieldName(tree.getChild(i), mapHistoryField, userDefinedFieldMap);
+        }
+      }
+
+      mapHistoryField.put(fieldName, tree.getText());
+
+      return tree.getText();
     }
-
-    mapHistoryField.put(cleanFieldName, tree.getText());
-
-    return tree.getText();
   }
 
   public static boolean makeAggregationFunctions(String fieldName, String computationalField,
@@ -790,13 +803,13 @@ public class ComputationalField {
     return true;
   }
 
-  public static boolean makeAggregationFunctionsIn(MeasureField field, List<Aggregation> aggregations,
+  public static boolean makeAggregationFunctionsIn(MeasureField field, String expr, List<Aggregation> aggregations,
           List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs,
           Map<String, UserDefinedField> userDefinedFieldMap, Map<String, Object> context) {
 
     Map<String, String> mapHistoryField = Maps.newHashMap();
 
-    String newComputationalField = generateAggregationExpression(field.getName(), mapHistoryField, userDefinedFieldMap);
+    String newComputationalField = generateAggregationExpression(expr, false, mapHistoryField, userDefinedFieldMap);
 
     return makeAggregationFunctions(field.getAlias(), newComputationalField, aggregations, postAggregations,
             windowingSpecs,
