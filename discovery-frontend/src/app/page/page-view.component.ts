@@ -95,6 +95,7 @@ import {MapLayerType} from '../common/component/chart/option/define/map/map-comm
 import {fromEvent} from "rxjs";
 import {debounceTime, map} from "rxjs/operators";
 import {CookieConstant} from "../common/constant/cookie.constant";
+import { AfterViewInit } from '@angular/core';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -134,7 +135,7 @@ const possibleChartObj: any = {
   templateUrl: 'page-view.component.html',
   styleUrls: ['./page-view.component.css']
 })
-export class PageViewComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class PageViewComponent extends AbstractPopupComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -556,12 +557,6 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
     // Setting dragular
     this.settingDragAndDrop();
 
-    setTimeout(() => {
-      // 선택된 데이터 패널의 내부 스크롤 설정
-      this.dataPanelInnerScroll();
-    }, 700); // css의 duration이 0.5s로 되어 있으므로 600 이하로 설정하면 안됨
-
-
     window.history.pushState(null, null, window.location.href);
 
     const paramSubs: Subscription = this.activatedRoute.params.subscribe((params) => {
@@ -578,7 +573,14 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       }
     });
     this.subscriptions.push(paramSubs);
+  }
 
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    setTimeout(() => {
+      // 선택된 데이터 패널의 내부 스크롤 설정
+      this.dataPanelInnerScroll();
+    }, 1000); // css의 duration이 0.5s로 되어 있으므로 600 이하로 설정하면 안됨
   }
 
   // Destory
