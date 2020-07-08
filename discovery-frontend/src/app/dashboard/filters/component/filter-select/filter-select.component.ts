@@ -188,10 +188,12 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
     }
 
     this.selectedItems = [];
-    this.onCheckAll.emit('all');
 
-    this.isShowSelectList = false;
-    this.changeDisplayOptions.emit(this.isShowSelectList);
+    if( this.isSelectorTypeSingle() ) {
+      this.onCheckAll.emit('all');
+      this.isShowSelectList = false;
+      this.changeDisplayOptions.emit(this.isShowSelectList);
+    }
   } // function - selectAllItem
 
   /**
