@@ -3490,7 +3490,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     let totalFields: Field[] = boardConf.fields;
 
     if (totalFields && totalFields.length > 0) {
-      totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.engineName);
+      totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.engineName ? this.dataSource.engineName : this.dataSource.name);
       totalFields.forEach((field) => {
         if (field.role === FieldRole.MEASURE) {
           this.measures.push(field);
@@ -3511,7 +3511,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (boardConf.hasOwnProperty('customFields') && boardConf.customFields.length > 0) {
       // set main datasource fields
       boardConf.customFields
-        .filter(item => item.dataSource === this.widget.configuration.dataSource.engineName)
+        .filter(item => item.dataSource === this.widget.configuration.dataSource.engineName ?
+          this.widget.configuration.dataSource.engineName : this.widget.configuration.dataSource.name)
         .forEach((field: CustomField) => {
           if (field.role === FieldRole.DIMENSION) {
             this.customDimensions.push(field);
