@@ -232,7 +232,7 @@ public class WidgetController {
     return pathBuilder.toString();
   }
 
-  @RequestMapping(path = "/page/{widgetId}/embed", method = RequestMethod.GET, produces = { MediaType.TEXT_HTML_VALUE })
+  @RequestMapping(path = "/edit-page/{widgetId}/embed", method = RequestMethod.GET, produces = { MediaType.TEXT_HTML_VALUE })
   public String toEditPageWidget(@PathVariable("widgetId") String widgetId,
                                   HttpServletRequest request,
                                   HttpServletResponse response) {
@@ -254,7 +254,7 @@ public class WidgetController {
 
     StringBuilder pathBuilder = new StringBuilder();
     pathBuilder.append(REDIRECT_PATH_URL);
-    pathBuilder.append("/page/").append(widgetId);
+    pathBuilder.append("/edit-page/").append(widgetId);
 
     return pathBuilder.toString();
   }

@@ -19,7 +19,6 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -82,7 +81,7 @@ import {PageFilterPanel} from './filter/filter-panel.component';
 import {SecondaryIndicatorComponent} from './chart-style/secondary-indicator.component';
 import {DataLabelOptionComponent} from './chart-style/datalabel-option.component';
 import {ChartLimitInfo, DashboardUtil} from '../dashboard/util/dashboard.util';
-import {BoardConfiguration} from '../domain/dashboard/dashboard';
+import {BoardConfiguration, BoardDataSource} from '../domain/dashboard/dashboard';
 import {CommonUtil} from '../common/util/common.util';
 import {MapChartComponent} from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
@@ -559,7 +558,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
 
     window.history.pushState(null, null, window.location.href);
 
-    const paramSubs: Subscription = this.activatedRoute.params.subscribe((params) => {
+    const paramSubs: Subscription = this.activatedRoute.queryParams.subscribe((params) => {
       // dashboard 아이디를 넘긴경우에만 실행
       // 로그인 정보 생성
       (params['loginToken']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, params['loginToken'], 0, '/'));
@@ -568,6 +567,25 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       if (params['pageId']) {
         this.widgetService.getWidget(params['pageId']).then(result => {
           const pageWidget = <PageWidget>_.extend(new PageWidget(), result);
+          this.setWidget = pageWidget;
+        });
+      } else {
+        this.dashboardService.getDashboard(params['dashboardId']).then(result => {
+          const pageWidget = new PageWidget();
+          pageWidget.dashBoard = result;
+
+          const boardDataSource: BoardDataSource = new BoardDataSource();
+          {
+            const datasource = pageWidget.dashBoard.dataSources[0] as Datasource;
+
+            boardDataSource.id = datasource.id;
+            boardDataSource.type = 'default';
+            boardDataSource.name = datasource.engineName;
+            boardDataSource.engineName = datasource.engineName;
+            boardDataSource.connType = datasource.connType.toString();
+            pageWidget.configuration.dataSource = boardDataSource;
+          }
+
           this.setWidget = pageWidget;
         });
       }
@@ -736,44 +754,104 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
       this.uiOption['layers'][this.uiOption['layerNum']]['type'] = MapLayerType.SYMBOL;
     }
 
-    // 위젯 수정
-    const param = {
-      configuration: this.widgetConfiguration,
-      name: this.widget.name
-    };
+    if (this.isNewWidget()) {
+      // 위젯 생성
+      if (StringUtil.isEmpty(this.widget.name)) {
+        this.widget.name = 'New Chart';
+      }
+      let param;
+      // map - set shelf layers
+      if (_.eq(this.selectChart, ChartType.MAP)) {
+        param = _.extend({}, this.widget, {shelf: this.shelf});
+      } else {
+        param = _.extend({}, this.widget, {pivot: this.pivot});
+      }
 
-    // 서버에 저장될필요 없는 파라미터 제거
-    param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
+      // 서버에 저장될필요 없는 파라미터 제거
+      param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
 
-    const pageConf: PageWidgetConfiguration = param.configuration as PageWidgetConfiguration;
-    // 미니맵 범위 저장
-    // TODO 차트가 그려질때마다 저장되다면 이부분은 삭제예정
-    if (!_.isEmpty(this.chart.saveDataZoomRange())) pageConf.chart.chartZooms = this.chart.saveDataZoomRange();
-    // delete pageConf.layout.widget; // 순환 에러 처리
+      const pageConf: PageWidgetConfiguration = param.configuration as PageWidgetConfiguration;
+      // 미니맵 범위 저장
+      if (!_.isEmpty(this.chart.saveDataZoomRange())) pageConf.chart.chartZooms = this.chart.saveDataZoomRange();
 
-    // 버전기록
-    pageConf.chart.version = 2;
+      // 버전기록
+      pageConf.chart.version = 2;
 
-    this.widgetService.updateWidget(this.widget.id, param)
-      .then((widget) => {
-        // Update Image
-        this.uploadChartImage(this.widget.id)
-          .then((res) => {
-            const imageUrl = res['imageUrl'];
-            this.widgetService
-              .updateWidget(this.widget.id, {imageUrl})
-              .then(() => {
-                window.close();
-              });
-          })
-          .catch((err) => {
-            console.log('image upload error', err);
+      this.widgetService.createWidget(param, this.widget.dashBoard.id)
+        .then((widget) => {
+
+          const pageWidget: PageWidget = _.extend(new PageWidget(), widget);
+          pageWidget.dashBoard = this.widget.dashBoard;
+
+          // 차트 필터 위젯 아이디 등록 처리
+          pageWidget.configuration.filters.forEach(filter => {
+            (filter.ui) || (filter.ui = {});
+            filter.ui.widgetId = pageWidget.id;
           });
-      })
-      .catch((err) => {
-        this.loadingHide();
-        console.info(err);
-      });
+
+          // 이미지 업로드
+          this.uploadChartImage(pageWidget.id)
+            .then((res) => {
+              // 이미지 및 차트 필터 정보 변경
+              const configuration = {configuration: pageWidget.configuration, imageUrl: res['imageUrl']};
+              this.widgetService
+                .updateWidget(pageWidget.id, configuration)
+                .then(() => {
+                  // 위젯 아이디 전달
+                  window.opener.postMessage(pageWidget.id, '*');
+                  window.close();
+                });
+            })
+            .catch((err) => {
+              console.log('image upload error', err);
+            });
+        })
+        .catch((err) => {
+          this.loadingHide();
+          console.info(err);
+        });
+    } else {
+      // 위젯 수정
+      const param = {
+        configuration: this.widgetConfiguration,
+        name: this.widget.name
+      };
+
+      // 서버에 저장될필요 없는 파라미터 제거
+      param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
+
+      const pageConf: PageWidgetConfiguration = param.configuration as PageWidgetConfiguration;
+      // 미니맵 범위 저장
+      // TODO 차트가 그려질때마다 저장되다면 이부분은 삭제예정
+      if (!_.isEmpty(this.chart.saveDataZoomRange())) pageConf.chart.chartZooms = this.chart.saveDataZoomRange();
+      // delete pageConf.layout.widget; // 순환 에러 처리
+
+      // 버전기록
+      pageConf.chart.version = 2;
+
+      this.widgetService.updateWidget(this.widget.id, param)
+        .then((widget) => {
+          // Update Image
+          this.uploadChartImage(this.widget.id)
+            .then((res) => {
+              const imageUrl = res['imageUrl'];
+              this.widgetService
+                .updateWidget(this.widget.id, {imageUrl})
+                .then(() => {
+                  // 위젯 아이디 전달
+                  window.opener.postMessage(this.widget.id, '*');
+                  window.close();
+                });
+            })
+            .catch((err) => {
+              console.log('image upload error', err);
+            });
+        })
+        .catch((err) => {
+          this.loadingHide();
+          console.info(err);
+        });
+    }
   }
 
   public close() {

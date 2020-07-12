@@ -52,8 +52,7 @@ const appRoutes: Routes = [
   {path: 'user', loadChildren: 'app/layout/none-layout/none-layout.module#NoneLayoutModule'},
   {path: 'dashboard', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule'},
   {path: 'embedded', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule'},
-  {path: 'page', loadChildren: 'app/page/page.module#PageModule'},
-  {path: 'chart', loadChildren: 'app/chart-test/chart-test.module#ChartTestModule'},
+  {path: 'edit-page', loadChildren: 'app/page/page.module#PageModule'},
   {path: '', loadChildren: 'app/layout/layout/layout.module#LayoutModule', canActivate: [SsoGuard]},
   // 존재하지 않는 URL
   {path: '**', redirectTo: '/user/login', pathMatch: 'full'}

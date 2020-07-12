@@ -60,7 +60,7 @@ import {WidgetService} from "../dashboard/service/widget.service";
 
 const pageRoutes: Routes = [
   {
-    path: ':pageId', component: PageViewComponent
+    path: '', component: PageViewComponent
   },
 ];
 
