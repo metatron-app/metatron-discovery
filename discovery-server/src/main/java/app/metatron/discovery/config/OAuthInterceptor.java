@@ -129,7 +129,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
       LOGGER.debug("preHandle - requestURI : {}", requestURI);
       if (requestURI.equals("/oauth/token")) {
         String grantType = request.getParameter("grant_type");
-        if (grantType.equals("refresh_token")) {
+        if ("refresh_token".equals(grantType)) {
           String refreshToken = request.getParameter("refresh_token");
 
           OAuth2Authentication authFromToken = tokenStore.readAuthentication(refreshToken);
@@ -172,7 +172,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
       String grantType = request.getParameter("grant_type");
 
       //exclude refresh_token or client_credentials or authorization_code
-      if (grantType.equals("refresh_token") || grantType.equals("client_credentials") || grantType.equals("authorization_code")) {
+      if (grantType == null || grantType.equals("refresh_token") || grantType.equals("client_credentials") || grantType.equals("authorization_code")) {
         return;
       }
 

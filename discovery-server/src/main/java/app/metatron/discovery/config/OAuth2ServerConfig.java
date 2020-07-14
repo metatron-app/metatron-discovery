@@ -27,6 +27,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.authentication.ProviderManager;
@@ -51,7 +52,10 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -384,6 +388,22 @@ public class OAuth2ServerConfig {
       whitelistAuthenticationFilter.setWhitelistTokenCacheRepository(whitelistTokenCacheRepository);
       whitelistAuthenticationFilter.setJwtTokenStore(tokenStore());
       registrationBean.setFilter(whitelistAuthenticationFilter);
+      return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean corsFilterRegistrationBean() {
+      FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+      CorsConfiguration config = new CorsConfiguration();
+      config.setAllowCredentials(true);
+      config.addAllowedOrigin("*");
+      config.setAllowedMethods(Arrays.asList("*"));
+      config.setAllowedHeaders(Arrays.asList("*"));
+      source.registerCorsConfiguration("/**", config);
+      CorsFilter corsFilter = new CorsFilter(source);
+      registrationBean.setFilter(corsFilter);
+      registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
       return registrationBean;
     }
 
