@@ -9820,7 +9820,7 @@ table.ddp-table-type2 tbody tr td table.ddp-table-code tr td {background:none; c
 .ddp-wrap-list-create .ddp-box-create .ddp-data-contents .ddp-box-list .ddp-list-data {}
 .ddp-list-creator {margin:-3px 0;}
 .ddp-list-creator li {padding:4px 0;}
-.ddp-list-creator li .ddp-box-tag-value {float:left; width:63px; margin-right:4px; text-align:center; box-sizing:border-box;}
+.ddp-list-creator li .ddp-box-tag-value {float:left; width:65px; margin-right:4px; text-align:center; box-sizing:border-box;}
 .ddp-list-creator li .ddp-txt-ellipsis .ddp-data-name {display:inline-block; max-width:100%; color:#4e5368; font-size:12px; overflow:Hidden;}
 .ddp-list-creator li .ddp-txt-ellipsis .ddp-data-name .ddp-name-in {display:block; overflow:Hidden;  white-space:nowrap; text-overflow:ellipsis;}
 .ddp-list-creator li .ddp-txt-ellipsis .ddp-data-date {margin-left:3px; color:#90969f; font-size:12px;}
