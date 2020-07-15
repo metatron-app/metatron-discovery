@@ -261,7 +261,7 @@
                   <em class="ddp-icon-dot"></em> {{item.name}}
                 </a>
                 <ul class="ddp-list-sublnb-2depth">
-                  <li *ngFor="let subKey of ObjectKeys(item.subContents)">
+                  <li *ngFor="let subKey of getObjectKeys(item.subContents)">
                     <a href="javascript:" (click)="move('external/' + item.parent + '_' + item.name + '_' + subKey)">{{subKey}}</a>
                   </li>
                 </ul>

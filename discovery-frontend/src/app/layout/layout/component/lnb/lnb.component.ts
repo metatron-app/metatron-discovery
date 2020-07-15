@@ -136,7 +136,11 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   };
 
   public get getManagementExtensions(): Extension[] {
-    return CommonService.extensions.filter(item => 'management' === item.parent);
+    if( CommonService.extensions ) {
+      return CommonService.extensions.filter(item => 'management' === item.parent);
+    } else {
+      return [];
+    }
   } // get - getManagementExtensions
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -716,6 +720,14 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       window.open("https://metatron-app.github.io/metatron-doc-discovery/", "_blank");
     } else {
       window.open("https://metatron-app.github.io/metatron-doc-discovery/en", "_blank");
+    }
+  }
+
+  public getObjectKeys(data) {
+    if( data ) {
+      return Object.keys(data);
+    } else {
+      return [];
     }
   }
 }
