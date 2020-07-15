@@ -324,6 +324,9 @@ public class WorkspaceProjections extends BaseProjections {
     @Value("#{@cachedUserService.findUserProfile(target.ownerId)}")
     UserProfile getOwner();
 
+    @Value("#{@workspaceService.myRoles(target.id, target.ownerId)}")
+    List<WorkspaceMember> getMyRoles();
+
     Boolean getPublished();
 
     Boolean getActive();
