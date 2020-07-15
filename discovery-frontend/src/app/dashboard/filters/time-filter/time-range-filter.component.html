@@ -14,7 +14,8 @@
 
 <div *ngIf="targetFilter" class="ddp-dateinfo-view" [class.ddp-inline]="'WIDGET' === mode" >
   <div class="ddp-filter-calen">
-    <div *ngFor="let item of timeRangeList;let idx = index;" class="ddp-filter-calen-in">
+    <div *ngFor="let item of timeRangeList;let idx = index;" class="ddp-filter-calen-in"
+    [ngStyle]="'WIDGET' == mode ? {'float':'left'} : {}">
       <!-- wrap dateinfo -->
       <component-time-range
         [mode]="mode"
@@ -52,7 +53,8 @@
       </div>
       <!-- //wrap control -->
     </div>
-    <a *ngIf="'WIDGET' == mode" class="ddp-ui-button" href="javascript:" (click)="broadcastChange()">{{'msg.comm.ui.ok' | translate}}</a>
+    <a *ngIf="'WIDGET' == mode" class="ddp-ui-button" href="javascript:" (click)="broadcastChange()"
+       style="width: 83px;height: 30px;border-radius: 2px;border: solid 1px #4e5368;padding: 8px 10px;margin-left: 10px;position: relative;top: 8px;">{{'msg.comm.ui.ok' | translate}}</a>
   </div>
   <!-- add -->
   <a *ngIf="'WIDGET' !== mode" (click)="addIntervalRange(targetFilter)"

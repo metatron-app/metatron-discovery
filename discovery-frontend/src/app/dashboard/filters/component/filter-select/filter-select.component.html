@@ -16,13 +16,15 @@
 
   <div class="ddp-type-selectbox ddp-type-search-select " #ddpOffSet
        [ngClass]="{'ddp-del' : searchText !== '', 'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-offset' : viewType === 'widget'}"
-       (click)="isShowSelectList = true; setViewListPosition()">
+       (click)="toggleSelectList($event)">
     <span class="ddp-txt-selectbox">{{viewText}}</span>
     <input type="text" class="ddp-input-selectbox" placeholder="Search" [(ngModel)]="searchText" [disabled]="isMockup"
+           (click)="$event.stopPropagation();"
            (keyup)="setViewListPosition(); setCandidatePage(1, true);">
     <a href="javascript:" class="ddp-btn-del" (click)="searchText = ''; setCandidatePage(1, true);"></a>
 
-    <div class="ddp-wrap-popup2 ddp-scroll-none">
+    <div class="ddp-wrap-popup2 ddp-scroll-none"
+         [ngStyle]="(viewType === 'widget') ?  {'position': 'fixed'} : {}">
       <!-- 결과 없음 -->
       <div class="ddp-no-result" *ngIf="pageCandidateList == null || pageCandidateList.length == 0">
         <div class="ddp-wrap-info">
@@ -37,7 +39,7 @@
 
       <div *ngIf="filter.showSelectedItem || (pageCandidateList != null && pageCandidateList.length > 0)">
         <!-- setting -->
-        <div class="ddp-select-setting">
+        <div (click)="$event.stopPropagation();" class="ddp-select-setting">
           <ul class="ddp-list-select">
             <li *ngIf="isSelectorTypeMulti()"><a href="javascript:" (click)="checkAll();">{{ 'msg.comm.ui.list.sel.all' | translate }}</a></li>
             <li>
@@ -65,7 +67,7 @@
                 <span class="ddp-txt-radio">{{isStringArray ? item : item[viewKey]}}</span>
               </label>
             </a>
-            <a href="javascript:" *ngIf="isSelectorTypeMulti()">
+            <a href="javascript:" *ngIf="isSelectorTypeMulti()" (click)="$event.stopPropagation();">
               <label class="ddp-label-checkbox">
                 <input type="checkbox" (click)="selectCandidateItem(item);"
                        [checked]="isSelectedItem(item)">
@@ -80,8 +82,8 @@
 
         <!-- result2 -->
         <div class="ddp-data-result2">
-          <div class="ddp-data-values">
-            <label class="ddp-label-check-value">
+          <div class="ddp-data-values" >
+            <label (click)="$event.stopImmediatePropagation();" class="ddp-label-check-value">
               <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
                      [checked]="filter.showSelectedItem"
                      type="checkbox" >
@@ -96,11 +98,11 @@
           </div>
 
           <div class="ddp-ui-page">
-            <a (click)="setCandidatePage(currentPage-1)"
+            <a (click)="$event.stopPropagation();setCandidatePage(currentPage-1);"
                [class.ddp-disabled]="1 === currentPage"
                href="javascript:" class="ddp-btn-prev"></a>
             <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-            <a (click)="setCandidatePage(currentPage+1)"
+            <a (click)="$event.stopPropagation();setCandidatePage(currentPage+1);"
                [class.ddp-disabled]="lastPage === currentPage"
                href="javascript:" class="ddp-btn-next"></a>
           </div>
