@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-widget" (mouseleave)="mouseoutWidget()">
+<div class="ddp-box-widget">
   <!-- Top Control -->
   <div *ngIf="isAuthMgmtViewMode" class="ddp-top-control ddp-clear"
        [ngStyle]="{'margin-right': isVisibleScrollbar ? '20px' : '' }">
@@ -135,7 +135,7 @@
     <!-- // 측정값 필터 -->
     <!-- Timestamp Filter -->
     <div *ngIf="isTimeFilter" [ngStyle]="{
-      'top' : ( isShowTitle ? ( ( isListTypeTimeFilter || isDiscontinuousFilter ) ? '39px' : '23px' ) : '0px' ),
+      'top' : ( isShowTitle ? ( ( isRelativeTypeTimeFilter ) ? '47px' : '39px' ) : '0px' ),
       'padding-top' : ( ( isListTypeTimeFilter || isDiscontinuousFilter ) ? '0px' : '' )
     }"
          class="ddp-ui-widget-contents" >
