@@ -57,9 +57,9 @@ public class BookTreeService {
     this.comparator = new BookComparator();
   }
 
-  public List<Book> findRootBooks(String workspaceId) {
+  public List<Book> findRootBooks(String workspaceId, String... type) {
 
-    List<Book> rootBooks = bookRepository.findRootBooksInWorkspace(workspaceId);
+    List<Book> rootBooks = bookRepository.findRootBooksInWorkspace(workspaceId, type);
     rootBooks.sort(comparator);
     for (Book book : rootBooks) {
       if (book instanceof Folder) {

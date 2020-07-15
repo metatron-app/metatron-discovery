@@ -310,4 +310,48 @@ public class WorkspaceProjections extends BaseProjections {
     DateTime getModifiedTime();
   }
 
+  @Projection(name = "withWorkBooksView", types = { Workspace.class })
+  public interface WithWorkBooksProjection {
+
+    String getId();
+
+    String getName();
+
+    String getDescription();
+
+    String getType();
+
+    @Value("#{@cachedUserService.findUserProfile(target.ownerId)}")
+    UserProfile getOwner();
+
+    Boolean getPublished();
+
+    Boolean getActive();
+
+    Workspace.PublicType getPublicType();
+
+    @Value("#{@bookTreeService.findRootBooks(target.id, 'workbook')}")
+    List<Book> getBooks();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    /**
+     * 워크스페이스 생성 시간
+     * lnb - 공유스페이스 정보
+     * @return
+     */
+    DateTime getCreatedTime();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+
+    /**
+     * 워크스페이스 수정 시간
+     * lnb - 공유스페이스 정보
+     * @return
+     */
+    DateTime getModifiedTime();
+  }
+
 }

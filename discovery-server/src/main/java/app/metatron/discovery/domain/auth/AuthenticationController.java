@@ -367,7 +367,7 @@ public class AuthenticationController {
     return mav;
   }
 
-  @RequestMapping(value = "/oauth/client/logout")
+  @GetMapping(value = "/oauth/client/logout")
   public void oauthLogout(HttpServletRequest request, HttpServletResponse response) {
     try {
       logoutProcess(request, response);
@@ -391,6 +391,21 @@ public class AuthenticationController {
         response.sendRedirect(stringBuffer.toString());
       }
 
+    } catch (Exception e) {
+      throw new MetatronException(e);
+    }
+  }
+
+  @DeleteMapping(value = "/oauth/client/logout")
+  public void oauthLogoutProcess(HttpServletRequest request) {
+    try {
+      String accessToken = request.getParameter("accessToken");
+      if (accessToken == null) {
+        throw new BadRequestException("accessToken is empty");
+      }
+      String userHost = HttpUtils.getClientIp(request);
+      String userAgent = request.getHeader("user-agent");
+      logoutProcess(accessToken, userHost, userAgent);
     } catch (Exception e) {
       throw new MetatronException(e);
     }
@@ -428,18 +443,22 @@ public class AuthenticationController {
     if (accessToken != null) {
       String userHost = HttpUtils.getClientIp(request);
       String userAgent = request.getHeader("user-agent");
-      try {
-        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), userHost, userAgent);
-      } catch (Exception e) {
-        LOGGER.error(e.getMessage(), e);
-      }
-
-      OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken.getValue());
-      String username = authFromToken.getName();
-      String clientId = authFromToken.getOAuth2Request().getClientId();
-      tokenCacheRepository.removeCachedToken(username + "|" + clientId);
+      logoutProcess(accessToken.getValue(), userHost, userAgent);
     }
     CookieManager.removeAllToken(response);
+  }
+
+  private void logoutProcess(String accessToken, String userHost, String userAgent) {
+    try {
+      StatLogger.logout(this.tokenStore.readAuthentication(accessToken), userHost, userAgent);
+    } catch (Exception e) {
+      LOGGER.error(e.getMessage(), e);
+    }
+
+    OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken);
+    String username = authFromToken.getName();
+    String clientId = authFromToken.getOAuth2Request().getClientId();
+    tokenCacheRepository.removeCachedToken(username + "|" + clientId);
   }
 
 }
