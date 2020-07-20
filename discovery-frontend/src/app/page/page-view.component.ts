@@ -798,7 +798,9 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
                 .updateWidget(pageWidget.id, configuration)
                 .then(() => {
                   // 위젯 아이디 전달
-                  window.opener.postMessage(pageWidget.id, '*');
+                  if( window.opener ) {
+                    window.opener.postMessage(pageWidget.id, '*');
+                  }
                   window.close();
                 });
             })
@@ -839,7 +841,9 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
                 .updateWidget(this.widget.id, {imageUrl})
                 .then(() => {
                   // 위젯 아이디 전달
-                  window.opener.postMessage(this.widget.id, '*');
+                  if( window.opener ) {
+                    window.opener.postMessage(this.widget.id, '*');
+                  }
                   window.close();
                 });
             })
