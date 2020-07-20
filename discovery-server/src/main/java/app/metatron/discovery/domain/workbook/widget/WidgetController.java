@@ -232,6 +232,33 @@ public class WidgetController {
     return pathBuilder.toString();
   }
 
+  @RequestMapping(path = "/edit-page/{widgetId}/embed", method = RequestMethod.GET, produces = { MediaType.TEXT_HTML_VALUE })
+  public String toEditPageWidget(@PathVariable("widgetId") String widgetId,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response) {
+
+    Widget widget = widgetRepository.findOne(widgetId);
+    if (widget == null) {
+      throw new ResourceNotFoundException(widgetId);
+    }
+
+    if(CookieManager.getAccessToken(request) == null) {
+      String authorization = request.getHeader("Authorization");
+      String[] splitedAuth = StringUtils.split(authorization, " ");
+
+      CookieManager.addCookie(CookieManager.ACCESS_TOKEN, splitedAuth[1], response);
+      CookieManager.addCookie(CookieManager.TOKEN_TYPE, splitedAuth[0], response);
+      CookieManager.addCookie(CookieManager.REFRESH_TOKEN, "", response);
+      CookieManager.addCookie(CookieManager.LOGIN_ID, AuthUtils.getAuthUserName(), response);
+    }
+
+    StringBuilder pathBuilder = new StringBuilder();
+    pathBuilder.append(REDIRECT_PATH_URL);
+    pathBuilder.append("/edit-page/").append(widgetId);
+
+    return pathBuilder.toString();
+  }
+
   /**
    * Download from widget configuration.
    *

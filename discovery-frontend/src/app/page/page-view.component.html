@@ -12,7 +12,8 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-chart page-chart" [ngClass]="{'ddp-page-mapview' : selectChart == 'map'}">
+<div *ngIf="widget" class="ddp-layout-chart page-chart" [ngClass]="{'ddp-page-mapview' : selectChart == 'map'}"
+     style="top:0;left:0;right:0;bottom:0;animation-duration:unset;animation:none;">
 
   <div class="ddp-layout-contents2">
 
@@ -1959,14 +1960,9 @@
       </div>
       <!-- //side menu -->
 
-      <!--<div class="ddp-ui-navibuttons">-->
-      <!--<a *ngIf="isDashboard" [ngClass]="{'ddp-disabled': !isChartShow}" href="javascript:" class="ddp-btn-line3" (click)="save()"><em class="ddp-icon-btnsave"></em>{{'msg.page.btn.save' | translate}}</a>-->
-      <!--<a href="javascript:" class="ddp-btn-blank" (click)="close()"><em class="ddp-icon-btnclose"></em></a>-->
-      <!--</div>-->
-
       <div class="ddp-ui-buttons2">
         <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" *ngIf="isDashboard"
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
            [ngClass]="{'ddp-disabled': !isChartShow}" (click)="save()">{{'msg.page.btn.save' | translate}}</a>
       </div>
     </div>

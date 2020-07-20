@@ -90,7 +90,37 @@ import {CalculatedOptionSliderComponent} from "./chart-style/calc-option-slider.
     MapLegendOptionComponent,
     MapTooltipOptionComponent,
     MapFormatOptionComponent,
-    PivotContextComponent,
+    PivotContextComponent
+  ],
+  exports: [
+    PageComponent,
+    PagePivotComponent,
+    FormatItemComponent,
+    PageFilterPanel,
+    PageDataContextComponent,
+    PopupValueAliasComponent,
+    CommonOptionComponent,
+    LegendOptionComponent,
+    XAxisOptionComponent,
+    YAxisOptionComponent,
+    SecondaryAxisOptionComponent,
+    AxisValueOptionComponent,
+    AxisCategoryOptionComponent,
+    DataLabelOptionComponent,
+    TooltipOptionComponent,
+    SecondaryIndicatorComponent,
+    FormatOptionComponent,
+    ColorOptionComponent,
+    SplitOptionComponent,
+    CalculatedRowOptionComponent,
+    CalculatedOptionSliderComponent,
+    MapPagePivotComponent,
+    MapCommonOptionComponent,
+    MapLayerOptionComponent,
+    MapLegendOptionComponent,
+    MapTooltipOptionComponent,
+    MapFormatOptionComponent,
+    PivotContextComponent
   ],
   providers: [
     DatasourceService,
@@ -98,8 +128,7 @@ import {CalculatedOptionSliderComponent} from "./chart-style/calc-option-slider.
     MetadataService,
     WidgetService,
     ImageService
-  ],
-  exports: [PageComponent, PageDataContextComponent]
+  ]
 })
 export class PageShareModule {
 }

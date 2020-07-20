@@ -19,7 +19,6 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -27,7 +26,6 @@ import {
 } from '@angular/core';
 import {AbstractPopupComponent} from '../common/component/abstract-popup.component';
 import {PageWidget, PageWidgetConfiguration} from '../domain/dashboard/widget/page-widget';
-import {PopupService} from '../common/service/popup.service';
 
 import {StringUtil} from '../common/util/string.util';
 import {Pivot} from '../domain/workbook/configurations/pivot';
@@ -55,7 +53,6 @@ import {Subject} from 'rxjs/Subject';
 import {DIRECTION, Sort} from '../domain/workbook/configurations/sort';
 import {Filter} from '../domain/workbook/configurations/filter/filter';
 import {OptionGenerator} from '../common/component/chart/option/util/option-generator';
-import {Widget} from '../domain/dashboard/widget/widget';
 import {ImageService} from '../common/service/image.service';
 import {ExpressionField} from '../domain/workbook/configurations/field/expression-field';
 import {DashboardService} from '../dashboard/service/dashboard.service';
@@ -68,7 +65,7 @@ import {DragulaService} from '../../lib/ng2-dragula';
 import {PageDataContextComponent} from './page-data/page-data-context.component';
 import {Format} from '../domain/workbook/configurations/format';
 import {FilterUtil} from '../dashboard/util/filter.util';
-import {isNullOrUndefined, isUndefined} from 'util';
+import {isNullOrUndefined} from 'util';
 import {AnalysisComponent} from './component/analysis/analysis.component';
 import {AnalysisPredictionService} from './component/analysis/service/analysis.prediction.service';
 import {CustomField} from '../domain/workbook/configurations/field/custom-field';
@@ -84,7 +81,7 @@ import {PageFilterPanel} from './filter/filter-panel.component';
 import {SecondaryIndicatorComponent} from './chart-style/secondary-indicator.component';
 import {DataLabelOptionComponent} from './chart-style/datalabel-option.component';
 import {ChartLimitInfo, DashboardUtil} from '../dashboard/util/dashboard.util';
-import {BoardConfiguration} from '../domain/dashboard/dashboard';
+import {BoardConfiguration, BoardDataSource} from '../domain/dashboard/dashboard';
 import {CommonUtil} from '../common/util/common.util';
 import {MapChartComponent} from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
@@ -96,6 +93,8 @@ import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map
 import {MapLayerType} from '../common/component/chart/option/define/map/map-common';
 import {fromEvent} from "rxjs";
 import {debounceTime, map} from "rxjs/operators";
+import {CookieConstant} from "../common/constant/cookie.constant";
+import { AfterViewInit } from '@angular/core';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -132,11 +131,10 @@ const possibleChartObj: any = {
 };
 
 @Component({
-  selector: 'app-page',
-  templateUrl: 'page.component.html',
-  styleUrls: ['./page.component.css']
+  templateUrl: 'page-view.component.html',
+  styleUrls: ['./page-view.component.css']
 })
-export class PageComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class PageViewComponent extends AbstractPopupComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -288,9 +286,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   // 위젯 속성 일부분만 변경하여 저장할 때 사용할 용도
   public originalWidgetConfiguration: PageWidgetConfiguration;
 
-  // Dashboard에서 띄워지는지 여부
-  public isDashboard: boolean = true;
-
   // 페이지 이름 에디팅여부
   public isPageNameEdit: boolean = false;
 
@@ -333,7 +328,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   //   this.isSankeyNotAllNode = isSankeyNotAllNode;
   // }
 
-  @Input('widget')
   set setWidget(widget: PageWidget) {
 
     if (widget.configuration.filters) {
@@ -343,20 +337,18 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       });
     }
 
-    this.originalWidget = widget;
-
     this.dataSourceList = DashboardUtil.getMainDataSources(widget.dashBoard);
 
     const widgetDataSource: Datasource
       = DashboardUtil.getDataSourceFromBoardDataSource(widget.dashBoard, widget.configuration.dataSource);
+
+    // 대시보드 설정에 필드 정보 추가
+    widgetDataSource.fields.forEach( item => item.dataSource = widgetDataSource.engineName );
+    widget.dashBoard.configuration.fields = widgetDataSource.fields;
+
+    this.originalWidget = widget;
+
     this.selectDataSource(widgetDataSource ? widgetDataSource : this.dataSourceList[0], false);
-  }
-
-  @Input('dashboard')
-  set setIsDashboard(isDashboard: boolean) {
-
-    // Set
-    this.isDashboard = isDashboard;
   }
 
   @Output('changeFieldAlias')
@@ -507,7 +499,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   // 생성자
   constructor(private dashboardService: DashboardService,
               private widgetService: WidgetService,
-              private popupService: PopupService,
               private activatedRoute: ActivatedRoute,
               private dragulaService: DragulaService,
               private datasourceService: DatasourceService,
@@ -553,7 +544,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         }
       }
     });
-
     this.subscriptions.push(windowResizeSubscribe);
 
     const changeChartSubs = this.selectChart$.subscribe((param) => {
@@ -561,42 +551,54 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         this.drawChart({type: param['type']});
       }
     });
-
-    const paramSubs: Subscription = this.activatedRoute.params.subscribe((params) => {
-      const pageId = params['pageId'];
-      // console.info('pageId', pageId, this.widget);
-
-      // 위젯이 아닌 직접 들어온 경우
-      if (pageId) {
-        // 테스트 코드
-        const pageWidget: PageWidget = new PageWidget();
-        pageWidget.id = StringUtil.random(10);
-        pageWidget.name = '페이지 위젯 (더미선반정보) - line';
-
-        const pageConf: PageWidgetConfiguration = <PageWidgetConfiguration>pageWidget.configuration;
-        pageConf.chart.type = ChartType.BAR;
-
-        pageConf.dataSource = JSON.parse(`{"type":"default","name":"sales"}`);
-
-        pageConf.pivot = JSON.parse(`{"columns":[{"type":"dimension","name":"Region","alias":"Region"}],"rows":[],"aggregations":[{"type":"measure","aggregationType":"SUM","name":"Sales","alias":"Sales"},{"type":"measure","aggregationType":"SUM","name":"Profit","alias":"Profit"}]}`);
-
-        // pageWidget.dashBoard = JSON.parse(`{"name":"ㅁㅁㅁ","id":"bb2c35dd-a203-4b0e-9a8c-3729ccf7d305","seq":0,"modifiedBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"modifiedTime":"2017-08-21T08:21:19.000Z","createdBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"createdTime":"2017-08-21T08:21:19.000Z","dataSources":[{"createdBy":"polaris","createdTime":"2017-08-21T12:24:35.000Z","modifiedBy":"unknown","modifiedTime":"2017-08-21T03:25:30.000Z","id":"ds-37","name":"sales","engineName":"sales","ownerId":"polaris","description":"sales data (2011~2014)","dsType":"MASTER","connType":"ENGINE","granularity":"DAY","status":"ENABLED","published":true,"fields":[{"name":"OrderDate","alias":"OrderDate","type":"TIMESTAMP","biType":"TIMESTAMP","role":"TIMESTAMP","seq":0,"mappedField":[]},{"name":"Category","alias":"Category","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":1,"mappedField":[]},{"name":"City","alias":"City","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":2,"mappedField":[]},{"name":"Country","alias":"Country","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":3,"mappedField":[]},{"name":"CustomerName","alias":"CustomerName","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":4,"mappedField":[]},{"name":"Discount","alias":"Discount","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":5,"mappedField":[]},{"name":"OrderID","alias":"OrderID","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":6,"mappedField":[]},{"name":"PostalCode","alias":"PostalCode","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":7,"mappedField":[]},{"name":"ProductName","alias":"ProductName","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":8,"mappedField":[]},{"name":"Profit","alias":"Profit","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":9,"mappedField":[]},{"name":"Quantity","alias":"Quantity","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":10,"mappedField":[]},{"name":"Region","alias":"Region","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":11,"mappedField":[]},{"name":"Sales","alias":"Sales","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":12,"mappedField":[]},{"name":"Segment","alias":"Segment","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":13,"mappedField":[]},{"name":"ShipDate","alias":"ShipDate","type":"TIMESTAMP","biType":"DIMENSION","role":"DIMENSION","seq":14,"format":"yyyy. MM. dd.","mappedField":[]},{"name":"ShipMode","alias":"ShipMode","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":15,"mappedField":[]},{"name":"State","alias":"State","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":16,"mappedField":[]},{"name":"Sub-Category","alias":"Sub-Category","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":17,"mappedField":[]},{"name":"DaystoShipActual","alias":"DaystoShipActual","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":18,"mappedField":[]},{"name":"SalesForecast","alias":"SalesForecast","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":19,"mappedField":[]},{"name":"ShipStatus","alias":"ShipStatus","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":20,"mappedField":[]},{"name":"DaystoShipScheduled","alias":"DaystoShipScheduled","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":21,"mappedField":[]},{"name":"OrderProfitable","alias":"OrderProfitable","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":22,"mappedField":[]},{"name":"SalesperCustomer","alias":"SalesperCustomer","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":23,"mappedField":[]},{"name":"ProfitRatio","alias":"ProfitRatio","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":24,"mappedField":[]},{"name":"SalesaboveTarget","alias":"SalesaboveTarget","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":25,"mappedField":[]},{"name":"latitude","alias":"latitude","type":"LNT","biType":"DIMENSION","role":"DIMENSION","seq":26,"mappedField":[]},{"name":"longitude","alias":"longitude","type":"LNG","biType":"DIMENSION","role":"DIMENSION","seq":27,"mappedField":[]}],"summary":{"ingestionMinTime":"2011-01-01T00:00:00.000Z","ingestionMaxTime":"2015-01-01T00:00:00.000Z","size":3061790,"count":9993},"alias":"sales","dataSourceType":"MASTER","implementor":""}],"widgets":[{"isLoading":false,"type":"filter","configuration":{"layout":{"x":0,"y":0,"cols":2,"rows":2},"filter":{"type":"include","field":"Category","valueList":[]}},"id":"IL7cqV7l5v"},{"isLoading":false,"type":"text","configuration":{"layout":{"x":2,"y":0,"cols":2,"rows":2}},"id":"tFkjQ21hFK","contents":"<h1><strong class=\\"ql-font-monospace\\" style=\\"color: rgb(255, 255, 255); background-color: rgb(255, 153, 0);\\">Metatron!<br/>메타트론</strong></h1>"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":4,"y":0,"cols":6,"rows":3},"chart":{"type":"line"}},"mode":"chart","id":"BIZ2r2DA4P","name":"페이지 위젯 (더미선반정보) - line"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":0,"y":2,"cols":4,"rows":4},"chart":{"type":"bar"}},"mode":"chart","id":"69xX3Bfis4","name":"페이지 위젯 (더미선반정보) - bar"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":4,"y":3,"cols":3,"rows":3},"chart":{"type":"heatmap"}},"mode":"chart","id":"56ZXrO8gWP","name":"페이지 위젯 (더미선반정보) - heatmap"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":7,"y":3,"cols":3,"rows":3},"chart":{"type":"scatter"}},"mode":"chart","id":"FZiTJHaqJH","name":"페이지 위젯 (더미선반정보) - scatter"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":0,"y":5,"cols":5,"rows":3},"chart":{"type":"grid"}},"mode":"chart","id":"1K6b3CnUHt"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":5,"y":5,"cols":5,"rows":3},"chart":{"type":"control"}},"mode":"chart","id":"o4MQCuHBtR","name":"페이지 위젯 (더미선반정보) - control"}],"configuration":{"dataSource":{"joins":[],"name":"sales","type":"default"}},"_links":{"self":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305"},"dashboard":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305{?projection}","templated":true},"workBook":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/workbook"},"dataSources":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/datasources"},"widgets":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/widgets"}},"workBook":{"name":"ㄹㄹ","id":"e55c7c3c-0bb3-465d-9c03-317cb21527d2","type":"workbook","dataSource":[{"name":"sales","id":"ds-37","description":"sales data (2011~2014)","engineName":"sales","_links":{"self":{"href":"http://localhost:8180/api/datasources/ds-37{?projection}","templated":true},"connection":{"href":"http://localhost:8180/api/datasources/ds-37/connection"},"workspaces":{"href":"http://localhost:8180/api/datasources/ds-37/workspaces"},"dashBoards":{"href":"http://localhost:8180/api/datasources/ds-37/dashboards"}}}],"modifiedBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"modifiedTime":"2017-08-21T08:21:19.000Z","workspaceId":"ws-00","createdBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"createdTime":"2017-08-21T08:21:11.000Z","dashBoards":[{"name":"ㅁㅁㅁ","id":"bb2c35dd-a203-4b0e-9a8c-3729ccf7d305","seq":0,"_links":{"self":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305{?projection}","templated":true},"workBook":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/workbook"},"dataSources":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/datasources"},"widgets":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/widgets"}}}],"folderId":"ROOT","countOfComments":0,"_links":{"self":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2"},"workbook":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2{?projection}","templated":true},"workspace":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2/workspace"},"dashBoards":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2/dashboards"}}}}`);
-        pageWidget.dashBoard = JSON.parse(`{"name":"For Chart Test","id":"bb2c35dd-a203-4b0e-9a8c-3729ccf7d305","seq":0,"modifiedBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"modifiedTime":"2017-08-21T08:21:19.000Z","createdBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"createdTime":"2017-08-21T08:21:19.000Z","dataSources":[{"createdBy":"polaris","createdTime":"2017-08-21T12:24:35.000Z","modifiedBy":"unknown","modifiedTime":"2017-08-21T03:25:30.000Z","id":"ds-37","name":"sales","engineName":"sales","ownerId":"polaris","description":"sales data (2011~2014)","dsType":"MASTER","connType":"ENGINE","granularity":"DAY","status":"ENABLED","published":true,"fields":[{"name":"OrderDate","alias":"OrderDate","type":"TIMESTAMP","biType":"TIMESTAMP","role":"TIMESTAMP","seq":0,"mappedField":[]},{"name":"Category","alias":"Category","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":1,"mappedField":[]},{"name":"City","alias":"City","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":2,"mappedField":[]},{"name":"Country","alias":"Country","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":3,"mappedField":[]},{"name":"CustomerName","alias":"CustomerName","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":4,"mappedField":[]},{"name":"Discount","alias":"Discount","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":5,"mappedField":[]},{"name":"OrderID","alias":"OrderID","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":6,"mappedField":[]},{"name":"PostalCode","alias":"PostalCode","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":7,"mappedField":[]},{"name":"ProductName","alias":"ProductName","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":8,"mappedField":[]},{"name":"Profit","alias":"Profit","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":9,"mappedField":[]},{"name":"Quantity","alias":"Quantity","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":10,"mappedField":[]},{"name":"Region","alias":"Region","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":11,"mappedField":[]},{"name":"Sales","alias":"Sales","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":12,"mappedField":[]},{"name":"Segment","alias":"Segment","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":13,"mappedField":[]},{"name":"ShipDate","alias":"ShipDate","type":"TIMESTAMP","biType":"DIMENSION","role":"DIMENSION","seq":14,"format":"yyyy. MM. dd.","mappedField":[]},{"name":"ShipMode","alias":"ShipMode","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":15,"mappedField":[]},{"name":"State","alias":"State","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":16,"mappedField":[]},{"name":"Sub-Category","alias":"Sub-Category","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":17,"mappedField":[]},{"name":"DaystoShipActual","alias":"DaystoShipActual","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":18,"mappedField":[]},{"name":"SalesForecast","alias":"SalesForecast","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":19,"mappedField":[]},{"name":"ShipStatus","alias":"ShipStatus","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":20,"mappedField":[]},{"name":"DaystoShipScheduled","alias":"DaystoShipScheduled","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":21,"mappedField":[]},{"name":"OrderProfitable","alias":"OrderProfitable","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":22,"mappedField":[]},{"name":"SalesperCustomer","alias":"SalesperCustomer","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":23,"mappedField":[]},{"name":"ProfitRatio","alias":"ProfitRatio","type":"DOUBLE","biType":"MEASURE","role":"MEASURE","seq":24,"mappedField":[]},{"name":"SalesaboveTarget","alias":"SalesaboveTarget","type":"TEXT","biType":"DIMENSION","role":"DIMENSION","seq":25,"mappedField":[]},{"name":"latitude","alias":"latitude","type":"LNT","biType":"DIMENSION","role":"DIMENSION","seq":26,"mappedField":[]},{"name":"longitude","alias":"longitude","type":"LNG","biType":"DIMENSION","role":"DIMENSION","seq":27,"mappedField":[]}],"summary":{"ingestionMinTime":"2011-01-01T00:00:00.000Z","ingestionMaxTime":"2015-01-01T00:00:00.000Z","size":3061790,"count":9993},"alias":"sales","dataSourceType":"MASTER","implementor":""}],"widgets":[{"isLoading":false,"type":"filter","configuration":{"layout":{"x":0,"y":0,"cols":2,"rows":2},"filter":{"type":"include","field":"Category","valueList":[]}},"id":"IL7cqV7l5v"},{"isLoading":false,"type":"text","configuration":{"layout":{"x":2,"y":0,"cols":2,"rows":2}},"id":"tFkjQ21hFK","contents":"<h1><strong class=\\"ql-font-monospace\\" style=\\"color: rgb(255, 255, 255); background-color: rgb(255, 153, 0);\\">Metatron!<br/>메타트론</strong></h1>"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":4,"y":0,"cols":6,"rows":3},"chart":{"type":"line"}},"mode":"chart","id":"BIZ2r2DA4P","name":"페이지 위젯 (더미선반정보) - line"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":0,"y":2,"cols":4,"rows":4},"chart":{"type":"bar"}},"mode":"chart","id":"69xX3Bfis4","name":"페이지 위젯 (더미선반정보) - bar"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":4,"y":3,"cols":3,"rows":3},"chart":{"type":"heatmap"}},"mode":"chart","id":"56ZXrO8gWP","name":"페이지 위젯 (더미선반정보) - heatmap"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":7,"y":3,"cols":3,"rows":3},"chart":{"type":"scatter"}},"mode":"chart","id":"FZiTJHaqJH","name":"페이지 위젯 (더미선반정보) - scatter"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":0,"y":5,"cols":5,"rows":3},"chart":{"type":"grid"}},"mode":"chart","id":"1K6b3CnUHt"},{"isLoading":false,"type":"page","configuration":{"layout":{"x":5,"y":5,"cols":5,"rows":3},"chart":{"type":"control"}},"mode":"chart","id":"o4MQCuHBtR","name":"페이지 위젯 (더미선반정보) - control"}],"configuration":{"dataSource":{"joins":[],"name":"sales","type":"default"},"pivot":{"columns":[{"type":"dimension","name":"Sub-Category","alias":"Sub-Category"}],"rows":[],"aggregations":[{"type":"measure","aggregationType":"SUM","name":"Sales","alias":"Sales"},{"type":"measure","aggregationType":"SUM","name":"Discount","alias":"Discount"}]}},"_links":{"self":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305"},"dashboard":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305{?projection}","templated":true},"workBook":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/workbook"},"dataSources":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/datasources"},"widgets":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/widgets"}},"workBook":{"name":"ㄹㄹ","id":"e55c7c3c-0bb3-465d-9c03-317cb21527d2","type":"workbook","dataSource":[{"name":"sales","id":"ds-37","description":"sales data (2011~2014)","engineName":"sales","_links":{"self":{"href":"http://localhost:8180/api/datasources/ds-37{?projection}","templated":true},"connection":{"href":"http://localhost:8180/api/datasources/ds-37/connection"},"workspaces":{"href":"http://localhost:8180/api/datasources/ds-37/workspaces"},"dashBoards":{"href":"http://localhost:8180/api/datasources/ds-37/dashboards"}}}],"modifiedBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"modifiedTime":"2017-08-21T08:21:19.000Z","workspaceId":"ws-00","createdBy":{"type":"user","username":"admin","fullName":"Administrator","email":"admin@metatron.com"},"createdTime":"2017-08-21T08:21:11.000Z","dashBoards":[{"name":"Dashboard Test","id":"bb2c35dd-a203-4b0e-9a8c-3729ccf7d305","seq":0,"_links":{"self":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305{?projection}","templated":true},"workBook":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/workbook"},"dataSources":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/datasources"},"widgets":{"href":"http://localhost:8180/api/dashboards/bb2c35dd-a203-4b0e-9a8c-3729ccf7d305/widgets"}}}],"folderId":"ROOT","countOfComments":0,"_links":{"self":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2"},"workbook":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2{?projection}","templated":true},"workspace":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2/workspace"},"dashBoards":{"href":"http://localhost:8180/api/workbooks/e55c7c3c-0bb3-465d-9c03-317cb21527d2/dashboards"}}}}`);
-
-        this.setWidget = pageWidget;
-      }
-
-    });
-
-    this.subscriptions.push(paramSubs, changeChartSubs);
+    this.subscriptions.push(changeChartSubs);
 
     // Setting dragular
     this.settingDragAndDrop();
 
+    window.history.pushState(null, null, window.location.href);
+
+    const paramSubs: Subscription = this.activatedRoute.queryParams.subscribe((params) => {
+      // dashboard 아이디를 넘긴경우에만 실행
+      // 로그인 정보 생성
+      (params['loginToken']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, params['loginToken'], 0, '/'));
+      (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
+      (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
+      if (params['pageId']) {
+        this.widgetService.getWidget(params['pageId']).then(result => {
+          const pageWidget = <PageWidget>_.extend(new PageWidget(), result);
+          this.setWidget = pageWidget;
+        });
+      } else {
+        this.dashboardService.getDashboard(params['dashboardId']).then(result => {
+          const pageWidget = new PageWidget();
+          pageWidget.dashBoard = result;
+
+          const boardDataSource: BoardDataSource = new BoardDataSource();
+          {
+            const datasource = pageWidget.dashBoard.dataSources[0] as Datasource;
+
+            boardDataSource.id = datasource.id;
+            boardDataSource.type = 'default';
+            boardDataSource.name = datasource.engineName;
+            boardDataSource.engineName = datasource.engineName;
+            boardDataSource.connType = datasource.connType.toString();
+            pageWidget.configuration.dataSource = boardDataSource;
+          }
+
+          this.setWidget = pageWidget;
+        });
+      }
+    });
+    this.subscriptions.push(paramSubs);
+  }
+
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
     setTimeout(() => {
       // 선택된 데이터 패널의 내부 스크롤 설정
       this.dataPanelInnerScroll();
-    }, 700); // css의 duration이 0.5s로 되어 있으므로 600 이하로 설정하면 안됨
+    }, 1000); // css의 duration이 0.5s로 되어 있으므로 600 이하로 설정하면 안됨
   }
 
   // Destory
@@ -745,7 +747,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.loadingShow();
 
     // type 관련 변경 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
-    if ( _.eq(this.selectChart, ChartType.MAP) && this.uiOption['layers']
+    if (_.eq(this.selectChart, ChartType.MAP) && this.uiOption['layers']
       && this.uiOption['layers'][this.uiOption['layerNum']]['type'] == MapLayerType.CLUSTER
       && !_.isUndefined(this.uiOption['layers'][this.uiOption['layerNum']]['clustering'])
       && this.uiOption['layers'][this.uiOption['layerNum']]['clustering']) {
@@ -754,7 +756,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     if (this.isNewWidget()) {
       // 위젯 생성
-      // 위젯 도메인상 네임이 필수값이라 없을 경우 처리
       if (StringUtil.isEmpty(this.widget.name)) {
         this.widget.name = 'New Chart';
       }
@@ -796,28 +797,21 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               this.widgetService
                 .updateWidget(pageWidget.id, configuration)
                 .then(() => {
-                  this.popupService.notiPopup({
-                    name: 'create-page-complete',
-                    data: pageWidget
-                  });
+                  // 위젯 아이디 전달
+                  if( window.opener ) {
+                    window.opener.postMessage(pageWidget.id, '*');
+                  }
+                  window.close();
                 });
-
             })
             .catch((err) => {
               console.log('image upload error', err);
-              this.popupService.notiPopup({
-                name: 'create-page-complete',
-                data: pageWidget
-              });
             });
-
         })
         .catch((err) => {
           this.loadingHide();
           console.info(err);
         });
-
-
     } else {
       // 위젯 수정
       const param = {
@@ -839,46 +833,23 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       this.widgetService.updateWidget(this.widget.id, param)
         .then((widget) => {
-
-          // 대시보드 옵션 업데이트
-          this.dashboardService.updateDashboard(
-            this.widget.dashBoard.id, {configuration: this.widget.dashBoard.configuration}
-          ).then(() => {
-            const pageWidget: PageWidget = _.extend(new PageWidget(), widget);
-            pageWidget.dashBoard = this.widget.dashBoard;
-
-            // 차트 필터 위젯 아이디 등록 처리
-            pageWidget.configuration.filters.forEach(filter => {
-              (filter.ui) || (filter.ui = {});
-              filter.ui.widgetId = pageWidget.id;
-            });
-
-            // Update Image
-            this.uploadChartImage(pageWidget.id)
-              .then((res) => {
-                const imageUrl = res['imageUrl'];
-                this.widgetService
-                  .updateWidget(pageWidget.id, {imageUrl})
-                  .then(() => {
-                    this.popupService.notiPopup({
-                      name: 'modify-page-complete',
-                      data: pageWidget
-                    });
-                  });
-
-              })
-              .catch((err) => {
-                console.log('image upload error', err);
-                this.popupService.notiPopup({
-                  name: 'modify-page-complete',
-                  data: pageWidget
+          // Update Image
+          this.uploadChartImage(this.widget.id)
+            .then((res) => {
+              const imageUrl = res['imageUrl'];
+              this.widgetService
+                .updateWidget(this.widget.id, {imageUrl})
+                .then(() => {
+                  // 위젯 아이디 전달
+                  if( window.opener ) {
+                    window.opener.postMessage(this.widget.id, '*');
+                  }
+                  window.close();
                 });
-              });
-          }).catch((err) => {
-            this.loadingHide();
-            console.info(err);
-          });
-
+            })
+            .catch((err) => {
+              console.log('image upload error', err);
+            });
         })
         .catch((err) => {
           this.loadingHide();
@@ -888,24 +859,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   }
 
   public close() {
-    super.close();
-
-    // close 시 에도 사용자 정의필드는 업데이트가 되어야함
-
-    // Set CustomFields
-    if (this.widget.dashBoard.configuration.hasOwnProperty('customFields')) {
-      this.originalWidget.dashBoard.configuration['customFields'] = this.widget.dashBoard.configuration['customFields'];
-    } else {
-      this.originalWidget.dashBoard.configuration['customFields'] = [];
-    }
-
-    this.popupService.notiPopup({
-      name: 'modify-page-close',
-      data: {
-        widget: this.originalWidget,
-        isNew: this.isNewWidget()
-      }
-    });
+    window.close();
   }
 
   /**
@@ -1493,83 +1447,75 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       });
     }
 
-    // 대시보드에서 오픈한 경우만 업데이트
-    if (this.isDashboard) {
-
-      if (isEdit) {
-        Alert.success(this.translateService.instant('msg.board.custom.ui.update', {name: customField.name}));
-      } else {
-        this.setDatasourceFields();
-        Alert.success(this.translateService.instant('msg.board.custom.ui.create', {name: customField.name}));
-      }
-
-      // 차트 정보로 갱신
-      (<PageWidgetConfiguration>this.widget.configuration).customFields = this.widget.dashBoard.configuration.customFields;
-
-      // customField값과 같은 값을 pivot에 설정된값
-      let currentField;
-
-      // 현재 선반에 올라간 필드라면
-      if (customField.pivot && customField.pivot['length'] > 0) {
-
-        // 해당 선반 데이터 설정
-        const setPivot = ((pivot) => {
-
-          for (let index = pivot.length; index--;) {
-
-            const item = pivot[index];
-
-            if (item.name === customField.oriColumnName) {
-              item.name = customField.name;
-              item['aggregated'] = customField.aggregated;
-              item['expr'] = customField.expr;
-              item['alias'] = customField.alias;
-              item['biType'] = customField.biType;
-
-              // aggregated가 true인 경우 aggregation Type 제거
-              if (customField.aggregated) {
-
-                const duplicateList = pivot.filter((data) => {
-                  return customField.oriColumnName == data.name
-                });
-
-                // 중복리스트가 있는경우
-                if (duplicateList.length > 1) {
-
-                  // 선반에서 제거
-                  pivot.splice(index, 1);
-
-                  // data 패널에서 해제
-                  item.field.pivot.splice(item.field.pivot.indexOf(item.currentPivot), 1);
-                }
-                delete item['aggregationType'];
-
-              }
-              // 현재 필드값 pivot 리스트에서 찾기
-              currentField = item;
-            }
-          }
-        });
-
-        // pivot 갱신
-        setPivot(this.pivot.aggregations);
-        setPivot(this.pivot.columns);
-        setPivot(this.pivot.rows);
-
-        // dashboard 단의 pivot도 전체변경
-        // this.widget.configuration['pivot'] = this.pivot;
-
-        // pivot 값에 따라서 currentTarget값 지정
-        const currentTarget = currentField['currentPivot'] === FieldPivot.AGGREGATIONS ? 'aggregation' : currentField['currentPivot'] === FieldPivot.ROWS ? 'row' : 'column';
-        this.getPivotComp().convertField(customField, currentTarget, false);
-      }
-      this.isShowCustomFiled = false;
-
+    if (isEdit) {
+      Alert.success(this.translateService.instant('msg.board.custom.ui.update', {name: customField.name}));
     } else {
-      this.widget.configuration['customFields'] = this.widget.dashBoard.configuration.customFields;
       this.setDatasourceFields();
-      this.isShowCustomFiled = false;
+      Alert.success(this.translateService.instant('msg.board.custom.ui.create', {name: customField.name}));
     }
+
+    // 차트 정보로 갱신
+    (<PageWidgetConfiguration>this.widget.configuration).customFields = this.widget.dashBoard.configuration.customFields;
+
+    // customField값과 같은 값을 pivot에 설정된값
+    let currentField;
+
+    // 현재 선반에 올라간 필드라면
+    if (customField.pivot && customField.pivot['length'] > 0) {
+
+      // 해당 선반 데이터 설정
+      const setPivot = ((pivot) => {
+
+        for (let index = pivot.length; index--;) {
+
+          const item = pivot[index];
+
+          if (item.name === customField.oriColumnName) {
+            item.name = customField.name;
+            item['aggregated'] = customField.aggregated;
+            item['expr'] = customField.expr;
+            item['alias'] = customField.alias;
+            item['biType'] = customField.biType;
+
+            // aggregated가 true인 경우 aggregation Type 제거
+            if (customField.aggregated) {
+
+              const duplicateList = pivot.filter((data) => {
+                return customField.oriColumnName == data.name
+              });
+
+              // 중복리스트가 있는경우
+              if (duplicateList.length > 1) {
+
+                // 선반에서 제거
+                pivot.splice(index, 1);
+
+                // data 패널에서 해제
+                item.field.pivot.splice(item.field.pivot.indexOf(item.currentPivot), 1);
+              }
+              delete item['aggregationType'];
+
+            }
+            // 현재 필드값 pivot 리스트에서 찾기
+            currentField = item;
+          }
+        }
+      });
+
+      // pivot 갱신
+      setPivot(this.pivot.aggregations);
+      setPivot(this.pivot.columns);
+      setPivot(this.pivot.rows);
+
+      // dashboard 단의 pivot도 전체변경
+      // this.widget.configuration['pivot'] = this.pivot;
+
+      // pivot 값에 따라서 currentTarget값 지정
+      const currentTarget = currentField['currentPivot'] === FieldPivot.AGGREGATIONS ? 'aggregation' : currentField['currentPivot'] === FieldPivot.ROWS ? 'row' : 'column';
+      this.getPivotComp().convertField(customField, currentTarget, false);
+    }
+    this.isShowCustomFiled = false;
+
   } // function - updateCustomFields
 
   /**
@@ -1896,7 +1842,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       const globalFilters = this.widget.dashBoard.configuration.filters;
       let idx = _.findIndex(globalFilters, {field: selectedField.name});
-      if( -1 < idx ) {
+      if (-1 < idx) {
         Alert.warning(this.translateService.instant('msg.board.alert.global-filter.del.error'));
         return;
       }
@@ -1922,7 +1868,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       selectedField.useFilter = true;
 
-      let newFilter:Filter;
+      let newFilter: Filter;
       if (selectedField.logicalType === LogicalType.TIMESTAMP) {
         // 시간 필터
         const timeFilter = FilterUtil.getTimeRangeFilter(selectedField, undefined, undefined, this.dataSource);
@@ -1968,7 +1914,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
       newFilter.dataSource = this.dataSource.engineName;
 
-      this.updateFilter( newFilter, true );
+      this.updateFilter(newFilter, true);
     }
   } // function - toggleFilter
 
@@ -2275,11 +2221,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   public getCntShelfItem(type: 'DIMENSION' | 'MEASURE'): number {
 
     let cntShelfItems = 0;
-    const strType:string = type.toLowerCase();
-    if( ChartType.MAP === this.widgetConfiguration.chart.type ) {
+    const strType: string = type.toLowerCase();
+    if (ChartType.MAP === this.widgetConfiguration.chart.type) {
       // 선택된 아이템 변수 - shelf 정보가 있는 아이템만 설정
-      this.shelf.layers.forEach( layer => {
-        cntShelfItems = cntShelfItems + layer.fields.filter( field => {
+      this.shelf.layers.forEach(layer => {
+        cntShelfItems = cntShelfItems + layer.fields.filter(field => {
           return strType === field.type && field.field.dataSource === this.dataSource.engineName;
         }).length;
       });
@@ -3166,10 +3112,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         field = changeField;
         // when it's not map, set pivot alias
         if (ChartType.MAP !== this.widgetConfiguration.chart.type) {
-          PageComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
+          PageViewComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
           // when it's map, set shelf alias
         } else {
-          PageComponent.updateShelfAliasFromField(this.widgetConfiguration.shelf, field, (<UIMapOption>this.widgetConfiguration.chart).layerNum);
+          PageViewComponent.updateShelfAliasFromField(this.widgetConfiguration.shelf, field, (<UIMapOption>this.widgetConfiguration.chart).layerNum);
         }
         return true;
       }
@@ -3178,10 +3124,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if (field.name === changeField.name) {
         field = changeField;
         if (ChartType.MAP !== this.widgetConfiguration.chart.type) {
-          PageComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
+          PageViewComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
           // when it's map, set shelf alias
         } else {
-          PageComponent.updateShelfAliasFromField(this.widgetConfiguration.shelf, field, (<UIMapOption>this.widgetConfiguration.chart).layerNum);
+          PageViewComponent.updateShelfAliasFromField(this.widgetConfiguration.shelf, field, (<UIMapOption>this.widgetConfiguration.chart).layerNum);
         }
         return true;
       }
@@ -3486,7 +3432,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     let totalFields: Field[] = boardConf.fields;
 
     if (totalFields && totalFields.length > 0) {
-      totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.engineName ? this.dataSource.engineName : this.dataSource.name);
+      totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.engineName);
       totalFields.forEach((field) => {
         if (field.role === FieldRole.MEASURE) {
           this.measures.push(field);
@@ -3507,8 +3453,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (boardConf.hasOwnProperty('customFields') && boardConf.customFields.length > 0) {
       // set main datasource fields
       boardConf.customFields
-        .filter(item => item.dataSource === this.widget.configuration.dataSource.engineName ?
-          this.widget.configuration.dataSource.engineName : this.widget.configuration.dataSource.name)
+        .filter(item => item.dataSource === this.widget.configuration.dataSource.engineName)
         .forEach((field: CustomField) => {
           if (field.role === FieldRole.DIMENSION) {
             this.customDimensions.push(field);
@@ -3904,7 +3849,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         // 옵션 초기화
         this.uiOption = OptionGenerator.initUiOption(this.uiOption);
 
-        if( this.selectChart == 'map' ){
+        if (this.selectChart == 'map') {
           this._setDefaultAreaForBBox(this.dataSource);
         }
 

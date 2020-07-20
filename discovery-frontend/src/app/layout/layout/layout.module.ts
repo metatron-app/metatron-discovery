@@ -45,7 +45,6 @@ const layoutRoutes: Routes = [
       {path: 'workspace', loadChildren: 'app/workspace/workspace.module#WorkspaceModule'},
       {path: 'workbook', loadChildren: 'app/workbook/workbook.module#WorkbookModule'},
       {path: 'notebook', loadChildren: 'app/notebook/notebook.module#NotebookModule'},
-      {path: 'page', loadChildren: 'app/page/page.module#PageModule'},
       {path: 'workbench', loadChildren: 'app/workbench/workbench.module#WorkbenchModule'},
       {path: 'exploredata', loadChildren: 'app/explore-data/explore-data.module#ExploreDataModule'},
       {
