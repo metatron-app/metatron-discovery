@@ -409,7 +409,6 @@
                    (close)="closeComponent( 'UPDATE-FILTER' )"></app-config-filter>
 <app-page #page *ngIf="isShowPage"
           [widget]="selectedPageWidget"
-          [isChartTest]="isChartTest"
           (changeFieldAlias)="updateFieldAndWidgetPivot($event)" (close)="closeComponent( 'PAGE' )"></app-page>
 <app-page-relation (changeRelation)="changePageWidgetRelation($event)"></app-page-relation>
 <app-update-datasource *ngIf="isUpdateDataSource"

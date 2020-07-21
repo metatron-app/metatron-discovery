@@ -14,30 +14,44 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PageComponent } from './page.component';
 import { CommonModule } from '../common/common.module';
 import { PageShareModule } from './page-share.module';
-import { ImageService } from '../common/service/image.service';
 import { AnalysisPredictionService } from './component/analysis/service/analysis.prediction.service';
 import {TimezoneService} from "../data-storage/service/timezone.service";
+import {PageViewComponent} from "./page-view.component";
+import {DragulaModule} from "../../lib/ng2-dragula";
+import {ChartModule} from "../common/chart.module";
+import {DashboardShareModule} from "../dashboard/dashboard-share.module";
+import {DataPreviewModule} from "../common/data.preview.module";
+import {AnalysisModule} from "./component/analysis/analysis.module";
+import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
+import {StorageService} from "../data-storage/service/storage.service";
 
 const pageRoutes: Routes = [
   {
-    path: ':pageId', component: PageComponent
+    path: '', component: PageViewComponent
   },
 ];
 
 @NgModule({
   imports: [
     CommonModule,
+    DragulaModule,
+    ChartModule,
+    DashboardShareModule,
+    DataPreviewModule,
+    AnalysisModule,
     PageShareModule,
     RouterModule.forChild(pageRoutes)
   ],
-  declarations: [],
+  declarations: [
+    PageViewComponent
+  ],
   exports: [],
   providers: [
-    ImageService,
+    StorageService,
     TimezoneService,
+    DataconnectionService,
     AnalysisPredictionService
   ]
 })

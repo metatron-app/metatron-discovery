@@ -129,9 +129,6 @@ export class CommonOptionComponent extends BaseOptionComponent {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public chartUtil = ChartUtil;
 
-  @Input()
-  public isChartTest: boolean;
-
   // 그리드 원본보기 불가
   public isNoOriginData: boolean;
 
