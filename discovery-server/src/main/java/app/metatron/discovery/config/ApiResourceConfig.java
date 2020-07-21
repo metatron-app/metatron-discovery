@@ -221,6 +221,9 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     registry.addResourceHandler("/webjars/**")
             .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
+    registry.addResourceHandler("/resources/**")
+            .addResourceLocations("classpath:/templates/api/static/");
+
     ApplicationHome home = new ApplicationHome(MetatronDiscoveryApplication.class);
     // LOGGER.info("Application Home : " + home.getDir().getAbsolutePath());
     // LOGGER.info("staticPath {}", StringUtils.defaultIfBlank(staticPath, "file:" + home.getDir().getAbsolutePath() + "/static/"));
