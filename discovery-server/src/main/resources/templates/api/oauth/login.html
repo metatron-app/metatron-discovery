@@ -14,22 +14,212 @@
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta charset="utf-8">
-    <title>metatron Discovery</title>
-    <base href="/">
+      xmlns:th="http://www.thymeleaf.org" th:with="lang=${#locale.language}" th:lang="${lang}">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi"/>
+  <meta name="format-detection" content="telephone=no"/>
+  <meta http-equiv="Expires" content="-1"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Cache-Control" content="No-Cache"/>
+  <title th:text="${clientName}"></title>
+  <link rel="icon" type="image/x-icon" th:href="${faviconPath}">
+  <link href="/resources/login.css" rel="stylesheet"/>
+  <script src="/resources/jquery.min.js"></script>
+  <script type="text/javascript">
+      function backgroundImageInit() {
+          $('.login-container').css('background-image', 'url(/resources/login.jpg)');
+          $('.login-container .ddp-blur2').css('background-image', 'url(/resources/login.jpg)');
+      }
+  </script>
+</head>
+<!-- login -->
+<body>
+<div class="apm-wrap">
+  <!-- loading / is-loading-->
+  <div class="ddp-loading">
+    <div class="lds-wedges">
+      <div>
+        <div>
+          <div></div>
+        </div>
+        <div>
+          <div></div>
+        </div>
+        <div>
+          <div></div>
+        </div>
+        <div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- disable IE compatible view -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2" id="favicon">
-  </head>
-  <body>
-    <script type="text/javascript" th:inline="javascript">
-      /* <![CDATA[ */
-      location.href = /*[[${redirectUri}]]*/;
-    </script>
-  </body>
+  <div class="login-container" th:style="'background-image:url(' + ${backgroundFilePath} + ')'">
+    <em class="ddp-blur2" th:style="'background-image:url(' + ${backgroundFilePath} + ')'"></em>
+    <div class="ddp-ui-header"><span th:text="${smallLogoDesc}"></span></div>
+    <div class="ddp-ui-login">
+
+      <div class="login-box">
+        <div class="ddp-box-login">
+          <div class="ddp-ui-logo">
+            <img th:src="${logoFilePath}"
+                 onerror="this.onerror=null;this.src='/assets/images/oauth/logo.svg'">
+            <div class="ddp-ui-desc">
+              <span th:utext="${logoDesc}"></span>
+            </div>
+          </div>
+          <div class="ddp-form-login">
+            <div class="ddp-form-input ddp-ui-input-form">
+              <label class="ddp-label-type" th:text="#{message.app.oauth.login.name.title}"></label>
+              <div class="ddp-input-check" name="username-typing">
+									<span class="ddp-input-type ">
+										<input name="username" type="text"
+                           th:placeholder="#{message.app.oauth.login.name.title.ph}">
+									</span>
+                <em class="ddp-icon-error" th:style="'display:none'">Incorrect username. Please try
+                  again.</em>
+              </div>
+            </div>
+            <div class="ddp-form-input ddp-ui-input-form">
+              <label class="ddp-label-type" th:text="#{message.app.oauth.login.pw.title}"></label>
+              <div class="ddp-input-check" name="password-typing">
+									<span class="ddp-input-type">
+										<input name="password" type="password"
+                           th:placeholder="#{message.app.oauth.login.pw.title.ph}">
+									</span>
+                <em class="ddp-icon-error" th:style="'display:none'">Incorrect password. Please try
+                  again.</em>
+              </div>
+              <span class="ddp-ui-error" name="loginFailMsg"></span>
+            </div>
+            <div class="ddp-ui-login-buttons">
+              <a class="ddp-btn" href="javascript:" name="loginBtn"
+                 th:text="#{message.app.oauth.login}"></a>
+            </div>
+            <span class="mobile ddp-ui-error" name="loginFailMsg"></span>
+          </div>
+          <div class="ddp-copyright">
+            <b>본 시스템은 CJ 그룹 임직원에 한하여 사용할 수 있습니다.</b>
+            <b>불법적인 접근 및 사용시 관련 법규에 의해 처벌될 수 있습니다.</b>
+            <b>서비스 담당자 : 정보전략팀 최용주님(02-700-0323)</b>
+            <b>서버 담당자 : IDC 서버운영파트 김학진님(02-6252-0407)</b>
+
+            <ul class="anchor-list">
+              <li><a href="#">Terms of Service</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">1:1 Assistance</a></li>
+            </ul>
+            <p class="guide">아이디/비밀번호 문의 <strong>고객센터 1777-9876</strong></p>
+            <span th:utext="${copyrightHtml}"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<img th:src="${backgroundFilePath}" onerror="this.onerror=null;backgroundImageInit()"
+     style="display:none;">
+<script type="text/javascript" th:inline="javascript">
+  /* <![CDATA[ */
+  let oauthLogin = {
+    basicHeader: /*[[${basicHeader}]]*/,
+    bind: function () {
+      $("a[name=loginBtn]").bind('click', function () {
+        oauthLogin.login();
+      });
+
+      $("input[name=username], input[name=password]").bind('focus', function (e) {
+        $("div[name="+e.target.name+"-typing]").addClass('is-typing');
+        oauthLogin.init();
+      });
+
+      $("input[name=username], input[name=password]").bind('focusout', function () {
+        $("div[name=username-typing]").removeClass('is-typing');
+        $("div[name=password-typing]").removeClass('is-typing');
+      });
+
+      $("input[name=password]").bind('keyup', function (e) {
+        if (e.keyCode == '13') {
+          oauthLogin.login();
+        }
+      });
+
+      $("em[name=usernameErrorIcon]").bind('click', function () {
+        $("input[name=username]").val('');
+        oauthLogin.init();
+      });
+
+      $("em[name=passwordErrorIcon]").bind('click', function () {
+        $("input[name=password]").val('');
+        oauthLogin.init();
+      });
+      $("input[name=username]").focus();
+    },
+    login: function () {
+      const method = 'POST';
+      const header = {Authorization: oauthLogin.basicHeader};
+      const url = '/oauth/token';
+      const param = {
+          username: $("input[name=username]").val(),
+          password: $("input[name=password]").val(),
+          grant_type: 'password',
+          scope: 'write'
+      };
+      const success = function (result) {
+          document.cookie = 'LOGIN_TOKEN=' + result.access_token + ';path=/';
+          document.cookie = 'LOGIN_TOKEN_TYPE=' + result.token_type + ';path=/';
+          document.cookie = 'REFRESH_LOGIN_TOKEN=' + result.refresh_token + ';path=/';
+          document.cookie = 'LOGIN_USER_ID=' + $("input[name=username]").val() + ';path=/';
+          oauthLogin.permission(result.token_type + ' ' + result.access_token);
+      };
+      const error = function (err) {
+          oauthLogin.loginFail(err.responseJSON.details);
+      };
+      oauthLogin.ajax(method, header, url, param, success, error);
+    },
+    permission: function (authHeader) {
+      const method = 'GET';
+      const header = {Authorization: authHeader};
+      const url = '/api/auth/SYSTEM/permissions';
+      const success = function (result) {
+          document.cookie = 'PERMISSION=' + result.join('==') + ';path=/';
+          location.replace(document.location.href);
+      };
+      const error = function () {
+          location.replace(document.location.href);
+      };
+      oauthLogin.ajax(method, header, url, null, success, error);
+    },
+    init: function () {
+      $("div[name=username-typing]").removeClass('is-typing');
+      $("div[name=password-typing]").removeClass('is-typing');
+      $('.ddp-ui-input-form').removeClass('ddp-type-error');
+      $('span[name=loginFailMsg]').text('');
+    },
+    loginFail: function (msg) {
+      $('.ddp-ui-input-form').addClass('ddp-type-error');
+      $('span[name=loginFailMsg]').text(msg);
+    },
+    ajax: function (method, header, url, param, success, error) {
+      $.ajax({
+           type: method,
+           url: url,
+           data: param,
+           headers: header,
+           success: success,
+           error: error
+       })
+    }
+  };
+
+  /* ]]> */
+  $(document).ready(function () {
+    oauthLogin.bind();
+  });
+</script>
+</body>
 </html>
