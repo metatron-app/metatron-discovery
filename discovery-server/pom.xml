@@ -1204,6 +1204,10 @@
             <version>64.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>skt</groupId>
+            <artifactId>idcube-security</artifactId>
+            <version>0.0.1-RELEASE</version>
+        </dependency>
     </dependencies>
-
 </project>
