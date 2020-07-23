@@ -229,12 +229,12 @@ public class AuthenticationController {
       if (cachedToken != null && cachedToken.getExpiration() != null) {
         String userHost = HttpUtils.getClientIp(request);
         if (System.currentTimeMillis() > cachedToken.getExpiration().getTime() || cachedToken.getUserIp().equals(userHost)) {
-          return ResponseEntity.ok().build();
+          return ResponseEntity.ok(true);
         } else {
           return ResponseEntity.ok(cachedToken.getUserIp());
         }
       } else {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(true);
       }
     } catch (Exception e) {
       return ResponseEntity.badRequest().build();
@@ -384,7 +384,7 @@ public class AuthenticationController {
                                                 .getOrDefault("smallLogoDesc", ""));
       String copyrightHtml = String.valueOf(additionalInformation
                                                 .getOrDefault("copyrightHtml"
-                                                    , "Copyright © SK Telecom Co., Ltd. All rights reserved."));
+                                                    , "<span>Copyright © SK Telecom Co., Ltd. All rights reserved.</span>"));
       LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
       LOGGER.debug("additionalInformation {}",
                    GlobalObjectMapper.writeValueAsString(additionalInformation));
