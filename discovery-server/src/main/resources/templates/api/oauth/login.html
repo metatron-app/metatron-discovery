@@ -67,8 +67,12 @@
       <div class="login-box">
         <div class="ddp-box-login">
           <div class="ddp-ui-logo">
-            <img th:src="${logoFilePath}"
-                 onerror="this.onerror=null;this.src='/assets/images/oauth/logo.svg'">
+            <div class="logo-box">
+              <span>
+                <img th:src="${logoFilePath}"
+                         onerror="this.onerror=null;this.src='/assets/images/oauth/logo.svg'">
+              </span>
+            </div>
             <div class="ddp-ui-desc">
               <span th:utext="${logoDesc}"></span>
             </div>
