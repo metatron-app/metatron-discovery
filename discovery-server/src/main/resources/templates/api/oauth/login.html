@@ -278,12 +278,15 @@
       const success = function (result) {
           document.cookie = 'PERMISSION=' + result.join('==') + ';path=/';
           oauthLogin.showAccessLog(loginResult);
-          //location.replace(document.location.href);
       };
       const error = function () {
+          document.cookie = 'LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+          document.cookie = 'LOGIN_TOKEN_TYPE=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+          document.cookie = 'REFRESH_LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+          document.cookie = 'LOGIN_USER_ID=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
           location.replace(document.location.href);
       };
-        global.ajax(method, header, url, null, success, error);
+      global.ajax(method, header, url, null, success, error);
     },
     init: function () {
       $("div[name=username-typing]").removeClass('is-typing');
@@ -300,7 +303,7 @@
       title = title.replace('@', /*[[${clientName}]]*/);
       let desc = '[(#{message.app.oauth.confirm.description.client})]'
                  + moment(loginResult.last_login_time).format('YYYY-MM-DD HH:mm:ss');
-      if (loginResult.last_login_ip != undefined) {
+      if (typeof loginResult.last_login_ip != undefined) {
           desc = desc + ' (' + loginResult.last_login_ip + ')';
       }
       global.showConfirm(title, desc, 'showAccessLog', false);
@@ -494,9 +497,9 @@
               global.showConfirm(title, desc, 'updatePassword', false);
           };
           const error = function (err) {
-              const msg = "[(#{message.app.oauth.changepassword.password.fail})]";
-              $('span[name=mobileFailMsg]').addClass('is-error');
-              $('span[name=mobileFailMsg]').text(msg);
+              const title = "[(#{message.app.oauth.changepassword.title})]";
+              const desc = "[(#{message.app.oauth.changepassword.password.fail})]";
+              global.showConfirm(title, desc, 'updatePassword', false);
           };
           global.ajaxWithBody(url, body, success, error);
       }
@@ -556,14 +559,24 @@
       })
       $('.popup_common').addClass('is-show');
       $('#confirm-done').focus();
+    },
+    initCheckError() {
+      const errorParam = /*[[${param.error}]]*/;
+      if (errorParam != null && errorParam[0] === 'IP') {
+          const title = "[(#{message.app.oauth.confirm.title.iperror})]";
+          const desc = "[(#{message.app.oauth.confirm.description.iperror})]";
+          global.showConfirm(title, desc, 'checkIpError', false);
+      }
     }
   };
 
-  /* ]]> */
   $(document).ready(function () {
-    oauthLogin.bind();
-    changePassword.bind();
+      oauthLogin.bind();
+      changePassword.bind();
+      global.initCheckError();
   });
+  /* ]]> */
+
 </script>
 </body>
 </html>
