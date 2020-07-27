@@ -1,3 +1,17 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package app.metatron.discovery.common.cache;
 
 import org.infinispan.notifications.Listener;
@@ -26,13 +40,13 @@ public class CacheListener {
 
   @CacheEntryCreated
   public void entryCreated(CacheEntryCreatedEvent<String, String> event) {
-    this.printLog("Adding key '" + event.getKey()
+    this.printLog("Add key '" + event.getKey()
                       + "' to cache", event);
   }
 
   @CacheEntryExpired
   public void entryExpired(CacheEntryExpiredEvent<String, String> event) {
-    this.printLog("Expiring key '" + event.getKey()
+    this.printLog("Expire key '" + event.getKey()
                       + "' from cache", event);
   }
 
@@ -43,19 +57,19 @@ public class CacheListener {
 
   @CacheEntryActivated
   public void entryActivated(CacheEntryActivatedEvent<String, String> event) {
-    this.printLog("Activating key '" + event.getKey()
+    this.printLog("Activate key '" + event.getKey()
                       + "' on cache", event);
   }
 
   @CacheEntryPassivated
   public void entryPassivated(CacheEntryPassivatedEvent<String, String> event) {
-    this.printLog("Passivating key '" + event.getKey()
+    this.printLog("Passivate key '" + event.getKey()
                       + "' from cache", event);
   }
 
   @CacheEntryLoaded
   public void entryLoaded(CacheEntryLoadedEvent<String, String> event) {
-    this.printLog("Loading key '" + event.getKey()
+    this.printLog("Load key '" + event.getKey()
                       + "' to cache", event);
   }
 
@@ -64,7 +78,7 @@ public class CacheListener {
     StringBuilder builder = new StringBuilder();
     event.getEntries().forEach(
         (key, value) -> builder.append(key).append(", "));
-    LOGGER.debug("Evicting following entries from cache: "
+    LOGGER.debug("Evict following entries from cache: "
                            + builder.toString());
   }
 
