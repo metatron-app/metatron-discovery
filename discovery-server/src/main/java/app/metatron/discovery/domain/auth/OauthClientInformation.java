@@ -22,6 +22,10 @@ public class OauthClientInformation implements Serializable {
 
   String clientName;
 
+  Integer accessTokenValiditySecond;
+
+  Integer refreshTokenValiditySecond;
+
   String faviconPath;
 
   String smallLogoFilePath;
@@ -52,6 +56,22 @@ public class OauthClientInformation implements Serializable {
 
   public void setClientName(String clientName) {
     this.clientName = clientName;
+  }
+
+  public Integer getAccessTokenValiditySecond() {
+    return accessTokenValiditySecond;
+  }
+
+  public void setAccessTokenValiditySecond(Integer accessTokenValiditySecond) {
+    this.accessTokenValiditySecond = accessTokenValiditySecond;
+  }
+
+  public Integer getRefreshTokenValiditySecond() {
+    return refreshTokenValiditySecond;
+  }
+
+  public void setRefreshTokenValiditySecond(Integer refreshTokenValiditySecond) {
+    this.refreshTokenValiditySecond = refreshTokenValiditySecond;
   }
 
   public String getFaviconPath() {

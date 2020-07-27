@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
+
 /**
  * Created by kyungtaak on 2017. 3. 14..
  */
@@ -42,6 +44,9 @@ public class CacheAdminController {
 
   @Autowired
   CacheManager cacheManager;
+
+  @Autowired
+  TokenCacheRepository tokenCacheRepository;
 
   @RequestMapping(value = "/caches", method = RequestMethod.GET, produces = "application/json")
   public ResponseEntity<?> getAllCacheNames() {
@@ -94,6 +99,12 @@ public class CacheAdminController {
 
     cacheManager.getCache(cacheName).evict(cacheKey);
     LOGGER.info("cacheName({}) - cacheKey({}) is deleted", cacheName, cacheKey);
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/clients/init", method = RequestMethod.GET, produces = "application/json")
+  public ResponseEntity<?> initClientDetails() {
+    tokenCacheRepository.init();
     return ResponseEntity.noContent().build();
   }
 

@@ -300,6 +300,9 @@ public class AuthenticationController {
     Set redirectUris = org.springframework.util.StringUtils.commaDelimitedListToSet(oauthClientInformation.getRedirectUri());
     baseClientDetails.setRegisteredRedirectUri(redirectUris);
 
+    baseClientDetails.setAccessTokenValiditySeconds(oauthClientInformation.getAccessTokenValiditySecond());
+    baseClientDetails.setRefreshTokenValiditySeconds(oauthClientInformation.getRefreshTokenValiditySecond());
+
     Set autoApproveScopeList = org.springframework.util.StringUtils.commaDelimitedListToSet("true");
     baseClientDetails.setAutoApproveScopes(autoApproveScopeList);
 
@@ -337,11 +340,17 @@ public class AuthenticationController {
       additionalInformation = new HashMap<>(baseClientDetails.getAdditionalInformation());
     }
     makeAdditionalInformation(oauthClientInformation, additionalInformation);
+
     baseClientDetails.setAdditionalInformation(additionalInformation);
+
     if (StringUtils.isNotEmpty(oauthClientInformation.getRedirectUri())) {
       Set redirectUris = org.springframework.util.StringUtils.commaDelimitedListToSet(oauthClientInformation.getRedirectUri());
       baseClientDetails.setRegisteredRedirectUri(redirectUris);
     }
+
+    baseClientDetails.setAccessTokenValiditySeconds(oauthClientInformation.getAccessTokenValiditySecond());
+    baseClientDetails.setRefreshTokenValiditySeconds(oauthClientInformation.getRefreshTokenValiditySecond());
+
     if (StringUtils.isNotEmpty(oauthClientInformation.getAutoApprove())) {
       Set autoApproveScopeList = org.springframework.util.StringUtils.commaDelimitedListToSet(oauthClientInformation.getAutoApprove());
       baseClientDetails.setAutoApproveScopes(autoApproveScopeList);
