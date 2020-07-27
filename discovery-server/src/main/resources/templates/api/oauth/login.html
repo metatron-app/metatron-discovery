@@ -61,7 +61,10 @@
 
   <div class="login-container" th:style="'background-image:url(' + ${backgroundFilePath} + ')'">
     <em class="ddp-blur2" th:style="'background-image:url(' + ${backgroundFilePath} + ')'"></em>
-    <div class="ddp-ui-header"><span th:text="${smallLogoDesc}"></span></div>
+    <div class="ddp-ui-header">
+      <img th:src="${smallLogoFilePath}" onerror="this.onerror=null;this.style.display = 'none'">
+      <span th:text="${smallLogoDesc}"></span>
+    </div>
     <div class="ddp-ui-login">
 
       <div class="login-box">
