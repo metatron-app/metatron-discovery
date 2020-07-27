@@ -191,7 +191,9 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     ( this.user.username ) && ( this.user.username = this.user.username.trim() );
 
     this.userService.checkUserIp(this.user).then((host) => {
-      if (!isNullOrUndefined(host)) {
+      if (host === true) {
+        this.login();
+      } else {
         this.loadingHide();
         const modal = new Modal();
         modal.name = this.translateService.instant( 'msg.login.access.title' );
@@ -200,8 +202,6 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
         // confirm modal
         this.useCancelBtn = true;
         this._confirmModal.init(modal);
-      } else {
-        this.login();
       }
     }).catch(() => {
       this._logout();

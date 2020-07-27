@@ -229,12 +229,12 @@ public class AuthenticationController {
       if (cachedToken != null && cachedToken.getExpiration() != null) {
         String userHost = HttpUtils.getClientIp(request);
         if (System.currentTimeMillis() > cachedToken.getExpiration().getTime() || cachedToken.getUserIp().equals(userHost)) {
-          return ResponseEntity.ok().build();
+          return ResponseEntity.ok(true);
         } else {
           return ResponseEntity.ok(cachedToken.getUserIp());
         }
       } else {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(true);
       }
     } catch (Exception e) {
       return ResponseEntity.badRequest().build();
@@ -300,7 +300,7 @@ public class AuthenticationController {
     Set redirectUris = org.springframework.util.StringUtils.commaDelimitedListToSet(oauthClientInformation.getRedirectUri());
     baseClientDetails.setRegisteredRedirectUri(redirectUris);
 
-    Set autoApproveScopeList = org.springframework.util.StringUtils.commaDelimitedListToSet("read,write");
+    Set autoApproveScopeList = org.springframework.util.StringUtils.commaDelimitedListToSet("true");
     baseClientDetails.setAutoApproveScopes(autoApproveScopeList);
 
     Map<String, String> additionalInformation = new HashMap<String, String>();
@@ -360,10 +360,47 @@ public class AuthenticationController {
 
   @RequestMapping(value = "/oauth/client/login")
   public ModelAndView oauthLogin(HttpServletRequest request) {
-    String queryStr = request.getQueryString();
     ModelAndView mav = new ModelAndView("oauth/login");
-    mav.addObject("redirectUri", ApiResourceConfig.APP_UI_ROUTE_PREFIX + "user/login/oauth?" + queryStr);
-    LOGGER.info("[CHK] QueryString :: {}", queryStr);
+    try {
+      String clientId = request.getParameter("client_id");
+      ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+      String clientSecret = clientDetails.getClientSecret();
+      String token = clientId+":"+clientSecret;
+      String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
+      Map additionalInformation = clientDetails.getAdditionalInformation();
+      String clientName = String.valueOf(additionalInformation
+                                             .getOrDefault("clientName", "metatron Discovery"));
+      String faviconPath = String.valueOf(additionalInformation
+                                              .getOrDefault("faviconPath", ""));
+      String logoFilePath = String.valueOf(additionalInformation
+                                               .getOrDefault("logoFilePath", ""));
+      String logoDesc = String.valueOf(additionalInformation
+                                           .getOrDefault("logoDesc", ""));
+      String backgroundFilePath = String.valueOf(additionalInformation
+                                                     .getOrDefault("backgroundFilePath", ""));
+      String smallLogoFilePath = String.valueOf(additionalInformation
+                                                    .getOrDefault("smallLogoFilePath", ""));
+      String smallLogoDesc = String.valueOf(additionalInformation
+                                                .getOrDefault("smallLogoDesc", ""));
+      String copyrightHtml = String.valueOf(additionalInformation
+                                                .getOrDefault("copyrightHtml"
+                                                    , "<span>Copyright © SK Telecom Co., Ltd. All rights reserved.</span>"));
+      LOGGER.info("Login ClientId {}, basicHeader {}", clientId, basicHeader);
+      LOGGER.debug("additionalInformation {}",
+                   GlobalObjectMapper.writeValueAsString(additionalInformation));
+      mav.addObject("basicHeader", "Basic "+basicHeader);
+      mav.addObject("clientName", clientName);
+      mav.addObject("faviconPath", faviconPath);
+      mav.addObject("logoFilePath", logoFilePath);
+      mav.addObject("logoDesc", logoDesc);
+      mav.addObject("backgroundFilePath", backgroundFilePath);
+      mav.addObject("smallLogoFilePath", smallLogoFilePath);
+      mav.addObject("smallLogoDesc", smallLogoDesc);
+      mav.addObject("copyrightHtml", copyrightHtml);
+    } catch (Exception e) {
+      throw new MetatronException(e);
+    }
+
     return mav;
   }
 

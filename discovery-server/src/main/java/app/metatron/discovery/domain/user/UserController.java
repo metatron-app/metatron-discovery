@@ -554,7 +554,7 @@ public class UserController {
       userService.validatePassword(user.getUsername(), user.getPassword());
     }
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(true);
   }
 
   /**
