@@ -57,7 +57,7 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
     if (accessTokenValue.indexOf("|") > -1) {
       String userHost = accessTokenValue.split("\\|")[1];
       accessTokenValue = accessTokenValue.split("\\|")[0];
-      LOGGER.debug("loadAuthentication() - accessToken: {}, userHost: {}", accessTokenValue, userHost);
+      //LOGGER.debug("loadAuthentication() - accessToken: {}, userHost: {}", accessTokenValue, userHost);
 
       OAuth2AccessToken oAuth2AccessToken = this.readAccessToken(accessTokenValue);
 
