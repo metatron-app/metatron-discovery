@@ -1,0 +1,56 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+
+  <!-- 제목 영역 -->
+  <div class="ddp-icon-name" >
+    <div class="ddp-ui-name2">
+      IMSI 암/복호화
+      <em class="ddp-bg-order-line3-type1"></em>
+    </div>
+    <span class="ddp-txt-info">SMS 본인 인증</span>
+  </div>
+  <!-- // 제목 영역 -->
+
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in">
+    <div class="ddp-box-popupcontents2">
+      <div class="ddp-ui-input-form">
+        <div class="ddp-data-form">
+          <input type="text" class="ddp-input-type" value="{{userTelNo}}" disabled="disabled"/>
+          <a href="javascript:" class="ddp-btn-selection" [ngClass]="{'ddp-disabled' : !ableSendAuthNumber}" (click)="sendAuthNumber()">인증번호 전송</a>
+        </div>
+      </div>
+      <div class="ddp-ui-input-form">
+        <div class="ddp-data-form">
+          <input type="text" class="ddp-input-type" [(ngModel)]="receivedAuthNumber" placeholder="인증번호"/>
+          <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="verifyAuthNumber()">인증번호 확인</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !verified}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>

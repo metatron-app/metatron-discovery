@@ -7371,6 +7371,7 @@ table.ddp-table-simple tr td .ddp-ui-time {width:100%; color:#90969f; font-size:
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link em.ddp-icon-export {margin:-7px 0 0 -7px; background-position-x:-28px;}
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link em.ddp-icon-online-excel {margin:-7px 0 0 -7px;background-position-x:-28px;}
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link em.ddp-icon-query-search {margin:-7px 0 0 -7px;}
+.ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link em.ddp-icon-key {margin:-7px 0 0 -7px; background-position-x:-28px; background:url(../images/icon_key.png) no-repeat; width: 13px; height: 13px;}
 em.ddp-icon-query-search,
 em.ddp-icon-chart,
 em.ddp-icon-save,

@@ -33,6 +33,11 @@ import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 import {PluginHivePersonalDatabaseModule} from "../plugins/hive-personal-database/plugin.hive-personal-database.module";
+import {DataEncryptionDecryptionComponent} from './component/data-encryption-decryption/data-encryption-decryption.component';
+import {IdentityVerificationComponent} from './component/data-encryption-decryption/identity-verification/identity-verification.component';
+import {DataEncryptionDecryptionService} from './component/data-encryption-decryption/service/data-encryption-decrytion.service';
+import {DataSelectionComponent} from './component/data-encryption-decryption/data-selection/data-selection.component';
+import {EncryptionDecryptionCompletionComponent} from './component/data-encryption-decryption/encryption-decryption-completion/encryption-decryption-completion.component';
 
 // 라우트
 const workbenchRoutes: Routes = [
@@ -56,7 +61,11 @@ const workbenchRoutes: Routes = [
   declarations: [
     WorkbenchComponent,
     CodemirrorComponent,
-    SaveAsHiveTableComponent
+    SaveAsHiveTableComponent,
+    DataEncryptionDecryptionComponent,
+    IdentityVerificationComponent,
+    DataSelectionComponent,
+    EncryptionDecryptionCompletionComponent,
   ],
   // 서비스
   providers: [
@@ -66,7 +75,8 @@ const workbenchRoutes: Routes = [
     StompService,
     DataconnectionService,
     AnalysisPredictionService,
-    MetadataService
+    MetadataService,
+    DataEncryptionDecryptionService,
   ]
 })
 export class WorkbenchModule {
