@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.common.oauth.token.service;
 
-import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.CachedToken;
 import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.util.HttpUtils;
@@ -34,9 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 public class CustomDefaultTokenService extends DefaultTokenServices {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CustomDefaultTokenService.class);
-
-  @Autowired
-  OauthProperties oauthProperties;
 
   @Autowired
   TokenCacheRepository tokenCacheRepository;
@@ -61,16 +57,14 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
     if (accessTokenValue.indexOf("|") > -1) {
       String userHost = accessTokenValue.split("\\|")[1];
       accessTokenValue = accessTokenValue.split("\\|")[0];
-      LOGGER.debug("loadAuthentication() - accessToken: {}, userHost: {}", accessTokenValue, userHost);
+      //LOGGER.debug("loadAuthentication() - accessToken: {}, userHost: {}", accessTokenValue, userHost);
 
-      // cannot refresh token not in whitelist cache
-      if(oauthProperties.getTimeout() > -1){
-        OAuth2AccessToken oAuth2AccessToken = this.readAccessToken(accessTokenValue);
+      OAuth2AccessToken oAuth2AccessToken = this.readAccessToken(accessTokenValue);
 
-        // getting username, clientid, clientip
+      // getting username, clientid, clientip
+      String clientId = this.getClientId(accessTokenValue);
+      if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
         String username = (String) oAuth2AccessToken.getAdditionalInformation().get("user_name");
-        String clientId = this.getClientId(accessTokenValue);
-
         if (username != null && !oAuth2AccessToken.isExpired()) {
           // getting whitelist in cache
           CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
@@ -78,9 +72,11 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
             String cachedUserHost = cachedToken.getUserIp();
             // if not matched in whitelist cache, throw exception
             if (!userHost.equals(cachedUserHost)) {
-              LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+              LOGGER.info("Cached Token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
               throw new InvalidTokenException("User ip is not in whitelist.");
             }
+          } else {
+            LOGGER.info("Cached Token({}, {}, {}) is not existed", username, clientId, userHost);
           }
         }
       }

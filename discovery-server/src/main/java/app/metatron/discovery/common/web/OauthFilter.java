@@ -15,6 +15,9 @@
 package app.metatron.discovery.common.web;
 
 import app.metatron.discovery.common.oauth.CookieManager;
+import app.metatron.discovery.util.HttpUtils;
+
+import org.apache.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -54,8 +57,7 @@ public class OauthFilter implements Filter {
     HttpServletResponse res = (HttpServletResponse) response;
 
     String requestUrl = req.getRequestURL().toString();
-    LOGGER.info("[CHK] requestURL : {}", requestUrl);
-    LOGGER.info("[CHK] requestURI : {}", req.getRequestURI());
+    LOGGER.info("{};{};{};{}", requestUrl, HttpUtils.getClientIp(req), req.getHeader(HttpHeaders.REFERER), req.getHeader(HttpHeaders.USER_AGENT));
     if (requestUrl.endsWith("/oauth/authorize")) {
       Cookie loginToken = CookieManager.getAccessToken(req);
       if (loginToken != null) {

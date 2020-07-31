@@ -16,7 +16,6 @@ package app.metatron.discovery.config;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.StatLogger;
-import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.CachedToken;
 import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.domain.activities.ActivityStream;
@@ -35,7 +34,6 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -74,9 +72,6 @@ public class OAuthInterceptor implements HandlerInterceptor {
 
   @Autowired
   UserProperties userProperties;
-
-  @Autowired
-  OauthProperties oauthProperties;
 
   @Autowired
   TokenStore tokenStore;
@@ -123,20 +118,19 @@ public class OAuthInterceptor implements HandlerInterceptor {
       }
     }
 
-    // cannot refresh token not in whitelist cache
-    if (oauthProperties.getTimeout() > -1) {
-      String requestURI = request.getRequestURI();
-      LOGGER.debug("preHandle - requestURI : {}", requestURI);
-      if (requestURI.equals("/oauth/token")) {
-        String grantType = request.getParameter("grant_type");
-        if ("refresh_token".equals(grantType)) {
-          String refreshToken = request.getParameter("refresh_token");
+    String requestURI = request.getRequestURI();
+    LOGGER.debug("preHandle - requestURI : {}", requestURI);
+    if (requestURI.equals("/oauth/token")) {
+      String grantType = request.getParameter("grant_type");
+      if ("refresh_token".equals(grantType)) {
+        String refreshToken = request.getParameter("refresh_token");
 
-          OAuth2Authentication authFromToken = tokenStore.readAuthentication(refreshToken);
+        OAuth2Authentication authFromToken = tokenStore.readAuthentication(refreshToken);
 
-          // getting username, clientid, clientip
+        // getting username, clientid, clientip
+        String clientId = authFromToken.getOAuth2Request().getClientId();
+        if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
           String username = authFromToken.getName();
-          String clientId = authFromToken.getOAuth2Request().getClientId();
           String userHost = HttpUtils.getClientIp(request);
 
           if (username != null) {
