@@ -332,7 +332,7 @@ public class JdbcConnectionService {
                                                          boolean extractColumnName) {
     JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(connectInformation);
     Connection conn = jdbcDataAccessor.getConnection(schema, true);
-    String queryString = generateSelectQuery(connectInformation, schema, type, query, partitionList);
+    String queryString = generateSelectQuery(connectInformation, schema, type, query, partitionList, limit);
     LOGGER.debug("selectQueryForIngestion SQL : {} ", queryString);
     return selectQuery(connectInformation, conn, queryString, limit, extractColumnName);
   }
@@ -341,7 +341,8 @@ public class JdbcConnectionService {
                                     String schema,
                                     JdbcIngestionInfo.DataType type,
                                     String query,
-                                    List<Map<String, Object>> partitionList){
+                                    List<Map<String, Object>> partitionList,
+                                    int limit){
     String queryString;
     if (type == JdbcIngestionInfo.DataType.TABLE) {
       JdbcDialect dialect = DataConnectionHelper.lookupDialect(connectInformation);
@@ -349,6 +350,10 @@ public class JdbcConnectionService {
       String tableName = dialect.getTableName(connectInformation, connectInformation.getCatalog(), schema, query);
       String tableAlias = dialect.getTableName(connectInformation, connectInformation.getCatalog(), "", query);
       nativeCriteria.addTable(tableName, tableAlias);
+
+      // limit postfix can be supported only for table type query.
+      if(limit > 0)
+        nativeCriteria.setLimit(limit);
 
       //add projection for partition
       if (partitionList != null && !partitionList.isEmpty()) {

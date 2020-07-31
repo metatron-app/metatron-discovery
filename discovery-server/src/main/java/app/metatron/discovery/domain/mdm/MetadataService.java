@@ -541,7 +541,7 @@ public class MetadataService implements ApplicationEventPublisherAware {
       type = JdbcIngestionInfo.DataType.TABLE;
     }
 
-    queryString = jdbcConnectionService.generateSelectQuery(jdbcConnection, schema, type, query, null);
+    queryString = jdbcConnectionService.generateSelectQuery(jdbcConnection, schema, type, query, null, 50);
     return queryString;
   }
 
