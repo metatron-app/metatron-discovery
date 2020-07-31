@@ -15,7 +15,6 @@
 package app.metatron.discovery.common.oauth.token.filter;
 
 import app.metatron.discovery.common.oauth.CustomBearerTokenExtractor;
-import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.CachedToken;
 import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 
@@ -41,18 +40,12 @@ public class RefreshTokenRetentionFilter implements Filter {
 
   private TokenCacheRepository tokenCacheRepository;
 
-  private OauthProperties oauthProperties;
-
   private TokenExtractor tokenExtractor = new CustomBearerTokenExtractor();
 
   private TokenStore tokenStore;
 
   public void setTokenCacheRepository(TokenCacheRepository tokenCacheRepository) {
     this.tokenCacheRepository = tokenCacheRepository;
-  }
-
-  public void setOauthProperties(OauthProperties oauthProperties) {
-    this.oauthProperties = oauthProperties;
   }
 
   public void setTokenStore(TokenStore tokenStore) { this.tokenStore = tokenStore; }
@@ -66,17 +59,17 @@ public class RefreshTokenRetentionFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
     try {
-      if (oauthProperties.getTimeout() > -1) {
-        final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        Authentication authentication = tokenExtractor.extract(httpServletRequest);
-        if (authentication != null) {
-          String accessToken = getAccessToken(authentication);
-          OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(accessToken);
+      final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+      Authentication authentication = tokenExtractor.extract(httpServletRequest);
+      if (authentication != null) {
+        String accessToken = getAccessToken(authentication);
+        OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(accessToken);
+        String clientId = oAuth2Authentication.getOAuth2Request().getClientId();
+        if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
           String username = oAuth2Authentication.getName();
-          String clientId = oAuth2Authentication.getOAuth2Request().getClientId();
           CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
           if (cachedToken != null) {
-            Date newRefreshTokenExpiration = DateTime.now().plusSeconds(oauthProperties.getTimeout()).toDate();
+            Date newRefreshTokenExpiration = DateTime.now().plusSeconds(tokenCacheRepository.getRefreshTokenValiditySeconds(clientId)).toDate();
             LOGGER.debug("Token ({}) expiration retention to {} from {}", username + "|" + clientId,
                          newRefreshTokenExpiration, cachedToken.getExpiration());
             tokenCacheRepository.extendRefreshCachedToken(oAuth2Authentication, newRefreshTokenExpiration);

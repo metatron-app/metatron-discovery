@@ -684,9 +684,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
 
       if (ConnectionType.LINK === this.dataSource.connType) {
-        this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.dataSource.engineName);
+        this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
+                              isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
       } else {
-        this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+        this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
+          isNullOrUndefined(this.widget.configuration.dataSource.engineName) ? this.widget.configuration.dataSource.name : this.widget.configuration.dataSource.engineName);
       }
 
       if (StringUtil.isEmpty(this.widget.name)) {

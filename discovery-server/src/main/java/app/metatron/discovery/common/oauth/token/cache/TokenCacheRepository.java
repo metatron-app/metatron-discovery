@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.common.oauth.token.cache;
 
+import com.google.common.collect.Maps;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +27,19 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
  *
@@ -41,10 +51,41 @@ public class TokenCacheRepository {
   private static Logger LOGGER = LoggerFactory.getLogger(TokenCacheRepository.class);
 
   @Autowired
+  JdbcClientDetailsService jdbcClientDetailsService;
+
+  @Autowired
   CacheManager cacheManager;
 
   @Autowired
   TokenStore tokenStore;
+
+  private Map<String, ClientDetails> clientDetailsMap;
+
+  @PostConstruct
+  public void init() {
+    clientDetailsMap = Maps.newHashMap();
+    List<ClientDetails> clientDetailsList = jdbcClientDetailsService.listClientDetails();
+    for(ClientDetails clientDetail : clientDetailsList) {
+      clientDetailsMap.put(clientDetail.getClientId(), clientDetail);
+    }
+    LOGGER.info("ClientDetailsMap init : {}", GlobalObjectMapper.writeValueAsString(clientDetailsMap));
+  }
+
+  public boolean isTimeoutClientDetails(String clientId) {
+    ClientDetails clientDetails = clientDetailsMap.get(clientId);
+    if (clientDetails != null
+        && clientDetails.getAccessTokenValiditySeconds() != null
+        && clientDetails.getRefreshTokenValiditySeconds() != null
+        && clientDetails.getAccessTokenValiditySeconds() == clientDetails.getRefreshTokenValiditySeconds()) {
+      return true;
+    }
+    return false;
+  }
+
+  public int getRefreshTokenValiditySeconds(String clientId) {
+    ClientDetails clientDetails = clientDetailsMap.get(clientId);
+    return clientDetails.getRefreshTokenValiditySeconds();
+  }
 
   public CachedToken getCachedToken(String username, String clientId) {
     String tokenKey = username + "|" + clientId;

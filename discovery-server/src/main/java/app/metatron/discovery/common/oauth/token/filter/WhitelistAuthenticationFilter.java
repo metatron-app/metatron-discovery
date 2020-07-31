@@ -33,8 +33,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import app.metatron.discovery.common.oauth.token.cache.CachedWhitelistToken;
-import app.metatron.discovery.common.oauth.token.cache.WhitelistTokenCacheRepository;
+import app.metatron.discovery.common.oauth.token.cache.CachedToken;
+import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.util.HttpUtils;
 
 /**
@@ -44,12 +44,12 @@ public class WhitelistAuthenticationFilter implements Filter {
 
   private static Logger LOGGER = LoggerFactory.getLogger(WhitelistAuthenticationFilter.class);
 
-  private WhitelistTokenCacheRepository whitelistTokenCacheRepository;
+  private TokenCacheRepository tokenCacheRepository;
   private TokenExtractor tokenExtractor = new BearerTokenExtractor();
   private TokenStore jwtTokenStore;
 
-  public void setWhitelistTokenCacheRepository(WhitelistTokenCacheRepository whitelistTokenCacheRepository) {
-    this.whitelistTokenCacheRepository = whitelistTokenCacheRepository;
+  public void setTokenCacheRepository(TokenCacheRepository tokenCacheRepository) {
+    this.tokenCacheRepository = tokenCacheRepository;
   }
 
   public void setJwtTokenStore(TokenStore jwtTokenStore) {
@@ -77,20 +77,22 @@ public class WhitelistAuthenticationFilter implements Filter {
       String userHost = HttpUtils.getClientIp(httpServletRequest);
       String userAgent = httpServletRequest.getHeader("user-agent");
 
-      // getting whitelist in cache
-      CachedWhitelistToken cachedWhitelistToken = whitelistTokenCacheRepository.getCachedWhitelistToken(username, clientId);
-      if (cachedWhitelistToken == null) {
-        LOGGER.info("cachedWhitelistToken is not exist({}, {})", username, clientId);
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
-        return;
-      }
+      if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+        // getting whitelist in cache
+        CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
+        if (cachedToken == null) {
+          LOGGER.info("Cached Token is not exist({}, {})", username, clientId);
+          httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
+          return;
+        }
 
-      String cachedUserHost = cachedWhitelistToken.getUserHost();
-      // if not matched in whitelist cache, throw exception
-      if (!userHost.equals(cachedUserHost)) {
-        LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
-        return;
+        String cachedUserHost = cachedToken.getUserIp();
+        // if not matched in whitelist cache, throw exception
+        if (!userHost.equals(cachedUserHost)) {
+          LOGGER.info("Cached Token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
+          httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User ip is not in whitelist.");
+          return;
+        }
       }
     }
 
