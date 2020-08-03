@@ -373,6 +373,13 @@ public class AuthenticationController {
     try {
       String clientId = request.getParameter("client_id");
       ClientDetails clientDetails = jdbcClientDetailsService.loadClientByClientId(clientId);
+
+      if (clientDetails.getRegisteredRedirectUri() == null
+          || clientDetails.getRegisteredRedirectUri().isEmpty()) {
+        LOGGER.debug("client_id({}) redirectUri is empty",  clientId);
+        throw new BadRequestException("redirectUri is empty");
+      }
+
       String clientSecret = clientDetails.getClientSecret();
       String token = clientId+":"+clientSecret;
       String basicHeader = new String(Base64.encode(token.getBytes("UTF-8")), "UTF-8");
@@ -471,16 +478,17 @@ public class AuthenticationController {
 
   private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
     Cookie accessToken = CookieManager.getAccessToken(request);
-    if (accessToken != null) {
+    if (accessToken != null || request.getParameter("access_token") != null) {
+      String accessTokenValue = accessToken != null ? accessToken.getValue() : request.getParameter("access_token");
       String userHost = HttpUtils.getClientIp(request);
       String userAgent = request.getHeader("user-agent");
       try {
-        StatLogger.logout(this.tokenStore.readAuthentication(accessToken.getValue()), userHost, userAgent);
+        StatLogger.logout(this.tokenStore.readAuthentication(accessTokenValue), userHost, userAgent);
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
       }
 
-      OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessToken.getValue());
+      OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessTokenValue);
       String username = authFromToken.getName();
       String clientId = authFromToken.getOAuth2Request().getClientId();
       tokenCacheRepository.removeCachedToken(username + "|" + clientId);

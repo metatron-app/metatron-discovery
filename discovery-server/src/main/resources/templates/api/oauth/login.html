@@ -194,12 +194,11 @@
      style="display:none;">
 <script type="text/javascript" th:inline="javascript">
   /* <![CDATA[ */
-  let oauthLogin = {
+  var oauthLogin = {
     basicHeader: /*[[${basicHeader}]]*/,
     bind: function () {
       $("a[name=loginBtn]").bind('click', function () {
         oauthLogin.checkIp();
-        //oauthLogin.login();
       });
 
       $("input[name=username], input[name=password]").bind('focus', function (e) {
@@ -215,7 +214,6 @@
       $("input[name=password]").bind('keyup', function (e) {
         if (e.keyCode == '13') {
           oauthLogin.checkIp();
-          //oauthLogin.login();
         }
       });
 
@@ -231,67 +229,67 @@
       $("input[name=username]").focus();
     },
     checkIp: function() {
-      const method = 'POST';
-      const header = {Authorization: oauthLogin.basicHeader};
-      const url = '/api/oauth/client/check';
-      const param = {
-          username : $("input[name=username]").val()
+      var method = 'POST';
+      var header = {Authorization: oauthLogin.basicHeader};
+      var url = '/api/oauth/client/check';
+      var param = {
+        username : $("input[name=username]").val()
       };
-      const success = function(result) {
+      var success = function(result) {
         if (result === true) {
-            oauthLogin.login();
+          oauthLogin.login();
         } else {
-            let title = '[(#{message.app.oauth.confirm.title.userip})]';
-            title = title.replace('@', result);
-            const desc = '[(#{message.app.oauth.confirm.description.userip})]';
-            global.showConfirm(title, desc, 'checkIp', true);
+          var title = '[(#{message.app.oauth.confirm.title.userip})]';
+          title = title.replace('@', result);
+          var desc = '[(#{message.app.oauth.confirm.description.userip})]';
+          global.showConfirm(title, desc, 'checkIp', true);
         }
       };
-      const error = function(err) {
+        var error = function(err) {
         console.error(err);
       };
       global.ajax(method, header, url, param, success, error);
     },
     login: function () {
-      const method = 'POST';
-      const header = {Authorization: oauthLogin.basicHeader};
-      const url = '/oauth/token';
-      const param = {
+      var method = 'POST';
+      var header = {Authorization: oauthLogin.basicHeader};
+      var url = '/oauth/token';
+      var param = {
           username: $("input[name=username]").val(),
           password: $("input[name=password]").val(),
           grant_type: 'password',
           scope: 'write'
       };
-      const success = function (result) {
-          document.cookie = 'LOGIN_TOKEN=' + result.access_token + ';path=/';
-          document.cookie = 'LOGIN_TOKEN_TYPE=' + result.token_type + ';path=/';
-          document.cookie = 'REFRESH_LOGIN_TOKEN=' + result.refresh_token + ';path=/';
-          document.cookie = 'LOGIN_USER_ID=' + $("input[name=username]").val() + ';path=/';
-          oauthLogin.permission(result);
+      var success = function (result) {
+        document.cookie = 'LOGIN_TOKEN=' + result.access_token + ';path=/';
+        document.cookie = 'LOGIN_TOKEN_TYPE=' + result.token_type + ';path=/';
+        document.cookie = 'REFRESH_LOGIN_TOKEN=' + result.refresh_token + ';path=/';
+        document.cookie = 'LOGIN_USER_ID=' + $("input[name=username]").val() + ';path=/';
+        oauthLogin.permission(result);
       };
-      const error = function (err) {
-          if (err.responseJSON.details === 'INITIAL' || err.responseJSON.details === 'EXPIRED') {
-              changePassword.open();
-          } else {
-              oauthLogin.loginFail(err.responseJSON.details);
-          }
+      var error = function (err) {
+        if (err.responseJSON.details === 'INITIAL' || err.responseJSON.details === 'EXPIRED') {
+          changePassword.open();
+        } else {
+          oauthLogin.loginFail(err.responseJSON.details);
+        }
       };
       global.ajax(method, header, url, param, success, error);
     },
     permission: function (loginResult) {
-      const method = 'GET';
-      const header = {Authorization: loginResult.token_type + ' ' + loginResult.access_token};
-      const url = '/api/auth/SYSTEM/permissions';
-      const success = function (result) {
-          document.cookie = 'PERMISSION=' + result.join('==') + ';path=/';
-          oauthLogin.showAccessLog(loginResult);
+      var method = 'GET';
+      var header = {Authorization: loginResult.token_type + ' ' + loginResult.access_token};
+      var url = '/api/auth/SYSTEM/permissions';
+      var success = function (result) {
+        document.cookie = 'PERMISSION=' + result.join('==') + ';path=/';
+        oauthLogin.showAccessLog(loginResult);
       };
-      const error = function () {
-          document.cookie = 'LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
-          document.cookie = 'LOGIN_TOKEN_TYPE=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
-          document.cookie = 'REFRESH_LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
-          document.cookie = 'LOGIN_USER_ID=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
-          location.replace(document.location.href);
+      var error = function () {
+        document.cookie = 'LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        document.cookie = 'LOGIN_TOKEN_TYPE=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        document.cookie = 'REFRESH_LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        document.cookie = 'LOGIN_USER_ID=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        location.replace(document.location.href);
       };
       global.ajax(method, header, url, null, success, error);
     },
@@ -306,18 +304,18 @@
       $('span[name=loginFailMsg]').text(msg);
     },
     showAccessLog: function(loginResult) {
-      let title = '[(#{message.app.oauth.confirm.title.client})]';
+      var title = '[(#{message.app.oauth.confirm.title.client})]';
       title = title.replace('@', /*[[${clientName}]]*/);
-      let desc = '[(#{message.app.oauth.confirm.description.client})]'
+      var desc = '[(#{message.app.oauth.confirm.description.client})]'
                  + moment(loginResult.last_login_time).format('YYYY-MM-DD HH:mm:ss');
       if (typeof loginResult.last_login_ip != undefined) {
-          desc = desc + ' (' + loginResult.last_login_ip + ')';
+        desc = desc + ' (' + loginResult.last_login_ip + ')';
       }
       global.showConfirm(title, desc, 'showAccessLog', false);
     }
   };
 
-  let changePassword = {
+  var changePassword = {
       resultPassword: false,
       resultPasswordNew: false,
       resultPasswordRe: false,
@@ -333,91 +331,91 @@
       },
     bind: function () {
       $('.popup_password_reset .btn-close').bind('click', function() {
-          changePassword.close();
+        changePassword.close();
       });
 
       $("input[name=initPassword]").bind('focus', function (e) {
-          changePassword.initFailMsg('initPassword');
+        changePassword.initFailMsg('initPassword');
       });
       $("input[name=initPassword]").bind('blur', function (e) {
         if ($("input[name=initPassword]").val() == '') {
           changePassword.resultPassword = false;
-          const msg = "[(#{message.app.oauth.changepassword.password.empty})]";
+          var msg = "[(#{message.app.oauth.changepassword.password.empty})]";
           $('div[name=initPasswordDiv]').addClass('is-error');
           $('span[name=initPasswordFailMsg]').text(msg);
           $('span[name=mobileFailMsg]').addClass('is-error');
           $('span[name=mobileFailMsg]').text(msg);
         } else {
-          const url = '/api/users/password/validate';
-          const body = {
+          var url = '/api/users/password/validate';
+          var body = {
               username: $("input[name=username]").val(),
               initialPassword: $("input[name=initPassword]").val()
           }
-          const success = function (result) {
-              changePassword.initFailMsg('initPassword');
-              changePassword.resultPassword = true;
+          var success = function (result) {
+            changePassword.initFailMsg('initPassword');
+            changePassword.resultPassword = true;
           };
-          const error = function () {
-              changePassword.resultPassword = false;
-              const msg = "[(#{message.app.oauth.changepassword.password.match.not})]";
-              $('div[name=initPasswordDiv]').addClass('is-error');
-              $('span[name=initPasswordFailMsg]').text(msg);
-              $('span[name=mobileFailMsg]').addClass('is-error');
-              $('span[name=mobileFailMsg]').text(msg);
+          var error = function () {
+            changePassword.resultPassword = false;
+            var msg = "[(#{message.app.oauth.changepassword.password.match.not})]";
+            $('div[name=initPasswordDiv]').addClass('is-error');
+            $('span[name=initPasswordFailMsg]').text(msg);
+            $('span[name=mobileFailMsg]').addClass('is-error');
+            $('span[name=mobileFailMsg]').text(msg);
           };
           global.ajaxWithBody(url, body, success, error);
         }
       });
       $('div[name=initPasswordBox]').bind('click', function() {
-          changePassword.initFailMsg('initPassword');
+        changePassword.initFailMsg('initPassword');
       });
 
       $("input[name=newPassword]").bind('focus', function (e) {
-          changePassword.initFailMsg('newPassword');
+        changePassword.initFailMsg('newPassword');
       });
       $("input[name=newPassword]").bind('blur', function (e) {
         if ($("input[name=newPassword]").val() == '') {
           changePassword.resultPasswordNew = false;
-          const msg = "[(#{message.app.oauth.changepassword.password.new.empty})]";
+          var msg = "[(#{message.app.oauth.changepassword.password.new.empty})]";
           $('div[name=newPasswordDiv]').addClass('is-error');
           $('span[name=newPasswordFailMsg]').text(msg);
           $('span[name=mobileFailMsg]').addClass('is-error');
           $('span[name=mobileFailMsg]').text(msg);
         } else {
-          const url = '/api/users/password/validate';
-          const body = {
+          var url = '/api/users/password/validate';
+          var body = {
               username: $("input[name=username]").val(),
               password: $("input[name=newPassword]").val()
           }
-          const success = function (result) {
-              changePassword.initFailMsg('newPassword');
-              changePassword.resultPasswordNew = true;
+          var success = function (result) {
+            changePassword.initFailMsg('newPassword');
+            changePassword.resultPasswordNew = true;
           };
-          const error = function (err) {
+          var error = function (err) {
             if (typeof err.responseJSON.code != "undefined") {
-                changePassword.resultPasswordNew = false;
-                const msg = changePassword.errorMsg[err.responseJSON.code];
-                $('div[name=newPasswordDiv]').addClass('is-error');
-                $('span[name=newPasswordFailMsg]').text(msg);
-                $('span[name=mobileFailMsg]').addClass('is-error');
-                $('span[name=mobileFailMsg]').text(msg);
+              changePassword.resultPasswordNew = false;
+              var msg = changePassword.errorMsg[err.responseJSON.code];
+              $('div[name=newPasswordDiv]').addClass('is-error');
+              $('span[name=newPasswordFailMsg]').text(msg);
+              $('span[name=mobileFailMsg]').addClass('is-error');
+              $('span[name=mobileFailMsg]').text(msg);
             }
           };
           global.ajaxWithBody(url, body, success, error);
         }
       });
       $('div[name=newPasswordBox]').bind('click', function() {
-          changePassword.initFailMsg('newPassword');
+        changePassword.initFailMsg('newPassword');
       });
 
       $("input[name=rePassword]").bind('focus', function (e) {
-          changePassword.initFailMsg('rePassword');
+        changePassword.initFailMsg('rePassword');
       });
       $("input[name=rePassword]").bind('blur', function (e) {
-          changePassword.validateRePassword();
+        changePassword.validateRePassword();
       });
       $('div[name=rePasswordBox]').bind('click', function() {
-          changePassword.initFailMsg('rePassword');
+        changePassword.initFailMsg('rePassword');
       });
 
       $("input[name=rePassword]").bind('keyup', function (e) {
@@ -445,20 +443,20 @@
       $('.popup_password_reset').removeClass('is-show');
     },
     initStatus: function() {
-        changePassword.initFailMsg('initPassword');
-        changePassword.initFailMsg('newPassword');
-        changePassword.initFailMsg('rePassword');
-        $("input[name=initPassword]").val('');
-        $("input[name=newPassword]").val('');
-        $("input[name=rePassword]").val('');
+      changePassword.initFailMsg('initPassword');
+      changePassword.initFailMsg('newPassword');
+      changePassword.initFailMsg('rePassword');
+      $("input[name=initPassword]").val('');
+      $("input[name=newPassword]").val('');
+      $("input[name=rePassword]").val('');
     },
     initFailMsg: function(type) {
       if (type === 'initPassword') {
-          changePassword.resultPassword = false;
+        changePassword.resultPassword = false;
       } else if (type === 'newPassword') {
-          changePassword.resultPasswordNew = false;
+        changePassword.resultPasswordNew = false;
       } else if (type === 'rePassword') {
-          changePassword.resultPasswordRe = false;
+        changePassword.resultPasswordRe = false;
       }
       $('div[name='+type+'Div]').removeClass('is-error');
       $('span[name='+type+'FailMsg]').text('');
@@ -467,23 +465,23 @@
     },
     validateRePassword: function() {
       if ($("input[name=rePassword]").val() == '') {
-          changePassword.resultPasswordRe = false;
-          const msg = "[(#{message.app.oauth.changepassword.password.re.empty})]";
-          $('div[name=rePasswordDiv]').addClass('is-error');
-          $('span[name=rePasswordFailMsg]').text(msg);
-          $('span[name=mobileFailMsg]').addClass('is-error');
-          $('span[name=mobileFailMsg]').text(msg);
-          return;
+        changePassword.resultPasswordRe = false;
+        var msg = "[(#{message.app.oauth.changepassword.password.re.empty})]";
+        $('div[name=rePasswordDiv]').addClass('is-error');
+        $('span[name=rePasswordFailMsg]').text(msg);
+        $('span[name=mobileFailMsg]').addClass('is-error');
+        $('span[name=mobileFailMsg]').text(msg);
+        return;
       }
 
       if ($("input[name=newPassword]").val() !== $("input[name=rePassword]").val()) {
-          changePassword.resultPasswordRe = false;
-          const msg = "[(#{message.app.oauth.changepassword.password.re.match.not})]";
-          $('div[name=rePasswordDiv]').addClass('is-error');
-          $('span[name=rePasswordFailMsg]').text(msg);
-          $('span[name=mobileFailMsg]').addClass('is-error');
-          $('span[name=mobileFailMsg]').text(msg);
-          return;
+        changePassword.resultPasswordRe = false;
+        var msg = "[(#{message.app.oauth.changepassword.password.re.match.not})]";
+        $('div[name=rePasswordDiv]').addClass('is-error');
+        $('span[name=rePasswordFailMsg]').text(msg);
+        $('span[name=mobileFailMsg]').addClass('is-error');
+        $('span[name=mobileFailMsg]').text(msg);
+        return;
       }
 
       changePassword.initFailMsg('rePassword');
@@ -491,29 +489,29 @@
     },
     updatePassword: function() {
       if (changePassword.resultPassword && changePassword.resultPasswordNew && changePassword.resultPasswordRe) {
-          const url = '/api/users/password';
-          const body = {
-              username: $("input[name=username]").val(),
-              initialPassword: $("input[name=initPassword]").val(),
-              password: $("input[name=newPassword]").val(),
-              confirmPassword: $("input[name=rePassword]").val()
-          };
-          const success = function (result) {
-              const title = "[(#{message.app.oauth.changepassword.title})]";
-              const desc = "[(#{message.app.oauth.changepassword.password.success})]";
-              global.showConfirm(title, desc, 'updatePassword', false);
-          };
-          const error = function (err) {
-              const title = "[(#{message.app.oauth.changepassword.title})]";
-              const desc = "[(#{message.app.oauth.changepassword.password.fail})]";
-              global.showConfirm(title, desc, 'updatePassword', false);
-          };
-          global.ajaxWithBody(url, body, success, error);
+        var url = '/api/users/password';
+        var body = {
+            username: $("input[name=username]").val(),
+            initialPassword: $("input[name=initPassword]").val(),
+            password: $("input[name=newPassword]").val(),
+            confirmPassword: $("input[name=rePassword]").val()
+        };
+        var success = function (result) {
+          var title = "[(#{message.app.oauth.changepassword.title})]";
+          var desc = "[(#{message.app.oauth.changepassword.password.success})]";
+          global.showConfirm(title, desc, 'updatePassword', false);
+        };
+        var error = function (err) {
+          var title = "[(#{message.app.oauth.changepassword.title})]";
+          var desc = "[(#{message.app.oauth.changepassword.password.fail})]";
+          global.showConfirm(title, desc, 'updatePassword', false);
+        };
+        global.ajaxWithBody(url, body, success, error);
       }
     }
   };
 
-  let global = {
+  var global = {
     ajax: function (method, header, url, param, success, error) {
         $.ajax({
                    type: method,
@@ -536,43 +534,43 @@
                    error: error
                });
     },
-    showConfirm(title, desc, done, showCancel) {
+    showConfirm: function (title, desc, done, showCancel) {
       $('#confirm-close').unbind('click').bind('click', function() {
-          $('.popup_common').removeClass('is-show');
+        $('.popup_common').removeClass('is-show');
       })
       if (showCancel) {
-          $('#confirm-cancel').show();
-          $('#confirm-cancel').unbind('click').bind('click', function() {
-              $('.popup_common').removeClass('is-show');
-          })
+        $('#confirm-cancel').show();
+        $('#confirm-cancel').unbind('click').bind('click', function() {
+          $('.popup_common').removeClass('is-show');
+        })
       } else {
-          $('#confirm-cancel').hide();
+        $('#confirm-cancel').hide();
       }
       $('#confirm-title').text(title);
       $('#confirm-desc').text(desc);
       $('#confirm-done').unbind('click').bind('click', function() {
         if (done === 'checkIp') {
-            oauthLogin.login();
+          oauthLogin.login();
         } else if (done === 'showAccessLog') {
-            location.replace(document.location.href);
+          location.replace(document.location.href);
         } else if (done === 'updatePassword') {
-            $("input[name=password]").val('');
-            $("input[name=password]").focus();
-            changePassword.close();
-            $('.popup_common').removeClass('is-show');
+          $("input[name=password]").val('');
+          $("input[name=password]").focus();
+          changePassword.close();
+          $('.popup_common').removeClass('is-show');
         } else {
-            $('.popup_common').removeClass('is-show');
+          $('.popup_common').removeClass('is-show');
         }
       })
       $('.popup_common').addClass('is-show');
       $('#confirm-done').focus();
     },
-    initCheckError() {
-      const errorParam = /*[[${param.error}]]*/;
+    initCheckError: function() {
+      var errorParam = /*[[${param.error}]]*/;
       if (errorParam != null && errorParam[0] === 'IP') {
-          const title = "[(#{message.app.oauth.confirm.title.iperror})]";
-          const desc = "[(#{message.app.oauth.confirm.description.iperror})]";
-          global.showConfirm(title, desc, 'checkIpError', false);
+        var title = "[(#{message.app.oauth.confirm.title.iperror})]";
+        var desc = "[(#{message.app.oauth.confirm.description.iperror})]";
+        global.showConfirm(title, desc, 'checkIpError', false);
       }
     }
   };
