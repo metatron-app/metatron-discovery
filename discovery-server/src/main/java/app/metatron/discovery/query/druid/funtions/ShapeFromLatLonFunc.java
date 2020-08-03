@@ -18,7 +18,7 @@ import app.metatron.discovery.common.datasource.LogicalType;
 
 public class ShapeFromLatLonFunc {
 
-  private static final String FUNC_NAME = "shape_fromLatLon";
+  private static final String FUNC_NAME = "geom_fromLatLon";
 
   String pointGeometry;
 

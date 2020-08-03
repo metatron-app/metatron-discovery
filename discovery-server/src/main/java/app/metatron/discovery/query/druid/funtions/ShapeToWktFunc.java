@@ -16,7 +16,7 @@ package app.metatron.discovery.query.druid.funtions;
 
 public class ShapeToWktFunc {
 
-  private static final String FUNC_NAME = "shape_toWKT";
+  private static final String FUNC_NAME = "geom_toWKT";
 
   String shapeExpr;
 
