@@ -14,8 +14,10 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
 import com.google.common.collect.Lists;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -421,6 +423,23 @@ public class JdbcConnectionServiceTest extends AbstractIntegrationTest {
     for(Map<String, Object> partMap : partitionInfo){
       System.out.println(partMap.get("PART_NAME") + ", " + partMap.get("NUM_ROWS"));
     }
+  }
+
+  @Test
+  public void generateSelectQueryDruidLimitTest(){
+    JdbcConnectInformation connectInformation = new DataConnection("DRUID");
+    String schema = "druid";
+    JdbcIngestionInfo.DataType type = TABLE;
+    String query = "sales_geo";
+    List<Map<String, Object>> partitionList = null;
+    int limit = 50;
+
+    String sql = jdbcConnectionService.generateSelectQuery(connectInformation, schema, type, query, partitionList, limit);
+    Assert.assertEquals("SELECT \"sales_geo\".* FROM druid.\"sales_geo\" \"sales_geo\"  LIMIT 50", sql);
+
+    limit = 0;
+    sql = jdbcConnectionService.generateSelectQuery(connectInformation, schema, type, query, partitionList, limit);
+    Assert.assertEquals("SELECT \"sales_geo\".* FROM druid.\"sales_geo\" \"sales_geo\"", sql);
   }
 
   @Test
