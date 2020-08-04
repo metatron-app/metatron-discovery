@@ -14,22 +14,574 @@
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta charset="utf-8">
-    <title>metatron Discovery</title>
-    <base href="/">
+      xmlns:th="http://www.thymeleaf.org" th:with="lang=${#locale.language}" th:lang="${lang}">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi"/>
+  <meta name="format-detection" content="telephone=no"/>
+  <meta http-equiv="Expires" content="-1"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Cache-Control" content="No-Cache"/>
+  <title th:text="${clientName}"></title>
+  <link rel="icon" type="image/x-icon" th:href="${faviconPath}">
+  <link href="/resources/login.css" rel="stylesheet"/>
+  <script src="/resources/jquery.min.js"></script>
+  <script src="/resources/moment.min.js"></script>
+  <script type="text/javascript">
+      function backgroundImageInit() {
+          $('.login-container').css('background-image', 'url(/resources/login.jpg)');
+          $('.login-container .ddp-blur2').css('background-image', 'url(/resources/login.jpg)');
+      }
+  </script>
+</head>
+<!-- login -->
+<body>
+<div class="apm-wrap">
+  <!-- loading / is-loading-->
+  <div class="ddp-loading">
+    <div class="lds-wedges">
+      <div>
+        <div>
+          <div></div>
+        </div>
+        <div>
+          <div></div>
+        </div>
+        <div>
+          <div></div>
+        </div>
+        <div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- disable IE compatible view -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2" id="favicon">
-  </head>
-  <body>
-    <script type="text/javascript" th:inline="javascript">
-      /* <![CDATA[ */
-      location.href = /*[[${redirectUri}]]*/;
-    </script>
-  </body>
+  <div class="login-container" th:style="'background-image:url(' + ${backgroundFilePath} + ')'">
+    <em class="ddp-blur2" th:style="'background-image:url(' + ${backgroundFilePath} + ')'"></em>
+    <div class="ddp-ui-header">
+      <img th:src="${smallLogoFilePath}" onerror="this.onerror=null;this.style.display = 'none'">
+      <span th:text="${smallLogoDesc}"></span>
+    </div>
+    <div class="ddp-ui-login">
+
+      <div class="login-box">
+        <div class="ddp-box-login">
+          <div class="ddp-ui-logo">
+            <div class="logo-box">
+              <span>
+                <img th:src="${logoFilePath}"
+                         onerror="this.onerror=null;this.src='/assets/images/oauth/logo.svg'">
+              </span>
+            </div>
+            <div class="ddp-ui-desc">
+              <span th:utext="${logoDesc}"></span>
+            </div>
+          </div>
+          <div class="ddp-form-login">
+            <div class="ddp-form-input ddp-ui-input-form">
+              <label class="ddp-label-type" th:text="#{message.app.oauth.login.name.title}"></label>
+              <div class="ddp-input-check" name="username-typing">
+									<span class="ddp-input-type ">
+										<input name="username" type="text"
+                           th:placeholder="#{message.app.oauth.login.name.title.ph}">
+									</span>
+                <em class="ddp-icon-error" th:style="'display:none'">Incorrect username. Please try
+                  again.</em>
+              </div>
+            </div>
+            <div class="ddp-form-input ddp-ui-input-form">
+              <label class="ddp-label-type" th:text="#{message.app.oauth.login.pw.title}"></label>
+              <div class="ddp-input-check" name="password-typing">
+									<span class="ddp-input-type">
+										<input name="password" type="password"
+                           th:placeholder="#{message.app.oauth.login.pw.title.ph}">
+									</span>
+                <em class="ddp-icon-error" th:style="'display:none'">Incorrect password. Please try
+                  again.</em>
+              </div>
+              <span class="ddp-ui-error" name="loginFailMsg"></span>
+            </div>
+            <div class="ddp-ui-login-buttons">
+              <a class="ddp-btn" href="javascript:" name="loginBtn"
+                 th:text="#{message.app.oauth.login}"></a>
+            </div>
+            <span class="mobile ddp-ui-error" name="loginFailMsg"></span>
+          </div>
+          <div class="ddp-copyright" th:utext="${copyrightHtml}">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup_password_reset">
+    <div class="layout-popup">
+      <div class="process-popup">
+        <div class="popup-container">
+          <a href="javascript:;" class="btn-close"></a>
+          <h1 class="txt-title" th:text="#{message.app.oauth.changepassword.title}">
+          </h1>
+          <ul>
+            <li class="input-box">
+              <span class="label-txt-pc" th:text="#{message.app.oauth.changepassword.title.password}"></span>
+              <div class="component-input" name="initPasswordDiv">
+                <div class="box-input" name="initPasswordBox">
+                  <input type="password" class="input-text" name="initPassword"
+                         th:placeholder="#{message.app.oauth.changepassword.ph.password}">
+                </div>
+                <span class="txt-error" name="initPasswordFailMsg"></span>
+              </div>
+            </li>
+            <li class="input-box">
+              <span class="label-txt-pc" th:text="#{message.app.oauth.changepassword.title.password.new}"></span>
+              <div class="component-input" name="newPasswordDiv">
+                <div class="box-input" name="newPasswordBox">
+                  <input type="password" class="input-text" name="newPassword"
+                         th:placeholder="#{message.app.oauth.changepassword.ph.password.new}">
+                </div>
+                <span class="txt-error" name="newPasswordFailMsg"></span>
+              </div>
+            </li>
+            <li class="input-box">
+              <span class="label-txt-pc" th:text="#{message.app.oauth.changepassword.title.password.re}"></span>
+              <div class="component-input" name="rePasswordDiv">
+                <div class="box-input" name="rePasswordBox">
+                  <input type="password" class="input-text" name="rePassword"
+                         th:placeholder="#{message.app.oauth.changepassword.ph.password.new}">
+                </div>
+                <span class="txt-error" name="rePasswordFailMsg"></span>
+              </div>
+            </li>
+          </ul>
+          <span class="m-txt login-comment" name="mobileFailMsg">
+					</span>
+          <div class="buttons">
+            <button type="button" class="btn-basic type-large" name="changePasswordCancelBtn"
+                    th:text="#{message.app.oauth.changepassword.btn.cancel}"></button>
+            <button type="button" class="btn-action type-large" name="changePasswordDoneBtn"
+                    th:text="#{message.app.oauth.changepassword.btn.done}"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup_common">
+    <div class="layout-popup">
+      <div class="process-popup">
+        <div class="popup-container">
+          <a href="javascript:;" class="btn-close" id="confirm-close"></a>
+          <h1 class="txt-title" id="confirm-title">
+          </h1>
+          <span class="txt-comment" id="confirm-desc">
+						</span>
+          <div class="buttons">
+            <button type="button" class="btn-basic type-large" id="confirm-cancel"
+                    th:text="#{message.app.oauth.changepassword.btn.cancel}"></button>
+            <button type="button" class="btn-action type-large" id="confirm-done"
+                    th:text="#{message.app.oauth.changepassword.btn.done}"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<img th:src="${backgroundFilePath}" onerror="this.onerror=null;backgroundImageInit()"
+     style="display:none;">
+<script type="text/javascript" th:inline="javascript">
+  /* <![CDATA[ */
+  var oauthLogin = {
+    basicHeader: /*[[${basicHeader}]]*/,
+    bind: function () {
+      $("a[name=loginBtn]").bind('click', function () {
+        oauthLogin.checkIp();
+      });
+
+      $("input[name=username], input[name=password]").bind('focus', function (e) {
+        $("div[name="+e.target.name+"-typing]").addClass('is-typing');
+        oauthLogin.init();
+      });
+
+      $("input[name=username], input[name=password]").bind('focusout', function () {
+        $("div[name=username-typing]").removeClass('is-typing');
+        $("div[name=password-typing]").removeClass('is-typing');
+      });
+
+      $("input[name=password]").bind('keyup', function (e) {
+        if (e.keyCode == '13') {
+          oauthLogin.checkIp();
+        }
+      });
+
+      $("em[name=usernameErrorIcon]").bind('click', function () {
+        $("input[name=username]").val('');
+        oauthLogin.init();
+      });
+
+      $("em[name=passwordErrorIcon]").bind('click', function () {
+        $("input[name=password]").val('');
+        oauthLogin.init();
+      });
+      $("input[name=username]").focus();
+    },
+    checkIp: function() {
+      var method = 'POST';
+      var header = {Authorization: oauthLogin.basicHeader};
+      var url = '/api/oauth/client/check';
+      var param = {
+        username : $("input[name=username]").val()
+      };
+      var success = function(result) {
+        if (result === true) {
+          oauthLogin.login();
+        } else {
+          var title = '[(#{message.app.oauth.confirm.title.userip})]';
+          title = title.replace('@', result);
+          var desc = '[(#{message.app.oauth.confirm.description.userip})]';
+          global.showConfirm(title, desc, 'checkIp', true);
+        }
+      };
+        var error = function(err) {
+        console.error(err);
+      };
+      global.ajax(method, header, url, param, success, error);
+    },
+    login: function () {
+      var method = 'POST';
+      var header = {Authorization: oauthLogin.basicHeader};
+      var url = '/oauth/token';
+      var param = {
+          username: $("input[name=username]").val(),
+          password: $("input[name=password]").val(),
+          grant_type: 'password',
+          scope: 'write'
+      };
+      var success = function (result) {
+        document.cookie = 'LOGIN_TOKEN=' + result.access_token + ';path=/';
+        document.cookie = 'LOGIN_TOKEN_TYPE=' + result.token_type + ';path=/';
+        document.cookie = 'REFRESH_LOGIN_TOKEN=' + result.refresh_token + ';path=/';
+        document.cookie = 'LOGIN_USER_ID=' + $("input[name=username]").val() + ';path=/';
+        oauthLogin.permission(result);
+      };
+      var error = function (err) {
+        if (err.responseJSON.details === 'INITIAL' || err.responseJSON.details === 'EXPIRED') {
+          changePassword.open();
+        } else {
+          oauthLogin.loginFail(err.responseJSON.details);
+        }
+      };
+      global.ajax(method, header, url, param, success, error);
+    },
+    permission: function (loginResult) {
+      var method = 'GET';
+      var header = {Authorization: loginResult.token_type + ' ' + loginResult.access_token};
+      var url = '/api/auth/SYSTEM/permissions';
+      var success = function (result) {
+        document.cookie = 'PERMISSION=' + result.join('==') + ';path=/';
+        oauthLogin.showAccessLog(loginResult);
+      };
+      var error = function () {
+        document.cookie = 'LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        document.cookie = 'LOGIN_TOKEN_TYPE=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        document.cookie = 'REFRESH_LOGIN_TOKEN=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        document.cookie = 'LOGIN_USER_ID=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';
+        location.replace(document.location.href);
+      };
+      global.ajax(method, header, url, null, success, error);
+    },
+    init: function () {
+      $("div[name=username-typing]").removeClass('is-typing');
+      $("div[name=password-typing]").removeClass('is-typing');
+      $('.ddp-ui-input-form').removeClass('ddp-type-error');
+      $('span[name=loginFailMsg]').text('');
+    },
+    loginFail: function (msg) {
+      $('.ddp-ui-input-form').addClass('ddp-type-error');
+      $('span[name=loginFailMsg]').text(msg);
+    },
+    showAccessLog: function(loginResult) {
+      var title = '[(#{message.app.oauth.confirm.title.client})]';
+      title = title.replace('@', /*[[${clientName}]]*/);
+      var desc = '[(#{message.app.oauth.confirm.description.client})]'
+                 + moment(loginResult.last_login_time).format('YYYY-MM-DD HH:mm:ss');
+      if (typeof loginResult.last_login_ip != undefined) {
+        desc = desc + ' (' + loginResult.last_login_ip + ')';
+      }
+      global.showConfirm(title, desc, 'showAccessLog', false);
+    }
+  };
+
+  var changePassword = {
+      resultPassword: false,
+      resultPasswordNew: false,
+      resultPasswordRe: false,
+      errorMsg : {
+          'UR0001':'[(#{message.app.oauth.changepassword.password.fail.UR0001})]',
+          'UR0002':'[(#{message.app.oauth.changepassword.password.fail.UR0002})]',
+          'UR0003':'[(#{message.app.oauth.changepassword.password.fail.UR0003})]',
+          'UR0004':'[(#{message.app.oauth.changepassword.password.fail.UR0004})]',
+          'UR0005':'[(#{message.app.oauth.changepassword.password.fail.UR0005})]',
+          'UR0006':'[(#{message.app.oauth.changepassword.password.fail.UR0006})]',
+          'UR0007':'[(#{message.app.oauth.changepassword.password.fail.UR0007})]',
+          'UR0008':'[(#{message.app.oauth.changepassword.password.fail.UR0008})]',
+      },
+    bind: function () {
+      $('.popup_password_reset .btn-close').bind('click', function() {
+        changePassword.close();
+      });
+
+      $("input[name=initPassword]").bind('focus', function (e) {
+        changePassword.initFailMsg('initPassword');
+      });
+      $("input[name=initPassword]").bind('blur', function (e) {
+        if ($("input[name=initPassword]").val() == '') {
+          changePassword.resultPassword = false;
+          var msg = "[(#{message.app.oauth.changepassword.password.empty})]";
+          $('div[name=initPasswordDiv]').addClass('is-error');
+          $('span[name=initPasswordFailMsg]').text(msg);
+          $('span[name=mobileFailMsg]').addClass('is-error');
+          $('span[name=mobileFailMsg]').text(msg);
+        } else {
+          var url = '/api/users/password/validate';
+          var body = {
+              username: $("input[name=username]").val(),
+              initialPassword: $("input[name=initPassword]").val()
+          }
+          var success = function (result) {
+            changePassword.initFailMsg('initPassword');
+            changePassword.resultPassword = true;
+          };
+          var error = function () {
+            changePassword.resultPassword = false;
+            var msg = "[(#{message.app.oauth.changepassword.password.match.not})]";
+            $('div[name=initPasswordDiv]').addClass('is-error');
+            $('span[name=initPasswordFailMsg]').text(msg);
+            $('span[name=mobileFailMsg]').addClass('is-error');
+            $('span[name=mobileFailMsg]').text(msg);
+          };
+          global.ajaxWithBody(url, body, success, error);
+        }
+      });
+      $('div[name=initPasswordBox]').bind('click', function() {
+        changePassword.initFailMsg('initPassword');
+      });
+
+      $("input[name=newPassword]").bind('focus', function (e) {
+        changePassword.initFailMsg('newPassword');
+      });
+      $("input[name=newPassword]").bind('blur', function (e) {
+        if ($("input[name=newPassword]").val() == '') {
+          changePassword.resultPasswordNew = false;
+          var msg = "[(#{message.app.oauth.changepassword.password.new.empty})]";
+          $('div[name=newPasswordDiv]').addClass('is-error');
+          $('span[name=newPasswordFailMsg]').text(msg);
+          $('span[name=mobileFailMsg]').addClass('is-error');
+          $('span[name=mobileFailMsg]').text(msg);
+        } else {
+          var url = '/api/users/password/validate';
+          var body = {
+              username: $("input[name=username]").val(),
+              password: $("input[name=newPassword]").val()
+          }
+          var success = function (result) {
+            changePassword.initFailMsg('newPassword');
+            changePassword.resultPasswordNew = true;
+          };
+          var error = function (err) {
+            if (typeof err.responseJSON.code != "undefined") {
+              changePassword.resultPasswordNew = false;
+              var msg = changePassword.errorMsg[err.responseJSON.code];
+              $('div[name=newPasswordDiv]').addClass('is-error');
+              $('span[name=newPasswordFailMsg]').text(msg);
+              $('span[name=mobileFailMsg]').addClass('is-error');
+              $('span[name=mobileFailMsg]').text(msg);
+            }
+          };
+          global.ajaxWithBody(url, body, success, error);
+        }
+      });
+      $('div[name=newPasswordBox]').bind('click', function() {
+        changePassword.initFailMsg('newPassword');
+      });
+
+      $("input[name=rePassword]").bind('focus', function (e) {
+        changePassword.initFailMsg('rePassword');
+      });
+      $("input[name=rePassword]").bind('blur', function (e) {
+        changePassword.validateRePassword();
+      });
+      $('div[name=rePasswordBox]').bind('click', function() {
+        changePassword.initFailMsg('rePassword');
+      });
+
+      $("input[name=rePassword]").bind('keyup', function (e) {
+        if (e.keyCode == '13') {
+          changePassword.validateRePassword();
+          changePassword.updatePassword();
+        }
+      });
+
+      $('button[name=changePasswordDoneBtn]').bind('click', function () {
+        changePassword.updatePassword();
+      });
+
+      $('button[name=changePasswordCancelBtn]').bind('click', function () {
+        changePassword.close();
+      });
+
+    },
+    open: function () {
+      changePassword.initStatus();
+      $('.popup_password_reset').addClass('is-show');
+      $('input[name=initPassword]').focus();
+    },
+    close: function () {
+      $('.popup_password_reset').removeClass('is-show');
+    },
+    initStatus: function() {
+      changePassword.initFailMsg('initPassword');
+      changePassword.initFailMsg('newPassword');
+      changePassword.initFailMsg('rePassword');
+      $("input[name=initPassword]").val('');
+      $("input[name=newPassword]").val('');
+      $("input[name=rePassword]").val('');
+    },
+    initFailMsg: function(type) {
+      if (type === 'initPassword') {
+        changePassword.resultPassword = false;
+      } else if (type === 'newPassword') {
+        changePassword.resultPasswordNew = false;
+      } else if (type === 'rePassword') {
+        changePassword.resultPasswordRe = false;
+      }
+      $('div[name='+type+'Div]').removeClass('is-error');
+      $('span[name='+type+'FailMsg]').text('');
+      $('span[name=mobileFailMsg]').removeClass('is-error');
+      $('span[name=mobileFailMsg]').text('');
+    },
+    validateRePassword: function() {
+      if ($("input[name=rePassword]").val() == '') {
+        changePassword.resultPasswordRe = false;
+        var msg = "[(#{message.app.oauth.changepassword.password.re.empty})]";
+        $('div[name=rePasswordDiv]').addClass('is-error');
+        $('span[name=rePasswordFailMsg]').text(msg);
+        $('span[name=mobileFailMsg]').addClass('is-error');
+        $('span[name=mobileFailMsg]').text(msg);
+        return;
+      }
+
+      if ($("input[name=newPassword]").val() !== $("input[name=rePassword]").val()) {
+        changePassword.resultPasswordRe = false;
+        var msg = "[(#{message.app.oauth.changepassword.password.re.match.not})]";
+        $('div[name=rePasswordDiv]').addClass('is-error');
+        $('span[name=rePasswordFailMsg]').text(msg);
+        $('span[name=mobileFailMsg]').addClass('is-error');
+        $('span[name=mobileFailMsg]').text(msg);
+        return;
+      }
+
+      changePassword.initFailMsg('rePassword');
+      changePassword.resultPasswordRe = true;
+    },
+    updatePassword: function() {
+      if (changePassword.resultPassword && changePassword.resultPasswordNew && changePassword.resultPasswordRe) {
+        var url = '/api/users/password';
+        var body = {
+            username: $("input[name=username]").val(),
+            initialPassword: $("input[name=initPassword]").val(),
+            password: $("input[name=newPassword]").val(),
+            confirmPassword: $("input[name=rePassword]").val()
+        };
+        var success = function (result) {
+          var title = "[(#{message.app.oauth.changepassword.title})]";
+          var desc = "[(#{message.app.oauth.changepassword.password.success})]";
+          global.showConfirm(title, desc, 'updatePassword', false);
+        };
+        var error = function (err) {
+          var title = "[(#{message.app.oauth.changepassword.title})]";
+          var desc = "[(#{message.app.oauth.changepassword.password.fail})]";
+          global.showConfirm(title, desc, 'updatePassword', false);
+        };
+        global.ajaxWithBody(url, body, success, error);
+      }
+    }
+  };
+
+  var global = {
+    ajax: function (method, header, url, param, success, error) {
+        $.ajax({
+                   type: method,
+                   url: url,
+                   data: param,
+                   headers: header,
+                   success: success,
+                   error: error
+               });
+    },
+    ajaxWithBody: function (url, body, success, error) {
+        $.ajax({
+                   type: "post",
+                   url: url,
+                   accept: "application/json",
+                   contentType: "application/json; charset=utf-8",
+                   data: JSON.stringify(body),
+                   dataType: "json",
+                   success: success,
+                   error: error
+               });
+    },
+    showConfirm: function (title, desc, done, showCancel) {
+      $('#confirm-close').unbind('click').bind('click', function() {
+        $('.popup_common').removeClass('is-show');
+      })
+      if (showCancel) {
+        $('#confirm-cancel').show();
+        $('#confirm-cancel').unbind('click').bind('click', function() {
+          $('.popup_common').removeClass('is-show');
+        })
+      } else {
+        $('#confirm-cancel').hide();
+      }
+      $('#confirm-title').text(title);
+      $('#confirm-desc').text(desc);
+      $('#confirm-done').unbind('click').bind('click', function() {
+        if (done === 'checkIp') {
+          oauthLogin.login();
+        } else if (done === 'showAccessLog') {
+          location.replace(document.location.href);
+        } else if (done === 'updatePassword') {
+          $("input[name=password]").val('');
+          $("input[name=password]").focus();
+          changePassword.close();
+          $('.popup_common').removeClass('is-show');
+        } else {
+          $('.popup_common').removeClass('is-show');
+        }
+      })
+      $('.popup_common').addClass('is-show');
+      $('#confirm-done').focus();
+    },
+    initCheckError: function() {
+      var errorParam = /*[[${param.error}]]*/;
+      if (errorParam != null && errorParam[0] === 'IP') {
+        var title = "[(#{message.app.oauth.confirm.title.iperror})]";
+        var desc = "[(#{message.app.oauth.confirm.description.iperror})]";
+        global.showConfirm(title, desc, 'checkIpError', false);
+      }
+    }
+  };
+
+  $(document).ready(function () {
+      oauthLogin.bind();
+      changePassword.bind();
+      global.initCheckError();
+  });
+  /* ]]> */
+
+</script>
+</body>
 </html>

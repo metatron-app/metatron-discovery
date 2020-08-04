@@ -29,8 +29,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
+import app.metatron.discovery.common.cache.CacheListener;
 import app.metatron.discovery.common.cache.InfinispanClusterListener;
-import app.metatron.discovery.common.oauth.OauthProperties;
 
 /**
  * Created by kyungtaak on 2017. 3. 13..
@@ -46,9 +46,6 @@ public class InfinispanCacheConfig {
   public SpringEmbeddedCacheManager springEmbeddedCacheManager() {
     return new SpringEmbeddedCacheManager(infinispanCacheManager());
   }
-
-  @Autowired
-  OauthProperties oauthProperties;
 
 //  @Bean
 //  public SpringEmbeddedCacheManagerFactoryBean springCacheManager() {
@@ -76,45 +73,6 @@ public class InfinispanCacheConfig {
     return cacheManager;
   }
 
-  @Bean("refreshTokenCache")
-  public Cache<String, String> refreshTokenCache(SpringEmbeddedCacheManager springEmbeddedCacheManager) {
-    ConfigurationBuilder config = new ConfigurationBuilder();
-    // refresh token expire in 30 days (DefaultTokenServices.refreshTokenValiditySeconds default value)
-    config.expiration().lifespan(30, TimeUnit.DAYS);
-    config.clustering().cacheMode(CacheMode.DIST_SYNC);
-
-    EmbeddedCacheManager cacheManager = springEmbeddedCacheManager.getNativeCacheManager();
-    cacheManager.defineConfiguration("refresh-token-cache", config.build());
-    Cache<String, String> tokenCache = cacheManager.getCache("refresh-token-cache");
-    return tokenCache;
-  }
-
-  @Bean("accessTokenCache")
-  public Cache<String, String> accessTokenCache(SpringEmbeddedCacheManager springEmbeddedCacheManager) {
-    ConfigurationBuilder config = new ConfigurationBuilder();
-    // refresh token expire in 30 days (DefaultTokenServices.refreshTokenValiditySeconds default value)
-    config.expiration().lifespan(30, TimeUnit.DAYS);
-    config.clustering().cacheMode(CacheMode.DIST_SYNC);
-
-    EmbeddedCacheManager cacheManager = springEmbeddedCacheManager.getNativeCacheManager();
-    cacheManager.defineConfiguration("access-token-cache", config.build());
-    Cache<String, String> tokenCache = cacheManager.getCache("access-token-cache");
-    return tokenCache;
-  }
-
-  @Bean("tokenWhitelistCache")
-  public Cache<String, String> tokenWhitelistCache(SpringEmbeddedCacheManager springEmbeddedCacheManager) {
-    ConfigurationBuilder config = new ConfigurationBuilder();
-    // refresh token expire in 30 days (DefaultTokenServices.refreshTokenValiditySeconds default value)
-    config.expiration().lifespan(30, TimeUnit.DAYS);
-    config.clustering().cacheMode(CacheMode.DIST_SYNC);
-
-    EmbeddedCacheManager cacheManager = springEmbeddedCacheManager.getNativeCacheManager();
-    cacheManager.defineConfiguration("token-whitelist-cache", config.build());
-    Cache<String, String> tokenCache = cacheManager.getCache("token-whitelist-cache");
-    return tokenCache;
-  }
-
   @Bean("tokenCache")
   public Cache<String, String> tokenCache(SpringEmbeddedCacheManager springEmbeddedCacheManager) {
     ConfigurationBuilder config = new ConfigurationBuilder();
@@ -125,6 +83,7 @@ public class InfinispanCacheConfig {
     EmbeddedCacheManager cacheManager = springEmbeddedCacheManager.getNativeCacheManager();
     cacheManager.defineConfiguration("token-cache", config.build());
     Cache<String, String> tokenCache = cacheManager.getCache("token-cache");
+    tokenCache.addListener(new CacheListener());
     return tokenCache;
   }
 }

@@ -16,7 +16,7 @@ package app.metatron.discovery.query.druid.funtions;
 
 public class ShapeCentroidYXFunc {
 
-  private static final String FUNC_NAME = "shape_centroid_YX";
+  private static final String FUNC_NAME = "geom_centroid_YX";
 
   String shapeExpr;
 

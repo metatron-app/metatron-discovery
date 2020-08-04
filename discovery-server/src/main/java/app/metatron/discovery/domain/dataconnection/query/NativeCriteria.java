@@ -326,7 +326,7 @@ public class NativeCriteria {
 
         break;
 
-      case "HIVE": case "MYSQL": case "PRESTO": case "POSTGRESQL":
+      case "HIVE": case "MYSQL": case "PRESTO": case "POSTGRESQL": case "DRUID" :
         sqlBuilder.append(SPACE).append("LIMIT").append(SPACE).append(limit);
         if(offset != null)
           sqlBuilder.append(SPACE).append("OFFSET").append(SPACE).append(offset);

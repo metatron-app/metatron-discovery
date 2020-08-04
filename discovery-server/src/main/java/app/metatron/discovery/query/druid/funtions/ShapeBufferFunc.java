@@ -18,7 +18,7 @@ import static app.metatron.discovery.query.druid.funtions.ShapeBufferFunc.EndCap
 
 public class ShapeBufferFunc {
 
-  private static final String FUNC_NAME = "shape_buffer";
+  private static final String FUNC_NAME = "geom_buffer";
 
   String shapeExpr;
 

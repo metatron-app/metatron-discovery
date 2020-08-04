@@ -18,6 +18,7 @@ import app.metatron.discovery.domain.activities.ActivityStream;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.UserProfile;
+
 import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
 import org.slf4j.Logger;
@@ -98,7 +99,9 @@ public class SAMLTokenConverter extends JwtAccessTokenConverter {
                   .getLastLoginActivityStream(userAuthentication.getName());
           final Map<String, Object> additionalInfo = new HashMap<>();
           if (activityStream != null) {
-            additionalInfo.put("last_login_time", activityStream.getPublishedTime());
+            if (activityStream.getPublishedTime() != null) {
+              additionalInfo.put("last_login_time", activityStream.getPublishedTime().getMillis());
+            }
             additionalInfo.put("last_login_ip", activityStream.getRemoteHost());
           }
 
