@@ -37,6 +37,9 @@ export class DataEncryptionDecryptionComponent extends AbstractComponent impleme
   public step: string;
 
   @Input()
+  public queryEditorId: string;
+
+  @Input()
   public dataSet: DataSet;
 
   @Output('close')
@@ -62,6 +65,8 @@ export class DataEncryptionDecryptionComponent extends AbstractComponent impleme
     // Init
     super.ngOnInit();
     this.context.originalDataSet = this.dataSet;
+    console.log("queryEditorId", this.queryEditorId);
+    this.context.queryEditorId = this.queryEditorId;
   }
 
   // Destory
@@ -102,6 +107,7 @@ export class DataSet {
 }
 
 export class DataEncryptionDecryptionContext {
+  public queryEditorId: string;
   public identityVerificationId: string;
   public originalDataSet: DataSet;
   public transformDataSet: DataSet;

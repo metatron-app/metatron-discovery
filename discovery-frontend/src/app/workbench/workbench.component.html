@@ -790,7 +790,7 @@
 <!-- // history 삭제 팝업 -->
 
 <app-save-as-hive-table (saveSucceed)="saveAsHiveTableSucceed()"></app-save-as-hive-table>
-<app-data-encryption-decryption *ngIf="dataEncryptionDecryptionStep=='identity-verification'" [step]="dataEncryptionDecryptionStep" [dataSet]="dataEncryptionDecryptionDataSet" (close)="closeDataEncryptionDecryption()"></app-data-encryption-decryption>
+<app-data-encryption-decryption *ngIf="dataEncryptionDecryptionStep=='identity-verification'" [queryEditorId]="dataEncryptionDecryptionQueryEditorId" [step]="dataEncryptionDecryptionStep" [dataSet]="dataEncryptionDecryptionDataSet" (close)="closeDataEncryptionDecryption()"></app-data-encryption-decryption>
 
 <plugin-hive-personal-database-import-file></plugin-hive-personal-database-import-file>
 <plugin-hive-personal-database-creation-table></plugin-hive-personal-database-creation-table>
