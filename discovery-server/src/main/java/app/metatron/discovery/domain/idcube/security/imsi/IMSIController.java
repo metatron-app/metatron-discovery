@@ -146,7 +146,7 @@ public class IMSIController {
         .findFirst();
 
     if(queryResult.isPresent()) {
-      bookAuditLogService.logDataDownload("workbench", queryEditor.getWorkbench().getId(), queryResult.get().getQuery());
+      bookAuditLogService.logDataDownload("workbench", queryEditor.getWorkbench().getId(), "(T-PANI Data Encryption Decryption)" + queryResult.get().getQuery());
     }
   }
 }
