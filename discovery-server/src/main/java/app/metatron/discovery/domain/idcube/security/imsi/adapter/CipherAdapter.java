@@ -3,6 +3,7 @@ package app.metatron.discovery.domain.idcube.security.imsi.adapter;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.idcube.IdCubeProperties;
 import app.metatron.discovery.util.AuthUtils;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -23,7 +24,6 @@ import javax.net.ssl.SSLContext;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,22 +79,13 @@ public class CipherAdapter {
   }
 
   private RestTemplate getRestTemplateForDisableSSLVerification() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
-    TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-
-    SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom()
-        .loadTrustMaterial(null, acceptingTrustStrategy)
-        .build();
-
-    SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
-
-    CloseableHttpClient httpClient = HttpClients.custom()
-        .setSSLSocketFactory(csf)
-        .build();
-
-    HttpComponentsClientHttpRequestFactory requestFactory =
-        new HttpComponentsClientHttpRequestFactory();
-
+    TrustStrategy acceptingTrustStrategy = (x509Certificates, s) -> true;
+    SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+    SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier());
+    CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
     requestFactory.setHttpClient(httpClient);
-    return new RestTemplate(requestFactory);
+    RestTemplate restTemplate = new RestTemplate(requestFactory);
+    return restTemplate;
   }
 }
