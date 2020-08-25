@@ -656,7 +656,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       } else {
         customField = new CustomField();
         customField.role = (this.selectedColumnType === ColumnType.MEASURE) ? FieldRole.MEASURE : FieldRole.DIMENSION;
-        customField.dataSource = this.dataSource.engineName;
+        customField.dataSource = this.dataSource.engineName ? this.dataSource.engineName : this.dataSource.name;
       }
 
       customField.alias = this.columnName;
