@@ -115,7 +115,7 @@ public class PivotResultFormat extends SearchResultFormat {
     this.expressions = expressions;
     this.resultType = EnumUtils.getUpperCaseEnum(ResultType.class, resultType, ResultType.MAP);
     this.groupingSize = groupingSize == null ? 0 : groupingSize;
-    this.includePercentage = includePercentage == null ? false : true;
+    this.includePercentage = includePercentage != null;
   }
 
   public void addPivot(String fieldName) {
@@ -263,8 +263,8 @@ public class PivotResultFormat extends SearchResultFormat {
   public MatrixResponse toResultSetByMatrixType(JsonNode node) {
 
     List<String> rows = Lists.newArrayList();
-    Map<String, List<List<Double>>> categoryMap = Maps.newLinkedHashMap();
-    Map<String, List<List<Double>>> valueMap = Maps.newLinkedHashMap();
+    Map<String, List<List<Object>>> categoryMap = Maps.newLinkedHashMap();
+    Map<String, List<List<Object>>> valueMap = Maps.newLinkedHashMap();
 
     boolean analysisResults = (request.getAnalysis() != null);
     int keyFieldCnt = keyFields.size();
@@ -318,24 +318,24 @@ public class PivotResultFormat extends SearchResultFormat {
           String originalKey = StringUtils
                   .substring(nodeKey, 0, nodeKey.length() - ChartResultFormat.POSTFIX_PERCENTAGE.length());
           if (grouped && categoryMap.containsKey(originalKey)) {
-            List<List<Double>> values = categoryMap.get(originalKey);
-            values.get(1).add(getDoubleValue(nodeValue));
+            List<List<Object>> values = categoryMap.get(originalKey);
+            values.get(1).add(getTypedValue(nodeValue));
           } else if (valueMap.containsKey(originalKey)) {
-            valueMap.get(originalKey).get(1).add(getDoubleValue(nodeValue));
+            valueMap.get(originalKey).get(1).add(getTypedValue(nodeValue));
           } else {
             valueMap.put(originalKey,
                     Lists.newArrayList(Lists.newArrayList(),
-                            Lists.newArrayList(getDoubleValue(nodeValue))));
+                            Lists.newArrayList(getTypedValue(nodeValue))));
           }
           // Normal Value Case
         } else {
           if (grouped && categoryMap.containsKey(nodeKey)) {
-            categoryMap.get(nodeKey).get(0).add(getDoubleValue(nodeValue));
+            categoryMap.get(nodeKey).get(0).add(getTypedValue(nodeValue));
           } else if (valueMap.containsKey(nodeKey)) {
-            valueMap.get(nodeKey).get(0).add(getDoubleValue(nodeValue));
+            valueMap.get(nodeKey).get(0).add(getTypedValue(nodeValue));
           } else {
             valueMap.put(nodeKey,
-                    Lists.newArrayList(Lists.newArrayList(getDoubleValue(nodeValue)),
+                    Lists.newArrayList(Lists.newArrayList(getTypedValue(nodeValue)),
                             Lists.newArrayList()));
           }
         }
@@ -352,8 +352,17 @@ public class PivotResultFormat extends SearchResultFormat {
     return response;
   }
 
-  private Double getDoubleValue(JsonNode jsonNode) {
-    return jsonNode.isNull() ? null : jsonNode.asDouble();
+  private Object getTypedValue(JsonNode jsonNode) {
+    if(jsonNode.isInt())
+      return jsonNode.isNull() ? null : jsonNode.asInt();
+    else if(jsonNode.isBigInteger())
+      return jsonNode.isNull() ? null : jsonNode.asLong();
+    else if(jsonNode.isDouble())
+      return jsonNode.isNull() ? null : jsonNode.asDouble();
+    else if(jsonNode.isTextual())
+      return jsonNode.isNull() ? null : jsonNode.asText();
+    else
+      return jsonNode.asText();
   }
 
   public Object getAnalysisResult(JsonNode node) {
