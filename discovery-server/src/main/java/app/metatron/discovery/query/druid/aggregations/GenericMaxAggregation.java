@@ -14,15 +14,19 @@
 
 package app.metatron.discovery.query.druid.aggregations;
 
+import app.metatron.discovery.domain.datasource.Field;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import app.metatron.discovery.query.druid.Aggregation;
+import org.mortbay.util.StringUtil;
+
+import java.util.List;
 
 /**
  * Created by hsp on 2016. 8. 9..
  */
 @JsonTypeName("max")
-public class GenericMaxAggregation implements Aggregation {
+public class GenericMaxAggregation implements Aggregation, TimestampEnableAggregator {
 
   String name;
   String fieldName;
@@ -82,5 +86,10 @@ public class GenericMaxAggregation implements Aggregation {
             ", fieldName='" + fieldName + '\'' +
             ", inputType='" + inputType + '\'' +
             '}';
+  }
+
+  @Override
+  public void changeTimestampFieldName(List<Field> timestampFields) {
+    timestampFields.forEach(timestampField -> this.setFieldExpression(this.getFieldExpression().replaceAll("(?i)" + timestampField.getName().toLowerCase(), "__time")));
   }
 }

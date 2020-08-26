@@ -14,73 +14,83 @@
 
 package app.metatron.discovery.query.druid.aggregations;
 
+import app.metatron.discovery.domain.datasource.Field;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import app.metatron.discovery.query.druid.Aggregation;
+
+import java.util.List;
 
 /**
  * Created by hsp on 2016. 8. 9..
  */
 @JsonTypeName("min")
-public class GenericMinAggregation implements Aggregation {
+public class GenericMinAggregation implements Aggregation, TimestampEnableAggregator {
 
-  String name;
-  String fieldName;
-  String fieldExpression;
-  String inputType;
+    String name;
+    String fieldName;
+    String fieldExpression;
+    String inputType;
 
-  public GenericMinAggregation(String name, String fieldName, String inputType) {
-    this.name = name;
-    this.fieldName = fieldName;
-    this.inputType = inputType;
-  }
+    public GenericMinAggregation(String name, String fieldName, String inputType) {
+        this.name = name;
+        this.fieldName = fieldName;
+        this.inputType = inputType;
+    }
 
-  public GenericMinAggregation(String name, String fieldName, String fieldExpression, String inputType) {
-    this.name = name;
-    this.fieldName = fieldName;
-    this.fieldExpression = fieldExpression;
-    this.inputType = inputType;
-  }
+    public GenericMinAggregation(String name, String fieldName, String fieldExpression, String inputType) {
+        this.name = name;
+        this.fieldName = fieldName;
+        this.fieldExpression = fieldExpression;
+        this.inputType = inputType;
+    }
 
-  @Override
-  public String getName() {
-    return name;
-  }
+    @Override
+    public String getName() {
+        return name;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public String getFieldName() {
-    return fieldName;
-  }
+    public String getFieldName() {
+        return fieldName;
+    }
 
-  public void setFieldName(String fieldName) {
-    this.fieldName = fieldName;
-  }
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
 
-  public String getInputType() {
-    return inputType;
-  }
+    public String getInputType() {
+        return inputType;
+    }
 
-  public void setInputType(String inputType) {
-    this.inputType = inputType;
-  }
+    public void setInputType(String inputType) {
+        this.inputType = inputType;
+    }
 
-  public String getFieldExpression() {
-    return fieldExpression;
-  }
+    public String getFieldExpression() {
+        return fieldExpression;
+    }
 
-  public void setFieldExpression(String fieldExpression) {
-    this.fieldExpression = fieldExpression;
-  }
+    public void setFieldExpression(String fieldExpression) {
+        this.fieldExpression = fieldExpression;
+    }
 
-  @Override
-  public String toString() {
-    return "GenericMinAggregation{" +
-            "name='" + name + '\'' +
-            ", fieldName='" + fieldName + '\'' +
-            ", inputType='" + inputType + '\'' +
-            '}';
-  }
+    @Override
+    public String toString() {
+        return "GenericMinAggregation{" +
+                "name='" + name + '\'' +
+                ", fieldName='" + fieldName + '\'' +
+                ", inputType='" + inputType + '\'' +
+                '}';
+    }
+
+    @Override
+    public void changeTimestampFieldName(List<Field> timestampFields) {
+        if (this.getFieldExpression() != null) {
+            timestampFields.forEach(timestampField -> this.setFieldExpression(this.getFieldExpression().replaceAll("(?i)" + timestampField.getName().toLowerCase(), "__time")));
+        }
+    }
 }
