@@ -264,7 +264,7 @@ public abstract class AbstractQueryBuilder {
 
       isJoinQuery = true;
       metaFieldMap.putAll(mainMetaDataSource.getMetaFieldMap(true, ""));
-      mappingDataSource.getJoins().forEach(joinMapping -> visitJoinMapping(joinMapping));
+      mappingDataSource.getJoins().forEach(this::visitJoinMapping);
     }
 
     validColumnNames.addAll(metaFieldMap.keySet());
@@ -324,9 +324,7 @@ public abstract class AbstractQueryBuilder {
 
         if (keys.contains(fieldName)) {
           Set<String> partitionValues = partitionMap.get(fieldName);
-          inclusionFilter.getValueList().forEach(
-              value -> partitionValues.add(value)
-          );
+          partitionValues.addAll(inclusionFilter.getValueList());
         }
 
       } else if (reqFilter instanceof ExpressionFilter) {
@@ -339,9 +337,7 @@ public abstract class AbstractQueryBuilder {
           List<String> values = PolarisUtils.findMatchedValues(expr, p);
 
           Set<String> partitionValues = partitionMap.get(key);
-          values.forEach(
-              value -> partitionValues.add(value)
-          );
+          partitionValues.addAll(values);
         }
 
       }
@@ -410,7 +406,7 @@ public abstract class AbstractQueryBuilder {
 
     if (projections != null) {
       return projections.stream()
-                        .map(field -> field.getAlias())
+                        .map(Field::getAlias)
                         .collect(Collectors.toList());
     }
 
@@ -635,7 +631,7 @@ public abstract class AbstractQueryBuilder {
 
   public void addSpatialFilter(AndFilter filter, SpatialFilter reqFilter, app.metatron.discovery.domain.datasource.Field datasourceField) {
 
-    Filter spatialFilter = null;
+    Filter spatialFilter;
 
     if (reqFilter instanceof SpatialBboxFilter) {
       SpatialBboxFilter reqBboxFilter = (SpatialBboxFilter) reqFilter;
@@ -701,7 +697,7 @@ public abstract class AbstractQueryBuilder {
 
     String fieldName = engineColumnName(measureField.getColunm());
     String aliasName = measureField.getAlias();
-    String paramName = null;
+    String paramName;
     String dataType = "double";
 
     switch (measureField.getAggregationType()) {
@@ -738,7 +734,7 @@ public abstract class AbstractQueryBuilder {
         postAggregation.setName(aliasName);
         postAggregation.setFn(ArithmeticPostAggregation.AggregationFunction.DIVISION);
 
-        List<PostAggregation> postAggregationFields = new ArrayList<PostAggregation>();
+        List<PostAggregation> postAggregationFields = new ArrayList<>();
 
         postAggregationFields.add(new FieldAccessorPostAggregator(fieldName + "_sum", fieldName + "_sum"));
         postAggregationFields.add(new FieldAccessorPostAggregator("count", "count"));
@@ -790,13 +786,12 @@ public abstract class AbstractQueryBuilder {
         break;
     }
 
-    return;
   }
 
   /**
    * Add aggregation by user-defined field
    *
-   * @param field
+   * @param field User defined measure field
    */
   protected void addUserDefinedAggregationFunction(MeasureField field) {
 
@@ -854,6 +849,17 @@ public abstract class AbstractQueryBuilder {
     ComputationalField.makeAggregationFunctionsIn(field, curExpr,
             aggregations, postAggregations, windowingSpecs, userFieldsMap, context);
 
+    changeTimeStampFieldName();
+
+  }
+
+  protected void changeTimeStampFieldName() {
+    List<app.metatron.discovery.domain.datasource.Field> fields = this.dataSource.getMetaDataSource().getFieldByRole(TIMESTAMP);
+
+    this.aggregations.forEach(aggregation -> {
+      if(aggregation instanceof TimestampEnableAggregator)
+        ((TimestampEnableAggregator) aggregation).changeTimestampFieldName(fields);
+    });
   }
 
   /**
