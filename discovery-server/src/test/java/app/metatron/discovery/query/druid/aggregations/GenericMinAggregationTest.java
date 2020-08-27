@@ -26,8 +26,9 @@ public class GenericMinAggregationTest {
     @Test
     public void testChangeTimestampFieldName() {
         GenericMinAggregation minAggregator = new GenericMinAggregation("aggregationfunc_000", null, "OrderDate", "double");
-        GenericMinAggregation minAggregator2 = new GenericMinAggregation("aggregationfunc_000", null, "DIFFTIME('HOUR',NOW(),\\\"OrderDate\\\")", "double");
+        GenericMinAggregation minAggregator2 = new GenericMinAggregation("aggregationfunc_000", null, "DIFFTIME('HOUR',NOW(),\"OrderDate\")", "double");
         GenericMaxAggregation maxAggregator = new GenericMaxAggregation("aggregationfunc_000", null, "OrderDate", "double");
+        GenericMaxAggregation maxAggregator2 = new GenericMaxAggregation("aggregationfunc_000", null, "DIFFTIME('HOUR',\"LastOrderDate\",\"OrderDate\")", "double");
 
         Field field = new Field("orderDate", DataType.TIMESTAMP, Field.FieldRole.TIMESTAMP, 0);
         List<Field> fieldList = new ArrayList<>();
@@ -36,9 +37,11 @@ public class GenericMinAggregationTest {
         minAggregator.changeTimestampFieldName(fieldList);
         maxAggregator.changeTimestampFieldName(fieldList);
         minAggregator2.changeTimestampFieldName(fieldList);
+        maxAggregator2.changeTimestampFieldName(fieldList);
 
         Assert.assertEquals("__time", minAggregator.getFieldExpression());
         Assert.assertEquals("__time", maxAggregator.getFieldExpression());
-        Assert.assertEquals("DIFFTIME('HOUR',NOW(),\\\"__time\\\")", minAggregator2.getFieldExpression());
+        Assert.assertEquals("DIFFTIME('HOUR',NOW(),__time)", minAggregator2.getFieldExpression());
+        Assert.assertEquals("DIFFTIME('HOUR',\"LastOrderDate\",__time)", maxAggregator2.getFieldExpression());
     }
 }
