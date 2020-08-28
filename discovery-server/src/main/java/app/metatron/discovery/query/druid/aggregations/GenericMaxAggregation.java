@@ -90,6 +90,11 @@ public class GenericMaxAggregation implements Aggregation, TimestampEnableAggreg
 
   @Override
   public void changeTimestampFieldName(List<Field> timestampFields) {
-    timestampFields.forEach(timestampField -> this.setFieldExpression(this.getFieldExpression().replaceAll("(?i)" + timestampField.getName().toLowerCase(), "__time")));
+    timestampFields.forEach(timestampField -> {
+      if(timestampField.getName().toLowerCase().equals(this.getFieldExpression().toLowerCase()))
+        this.setFieldExpression("__time");
+      else
+        this.setFieldExpression(this.getFieldExpression().replaceAll("(?i)\"" + timestampField.getName().toLowerCase() + "\"", "__time"));
+    });
   }
 }
