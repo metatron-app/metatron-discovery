@@ -131,23 +131,36 @@ export class EncryptionDecryptionCompletionComponent extends AbstractPopupCompon
    */
   private initView() {
     // headers
-    const headers: header[] = this.getHeaders(this.context.transformDataSet.fields.map((field => field.name)));
+    const fields = this.context.transformDataSet.fields.map((field => {
+      if(field.name && field.name.length > 0 && field.name.indexOf(".") > -1) {
+        return {
+          originalName: field.name,
+          name: field.name.substring(field.name.indexOf(".") + 1, field.name.length),
+        }
+      } else {
+        return {
+          originalName: field.name,
+          name: field.name,
+        };
+      }
+    }));
+    const headers: header[] = this.getHeaders(fields);
     // rows
     const rows: any[] = this.getRows(this.context.transformDataSet.data);
     // grid 그리기
     this.drawGrid(headers, rows);
   }
 
-  private getHeaders(fields: string[]) {
+  private getHeaders(fields: any[]) {
     return fields.map(
-      (field: string) => {
+      (field) => {
         /* 70 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth: number = Math.floor(pixelWidth(field, {size: 12})) + 70;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 70;
 
         return new SlickGridHeader()
-          .Id(field)
-          .Name('<span style="padding-left:20px;">' + field + '</span>')
-          .Field(field)
+          .Id(field.originalName)
+          .Name('<span style="padding-left:20px;">' + field.name + '</span>')
+          .Field(field.originalName)
           .Behavior('select')
           .Selectable(false)
           .CssClass('cell-selection')

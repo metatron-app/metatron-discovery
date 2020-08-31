@@ -63,7 +63,7 @@ export class DataSelectionComponent extends AbstractPopupComponent implements On
   @Output()
   public stepChange: EventEmitter<string> = new EventEmitter();
 
-  public columns: string[] = [];
+  public columns: any[] = [];
   public transformTypes: any[] = [
     {type: "dec/imsi/imsi", name: "IMSI(암호화)->IMSI(복호화)"},
     {type: "dec/imsi/mdn", name: "IMSI(암호화)->MDN(복호화)"},
@@ -72,7 +72,7 @@ export class DataSelectionComponent extends AbstractPopupComponent implements On
     {type: "enc/mdn/imsi", name: "MDN(복호화)->IMSI(암호화)"},
     {type: "enc/svrcd/imsi", name: "SVCD(복호화)->IMSI(암호화)"}];
 
-  public selectedColumn: string = "";
+  public selectedColumn: any;
   public selectedTransformType: any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -116,7 +116,7 @@ export class DataSelectionComponent extends AbstractPopupComponent implements On
   }
 
   public isEnableNext(): boolean {
-    if(StringUtil.isNotEmpty(this.selectedColumn) && this.selectedTransformType && StringUtil.isNotEmpty(this.selectedTransformType.type)) {
+    if(this.selectedColumn && StringUtil.isNotEmpty(this.selectedColumn.originalName) && this.selectedTransformType && StringUtil.isNotEmpty(this.selectedTransformType.type)) {
       return true;
     } else {
       return false;
@@ -127,7 +127,7 @@ export class DataSelectionComponent extends AbstractPopupComponent implements On
     if (this.isEnableNext()) {
       const request = {
         cipherType: this.selectedTransformType.type,
-        cipherFieldName: this.selectedColumn,
+        cipherFieldName: this.selectedColumn.originalName,
         identityVerificationId: this.context.identityVerificationId,
         csvFile: this.context.originalDataSet.csvFilePath,
         fields: this.context.originalDataSet.fields,
@@ -160,24 +160,37 @@ export class DataSelectionComponent extends AbstractPopupComponent implements On
     this.clearGrid = false;
     this.context.transformDataSet = null;
     // headers
-    const headers: header[] = this.getHeaders(this.context.originalDataSet.fields.map((field => field.name)));
+    const fields = this.context.originalDataSet.fields.map((field => {
+      if(field.name && field.name.length > 0 && field.name.indexOf(".") > -1) {
+        return {
+          originalName: field.name,
+          name: field.name.substring(field.name.indexOf(".") + 1, field.name.length),
+        }
+      } else {
+        return {
+          originalName: field.name,
+          name: field.name,
+        };
+      }
+    }));
+    const headers: header[] = this.getHeaders(fields);
     // rows
     const rows: any[] = this.getRows(this.context.originalDataSet.data);
     // grid 그리기
     this.drawGrid(headers, rows);
-    this.columns = this.context.originalDataSet.fields.map((field => field.name));
+    this.columns = fields;
   }
 
-  private getHeaders(fields: string[]) {
+  private getHeaders(fields: any[]) {
     return fields.map(
-      (field: string) => {
+      (field) => {
         /* 70 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth: number = Math.floor(pixelWidth(field, {size: 12})) + 70;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 70;
 
         return new SlickGridHeader()
-          .Id(field)
-          .Name('<span style="padding-left:20px;">' + field + '</span>')
-          .Field(field)
+          .Id(field.originalName)
+          .Name('<span style="padding-left:20px;">' + field.name + '</span>')
+          .Field(field.originalName)
           .Behavior('select')
           .Selectable(false)
           .CssClass('cell-selection')
