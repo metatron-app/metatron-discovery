@@ -75,6 +75,8 @@ export class DataSelectionComponent extends AbstractPopupComponent implements On
   public selectedColumn: any;
   public selectedTransformType: any;
 
+  public searchTextColumnName: string = "";
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

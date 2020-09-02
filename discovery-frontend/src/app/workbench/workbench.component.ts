@@ -1532,7 +1532,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public showDataEncryptionDecryption(): void {
     const dataGrid = this._getCurrentResultTab();
     this.dataEncryptionDecryptionDataSet = new DataSet(dataGrid.result.csvFilePath, dataGrid.result.data, dataGrid.result.fields);
-    console.log('showDataEncryptionDecryption', dataGrid);
     this.dataEncryptionDecryptionQueryEditorId = dataGrid.editorId;
     this.dataEncryptionDecryptionStep = "identity-verification";
   }

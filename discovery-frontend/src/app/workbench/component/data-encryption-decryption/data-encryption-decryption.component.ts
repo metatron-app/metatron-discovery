@@ -65,7 +65,6 @@ export class DataEncryptionDecryptionComponent extends AbstractComponent impleme
     // Init
     super.ngOnInit();
     this.context.originalDataSet = this.dataSet;
-    console.log("queryEditorId", this.queryEditorId);
     this.context.queryEditorId = this.queryEditorId;
   }
 

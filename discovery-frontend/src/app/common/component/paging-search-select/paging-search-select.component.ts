@@ -133,6 +133,9 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
       }
   }
 
+  // select box 길이 full length 여부
+  @Input() public isFull : boolean = false;
+
   // 변경 이벤트
   @Output() public onSelected = new EventEmitter();
 
@@ -188,7 +191,7 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
     if (this.isSearchOptions) {
       // 검색어 필터링
       if (StringUtil.isNotEmpty(this.searchText)) {
-        arrayList = this.array.filter(item => item.includes(this.searchText));
+        arrayList = this.array.filter(item => this.getItem(item).includes(this.searchText));
       }
     }
     // internal page
