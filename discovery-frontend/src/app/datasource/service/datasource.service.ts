@@ -340,6 +340,16 @@ export class DatasourceService extends AbstractService {
     // EngineName 처리
     if (!isNullOrUndefined(query.dataSource.engineName)) {
       query.dataSource.name = query.dataSource.engineName;
+      delete query.dataSource['engineName'];
+    }
+
+    if (!isNullOrUndefined(query.dataSource.dataSources)) {
+      for (let datasource of query.dataSource.dataSources) {
+        if (!isNullOrUndefined(datasource.engineName)) {
+          datasource.name = datasource.engineName;
+          delete datasource['engineName'];
+        }
+      }
     }
 
     // 파라미터 치환
