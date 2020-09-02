@@ -108,6 +108,8 @@ export class DataSet {
 export class DataEncryptionDecryptionContext {
   public queryEditorId: string;
   public identityVerificationId: string;
+  public cryptoType: string;
+  public cryptoFieldName: string;
   public originalDataSet: DataSet;
   public transformDataSet: DataSet;
 }

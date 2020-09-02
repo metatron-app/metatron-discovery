@@ -107,6 +107,8 @@ export class EncryptionDecryptionCompletionComponent extends AbstractPopupCompon
       queryEditorId: this.context.queryEditorId,
       originalFileName: this.context.originalDataSet.csvFilePath,
       transformFileName: this.context.transformDataSet.csvFilePath,
+      cryptoType: this.context.cryptoType,
+      cryptoFieldName: this.context.cryptoFieldName,
     };
 
     this.loadingShow();

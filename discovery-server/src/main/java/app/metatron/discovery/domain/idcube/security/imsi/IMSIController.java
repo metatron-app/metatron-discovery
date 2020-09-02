@@ -3,7 +3,9 @@ package app.metatron.discovery.domain.idcube.security.imsi;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.idcube.security.imsi.dto.CipherRequest;
+import app.metatron.discovery.domain.idcube.security.imsi.entity.DataDownloadHistory;
 import app.metatron.discovery.domain.idcube.security.imsi.entity.IdentityVerification;
+import app.metatron.discovery.domain.idcube.security.imsi.repository.DataDownloadHistoryRepository;
 import app.metatron.discovery.domain.idcube.security.imsi.repository.IdentityVerificationRepository;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
@@ -39,7 +41,7 @@ public class IMSIController {
 
   private QueryEditorRepository queryEditorRepository;
 
-  private BookAuditLogService bookAuditLogService;
+  private DataDownloadHistoryRepository dataDownloadHistoryRepository;
 
   @Autowired
   public void setIdentityVerificationRepository(IdentityVerificationRepository identityVerificationRepository) {
@@ -60,8 +62,8 @@ public class IMSIController {
   }
 
   @Autowired
-  public void setBookAuditLogService(BookAuditLogService bookAuditLogService) {
-    this.bookAuditLogService = bookAuditLogService;
+  public void setDataDownloadHistoryRepository(DataDownloadHistoryRepository dataDownloadHistoryRepository) {
+    this.dataDownloadHistoryRepository = dataDownloadHistoryRepository;
   }
 
   @PostMapping(value = "/identity-verification")
@@ -115,11 +117,11 @@ public class IMSIController {
 
   @PostMapping(path = "/encryption-or-decryption/download")
   public void download(@RequestBody Map<String, Object> requestBody, HttpServletResponse response) throws IOException {
-
     final String queryEditorId = (String)requestBody.get("queryEditorId");
     final String originalFileName = (String)requestBody.get("originalFileName");
     final String transformFileName = (String)requestBody.get("transformFileName");
-
+    final String cryptoType = (String)requestBody.get("cryptoType");
+    final String cryptoFieldName = (String)requestBody.get("cryptoFieldName");
 
     String csvBaseDir = workbenchProperties.getTempCSVPath();
     if(!csvBaseDir.endsWith(File.separator)){
@@ -129,13 +131,13 @@ public class IMSIController {
     final String csvFilePath = csvBaseDir + transformFileName;
     HttpUtils.downloadCSVFile(response, transformFileName, csvFilePath, "text/csv; charset=utf-8");
     try {
-      logDataDownloadHistory(queryEditorId, originalFileName);
+      logDataDownloadHistory(queryEditorId, originalFileName, cryptoType, cryptoFieldName);
     } catch (Exception e) {
       LOGGER.error("error Logging workspace audit logs for data downloads from workbenches and workbook", e);
     }
   }
 
-  private void logDataDownloadHistory(String queryEditorId, String csvFilePath) {
+  private void logDataDownloadHistory(String queryEditorId, String csvFilePath, String cryptoType, String cryptoFieldName) {
     QueryEditor queryEditor = queryEditorRepository.findOne(queryEditorId);
     if(queryEditor == null){
       throw new ResourceNotFoundException("QueryEditor(" + queryEditorId + ")");
@@ -146,7 +148,7 @@ public class IMSIController {
         .findFirst();
 
     if(queryResult.isPresent()) {
-      bookAuditLogService.logDataDownload("workbench", queryEditor.getWorkbench().getId(), "(T-PANI Data Encryption Decryption)" + queryResult.get().getQuery());
+      dataDownloadHistoryRepository.save(new DataDownloadHistory(queryEditor.getWorkbench().getId(), queryResult.get().getQuery(), cryptoFieldName, cryptoType));
     }
   }
 }

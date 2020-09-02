@@ -137,6 +137,8 @@ export class DataSelectionComponent extends AbstractPopupComponent implements On
       this.loadingShow();
       this.dataEncryptionDecryptionService.encryptOrDecrypt(request).then((result) => {
         this.loadingHide();
+        this.context.cryptoType = this.selectedTransformType.type;
+        this.context.cryptoFieldName = this.selectedColumn.originalName;
         this.context.transformDataSet = new DataSet(result.csvFileName, result.data, result.fields);
         this.step = 'encryption-decryption-completion';
         this.stepChange.emit(this.step);
