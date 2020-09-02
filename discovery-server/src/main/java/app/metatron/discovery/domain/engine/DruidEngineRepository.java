@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -157,6 +158,10 @@ public class DruidEngineRepository extends AbstractEngineRepository {
     Map paramMap = Maps.newHashMap();
     paramMap.put("query", sql);
     return call(SQL, Maps.newHashMap(), paramMap, List.class);
+  }
+
+  public <T> Optional<T> sqlGeojson(String spec, Class<T> clazz) {
+    return call(SQL_GEOJSON, Maps.newHashMap(), spec, MediaType.TEXT_PLAIN_VALUE, clazz);
   }
 
   public Optional<List> getPendingTasks() {

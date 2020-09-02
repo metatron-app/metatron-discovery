@@ -140,6 +140,14 @@ public class DataQueryController {
     return ResponseEntity.ok(result);
   }
 
+  @RequestMapping(value = "/datasources/query/sql/geojson", method = RequestMethod.POST)
+  public ResponseEntity<?> queryForSqlGeoJson(@RequestBody SqlQueryRequest queryRequest) {
+
+    Object result = engineQueryService.sqlGeoJson(queryRequest);
+
+    return ResponseEntity.ok(result);
+  }
+
   @RequestMapping(value = "/datasources/query/{queryId}/cancel", method = RequestMethod.POST)
   public ResponseEntity<?> searchQuery(@PathVariable("queryId") String queryId) {
 
