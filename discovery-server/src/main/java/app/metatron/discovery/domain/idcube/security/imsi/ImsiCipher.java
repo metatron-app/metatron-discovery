@@ -74,7 +74,7 @@ public class ImsiCipher {
 
       allOfValues.addAll(values);
       allOfEncryptOrDecryptedValues.addAll(encryptOrDecryptedData);
-      index += PROCESS_MAX_ROW;
+      index += PROCESS_MAX_ROW - 1;
     }
 
     Field originalField = fields.stream().filter(field -> field.getName().equalsIgnoreCase(targetField)).findFirst().get();
