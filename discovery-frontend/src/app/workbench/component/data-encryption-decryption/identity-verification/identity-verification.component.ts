@@ -125,9 +125,13 @@ export class IdentityVerificationComponent extends AbstractPopupComponent implem
       } else {
         Alert.error("인증번호가 틀렸습니다.");
       }
-    }).catch(() => {
+    }).catch((error) => {
       this.loadingHide();
-      Alert.error("인증번호 확인에 실패 했습니다.");
+      if (error.code && error.code === 'IC0001') {
+        Alert.error("인증번호 입력 시간을 초과 했습니다. 다시 인증번호를 전송해 주세요.");
+      } else {
+        Alert.error("인증번호 확인에 실패 했습니다.");
+      }
     });
   }
 

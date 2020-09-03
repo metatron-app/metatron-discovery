@@ -1,5 +1,7 @@
 package app.metatron.discovery.domain.idcube.security.imsi.entity;
 
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.idcube.IdCubeErrorCodes;
 import app.metatron.discovery.domain.idcube.security.imsi.adapter.TangoAdapter;
 import app.metatron.discovery.util.ApplicationContextProvider;
 import org.apache.commons.lang.StringUtils;
@@ -79,12 +81,20 @@ public class IdentityVerification {
   }
 
   public boolean verifyAuthNumber(String receivedAuthNumber) {
+    this.validateExpired();
+
     if (this.authNumber.equalsIgnoreCase(receivedAuthNumber)) {
       this.verified = true;
       this.updatedAt = LocalDateTime.now();
       return true;
     } else {
       return false;
+    }
+  }
+
+  private void validateExpired() {
+    if (LocalDateTime.now().isAfter(this.createdAt.plusMinutes(3))) {
+      throw new MetatronException(IdCubeErrorCodes.IMSI_AUTHENTICATION_INPUT_TIMEOUT_ERROR_CODE, "User authentication input timeout.");
     }
   }
 
