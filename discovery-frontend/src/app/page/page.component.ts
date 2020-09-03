@@ -4292,7 +4292,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (ChartType.MAP === this.widget.configuration.chart.type) {
       this.boardFilters = this.widget.dashBoard.configuration.filters;
     } else {
-      this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+      // this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
+
+      if (ConnectionType.LINK === this.dataSource.connType) {
+        this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
+          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+      } else {
+        this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
+          isNullOrUndefined(this.widget.configuration.dataSource.engineName) ? this.widget.configuration.dataSource.name : this.widget.configuration.dataSource.engineName);
+      }
     }
 
     // 해당 필터에 차트 위젯 아이디 설정

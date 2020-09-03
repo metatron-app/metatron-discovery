@@ -763,7 +763,7 @@ export class DashboardUtil {
    */
   public static getDataSourceForApi(dataSource: BoardDataSource): BoardDataSource {
     // enginName과 name가 맞지 않으면 오류 발생함
-    dataSource.name = (dataSource.engineName) ? dataSource.engineName : dataSource.name;
+    dataSource.name = isNullOrUndefined(dataSource.engineName) ? dataSource.name : dataSource.engineName;
 
     if (dataSource.hasOwnProperty('joins') && dataSource.joins.length > 0) {
       dataSource.joins.forEach((join) => {
