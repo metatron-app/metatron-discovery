@@ -428,7 +428,7 @@ export class DatasourceService extends AbstractService {
             if ((LogicalType.TIMESTAMP.toString() === column.type.toUpperCase()
               || LogicalType.TIMESTAMP.toString() === column.subType
               || LogicalType.TIMESTAMP.toString() === column.subRole) && column.format) {
-              const dsField: Field = dataSourceFields.find(item => item.name === column.name);
+              const dsField: Field = dataSourceFields ? dataSourceFields.find(item => item.name === column.name) : undefined;
               if (dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone']) {
                 delete column.format['timeZone'];
                 delete column.format['locale'];
