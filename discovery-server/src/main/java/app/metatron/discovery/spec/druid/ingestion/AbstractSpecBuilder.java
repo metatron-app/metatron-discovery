@@ -133,7 +133,7 @@ public class AbstractSpecBuilder {
     UniformGranularitySpec granularitySpec = new UniformGranularitySpec(
         dataSource.getGranularity() == null ? DataSource.GranularityType.SECOND.name() : dataSource.getGranularity().name(),
         dataSource.getSegGranularity() == null ? DataSource.GranularityType.DAY.name() : dataSource.getSegGranularity().name(),
-        intervals == null ? null : intervals.toArray(new String[intervals.size()]));
+        intervals == null ? null : intervals.toArray(new String[0]));
 
     // Set Roll up
     if (useRelay) {
@@ -188,7 +188,9 @@ public class AbstractSpecBuilder {
     if (geoFormat instanceof GeoPointFormat) {
       secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
     } else {
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", ShapeFormat.WKT, geoFormat.getMaxLevels(), originalSrsName)));
+      //If SrsName contains "Not index", do not index polygon or line.
+      if(!geoFormat.getOriginalSrsName().contains("Not index"))
+        secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", ShapeFormat.WKT, geoFormat.getMaxLevels(), originalSrsName)));
     }
   }
 
@@ -196,6 +198,8 @@ public class AbstractSpecBuilder {
     if (geoFormat instanceof GeoPointFormat) {
       dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
     } else {
+      //If SrsName contains "Not index", do not index polygon or line.
+//      if(!geoFormat.getOriginalSrsName().contains("Not index"))
       dataSchema.addMetrics(new RelayAggregation(name, "string"));
     }
   }
@@ -286,7 +290,7 @@ public class AbstractSpecBuilder {
       // get Columns
       List<String> columns = dataSource.getFields().stream()
                                        .filter(field -> BooleanUtils.isNotTrue(field.getDerived()))
-                                       .map((field) -> field.getOriginalName())
+                                       .map(Field::getOriginalName)
                                        .collect(Collectors.toList());
 
       if (hadoopIngestion) {
@@ -364,8 +368,7 @@ public class AbstractSpecBuilder {
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
 
-      OrcParser orcParser = new OrcParser(parseSpec);
-      parser = orcParser;
+      parser = new OrcParser(parseSpec);
 
     } else if (fileFormat instanceof ParquetFileFormat) {
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();
