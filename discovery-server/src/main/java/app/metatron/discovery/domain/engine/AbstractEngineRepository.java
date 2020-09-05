@@ -87,6 +87,10 @@ public abstract class AbstractEngineRepository {
   }
 
   protected <T> Optional<T> call(String type, Map<String, Object> urlParam, Object body, Class<T> clazz) {
+    return call(type, urlParam, body, MediaType.APPLICATION_JSON_VALUE, clazz);
+  }
+
+  protected <T> Optional<T> call(String type, Map<String, Object> urlParam, Object body, String accept, Class<T> clazz) {
 
     EngineProperties.EngineApi engineApi = engineProperties.getApiInfoByType(type);
     if(engineApi == null) {
@@ -101,10 +105,10 @@ public abstract class AbstractEngineRepository {
     UriComponents targetUrl = makeUri(url, urlParam);
     if(method == HttpMethod.GET) {
       HttpHeaders headers = new HttpHeaders();
-      headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+      headers.set("Accept", accept);
     } else {
       HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.APPLICATION_JSON);
+      headers.setContentType(MediaType.valueOf(accept));
       entity = new HttpEntity<>(body, headers);
     }
 

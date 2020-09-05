@@ -274,6 +274,10 @@ polaris:
         target: broker
         method: GET
         uri: /druid/v2/running
+      sqlGeojson:
+        target: broker
+        method: POST
+        uri: /druid/v2/sql/geojson
 
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
