@@ -84,6 +84,7 @@ public class EngineProperties {
   public final static String GET_DATASOURCE_LOAD_STATUS = "datasourceLoadStatus";
   public final static String GET_RUNNING_IDS = "getRunningIds";
   public final static String SQL = "sql";
+  public final static String SQL_GEOJSON = "sqlGeojson";
 
   public final static String TEMP_CSV_PREFIX = "temp_ds_";
 

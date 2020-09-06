@@ -367,7 +367,8 @@ export class DashboardUtil {
     const boardDs: BoardDataSource = board.configuration.dataSource;
     let relDsFilters: Filter[] = [];
     if ('multi' === boardDs.type && boardDs.associations) {
-      const srcDs: BoardDataSource = boardDs.dataSources.find(item => item.engineName === engineName);
+      const srcDs: BoardDataSource = boardDs.dataSources.find(item => item.engineName === engineName || (item.connType == 'LINK' && item.engineName.startsWith(engineName + '_')))
+
       relDsFilters = boardDs.associations
         .filter((rel: BoardDataSourceRelation) => (srcDs.engineName === rel.source || srcDs.engineName === rel.target))
         .reduce((acc, rel: BoardDataSourceRelation) => {
@@ -375,18 +376,22 @@ export class DashboardUtil {
           let srcField: string = undefined;
           let relDsEngineName: string = undefined;
           let relField: string = undefined;
+          let relDsType = undefined;
+
           if (rel.source === srcDs.engineName) {
             relDsEngineName = boardDs.dataSources.find(item => item.engineName === rel.target).engineName;
+            relDsType = boardDs.dataSources.find(item => item.engineName === rel.target).connType;
             srcField = Object.keys(rel.columnPair)[0];
             relField = rel.columnPair[srcField];
           } else {
             relDsEngineName = boardDs.dataSources.find(item => item.engineName === rel.source).engineName;
+            relDsType = boardDs.dataSources.find(item => item.engineName === rel.target).connType;
             relField = Object.keys(rel.columnPair)[0];
             srcField = rel.columnPair[relField];
           }
           acc = acc.concat(
             totalFilters
-              .filter((item: Filter) => item.dataSource === relDsEngineName && item.field === relField)
+              .filter((item: Filter) => (item.dataSource === relDsEngineName || (relDsType == 'LINK' && relDsEngineName.startsWith(item.dataSource + '_')) && item.field === relField))
               .map((item: Filter) => {
                 item.dataSource = engineName;
                 item.field = srcField;
@@ -587,7 +592,7 @@ export class DashboardUtil {
     let field: Field;
 
     // 필드 조회
-    let idx = -1;
+    let idx: number;
     if (ref) idx = _.findIndex(fields, {ref, name: fieldName});
     else idx = _.findIndex(fields, {name: fieldName});
 
@@ -758,7 +763,7 @@ export class DashboardUtil {
    */
   public static getDataSourceForApi(dataSource: BoardDataSource): BoardDataSource {
     // enginName과 name가 맞지 않으면 오류 발생함
-    dataSource.name = (dataSource.engineName) ? dataSource.engineName : dataSource.name;
+    dataSource.name = isNullOrUndefined(dataSource.engineName) ? dataSource.name : dataSource.engineName;
 
     if (dataSource.hasOwnProperty('joins') && dataSource.joins.length > 0) {
       dataSource.joins.forEach((join) => {

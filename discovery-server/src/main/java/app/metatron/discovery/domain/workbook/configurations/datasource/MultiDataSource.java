@@ -70,10 +70,16 @@ public class MultiDataSource extends DataSource {
     Preconditions.checkNotNull(name, "Name of datasource is required.");
 
     for (DataSource dataSource : dataSources) {
-      if (name.equals(dataSource.getName())) {
-        return Optional.of(dataSource);
+      String dataSourceName = dataSource.getName();
+
+      if (name.equals(dataSourceName) || (
+              dataSource.getConnType() == app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK &&
+                      dataSource.getName().startsWith(name + "_"))
+      ) {
+          return Optional.of(dataSource);
       }
     }
+
     return Optional.empty();
   }
 
@@ -82,15 +88,15 @@ public class MultiDataSource extends DataSource {
    */
   public void electMainDataSource(QueryRequest queryRequest) {
 
-    if (queryRequest != null && queryRequest instanceof SearchQueryRequest) {
+    if (queryRequest instanceof SearchQueryRequest) {
       SearchQueryRequest searchQueryRequest = (SearchQueryRequest) queryRequest;
       Shelf shelf = searchQueryRequest.getShelf();
       Analysis analysis = searchQueryRequest.getAnalysis();
 
-      if (shelf != null && shelf instanceof GeoShelf) {
+      if (shelf instanceof GeoShelf) {
         GeoShelf geoShelf = (GeoShelf) shelf;
         MapViewLayer mainLayer;
-        if (analysis != null && analysis instanceof GeoSpatialAnalysis) {
+        if (analysis instanceof GeoSpatialAnalysis) {
           String mainLayerName = ((GeoSpatialAnalysis) analysis).getMainLayer();
           mainLayer = geoShelf.getLayerByName(mainLayerName)
                               .orElseThrow(() -> new IllegalArgumentException("layer({}) in shelf not found"));
