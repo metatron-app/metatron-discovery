@@ -214,7 +214,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
         pseudoDashboard.configuration.dataSource = dataSource;
         pseudoDashboard.configuration.fields = dataSource.uiFields;
 
-        this.essentialFilters = _.cloneDeep(dataSource.uiFilters);
+        this.essentialFilters = isNullOrUndefined(dataSource.uiFilters)?[]:_.cloneDeep(dataSource.uiFilters);
         FilterUtil.getPanelContentsList(
           this.essentialFilters,
           pseudoDashboard,
