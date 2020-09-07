@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Datasource, Field, FieldNameAlias, FieldValueAlias } from '../datasource/datasource';
 import { Widget } from './widget/widget';
