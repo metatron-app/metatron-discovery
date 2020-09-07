@@ -121,7 +121,7 @@ export class FilterUtil {
   public static getBoardDataSourceForFilter(filter: Filter, board: Dashboard): BoardDataSource {
     const boardDataSource: BoardDataSource = board.configuration.dataSource;
     if ('multi' === boardDataSource.type) {
-      return boardDataSource.dataSources.find(item => item.engineName === filter.dataSource);
+      return boardDataSource.dataSources.find(item => item.engineName === filter.dataSource || (item.connType == 'LINK' && item.engineName.startsWith(filter.dataSource + '_')));
     } else {
       return boardDataSource;
     }

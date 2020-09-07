@@ -296,6 +296,38 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
   }
 
+  public Object sqlGeoJson(SqlQueryRequest request) {
+
+    StopWatch stopWatch = new StopWatch();
+
+    stopWatch.start("Query Generation Time");
+
+    stopWatch.stop();
+
+    LOGGER.debug("[{}] Query Generation Time : {}", CommonLocalVariable.getQueryId(),
+                 stopWatch.getLastTaskTimeMillis());
+
+    QueryHistoryTeller.setEngineQuery(request.getQuery()); // for history
+
+    LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), request.getQuery());
+
+    Optional<JsonNode> engineResult = engineRepository.sqlGeojson(request.getQuery(), JsonNode.class);
+
+    stopWatch.start("Result Processing Time");
+
+    Object result = engineResult.orElseGet(
+        () -> GlobalObjectMapper.getDefaultMapper().createArrayNode()
+    );
+
+    stopWatch.stop();
+
+    LOGGER.debug("[{}] Result Processing Time : {}", CommonLocalVariable.getQueryId(),
+                 stopWatch.getLastTaskTimeMillis());
+
+    return result;
+
+  }
+
   private Object searchGeoQuery(SearchQueryRequest request) {
 
     GeoShelf geoShelf = (GeoShelf) request.getShelf();
