@@ -47,7 +47,9 @@ export class ConstantService {
 
   private readonly geoCoordinates: string[] = [
     'EPSG:4326',
-    'EPSG:4301'
+    'EPSG:4301',
+    'EPSG:4326(Not index)',
+    'EPSG:4301(Not index)'
   ];
 
   constructor(private translateService: TranslateService) {
