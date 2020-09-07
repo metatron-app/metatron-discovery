@@ -133,4 +133,33 @@ public class BookProjections extends BaseProjections {
     List<Map<String, Object>> getBooks();
 
   }
+
+  @Projection(name = "withWorkBooksView", types = {Book.class})
+  public interface WithWorkBooksProjection {
+
+    String getId();
+
+    String getName();
+
+    String getType();
+
+    String getDescription();
+
+    @Value("#{@bookTreeService.findBookHierarchies(target.id)}")
+    List<Map<String, String>> getHierarchies();
+
+    @Value("#{@bookTreeService.findSubBooksInfoForView(target.id, false, 'LIST', 'workbook')}")
+    List<Map<String, Object>> getBooks();
+
+    DateTime getCreatedTime();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+
+    DateTime getModifiedTime();
+
+  }
 }
