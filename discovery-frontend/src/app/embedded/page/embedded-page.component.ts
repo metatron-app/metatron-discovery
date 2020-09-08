@@ -23,26 +23,28 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { ActivatedRoute } from '@angular/router';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { BaseChart } from '../../common/component/chart/base-chart';
-import { BarChartComponent } from 'app/common/component/chart/type/bar-chart.component';
-import { LineChartComponent } from '../../common/component/chart/type/line-chart.component';
-import { ChartType, SPEC_VERSION } from '../../common/component/chart/option/define/common';
-import { NetworkChartComponent } from '../../common/component/chart/type/network-chart.component';
-import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
-import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { FilterUtil } from '../../dashboard/util/filter.util';
-import { PageWidget, PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
-import { UIOption } from '../../common/component/chart/option/ui-option';
-import { DatasourceService } from '../../datasource/service/datasource.service';
-import { AnalysisPredictionService } from '../../page/component/analysis/service/analysis.prediction.service';
-import { WidgetService } from '../../dashboard/service/widget.service';
-import { DashboardUtil } from '../../dashboard/util/dashboard.util';
-import { CommonUtil } from '../../common/util/common.util';
-import { MapChartComponent } from '../../common/component/chart/type/map-chart/map-chart.component';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {ActivatedRoute} from '@angular/router';
+import {CookieConstant} from '../../common/constant/cookie.constant';
+import {BaseChart} from '../../common/component/chart/base-chart';
+import {BarChartComponent} from 'app/common/component/chart/type/bar-chart.component';
+import {LineChartComponent} from '../../common/component/chart/type/line-chart.component';
+import {ChartType, SPEC_VERSION} from '../../common/component/chart/option/define/common';
+import {NetworkChartComponent} from '../../common/component/chart/type/network-chart.component';
+import {OptionGenerator} from '../../common/component/chart/option/util/option-generator';
+import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {FilterUtil} from '../../dashboard/util/filter.util';
+import {PageWidget, PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
+import {UIOption} from '../../common/component/chart/option/ui-option';
+import {DatasourceService} from '../../datasource/service/datasource.service';
+import {AnalysisPredictionService} from '../../page/component/analysis/service/analysis.prediction.service';
+import {WidgetService} from '../../dashboard/service/widget.service';
+import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import {CommonUtil} from '../../common/util/common.util';
+import {MapChartComponent} from '../../common/component/chart/type/map-chart/map-chart.component';
+import {CustomField} from "../../domain/workbook/configurations/field/custom-field";
+import {BoardConfiguration} from "../../domain/dashboard/dashboard";
 
 @Component({
   selector: 'app-embedded-page',
@@ -277,7 +279,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
    * @param {string} pageId
    * @private
    */
-  private _getPageInfo(pageId:string) {
+  private _getPageInfo(pageId: string) {
     this.widgetService.getWidget(pageId).then(result => {
       this.widget = <PageWidget>_.extend(new PageWidget(), result);
       this.widgetConfiguration = <PageWidgetConfiguration>this.widget.configuration;
@@ -303,10 +305,21 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       this.uiOption = OptionGenerator.initUiOption(this.uiOption);
     }
 
+    const boardConf: BoardConfiguration = DashboardUtil.convertSpecToUI(this.widget.dashBoard).configuration;
+
+    // 커스텀 필드 설정
+    const boardCustomFields: CustomField[] = boardConf.customFields;
+    if (boardCustomFields && 0 < boardCustomFields.length) {
+      const chartCustomField: CustomField[] = this.widgetConfiguration.customFields;
+      if (!chartCustomField || chartCustomField.length !== boardCustomFields.length) {
+        this.widgetConfiguration.customFields = $.extend(chartCustomField, _.cloneDeep(boardCustomFields));
+      }
+    }
+
     const query: SearchQueryRequest
       = this.datasourceService.makeQuery(
       this.widgetConfiguration,
-      this.widget.dashBoard.configuration.fields,
+      boardConf.fields,
       {
         url: this.router.url,
         dashboardId: this.widget.dashBoard.id,
@@ -321,8 +334,8 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     const uiCloneQuery = _.cloneDeep(query);
 
     // 외부필터가 없고 글로벌 필터가 있을 경우 추가(초기 진입시)
-    const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widgetConfiguration.dataSource.engineName );
-    (boardFilter && 0 < boardFilter.length) && ( uiCloneQuery.filters = boardFilter.concat(uiCloneQuery.filters) );
+    const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widgetConfiguration.dataSource.engineName);
+    (boardFilter && 0 < boardFilter.length) && (uiCloneQuery.filters = boardFilter.concat(uiCloneQuery.filters));
 
     this.isShowNoData = false;
 
@@ -330,7 +343,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
 
     this.query = cloneQuery;
-    if( this.chartType === 'label' ) {
+    if (this.chartType === 'label') {
       this.chart['setQuery'] = this.query;
     }
 
@@ -353,7 +366,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         delete this.resultData.uiOption;
       }
 
-      setTimeout( () => {
+      setTimeout(() => {
         // line차트이면서 columns 데이터가 있는경우
         if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
           // 고급분석 예측선 API 호출
@@ -361,7 +374,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         } else {
           this.chart.resultData = this.resultData;
         }
-      }, 1000 );
+      }, 1000);
 
       this.loadingHide();
 
@@ -413,7 +426,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
 
-    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
+    cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
 
     return cloneQuery;
   } // function - _makeSearchQueryParam
