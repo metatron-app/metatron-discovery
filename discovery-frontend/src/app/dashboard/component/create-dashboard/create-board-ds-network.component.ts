@@ -16,23 +16,24 @@ import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
-  Injector,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  Input,
   EventEmitter,
-  Output, HostListener
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { ConnectionType, Datasource } from '../../../domain/datasource/datasource';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { CreateBoardPopDsSelectComponent } from './create-board-pop-ds-select.component';
-import { BoardDataSource, BoardDataSourceRelation, Dashboard } from '../../../domain/dashboard/dashboard';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { CreateBoardPopRelationComponent } from './create-board-pop-relation.component';
-import { isNullOrUndefined } from 'util';
-import { CommonUtil } from '../../../common/util/common.util';
+import {ConnectionType, Datasource, TemporaryDatasource} from '../../../domain/datasource/datasource';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {CreateBoardPopDsSelectComponent} from './create-board-pop-ds-select.component';
+import {BoardDataSource, BoardDataSourceRelation, Dashboard} from '../../../domain/dashboard/dashboard';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {CreateBoardPopRelationComponent} from './create-board-pop-relation.component';
+import {isNullOrUndefined} from 'util';
+import {CommonUtil} from '../../../common/util/common.util';
 import {Modal} from "../../../common/domain/modal";
 
 declare const vis;
@@ -222,8 +223,14 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
       const boardDs: BoardDataSource = this.dashboard.configuration.dataSource;
       if ('multi' === boardDs.type) {
         boardDs.dataSources.forEach(item => {
-          const targetDs: Datasource = dataSources.find(ds => item.engineName === ds.engineName);
+          const targetDs: Datasource = dataSources.find(ds => item.engineName === ds.engineName || (ds.connType === ConnectionType.LINK && item.engineName.startsWith(ds.engineName + '_')));
           (targetDs) && (item.name = targetDs.name);
+
+          if(targetDs.connType == ConnectionType.LINK && targetDs.engineName != item.engineName) {
+            targetDs.engineName = item.engineName;
+            targetDs.temporary = targetDs.temporary?targetDs.temporary:new TemporaryDatasource();
+          }
+
           this._addDataSource(BoardDataSource.convertDsToMetaDs(targetDs));
         });
         if (boardDs.associations) {
@@ -244,8 +251,13 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
         }
         this.isPossibleSettingRel = true;
       } else {
-        const foundDs: Datasource = dataSources.find(ds => boardDs.engineName === ds.engineName);
+        const foundDs: Datasource = dataSources.find(ds => boardDs.engineName === ds.engineName || (ds.connType === ConnectionType.LINK && boardDs.engineName.startsWith(ds.engineName + '_')));
         if(foundDs) {
+          if(foundDs.connType == ConnectionType.LINK && foundDs.engineName != boardDs.engineName) {
+            foundDs.engineName = boardDs.engineName;
+            foundDs.temporary = foundDs.temporary?foundDs.temporary:new TemporaryDatasource();
+          }
+
           const newBoardDs : BoardDataSource = BoardDataSource.convertDsToMetaDs(foundDs);
           if(boardDs.joins && boardDs.joins.length > 0) {
             newBoardDs.joins = boardDs.joins;
