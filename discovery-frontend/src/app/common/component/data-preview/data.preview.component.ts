@@ -24,12 +24,7 @@ import {
   ViewChild,
   ViewChildren
 } from '@angular/core';
-import {
-  BoardDataSource,
-  Dashboard,
-  JoinMapping,
-  QueryParam
-} from '../../../domain/dashboard/dashboard';
+import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
 import {
   ConnectionType,
@@ -39,7 +34,7 @@ import {
   FieldFormat,
   FieldFormatType,
   FieldRole,
-  LogicalType
+  LogicalType, Status, TemporaryDatasource
 } from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
@@ -54,11 +49,7 @@ import {CommonUtil} from '../../util/common.util';
 import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
-import {
-  AuthenticationType,
-  Dataconnection,
-  ImplementorType
-} from '../../../domain/dataconnection/dataconnection';
+import {AuthenticationType, Dataconnection, ImplementorType} from '../../../domain/dataconnection/dataconnection';
 import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
@@ -236,6 +227,25 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
       //this.datasources = _.cloneDeep(DashboardUtil.getMainDataSources(dashboardInfo));
+
+      //Correct the engineName & temporary for Linked datasource
+      if(dashboardInfo.configuration.dataSource.type == 'multi'){
+        dashboardInfo.dataSources.forEach(dataSource => {
+          if(dataSource.connType == ConnectionType.LINK){
+            dataSource.temporary = new TemporaryDatasource();
+            const findedDataSource = dashboardInfo.configuration.dataSource.dataSources.find(configDataSource => configDataSource.id == dataSource.id);
+
+            if(findedDataSource){
+              dataSource.engineName = findedDataSource.engineName;
+            }
+          }
+        });
+      }else{
+        if(dashboardInfo.configuration.dataSource.id == dashboardInfo.dataSources[0].id && dashboardInfo.dataSources[0].connType == ConnectionType.LINK) {
+          dashboardInfo.dataSources[0].temporary = new TemporaryDatasource();
+          dashboardInfo.dataSources[0].engineName = dashboardInfo.configuration.dataSource.engineName;
+        }
+      }
       this.datasources = _.cloneDeep(dashboardInfo.dataSources);
     } else {
       this.isDashboard = false;
@@ -291,7 +301,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       const params = {
         dataSource: {
           name: engineName,
-          type: 'default'
+          type: 'default',    //datasource type default, mapping, multi. only default type supports summary.
+          temporary : !!(this.mainDatasource.temporary)
         },
         fields: [selectedField],
         userFields: []
@@ -336,6 +347,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       const params = {
         dataSource: {
           type: 'default',
+          temporary : !!(this.mainDatasource.temporary),
           name: engineName
         },
         fieldName: selectedField.name,
@@ -381,6 +393,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
             params.dataSource.connType = 'ENGINE';
           }
         }
+
+        params.dataSource.temporary = !!(dsInfo.temporary);
         params.dataSource.type = 'default';
       //}
 
@@ -978,6 +992,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       const params = {
         dataSource: {
           name: engineName,
+          temporary : !!(this.mainDatasource.temporary),
           type: 'default'
         },
         pivot: {
@@ -1289,38 +1304,36 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     const field = this.singleTab ? this.field : this.columns[0];
     this.isShowDataGrid = !this.singleTab;
 
-    // linked인 경우
-    if (this.connType === 'LINK') {
-      // TODO 마스터 데이터소스만 해당되는지 join된 소스까지 해당되는지 확인하기
-      this._getQueryDataInLinked(this.mainDatasource);
-    } else {
-      // Query Data
-      this.queryData(this.mainDatasource)
-        .then(data => {
-          if (data && 0 < data.length) {
-            this.gridData = data;
+    // Query Data
+    this.queryData(this.mainDatasource)
+      .then(data => {
+        if (data && 0 < data.length) {
+          this.gridData = data;
 
-            // single tab 이 아닌경우에만 그리드
-            if (!this.singleTab) {
-              this.updateGrid(data, this.columns);
-            } else {
-              // gird data를 name으로 검색
-              const data = [];
-              this.gridData.forEach((item) => {
-                if (item.hasOwnProperty(field.name) && item[field.name]) {
-                  data.push(item[field.name]);
-                }
-              });
-              this.selectedColumnData = data;
-              // 필드 선택
-              this.onSelectedField(field, this.mainDatasource);
-            }
+          // single tab 이 아닌경우에만 그리드
+          if (!this.singleTab) {
+            this.updateGrid(data, this.columns);
+          } else {
+            // gird data를 name으로 검색
+            const data = [];
+            this.gridData.forEach((item) => {
+              if (item.hasOwnProperty(field.name) && item[field.name]) {
+                data.push(item[field.name]);
+              }
+            });
+            this.selectedColumnData = data;
+            // 필드 선택
+            this.onSelectedField(field, this.mainDatasource);
           }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
+        }
+      })
+      .catch((error) => {
+        //If linked datasource doesn't exist
+        if(this.mainDatasource.connType == ConnectionType.LINK)
+          this._getQueryDataInLinked(this.mainDatasource);
+
+        console.log(error);
+      });
   } // function - selectDataSource
 
   /**
@@ -1395,6 +1408,24 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public isGeoType(column: any): boolean {
     return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is selected datasource's status enable
+   * @param datasource
+   * @returns {boplean}
+   */
+  public isSelectedSourceEnable(): boolean {
+    return this.selectedSource && this.isDataSourceEnable(this.selectedSource);
+  }
+
+  /**
+   * Is datasource's status enable
+   * @param datasource
+   * @returns {boplean}
+   */
+  public isDataSourceEnable(dataSource:Datasource): boolean {
+    return dataSource.status == Status.ENABLED
   }
 
   /**
@@ -1637,7 +1668,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     this._setMetaDataField(field, source);
     // if only engine type source, get statistics and covariance
     // #728 except GEO types, not get statistics and covariance
-    if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
+    // if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
+    if (!this.isGeoType(field)) {
       // 통계 조회
       if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
         || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
