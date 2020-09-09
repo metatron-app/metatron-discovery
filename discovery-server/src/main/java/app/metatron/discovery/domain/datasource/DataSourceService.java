@@ -26,8 +26,6 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.LongDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -37,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -73,9 +72,13 @@ import app.metatron.discovery.query.druid.Granularity;
 import app.metatron.discovery.query.druid.granularities.DurationGranularity;
 import app.metatron.discovery.query.druid.granularities.PeriodGranularity;
 import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
+import app.metatron.discovery.query.druid.meta.AnalysisType;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
 
+import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 
 /**
@@ -712,6 +715,60 @@ public class DataSourceService {
     props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, consumerConfig.getHeartbeatInterval());
     Consumer<Long, String> consumer = new KafkaConsumer<>(props);
     return consumer;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public DataSource setSizeAndStatus(DataSource dataSource) {
+
+    SegmentMetaDataResponse segmentMetaData = null;
+    try {
+      segmentMetaData = queryService.segmentMetadata(dataSource.getEngineName(),
+                                                     AnalysisType.CARDINALITY, AnalysisType.SERIALIZED_SIZE,
+                                                     AnalysisType.INTERVAL, AnalysisType.INGESTED_NUMROW,
+                                                     AnalysisType.LAST_ACCESS_TIME, AnalysisType.ROLLUP);
+    } catch (Exception e) {
+      LOGGER.warn("Fail to check datasource({}) : {}", dataSource.getEngineName(), e.getMessage());
+      if(dataSource.getStatus() != PREPARING) {
+        LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), DISABLED);
+        dataSource.setStatus(DISABLED);
+        dataSourceRepository.save(dataSource);
+      }
+      return dataSource;
+    }
+
+    if(dataSource.getStatus() != ENABLED) {
+      LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), ENABLED);
+      dataSource.setStatus(ENABLED);
+    }
+
+    List<String> matchingFields = filterMatchingFields(segmentMetaData.getColumns());
+    boolean matched = dataSource.isFieldMatchedByNames(matchingFields);
+    dataSource.setFieldsMatched(matched);
+
+    DataSourceSummary summary = dataSource.getSummary();
+    if(summary == null) {
+      summary = new DataSourceSummary();
+      dataSource.setSummary(summary);
+    }
+    summary.updateSummary(segmentMetaData);
+
+    if (BooleanUtils.isTrue(dataSource.getIncludeGeo())) {
+      List<Field> geoFields = dataSource.getGeoFields();
+
+      Map<String, Object> result = queryService.geoBoundary(dataSource.getEngineName(), geoFields);
+      summary.updateGeoCorner(result);
+    }
+
+    dataSourceRepository.save(dataSource);
+    return dataSource;
+  }
+
+  private List<String> filterMatchingFields(Map<String, SegmentMetaDataResponse.ColumnInfo> columns) {
+
+    return columns.entrySet().stream()
+                  .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
+                  .map(entry -> entry.getKey())
+                  .collect(Collectors.toList());
   }
 
 }

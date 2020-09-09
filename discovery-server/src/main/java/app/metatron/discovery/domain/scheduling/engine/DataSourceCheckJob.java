@@ -29,32 +29,21 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.ResponseErrorHandler;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.DataSourceSummary;
-import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
-import app.metatron.discovery.query.druid.meta.AnalysisType;
 
-import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
-import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
-import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
-
 
 /**
  * Created by kyungtaak on 2016. 6. 20..
@@ -80,6 +69,9 @@ public class DataSourceCheckJob extends QuartzJobBean {
 
   @Autowired
   DruidEngineRepository engineRepository;
+
+  @Autowired
+  DataSourceService dataSourceService;
 
   public DataSourceCheckJob() {
   }
@@ -110,7 +102,7 @@ public class DataSourceCheckJob extends QuartzJobBean {
 
         LOGGER.debug("Start to check '{}' datasource.", ds.getName());
         try {
-          setSizeAndStatus(ds);
+          dataSourceService.setSizeAndStatus(ds);
         } catch (ResourceAccessException e) {
           LOGGER.warn("Engine connection refused.");
           throw new DataSourceCheckException("Fail to check status of engine, Http status code : " + e.getMessage());
@@ -123,59 +115,6 @@ public class DataSourceCheckJob extends QuartzJobBean {
     } while (page.hasNext());
 
     LOGGER.info("## End batch job for checking datasource.");
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void setSizeAndStatus(DataSource dataSource) {
-
-    SegmentMetaDataResponse segmentMetaData = null;
-    try {
-      segmentMetaData = queryService.segmentMetadata(dataSource.getEngineName(),
-                                   AnalysisType.CARDINALITY, AnalysisType.SERIALIZED_SIZE,
-                                   AnalysisType.INTERVAL, AnalysisType.INGESTED_NUMROW,
-                                   AnalysisType.LAST_ACCESS_TIME, AnalysisType.ROLLUP);
-    } catch (Exception e) {
-      LOGGER.warn("Fail to check datasource({}) : {}", dataSource.getEngineName(), e.getMessage());
-      if(dataSource.getStatus() != PREPARING) {
-        LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), DISABLED);
-        dataSource.setStatus(DISABLED);
-        dataSourceRepository.save(dataSource);
-      }
-      return;
-    }
-
-    if(dataSource.getStatus() != ENABLED) {
-      LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), ENABLED);
-      dataSource.setStatus(ENABLED);
-    }
-
-    List<String> matchingFields = filterMatchingFields(segmentMetaData.getColumns());
-    boolean matched = dataSource.isFieldMatchedByNames(matchingFields);
-    dataSource.setFieldsMatched(matched);
-
-    DataSourceSummary summary = dataSource.getSummary();
-    if(summary == null) {
-      summary = new DataSourceSummary();
-      dataSource.setSummary(summary);
-    }
-    summary.updateSummary(segmentMetaData);
-
-    if (BooleanUtils.isTrue(dataSource.getIncludeGeo())) {
-      List<Field> geoFields = dataSource.getGeoFields();
-
-      Map<String, Object> result = queryService.geoBoundary(dataSource.getEngineName(), geoFields);
-      summary.updateGeoCorner(result);
-    }
-
-    dataSourceRepository.save(dataSource);
-  }
-
-  private List<String> filterMatchingFields(Map<String, SegmentMetaDataResponse.ColumnInfo> columns) {
-
-    return columns.entrySet().stream()
-        .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
-        .map(entry -> entry.getKey())
-        .collect(Collectors.toList());
   }
 
   private class EngineResponseErrorHandler implements ResponseErrorHandler {
@@ -194,4 +133,5 @@ public class DataSourceCheckJob extends QuartzJobBean {
       throw new DataSourceCheckException("Fail to check status of engine, Http status code : " + response.getStatusText());
     }
   }
+
 }
