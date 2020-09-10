@@ -1295,7 +1295,7 @@ public class DataSourceController {
     }
   }
 
-  @RequestMapping(value="/datasources/{id}/setSizeAndStatus", method = RequestMethod.PATCH)
+  @RequestMapping(value="/datasources/{id}/setSizeAndStatus", method = RequestMethod.GET)
   public ResponseEntity<?> setSizeAndStatus(@PathVariable String id) {
     DataSource dataSource = dataSourceRepository.findOne(id);
     if (dataSource == null) {
