@@ -19,7 +19,10 @@ import com.google.common.collect.Sets;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.sk.idcube.common.security.AccountInfoSecurity;
+import com.sk.idcube.common.security.IDCubeSecurity;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -245,7 +248,19 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   }
 
   public String getTel() {
-    return tel;
+    if(StringUtils.isEmpty(this.tel)) {
+      return tel;
+    }
+    try {
+      IDCubeSecurity security = new AccountInfoSecurity();
+      return security.decrypt(tel);
+    } catch (Exception e) {
+      return tel;
+    }
+  }
+
+  public String getEncryptedTel() {
+    return this.tel;
   }
 
   public void setTel(String tel) {

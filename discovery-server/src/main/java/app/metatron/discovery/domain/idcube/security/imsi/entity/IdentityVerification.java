@@ -101,4 +101,8 @@ public class IdentityVerification {
   public Boolean getVerified() {
     return verified;
   }
+
+  public void setReceiverTelNo(String receiverTelNo) {
+    this.receiverTelNo = receiverTelNo;
+  }
 }

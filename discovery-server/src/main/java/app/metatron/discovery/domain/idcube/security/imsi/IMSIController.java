@@ -72,6 +72,8 @@ public class IMSIController {
     IdentityVerification identityVerification = new IdentityVerification(user.getId(), user.getTel(), user.getFullName());
 
     identityVerification.sendAuthNumberWithSMS();
+    // 전화번호 저장시에는 암호화 한다.
+    identityVerification.setReceiverTelNo(user.getEncryptedTel());
     identityVerificationRepository.save(identityVerification);
 
     Map<String, Object> result = new HashMap<>();
