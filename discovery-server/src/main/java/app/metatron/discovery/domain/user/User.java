@@ -97,7 +97,6 @@ public class User extends AbstractHistoryEntity implements UserDetails, Metatron
   private String fullName;
 
   @Column(name = "user_email")
-  @Email
   @Field(analyze = Analyze.NO, store = Store.YES)
   private String email;
 

@@ -307,17 +307,18 @@ public class UserController {
   @RequestMapping(path = "/users/manual", method = RequestMethod.POST)
   public ResponseEntity<?> createUserByAdmin(@RequestBody User user) {
 
-    String userEmail = user.getEmail();
+//    String userEmail = user.getEmail();
 
     // Username 중복 체크
     if (userService.checkDuplicated(USERNAME, user.getUsername())) {
       throw new UserException(UserErrorCodes.DUPLICATED_USERNAME_CODE, "Duplicated username : " + user.getUsername());
     }
 
-    // email 중복 체크
-    if (StringUtils.isNotEmpty(userEmail) && userService.checkDuplicated(EMAIL, user.getEmail())) {
-      throw new UserException(UserErrorCodes.DUPLICATED_EMAIL_CODE, "Duplicated e-mail : " + user.getEmail());
-    }
+    // IDCUBE에서 계정 생성시 이메일이 암호화 되어 있어 email 검증을 하지 않는다.
+//    // email 중복 체크
+//    if (StringUtils.isNotEmpty(userEmail) && userService.checkDuplicated(EMAIL, user.getEmail())) {
+//      throw new UserException(UserErrorCodes.DUPLICATED_EMAIL_CODE, "Duplicated e-mail : " + user.getEmail());
+//    }
 
     if (StringUtils.isBlank(user.getFullName())) {
       user.setFullName(user.getUsername());
