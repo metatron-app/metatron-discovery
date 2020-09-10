@@ -274,7 +274,7 @@ export class MetadataService extends AbstractService {
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
     }
-    // return this.get(url);
+    return this.get(url);
   }
 
   public getMetadataListByRecommended(params) {
