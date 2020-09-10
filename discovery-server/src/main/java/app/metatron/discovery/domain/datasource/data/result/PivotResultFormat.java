@@ -266,7 +266,6 @@ public class PivotResultFormat extends SearchResultFormat {
     Map<String, List<List<Object>>> valueMap = Maps.newLinkedHashMap();
 
     boolean analysisResults = (request.getAnalysis() != null);
-    int keyFieldCnt = keyFields.size();
 
     ArrayNode analysisNode = null;
     String analysisKey = null;
@@ -319,13 +318,7 @@ public class PivotResultFormat extends SearchResultFormat {
         // Escape separator if nodeKey start with separator. ex. -SUM(m1) --SUM(m1)
         fieldName = fieldName.startsWith(separator) ? fieldName.substring(pivots.size()) : fieldName;
 
-        for(String keyField : keyFields)
-          if(fieldName.equals(keyField)) {
-            isKeyField = true;
-            break;
-          }
-
-        if(isKeyField)
+        if(keyFields.contains(fieldName))
           continue;
 
         // Percentage Case
@@ -365,6 +358,10 @@ public class PivotResultFormat extends SearchResultFormat {
     }
 
     return response;
+  }
+
+  protected boolean isContains(List<String> strList, String item){
+    return strList.contains(item);
   }
 
   private Object getTypedValue(JsonNode jsonNode) {
