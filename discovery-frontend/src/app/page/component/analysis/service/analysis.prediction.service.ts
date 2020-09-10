@@ -209,7 +209,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     // 고급분석 API 호출시 필요한 부가 정보들
     const param: Analysis = new Analysis();
     param.dataSource = _.cloneDeep(widgetConf.dataSource);
-    param.dataSource.name = (param.dataSource.name != param.dataSource.engineName)?param.dataSource.engineName:param.dataSource.name;
+    param.dataSource.name = (param.dataSource.engineName && param.dataSource.name != param.dataSource.engineName)?param.dataSource.engineName:param.dataSource.name;
     param.limits = _.cloneDeep(widgetConf.limit);
     param.resultFormat = {'type': 'chart', 'mode': 'line', 'columnDelimeter': '―'};
     param.pivot = _.cloneDeep(widgetConf.pivot);
