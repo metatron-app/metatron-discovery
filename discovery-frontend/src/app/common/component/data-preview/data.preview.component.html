@@ -530,7 +530,7 @@
             </div>
             <!-- //Metadata -->
             <!-- not LINKED source -->
-            <ng-container *ngIf="!isLinkedTypeSource(selectedSource) && !isGeoType(selectedField)">
+            <ng-container *ngIf="isSelectedSourceEnable() && !isGeoType(selectedField)">
               <!-- statistic -->
               <div class="ddp-ui-detail ddp-clear">
                 <div class="ddp-ui-title2">
