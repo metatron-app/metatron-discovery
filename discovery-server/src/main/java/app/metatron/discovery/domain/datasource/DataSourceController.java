@@ -511,6 +511,8 @@ public class DataSourceController {
     }
 
     dataSource.setStatus(PREPARING);
+    dataSourceRepository.saveAndFlush(dataSource);
+
     dataSource.setAppend(false);
 
     ThreadFactory factory = new ThreadFactoryBuilder()
