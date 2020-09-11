@@ -187,9 +187,9 @@ export class ExploreDataMainComponent extends AbstractComponent {
 
   // change when api is ready
   private async _setFavoriteCreatorList() {
-    const result = await this._metadataService.getFavoriteCreatorList({size: 4, page: 0});
+    const result: DataCreator[] = await this._metadataService.getFavoriteCreatorList({size: 4, page: 0});
     if (!_.isNil(result)) {
-      this.favoriteCreatorList = result;
+      this.favoriteCreatorList = result.filter(item => item.favorite);
     }
   }
 
