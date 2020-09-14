@@ -76,6 +76,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.QueryParam;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListFilter;
@@ -499,6 +500,8 @@ public class DataSourceController {
       throw new ResourceNotFoundException(id);
     }
 
+    LOGGER.debug("appendDataSource({}) ingestionInfo : {}", id, GlobalObjectMapper.writeValueAsString(ingestionInfo));
+
     // TODO: 기존 적재 작업과 비교하여 제한이 필요한 경우 제한 필요
     dataSource.setIngestionInfo(ingestionInfo);
 
@@ -506,6 +509,9 @@ public class DataSourceController {
     if (BooleanUtils.isTrue(singleMode)) {
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
     }
+
+    dataSource.setStatus(PREPARING);
+    dataSourceRepository.saveAndFlush(dataSource);
 
     dataSource.setAppend(false);
 
@@ -1289,6 +1295,17 @@ public class DataSourceController {
       LOGGER.error("Failed to parse kafka ({} : {}) : {}", bootstrapServer, topic, e.getMessage());
       throw new DataSourceIngestionException("Fail to parse kafka.", e.getCause());
     }
+  }
+
+  @RequestMapping(value="/datasources/{id}/setSizeAndStatus", method = RequestMethod.GET)
+  public ResponseEntity<?> setSizeAndStatus(@PathVariable String id) {
+    DataSource dataSource = dataSourceRepository.findOne(id);
+    if (dataSource == null) {
+      throw new ResourceNotFoundException(id);
+    }
+
+    dataSource = dataSourceService.setSizeAndStatus(dataSource);
+    return ResponseEntity.ok(dataSource);
   }
 
   class TimeFormatCheckResponse {
