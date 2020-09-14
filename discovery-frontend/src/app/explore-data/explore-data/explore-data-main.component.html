@@ -79,7 +79,7 @@
       <div class="ddp-data-nodata" *ngIf="favoriteCreatorList.length === 0">No data</div>
       <ul class="ddp-list-data" *ngIf="favoriteCreatorList.length > 0">
 <!--        <ul class="ddp-list-summary">-->
-          <li *ngFor="let creator of favoriteCreatorList| slice:0:4">
+          <li *ngFor="let creator of favoriteCreatorList| slice:0:4" (click)="onClickCreator(creator.username)">
             <a href="javascript:">
               <div class="ddp-wrap-data">
                   <span class="ddp-data-profile">
