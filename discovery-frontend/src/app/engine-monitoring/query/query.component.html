@@ -214,6 +214,13 @@
               {{queryDetail.duration | numberCommas}} ms
             </td>
           </tr>
+          <tr *ngIf="!!queryDetail.query">
+            <th>
+              Query
+            </th>
+            <td id="queryInformation">
+            </td>
+          </tr>
           </tbody>
       </table>
     </div>

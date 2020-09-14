@@ -35,6 +35,8 @@ import {PageResult} from "../../domain/common/page";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
 
+declare let $: any;
+
 @Component({
   selector: '[query]',
   templateUrl: './query.component.html',
@@ -206,6 +208,9 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
   public onClickQuery(query): void {
     this.queryDetail = query;
     this.showDetail = true;
+    if (query.queryId != '') {
+      this._getQueryDetail(query.queryId);
+    }
   }
 
   public closeDetail(): void {
@@ -286,6 +291,24 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
       params['containsText'] = this.searchKeyword.trim();
     }
     return params;
+  }
+
+  private _getQueryDetail(queryId: string) {
+    this.loadingShow();
+    this.engineService.getQueryDetail(queryId).then((data: any[]) => {
+      this.queryDetail['query'] = false;
+      this.loadingHide();
+      if (data.length > 0) {
+        this.queryDetail['query'] = true;
+        setTimeout(function() {
+          try {
+            $('#queryInformation').html('<pre>' + JSON.stringify(JSON.parse(data[0].query), undefined, 4) + '</pre>');
+          } catch (e) {
+            $('#queryInformation').text(data[0].query);
+          }
+        }, 50);
+      }
+    }).catch((error) => this.commonExceptionHandler(error));
   }
 
 }

@@ -84,8 +84,11 @@ public class EngineMonitoringService {
   @Autowired
   EngineMonitoringProperties monitoringProperties;
 
-  @Value("${polaris.engine.monitoring.emitter.datasource:druid-metric}")
-  String datasourceName;
+  @Value("${polaris.engine.monitoring.emitter.datasource.metric:druid-metric}")
+  String metricDatasource;
+
+  @Value("${polaris.engine.monitoring.emitter.datasource.query:druid-query}")
+  String queryDatasource;
 
   private Map<String, String> druidNameMap = new HashMap();
 
@@ -143,7 +146,7 @@ public class EngineMonitoringService {
       request.getResultFormat().setConnType(ENGINE);
     }
 
-    Query query = MonitoringQuery.builder(new DefaultDataSource(datasourceName))
+    Query query = MonitoringQuery.builder(new DefaultDataSource(metricDatasource))
                                  .filters(filters)
                                  .granularity(request.getGranularity())
                                  .aggregation(aggregations)
@@ -646,7 +649,7 @@ public class EngineMonitoringService {
     sb.append(getDruidName("middleManager"));
     sb.append("' THEN 'Middle Manager' END AS \"serviceName\"");
     sb.append(", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"");
-    sb.append(datasourceName);
+    sb.append(metricDatasource);
     sb.append("\" WHERE metric = 'query/time'");
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getResult())) {
       sb.append(" AND \"success\" IN ('");
@@ -694,6 +697,18 @@ public class EngineMonitoringService {
     } else {
       sb.append("1000");
     }
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
+    return results.get();
+  }
+
+  public List getQueryDetail(String queryId) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("SELECT * FROM \"druid\".\"");
+    sb.append(queryDatasource);
+    sb.append("\" where id = '");
+    sb.append(queryId);
+    sb.append("'");
     LOGGER.debug("query = {}", sb.toString());
     Optional<List> results = engineRepository.sql(sb.toString());
     return results.get();
