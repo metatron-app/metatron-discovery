@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 /**
  * Created by kyungtaak on 2016. 8. 21..
  */
+@SuppressWarnings("rawtypes")
 @JsonTypeName("dpivot")
 public class PivotResultFormat extends SearchResultFormat {
 
@@ -197,17 +198,15 @@ public class PivotResultFormat extends SearchResultFormat {
               Optional<Sort> findSort = this.getRequest().getLimits().getSort()
                       .stream().filter(sort -> sort.getField().equalsIgnoreCase(pivot.getFieldName()))
                       .findFirst();
-              if (findSort.isPresent()) {
-                pivotColumn.setDirection(
-                        findSort.get().getDirection() == Sort.Direction.DESC ?
-                                PivotColumn.Direction.DESCENDING : PivotColumn.Direction.ASCENDING);
-              }
+              findSort.ifPresent(sort -> pivotColumn.setDirection(
+                      sort.getDirection() == Sort.Direction.DESC ?
+                              PivotColumn.Direction.DESCENDING : PivotColumn.Direction.ASCENDING));
 
               return pivotColumn;
             }).collect(Collectors.toList()));
 
     pivotSpec.setValueColumns(aggregations.stream()
-            .map(aggregation -> aggregation.getFieldName())
+            .map(Aggregation::getFieldName)
             .collect(Collectors.toList()));
 
     for (String expression : expressions) {
@@ -267,7 +266,6 @@ public class PivotResultFormat extends SearchResultFormat {
     Map<String, List<List<Object>>> valueMap = Maps.newLinkedHashMap();
 
     boolean analysisResults = (request.getAnalysis() != null);
-    int keyFieldCnt = keyFields.size();
 
     ArrayNode analysisNode = null;
     String analysisKey = null;
@@ -291,32 +289,42 @@ public class PivotResultFormat extends SearchResultFormat {
     for (JsonNode aNode : node) {
       Iterator<Map.Entry<String, JsonNode>> fields = aNode.fields();
       if (analysisResults) {
-        Map.Entry<String, JsonNode> nodeMap = fields.next();
-        if (nodeMap.getValue().asText().equals(analysisKey)) {
+        if (aNode.get("version").textValue().equals(analysisKey)) {
           analysisNode.add(aNode);
           continue;
         }
       }
 
       List<String> rowKeys = Lists.newArrayList();
-      for (int i = 0; i < keyFieldCnt; i++) {
-        Map.Entry<String, JsonNode> nodeMap = fields.next();
-        rowKeys.add(nodeMap.getValue().asText());
+      for (String keyField : keyFields) {
+        rowKeys.add(aNode.get(keyField).textValue());
       }
+
       String categoryName = StringUtils.join(rowKeys, separator);
       rows.add(categoryName);
+      Iterator<String> fieldNames = aNode.fieldNames();
 
-      while (fields.hasNext()) {
-        Map.Entry<String, JsonNode> nodeMap = fields.next();
-        String nodeKey = nodeMap.getKey();
+      while (fieldNames.hasNext()) {
+        String fieldName = fieldNames.next();
+        boolean isKeyField = false;
+
+        if(fieldName.equals("version"))
+          continue;
+
+        JsonNode nodeValue = aNode.get(fieldName);
+
+//        Map.Entry<String, JsonNode> nodeMap = fields.next();
+//        String nodeKey = fieldName;
         // Escape separator if nodeKey start with separator. ex. -SUM(m1) --SUM(m1)
-        nodeKey = nodeKey.startsWith(separator) ? nodeKey.substring(pivots.size()) : nodeKey;
-        JsonNode nodeValue = nodeMap.getValue();
+        fieldName = fieldName.startsWith(separator) ? fieldName.substring(pivots.size()) : fieldName;
+
+        if(keyFields.contains(fieldName))
+          continue;
 
         // Percentage Case
-        if (includePercentage && StringUtils.endsWith(nodeKey, ChartResultFormat.POSTFIX_PERCENTAGE)) {
+        if (includePercentage && StringUtils.endsWith(fieldName, ChartResultFormat.POSTFIX_PERCENTAGE)) {
           String originalKey = StringUtils
-                  .substring(nodeKey, 0, nodeKey.length() - ChartResultFormat.POSTFIX_PERCENTAGE.length());
+                  .substring(fieldName, 0, fieldName.length() - ChartResultFormat.POSTFIX_PERCENTAGE.length());
           if (grouped && categoryMap.containsKey(originalKey)) {
             List<List<Object>> values = categoryMap.get(originalKey);
             values.get(1).add(getTypedValue(nodeValue));
@@ -329,12 +337,12 @@ public class PivotResultFormat extends SearchResultFormat {
           }
           // Normal Value Case
         } else {
-          if (grouped && categoryMap.containsKey(nodeKey)) {
-            categoryMap.get(nodeKey).get(0).add(getTypedValue(nodeValue));
-          } else if (valueMap.containsKey(nodeKey)) {
-            valueMap.get(nodeKey).get(0).add(getTypedValue(nodeValue));
+          if (grouped && categoryMap.containsKey(fieldName)) {
+            categoryMap.get(fieldName).get(0).add(getTypedValue(nodeValue));
+          } else if (valueMap.containsKey(fieldName)) {
+            valueMap.get(fieldName).get(0).add(getTypedValue(nodeValue));
           } else {
-            valueMap.put(nodeKey,
+            valueMap.put(fieldName,
                     Lists.newArrayList(Lists.newArrayList(getTypedValue(nodeValue)),
                             Lists.newArrayList()));
           }
@@ -350,6 +358,10 @@ public class PivotResultFormat extends SearchResultFormat {
     }
 
     return response;
+  }
+
+  protected boolean isContains(List<String> strList, String item){
+    return strList.contains(item);
   }
 
   private Object getTypedValue(JsonNode jsonNode) {
@@ -380,15 +392,15 @@ public class PivotResultFormat extends SearchResultFormat {
       // 예측 대상 필드 구하고,
       PredictionAnalysis predictionAnalysis = (PredictionAnalysis) analysis;
 
-      List<String> parameterNames = null;
+      List<String> parameterNames;
       if (CollectionUtils.isEmpty(predictionAnalysis.getForecast().getParameters())) {
         parameterNames = request.getProjections().stream()
                 .filter(field -> field instanceof MeasureField)
-                .map(field -> field.getAlias())
+                .map(Field::getAlias)
                 .collect(Collectors.toList());
       } else {
         parameterNames = predictionAnalysis.getForecast().getParameters().stream()
-                .map(hyperParameter -> hyperParameter.getField())
+                .map(PredictionAnalysis.HyperParameter::getField)
                 .collect(Collectors.toList());
       }
       // 각 요소별 데이터 초기화
@@ -452,9 +464,9 @@ public class PivotResultFormat extends SearchResultFormat {
       return result;
 
     } else if (analysis instanceof TrendAnalysis) {
-
+      //Todo: trend analysis
     } else if (analysis instanceof ClusterAnalysis) {
-
+      //Todo: Cluster analysis(Kmeans)
     }
 
     return null;
