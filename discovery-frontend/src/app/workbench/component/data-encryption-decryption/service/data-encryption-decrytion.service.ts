@@ -50,4 +50,8 @@ export class DataEncryptionDecryptionService extends AbstractService {
     return this.http.post(this.API_URL + `idcube/imsi/encryption-or-decryption/download`, params,
                               {headers: headers, responseType: 'blob'}).toPromise();
   }
+
+  public getMaxResultSize() {
+    return this.get(this.API_URL + `idcube/imsi/max-result-size`);
+  }
 }

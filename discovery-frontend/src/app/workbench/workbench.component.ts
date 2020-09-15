@@ -42,12 +42,7 @@ import {LoadingComponent} from '../common/component/loading/loading.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {PageWidget} from '../domain/dashboard/widget/page-widget';
 import {BoardConfiguration, BoardDataSource, Dashboard} from '../domain/dashboard/dashboard';
-import {
-  ConnectionType,
-  Datasource,
-  Field,
-  IngestionRuleType
-} from '../domain/datasource/datasource';
+import {ConnectionType, Datasource, Field, IngestionRuleType} from '../domain/datasource/datasource';
 import {Workbook} from '../domain/workbook/workbook';
 import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
 import {CommonUtil} from '../common/util/common.util';
@@ -60,12 +55,7 @@ import {CodemirrorComponent} from './component/editor-workbench/codemirror.compo
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
-import {
-  AuthenticationType,
-  Dataconnection,
-  InputMandatory,
-  InputSpec
-} from "../domain/dataconnection/dataconnection";
+import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from "../domain/dataconnection/dataconnection";
 import {CreationTableComponent} from "../plugins/hive-personal-database/component/creation-table/creation-table.component";
 import {EventBroadcaster} from "../common/event/event.broadcaster";
 import {ImportFileComponent} from "../plugins/hive-personal-database/component/import-file/import-file.component";
@@ -75,10 +65,8 @@ import {CreationDataAggregateTaskComponent} from "../plugins/hive-personal-datab
 import {CompleteDataAggregateTaskComponent} from "../plugins/hive-personal-database/component/data-aggregate/complete-data-aggregate-task/complete-data-aggregate-task.component";
 import {DataAggregate} from "../plugins/hive-personal-database/component/data-aggregate/data-aggregate.component";
 import {DetailsDataAggregateTaskComponent} from "../plugins/hive-personal-database/component/data-aggregate/details-data-aggregate-task/details-data-aggregate-task.component";
-import {
-  DataEncryptionDecryptionComponent,
-  DataSet
-} from './component/data-encryption-decryption/data-encryption-decryption.component';
+import {DataSet} from './component/data-encryption-decryption/data-encryption-decryption.component';
+import {DataEncryptionDecryptionService} from './component/data-encryption-decryption/service/data-encryption-decrytion.service';
 
 declare let moment: any;
 declare let Split;
@@ -352,6 +340,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               protected workbenchService: WorkbenchService,
               protected connectionService: DataconnectionService,
               protected datasourceService: DatasourceService,
+              protected dataEncryptionDecryptionService: DataEncryptionDecryptionService,
               protected element: ElementRef,
               protected injector: Injector,
               protected broadCaster: EventBroadcaster) {
@@ -1531,9 +1520,21 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public showDataEncryptionDecryption(): void {
     const dataGrid = this._getCurrentResultTab();
-    this.dataEncryptionDecryptionDataSet = new DataSet(dataGrid.result.csvFilePath, dataGrid.result.data, dataGrid.result.fields);
-    this.dataEncryptionDecryptionQueryEditorId = dataGrid.editorId;
-    this.dataEncryptionDecryptionStep = "identity-verification";
+
+    this.loadingShow();
+    // 최대 암복호화 갯수 확인
+    this.dataEncryptionDecryptionService.getMaxResultSize().then((result) => {
+      if(result.maxResultSize > 0 && result.maxResultSize < dataGrid.result.numRows) {
+        Alert.warning(`암복호화 제한 행의 수를 초과 했습니다. 최대 암복호화 행의 수는 ${result.maxResultSize} 입니다.`);
+      } else {
+        this.dataEncryptionDecryptionDataSet = new DataSet(dataGrid.result.csvFilePath, dataGrid.result.data, dataGrid.result.fields);
+        this.dataEncryptionDecryptionQueryEditorId = dataGrid.editorId;
+        this.dataEncryptionDecryptionStep = "identity-verification";
+      }
+    }).catch((error) => {
+      this.loadingHide();
+      Alert.error("조회 중 오류가 발생 했습니다. 잠시 후 다시 시도하세요.");
+    });
   }
 
   public closeDataEncryptionDecryption(): void {

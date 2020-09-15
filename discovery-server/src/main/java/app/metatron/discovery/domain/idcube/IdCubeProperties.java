@@ -48,6 +48,7 @@ public class IdCubeProperties {
   public static class Imsi {
     private SmsServer smsServer = new SmsServer();
     private CipherServer cipherServer = new CipherServer();
+    private int maxResultSize = 0;
 
     public static class SmsServer {
       private String apiUrl;
@@ -123,6 +124,14 @@ public class IdCubeProperties {
 
     public void setCipherServer(CipherServer cipherServer) {
       this.cipherServer = cipherServer;
+    }
+
+    public int getMaxResultSize() {
+      return maxResultSize;
+    }
+
+    public void setMaxResultSize(int maxResultSize) {
+      this.maxResultSize = maxResultSize;
     }
   }
 

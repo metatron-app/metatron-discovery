@@ -2,6 +2,7 @@ package app.metatron.discovery.domain.idcube.security.imsi;
 
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.idcube.IdCubeProperties;
 import app.metatron.discovery.domain.idcube.security.imsi.dto.CipherRequest;
 import app.metatron.discovery.domain.idcube.security.imsi.entity.DataDownloadHistory;
 import app.metatron.discovery.domain.idcube.security.imsi.entity.IdentityVerification;
@@ -42,6 +43,9 @@ public class IMSIController {
   private QueryEditorRepository queryEditorRepository;
 
   private DataDownloadHistoryRepository dataDownloadHistoryRepository;
+
+  @Autowired
+  private IdCubeProperties idCubeProperties;
 
   @Autowired
   public void setIdentityVerificationRepository(IdentityVerificationRepository identityVerificationRepository) {
@@ -152,5 +156,14 @@ public class IMSIController {
     if(queryResult.isPresent()) {
       dataDownloadHistoryRepository.save(new DataDownloadHistory(queryEditor.getWorkbench().getId(), queryResult.get().getQuery(), cryptoFieldName, cryptoType));
     }
+  }
+
+  @GetMapping(value = "/max-result-size")
+  public ResponseEntity<?>  getMaxResultSize() {
+    int maxResultSize = idCubeProperties != null ? idCubeProperties.getImsi().getMaxResultSize() : 0;
+
+    Map<String, Object> result = new HashMap<>();
+    result.put("maxResultSize", maxResultSize);
+    return ResponseEntity.ok(result);
   }
 }
