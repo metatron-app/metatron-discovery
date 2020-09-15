@@ -14,8 +14,12 @@
 
 package app.metatron.discovery.domain.scheduling.engine;
 
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.DataSourceTemporary;
+import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
+import app.metatron.discovery.domain.engine.EngineLoadService;
+import app.metatron.discovery.domain.engine.EngineQueryService;
 import com.google.common.collect.Lists;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
@@ -34,11 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.DataSourceTemporary;
-import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
-import app.metatron.discovery.domain.engine.EngineLoadService;
-
 /**
  * Created by kyungtaak on 2016. 6. 20..
  */
@@ -46,81 +45,110 @@ import app.metatron.discovery.domain.engine.EngineLoadService;
 @Transactional(readOnly = true, isolation = Isolation.READ_UNCOMMITTED)
 public class TemporaryCleanJob extends QuartzJobBean {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TemporaryCleanJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemporaryCleanJob.class);
 
-  @Autowired
-  DataSourceRepository dataSourceRepository;
+    @Autowired
+    DataSourceRepository dataSourceRepository;
 
-  @Autowired
-  DataSourceTemporaryRepository temporaryRepository;
+    @Autowired
+    DataSourceTemporaryRepository temporaryRepository;
 
-  @Autowired
-  EngineLoadService engineLoadService;
+    @Autowired
+    EngineLoadService engineLoadService;
 
-  public TemporaryCleanJob() {
-  }
+    @Autowired
+    EngineQueryService queryService;
 
-  @Override
-  public void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    public TemporaryCleanJob() {
+    }
 
-    LOGGER.info("## Start batch job for checking expired temporary datasource.");
+    @Override
+    public void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 
-    PageRequest pageRequest = new PageRequest(0, 20);
-    Page<DataSourceTemporary> temporaries;
-    DateTime now = DateTime.now();
+        LOGGER.info("## Start batch job for checking expired temporary datasource.");
 
-    do {
+        final List<String> disabledTemporaryIds = Lists.newArrayList();
 
-      temporaries = temporaryRepository.findByStatusAndNextExpireTimeBefore(DataSourceTemporary.LoadStatus.ENABLE, now, pageRequest);
-      if(temporaries.getContent().isEmpty()) {
-        break;
-      }
+        List<DataSourceTemporary> disabledTemporaries = temporaryRepository.findByStatus(DataSourceTemporary.LoadStatus.DISABLE);
 
-      // 임시로 생성된 데이터 소스 Temporary 만 삭제
-      final List<String> deleteDataSourceIds = Lists.newArrayList();
-      final List<String> deleteTemporaryIds = Lists.newArrayList();
-      final List<String> changeTemporaryIds = Lists.newArrayList();
+        disabledTemporaries.forEach(temporary -> {
+            deleteTemporaryDataSource(temporary);
+            disabledTemporaryIds.add(temporary.getId());
+        });
 
-      temporaries.forEach(dataSourceTemporary -> {
-        if(BooleanUtils.isTrue(dataSourceTemporary.getVolatiled())) {
-          deleteDataSourceIds.add(dataSourceTemporary.getDataSourceId());
-          deleteTemporaryIds.add(dataSourceTemporary.getId());
-        } else {
-          changeTemporaryIds.add(dataSourceTemporary.getId());
+        PageRequest pageRequest = new PageRequest(0, 20);
+        Page<DataSourceTemporary> temporaries;
+        DateTime now = DateTime.now();
+
+        do {
+
+            temporaries = temporaryRepository.findByStatusAndNextExpireTimeBefore(DataSourceTemporary.LoadStatus.ENABLE, now, pageRequest);
+            if (temporaries.getContent().isEmpty()) {
+                break;
+            }
+
+            // 임시로 생성된 데이터 소스 Temporary 만 삭제
+            final List<String> deleteDataSourceIds = Lists.newArrayList();
+            final List<String> deleteTemporaryIds = Lists.newArrayList();
+            final List<String> changeTemporaryIds = Lists.newArrayList();
+
+            temporaries.forEach(dataSourceTemporary -> {
+                if (BooleanUtils.isTrue(dataSourceTemporary.getVolatiled())) {
+                    deleteDataSourceIds.add(dataSourceTemporary.getDataSourceId());
+                    deleteTemporaryIds.add(dataSourceTemporary.getId());
+                } else {
+                    changeTemporaryIds.add(dataSourceTemporary.getId());
+                }
+
+
+                // 엔진내 임시 Datasource 삭제, 실패시 데이터소스 제거를 진행 못하므로 exception 처리
+                deleteTemporaryDataSource(dataSourceTemporary);
+            });
+
+            removeDatasource(disabledTemporaryIds, deleteTemporaryIds, changeTemporaryIds, deleteDataSourceIds);
+
+        } while (temporaries.hasNext());
+
+        LOGGER.info("## End batch job for checking expired temporary datasource.");
+    }
+
+    private void deleteTemporaryDataSource(DataSourceTemporary temporary) {
+        try {
+            if (queryService.isExistsByName(temporary.getName()))
+                engineLoadService.deleteLoadDataSource(temporary.getName());
+
+            LOGGER.info("Successfully delete engine temporary datasource : {}", temporary.getName());
+        } catch (Exception e) {
+            LOGGER.error("Fail to delete engine temporary datasource : {}", temporary.getName());
+            e.printStackTrace();
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void removeDatasource(List<String> disabledTemporaryIds, List<String> deleteIds, List<String> updateIds, List<String> dataSourceIds) {
+        // delete temporary info.
+        if (CollectionUtils.isNotEmpty(disabledTemporaryIds)) {
+            temporaryRepository.deteleTemporaryByIds(disabledTemporaryIds);
+            LOGGER.info("Successfully deleting {} temporary info", deleteIds.size());
         }
 
-        // 엔진내 임시 Datasource 삭제
-        engineLoadService.deleteLoadDataSource(dataSourceTemporary.getName());
-        LOGGER.info("Successfully delete engine temporary datasource : {}", dataSourceTemporary.getName());
-      });
+        // delete temporary info.
+        if (CollectionUtils.isNotEmpty(deleteIds)) {
+            temporaryRepository.deteleTemporaryByIds(deleteIds);
+            LOGGER.info("Successfully deleting {} temporary info", deleteIds.size());
+        }
 
-      removeDatasource(deleteTemporaryIds, changeTemporaryIds, deleteDataSourceIds);
+        // update temporary info.
+        if (CollectionUtils.isNotEmpty(updateIds)) {
+            temporaryRepository.updateTemporaryStatusByIds(updateIds, DataSourceTemporary.LoadStatus.DISABLE);
+            LOGGER.info("Successfully updating {} temporary info", updateIds.size());
+        }
 
-    } while (temporaries.hasNext());
-
-    LOGGER.info("## End batch job for checking expired temporary datasource.");
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void removeDatasource(List<String> deleteIds, List<String> updateIds, List<String> dataSourceIds) {
-    // delete temporary info.
-    if(CollectionUtils.isNotEmpty(deleteIds)) {
-      temporaryRepository.deteleTemporaryByIds(deleteIds);
-      LOGGER.info("Successfully deleting {} temporary info", deleteIds.size());
+        // delete votile info.
+        if (dataSourceIds != null) {
+            dataSourceRepository.deleteInBatch(dataSourceRepository.findByIdIn(dataSourceIds));
+            LOGGER.info("Successfully deleting {} volatiled datasources", dataSourceIds.size());
+        }
     }
-
-    // update temporary info.
-    if(CollectionUtils.isNotEmpty(updateIds)) {
-      temporaryRepository.updateTemporaryStatusByIds(updateIds, DataSourceTemporary.LoadStatus.DISABLE);
-      LOGGER.info("Successfully updating {} temporary info", updateIds.size());
-    }
-
-    // delete votile info.
-    if(dataSourceIds != null) {
-      dataSourceRepository.deleteInBatch(dataSourceRepository.findByIdIn(dataSourceIds));
-      LOGGER.info("Successfully deleting {} volatiled datasources", dataSourceIds.size());
-    }
-
-  }
 
 }

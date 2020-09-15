@@ -38,6 +38,8 @@ public interface DataSourceTemporaryRepository extends JpaRepository<DataSourceT
 
   List<DataSourceTemporary> findByDataSourceIdOrderByModifiedTimeDesc(String dataSourceId);
 
+  List<DataSourceTemporary> findByStatus(DataSourceTemporary.LoadStatus status);
+
   DataSourceTemporary findByName(String name);
 
   @Transactional

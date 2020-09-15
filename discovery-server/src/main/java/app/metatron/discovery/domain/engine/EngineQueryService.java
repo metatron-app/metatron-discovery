@@ -363,7 +363,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
         resultJoiner.add(GlobalObjectMapper.writeValueAsString(geoJsonResult));
       }
 
-      Query operationQuery = null;
+      Query operationQuery;
       if (geoSpatialAnalysis.enableChoropleth()) {
         GroupByQuery mainLayerQuery = GroupByQuery.builder(request.getDataSource())
                 .layer(mainLayer)
@@ -728,7 +728,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
   }
 
   /**
-   * @param request
+   * @param request request information for summary of datasource
    * @return
    */
   @Override
@@ -750,7 +750,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
   /**
    * @param request
-   * @return
+   * @return covariance values with each other measures.
    */
   @Override
   public Object covariance(CovarianceQueryRequest request) {
@@ -853,7 +853,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     String result = engineRepository.query(queryString, String.class).orElseThrow(
             () -> new ResourceNotFoundException(dataSourceName));
 
-    List<SegmentMetaDataResponse> metaData = null;
+    List<SegmentMetaDataResponse> metaData;
     try {
       metaData = GlobalObjectMapper.getDefaultMapper()
               .readValue(result, new TypeReference<List<SegmentMetaDataResponse>>() {
@@ -894,5 +894,11 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     }
 
     return GlobalObjectMapper.getDefaultMapper().convertValue(node.get(0), Map.class);
+  }
+
+  public boolean isExistsByName(String dataSourceName){
+    Object result = this.sql(new SqlQueryRequest("show tables in druid like '" + dataSourceName + "'", null));
+
+    return result instanceof ArrayNode && ((ArrayNode) result).size() > 0;
   }
 }

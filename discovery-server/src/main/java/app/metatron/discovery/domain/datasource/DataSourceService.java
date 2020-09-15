@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.datasource.data.SqlQueryRequest;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
 
 import com.querydsl.core.types.Predicate;
@@ -163,11 +165,8 @@ public class DataSourceService {
   private boolean isEmptyGranularity(Granularity granularity) {
     if (granularity == null) {
       return true;
-    } else if (granularity instanceof SimpleGranularity && ((SimpleGranularity) granularity).getValue() == null) {
-      return true;
-    } else {
-      return false;
-    }
+    } else
+      return granularity instanceof SimpleGranularity && ((SimpleGranularity) granularity).getValue() == null;
   }
 
   public DataSource.GranularityType getGranularityType(Granularity granularity) {
@@ -283,6 +282,13 @@ public class DataSourceService {
       DataSourceTemporary temporary = temporaryRepository.findOne(dataSourceId);
       if (temporary == null) {
         throw new ResourceNotFoundException(dataSourceId);
+      }else{
+        //Check temporary data source is expired anomaly
+        //If it is disabled anomaly, set it's status disable.
+        if(!queryService.isExistsByName(temporary.getName())) {
+          temporary.setStatus(DataSourceTemporary.LoadStatus.DISABLE);
+          temporaryRepository.save(temporary);
+        }
       }
 
       dataSource = dataSourceRepository.findOne(temporary.getDataSourceId());
@@ -293,7 +299,6 @@ public class DataSourceService {
 
       dataSource.setEngineName(temporary.getName());
       dataSource.setTemporary(temporary);
-
     } else {
       dataSource = dataSourceRepository.findOne(dataSourceId);
       if (dataSource == null) {
@@ -641,9 +646,7 @@ public class DataSourceService {
                                                                 published);
 
     // Find by predicated
-    Page<DataSource> dataSources = dataSourceRepository.findAll(searchPredicated, pageable);
-
-    return dataSources;
+    return dataSourceRepository.findAll(searchPredicated, pageable);
   }
 
 
@@ -665,11 +668,11 @@ public class DataSourceService {
     dataSourceRepository.save(dataSource);
   }
 
-  public List getKafkaTopic(String bootstrapServer) {
+  public List<String> getKafkaTopic(String bootstrapServer) {
     Consumer<Long, String> consumer = createConsumer(bootstrapServer);
-    Set kafkaTopicSet = consumer.listTopics().keySet();
+    Set<String> kafkaTopicSet = consumer.listTopics().keySet();
     consumer.close();
-    List<String> kafkaTopicList = new ArrayList<String>(kafkaTopicSet);
+    List<String> kafkaTopicList = new ArrayList<>(kafkaTopicSet);
     Collections.sort(kafkaTopicList);
     return kafkaTopicList;
   }
@@ -713,14 +716,13 @@ public class DataSourceService {
     props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, consumerConfig.getSessionTimeOut());
     props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, consumerConfig.getFetchMaxWait());
     props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, consumerConfig.getHeartbeatInterval());
-    Consumer<Long, String> consumer = new KafkaConsumer<>(props);
-    return consumer;
+    return new KafkaConsumer<>(props);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public DataSource setSizeAndStatus(DataSource dataSource) {
 
-    SegmentMetaDataResponse segmentMetaData = null;
+    SegmentMetaDataResponse segmentMetaData;
     try {
       segmentMetaData = queryService.segmentMetadata(dataSource.getEngineName(),
                                                      AnalysisType.CARDINALITY, AnalysisType.SERIALIZED_SIZE,
@@ -765,9 +767,8 @@ public class DataSourceService {
 
   private List<String> filterMatchingFields(Map<String, SegmentMetaDataResponse.ColumnInfo> columns) {
 
-    return columns.entrySet().stream()
-                  .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
-                  .map(entry -> entry.getKey())
+    return columns.keySet().stream()
+                  .filter(columnInfo -> (!(columnInfo.equals("__time") || columnInfo.equals("count"))))
                   .collect(Collectors.toList());
   }
 
