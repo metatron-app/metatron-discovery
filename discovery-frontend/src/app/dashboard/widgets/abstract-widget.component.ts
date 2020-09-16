@@ -139,7 +139,7 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
     if( this.isEditMode ) {
       this.commonExceptionHandler(error);
     } else {
-      (isNullOrUndefined(error)) && (error = {});
+      (isNullOrUndefined(error) || typeof error != "object") && (error = {});
       error.show = false;
       this.errorInfo = error;
     }
