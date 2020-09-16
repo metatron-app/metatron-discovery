@@ -1524,6 +1524,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.loadingShow();
     // 최대 암복호화 갯수 확인
     this.dataEncryptionDecryptionService.getMaxResultSize().then((result) => {
+      this.loadingHide();
       if(result.maxResultSize > 0 && result.maxResultSize < dataGrid.result.numRows) {
         Alert.warning(`암복호화 제한 행의 수를 초과 했습니다. 최대 암복호화 행의 수는 ${result.maxResultSize} 입니다.`);
       } else {
