@@ -309,5 +309,8 @@
         </createIndex>
     </changeSet>
 
+    <changeSet author="sohncw" id="1600259363727-0">
+        <modifyDataType tableName="dashboard_widget" columnName="widget_conf" newDataType="${mediumtext.type}" />
+    </changeSet>
 
 </databaseChangeLog>
