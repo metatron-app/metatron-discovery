@@ -85,7 +85,7 @@ public abstract class Widget extends AbstractHistoryEntity implements MetatronDo
   /**
    * Widget Configuration
    */
-  @Column(name = "widget_conf", length = 65535, columnDefinition = "TEXT")
+  @Column(name = "widget_conf", length = 65535, columnDefinition = "MEDIUMTEXT")
   @Basic(fetch = FetchType.LAZY)
   @Spec(target = WidgetConfiguration.class)
   @JsonRawValue

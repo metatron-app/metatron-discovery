@@ -124,11 +124,19 @@
     <property name="text.type" value="[varchar](MAX)" dbms="mssql"/>
     <property name="text.type" value="CLOB" dbms="oracle"/>
 
+
+    <!-- sql type (mediumtext) -->
+    <property name="mediumtext.type" value="MEDIUMTEXT" dbms="mysql"/>
+    <property name="mediumtext.type" value="CLOB" dbms="h2"/>
+    <property name="mediumtext.type" value="TEXT" dbms="postgresql"/>
+    <property name="mediumtext.type" value="TEXT" dbms="mssql"/>
+    <property name="mediumtext.type" value="CLOB" dbms="oracle"/>
+
     <!-- sql type (clob) -->
     <property name="clob.type" value="LONGTEXT" dbms="mysql"/>
     <property name="clob.type" value="CLOB" dbms="h2"/>
     <property name="clob.type" value="TEXT" dbms="postgresql"/>
-    <property name="clob.type" value="[varchar](MAX)" dbms="mssql"/>
+    <property name="clob.type" value="TEXT" dbms="mssql"/>
     <property name="clob.type" value="CLOB" dbms="oracle"/>
 
 
