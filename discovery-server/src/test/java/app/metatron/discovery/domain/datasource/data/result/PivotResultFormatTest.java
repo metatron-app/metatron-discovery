@@ -70,6 +70,23 @@ public class PivotResultFormatTest {
     }
 
     @Test
+    public void toResultSetByMatrixTypeForDoubleNan(){
+        String jsonResult = "[{\"Segment\":\"Consumer\",\"SUM(Sales)\":\"NaN\"},{\"Segment\":\"Corporate\",\"SUM(Sales)\":208473.0},{\"Segment\":\"Home Office\",\"SUM(Sales)\":137661.0}]";
+
+        PivotResultFormat pivotResultFormat = new PivotResultFormat();
+        pivotResultFormat.setRequest(new SearchQueryRequest());
+        pivotResultFormat.setConnType(DataSource.ConnectionType.ENGINE);
+        pivotResultFormat.setResultType(SearchResultFormat.ResultType.MATRIX);
+        pivotResultFormat.setKeyFields(Lists.newArrayList());
+        pivotResultFormat.setPivots(Lists.newArrayList());
+        pivotResultFormat.setSeparator("-");
+
+        MatrixResponse response = pivotResultFormat.toResultSetByMatrixType(GlobalObjectMapper.readValue(jsonResult, JsonNode.class));
+
+        Assert.assertEquals(Double.NaN, (Double) ((MatrixResponse.Column) response.getColumns().get(1)).getValue().get(0), 0.0);
+    }
+
+    @Test
     public void toResultSetByMatrixTypeForInt(){
         String jsonResult = "[{\"Aberdeen―COUNT(Profit)\":1,\"Abilene―COUNT(Profit)\":1,\"Akron―COUNT(Profit)\":9,\"Albuquerque―COUNT(Profit)\":5,\"Alexandria―COUNT(Profit)\":1,\"Amarillo―COUNT(Profit)\":1}]";
 

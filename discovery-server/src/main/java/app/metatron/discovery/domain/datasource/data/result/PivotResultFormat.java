@@ -62,6 +62,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.lang.Double.NaN;
+
 /**
  * Created by kyungtaak on 2016. 8. 21..
  */
@@ -372,7 +374,7 @@ public class PivotResultFormat extends SearchResultFormat {
     else if(jsonNode.isDouble())
       return jsonNode.isNull() ? null : jsonNode.asDouble();
     else if(jsonNode.isTextual())
-      return jsonNode.isNull() ? null : jsonNode.asText();
+      return jsonNode.isNull() ? null : "NaN".equals(jsonNode.asText()) ? NaN : jsonNode.asText();
     else
       return jsonNode.asText();
   }
