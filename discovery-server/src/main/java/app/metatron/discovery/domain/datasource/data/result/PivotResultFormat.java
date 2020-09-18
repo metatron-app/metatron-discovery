@@ -65,7 +65,9 @@ import app.metatron.discovery.query.druid.postprocessor.PostAggregationProcessor
 import app.metatron.discovery.query.druid.queries.GroupingSet;
 import app.metatron.discovery.util.EnumUtils;
 
+import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
+import static java.lang.Double.POSITIVE_INFINITY;
 
 /**
  * Created by kyungtaak on 2016. 8. 21..
@@ -377,7 +379,10 @@ public class PivotResultFormat extends SearchResultFormat {
     else if(jsonNode.isDouble())
       return jsonNode.isNull() ? null : jsonNode.asDouble();
     else if(jsonNode.isTextual())
-      return jsonNode.isNull() ? null : "NaN".equals(jsonNode.asText()) ? NaN : jsonNode.asText();
+      return jsonNode.isNull() ? null :
+          String.valueOf(Double.NaN).equals(jsonNode.asText()) ? NaN :
+              String.valueOf(POSITIVE_INFINITY).equals(jsonNode.asText()) ? POSITIVE_INFINITY :
+                  String.valueOf(NEGATIVE_INFINITY).equals(jsonNode.asText()) ? NEGATIVE_INFINITY : jsonNode.asText();
     else if(jsonNode.isNull())
       return null;
     else
