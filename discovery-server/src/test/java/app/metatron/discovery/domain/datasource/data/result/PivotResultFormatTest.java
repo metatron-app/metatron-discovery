@@ -14,6 +14,15 @@
 
 package app.metatron.discovery.domain.datasource.data.result;
 
+import com.google.common.collect.Lists;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.domain.datasource.DataSource;
@@ -25,12 +34,6 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.NumberFieldFormat;
 import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Lists;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public class PivotResultFormatTest {
@@ -71,7 +74,7 @@ public class PivotResultFormatTest {
 
     @Test
     public void toResultSetByMatrixTypeForDoubleNan(){
-        String jsonResult = "[{\"Segment\":\"Consumer\",\"SUM(Sales)\":\"NaN\"},{\"Segment\":\"Corporate\",\"SUM(Sales)\":208473.0},{\"Segment\":\"Home Office\",\"SUM(Sales)\":137661.0}]";
+        String jsonResult = "[{\"Segment\":\"Consumer\",\"SUM(Sales)\":\"NaN\"},{\"Segment\":\"Corporate\",\"SUM(Sales)\":null},{\"Segment\":\"Home Office\",\"SUM(Sales)\":137661.0}]";
 
         PivotResultFormat pivotResultFormat = new PivotResultFormat();
         pivotResultFormat.setRequest(new SearchQueryRequest());
@@ -84,6 +87,7 @@ public class PivotResultFormatTest {
         MatrixResponse response = pivotResultFormat.toResultSetByMatrixType(GlobalObjectMapper.readValue(jsonResult, JsonNode.class));
 
         Assert.assertEquals(Double.NaN, (Double) ((MatrixResponse.Column) response.getColumns().get(1)).getValue().get(0), 0.0);
+        Assert.assertNull(((MatrixResponse.Column) response.getColumns().get(1)).getValue().get(1));
     }
 
     @Test

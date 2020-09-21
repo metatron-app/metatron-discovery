@@ -14,6 +14,31 @@
 
 package app.metatron.discovery.domain.datasource.data.result;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
@@ -39,30 +64,10 @@ import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
 import app.metatron.discovery.query.druid.postprocessor.PostAggregationProcessor;
 import app.metatron.discovery.query.druid.queries.GroupingSet;
 import app.metatron.discovery.util.EnumUtils;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
+import static java.lang.Double.POSITIVE_INFINITY;
 
 /**
  * Created by kyungtaak on 2016. 8. 21..
@@ -374,7 +379,12 @@ public class PivotResultFormat extends SearchResultFormat {
     else if(jsonNode.isDouble())
       return jsonNode.isNull() ? null : jsonNode.asDouble();
     else if(jsonNode.isTextual())
-      return jsonNode.isNull() ? null : "NaN".equals(jsonNode.asText()) ? NaN : jsonNode.asText();
+      return jsonNode.isNull() ? null :
+          String.valueOf(Double.NaN).equals(jsonNode.asText()) ? NaN :
+              String.valueOf(POSITIVE_INFINITY).equals(jsonNode.asText()) ? POSITIVE_INFINITY :
+                  String.valueOf(NEGATIVE_INFINITY).equals(jsonNode.asText()) ? NEGATIVE_INFINITY : jsonNode.asText();
+    else if(jsonNode.isNull())
+      return null;
     else
       return jsonNode.asText();
   }
