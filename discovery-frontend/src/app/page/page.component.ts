@@ -3509,8 +3509,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (boardConf.hasOwnProperty('customFields') && boardConf.customFields.length > 0) {
       // set main datasource fields
       boardConf.customFields
-        .filter(item => item.dataSource === this.widget.configuration.dataSource.engineName ?
-          this.widget.configuration.dataSource.engineName : this.widget.configuration.dataSource.name)
+        .filter(item => item.dataSource === (this.widget.configuration.dataSource.engineName ?
+          this.widget.configuration.dataSource.engineName : this.widget.configuration.dataSource.name))
         .forEach((field: CustomField) => {
           if (field.role === FieldRole.DIMENSION) {
             this.customDimensions.push(field);
