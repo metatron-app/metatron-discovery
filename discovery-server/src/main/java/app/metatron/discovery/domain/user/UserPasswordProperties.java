@@ -14,7 +14,10 @@
 
 package app.metatron.discovery.domain.user;
 
+import com.google.common.collect.Lists;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -28,7 +31,10 @@ public class UserPasswordProperties {
   String minimumUsePeriod;
 
   Integer countOfHistory = -1;
+
   Integer lockCount;
+
+  List<String> excludeLockUsername = Lists.newArrayList();
 
   public UserPasswordProperties() {
     // Empty Constructor
@@ -66,13 +72,20 @@ public class UserPasswordProperties {
     this.countOfHistory = countOfHistory;
   }
 
-  public Integer getLockCount() {
-    return lockCount;
-  }
+  public Integer getLockCount() { return lockCount; }
 
   public void setLockCount(Integer lockCount) {
     this.lockCount = lockCount;
   }
+
+  public List<String> getExcludeLockUsername() {
+    if (!excludeLockUsername.contains("admin")) {
+      excludeLockUsername.add("admin");
+    }
+    return excludeLockUsername;
+  }
+
+  public void setExcludeLockUsername(List<String> excludeLockUsername) { this.excludeLockUsername = excludeLockUsername; }
 
   public static class PasswordStrength implements Serializable {
 
