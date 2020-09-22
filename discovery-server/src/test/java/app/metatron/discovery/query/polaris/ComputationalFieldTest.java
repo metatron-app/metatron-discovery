@@ -15,9 +15,12 @@
 package app.metatron.discovery.query.polaris;
 
 import app.metatron.discovery.AbstractIntegrationTest;
+import app.metatron.discovery.domain.datasource.data.InvalidExpressionException;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.PostAggregation;
+import app.metatron.discovery.query.druid.aggregations.DistinctSketchAggregation;
 import app.metatron.discovery.query.druid.aggregations.DoubleSumAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
 import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
 import com.google.common.collect.Lists;
@@ -32,7 +35,7 @@ import java.util.Map;
 /**
  * Created by hsp on 2016. 5. 3..
  */
-public class ComputationalFieldTest extends AbstractIntegrationTest {
+public class ComputationalFieldTest {
 
     @Test
     public void testComputationalField() throws Exception {
@@ -116,12 +119,32 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         Assert.assertEquals( ComputationalField.checkComputationalField("x + y + sumof(z+x)"), ComputationalField.CheckType.CHECK_TYPE_VALID_AGGREGATOR);
         Assert.assertEquals( ComputationalField.checkComputationalField("x + y + sumof(z+x)/countof(x)"), ComputationalField.CheckType.CHECK_TYPE_VALID_AGGREGATOR);
 
+        try{
+            ComputationalField.checkComputationalField("x + y + sumof(z+x");
+            Assert.fail("Must throw InvalidExpressionException exception");
+        }catch(InvalidExpressionException e){
+            Assert.assertTrue(true);
+        }catch (Exception e){
+            Assert.fail("Must throw InvalidExpressionException exception");
+        }
 
+        try{
+            ComputationalField.checkComputationalField("x + y + sumof(sumof(z+x))");
+            Assert.fail("Must throw InvalidExpressionException exception");
+        }catch(InvalidExpressionException e){
+            Assert.assertTrue(true);
+        }catch (Exception e){
+            Assert.fail("Must throw InvalidExpressionException exception");
+        }
 
-
-        Assert.assertEquals( ComputationalField.checkComputationalField("x + y + sumof(z+x"), ComputationalField.CheckType.CHECK_TYPE_INVALID);
-        Assert.assertEquals( ComputationalField.checkComputationalField("x + y + sumof(sumof(z+x))"), ComputationalField.CheckType.CHECK_TYPE_INVALID);
-        Assert.assertEquals( ComputationalField.checkComputationalField("x + y + "), ComputationalField.CheckType.CHECK_TYPE_INVALID);
+        try{
+            ComputationalField.checkComputationalField("x + y + ");
+            Assert.fail("Must throw InvalidExpressionException exception");
+        }catch(InvalidExpressionException e){
+            Assert.assertTrue(true);
+        }catch (Exception e){
+            Assert.fail("Must throw InvalidExpressionException exception");
+        }
 
     }
 
@@ -202,6 +225,8 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         for( int i = 0 ; i < ans_aggregations.size() ; ++i ){
             System.out.println( aggregations.get(i).toString() );
             if ( !ans_aggregations.get(i).toString().equals( aggregations.get(i).toString() ) ) {
+                System.out.println("Aggregation does not match expected [" + ans_aggregations.get(i).toString() + "] and " +
+                        "result is [" + aggregations.get(i).toString() + "]");
                 return false;
             }
         }
@@ -216,6 +241,8 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         for( int i = 0 ; i < ans_postAggregations.size() ; ++i ){
             System.out.println( postAggregations.get(i).toString() );
             if ( !ans_postAggregations.get(i).toString().equals( postAggregations.get(i).toString() ) ) {
+                System.out.println("PostAggregation does not match expected [" + ans_postAggregations.get(i).toString() + "] and " +
+                        "result is [" + postAggregations.get(i).toString() + "]");
                 return false;
             }
         }
@@ -252,7 +279,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
 
         List<String> partitionColumns = Lists.newArrayList();
         partitionColumns.add( "abc" );
-        ans_windowingSpecs.add( new WindowingSpec( partitionColumns, null, Arrays.asList( "ac_sum_recu = 1.01*if($prev(ac_sum_recu)==null,1,$prev(ac_sum_recu))")));
+        ans_windowingSpecs.add( new WindowingSpec( partitionColumns, null, Arrays.asList( "\"ac_sum_recu\" = 1.01*if($prev(ac_sum_recu)==null,1,$prev(ac_sum_recu))")));
 
         ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
                 Maps.newHashMap());
@@ -269,7 +296,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         fieldName = "ac_sum_recu";
         input = "sumof( count ) + if( $prev(ac_sum_recu) == null, 0, $prev(ac_sum_recu) )";
 
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "count"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_000", null, "double"));
         ans_windowingSpecs.add( new WindowingSpec( null, null, Arrays.asList( "ac_sum_recu = aggregationfunc_000+if($prev(ac_sum_recu)==null,0,$prev(ac_sum_recu))")));
 
         ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
@@ -358,27 +385,26 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         String fieldName = "n_hdv_cei_value";
         String input = "abs( p_hdv_qoe1_value * p_hdv_qoe2_value ) / 100";
 
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "(hdv_attempt_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_001", null, "(hdv_success_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_002", null, "(hdv_attempt_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_003", null, "(hdv_success_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_004", null, "(hdv_drop_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_005", null, "(hdv_success_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_006", null, "(hdv_user_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_007", null, "(hdv_qoe1_kpi3)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_008", null, "(hdv_user_cnt)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_009", null, "(hdv_calculated_et)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_010", null, "(hdv_bad_et)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_011", null, "(hdv_calculated_et)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_012", null, "(hdv_calculated_et)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_013", null, "(hdv_qoe2_value)"));
-        ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_014", null, "(hdv_calculated_et)"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_000", null, "(hdv_attempt_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_001", null, "(hdv_success_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_002", null, "(hdv_attempt_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_003", null, "(hdv_success_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_004", null, "(hdv_drop_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_005", null, "(hdv_success_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_006", null, "(hdv_user_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_007", null, "(hdv_qoe1_kpi3)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_008", null, "(hdv_user_cnt)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_010", null, "(hdv_bad_et)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_011", null, "(hdv_calculated_et)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_012", null, "(hdv_calculated_et)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_013", null, "(hdv_qoe2_value)", "double"));
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_014", null, "(hdv_calculated_et)", "double"));
         ans_postAggregations.add( new MathPostAggregator("n_hdv_cei_value", "abs((abs((if(aggregationfunc_000!=0,aggregationfunc_001/aggregationfunc_002*100,-100))*(if(aggregationfunc_003!=0,100-(aggregationfunc_004/aggregationfunc_005*100),-100))*(if(aggregationfunc_006>1,aggregationfunc_007/aggregationfunc_008,-100))*(if(aggregationfunc_009!=0,100-(aggregationfunc_010/aggregationfunc_011*100),-100)))/1000000)*(if(aggregationfunc_012!=0,aggregationfunc_013/aggregationfunc_014,-100)))/100", null ));
 
 
 //        ComputationalField.checkComputationalFieldIn( input, mapFieldNames );
-//        ComputationalField.makeAggregationFunctionsIn( fieldName, input, aggregations, postAggregations, windowingSpecs, mapFieldNames );
-//
+//        ComputationalField.makeAggregationFunctionsIn( fieldName, input, aggregations, postAggregations, windowingSpecs, mapFieldNames,Maps.newHashMap());
+
 //        Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
         mapFieldNames.clear();
@@ -393,6 +419,59 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
                 Maps.newHashMap());
 
         return;
+    }
+
+    @Test
+    public void testmakeAggregationFunctionsIn2() throws Exception {
+        List<Aggregation> aggregations = Lists.newArrayList();
+        List<PostAggregation> postAggregations = Lists.newArrayList();
+        List<WindowingSpec> windowingSpecs = Lists.newArrayList();
+
+        List<Aggregation> ans_aggregations = Lists.newArrayList();
+        List<PostAggregation> ans_postAggregations = Lists.newArrayList();
+        List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
+
+        ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_000", null, "Sales", "double"));
+        ans_aggregations.add(new DistinctSketchAggregation( "aggregationfunc_001", "ORDERID", 65536L, true));
+
+        ans_postAggregations.add(new MathPostAggregator("sumbycountd", "aggregationfunc_000/aggregationfunc_001", true));
+
+        Map<String, String> mapFieldNames = Maps.newHashMap();
+
+        String fieldName = "sumbycountd";
+        String input = "SUMOF(Sales) / COUNTD(ORDERID)";
+
+        ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
+
+        Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
+    }
+
+    @Test
+    public void testmakeAggregationFunctionsInForCountD() throws Exception {
+        List<Aggregation> aggregations = Lists.newArrayList();
+        List<PostAggregation> postAggregations = Lists.newArrayList();
+        List<WindowingSpec> windowingSpecs = Lists.newArrayList();
+
+        List<Aggregation> ans_aggregations = Lists.newArrayList();
+        List<PostAggregation> ans_postAggregations = Lists.newArrayList();
+        List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
+
+        ans_aggregations.add(new DistinctSketchAggregation( "aggregationfunc_000", "ORDERID", 65536L, true));
+
+        ans_postAggregations.add(new MathPostAggregator("measure1", "aggregationfunc_000", true));
+
+        Map<String, String> mapFieldNames = Maps.newHashMap();
+
+        String fieldName = "measure1";
+        String input = "COUNTD(ORDERID)";
+
+        ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+                Maps.newHashMap());
+
+        Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
     }
 
 }

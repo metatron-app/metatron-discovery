@@ -106,7 +106,7 @@ public class ComputationalField {
 
   static {
     // ImmutableMap을 써볼까?
-    functionInfos = new HashMap<String, FunctionInfo>();
+    functionInfos = new HashMap<>();
 
     functionInfos.put("size".toLowerCase(),
             new FunctionInfo("eq", 1, FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_OPERATOR));
@@ -466,42 +466,42 @@ public class ComputationalField {
       FunctionInfo functionInfo = functionInfos.get(fnName);
 
       if (functionInfo == null) {
-        errorInfo.append("unknown function name , " + node.getText());
+        errorInfo.append("unknown function name , ").append(node.getText());
         return false;
       }
 
       if (functionInfo.numberOfParam != 0 && node.getChildCount() != 4) {
-        errorInfo.append("param count miss match , " + node.getText());
+        errorInfo.append("param count miss match , ").append(node.getText());
         return false;
       }
 
       if (((FunctionExprContext) node).fnArgs() == null) {
         if (!(functionInfo.compareType.equals("eq") && functionInfo.numberOfParam == 0)) {
-          errorInfo.append("param count miss match , " + node.getText());
+          errorInfo.append("param count miss match , ").append(node.getText());
           return false;
         }
       } else if (functionInfo.compareType.equals("eq")) {
         if (!(((FunctionExprContext) node).fnArgs().getChildCount() == (functionInfo.numberOfParam * 2 - 1))) {
-          errorInfo.append("param count miss match , " + node.getText());
+          errorInfo.append("param count miss match , ").append(node.getText());
           return false;
         }
       } else if (functionInfo.compareType.equals("ge")) {
         if (!(((FunctionExprContext) node).fnArgs().getChildCount() >= (functionInfo.numberOfParam * 2 - 1))) {
-          errorInfo.append("param count miss match , " + node.getText());
+          errorInfo.append("param count miss match , ").append(node.getText());
           return false;
         }
       }
 
       if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_AGGREGATOR) {
-        if (inAggregationFunc == true) {
-          errorInfo.append("aggregation in aggregation, " + node.getText());
+        if (inAggregationFunc) {
+          errorInfo.append("aggregation in aggregation, ").append(node.getText());
           return false;
         }
         inAggregationFunc = true;
         AggregationFuncCount.value += 1;
       } else if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
-        if (inAggregationFunc == true) {
-          errorInfo.append("windowfunction in aggregation, " + node.getText());
+        if (inAggregationFunc) {
+          errorInfo.append("windowfunction in aggregation, ").append(node.getText());
           return false;
         }
         // TODO : need to check window function in window function ??
@@ -518,7 +518,7 @@ public class ComputationalField {
     }
 
     for (int i = 0; i < node.getChildCount(); i++) {
-      if (checkParserTree(node.getChild(i), inAggregationFunc, AggregationFuncCount, errorInfo) == false) {
+      if (!checkParserTree(node.getChild(i), inAggregationFunc, AggregationFuncCount, errorInfo)) {
         return false;
       }
     }
@@ -532,7 +532,7 @@ public class ComputationalField {
   // 3. param count check
   public static CheckType checkComputationalField(String computationalField) {
 
-    List<String> aggregationFunctions = new ArrayList<String>();
+    List<String> aggregationFunctions = new ArrayList<>();
     app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(
             new ANTLRInputStream(computationalField));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -548,15 +548,12 @@ public class ComputationalField {
       throw new InvalidExpressionException(errorInfo.toString());
     }
 
-    if (result == true) {
-      if (AggregationFuncCount.value > 0) {
-        return CheckType.CHECK_TYPE_VALID_AGGREGATOR;
-      } else {
-        return CheckType.CHECK_TYPE_VALID_NON_AGGREGATOR;
-      }
+    if (AggregationFuncCount.value > 0) {
+      return CheckType.CHECK_TYPE_VALID_AGGREGATOR;
+    } else {
+      return CheckType.CHECK_TYPE_VALID_NON_AGGREGATOR;
     }
 
-    return CheckType.CHECK_TYPE_INVALID;
   }
 
   public static CheckType checkComputationalFieldIn(String computationalField, Map<String, String> mapField) {
@@ -578,9 +575,8 @@ public class ComputationalField {
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     app.metatron.discovery.query.polaris.ExprParser parser = new app.metatron.discovery.query.polaris.ExprParser(
             tokens);
-    ParseTree tree = parser.expr();
 
-    return tree;
+    return parser.expr();
   }
 
   public static void searchInFieldName(ParseTree node, Map<String, String> mapHistoryField,
@@ -698,14 +694,14 @@ public class ComputationalField {
       } else if ("countd".equals(context.IDENTIFIER().getText().toLowerCase())) {
         // if you shouldFinalize to false, this route's return includes .estimation value. So you may need to modify UI code.
         aggregations
-                .add(new DistinctSketchAggregation(fieldName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, true));
-        paramName = null;
+                .add(new DistinctSketchAggregation(paramName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, true));
         Map<String, Object> processingMap = Maps.newHashMap();
         processingMap.put("type", "sketch.estimate");
         queryContext.put("postProcessing", processingMap);
+        finalize = true;
       } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
         aggregations.add(new CardinalityAggregation(paramName,
-                Arrays.asList(context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "")),
+                Collections.singletonList(context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "")),
                 context.fnArgs().getChild(0).getText(), true));
         paramName = "ROUND(" + paramName + ")";
 
@@ -718,10 +714,9 @@ public class ComputationalField {
       while (context.getChildCount() > 0) {
         context.removeLastChild();
       }
-      if (paramName != null) {
-        TerminalNode terminalNode = new TerminalNodeImpl(new CommonToken(IDENTIFIER, paramName));
-        context.addChild(terminalNode);
-      }
+
+      TerminalNode terminalNode = new TerminalNodeImpl(new CommonToken(IDENTIFIER, paramName));
+      context.addChild(terminalNode);
     }
 
     List<FunctionExprContext> windowFunctions = Lists.newArrayList();
@@ -782,22 +777,23 @@ public class ComputationalField {
 
       // 3. remove partition column info
       for (FunctionExprContext node : windowFunctions) {
-        ParseTree windowNode = node.fnArgs();
+        ParserRuleContext windowNode = node.fnArgs();
 
-        ((ParserRuleContext) windowNode).removeLastChild();
+        windowNode.removeLastChild();
         if (windowNode.getChildCount() > 0) {
-          ((ParserRuleContext) windowNode).removeLastChild();
+          windowNode.removeLastChild();
         }
       }
 
       // 4. make windowing spec
-      if (isSetPartitionColumns) {
-        String windowFunctionExpression = tree.getText();
-        windowFunctionExpression = "\"" + fieldName + "\"" + " = " + windowFunctionExpression;
-        WindowingSpec windowingSpec = new WindowingSpec(partitionColumns, null,
-                Arrays.asList(windowFunctionExpression));
-        windowingSpecs.add(windowingSpec);
+      if (!isSetPartitionColumns) {
+        return true;
       }
+      String windowFunctionExpression = tree.getText();
+      windowFunctionExpression = "\"" + fieldName + "\"" + " = " + windowFunctionExpression;
+      WindowingSpec windowingSpec = new WindowingSpec(partitionColumns, null,
+              Collections.singletonList(windowFunctionExpression));
+      windowingSpecs.add(windowingSpec);
     }
 
     return true;
@@ -880,17 +876,21 @@ public class ComputationalField {
 
   private static String generatePrestoQueryNode(ParseTree node) {
 
-    String nodeText = "";
+    StringBuilder nodeText = new StringBuilder();
 
     if (node.getChildCount() == 0) {
-      nodeText = node.getText();
+      nodeText = Optional.ofNullable(node.getText()).map(StringBuilder::new).orElse(null);
 
-      if (nodeText.equals("&&")) {
-        nodeText = " AND ";
-      } else if (nodeText.equals("||")) {
-        nodeText = " OR ";
-      } else if (nodeText.equals("==")) {
-        nodeText = " = ";
+      switch (nodeText == null ? "null" : nodeText.toString()) {
+        case "&&":
+          nodeText = new StringBuilder(" AND ");
+          break;
+        case "||":
+          nodeText = new StringBuilder(" OR ");
+          break;
+        case "==":
+          nodeText = new StringBuilder(" = ");
+          break;
       }
     } else {
 
@@ -900,26 +900,25 @@ public class ComputationalField {
         FunctionInfo functionInfo = functionInfos.get(fnName);
 
         if (fnName.equals("like")) {
-          nodeText =
-                  "\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText();
+          nodeText = new StringBuilder("\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText());
         } else if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
 
         } else {
-          nodeText = functionInfo.cmdPresto;
+          nodeText = Optional.ofNullable(functionInfo.cmdPresto).map(StringBuilder::new).orElse(null);
           for (int i = 1; i < node.getChildCount(); i++) {
-            nodeText = nodeText + generatePrestoQueryNode(node.getChild(i));
+            nodeText = (nodeText == null ? new StringBuilder("null") : nodeText).append(generatePrestoQueryNode(node.getChild(i)));
           }
         }
       } else if ((node instanceof IdentifierExprContext)) {
-        nodeText = "\"" + node.getText() + "\"";
+        nodeText = new StringBuilder("\"" + node.getText() + "\"");
       } else {
         for (int i = 0; i < node.getChildCount(); i++) {
-          nodeText = nodeText + generatePrestoQueryNode(node.getChild(i));
+          nodeText.append(generatePrestoQueryNode(node.getChild(i)));
         }
       }
     }
 
-    return nodeText;
+    return nodeText != null ? nodeText.toString() : "null";
 
   }
 
@@ -927,24 +926,26 @@ public class ComputationalField {
 
     ParseTree tree = getParseTree(computationalField);
 
-    String nodeText = generatePrestoQueryNode(tree);
-
-    return nodeText;
+    return generatePrestoQueryNode(tree);
   }
 
   private static String generatePhoenixQueryNode(ParseTree node) {
 
-    String nodeText = "";
+    StringBuilder nodeText = new StringBuilder();
 
     if (node.getChildCount() == 0) {
-      nodeText = node.getText();
+      nodeText = Optional.ofNullable(node.getText()).map(StringBuilder::new).orElse(null);
 
-      if (nodeText.equals("&&")) {
-        nodeText = " AND ";
-      } else if (nodeText.equals("||")) {
-        nodeText = " OR ";
-      } else if (nodeText.equals("==")) {
-        nodeText = " = ";
+      switch (nodeText == null ? "null" : nodeText.toString()) {
+        case "&&":
+          nodeText = new StringBuilder(" AND ");
+          break;
+        case "||":
+          nodeText = new StringBuilder(" OR ");
+          break;
+        case "==":
+          nodeText = new StringBuilder(" = ");
+          break;
       }
     } else {
 
@@ -954,29 +955,28 @@ public class ComputationalField {
         FunctionInfo functionInfo = functionInfos.get(fnName);
 
         if (fnName.equals("like")) {
-          nodeText =
-                  "\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText();
+          nodeText = new StringBuilder("\"" + node.getChild(2).getChild(0).getText() + "\" LIKE " + node.getChild(2).getChild(2).getText());
         } else if (fnName.equals("isnumber")) {
-          nodeText = "REGEXP_SUBSTR( \"" + node.getChild(2).getChild(0).getText()
-                  + "\", '^(\\+|\\-)?[0-9]+(\\.)?[0-9]*$') is not null";
+          nodeText = new StringBuilder("REGEXP_SUBSTR( \"" + node.getChild(2).getChild(0).getText()
+                  + "\", '^(\\+|\\-)?[0-9]+(\\.)?[0-9]*$') is not null");
         } else if (functionInfo.type == FunctionInfo.FunctionInfoType.FUNCTION_INFO_TYPE_WINDOW_OPERATOR) {
 
         } else {
-          nodeText = functionInfo.cmdPresto;
+          nodeText = Optional.ofNullable(functionInfo.cmdPresto).map(StringBuilder::new).orElse(null);
           for (int i = 1; i < node.getChildCount(); i++) {
-            nodeText = nodeText + generatePhoenixQueryNode(node.getChild(i));
+            nodeText = (nodeText == null ? new StringBuilder("null") : nodeText).append(generatePhoenixQueryNode(node.getChild(i)));
           }
         }
       } else if ((node instanceof IdentifierExprContext)) {
-        nodeText = "\"" + node.getText() + "\"";
+        nodeText = new StringBuilder("\"" + node.getText() + "\"");
       } else {
         for (int i = 0; i < node.getChildCount(); i++) {
-          nodeText = nodeText + generatePhoenixQueryNode(node.getChild(i));
+          nodeText.append(generatePhoenixQueryNode(node.getChild(i)));
         }
       }
     }
 
-    return nodeText;
+    return nodeText == null ? null : nodeText.toString();
 
   }
 
@@ -984,27 +984,21 @@ public class ComputationalField {
 
     ParseTree tree = getParseTree(computationalField);
 
-    String nodeText = generatePhoenixQueryNode(tree);
-
-    return nodeText;
+    return generatePhoenixQueryNode(tree);
   }
 
   public static String generateHiveQuery(String computationalField) {
 
     ParseTree tree = getParseTree(computationalField);
 
-    String nodeText = generatePrestoQueryNode(tree);
-
-    return nodeText;
+    return generatePrestoQueryNode(tree);
   }
 
   public static String generateOracleQuery(String computationalField) {
 
     ParseTree tree = getParseTree(computationalField);
 
-    String nodeText = generatePrestoQueryNode(tree);
-
-    return nodeText;
+    return generatePrestoQueryNode(tree);
   }
 
 }
