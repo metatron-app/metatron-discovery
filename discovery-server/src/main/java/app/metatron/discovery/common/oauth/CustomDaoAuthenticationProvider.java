@@ -45,9 +45,9 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
     try {
       super.additionalAuthenticationChecks(userDetails, authentication);
     } catch (BadCredentialsException e) {
-      if (userProperties.getPassword().getLockCount() != null) {
+      if (!userProperties.getPassword().getExcludeLockUsername().contains(request.getParameter("username")) && userProperties.getPassword().getLockCount() != null) {
         Integer failCnt = userService.addFailCount(request.getParameter("username"));
-        if (failCnt != null && userProperties.getPassword().getLockCount() != null) {
+        if (failCnt != null) {
           String message;
           if (failCnt == userProperties.getPassword().getLockCount()) {
             message = messages.getMessage(
