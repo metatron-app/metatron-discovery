@@ -697,6 +697,7 @@ public class ComputationalField {
                 .add(new DistinctSketchAggregation(paramName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, true));
         Map<String, Object> processingMap = Maps.newHashMap();
         processingMap.put("type", "sketch.estimate");
+        paramName = "ROUND(" + paramName + ")";
         queryContext.put("postProcessing", processingMap);
         finalize = true;
       } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
