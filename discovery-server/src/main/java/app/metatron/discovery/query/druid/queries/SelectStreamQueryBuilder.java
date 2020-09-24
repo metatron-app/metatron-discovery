@@ -110,7 +110,6 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
       if (UserDefinedField.REF_NAME.equals(reqField.getRef())) {
         columns.add(fieldName);
         fieldMapper.put(fieldName, aliasName);
-        unUsedVirtualColumnName.remove(fieldName);
         continue;
       }
 
@@ -364,9 +363,6 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
-      for (String removeColumnName : unUsedVirtualColumnName) {
-        virtualColumns.remove(removeColumnName);
-      }
       streamQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

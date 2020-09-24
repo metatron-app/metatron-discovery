@@ -195,7 +195,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
         if (UserDefinedField.REF_NAME.equals(refName) && virtualColumns.containsKey(fieldName)) {
           //dimensions.add(new DefaultDimension(fieldName, aliasName));
           addDimension(new DefaultDimension(fieldName, aliasName));
-          unUsedVirtualColumnName.remove(fieldName);
           continue;
         }
 
@@ -936,9 +935,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
     if (virtualColumns != null) {
       // 먼저, 사용하지 않는 사용자 정의 컬럼 삭제
-      for (String removeColumnName : unUsedVirtualColumnName) {
-        virtualColumns.remove(removeColumnName);
-      }
       groupByQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

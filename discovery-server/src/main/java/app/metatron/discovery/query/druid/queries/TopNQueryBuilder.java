@@ -85,7 +85,7 @@ public class TopNQueryBuilder extends AbstractQueryBuilder {
         } else if(column instanceof ExprVirtualColumn) {
           dimension = new DefaultDimension(fieldName, aliasName);
         }
-        unUsedVirtualColumnName.remove(fieldName);
+
       } else {
         dimension = new DefaultDimension(fieldName, aliasName);
       }
@@ -154,10 +154,6 @@ public class TopNQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (!virtualColumns.isEmpty()) {
-      // 먼저, 사용하지 않는 사용자 정의 컬럼 삭제
-      for (String removeColumnName : unUsedVirtualColumnName) {
-        virtualColumns.remove(removeColumnName);
-      }
       topNQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

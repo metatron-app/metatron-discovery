@@ -104,7 +104,6 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
           } else {
             dimensions.add(new DefaultDimension(engineColumnName, alias));
           }
-          unUsedVirtualColumnName.remove(fieldName);
         } else if (metaFieldMap.containsKey(fieldName)) {     // from datasource
           // ValueAlias 처리
           if (MapUtils.isNotEmpty(field.getValuePair())) {
@@ -178,10 +177,6 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (MapUtils.isNotEmpty(virtualColumns)) {
-      // 먼저, 사용하지 않는 사용자 정의 컬럼 삭제
-      for (String removeColumnName : unUsedVirtualColumnName) {
-        virtualColumns.remove(removeColumnName);
-      }
       searchQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

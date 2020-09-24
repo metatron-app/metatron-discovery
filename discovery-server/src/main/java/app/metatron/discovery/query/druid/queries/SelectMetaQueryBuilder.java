@@ -90,10 +90,6 @@ public class SelectMetaQueryBuilder extends AbstractQueryBuilder {
 
       String aliasName = reqField.getAlias();
 
-      if (UserDefinedField.REF_NAME.equals(reqField.getRef())) {
-        unUsedVirtualColumnName.remove(fieldName);
-      }
-
       if (reqField instanceof DimensionField || reqField instanceof TimestampField) {
           dimensions.add(new DefaultDimension(fieldName, aliasName));
       } else if (reqField instanceof MeasureField) {
@@ -165,9 +161,6 @@ public class SelectMetaQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
-      for (String removeColumnName : unUsedVirtualColumnName) {
-        virtualColumns.remove(removeColumnName);
-      }
       selectMetaQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

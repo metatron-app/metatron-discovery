@@ -177,11 +177,6 @@ public abstract class AbstractQueryBuilder {
    */
   protected Map<String, VirtualColumn> virtualColumns = Maps.newHashMap();
 
-  /**
-   * 사용하지 않는 UserDefined Virtual Column Name
-   */
-  protected List<String> unUsedVirtualColumnName = Lists.newArrayList();
-
   protected List<Aggregation> aggregations = Lists.newArrayList();
 
   protected List<PostAggregation> postAggregations = Lists.newArrayList();
@@ -467,7 +462,6 @@ public abstract class AbstractQueryBuilder {
         ExpressionField expressionField = (ExpressionField) userField;
         virtualColumns.put(expressionField.getColunm(),
                            new ExprVirtualColumn(expressionField.getExpr(), expressionField.getColunm()));
-        unUsedVirtualColumnName.add(expressionField.getColunm());
       }
 
       // 사용자 정의 필드 명 추가
@@ -511,7 +505,6 @@ public abstract class AbstractQueryBuilder {
             indexVirtualColumn.setKeyFilter(new InFilter(fieldName, inclusionFilter.getValueList()));
           } else {
             filter.addField(new InFilter(inclusionFilter.getColumn(), inclusionFilter.getValueList()));
-            unUsedVirtualColumnName.remove(fieldName);
           }
         } else {
           // Value Alias가 있는 경우 처리
@@ -801,10 +794,8 @@ public abstract class AbstractQueryBuilder {
     if (expressionField.isAggregated()) {
       curExpr = expressionField.getExpr();
       virtualColumns.remove(field.getColunm());
-      unUsedVirtualColumnName.remove(field.getColunm());
     } else {
       curExpr = field.getColunm();
-      unUsedVirtualColumnName.remove(field.getColunm());
     }
 
     switch (field.getAggregationType()) {
