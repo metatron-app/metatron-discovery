@@ -297,9 +297,17 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     this.loadingShow();
     this.engineService.getQueryDetail(queryId).then((data: any[]) => {
       this.queryDetail['query'] = false;
+      this.queryDetail['exception'] = false;
+      this.queryDetail['querytime'] = false;
       this.loadingHide();
       if (data.length > 0) {
         this.queryDetail['query'] = true;
+        if (!_.isNil(data[0].exception)) {
+          this.queryDetail['exception'] = data[0].exception;
+        }
+        if (!_.isNil(data[0].querytime)) {
+          this.queryDetail['querytime'] = data[0].querytime;
+        }
         setTimeout(function() {
           try {
             $('#queryInformation').html('<pre>' + JSON.stringify(JSON.parse(data[0].query), undefined, 4) + '</pre>');
