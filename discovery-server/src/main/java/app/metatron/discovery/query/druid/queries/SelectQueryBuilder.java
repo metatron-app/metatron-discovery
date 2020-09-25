@@ -143,7 +143,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
           virtualColumns.put(aliasName, new ExprVirtualColumn(fieldName, aliasName));
           metrics.add(aliasName);
         }
-        unUsedVirtualColumnName.remove(fieldName);
+
         continue;
       }
 
@@ -309,9 +309,6 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
-      for (String removeColumnName : unUsedVirtualColumnName) {
-        virtualColumns.remove(removeColumnName);
-      }
       selectQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 
