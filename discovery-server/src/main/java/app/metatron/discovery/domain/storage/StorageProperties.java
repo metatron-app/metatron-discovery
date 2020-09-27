@@ -85,7 +85,7 @@ public class StorageProperties {
     String metastoreUserName;
     String metastorePassword;
 
-    MetaStoreProperties metastore;
+    MetaStoreProperties metastore = new MetaStoreProperties();
 
     public String getHostname() {
       return hostname;

@@ -14,22 +14,26 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
 import com.google.common.collect.Lists;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
+
 public class HiveTableInformation {
 
   public final static String INPUT_FORMAT_PROP = "InputFormat:";
   public final static String ORC_INPUT_FORMAT = "org.apache.hadoop.hive.ql.io.orc.OrcInputFormat";
+  public final static String PARQUET_INPUT_FORMAT = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat";
   public final static String TEXT_INPUT_FORMAT = "org.apache.hadoop.mapred.TextInputFormat";
   public final static String FIELD_DELIMITER_PROP = "field.delim";
   public final static String PARTITION_INFORMATION_HEADER = "# Partition Information";
@@ -67,6 +71,8 @@ public class HiveTableInformation {
       switch(inputFormat){
         case ORC_INPUT_FORMAT :
           return new OrcFileFormat();
+        case PARQUET_INPUT_FORMAT :
+          return new ParquetFileFormat();
         case TEXT_INPUT_FORMAT :
           String delimiter = (String) this.storageInformation.get(FIELD_DELIMITER_PROP);
           //convert tab delimiter string to character

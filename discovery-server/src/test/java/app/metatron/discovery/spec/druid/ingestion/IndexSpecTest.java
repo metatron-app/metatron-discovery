@@ -33,6 +33,7 @@ import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
@@ -97,6 +98,7 @@ public class IndexSpecTest {
     DocumentContext jsonContext = JsonPath.parse(GlobalObjectMapper.writeValueAsString(ingestionSpec));
 
     assertThat(jsonContext.read("$['ioConfig']['type']"), is("hadoop"));
+    assertThat(jsonContext.read("$['dataSchema']['parser']['type']"), is("orc"));
 
     boolean thrown = false;
     try {
@@ -108,4 +110,63 @@ public class IndexSpecTest {
 
   }
 
+  @Test
+  public void parquetTypeSpecTest() {
+    String sourceTable = "default.sample_ingestion_parquet";
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("Hive Ingestion parquet partition " + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(DAY);
+    dataSource.setSrcType(HIVE);
+
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+    fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 4L));
+    dataSource.setFields(fields);
+
+    Map<String, Object> context = Maps.newHashMap();
+
+    List<String> intervals = Lists.newArrayList("2017-01-01/2017-12-01");
+
+    List<Map<String, Object>> partitions = Lists.newArrayList();
+    partitions.add(TestUtils.makeMap("ym", "201704"));
+
+    HiveIngestionInfo hiveIngestionInfo = new HiveIngestionInfo(
+        new ParquetFileFormat(), //new CsvFileFormat(),
+        sourceTable,
+        partitions,
+        null,
+        null,
+        intervals,
+        context);
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(hiveIngestionInfo));
+
+    IngestionSpecBuilder ingestionSpecBuilder = new IngestionSpecBuilder();
+    IngestionSpec ingestionSpec = ingestionSpecBuilder.dataSchema(dataSource)
+                                                      .hiveIoConfig(hiveIngestionInfo.getSource(), null, null, null)
+                                                      .build();
+
+    System.out.println(GlobalObjectMapper.writeValueAsString(ingestionSpec));
+
+    DocumentContext jsonContext = JsonPath.parse(GlobalObjectMapper.writeValueAsString(ingestionSpec));
+
+    assertThat(jsonContext.read("$['ioConfig']['type']"), is("hadoop"));
+    assertThat(jsonContext.read("$['dataSchema']['parser']['type']"), is("parquet"));
+    assertThat(jsonContext.read("$['dataSchema']['parser']['parseSpec']['timestampSpec']['replaceWrongColumn']"), is(false));
+
+    boolean thrown = false;
+    try {
+      jsonContext.read("$['ioConfig']['inputSpec']['typeString']");
+    } catch (PathNotFoundException e) {
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
 }
