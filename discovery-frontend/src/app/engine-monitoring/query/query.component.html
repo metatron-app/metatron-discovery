@@ -214,11 +214,26 @@
               {{queryDetail.duration | numberCommas}} ms
             </td>
           </tr>
+          <tr *ngIf="!!queryDetail.querytime">
+            <th>
+              Query Time
+            </th>
+            <td>
+              {{queryDetail.querytime | numberCommas}} ms
+            </td>
+          </tr>
           <tr *ngIf="!!queryDetail.query">
             <th>
               Query
             </th>
             <td id="queryInformation">
+            </td>
+          </tr>
+          <tr *ngIf="!!queryDetail.exception">
+            <th>
+              Exception
+            </th>
+            <td> {{queryDetail.exception}}
             </td>
           </tr>
           </tbody>
