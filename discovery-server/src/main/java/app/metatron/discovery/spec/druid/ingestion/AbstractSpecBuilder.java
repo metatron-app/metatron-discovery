@@ -14,6 +14,18 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
@@ -22,7 +34,12 @@ import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.file.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.rule.EvaluationRule;
 import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
@@ -43,16 +60,6 @@ import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
 import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
 import app.metatron.discovery.spec.druid.ingestion.parser.*;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.ALL;
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.INCREMENTAL;
@@ -240,7 +247,7 @@ public class AbstractSpecBuilder {
       }
     }
 
-    // Set dimnesion field
+    // Set dimension field
     List<Field> dimensionfields = dataSource.getFieldByRole(Field.FieldRole.DIMENSION);
 
     List<Object> dimenstionSchemas = Lists.newArrayList();
@@ -371,10 +378,12 @@ public class AbstractSpecBuilder {
       parser = new OrcParser(parseSpec);
 
     } else if (fileFormat instanceof ParquetFileFormat) {
+      //If timestampSpec.replaceWrongColumn is true, there is an error that is treated as null, should be treated as false
+      timestampSpec.setReplaceWrongColumn(false);
+
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
-
       parser = new ParquetParser(parseSpec);
 
     } else {
