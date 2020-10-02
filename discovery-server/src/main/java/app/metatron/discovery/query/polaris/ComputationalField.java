@@ -39,6 +39,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static app.metatron.discovery.query.polaris.ExprParser.IDENTIFIER;
 import static app.metatron.discovery.query.polaris.ExprParser.IdentifierExprContext;
@@ -527,12 +529,16 @@ public class ComputationalField {
   }
 
 
-  // 1. error node 가 발견된 경우
-  // 2. agg 안에서 agg가 발생한 경우
-  // 3. param count check
+  /**
+   * This method checks following :
+   * 1. Find error node
+   * 2. Cehck aggregation function has aggregation fuction
+   * 3. Check function has proper prameter count
+   * 4. Check the function reference proper field.
+   * @param computationalField
+   * @return
+   */
   public static CheckType checkComputationalField(String computationalField) {
-
-    List<String> aggregationFunctions = new ArrayList<>();
     app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(
             new ANTLRInputStream(computationalField));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -553,18 +559,37 @@ public class ComputationalField {
     } else {
       return CheckType.CHECK_TYPE_VALID_NON_AGGREGATOR;
     }
-
   }
 
-  public static CheckType checkComputationalFieldIn(String computationalField, Map<String, String> mapField) {
+  public static CheckType checkComputationalFieldIn(String expr, Map<String, UserDefinedField> mapField) {
+    String replacedExpr = expr;
 
-    String fieldName = "check_computational_field";
-    if (mapField == null) {
-      mapField = Maps.newHashMap();
+    if (mapField != null) {
+      replacedExpr = replaceSubUserDefinedAggregationFunction(expr, mapField);
     }
-    mapField.put(fieldName, computationalField);
 
-    return checkComputationalField(computationalField);
+    return checkComputationalField(replacedExpr);
+  }
+
+  public static String replaceSubUserDefinedAggregationFunction(String exprField, Map<String, UserDefinedField> userFieldsMap){
+    String newExpr = exprField;
+
+    //Check the column has another user defined
+    if(newExpr.contains(UserDefinedField.REF_NAME)){
+      Pattern pattern = Pattern.compile("\"\\s*" + UserDefinedField.REF_NAME + "\\.([^\"]+[^\"|\\s$])\\s*\"");
+      Matcher matcher = pattern.matcher(newExpr);
+
+      while(matcher.find()){
+        ExpressionField subField = (ExpressionField) userFieldsMap.get(matcher.group(1));
+
+        if(subField.getRole() == Field.FieldRole.MEASURE && subField.isAggregated()) {
+          newExpr = newExpr.replace(newExpr.substring(matcher.start(), matcher.end()), "(" + replaceSubUserDefinedAggregationFunction(subField.getExpr(), userFieldsMap) + ")");
+          matcher = pattern.matcher(newExpr);
+        }
+      }
+    }
+
+    return newExpr;
   }
 
 

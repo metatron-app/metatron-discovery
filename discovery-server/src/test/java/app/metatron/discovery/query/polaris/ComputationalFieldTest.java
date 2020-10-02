@@ -16,6 +16,9 @@ package app.metatron.discovery.query.polaris;
 
 import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.domain.datasource.data.InvalidExpressionException;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
+import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.aggregations.DistinctSketchAggregation;
@@ -368,14 +371,15 @@ public class ComputationalFieldTest {
         List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
 
 
-        Map<String, String> mapFieldNames = Maps.newHashMap();
+        Map<String, UserDefinedField> mapFieldNames = Maps.newHashMap();
 
-        mapFieldNames.put(   "p_hdv_qoe1_kpi1",      " if( SUMOF(hdv_attempt_cnt) != 0, SUMOF(hdv_success_cnt) / SUMOF(hdv_attempt_cnt) * 100, -100) " );
-        mapFieldNames.put(   "p_hdv_qoe1_kpi2",      " if( SUMOF(hdv_success_cnt) != 0, 100 - ( SUMOF(hdv_drop_cnt) / SUMOF(hdv_success_cnt) * 100 ), -100) " );
-        mapFieldNames.put(   "p_hdv_qoe1_kpi3",      " if( SUMOF(hdv_user_cnt) > 1, SUMOF(hdv_qoe1_kpi3) / SUMOF(hdv_user_cnt) , -100) " );
-        mapFieldNames.put(   "p_hdv_qoe1_qos1",      " if( SUMOF(hdv_calculated_et) != 0, 100 - ( SUMOF(hdv_bad_et) / SUMOF(hdv_calculated_et) * 100 ) , -100) " );
-        mapFieldNames.put(   "p_hdv_qoe1_value",     " abs( p_hdv_qoe1_kpi1 * p_hdv_qoe1_kpi2 * p_hdv_qoe1_kpi3 * p_hdv_qoe1_qos1 ) / 1000000 " );
-        mapFieldNames.put(   "p_hdv_qoe2_value",     " if( SUMOF(hdv_calculated_et) != 0, SUMOF(hdv_qoe2_value) / SUMOF(hdv_calculated_et) , -100) " );
+
+        mapFieldNames.put(   "p_hdv_qoe1_kpi1",      new ExpressionField("p_hdv_qoe1_kpi1", " if( SUMOF(hdv_attempt_cnt) != 0, SUMOF(hdv_success_cnt) / SUMOF(hdv_attempt_cnt) * 100, -100) ", "MEASURE", null, null, true) );
+        mapFieldNames.put(   "p_hdv_qoe1_kpi2",      new ExpressionField("p_hdv_qoe1_kpi2", " if( SUMOF(hdv_success_cnt) != 0, 100 - ( SUMOF(hdv_drop_cnt) / SUMOF(hdv_success_cnt) * 100 ), -100) ", "MEASURE", null, null, true) );
+        mapFieldNames.put(   "p_hdv_qoe1_kpi3",      new ExpressionField("p_hdv_qoe1_kpi3", " if( SUMOF(hdv_user_cnt) > 1, SUMOF(hdv_qoe1_kpi3) / SUMOF(hdv_user_cnt) , -100) ", "MEASURE", null, null, true) );
+        mapFieldNames.put(   "p_hdv_qoe1_qos1",      new ExpressionField("p_hdv_qoe1_qos1", " if( SUMOF(hdv_calculated_et) != 0, 100 - ( SUMOF(hdv_bad_et) / SUMOF(hdv_calculated_et) * 100 ) , -100) ", "MEASURE", null, null, true) );
+        mapFieldNames.put(   "p_hdv_qoe1_value",     new ExpressionField("p_hdv_qoe1_value", " abs( p_hdv_qoe1_kpi1 * p_hdv_qoe1_kpi2 * p_hdv_qoe1_kpi3 * p_hdv_qoe1_qos1 ) / 1000000 ", "MEASURE", null, null, true) );
+        mapFieldNames.put(   "p_hdv_qoe2_value",     new ExpressionField("p_hdv_qoe1_value", " if( SUMOF(hdv_calculated_et) != 0, SUMOF(hdv_qoe2_value) / SUMOF(hdv_calculated_et) , -100) ", "MEASURE", null, null, true));
 
 
         String fieldName = "n_hdv_cei_value";
@@ -431,7 +435,7 @@ public class ComputationalFieldTest {
 
         ans_postAggregations.add(new MathPostAggregator("sumbycountd", "aggregationfunc_000/ROUND(aggregationfunc_001)", true));
 
-        Map<String, String> mapFieldNames = Maps.newHashMap();
+        Map<String, UserDefinedField> mapFieldNames = Maps.newHashMap();
 
         String fieldName = "sumbycountd";
         String input = "SUMOF(Sales) / COUNTD(ORDERID)";
@@ -457,7 +461,7 @@ public class ComputationalFieldTest {
 
         ans_postAggregations.add(new MathPostAggregator("measure1", "ROUND(aggregationfunc_000)", true));
 
-        Map<String, String> mapFieldNames = Maps.newHashMap();
+        Map<String, UserDefinedField> mapFieldNames = Maps.newHashMap();
 
         String fieldName = "measure1";
         String input = "COUNTD(ORDERID)";
@@ -469,4 +473,17 @@ public class ComputationalFieldTest {
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
     }
 
+    @Test
+    public void tesTcheckComputationalFieldIn(){
+        Map<String, UserDefinedField> mapFieldNames = Maps.newHashMap();
+
+        mapFieldNames.put(   "total income",      new ExpressionField("total income", " SUMOF(\"Sales\") ", "MEASURE", null, null, true) );
+        mapFieldNames.put(   "total profit",      new ExpressionField("total profit", " SUMOF(\"Profit\") ", "MEASURE", null, null, true) );
+
+        String input = "\"user_defined.total income\" / \"user_defined.total profit\" * 100";
+
+        ComputationalField.CheckType checkType = ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
+
+        Assert.assertEquals(ComputationalField.CheckType.CHECK_TYPE_VALID_AGGREGATOR, checkType);
+    }
 }

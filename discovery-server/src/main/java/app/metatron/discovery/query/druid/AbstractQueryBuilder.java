@@ -44,6 +44,7 @@ package app.metatron.discovery.query.druid;
 
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.domain.datasource.Field.FieldRole;
 import app.metatron.discovery.domain.datasource.QueryHistoryTeller;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.forward.*;
@@ -76,16 +77,21 @@ import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.IndexVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import app.metatron.discovery.query.polaris.ComputationalField;
+import app.metatron.discovery.query.polaris.ExprLexer;
+import app.metatron.discovery.query.polaris.ExprParser;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.TimeUnits;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -792,7 +798,8 @@ public abstract class AbstractQueryBuilder {
 
     String curExpr;
     if (expressionField.isAggregated()) {
-      curExpr = expressionField.getExpr();
+      curExpr = ComputationalField.replaceSubUserDefinedAggregationFunction(expressionField.getExpr(), userFieldsMap);
+
       virtualColumns.remove(field.getColunm());
     } else {
       curExpr = field.getColunm();
@@ -842,6 +849,22 @@ public abstract class AbstractQueryBuilder {
 
     changeTimeStampFieldName();
 
+  }
+
+  /**
+   * Remove virtual column containing aggregation function. Druid's virtual column does not understand discovery's aggreation function.
+   * So, Discovery replaces its own aggregation function to Druid's one.
+   * If user defined function has aggregation function yet, we need to remove it.
+   */
+  protected void removeUserDefinedAggregationFunction(){
+    List<String> fieldNames = Lists.newArrayList(virtualColumns.keySet());
+
+    for(String fieldName : fieldNames){
+      ExpressionField expressionField = (ExpressionField)userFieldsMap.get(fieldName.replace(UserDefinedField.REF_NAME + FIELD_NAMESPACE_SEP, ""));
+
+      if(expressionField != null && expressionField.isAggregated())
+        virtualColumns.remove(fieldName);
+    }
   }
 
   protected void changeTimeStampFieldName() {

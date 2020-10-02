@@ -161,6 +161,7 @@ public class SelectMetaQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
+      removeUserDefinedAggregationFunction();
       selectMetaQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 
