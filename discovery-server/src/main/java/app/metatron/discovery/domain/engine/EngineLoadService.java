@@ -35,6 +35,7 @@ import org.springframework.web.client.ResourceAccessException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -148,26 +149,23 @@ public class EngineLoadService {
     String sendTopicUri = String.format(TOPIC_LOAD_PROGRESS, temporaryId);
 
     //if reserved field name...add postfix
-    if(Field.RESERVED_FIELDS.length > 0){
-      for(Field field : dataSource.getFields()){
-        final String compareFieldName = field.getName();
-        boolean reservedFieldMatched = Arrays.stream(Field.RESERVED_FIELDS)
-                                             .anyMatch(reserved -> reserved.equals(compareFieldName));
+    for(Field field : dataSource.getFields()){
+      final String compareFieldName = field.getName();
+      boolean reservedFieldMatched = Arrays.asList(Field.RESERVED_FIELDS).contains(compareFieldName);
 
-        if(reservedFieldMatched){
-          String newFieldName = compareFieldName;
-          boolean fieldNameDuplicated = true;
-          while(fieldNameDuplicated){
-            newFieldName = newFieldName + "_";
-            final String compareField = newFieldName;
-            fieldNameDuplicated = dataSource.getFields()
-                                            .stream()
-                                            .anyMatch(legacyField -> legacyField.getName().equals(compareField));
-          }
-          field.setName(newFieldName);
-          // #1920 Change buildspec column to originalname
-          field.setOriginalName(newFieldName);
+      if(reservedFieldMatched){
+        String newFieldName = compareFieldName;
+        boolean fieldNameDuplicated = true;
+        while(fieldNameDuplicated){
+          newFieldName = newFieldName + "_";
+          final String compareField = newFieldName;
+          fieldNameDuplicated = dataSource.getFields()
+                                          .stream()
+                                          .anyMatch(legacyField -> legacyField.getName().equals(compareField));
         }
+        field.setName(newFieldName);
+        // #1920 Change buildspec column to originalname
+        field.setOriginalName(newFieldName);
       }
     }
 
@@ -191,7 +189,7 @@ public class EngineLoadService {
     }
 
     // 엔진에서 사용할 데이터 소스 이름 지정
-    String engineName = null;
+    String engineName;
     if (temporary == null) {
       engineName = dataSource.getEngineName() + '_' + PolarisUtils.randomString(5);
     } else {
@@ -268,6 +266,7 @@ public class EngineLoadService {
         .path(Lists.newArrayList(remoteFile))
         .tuningConfig(info.getTuningOptions())
         .properties(properties)
+        .temporary(false)
         .build();
 
     String specStr = GlobalObjectMapper.writeValueAsString(spec);
@@ -319,7 +318,7 @@ public class EngineLoadService {
       // timestamp 타입의 필드가 없다면 current timestamp 를 전달하고,
       // 있다면 맨 처음 timestamp 타입의 필드를 선택
       Field timeField;
-      if (timeFields == null || timeFields.size() == 0) {
+      if (timeFields.size() == 0) {
         timeField = new Field(FIELD_NAME_CURRENT_TIMESTAMP, DataType.TIMESTAMP, Field.FieldRole.TIMESTAMP, 0L);
         timeField.setFormat(GlobalObjectMapper.writeValueAsString(new TemporaryTimeFormat()));
         dataSource.addField(timeField);
@@ -358,7 +357,7 @@ public class EngineLoadService {
     RetryPolicy retryPolicy = new RetryPolicy()
         .retryOn(ResourceAccessException.class)
         .retryOn(Exception.class)
-        .retryIf(segmentResult -> segmentResult == null)
+        .retryIf(Objects::isNull)
         .withBackoff(delay, maxDelay, TimeUnit.SECONDS)
         .withMaxDuration(maxDuration, TimeUnit.SECONDS);
 		// @formatter:on
