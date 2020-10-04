@@ -845,7 +845,7 @@ public abstract class AbstractQueryBuilder {
     }
 
     ComputationalField.makeAggregationFunctionsIn(field, curExpr,
-            aggregations, postAggregations, windowingSpecs, userFieldsMap, context);
+            aggregations, postAggregations, windowingSpecs, userFieldsMap, virtualColumns, context);
 
     changeTimeStampFieldName();
 

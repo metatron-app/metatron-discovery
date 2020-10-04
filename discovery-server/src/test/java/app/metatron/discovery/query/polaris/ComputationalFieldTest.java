@@ -26,6 +26,8 @@ import app.metatron.discovery.query.druid.aggregations.DoubleSumAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
 import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
+import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
@@ -216,48 +218,22 @@ public class ComputationalFieldTest {
         for (WindowingSpec windowingSpec : windowingspec) System.out.println(windowingSpec.toString());
 
 
-        if( ans_aggregations.size() != aggregations.size() ) {
-            System.out.println( "ERROR : ans_aggregations.size = " + ans_aggregations.size() +
-                    ", aggregations.size() = " + aggregations.size());
-            return false;
-        }
+        Assert.assertEquals("Aggregations's size is incorrect", ans_aggregations.size(), aggregations.size());
 
         for( int i = 0 ; i < ans_aggregations.size() ; ++i ){
-            System.out.println( aggregations.get(i).toString() );
-            if ( !ans_aggregations.get(i).toString().equals( aggregations.get(i).toString() ) ) {
-                System.out.println("Aggregation does not match expected [" + ans_aggregations.get(i).toString() + "] and " +
-                        "result is [" + aggregations.get(i).toString() + "]");
-                return false;
-            }
+            Assert.assertEquals("Aggregations[" + i + "] is incorrect", ans_aggregations.get(i).toString(), aggregations.get(i).toString());
         }
 
-
-        if( ans_postAggregations.size() != postAggregations.size() ) {
-            System.out.println("ERROR : ans_postAggregations.size = " + ans_postAggregations.size() +
-                    ", postAggregations.size() = " + postAggregations.size());
-            return false;
-        }
+        Assert.assertEquals("Post aggregations's size is incorrect", ans_postAggregations.size(), postAggregations.size());
 
         for( int i = 0 ; i < ans_postAggregations.size() ; ++i ){
-            System.out.println( postAggregations.get(i).toString() );
-            if ( !ans_postAggregations.get(i).toString().equals( postAggregations.get(i).toString() ) ) {
-                System.out.println("PostAggregation does not match expected [" + ans_postAggregations.get(i).toString() + "] and " +
-                        "result is [" + postAggregations.get(i).toString() + "]");
-                return false;
-            }
+            Assert.assertEquals("Post aggregations[" + i + "] is incorrect", ans_postAggregations.get(i).toString(), postAggregations.get(i).toString());
         }
 
-        if( ans_windowingspec.size() != windowingspec.size() ) {
-            System.out.println("ERROR : ans_windowingspec.size = " + ans_windowingspec.size() +
-                    ", windowingspec.size() = " + windowingspec.size());
-            return false;
-        }
+        Assert.assertEquals("Windowingspec's size is incorrect", ans_windowingspec.size(), windowingspec.size());
 
         for( int i = 0 ; i < ans_windowingspec.size() ; ++i ){
-            System.out.println( windowingspec.get(i).toString() );
-            if ( !ans_windowingspec.get(i).toString().equals( windowingspec.get(i).toString() ) ) {
-                return false;
-            }
+            Assert.assertEquals("Windowingspec[" + i + "] is incorrect", ans_windowingspec.get(i).toString(), windowingspec.get(i).toString());
         }
 
         return true;
@@ -272,6 +248,7 @@ public class ComputationalFieldTest {
         List<Aggregation> ans_aggregations = Lists.newArrayList();
         List<PostAggregation> ans_postAggregations = Lists.newArrayList();
         List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
+        Map<String, VirtualColumn> virtualColumns = Maps.newHashMap();
 
 
         String fieldName = "ac_sum_recu";
@@ -281,7 +258,7 @@ public class ComputationalFieldTest {
         partitionColumns.add( "abc" );
         ans_windowingSpecs.add( new WindowingSpec( partitionColumns, null, Collections.singletonList("\"ac_sum_recu\" = 1.01*if($prev(ac_sum_recu)==null,1,$prev(ac_sum_recu))")));
 
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
@@ -289,17 +266,13 @@ public class ComputationalFieldTest {
         aggregations.clear(); postAggregations.clear(); windowingSpecs.clear();
         ans_aggregations.clear(); ans_postAggregations.clear(); ans_windowingSpecs.clear();
 
-
-
-
-
         fieldName = "ac_sum_recu";
         input = "sumof( count ) + if( $prev(ac_sum_recu) == null, 0, $prev(ac_sum_recu) )";
 
         ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_000", null, "double"));
         ans_windowingSpecs.add( new WindowingSpec( null, null, Collections.singletonList("ac_sum_recu = aggregationfunc_000+if($prev(ac_sum_recu)==null,0,$prev(ac_sum_recu))")));
 
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
@@ -316,7 +289,7 @@ public class ComputationalFieldTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "profit+1"));
         ans_postAggregations.add( new MathPostAggregator("fieldname", "(aggregationfunc_000/count)", null ));
 
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
@@ -332,7 +305,7 @@ public class ComputationalFieldTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "z"));
         ans_postAggregations.add( new MathPostAggregator("fieldName01", "x+y+aggregationfunc_000", null ));
 
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
@@ -349,7 +322,7 @@ public class ComputationalFieldTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "log(z)"));
         ans_postAggregations.add( new MathPostAggregator("fieldName01", "x+y+(aggregationfunc_000/count)", null ));
 
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
@@ -369,6 +342,7 @@ public class ComputationalFieldTest {
         List<Aggregation> ans_aggregations = Lists.newArrayList();
         List<PostAggregation> ans_postAggregations = Lists.newArrayList();
         List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
+        Map<String, VirtualColumn> virtualColumns = Maps.newHashMap();
 
 
         Map<String, UserDefinedField> mapFieldNames = Maps.newHashMap();
@@ -415,7 +389,7 @@ public class ComputationalFieldTest {
         fieldName = "avg_per_city";
         input = "$mean( sumof(Profit), {City,Category})";
         ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
     }
@@ -429,6 +403,7 @@ public class ComputationalFieldTest {
         List<Aggregation> ans_aggregations = Lists.newArrayList();
         List<PostAggregation> ans_postAggregations = Lists.newArrayList();
         List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
+        Map<String, VirtualColumn> virtualColumns = Maps.newHashMap();
 
         ans_aggregations.add(new GenericSumAggregation( "aggregationfunc_000", null, "Sales", "double"));
         ans_aggregations.add(new DistinctSketchAggregation( "aggregationfunc_001", "ORDERID", 65536L, true));
@@ -441,7 +416,7 @@ public class ComputationalFieldTest {
         String input = "SUMOF(Sales) / COUNTD(ORDERID)";
 
         ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
@@ -456,6 +431,7 @@ public class ComputationalFieldTest {
         List<Aggregation> ans_aggregations = Lists.newArrayList();
         List<PostAggregation> ans_postAggregations = Lists.newArrayList();
         List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
+        Map<String, VirtualColumn> virtualColumns = Maps.newHashMap();
 
         ans_aggregations.add(new DistinctSketchAggregation( "aggregationfunc_000", "ORDERID", 65536L, true));
 
@@ -467,7 +443,7 @@ public class ComputationalFieldTest {
         String input = "COUNTD(ORDERID)";
 
         ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
-        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs,
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
                 Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
@@ -485,5 +461,48 @@ public class ComputationalFieldTest {
         ComputationalField.CheckType checkType = ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
 
         Assert.assertEquals(ComputationalField.CheckType.CHECK_TYPE_VALID_AGGREGATOR, checkType);
+    }
+
+    @Test
+    public void testMakeAggregationFunctionsForCountDWithExpression() {
+        List<Aggregation> aggregations = Lists.newArrayList();
+        List<PostAggregation> postAggregations = Lists.newArrayList();
+        List<WindowingSpec> windowingSpecs = Lists.newArrayList();
+
+        List<Aggregation> ans_aggregations = Lists.newArrayList();
+        List<PostAggregation> ans_postAggregations = Lists.newArrayList();
+        List<WindowingSpec> ans_windowingSpecs = Lists.newArrayList();
+        Map<String, VirtualColumn> virtualColumns = Maps.newHashMap();
+
+        ans_aggregations.add(new DistinctSketchAggregation( "aggregationfunc_000", "virtualcolumn_000", 65536L, true));
+
+        ans_postAggregations.add(new MathPostAggregator("measure1", "ROUND(aggregationfunc_000)", true));
+
+        Map<String, UserDefinedField> mapFieldNames = Maps.newHashMap();
+
+        String fieldName = "measure1";
+        String input = "COUNTD(IF(\"ORDERID\" != '', \"ORDERID\", ''))";
+
+        ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
+                Maps.newHashMap());
+
+        Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
+        Assert.assertEquals(1, virtualColumns.size());
+        Assert.assertEquals("IF(\"ORDERID\"!='',\"ORDERID\",'')", ((ExprVirtualColumn)virtualColumns.get("virtualcolumn_000")).getExpression());
+
+        input = "COUNTD(CONCAT(\"ORDERID\", \"REGION\"))";
+        virtualColumns.clear();
+        aggregations.clear();
+        postAggregations.clear();
+        windowingSpecs.clear();
+
+        ComputationalField.checkComputationalFieldIn(input, mapFieldNames);
+        ComputationalField.makeAggregationFunctions(fieldName, input, aggregations, postAggregations, windowingSpecs, virtualColumns,
+                Maps.newHashMap());
+
+        Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
+        Assert.assertEquals(1, virtualColumns.size());
+        Assert.assertEquals("CONCAT(\"ORDERID\",\"REGION\")", ((ExprVirtualColumn)virtualColumns.get("virtualcolumn_000")).getExpression());
     }
 }
