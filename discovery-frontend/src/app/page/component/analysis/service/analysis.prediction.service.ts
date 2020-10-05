@@ -215,12 +215,12 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     param.pivot = _.cloneDeep(widgetConf.pivot);
     param.userFields = _.cloneDeep(
       CommonUtil.objectToArray(widgetConf.customFields)
-        .filter(item => item.dataSource === widgetConf.dataSource.engineName)
+        .filter(item => item.dataSource === param.dataSource.name)
     );
 
     if (widget && widget.dashBoard && widget.dashBoard.configuration) {
       param.filters = _.cloneDeep(
-        widget.dashBoard.configuration.filters.filter(item => item.dataSource === widgetConf.dataSource.engineName)
+        widget.dashBoard.configuration.filters.filter(item => item.dataSource === param.dataSource.name)
       );
     }
     // 고급분석 API 시 사용하는 예측선 데이터

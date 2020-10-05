@@ -23,6 +23,7 @@ import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
+import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -107,10 +108,13 @@ public class DataQueryController {
     dataSourceValidator.validateQuery(queryRequest);
 
     Object result = engineQueryService.search(queryRequest);
-    if (result instanceof MatrixResponse && queryRequest.getResultFormat() instanceof ChartResultFormat) {
+    if (result instanceof MatrixResponse
+            && queryRequest.getResultFormat() instanceof ChartResultFormat) {
       MatrixResponse response = (MatrixResponse) result;
-      if (queryRequest.getLimits() != null &&
-          response.getCategoryCount() >= queryRequest.getLimits().getLimit()) {
+      // Prediction analysis does not support groupBy.meta query.
+      if ((queryRequest.getAnalysis() == null || !(queryRequest.getAnalysis() instanceof PredictionAnalysis))
+              && queryRequest.getLimits() != null
+              && response.getCategoryCount() >= queryRequest.getLimits().getLimit()) {
         queryRequest.setMetaQuery(true);
         ArrayNode totalResult = (ArrayNode) engineQueryService.search(queryRequest);
         if (totalResult != null
@@ -161,7 +165,7 @@ public class DataQueryController {
 
     Map<String, Object> resultMap = Maps.newLinkedHashMap();
 
-    DateTime baseTime = null;
+    DateTime baseTime;
     if (timeCompareRequest.getBasePoint() == BasePoint.LAST) {
       if (StringUtils.isEmpty(timeCompareRequest.getBaseTime())) {
         CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
