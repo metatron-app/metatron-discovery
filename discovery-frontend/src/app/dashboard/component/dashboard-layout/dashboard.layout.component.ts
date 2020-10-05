@@ -498,13 +498,6 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         if ('page' === widget.type) {
           const pgeWidget: PageWidget = <PageWidget>widget;
           pgeWidget.mode = 'chart';
-          if (pgeWidget.configuration && pgeWidget.configuration.dataSource && pgeWidget.configuration.filters) {
-            if( ChartType.MAP !== pgeWidget.configuration.chart.type ) {
-              pgeWidget.configuration.filters.forEach(item => {
-                item.dataSource = pgeWidget.configuration.dataSource.engineName;
-              });
-            }
-          }
         }
         widget.dashBoard = boardInfo;
         if (widget.configuration) {
