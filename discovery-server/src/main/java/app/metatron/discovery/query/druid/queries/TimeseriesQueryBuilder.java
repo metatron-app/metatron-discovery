@@ -134,6 +134,7 @@ public class TimeseriesQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
+      removeUserDefinedAggregationFunction();
       timeseriesQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

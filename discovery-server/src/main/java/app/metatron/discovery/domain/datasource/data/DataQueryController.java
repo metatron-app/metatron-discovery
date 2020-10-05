@@ -229,11 +229,11 @@ public class DataQueryController {
 
     // TODO: 메타 데이터 소스 관련 내용 및 ParameterField 지원 여부 관련 추가
 
-    Map<String, String> exprMap = null;
+    Map<String, UserDefinedField> exprMap = null;
     if (CollectionUtils.isNotEmpty(checkExprRequest.getUserFields())) {
-      checkExprRequest.getUserFields().stream()
+      exprMap = checkExprRequest.getUserFields().stream()
                       .filter(f -> f instanceof ExpressionField)
-                      .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
+                      .collect(Collectors.toMap(UserDefinedField::getName, f -> f));
     }
 
     ComputationalField.CheckType checkType = checkComputationalFieldIn(checkExprRequest.getExpr(), exprMap);

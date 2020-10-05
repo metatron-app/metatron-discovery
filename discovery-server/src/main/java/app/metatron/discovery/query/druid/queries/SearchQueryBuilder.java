@@ -177,6 +177,7 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (MapUtils.isNotEmpty(virtualColumns)) {
+      removeUserDefinedAggregationFunction();
       searchQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

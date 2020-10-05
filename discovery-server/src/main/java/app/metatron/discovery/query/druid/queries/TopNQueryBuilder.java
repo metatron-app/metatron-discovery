@@ -154,6 +154,7 @@ public class TopNQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (!virtualColumns.isEmpty()) {
+      removeUserDefinedAggregationFunction();
       topNQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

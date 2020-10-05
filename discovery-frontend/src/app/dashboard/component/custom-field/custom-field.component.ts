@@ -617,7 +617,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       if( !isNullOrUndefined(cloneDs.engineName) ) {
         cloneDs.name = cloneDs.engineName;
       }
-      const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs) };
+      const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs), "userFields": this.customFields };
       this.dashboardService.validate(param).then((result: any) => {
         this.aggregated = result.aggregated;
         this.isCalFuncSuccess = 'S';
@@ -712,11 +712,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   }
 
   public isReservedFieldName(name: string): boolean {
-    if (name === 'count' || name === '__time' || name === 'timestamp') {
-      return true;
-    } else {
-      return false;
-    }
+    return name === 'count' || name === '__time' || name === 'timestamp';
   }
 
   public getDescription(commonCode: CommonCode): string {

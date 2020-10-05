@@ -24,6 +24,8 @@ import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.aggregations.*;
 import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
+import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import app.metatron.discovery.query.polaris.ExprParser.FunctionExprContext;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,6 +41,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static app.metatron.discovery.query.polaris.ExprParser.IDENTIFIER;
 import static app.metatron.discovery.query.polaris.ExprParser.IdentifierExprContext;
@@ -527,12 +531,16 @@ public class ComputationalField {
   }
 
 
-  // 1. error node 가 발견된 경우
-  // 2. agg 안에서 agg가 발생한 경우
-  // 3. param count check
+  /**
+   * This method checks following :
+   * 1. Find error node
+   * 2. Cehck aggregation function has aggregation fuction
+   * 3. Check function has proper prameter count
+   * 4. Check the function reference proper field.
+   * @param computationalField
+   * @return
+   */
   public static CheckType checkComputationalField(String computationalField) {
-
-    List<String> aggregationFunctions = new ArrayList<>();
     app.metatron.discovery.query.polaris.ExprLexer lexer = new app.metatron.discovery.query.polaris.ExprLexer(
             new ANTLRInputStream(computationalField));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -553,18 +561,37 @@ public class ComputationalField {
     } else {
       return CheckType.CHECK_TYPE_VALID_NON_AGGREGATOR;
     }
-
   }
 
-  public static CheckType checkComputationalFieldIn(String computationalField, Map<String, String> mapField) {
+  public static CheckType checkComputationalFieldIn(String expr, Map<String, UserDefinedField> mapField) {
+    String replacedExpr = expr;
 
-    String fieldName = "check_computational_field";
-    if (mapField == null) {
-      mapField = Maps.newHashMap();
+    if (mapField != null) {
+      replacedExpr = replaceSubUserDefinedAggregationFunction(expr, mapField);
     }
-    mapField.put(fieldName, computationalField);
 
-    return checkComputationalField(computationalField);
+    return checkComputationalField(replacedExpr);
+  }
+
+  public static String replaceSubUserDefinedAggregationFunction(String exprField, Map<String, UserDefinedField> userFieldsMap){
+    String newExpr = exprField;
+
+    //Check the column has another user defined
+    if(newExpr.contains(UserDefinedField.REF_NAME)){
+      Pattern pattern = Pattern.compile("\"\\s*" + UserDefinedField.REF_NAME + "\\.([^\"]+[^\"|\\s$])\\s*\"");
+      Matcher matcher = pattern.matcher(newExpr);
+
+      while(matcher.find()){
+        ExpressionField subField = (ExpressionField) userFieldsMap.get(matcher.group(1));
+
+        if(subField.getRole() == Field.FieldRole.MEASURE && subField.isAggregated()) {
+          newExpr = newExpr.replace(newExpr.substring(matcher.start(), matcher.end()), "(" + replaceSubUserDefinedAggregationFunction(subField.getExpr(), userFieldsMap) + ")");
+          matcher = pattern.matcher(newExpr);
+        }
+      }
+    }
+
+    return newExpr;
   }
 
 
@@ -654,7 +681,7 @@ public class ComputationalField {
   }
 
   public static boolean makeAggregationFunctions(String fieldName, String computationalField,
-          List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs,
+          List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs, Map<String, VirtualColumn> virtualColumns,
           Map<String, Object> queryContext) {
 
     ParseTree tree = getParseTree(computationalField);
@@ -692,7 +719,12 @@ public class ComputationalField {
       } else if ("countof".equals(context.IDENTIFIER().getText().toLowerCase())) {
         aggregations.add(new CountAggregation(paramName));
       } else if ("countd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        // if you shouldFinalize to false, this route's return includes .estimation value. So you may need to modify UI code.
+        // if you should set finalize option to false, this route's return includes .estimation value. So you may need to modify UI code.
+        // If fieldExpression is not identifier, make a virtual column
+        if(context.fnArgs().getChild(0) instanceof ExprParser.FunctionExprContext){
+          fieldExpression = replaceArgWithVirtualColumn((ExprParser.ExprContext)context.fnArgs().getChild(0), virtualColumns);
+        }
+
         aggregations
                 .add(new DistinctSketchAggregation(paramName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, true));
         Map<String, Object> processingMap = Maps.newHashMap();
@@ -800,16 +832,40 @@ public class ComputationalField {
     return true;
   }
 
+  public static String replaceArgWithVirtualColumn(ExprParser.ExprContext context, Map<String, VirtualColumn> virtualColumns) {
+    final String prefix = "virtualcolumn";
+    int virtualColumnCount = 0;
+    String newExpr;
+
+    String virtualColumnName;
+    String expr = context.getText();
+
+    while(true){
+      virtualColumnName = prefix + String.format("_%03d", virtualColumnCount);
+
+      if(virtualColumns.get(virtualColumnName) != null){
+        virtualColumnCount++;
+      }else{
+        newExpr = virtualColumnName;
+        virtualColumns.put(virtualColumnName, new ExprVirtualColumn(expr, virtualColumnName));
+
+        break;
+      }
+    }
+
+    return newExpr;
+  }
+
   public static boolean makeAggregationFunctionsIn(MeasureField field, String expr, List<Aggregation> aggregations,
-          List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs,
-          Map<String, UserDefinedField> userDefinedFieldMap, Map<String, Object> context) {
+             List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs,
+             Map<String, UserDefinedField> userDefinedFieldMap, Map<String, VirtualColumn> virtualColumns, Map<String, Object> context) {
 
     Map<String, String> mapHistoryField = Maps.newHashMap();
 
     String newComputationalField = generateAggregationExpression(expr, false, mapHistoryField, userDefinedFieldMap);
 
     return makeAggregationFunctions(field.getAlias(), newComputationalField, aggregations, postAggregations,
-            windowingSpecs,
+            windowingSpecs, virtualColumns,
             context);
 
   }

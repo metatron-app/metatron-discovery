@@ -363,6 +363,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
+      removeUserDefinedAggregationFunction();
       streamQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

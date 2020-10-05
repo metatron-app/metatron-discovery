@@ -152,14 +152,14 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         DimensionField dimensionField = (DimensionField) reqField;
         app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
+        if (datasourceField == null) {
+          throw new QueryTimeExcetpion("'" + fieldName + "' not found  in datasource ( " + dataSource.getName() + " )");
+        }
+
         FieldFormat originalFormat = datasourceField.getFormatObject();
         FieldFormat format = dimensionField.getFormat();
         if (format == null) {
           format = originalFormat;
-        }
-
-        if (datasourceField == null) {
-          throw new QueryTimeExcetpion("'" + fieldName + "' not found  in datasource ( " + dataSource.getName() + " )");
         }
 
         // In case of GEO Type, druid engine recognizes it as metric
@@ -200,11 +200,11 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
               break;
             default:
               dimensions.add(new DefaultDimension(fieldName, aliasName,
-                                                  datasourceField == null ? null : datasourceField.getLogicalType()));
+                                                  datasourceField.getLogicalType()));
           }
         } else {
           dimensions.add(new DefaultDimension(fieldName, aliasName,
-                                              datasourceField == null ? null : datasourceField.getLogicalType()));
+                                              datasourceField.getLogicalType()));
         }
 
       } else if (reqField instanceof MeasureField) {
@@ -263,7 +263,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         if (this.metaFieldMap.containsKey(sort.getField())) {
           app.metatron.discovery.domain.datasource.Field field = this.metaFieldMap.get(sort.getField());
           if (field.getRole() == app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP) {
-            descending = sort.getDirection() == Sort.Direction.DESC ? true : false;
+            descending = sort.getDirection() == Sort.Direction.DESC;
           } // Ignore any sorting on the rest of the field of timestamp role
         }
       }
@@ -309,6 +309,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
+      removeUserDefinedAggregationFunction();
       selectQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 
