@@ -30,6 +30,8 @@ public class BulkLoadSpec implements Serializable {
 
   Map<String, Object> properties;
 
+  boolean temporary;
+
   public BulkLoadSpec() {
   }
 
@@ -38,6 +40,15 @@ public class BulkLoadSpec implements Serializable {
     this.paths = paths;
     this.schema = schema;
     this.tuningConfig = tuningConfig;
+    this.temporary = false;
+  }
+
+  public BulkLoadSpec(String basePath, List<String> paths, DataSchema schema, Map<String, Object> tuningConfig, boolean temporary) {
+    this.basePath = basePath;
+    this.paths = paths;
+    this.schema = schema;
+    this.tuningConfig = tuningConfig;
+    this.temporary = temporary;
   }
 
   public String getBasePath() {
@@ -78,5 +89,13 @@ public class BulkLoadSpec implements Serializable {
 
   public void setProperties(Map<String, Object> properties) {
     this.properties = properties;
+  }
+
+  public boolean isTemporary() {
+    return temporary;
+  }
+
+  public void setTemporary(boolean temporary) {
+    this.temporary = temporary;
   }
 }
