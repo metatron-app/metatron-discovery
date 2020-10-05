@@ -24,11 +24,7 @@ import org.supercsv.prefs.CsvPreference;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -155,11 +151,11 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
 
     final ResultSetMetaData meta = resultSet.getMetaData();
     final int numberOfColumns = meta.getColumnCount();
-    final List<Object> headers = new LinkedList<Object>();
+    final List<Object> headers = new LinkedList<>();
     for( int columnIndex = 1; columnIndex <= numberOfColumns; columnIndex++ ) {
       String columnLabel = meta.getColumnLabel(columnIndex);
       if(removeSubQueryTableName) {
-        if(columnLabel.indexOf(".") > -1) {
+        if(columnLabel.contains(".")) {
           headers.add(StringUtils.substringAfterLast(columnLabel, "."));
         } else {
           headers.add(columnLabel);
@@ -171,14 +167,14 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
     super.writeRow(headers);
   }
 
-  public void writeHeaders(List<String> headerList) throws SQLException, IOException {
+  public void writeHeaders(List<String> headerList) throws IOException {
     super.incrementRowAndLineNo(); // This will allow the correct row/line numbers to be used in any exceptions
     super.writeRow(headerList);
   }
 
   private void writeContents(ResultSet resultSet) throws SQLException, IOException {
     final int numberOfColumns = resultSet.getMetaData().getColumnCount();
-    final List<Object> objects = new LinkedList<Object>();
+    final List<Object> objects = new LinkedList<>();
     LOGGER.debug("writeContents numberOfColumns : {}", numberOfColumns);
     while( resultSet.next() ) {
       super.incrementRowAndLineNo(); // This will allow the correct row/line numbers to be used in any exceptions
@@ -186,8 +182,19 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
       objects.clear();
       for( int columnIndex = 1; columnIndex <= numberOfColumns; columnIndex++ ) {
         if(jdbcDialect != null && jdbcDialect.resultObjectConverter() != null){
-          Object columnObj = jdbcDialect.resultObjectConverter().apply(resultSet.getObject(columnIndex));
-          objects.add(columnObj);
+          try{
+            Object columnObj = jdbcDialect.resultObjectConverter().apply(resultSet.getObject(columnIndex));
+            objects.add(columnObj);
+          }catch(ClassCastException e){
+            //If type casting error of number type occurs, treat data as NaN
+            if(resultSet.getMetaData().getColumnType(columnIndex) == Types.DOUBLE
+                    || resultSet.getMetaData().getColumnType(columnIndex) == Types.BIGINT
+                    || resultSet.getMetaData().getColumnType(columnIndex) == Types.INTEGER
+                    || resultSet.getMetaData().getColumnType(columnIndex) == Types.FLOAT
+                    || resultSet.getMetaData().getColumnType(columnIndex) == Types.NUMERIC){
+              objects.add("NaN");
+            }
+          }
         } else {
           objects.add(resultSet.getString(columnIndex));
         }
