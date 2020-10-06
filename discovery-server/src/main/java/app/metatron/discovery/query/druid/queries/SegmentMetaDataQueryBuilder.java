@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.query.druid.queries;
 
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -134,6 +137,7 @@ public class SegmentMetaDataQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
+      removeUserDefinedAggregationFunction();
       query.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

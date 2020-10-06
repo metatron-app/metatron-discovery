@@ -785,7 +785,10 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
             } else {
               // alias가 없는경우
               if( agg.ref ) {
-                hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+                if(agg.aggregationType)
+                  hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+                else
+                  hyperParameter.field = agg.ref + '.' + agg.name;
               } else {
                 hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
               }
@@ -825,7 +828,10 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
           else {
             // alias가 없는경우
             if( agg.ref ) {
-              alias = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+              if(agg.aggregationType)
+                alias = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+              else
+                alias = agg.ref + '.' + agg.name;
             } else {
               alias = `${agg.aggregationType + '(' + agg.name + ')'}`;
             }
@@ -1684,7 +1690,11 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
         else {
           // alias가 없는경우
           if( agg.ref ) {
-            hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+            //If aggregationType is not defined, it may be aggregated user_defined field.
+            if(agg.aggregationType)
+              hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
+            else
+              hyperParameter.field = agg.ref + '.' + agg.name;
           } else {
             hyperParameter.field = `${agg.aggregationType + '(' + agg.name + ')'}`;
           }
