@@ -767,6 +767,7 @@ public class EngineMonitoringService {
         break;
       case SUPERVISOR_LAG:
         filters.add(new SelectorFilter("metric", "ingest/kafka/lag"));
+        filters.add(new SelectorFilter("dataSource", monitoringTarget.getDatasource()));
         break;
       case TASK_ROW:
         filters.add(new InFilter("metric", "ingest/events/processed", "ingest/events/unparseable", "ingest/events/thrownAway"));
