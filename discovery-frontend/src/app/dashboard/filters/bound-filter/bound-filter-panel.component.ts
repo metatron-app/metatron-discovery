@@ -203,7 +203,7 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
       this.datasourceService.getCandidateForFilter(filter, this.dashboard, this.getFiltersParam(filter), this.field)
         .then((result) => {
           if (result && result.hasOwnProperty('maxValue')) {
-            if ((filter.min === 0 && filter.max === 0) || type === 'reset') {
+            if ((filter.min === Number.MIN_SAFE_INTEGER && filter.max === Number.MAX_SAFE_INTEGER) || type === 'reset') {
               filter.min = result.minValue;
               filter.max = result.maxValue;
             }

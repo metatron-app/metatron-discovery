@@ -120,7 +120,7 @@ export class ConfigureFiltersBoundComponent extends AbstractFilterPopupComponent
   private _setBoundFilter(result: any, targetFilter: BoundFilter) {
     const boundFilter: BoundFilter = targetFilter;
     if (result && result.hasOwnProperty('maxValue')) {
-      if ((boundFilter.min === 0 && boundFilter.max === 0) || boundFilter.min == null) {
+      if ((boundFilter.min === Number.MIN_SAFE_INTEGER && boundFilter.max === Number.MAX_SAFE_INTEGER) || boundFilter.min == null) {
         boundFilter.min = result.minValue;
         boundFilter.max = result.maxValue;
       }

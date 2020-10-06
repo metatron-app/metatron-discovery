@@ -201,8 +201,8 @@ export class FilterUtil {
   public static getBasicBoundFilter(field: Field, importanceType?: string): BoundFilter {
     // 시간 필터
     const boundFilter = new BoundFilter(field.name);
-    boundFilter.max = 0;
-    boundFilter.min = 0;
+    boundFilter.max = Number.MAX_SAFE_INTEGER;
+    boundFilter.min = Number.MIN_SAFE_INTEGER;
     boundFilter.ref = field.ref;
     boundFilter.dataSource = field.dataSource;
 
