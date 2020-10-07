@@ -376,7 +376,7 @@ public class AuthenticationController {
 
       if (clientDetails.getRegisteredRedirectUri() == null
           || clientDetails.getRegisteredRedirectUri().isEmpty()) {
-        LOGGER.debug("client_id({}) redirectUri is empty",  clientId);
+        LOGGER.error("client_id({}) redirectUri is empty",  clientId);
         throw new BadRequestException("redirectUri is empty");
       }
 
@@ -431,17 +431,24 @@ public class AuthenticationController {
         response.sendRedirect("/");
       } else {
         String redirect_uri = request.getParameter("redirect_uri");
-        if (StringUtils.isEmpty(redirect_uri)) {
-          redirect_uri = String.valueOf(clientDetails.getRegisteredRedirectUri().toArray()[0]);
+        if (!clientDetails.getRegisteredRedirectUri().contains(redirect_uri)) {
+          response.sendRedirect(redirect_uri);
+        } else {
+          if (StringUtils.isEmpty(redirect_uri)) {
+            redirect_uri = String.valueOf(clientDetails.getRegisteredRedirectUri().toArray()[0]);
+          }
+          StringBuffer sb = new StringBuffer("/oauth/authorize?response_type=code&client_id=");
+          sb.append(clientId);
+          sb.append("&redirect_uri=");
+          sb.append(URLEncoder.encode(redirect_uri, "UTF-8"));
+          sb.append("&scope=");
+          if (clientDetails.getAutoApproveScopes().contains("true")) {
+            sb.append(StringUtils.join(clientDetails.getScope(), " "));
+          } else {
+            sb.append(StringUtils.join(clientDetails.getAutoApproveScopes(), " "));
+          }
+          response.sendRedirect(sb.toString());
         }
-        StringBuffer stringBuffer = new StringBuffer("/oauth/authorize?response_type=code&client_id=");
-        stringBuffer.append(clientId);
-        stringBuffer.append("&redirect_uri=");
-        stringBuffer.append(URLEncoder.encode(redirect_uri, "UTF-8"));
-        stringBuffer.append("&scope=");
-        stringBuffer.append(StringUtils.join(clientDetails.getAutoApproveScopes(), " "));
-
-        response.sendRedirect(stringBuffer.toString());
       }
 
     } catch (Exception e) {
