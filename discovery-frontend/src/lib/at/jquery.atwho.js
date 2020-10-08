@@ -1242,7 +1242,7 @@ View = (function() {
       } else {
         columnCount++;
         if (item.ref) item.name = item.ref + '.' + item.name;
-        item.class = getIconClass(item.type);
+        item.class = getIconClass(item.type, item.role);
         li = this.context.callbacks("tplEval").call(this.context, tpl, item, "onDisplay");
         $li = $(this.context.callbacks("highlighter").call(this.context, li, this.context.query.text));
         $li.data("item-data", item);
@@ -1277,7 +1277,7 @@ View = (function() {
     }
 
   };
-function getIconClass(itemType){
+function getIconClass(itemType, role){
     var result = '';
     switch (itemType.toUpperCase()) {
       case 'TIMESTAMP':
@@ -1299,6 +1299,9 @@ function getIconClass(itemType){
       case 'LNG':
       case 'LNT':
         result = 'ddp-icon-type-local';
+        break;
+      case 'USER_EXPR':
+        result = (role == 'DIMENSION')?'ddp-icon-type-ab':'ddp-icon-type-sharp';
         break;
       default:
         break;

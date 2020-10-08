@@ -799,8 +799,6 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    * @param field Element of field list. Its type is Field or CustomField.
    */
   public findNameForIcon(field:any) {
-
-    console.log(field.name);
     if(field.type == 'user_expr'){
       if(field.isTimestamp)
         return 'TIMESTAMP';
