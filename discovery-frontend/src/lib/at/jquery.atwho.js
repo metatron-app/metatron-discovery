@@ -804,14 +804,6 @@ EditableController = (function(superClass) {
       return;
     }
     if (isString && matched.length <= this.getOpt('maxLen', 20)) {
-
-      // ddp 매칭때 [ 없애기
-
-      // 시작 문자가 대괄호일 경우 [ 제거 ( 실제 데이터랑 매칭을 하기 위해서)
-      if(matched && matched.indexOf('[') === 0) {
-        matched = matched.substring(1);
-      }
-
       query = {
         text: matched,
         el: $query
