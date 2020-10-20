@@ -334,7 +334,13 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     // 현재 선택된 필드 설정
     this.selectedField = field;
     // 필드 상세 레이어 표시
-    this._dataContext.init(field, this.dashboard.configuration.dataSource, $(event.currentTarget), true);
+    let bdDatasource:BoardDataSource = _.cloneDeep(this.dashboard.configuration.dataSource);
+    if (bdDatasource.type === 'multi') {
+      bdDatasource = this.dashboard.configuration.dataSource.dataSources.find((datasource) => {
+        return DashboardUtil.isSameDataSource(datasource, this.dataSource);
+      })
+    }
+    this._dataContext.init(field, bdDatasource, $(event.currentTarget), true);
   } // function - openFieldDetailLayer
 
   /**
