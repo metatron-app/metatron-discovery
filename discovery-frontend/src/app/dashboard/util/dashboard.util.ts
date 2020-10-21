@@ -455,6 +455,10 @@ export class DashboardUtil {
     return board.configuration.filters.filter(filter => filter.dataSource === engineName);
   } // function - getFiltersForBoardDataSource
 
+  public static getCustomFieldsForBoardDataSource(board: Dashboard, engineName: string): CustomField[] {
+    return board.configuration.customFields.filter(filter => filter.dataSource === engineName);
+  }
+
   /**
    * Current Date Time 인지 확인
    * @param field
