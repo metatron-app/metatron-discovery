@@ -1532,7 +1532,13 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
     this.fieldDetailLayer = field;
 
     // 해당 context menu init, context menu show hide에 따른 field icon show hide 설정하기
-    this.showFieldIconsFl = this.dataContext.init(field, this.widget.dashBoard.configuration.dataSource, $(event.currentTarget));
+    let bdDatasource:BoardDataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
+    if (bdDatasource.type === 'multi') {
+      bdDatasource = this.widget.dashBoard.configuration.dataSource.dataSources.find((datasource) => {
+        return DashboardUtil.isSameDataSource(datasource, this.dataSource);
+      })
+    }
+    this.showFieldIconsFl = this.dataContext.init(field, bdDatasource, $(event.currentTarget));
   }
 
   /**

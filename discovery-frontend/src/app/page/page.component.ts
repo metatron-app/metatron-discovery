@@ -84,7 +84,7 @@ import {PageFilterPanel} from './filter/filter-panel.component';
 import {SecondaryIndicatorComponent} from './chart-style/secondary-indicator.component';
 import {DataLabelOptionComponent} from './chart-style/datalabel-option.component';
 import {ChartLimitInfo, DashboardUtil} from '../dashboard/util/dashboard.util';
-import {BoardConfiguration} from '../domain/dashboard/dashboard';
+import {BoardConfiguration, BoardDataSource} from '../domain/dashboard/dashboard';
 import {CommonUtil} from '../common/util/common.util';
 import {MapChartComponent} from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
@@ -1588,7 +1588,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.fieldDetailLayer = field;
 
     // 해당 context menu init, context menu show hide에 따른 field icon show hide 설정하기
-    this.showFieldIconsFl = this.dataContext.init(field, this.widget.dashBoard.configuration.dataSource, $(event.currentTarget));
+    let bdDatasource:BoardDataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
+    if (bdDatasource.type === 'multi') {
+      bdDatasource = this.widget.dashBoard.configuration.dataSource.dataSources.find((datasource) => {
+        return DashboardUtil.isSameDataSource(datasource, this.dataSource);
+      })
+    }
+    this.showFieldIconsFl = this.dataContext.init(field, bdDatasource, $(event.currentTarget));
   }
 
   /**
