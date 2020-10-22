@@ -96,9 +96,9 @@ public class DataSourceCheckJob extends QuartzJobBean {
           continue;
         }
 
-        if(ds.getStatus() == FAILED && BooleanUtils.isNotTrue(ds.getFailOnEngine())) {
+        /*if(ds.getStatus() == FAILED && BooleanUtils.isNotTrue(ds.getFailOnEngine())) {
           continue;
-        }
+        }*/
 
         LOGGER.debug("Start to check '{}' datasource.", ds.getName());
         try {

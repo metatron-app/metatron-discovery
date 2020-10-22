@@ -80,6 +80,7 @@ import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 
@@ -730,7 +731,7 @@ public class DataSourceService {
                                                      AnalysisType.LAST_ACCESS_TIME, AnalysisType.ROLLUP);
     } catch (Exception e) {
       LOGGER.warn("Fail to check datasource({}) : {}", dataSource.getEngineName(), e.getMessage());
-      if(dataSource.getStatus() != PREPARING) {
+      if(dataSource.getStatus() != PREPARING && dataSource.getStatus() != FAILED) {
         LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), DISABLED);
         dataSource.setStatus(DISABLED);
         dataSourceRepository.save(dataSource);
