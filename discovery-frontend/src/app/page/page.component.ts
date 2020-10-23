@@ -679,8 +679,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if (widgetDataSource.id !== dataSource.id) {
         this.widget.configuration = new PageWidgetConfiguration();
         this.widget.configuration.dataSource = DashboardUtil.getBoardDataSourceFromDataSource(this.widget.dashBoard, dataSource);
-        this.widget.configuration.filters = [];
-        this.widget.configuration.customFields = [];
+        this.widget.configuration.filters = DashboardUtil.getFiltersForBoardDataSource(this.widget.dashBoard,
+          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+        this.widget.configuration.customFields = DashboardUtil.getCustomFieldsForBoardDataSource(this.widget.dashBoard,
+          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
       }
 
       if (ConnectionType.LINK === this.dataSource.connType) {
