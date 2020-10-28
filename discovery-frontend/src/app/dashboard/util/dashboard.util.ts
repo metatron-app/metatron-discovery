@@ -456,7 +456,8 @@ export class DashboardUtil {
   } // function - getFiltersForBoardDataSource
 
   public static getCustomFieldsForBoardDataSource(board: Dashboard, engineName: string): CustomField[] {
-    return board.configuration.customFields.filter(filter => filter.dataSource === engineName);
+    return board.configuration.customFields ?
+      board.configuration.customFields.filter(filter => filter.dataSource === engineName) : [];
   }
 
   /**
