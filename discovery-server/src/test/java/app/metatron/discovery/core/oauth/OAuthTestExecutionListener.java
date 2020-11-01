@@ -55,8 +55,9 @@ public class OAuthTestExecutionListener extends AbstractTestExecutionListener {
   public OAuthTestExecutionListener() {
 
     // TODO no magic constants! These should probably come from the OAuthResourceServer Configuration!
-    clientAuthentication = new OAuth2Request(new HashMap<>(), "polaris-client", null, true,
-            Sets.newHashSet("read", "write"), Sets.newHashSet("polaris"), null, null, null);
+    clientAuthentication = new OAuth2Request(new HashMap<>(), "polaris_client", null, true,
+                                             Sets.newHashSet("read", "write"), Sets.newHashSet("polaris"), null, null,
+                                             null);
   }
 
   @Override

@@ -35,10 +35,11 @@ import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
- * Created by kyungtaak on 2016. 5. 16..
+ *
  */
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
@@ -335,8 +336,8 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
     reqMap.put("username", username);
     reqMap.put("password", "test");
     reqMap.put("email", testEmail);
-    reqMap.put("groupNames", Lists.newArrayList("SYSTEM_ADMIN", "SYSTEM_USER"));
-    reqMap.put("roleSetName", "TEST_ROLE_SET");
+    //reqMap.put("groupNames", Lists.newArrayList("SYSTEM_ADMIN", "SYSTEM_USER"));
+    //reqMap.put("roleSetName", "TEST_ROLE_SET");
     reqMap.put("orgCodes", Lists.newArrayList(targetOrgCode));
 
     // @formatter:off
@@ -532,17 +533,22 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
-  @Sql("/sql/test_user_delete.sql")
-  public void removeUserById() {
+  @Sql({"/sql/test_organization.sql", "/sql/test_user_delete.sql"})
+  public void should_delete_org_member_when_remove_user() {
+
+    String username = "al.lee";
+    String orgCode = "ORG01";
 
     // @formatter:off
     given()
         .auth().oauth2(oauth_token)
         .accept(ContentType.JSON)
         .contentType(ContentType.JSON)
+        .log().all()
     .when()
-        .delete("/api/users/{username}", "al.lee")
+        .delete("/api/users/{username}", username)
     .then()
+        .log().all()
         .statusCode(HttpStatus.SC_NO_CONTENT);
 
     // @formatter:on
@@ -552,10 +558,21 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
     .when()
-      .get("/api/users/{username}", "al.lee")
+      .get("/api/users/{username}", username)
     .then()
-      .statusCode(HttpStatus.SC_NOT_FOUND)
-      .log().all();
+      .statusCode(HttpStatus.SC_NOT_FOUND);
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/organizations/{code}/members", orgCode)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK)
+      .body("content", empty());
     // @formatter:on
   }
 

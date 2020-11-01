@@ -15,12 +15,9 @@
 package app.metatron.discovery.domain.user.group;
 
 import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.context.ContextService;
-import app.metatron.discovery.domain.user.DirectoryProfile;
-import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserProperties;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.org.OrganizationService;
@@ -28,7 +25,6 @@ import app.metatron.discovery.domain.user.role.PermissionRepository;
 import app.metatron.discovery.domain.user.role.RoleRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.querydsl.core.types.Predicate;
 import org.apache.commons.lang.StringUtils;
@@ -142,70 +138,24 @@ public class GroupController {
   @RequestMapping(path = "/groups", method = RequestMethod.POST)
   public ResponseEntity<?> createGroups(@RequestBody Group group) {
 
-    if (groupService.checkDuplicatedName(group.getName())) {
-      throw new BadRequestException("Duplicated group name : " + group.getName());
-    }
+    Group createdGroup = groupService.create(group);
 
-    Group result = groupRepository.saveAndFlush(group);
-
-    // Context 저장
-    contextService.saveContextFromDomain(group);
-
-    // Add Organization
-    if (userProperties.getUseOrganization()) {
-      orgService.addMembers(group.getOrgCodes(), result.getId(), result.getName(), DirectoryProfile.Type.GROUP);
-    }
-
-    return ResponseEntity.created(URI.create("")).body(result);
+    return ResponseEntity.created(URI.create("")).body(createdGroup);
   }
 
   @RequestMapping(path = "/groups/{groupId}", method = RequestMethod.PUT)
   public ResponseEntity<?> updateGroups(@PathVariable("groupId") String groupId, @RequestBody Group group) {
 
-    Group persistGroup = groupRepository.findOne(groupId);
-    if(persistGroup == null) {
-      throw new ResourceNotFoundException(groupId);
-    }
-
-    // 그룹명 셋팅
-    if(StringUtils.isNotBlank(group.getName()) && !persistGroup.getName().equals(group.getName())) {
-
-      if (groupService.checkDuplicatedName(group.getName())) {
-        throw new RuntimeException("Duplicated group name : " + group.getName());
-      }
-
-      persistGroup.setName(group.getName());
-
-      // Workspace Member 이름 갱신
-      workspaceMemberRepository.updateMemberName(persistGroup.getId(), persistGroup.getName());
-    }
-
-    // 그룹 설명 셋팅
-    persistGroup.setDescription(group.getDescription());
-
-    // Context 저장
-    persistGroup.setContexts(group.getContexts());
-    contextService.saveContextFromDomain(persistGroup);
-
-    Group result = groupRepository.save(persistGroup);
+    group.setId(groupId);
+    Group result = groupService.update(group);
 
     return ResponseEntity.ok(result);
   }
 
   @RequestMapping(path = "/groups/{groupId}", method = RequestMethod.DELETE)
-  public ResponseEntity<?> deleteGroups(@PathVariable("groupId") String groupId) {
-    Group persistGroup = groupRepository.findOne(groupId);
-    if(persistGroup == null) {
-      throw new ResourceNotFoundException(groupId);
-    }
+  public ResponseEntity<?> deleteGroup(@PathVariable("groupId") String groupId) {
 
-    // Context 정보 삭제
-    contextService.removeContextFromDomain(persistGroup);
-
-    groupRepository.delete(persistGroup);
-
-    // Workspace Member 삭제
-    workspaceMemberRepository.deleteByMemberIds(Lists.newArrayList(groupId));
+    groupService.delete(groupId);
 
     return ResponseEntity.noContent().build();
   }
@@ -250,30 +200,7 @@ public class GroupController {
   @RequestMapping(path = "/groups/{id}/members", method = {RequestMethod.PATCH, RequestMethod.PUT})
   public ResponseEntity<?> updateGroupMembers(@PathVariable("id") String groupId, @RequestBody List<CollectionPatch> members) {
 
-    Group persistGroup = groupRepository.findOne(groupId);
-    if(persistGroup == null) {
-      throw new ResourceNotFoundException(groupId);
-    }
-
-    for (CollectionPatch patch : members) {
-      String memberId = patch.getValue("memberId");
-        switch (patch.getOp()) {
-          case ADD:
-            User realUser = userRepository.findByUsername(memberId);
-            if(realUser != null) {
-              persistGroup.addGroupMember(new GroupMember(memberId, realUser.getFullName()));
-            }
-            break;
-          case REMOVE:
-            GroupMember removeMember = groupMemberRepository.findByGroupAndMemberId(persistGroup, memberId);
-            persistGroup.removeGroupMember(removeMember);
-            break;
-          default:
-            LOGGER.warn("Not supported action");
-        }
-    }
-
-    groupRepository.save(persistGroup);
+    groupService.updateGroupMembers(groupId, members);
 
     return ResponseEntity.noContent().build();
   }

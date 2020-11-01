@@ -163,10 +163,11 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
-  @Sql("/sql/test_group_list.sql")
+  @Sql({"/sql/test_organization.sql", "/sql/test_group_list.sql"})
   public void deleteGroup() {
 
     String groupId = "group_test_01";
+    String orgCode = "ORG01";
 
     // @formatter:off
     given()
@@ -188,6 +189,18 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
     .then()
       .statusCode(HttpStatus.SC_NOT_FOUND)
       .log().all();
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/organizations/{code}/members", orgCode)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK)
+      .body("content", empty());
     // @formatter:on
 
   }

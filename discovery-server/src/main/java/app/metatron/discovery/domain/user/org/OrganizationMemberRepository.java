@@ -18,6 +18,7 @@ import app.metatron.discovery.domain.user.DirectoryProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,5 +32,8 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
   OrganizationMember findByOrganizationAndMemberId(Organization org, String memberId);
 
   List<OrganizationMember> findByType(DirectoryProfile.Type type);
+
+  @Transactional
+  Long deleteByMemberId(String memberId);
 
 }

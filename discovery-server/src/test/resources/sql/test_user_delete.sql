@@ -1,2 +1,7 @@
 INSERT INTO users(ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, USER_EMAIL, USER_FULL_NAME, USER_IMAGE_URL, USER_STATUS, USER_STATUS_MSG, USER_TEL, USER_NAME, USER_PASSWORD) VALUES
 ('test-remove-01', 'admin', TIMESTAMP '2017-09-10 10:30:00.00', 'admin', now(), 0, 'al.lee@metatron.com', 'User-del', NULL, 'ACTIVATED', NULL, NULL, 'al.lee', 'al.lee');
+
+INSERT INTO user_org_member(ID, MEMBER_ID, MEMBER_NAME, MEMBER_TYPE, ORG_ID) VALUES
+(999, 'al.lee', 'User-del', 'USER', 'org_test_01');
+
+
