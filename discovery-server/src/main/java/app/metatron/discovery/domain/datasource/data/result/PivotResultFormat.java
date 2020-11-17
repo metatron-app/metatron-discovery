@@ -303,7 +303,7 @@ public class PivotResultFormat extends SearchResultFormat {
       }
 
       List<String> rowKeys = Lists.newArrayList();
-      for (String keyField : keyFields) {
+      for (String keyField : replacedKeyFields) {
         rowKeys.add(aNode.get(keyField).textValue());
       }
 
@@ -325,7 +325,7 @@ public class PivotResultFormat extends SearchResultFormat {
         // Escape separator if nodeKey start with separator. ex. -SUM(m1) --SUM(m1)
         fieldName = fieldName.startsWith(separator) ? fieldName.substring(pivots.size()) : fieldName;
 
-        if(keyFields.contains(fieldName))
+        if(replacedKeyFields.contains(fieldName))
           continue;
 
         // Percentage Case

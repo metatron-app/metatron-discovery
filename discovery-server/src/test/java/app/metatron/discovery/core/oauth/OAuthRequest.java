@@ -28,11 +28,11 @@ public @interface OAuthRequest {
     /**
      * The roles for the OAuth access token
      */
-    String[] value() default {"ROLE_EMPLOYEE"};
+    String[] value() default {"ROLE_ADMIN"};
 
     /**
      * The username for the OAuth access token
      */
-    String username() default "employee@techdev.de";
+    String username() default "admin@metatron.app";
 
 }
