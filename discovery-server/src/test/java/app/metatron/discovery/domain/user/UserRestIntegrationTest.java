@@ -536,8 +536,12 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
   @Sql({"/sql/test_organization.sql", "/sql/test_user_delete.sql"})
   public void should_delete_org_member_when_remove_user() {
 
-    String username = "al.lee";
+    String username = "user01";
     String orgCode = "ORG01";
+
+    /*
+      Delete the user
+     */
 
     // @formatter:off
     given()
@@ -550,8 +554,11 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
     .then()
         .log().all()
         .statusCode(HttpStatus.SC_NO_CONTENT);
-
     // @formatter:on
+
+    /*
+      Confirm deleted the user
+     */
 
     // @formatter:off
     given()
@@ -562,6 +569,10 @@ public class UserRestIntegrationTest extends AbstractRestIntegrationTest {
     .then()
       .statusCode(HttpStatus.SC_NOT_FOUND);
     // @formatter:on
+
+    /*
+      Confirm deleted the organization member
+     */
 
     // @formatter:off
     given()
