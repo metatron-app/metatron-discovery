@@ -677,6 +677,7 @@ public class UserController {
         if (user.getStatus() == User.Status.ACTIVATED) {
           throw new UserException("Already activated user.");
         }
+        user.setFailCnt(null);
         user.setStatus(User.Status.ACTIVATED);
         break;
       case LOCKED:

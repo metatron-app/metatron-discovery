@@ -209,17 +209,18 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     // 고급분석 API 호출시 필요한 부가 정보들
     const param: Analysis = new Analysis();
     param.dataSource = _.cloneDeep(widgetConf.dataSource);
+    param.dataSource.name = (param.dataSource.engineName && param.dataSource.name != param.dataSource.engineName)?param.dataSource.engineName:param.dataSource.name;
     param.limits = _.cloneDeep(widgetConf.limit);
     param.resultFormat = {'type': 'chart', 'mode': 'line', 'columnDelimeter': '―'};
     param.pivot = _.cloneDeep(widgetConf.pivot);
     param.userFields = _.cloneDeep(
       CommonUtil.objectToArray(widgetConf.customFields)
-        .filter(item => item.dataSource === widgetConf.dataSource.engineName)
+        .filter(item => item.dataSource === param.dataSource.name)
     );
 
     if (widget && widget.dashBoard && widget.dashBoard.configuration) {
       param.filters = _.cloneDeep(
-        widget.dashBoard.configuration.filters.filter(item => item.dataSource === widgetConf.dataSource.engineName)
+        widget.dashBoard.configuration.filters.filter(item => item.dataSource === param.dataSource.name)
       );
     }
     // 고급분석 API 시 사용하는 예측선 데이터
@@ -374,8 +375,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     const additionLowerSeries = _.cloneDeep(upperSeries);
     additionLowerSeries.name = `${targetSeries.name}${this.predictionLineTypePrefix}${AnalysisPredictionService.predictionLineTypeAdditional}`;
     const additionLowerSeriesData = lowerSeriesData.map((value, dataIdx) => {
-      const returnValue = value == null ? lower[dataIdx] : null;
-      return returnValue;
+      return value == null ? lower[dataIdx] : null;
     });
     additionLowerSeries.value = defSeriesData.concat(additionLowerSeriesData);
     return additionLowerSeries;

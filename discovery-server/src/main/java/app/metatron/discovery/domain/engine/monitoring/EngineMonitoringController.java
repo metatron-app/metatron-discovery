@@ -288,6 +288,11 @@ public class EngineMonitoringController {
     return ResponseEntity.ok(monitoringQueryService.getQueryList(engineMonitoringQueryRequest));
   }
 
+  @RequestMapping(value = "/monitoring/queries/{queryId}", method = RequestMethod.GET)
+  public ResponseEntity<?> getQueryDetail(@PathVariable String queryId) {
+    return ResponseEntity.ok(monitoringQueryService.getQueryDetail(queryId));
+  }
+
   @RequestMapping(value = "/monitoring/query/criteria", method = RequestMethod.GET)
   public ResponseEntity<?> getCriteriaInQuery() {
     List<ListCriterion> listCriteria = monitoringQueryService.getListCriterionInQuery();

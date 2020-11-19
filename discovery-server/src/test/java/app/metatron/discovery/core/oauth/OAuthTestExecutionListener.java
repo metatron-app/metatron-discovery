@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.asList;
 
 /**
- * Created by kyungtaak on 2016. 5. 8..
+ * Dummy Token Generator for Integration Test
  */
 public class OAuthTestExecutionListener extends AbstractTestExecutionListener {
 
@@ -54,10 +54,8 @@ public class OAuthTestExecutionListener extends AbstractTestExecutionListener {
 
   public OAuthTestExecutionListener() {
 
-    // TODO no magic constants! These should probably come from the OAuthResourceServer Configuration!
-    clientAuthentication = new OAuth2Request(new HashMap<>(), "polaris_client", null, true,
-                                             Sets.newHashSet("read", "write"), Sets.newHashSet("polaris"), null, null,
-                                             null);
+    // You should set client infomation from the OAuthResourceServer Configuration!
+    clientAuthentication = new OAuth2Request(new HashMap<>(), "polaris_trusted", null, true, Sets.newHashSet("read", "write"), null, null, null, null);
   }
 
   @Override

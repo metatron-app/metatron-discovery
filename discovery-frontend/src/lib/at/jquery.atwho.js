@@ -804,14 +804,6 @@ EditableController = (function(superClass) {
       return;
     }
     if (isString && matched.length <= this.getOpt('maxLen', 20)) {
-
-      // ddp 매칭때 [ 없애기
-
-      // 시작 문자가 대괄호일 경우 [ 제거 ( 실제 데이터랑 매칭을 하기 위해서)
-      if(matched && matched.indexOf('[') === 0) {
-        matched = matched.substring(1);
-      }
-
       query = {
         text: matched,
         el: $query
@@ -1250,7 +1242,7 @@ View = (function() {
       } else {
         columnCount++;
         if (item.ref) item.name = item.ref + '.' + item.name;
-        item.class = getIconClass(item.type);
+        item.class = getIconClass(item.type, item.role);
         li = this.context.callbacks("tplEval").call(this.context, tpl, item, "onDisplay");
         $li = $(this.context.callbacks("highlighter").call(this.context, li, this.context.query.text));
         $li.data("item-data", item);
@@ -1285,7 +1277,7 @@ View = (function() {
     }
 
   };
-function getIconClass(itemType){
+function getIconClass(itemType, role){
     var result = '';
     switch (itemType.toUpperCase()) {
       case 'TIMESTAMP':
@@ -1307,6 +1299,9 @@ function getIconClass(itemType){
       case 'LNG':
       case 'LNT':
         result = 'ddp-icon-type-local';
+        break;
+      case 'USER_EXPR':
+        result = (role == 'DIMENSION')?'ddp-icon-type-ab':'ddp-icon-type-sharp';
         break;
       default:
         break;

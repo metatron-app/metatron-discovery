@@ -35,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,9 @@ import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionPredicate;
+import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.QDataSource;
 import app.metatron.discovery.domain.user.CachedUserService;
@@ -64,6 +68,8 @@ import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.EnumUtils;
 
 import static app.metatron.discovery.domain.workspace.Workspace.PublicType.SHARED;
+import static app.metatron.discovery.domain.workspace.WorkspacePermissions.PERM_WORKSPACE_EDIT_WORKBENCH;
+import static app.metatron.discovery.domain.workspace.WorkspacePermissions.PERM_WORKSPACE_MANAGE_WORKBENCH;
 
 /**
  * Created by kyungtaak on 2017. 7. 23..
@@ -109,6 +115,9 @@ public class WorkspaceService {
 
   @Autowired
   RoleRepository roleRepository;
+
+  @Autowired
+  DataConnectionRepository connectionRepository;
 
   @Transactional
   public Workspace createWorkspaceByUserCreation(User user, boolean ifExistThrowException) {
@@ -344,7 +353,19 @@ public class WorkspaceService {
     String currentUser = AuthUtils.getAuthUserName();
     // Owner 는 모든 권한을 가짐
     if (currentUser.equals(workspace.getOwnerId())) {
-      return WorkspacePermissions.allPermissions();
+      //Users have workbench permissions if there are connections available.
+      Predicate searchPredicated = DataConnectionPredicate
+          .searchListForWorkspace(null, null, null, workspace.getId());
+      ArrayList<DataConnection> connections = Lists.newArrayList(connectionRepository.findAll(searchPredicated));
+
+      if(connections.isEmpty()){
+        Set<String> allPermissions = WorkspacePermissions.allPermissions();
+        allPermissions.remove(PERM_WORKSPACE_EDIT_WORKBENCH);
+        allPermissions.remove(PERM_WORKSPACE_MANAGE_WORKBENCH);
+        return allPermissions;
+      } else {
+        return WorkspacePermissions.allPermissions();
+      }
     }
 
     // Workspace 내 멤버 여부 확인하고 Role 명 가져오기

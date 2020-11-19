@@ -195,7 +195,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
         if (UserDefinedField.REF_NAME.equals(refName) && virtualColumns.containsKey(fieldName)) {
           //dimensions.add(new DefaultDimension(fieldName, aliasName));
           addDimension(new DefaultDimension(fieldName, aliasName));
-          unUsedVirtualColumnName.remove(fieldName);
           continue;
         }
 
@@ -222,7 +221,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
         switch (datasourceField.getLogicalType()) {
           case STRING:
-            if (format != null && format instanceof DefaultFormat) {
+            if (format instanceof DefaultFormat) {
               // FixMe : replace expression
               dimensions.add(new ExtractionDimension(engineColumnName,
                       aliasName,
@@ -382,8 +381,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     dimensions.clear();
     dimensions.addAll(depdupeDimensions);
 
-    List<Aggregation> depdupeAggregations = new ArrayList<Aggregation>();
-    Set setNames = new HashSet();
+    List<Aggregation> depdupeAggregations = new ArrayList<>();
+    Set<String> setNames = new HashSet<>();
     for (Aggregation curAggregation : aggregations) {
       if (!setNames.contains(curAggregation.getName())) {
         depdupeAggregations.add(curAggregation);
@@ -398,7 +397,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
       outputColumns.add("count");
     }
 
-    List<PostAggregation> depdupePostAggregations = new ArrayList<PostAggregation>();
+    List<PostAggregation> depdupePostAggregations = new ArrayList<>();
     setNames.clear();
     for (PostAggregation curPostAggregation : postAggregations) {
       if (!setNames.contains(curPostAggregation.getName())) {
@@ -407,6 +406,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
       }
     }
     postAggregations = depdupePostAggregations;
+
+    removeUserDefinedAggregationFunction();
 
     return this;
   }
@@ -536,7 +537,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
         String likeExpr = StringUtils.replaceEach(wildCardFilter.getValue(),
                 new String[]{"\\", "_", "%"},
                 new String[]{"\\\\", "\\_", "\\%"});
-        ;
+
         if (wildCardFilter.getContains() == BEFORE) {
           likeExpr = "%" + likeExpr;
         } else if (wildCardFilter.getContains() == AFTER) {
@@ -552,9 +553,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     }
 
     // count aggregation 이 하나도 없을 경우 추가
-    if (aggregations.stream()
-            .filter(aggregation -> RESERVED_WORD_COUNT.equals(aggregation.getName()))
-            .count() == 0) {
+    if (aggregations.stream().noneMatch(aggregation -> RESERVED_WORD_COUNT.equals(aggregation.getName()))) {
       aggregations.add(new CountAggregation(RESERVED_WORD_COUNT));
       outputColumns.add(RESERVED_WORD_COUNT);
     }
@@ -936,9 +935,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
     if (virtualColumns != null) {
       // 먼저, 사용하지 않는 사용자 정의 컬럼 삭제
-      for (String removeColumnName : unUsedVirtualColumnName) {
-        virtualColumns.remove(removeColumnName);
-      }
       groupByQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 

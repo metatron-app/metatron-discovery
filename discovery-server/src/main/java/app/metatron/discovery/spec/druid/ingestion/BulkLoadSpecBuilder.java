@@ -26,6 +26,8 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
 
   String basePath;
 
+  boolean temporary;
+
   List<String> paths;
 
   Map<String, Object> tuningConfig;
@@ -62,6 +64,11 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
     return this;
   }
 
+  public BulkLoadSpecBuilder temporary(boolean temporary) {
+    this.temporary = temporary;
+    return this;
+  }
+
   public BulkLoadSpec build() {
     BulkLoadSpec spec = new BulkLoadSpec();
     spec.setSchema(dataSchema);
@@ -69,6 +76,7 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
     spec.setPaths(paths);
     spec.setTuningConfig(tuningConfig);
     spec.setProperties(properties);
+    spec.setTemporary(temporary);
 
     return spec;
   }

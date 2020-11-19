@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.datasource.data.SqlQueryRequest;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -76,6 +78,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.QueryParam;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListFilter;
@@ -220,6 +223,13 @@ public class DataSourceController {
     if (CollectionUtils.isNotEmpty(temporaries)) {
       DataSourceTemporary temporary = temporaries.get(0);
       LOGGER.info("Already created temporary datasource : {}", temporary.getName());
+
+      //Find real druid data source
+      if(!engineQueryService.isExistsByName(temporary.getName())) {
+        temporary.setStatus(DataSourceTemporary.LoadStatus.DISABLE);
+        temporaryRepository.save(temporary);
+      }
+
       if (temporary.getStatus() == DataSourceTemporary.LoadStatus.ENABLE) {
         // Expired Time 재조정 후 정보 리턴
         temporary.setNextExpireTime(DateTime.now().plusSeconds(temporary.getExpired()));
@@ -344,11 +354,11 @@ public class DataSourceController {
                                                    @RequestParam(value = "includeUnloadedField", required = false) Boolean includeUnloadedField,
                                                    @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
 
-    List results = dataSourceService.findMultipleDataSourceIncludeTemporary(ids, includeUnloadedField);
+    List<DataSource> results = dataSourceService.findMultipleDataSourceIncludeTemporary(ids, includeUnloadedField);
 
     return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
-                                                            dataSourceProjections.getProjectionByName(projection),
-                                                            results));
+            dataSourceProjections.getProjectionByName(projection),
+            results));
   }
 
   /**
@@ -499,6 +509,8 @@ public class DataSourceController {
       throw new ResourceNotFoundException(id);
     }
 
+    LOGGER.debug("appendDataSource({}) ingestionInfo : {}", id, GlobalObjectMapper.writeValueAsString(ingestionInfo));
+
     // TODO: 기존 적재 작업과 비교하여 제한이 필요한 경우 제한 필요
     dataSource.setIngestionInfo(ingestionInfo);
 
@@ -506,6 +518,9 @@ public class DataSourceController {
     if (BooleanUtils.isTrue(singleMode)) {
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
     }
+
+    dataSource.setStatus(PREPARING);
+    dataSourceRepository.saveAndFlush(dataSource);
 
     dataSource.setAppend(false);
 
@@ -590,7 +605,7 @@ public class DataSourceController {
       return new ArrayList<>();
     } else {
       return segmentMetaData.getColumns().entrySet().stream()
-                            .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
+                            .filter(entry -> (!(entry.getKey().equals("__time") || entry.getKey().equals("count"))))
                             .map(entry -> {
                               SegmentMetaDataResponse.ColumnInfo value = entry.getValue();
 
@@ -829,7 +844,7 @@ public class DataSourceController {
                                                @RequestParam(value = "timeZone", required = false, defaultValue = "UTC") String timeZone,
                                                @RequestParam(value = "count", required = false, defaultValue = "5") int count) {
 
-    CronExpression cronExpression = null;
+    CronExpression cronExpression;
     try {
       cronExpression = new CronExpression(expr);
     } catch (ParseException e) {
@@ -860,7 +875,7 @@ public class DataSourceController {
     LogicalType type = wktCheckRequest.getGeoType();
 
     WKTReader wktReader = new WKTReader();
-    Geometry geometry = null;
+    Geometry geometry;
 
     boolean valid = true;
     String message = null;
@@ -910,7 +925,7 @@ public class DataSourceController {
     } else if (c.equals(Polygon.class)) {
       logicalType = LogicalType.GEO_POLYGON;
     } else if (c.equals(MultiLineString.class)) {
-      if (type != null && type == LogicalType.GEO_POLYGON) { // It can be a polygon.
+      if (type == LogicalType.GEO_POLYGON) { // It can be a polygon.
         logicalType = LogicalType.GEO_POLYGON;
       } else {
         logicalType = LogicalType.GEO_LINE;
@@ -996,7 +1011,7 @@ public class DataSourceController {
                                        @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
                                        @RequestParam(value = "firstHeaderRow", required = false, defaultValue = "true") boolean firstHeaderRow) {
 
-    IngestionDataResultResponse resultResponse = null;
+    IngestionDataResultResponse resultResponse;
 
     try {
       String filePath = System.getProperty("java.io.tmpdir") + File.separator + fileKey;
@@ -1055,19 +1070,21 @@ public class DataSourceController {
                                       Pageable pageable,
                                       PersistentEntityResourceAssembler resourceAssembler) {
 
-    List<String> statuses = request == null ? null : request.getStatus();
-    List<String> workspaces = request == null ? null : request.getWorkspace();
-    List<String> createdBys = request == null ? null : request.getCreatedBy();
-    List<String> userGroups = request == null ? null : request.getUserGroup();
-    List<String> dataSourceTypes = request == null ? null : request.getDataSourceType();
-    List<String> sourceTypes = request == null ? null : request.getSourceType();
-    List<String> connectionTypes = request == null ? null : request.getConnectionType();
-    DateTime createdTimeFrom = request == null ? null : request.getCreatedTimeFrom();
-    DateTime createdTimeTo = request == null ? null : request.getCreatedTimeTo();
-    DateTime modifiedTimeFrom = request == null ? null : request.getModifiedTimeFrom();
-    DateTime modifiedTimeTo = request == null ? null : request.getModifiedTimeTo();
-    String containsText = request == null ? null : request.getContainsText();
-    List<Boolean> published = request == null ? null : request.getPublished();
+    assert request != null;
+
+    List<String> statuses = request.getStatus();
+    List<String> workspaces = request.getWorkspace();
+    List<String> createdBys = request.getCreatedBy();
+    List<String> userGroups = request.getUserGroup();
+    List<String> dataSourceTypes = request.getDataSourceType();
+    List<String> sourceTypes = request.getSourceType();
+    List<String> connectionTypes = request.getConnectionType();
+    DateTime createdTimeFrom = request.getCreatedTimeFrom();
+    DateTime createdTimeTo = request.getCreatedTimeTo();
+    DateTime modifiedTimeFrom = request.getModifiedTimeFrom();
+    DateTime modifiedTimeTo = request.getModifiedTimeTo();
+    String containsText = request.getContainsText();
+    List<Boolean> published = request.getPublished();
 
     LOGGER.debug("Parameter (status) : {}", statuses);
     LOGGER.debug("Parameter (workspace) : {}", workspaces);
@@ -1261,10 +1278,10 @@ public class DataSourceController {
   ResponseEntity<?> getPreviewFromKafka(@RequestParam(value = "bootstrapServer") String bootstrapServer,
                                        @RequestParam(value = "topic") String topic) {
 
-    Map resultMap = Maps.newHashMap();
+    Map<String, Object> resultMap = Maps.newHashMap();
     IngestionDataResultResponse resultResponse = null;
     try {
-      List kafkaData = dataSourceService.getKafkaPreviewData(bootstrapServer, topic);
+      List<String> kafkaData = dataSourceService.getKafkaPreviewData(bootstrapServer, topic);
       if (CollectionUtils.isNotEmpty(kafkaData)) {
         JsonProcessor jsonProcessor = new JsonProcessor().parse(kafkaData);
         resultResponse = jsonProcessor.ingestionDataResultResponse();
@@ -1289,6 +1306,17 @@ public class DataSourceController {
       LOGGER.error("Failed to parse kafka ({} : {}) : {}", bootstrapServer, topic, e.getMessage());
       throw new DataSourceIngestionException("Fail to parse kafka.", e.getCause());
     }
+  }
+
+  @RequestMapping(value="/datasources/{id}/setSizeAndStatus", method = RequestMethod.GET)
+  public ResponseEntity<?> setSizeAndStatus(@PathVariable String id) {
+    DataSource dataSource = dataSourceRepository.findOne(id);
+    if (dataSource == null) {
+      throw new ResourceNotFoundException(id);
+    }
+
+    dataSource = dataSourceService.setSizeAndStatus(dataSource);
+    return ResponseEntity.ok(dataSource);
   }
 
   class TimeFormatCheckResponse {

@@ -76,4 +76,14 @@ public class DistinctSketchAggregation implements Aggregation {
   public void setShouldFinalize(Boolean shouldFinalize) {
     this.shouldFinalize = shouldFinalize;
   }
+
+  @Override
+  public String toString() {
+    return "GenericSumAggregation{" +
+            "name='" + name + '\'' +
+            ", fieldName='" + fieldName + '\'' +
+            ", size='" + size + '\'' +
+            ", shouldFinalize='" + shouldFinalize + '\'' +
+            '}';
+  }
 }

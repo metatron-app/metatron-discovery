@@ -153,9 +153,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public filters: any[];
 
   // 페이징된 필드
-  public pagedFields: Field[];
+  public pagedFields: any[];
 
-  public orderingFields: Field[] = [];
+  public orderingFields: any[] = [];
 
   // 자동완성 엘리먼트
   public autocompletor: any;
@@ -333,7 +333,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // 페이징처리
   public setFieldPage(page: number, type?: string) {
-    this.orderingFields = _.cloneDeep(this.fields);
+    this.orderingFields = [];
+    this.orderingFields = this.orderingFields.concat(this.fields).concat(this.customFields);
+
     if (this.orderingMode != 'DATA') {
       this.orderingFields = this.orderingFields.sort((a:Field, b:Field) => {
         if (this.orderingMode === 'AZ') {
@@ -375,7 +377,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   // 자동완성 필터리스트 셋팅
   public setFilters() {
-    this.filters = this.fields;
+    this.filters = [];
+    this.filters = this.filters.concat(this.fields).concat(this.customFields);
     // 타입에 따라 필터링
     if (this.selectedColumnType === ColumnType.DIMENSION) {
       this.filters = this.filters.concat(this.calculationFunctions.filter((item) => {
@@ -399,6 +402,10 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
         acceptSpaceBar: true,
         displayTpl: '<li><a href="javascript:"><em class="${class}"></em>${name}</a></li>',
         callbacks: {
+          matcher: this.matcherCallback, //Find matched string for autocompletion
+          filter: this.filterCallback, //Find matched list for query
+          sorter: this.sorterCallback, //Sort result
+          highlighter: this.highlighterCallback, //Display highlight format
           beforeInsert: this.beforeInsertCallback,
           afterInsert: this.afterInsertCallback
         }
@@ -412,23 +419,13 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public beforeInsertCallback(value: string, $li: any) {
     const data = $li.data().itemData;
 
-    // ddp 앞뒤 공백 제거
-    // 시작 문자가 대괄호일 경우 [ 제거
+    // Check if data is function or field
     if (data.commonCode) {
       return '<span >' + value + '( <span id="focusElement"></span> )</span>';
     } else {
-
-      let color = '#439fe5';
-      if (data.role === FieldRole.DIMENSION) {
-        color = '#5fd7a5';
-      }
-
-      if (value.hasOwnProperty('indexOf') && value.indexOf('[') === 0) {
-        return '<span style="color:' + color + '">[' + value.substring(1) + ']</span>';
-      } else {
-        return '<span style="color:' + color + '">[' + value + ']</span>';
-      }
-
+      const color = (data.role === FieldRole.DIMENSION)?'#5fd7a5':'#439fe5';
+      const user_defined_prefix = (data.type == 'user_expr')?'user_defined.':'';
+      return '<span style="color:' + color + '">[' + user_defined_prefix + ((value.startsWith('['))?value.substring(1):value) + ']</span>';
     }
   }
 
@@ -449,6 +446,113 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       // range를 갱신한다.
       sel.addRange(range);
     }
+  }
+
+  /**
+   * override default filter callback of atwho function
+   * @param query query string
+   * @param data
+   * @param searchKey search key field name
+   */
+  public filterCallback(query, data, searchKey) {
+    var _results, i, item, len;
+    _results = [];
+
+    if(query.startsWith('['))
+      query = query.substring(1);
+
+    if(query.startsWith('user_defined.'))
+      query = query.substring(13);
+
+    for (i = 0, len = data.length; i < len; i++) {
+      item = data[i];
+      if (~new String(item[searchKey]).toLowerCase().indexOf(query.toLowerCase())) {
+        _results.push(item);
+      }
+    }
+    return _results;
+  }
+
+  /**
+   * override default matcher callback of atwho function
+   * @param flag
+   * @param subtext
+   * @param should_startWithSpace
+   * @param acceptSpaceBar
+   */
+  public matcherCallback(flag, subtext, should_startWithSpace, acceptSpaceBar) {
+    var _a, _y, match, regexp, space;
+    flag = flag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+
+    if (should_startWithSpace) {
+      flag = '(?:^|\\s+)' + flag;
+    }
+    _a = decodeURI("%C3%80");
+    _y = decodeURI("%C3%BF");
+    space = acceptSpaceBar ? "\ " : "";
+
+    // 앞에 대괄호 오는 케이스 추가
+    regexp = new RegExp(flag + "(\\[?[A-Za-z" + _a + "-" + _y + "0-9_" + space + "\'\.]*)$|" + flag + "([^\\x00-\\xff]*)$", 'gi');
+    match = regexp.exec(subtext);
+
+    if (match) {
+      return match[2] ? match[2] : match[1];
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * override default sorter callback of atwho function
+   * @param query
+   * @param items
+   * @param searchKey
+   */
+  public sorterCallback(query, items, searchKey) {
+    var _results, i, item, len;
+    if (!query) {
+      return items;
+    }
+    _results = [];
+    if(query.startsWith('['))
+      query = query.substring(1);
+
+    if(query.startsWith('user_defined.'))
+      query = query.substring(13);
+
+    for (i = 0, len = items.length; i < len; i++) {
+      item = items[i];
+      item.atwho_order = new String(item[searchKey]).toLowerCase().indexOf(query.toLowerCase());
+      if (item.atwho_order > -1) {
+        _results.push(item);
+      }
+    }
+    return _results.sort(function(a, b) {
+      return a.atwho_order - b.atwho_order;
+    });
+  }
+
+  /**
+   * override default highlighter callback of atwho function
+   * @param li
+   * @param query
+   */
+  public highlighterCallback(li, query) {
+    var regexp;
+    if (!query) {
+      return li;
+    }
+
+    if(query.startsWith('['))
+      query = query.substring(1);
+
+    if(query.startsWith('user_defined.'))
+      query = query.substring(13);
+
+    regexp = new RegExp(">\\s*([^\<]*?)(" + query.replace("+", "\\+") + ")([^\<]*)\\s*<", 'ig');
+    return li.replace(regexp, function(str, $1, $2, $3) {
+      return '> ' + $1 + '<strong>' + $2 + '</strong>' + $3 + ' <';
+    });
   }
 
   // 함수 셋
@@ -550,14 +654,14 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   }
 
   // 컬럼 클릭
-  public selectColumn(column: Field) {
-    let color = '#439fe5';
-    if (column.role === FieldRole.DIMENSION) {
-      color = '#5fd7a5';
-    }
+  public selectColumn(column: Field|CustomField) {
+    const color = (column.role === FieldRole.DIMENSION)?'#5fd7a5':'#439fe5';
+
     let inserColumn = '<span style="color: ' + color + '">';
     if (column.ref) {
       inserColumn += '[' + column.ref + '.' + column.name + '] <span id="focusElement"></span>';
+    } else if(column.type === 'user_expr'){
+      inserColumn += '[user_defined.' + column.name + '] <span id="focusElement"></span>';
     } else {
       inserColumn += '[' + column.name + '] <span id="focusElement"></span>';
     }
@@ -617,7 +721,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       if( !isNullOrUndefined(cloneDs.engineName) ) {
         cloneDs.name = cloneDs.engineName;
       }
-      const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs) };
+      const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs), "userFields": this.customFields };
       this.dashboardService.validate(param).then((result: any) => {
         this.aggregated = result.aggregated;
         this.isCalFuncSuccess = 'S';
@@ -692,31 +796,32 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   /**
    * Returns name for finding icon class
-   * @param type
-   * @param logicalType
+   * @param field Element of field list. Its type is Field or CustomField.
    */
-  public findNameForIcon(type: string, logicalType?: string) {
+  public findNameForIcon(field:any) {
+    if(field.type == 'user_expr'){
+      if(field.isTimestamp)
+        return 'TIMESTAMP';
 
-    if (type === 'USER_DEFINED' || type === 'TEXT' ) {
-      return 'STRING'
+      //If field is user-defined field, the type of field is Long or String
+      return (field.role === FieldRole.DIMENSION)?'LONG':'STRING';
+    }else{
+      if (field.type === 'USER_DEFINED' || field.type === 'TEXT' ) {
+        return 'STRING'
+      }
+
+      if (field.type === 'LONG' || field.type === 'INTEGER' || field.type === 'DOUBLE' || field.type === 'CALCULATED') {
+        return 'LONG'
+      }
+
+      if (field.logicalType) {
+        return field.logicalType
+      }
     }
-
-    if (type === 'LONG' || type === 'INTEGER' || type === 'DOUBLE' || type === 'CALCULATED') {
-      return 'LONG'
-    }
-
-    if (logicalType) {
-      return logicalType
-    }
-
   }
 
   public isReservedFieldName(name: string): boolean {
-    if (name === 'count' || name === '__time' || name === 'timestamp') {
-      return true;
-    } else {
-      return false;
-    }
+    return name === 'count' || name === '__time' || name === 'timestamp';
   }
 
   public getDescription(commonCode: CommonCode): string {

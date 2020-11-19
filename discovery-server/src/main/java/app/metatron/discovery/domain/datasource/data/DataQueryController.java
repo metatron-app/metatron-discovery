@@ -23,6 +23,7 @@ import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
+import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -107,10 +108,13 @@ public class DataQueryController {
     dataSourceValidator.validateQuery(queryRequest);
 
     Object result = engineQueryService.search(queryRequest);
-    if (result instanceof MatrixResponse && queryRequest.getResultFormat() instanceof ChartResultFormat) {
+    if (result instanceof MatrixResponse
+            && queryRequest.getResultFormat() instanceof ChartResultFormat) {
       MatrixResponse response = (MatrixResponse) result;
-      if (queryRequest.getLimits() != null &&
-          response.getCategoryCount() >= queryRequest.getLimits().getLimit()) {
+      // Prediction analysis does not support groupBy.meta query.
+      if ((queryRequest.getAnalysis() == null || !(queryRequest.getAnalysis() instanceof PredictionAnalysis))
+              && queryRequest.getLimits() != null
+              && response.getCategoryCount() >= queryRequest.getLimits().getLimit()) {
         queryRequest.setMetaQuery(true);
         ArrayNode totalResult = (ArrayNode) engineQueryService.search(queryRequest);
         if (totalResult != null
@@ -161,7 +165,7 @@ public class DataQueryController {
 
     Map<String, Object> resultMap = Maps.newLinkedHashMap();
 
-    DateTime baseTime = null;
+    DateTime baseTime;
     if (timeCompareRequest.getBasePoint() == BasePoint.LAST) {
       if (StringUtils.isEmpty(timeCompareRequest.getBaseTime())) {
         CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
@@ -229,11 +233,11 @@ public class DataQueryController {
 
     // TODO: 메타 데이터 소스 관련 내용 및 ParameterField 지원 여부 관련 추가
 
-    Map<String, String> exprMap = null;
+    Map<String, UserDefinedField> exprMap = null;
     if (CollectionUtils.isNotEmpty(checkExprRequest.getUserFields())) {
-      checkExprRequest.getUserFields().stream()
+      exprMap = checkExprRequest.getUserFields().stream()
                       .filter(f -> f instanceof ExpressionField)
-                      .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
+                      .collect(Collectors.toMap(UserDefinedField::getName, f -> f));
     }
 
     ComputationalField.CheckType checkType = checkComputationalFieldIn(checkExprRequest.getExpr(), exprMap);

@@ -92,16 +92,6 @@ public class PrSnapshotController {
     return ResponseEntity.status(HttpStatus.SC_OK).body(projectedSnapshot);
   }
 
-  @RequestMapping(value = "", method = RequestMethod.POST)
-  public
-  @ResponseBody
-  PersistentEntityResource postSnapshot(
-          @RequestBody Resource<PrSnapshot> snapshotResource,
-          PersistentEntityResourceAssembler resourceAssembler
-  ) {
-    throw snapshotError(MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM, "go to edit-rule");
-  }
-
   @RequestMapping(value = "/{ssId}", method = RequestMethod.PATCH)
   @ResponseBody
   public ResponseEntity<?> patchSnapshot(

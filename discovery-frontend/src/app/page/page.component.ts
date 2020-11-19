@@ -84,7 +84,7 @@ import {PageFilterPanel} from './filter/filter-panel.component';
 import {SecondaryIndicatorComponent} from './chart-style/secondary-indicator.component';
 import {DataLabelOptionComponent} from './chart-style/datalabel-option.component';
 import {ChartLimitInfo, DashboardUtil} from '../dashboard/util/dashboard.util';
-import {BoardConfiguration} from '../domain/dashboard/dashboard';
+import {BoardConfiguration, BoardDataSource} from '../domain/dashboard/dashboard';
 import {CommonUtil} from '../common/util/common.util';
 import {MapChartComponent} from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
@@ -679,8 +679,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if (widgetDataSource.id !== dataSource.id) {
         this.widget.configuration = new PageWidgetConfiguration();
         this.widget.configuration.dataSource = DashboardUtil.getBoardDataSourceFromDataSource(this.widget.dashBoard, dataSource);
-        this.widget.configuration.filters = [];
-        this.widget.configuration.customFields = [];
+        this.widget.configuration.filters = DashboardUtil.getFiltersForBoardDataSource(this.widget.dashBoard,
+          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+        this.widget.configuration.customFields = DashboardUtil.getCustomFieldsForBoardDataSource(this.widget.dashBoard,
+          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
       }
 
       if (ConnectionType.LINK === this.dataSource.connType) {
@@ -1588,7 +1590,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.fieldDetailLayer = field;
 
     // 해당 context menu init, context menu show hide에 따른 field icon show hide 설정하기
-    this.showFieldIconsFl = this.dataContext.init(field, this.widget.dashBoard.configuration.dataSource, $(event.currentTarget));
+    let bdDatasource:BoardDataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
+    if (bdDatasource.type === 'multi') {
+      bdDatasource = this.widget.dashBoard.configuration.dataSource.dataSources.find((datasource) => {
+        return DashboardUtil.isSameDataSource(datasource, this.dataSource);
+      })
+    }
+    this.showFieldIconsFl = this.dataContext.init(field, bdDatasource, $(event.currentTarget));
   }
 
   /**
@@ -3509,8 +3517,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (boardConf.hasOwnProperty('customFields') && boardConf.customFields.length > 0) {
       // set main datasource fields
       boardConf.customFields
-        .filter(item => item.dataSource === this.widget.configuration.dataSource.engineName ?
-          this.widget.configuration.dataSource.engineName : this.widget.configuration.dataSource.name)
+        .filter(item => item.dataSource === (this.widget.configuration.dataSource.engineName ?
+          this.widget.configuration.dataSource.engineName : this.widget.configuration.dataSource.name))
         .forEach((field: CustomField) => {
           if (field.role === FieldRole.DIMENSION) {
             this.customDimensions.push(field);

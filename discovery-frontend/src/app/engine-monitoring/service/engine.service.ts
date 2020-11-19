@@ -158,6 +158,10 @@ export class EngineService extends AbstractService {
     return this.post(this.URL_MONITORING + '/queries/list', param);
   }
 
+  public getQueryDetail(queryId) {
+    return this.get(this.URL_MONITORING + `/queries/${queryId}`);
+  }
+
   public getCriterionListInQuery() {
     return this.get(this.URL_MONITORING + '/query/criteria');
   }

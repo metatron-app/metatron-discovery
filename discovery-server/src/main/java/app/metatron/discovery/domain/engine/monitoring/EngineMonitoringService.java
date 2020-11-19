@@ -84,8 +84,11 @@ public class EngineMonitoringService {
   @Autowired
   EngineMonitoringProperties monitoringProperties;
 
-  @Value("${polaris.engine.monitoring.emitter.datasource:druid-metric}")
-  String datasourceName;
+  @Value("${polaris.engine.monitoring.emitter.datasource.metric:druid-metric}")
+  String metricDatasource;
+
+  @Value("${polaris.engine.monitoring.emitter.datasource.query:druid-query}")
+  String queryDatasource;
 
   private Map<String, String> druidNameMap = new HashMap();
 
@@ -143,7 +146,7 @@ public class EngineMonitoringService {
       request.getResultFormat().setConnType(ENGINE);
     }
 
-    Query query = MonitoringQuery.builder(new DefaultDataSource(datasourceName))
+    Query query = MonitoringQuery.builder(new DefaultDataSource(metricDatasource))
                                  .filters(filters)
                                  .granularity(request.getGranularity())
                                  .aggregation(aggregations)
@@ -341,12 +344,23 @@ public class EngineMonitoringService {
   }
 
   public List getTaskList() {
-    Optional<List> results = engineRepository.sql("SELECT \"task_id\", \"type\", \"datasource\", \"created_time\", CASE WHEN \"status\" = 'RUNNING' THEN \"runner_status\" ELSE \"status\" END AS \"status\", CASE WHEN \"status\" = 'RUNNING' THEN (CASE WHEN \"runner_status\" = 'RUNNING' THEN 4 WHEN \"runner_status\" = 'PENDING' THEN 3 ELSE 2 END) ELSE 1 END AS \"rank\", \"location\", \"duration\", \"error_msg\" FROM sys.tasks ORDER BY \"rank\" DESC, \"created_time\" DESC");
+    StringBuffer sb = new StringBuffer("SELECT \"task_id\", \"type\", \"datasource\", \"created_time\", CASE WHEN \"status\" = 'RUNNING' THEN \"runner_status\" ELSE \"status\" END AS \"status\", CASE WHEN \"status\" = 'RUNNING' THEN (CASE WHEN \"runner_status\" = 'RUNNING' THEN 4 WHEN \"runner_status\" = 'PENDING' THEN 3 ELSE 2 END) ELSE 1 END AS \"rank\", \"location\", \"duration\", \"error_msg\" ");
+    sb.append(" FROM sys.tasks ");
+    sb.append(" GROUP BY \"task_id\", \"type\", \"datasource\", \"created_time\", \"status\", \"runner_status\", \"location\", \"duration\", \"error_msg\"");
+    sb.append(" ORDER BY \"rank\" DESC, \"created_time\" DESC ");
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
     return results.get();
   }
 
   public Object getTaskById(String taskId) {
-    Optional<List> results = engineRepository.sql("SELECT \"task_id\", \"type\", \"datasource\", \"created_time\", \"queue_insertion_time\", \"location\", \"host\", CASE WHEN \"status\" = 'RUNNING' THEN \"runner_status\" ELSE \"status\" END AS \"status\", \"location\", \"duration\", \"error_msg\" FROM sys.tasks WHERE \"task_id\" = '" + taskId + "'");
+    StringBuffer sb = new StringBuffer("SELECT \"task_id\", \"type\", \"datasource\", \"created_time\", \"queue_insertion_time\", \"location\", \"host\", CASE WHEN \"status\" = 'RUNNING' THEN \"runner_status\" ELSE \"status\" END AS \"status\", \"location\", \"duration\", \"error_msg\" ");
+    sb.append(" FROM sys.tasks ");
+    sb.append(" WHERE \"task_id\" = '");
+    sb.append(taskId);
+    sb.append("' ");
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
     if (CollectionUtils.isNotEmpty(results.get())) {
       return results.get().get(0);
     } else {
@@ -646,8 +660,9 @@ public class EngineMonitoringService {
     sb.append(getDruidName("middleManager"));
     sb.append("' THEN 'Middle Manager' END AS \"serviceName\"");
     sb.append(", \"host\", \"dataSource\" AS \"datasource\", \"value\" AS \"duration\", \"__time\" AS \"startedTime\", \"type\" FROM \"druid\".\"");
-    sb.append(datasourceName);
-    sb.append("\" WHERE metric = 'query/time'");
+    sb.append(metricDatasource);
+    sb.append("\" WHERE metric = 'query/time' ");
+    sb.append(" AND \"context.queryId\" != ''");
     if (CollectionUtils.isNotEmpty(engineMonitoringQueryRequest.getResult())) {
       sb.append(" AND \"success\" IN ('");
       sb.append(String.join("', '", engineMonitoringQueryRequest.getResult()));
@@ -684,6 +699,8 @@ public class EngineMonitoringService {
       sb.append(startTimeTo.toString(dateTimeFormatter));
       sb.append("' ");
     }
+    sb.append(" GROUP BY " );
+    sb.append("\"context.queryId\", \"success\", \"service\", \"host\", \"dataSource\", \"value\", \"__time\", \"type\"");
     sb.append(" ORDER BY \"" );
     sb.append(engineMonitoringQueryRequest.getKey());
     sb.append("\" ");
@@ -694,6 +711,18 @@ public class EngineMonitoringService {
     } else {
       sb.append("1000");
     }
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
+    return results.get();
+  }
+
+  public List getQueryDetail(String queryId) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("SELECT * FROM \"druid\".\"");
+    sb.append(queryDatasource);
+    sb.append("\" where id = '");
+    sb.append(queryId);
+    sb.append("'");
     LOGGER.debug("query = {}", sb.toString());
     Optional<List> results = engineRepository.sql(sb.toString());
     return results.get();
@@ -738,6 +767,7 @@ public class EngineMonitoringService {
         break;
       case SUPERVISOR_LAG:
         filters.add(new SelectorFilter("metric", "ingest/kafka/lag"));
+        filters.add(new SelectorFilter("dataSource", monitoringTarget.getDatasource()));
         break;
       case TASK_ROW:
         filters.add(new InFilter("metric", "ingest/events/processed", "ingest/events/unparseable", "ingest/events/thrownAway"));
@@ -749,7 +779,11 @@ public class EngineMonitoringService {
 
   public List getDatasourceList() {
     List datasourceMeta = getDatasourceMeta();
-    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments GROUP BY 1");
+    StringBuffer sb = new StringBuffer("SELECT datasource, COUNT(*) AS num_segments");
+    sb.append(", SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows ");
+    sb.append(" FROM sys.segments GROUP BY 1 ");
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
     List datasourceList = results.get();
     for (Object result : datasourceList) {
       Map datasource = GlobalObjectMapper.getDefaultMapper().convertValue(result, Map.class);
@@ -787,7 +821,15 @@ public class EngineMonitoringService {
   }
 
   public Map getDatasourceDetail(String datasourceId) {
-    Optional<List> results = engineRepository.sql("SELECT datasource, COUNT(*) AS num_segments, SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows FROM sys.segments WHERE \"datasource\" = '" + datasourceId + "' GROUP BY 1");
+    StringBuffer sb = new StringBuffer("SELECT datasource, COUNT(*) AS num_segments");
+    sb.append(", SUM(is_available) AS num_available_segments, SUM(\"size\") AS size, SUM(\"num_rows\") AS num_rows ");
+    sb.append(" FROM sys.segments ");
+    sb.append(" WHERE \"datasource\" = '");
+    sb.append( datasourceId);
+    sb.append("' ");
+    sb.append(" GROUP BY 1 ");
+    LOGGER.debug("query = {}", sb.toString());
+    Optional<List> results = engineRepository.sql(sb.toString());
     if (CollectionUtils.isNotEmpty(results.get())) {
       return GlobalObjectMapper.getDefaultMapper().convertValue(results.get().get(0), Map.class);
     } else {

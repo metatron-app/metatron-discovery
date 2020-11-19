@@ -18,8 +18,12 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
+import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
+import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
@@ -74,6 +78,30 @@ public class AbstractQueryBuilderTest {
     });
   }
 
+  @Test
+  public void testRemoveUserDefinedAggregationFunction(){
+    final String preFix = UserDefinedField.REF_NAME + UserDefinedField.FIELD_NAMESPACE_SEP;
+    DataSource dataSource = new DefaultDataSource();
+
+    Map<String, UserDefinedField> userFieldMap = Maps.newHashMap();
+
+    String expr = "\"user_defined.total income\" / \"user_defined.total profit\" * 100";
+
+    userFieldMap.put(   "total income",      new ExpressionField("total income", " SUMOF(\"Sales\") ", "MEASURE", null, null, true) );
+    userFieldMap.put(   "total profit",      new ExpressionField("total profit", " SUMOF(\"Profit\") ", "MEASURE", null, null, true) );
+    userFieldMap.put(   "test",      new ExpressionField("total profit", expr, "MEASURE", null, null, true) );
+    userFieldMap.put(   "normal",      new ExpressionField("normal", "12", "MEASURE", null, null, false) );
+
+    TestQueryBuiler builder = new TestQueryBuiler(dataSource);
+    builder.setUserFieldMap(userFieldMap);
+    builder.getVirtualColumns().put(preFix + "test", new ExprVirtualColumn(expr, preFix + "sample"));
+    builder.getVirtualColumns().put(preFix + "normal", new ExprVirtualColumn("12", preFix + "normal"));
+
+    builder.removeUserDefinedAggregationFunction();
+
+    Assert.assertEquals(1, builder.getVirtualColumns().size());
+  }
+
   public class TestQueryBuiler extends AbstractQueryBuilder {
 
     protected TestQueryBuiler(DataSource dataSource) {
@@ -87,6 +115,10 @@ public class AbstractQueryBuilderTest {
     protected void setAggregations(List<Aggregation> aggregations){
       this.aggregations = aggregations;
     }
+
+    protected Map<String, VirtualColumn> getVirtualColumns(){return this.virtualColumns;}
+
+    protected void setUserFieldMap(Map<String, UserDefinedField> userFieldMap){this.userFieldsMap = userFieldMap;}
 
     @Override
     public Query build() {

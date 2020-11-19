@@ -98,6 +98,7 @@ public class CovarianceQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
+      removeUserDefinedAggregationFunction();
       covarianceQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 
