@@ -913,7 +913,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     pivot5.setColumns(Lists.newArrayList(originalTimeField5, new DimensionField("Category")));
     pivot5.setAggregations(Lists.newArrayList(
-            new MeasureField("Sales", MeasureField.AggregationType.AVG)
+            new MeasureField("Sales", MeasureField.AggregationType.AVG),
+            new MeasureField("Profit", MeasureField.AggregationType.AVG)
     ));
 
     limit.setSort(Lists.newArrayList(
@@ -924,15 +925,15 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // @formatter:off
     given()
-            .auth().oauth2(oauth_token)
-            .body(request)
-            .contentType(ContentType.JSON)
-            .log().all()
-            .when()
-            .post("/api/datasources/query/search")
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .log().all();
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
     // @formatter:on
 
   }
@@ -1433,8 +1434,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
             new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.MONTH.name(), null))));
     pivot3.setRows(null);
     pivot3.setAggregations(Lists.newArrayList(
-            //new DimensionField("Category"),
-            new MeasureField("Discount", MeasureField.AggregationType.SUM)
+            new DimensionField("Category"),
+            new MeasureField("Discount", MeasureField.AggregationType.SUM),
+            new MeasureField("Sales", MeasureField.AggregationType.SUM)
     ));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot3, limit);
@@ -1447,15 +1449,15 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // @formatter:off
     given()
-            .auth().oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .body(request)
-            .log().all()
-            .when()
-            .post("/api/datasources/query/search")
-            .then()
-            //      .statusCode(HttpStatus.SC_OK)
-            .log().all();
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(request)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
     // @formatter:on
 
   }
