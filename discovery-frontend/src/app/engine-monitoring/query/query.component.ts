@@ -34,6 +34,7 @@ import * as _ from "lodash";
 import {PageResult} from "../../domain/common/page";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
+import * as moment from 'moment';
 
 declare let $: any;
 
@@ -107,6 +108,11 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
             // TODO 추후 criterion component로 이동
             delete searchParams['pseudoParam'];
             // init criterion search param
+            this.criterionComponent.initSearchParams(searchParams);
+          } else {
+            searchParams[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + Criteria.KEY_DATETIME_TYPE_SUFFIX] = ['BETWEEN'];
+            searchParams[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + 'startedTimeFrom'] = [moment().subtract(1, 'hours').format('YYYY-MM-DDTHH:mm:ss.SSSZ')];
+            searchParams[Criteria.ListCriterionKey.STARTED_TIME + Criteria.QUERY_DELIMITER + 'startedTimeTo'] = [moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ')];
             this.criterionComponent.initSearchParams(searchParams);
           }
           this.pageResult.size = this.page.size;
