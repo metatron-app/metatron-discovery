@@ -122,8 +122,7 @@ public class DataSourceQueryHistory extends AbstractHistoryEntity implements Met
   /**
    * 질의 실패시 메시지 표시
    */
-  @Column(name = "query_message")
-  @Size(max = 5000)
+  @Column(name = "query_message", length = 65535, columnDefinition = "MEDIUMTEXT")
   String message;
 
   /**

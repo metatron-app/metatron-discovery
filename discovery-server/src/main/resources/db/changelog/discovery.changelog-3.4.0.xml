@@ -313,4 +313,7 @@
         <modifyDataType tableName="dashboard_widget" columnName="widget_conf" newDataType="${mediumtext.type}" />
     </changeSet>
 
+    <changeSet author="minhyun2" id="1605842682963-0">
+        <modifyDataType tableName="datasource_query" columnName="query_message" newDataType="${mediumtext.type}" />
+    </changeSet>
 </databaseChangeLog>
