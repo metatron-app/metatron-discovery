@@ -196,18 +196,21 @@ public class UserController {
 
     userRepository.delete(user);
 
-    // 이미지 처리
+    // Delete images related with the user
     if (StringUtils.isNotEmpty(user.getImageUrl())) {
       imageService.deleteImage(Image.DOMAIN_USER, user.getId());
     }
 
-    // 그룹내 Member 삭제
-    groupService.deleteGroupMember(user.getUsername());
-
-    // Workspace 관련 처리
+    // Delete created workspaces, and leave joined workspaces
     workspaceService.deleteWorkspaceAndMember(user.getUsername());
 
-    // 캐시에 저장되어 있는 User 정보가 있다면 삭제
+    // Delete the member in joined groups
+    groupService.deleteGroupMember(user.getUsername());
+
+    // Delete the member of organizations
+    orgService.deleteOrgMembers(user.getUsername());
+
+    // Delete if there is user information stored in the cache
     cachedUserService.removeCachedUser(user.getUsername());
 
     return ResponseEntity.noContent().build();

@@ -150,6 +150,17 @@ public class OrganizationService {
   }
 
   /**
+   * delete all members by member identifier
+   *
+   * @param memberId
+   */
+  @Transactional
+  public void deleteOrgMembers(String memberId) {
+    Long cnt = orgMemberRepository.deleteByMemberId(memberId);
+    LOGGER.info("Successfully deleted {} members included in organizations", cnt);
+  }
+
+  /**
    * Update members of organization
    *
    * @param code

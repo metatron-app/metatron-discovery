@@ -14,27 +14,50 @@
 
 package app.metatron.discovery.domain.user.group;
 
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.context.ContextService;
+import app.metatron.discovery.domain.images.ImageRepository;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserProperties;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.domain.images.ImageRepository;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-
 @Component
+@Transactional
 public class GroupService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(GroupController.class);
+
+  @Autowired
+  ContextService contextService;
+
+  @Autowired
+  OrganizationService orgService;
 
   @Autowired
   GroupRepository groupRepository;
 
   @Autowired
   GroupMemberRepository groupMemberRepository;
+
+  @Autowired
+  WorkspaceMemberRepository workspaceMemberRepository;
 
   @Autowired
   UserRepository userRepository;
@@ -45,28 +68,148 @@ public class GroupService {
   @Autowired
   ImageRepository imageRepository;
 
-  public Group getDefaultGroup() {
-    return groupRepository.findByPredefinedAndDefaultGroup(true, true);
+  @Autowired
+  UserProperties userProperties;
+
+  /**
+   * Create a group
+   *
+   * @param group
+   * @return
+   */
+  public Group create(Group group) {
+
+    if (checkDuplicatedName(group.getName())) {
+      throw new BadRequestException("Duplicated group name : " + group.getName());
+    }
+
+    Group result = groupRepository.saveAndFlush(group);
+
+    // Save context
+    contextService.saveContextFromDomain(group);
+
+    // Add Organization
+    if (userProperties.getUseOrganization()) {
+      orgService.addMembers(group.getOrgCodes(), result.getId(), result.getName(), DirectoryProfile.Type.GROUP);
+    }
+
+    return result;
   }
 
-  public boolean checkDuplicatedName(String groupName) {
-    return groupRepository.exists(GroupPredicate.searchDuplicatedName(groupName));
+  /**
+   * Update a group
+   *
+   * @param group
+   * @return
+   */
+  public Group update(Group group) {
+
+    Group persistGroup = groupRepository.findOne(group.getId());
+    if (persistGroup == null) {
+      throw new ResourceNotFoundException(group.getId());
+    }
+
+    // 그룹명 셋팅
+    if (StringUtils.isNotBlank(group.getName()) && !persistGroup.getName().equals(group.getName())) {
+
+      if (checkDuplicatedName(group.getName())) {
+        throw new RuntimeException("Duplicated group name : " + group.getName());
+      }
+
+      persistGroup.setName(group.getName());
+
+      // Workspace Member 이름 갱신
+      workspaceMemberRepository.updateMemberName(persistGroup.getId(), persistGroup.getName());
+    }
+
+    // 그룹 설명 셋팅
+    persistGroup.setDescription(group.getDescription());
+
+    // Context 저장
+    persistGroup.setContexts(group.getContexts());
+    contextService.saveContextFromDomain(persistGroup);
+
+    return groupRepository.save(persistGroup);
   }
 
-  public void deleteGroupMember(String memberIds) {
-    List<GroupMember> groupMembers = groupMemberRepository.findByMemberId(memberIds);
+  public void delete(String groupId) {
+
+    Group persistGroup = groupRepository.findOne(groupId);
+    if (persistGroup == null) {
+      throw new ResourceNotFoundException(groupId);
+    }
+
+    // Delete context related groups
+    contextService.removeContextFromDomain(persistGroup);
+
+    // Delete members in joined workspaces
+    workspaceMemberRepository.deleteByMemberIds(Lists.newArrayList(groupId));
+
+    // Delete the member of organizations
+    orgService.deleteOrgMembers(groupId);
+
+    groupRepository.delete(persistGroup);
+  }
+
+  public void updateGroupMembers(String groupId, List<CollectionPatch> members) {
+
+    Group persistGroup = groupRepository.findOne(groupId);
+    if (persistGroup == null) {
+      throw new ResourceNotFoundException(groupId);
+    }
+
+    for (CollectionPatch patch : members) {
+      String memberId = patch.getValue("memberId");
+      switch (patch.getOp()) {
+        case ADD:
+          User realUser = userRepository.findByUsername(memberId);
+          if (realUser != null) {
+            persistGroup.addGroupMember(new GroupMember(memberId, realUser.getFullName()));
+          }
+          break;
+        case REMOVE:
+          GroupMember removeMember = groupMemberRepository.findByGroupAndMemberId(persistGroup, memberId);
+          persistGroup.removeGroupMember(removeMember);
+          break;
+        default:
+          LOGGER.warn("Not supported action");
+      }
+    }
+
+    groupRepository.save(persistGroup);
+  }
+
+  public void deleteGroupMember(String memberId) {
+    List<GroupMember> groupMembers = groupMemberRepository.findByMemberId(memberId);
     for (GroupMember groupMember : groupMembers) {
       Group group = groupMember.getGroup();
       group.removeGroupMember(groupMember);
     }
   }
 
+  @Transactional(readOnly = true)
+  public Group getDefaultGroup() {
+    return groupRepository.findByPredefinedAndDefaultGroup(true, true);
+  }
+
   /**
-   * UserProjection 에서 사용
+   * Check for duplicate group name
+   *
+   * @param groupName
+   * @return
+   */
+  @Transactional(readOnly = true)
+  public boolean checkDuplicatedName(String groupName) {
+    return groupRepository.exists(GroupPredicate.searchDuplicatedName(groupName));
+  }
+
+  /**
+   * Get joined groups by username for UserProjection
    *
    * @param username
    * @return
    */
+  @Transactional(readOnly = true)
   public List<Map<String, Object>> getJoinedGroupsForProjection(String username, boolean includeRole) {
 
     List<Group> groups = getJoinedGroups(username);
@@ -87,41 +230,17 @@ public class GroupService {
   }
 
   /**
-   * 소속된 그룹 가져오기
+   * Get joined groups by username
    *
    * @param username
    * @return
    */
+  @Transactional(readOnly = true)
   public List<Group> getJoinedGroups(String username) {
 
     Iterable<Group> groups = groupRepository.findJoinedGroups(username);
 
     return Lists.newArrayList(groups);
   }
-
-  /**
-   *
-   * @param user
-   * @param groupNames
-   * @param requiredGroup
-   */
-//  public void setJoinedGroups(User user, List<String> groupNames, boolean requiredGroup) {
-//
-//    Set<Role> joinRoles = Sets.newHashSet();
-//    if (CollectionUtils.isNotEmpty(groupNames)) {
-//      for (String name : groupNames) {
-//        Role role = roleRepository.findByScopeAndName(Role.RoleScope.GLOBAL, name);
-//        if (role != null) {
-//          joinRoles.add(role);
-//        }
-//      }
-//    }
-//
-//    // 선택한 그룹이 없을 경우 기본 그룹에 포함
-//    if (joinRoles.isEmpty() && requiredGroup) {
-//      joinRoles.add(roleRepository.findByScopeAndName(Role.RoleScope.GLOBAL, "SYSTEM_USER"));
-//    }
-//
-//  }
 
 }

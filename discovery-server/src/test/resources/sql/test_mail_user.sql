@@ -1,4 +1,2 @@
 INSERT INTO users(ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, USER_EMAIL, USER_FULL_NAME, USER_IMAGE_URL, USER_STATUS, USER_STATUS_MSG, USER_TEL, USER_NAME, USER_PASSWORD) VALUES
-('test-admin-01', 'admin', TIMESTAMP '2017-09-10 10:30:00.00', 'admin', now(), 0, 'kyungtaak@gmail.com', 'Administrator01', NULL, 'ACTIVATED', NULL, NULL, 'admin01', 'admin01');
-INSERT INTO user_role(USER_ID, ROLE_ID) VALUES
-('test-admin-01', 'ROLE_SYSTEM_ADMIN');
+('test-admin-01', 'admin', TIMESTAMP '2017-09-10 10:30:00.00', 'admin', now(), 0, 'kyungtaak@gmail.com', 'Administrator01', NULL, 'ACTIVATED', NULL, '010-000-0000', 'admin01', 'admin01');

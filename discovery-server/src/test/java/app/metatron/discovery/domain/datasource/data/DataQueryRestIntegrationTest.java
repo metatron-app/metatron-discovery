@@ -1958,7 +1958,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     limit.setLimit(1000000);
 
     List<Filter> filters = Lists.newArrayList(
-            //new ExpressionFilter("amt < 50000 && amt > 40000")
+            new ExpressionFilter("amt < 50000 && amt > 40000")
     );
 
     DimensionField geoDimensionField = new DimensionField("gis");
@@ -2933,7 +2933,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void groupByMeasureQueryForUserDefined() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+    //    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+    MultiDataSource dataSource1 = new MultiDataSource(Lists.newArrayList(new DefaultDataSource("sales_geo")), null);
 
     // Limit
     Limit limit = new Limit();
