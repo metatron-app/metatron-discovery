@@ -1031,7 +1031,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     groupByQuery.setContext(context);
 
     // replace filter dimension to dimension alias
-    if(this.filter != null && !this.filter.getFields().isEmpty()){
+    if(this.filter != null && this.filter.getFields() != null && !this.filter.getFields().isEmpty()){
       List<app.metatron.discovery.query.druid.Filter> filters = this.filter.getFields();
       for(app.metatron.discovery.query.druid.Filter filterField : filters) {
         if(filterField instanceof InFilter){
