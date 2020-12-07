@@ -619,7 +619,14 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
         // 타임필드 세팅
         //////////////////////////////
 
-        const fields: Field[] = (this.widget.dashBoard.configuration.fields) ? this.widget.dashBoard.configuration.fields : [];
+        const dashboardFields: Field[] = (this.widget.dashBoard.configuration.fields) ? this.widget.dashBoard.configuration.fields : [];
+        const fields = dashboardFields.filter(item => {
+          if (item.dataSource ===
+            (this.widget.configuration.dataSource.engineName ?
+            this.widget.configuration.dataSource.engineName : this.widget.configuration.dataSource.name)) {
+            return item;
+          }
+        });
         const idx: number = _.findIndex(fields, { role: FieldRole.TIMESTAMP, logicalType: LogicalType.TIMESTAMP });
         const timeField: AbstractField = new TimestampField();
         timeField.name = fields[idx].name;
