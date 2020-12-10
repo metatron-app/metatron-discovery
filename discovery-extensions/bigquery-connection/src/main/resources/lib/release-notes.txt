@@ -1,0 +1,304 @@
+============================================================================== 
+Simba JDBC Driver with SQL Connector for Google BigQuery Release Notes 
+============================================================================== 
+
+The release notes provide details of enhancements, features, known issues, and 
+workflow changes in Simba JDBC Driver for Google BigQuery 1.2.11, as well as 
+the version history. 
+
+
+1.2.11 ========================================================================
+
+Released 2020-08-28
+
+Enhancements & New Features 
+
+ * [GBQJ-373] Avro library update
+ 
+   The driver now uses Avro version 1.10. Previously, the driver used version 
+   1.9.
+
+ * [GBQJ-376] Updated HT API configuration
+ 
+   For anonymous tables, utilizing storage API is free and the driver now 
+   ignores the HT API ON/OFF flag in the configuration. 
+
+
+Resolved Issues
+The following issues have been resolved in Simba JDBC Driver for Google 
+BigQuery 1.2.11.
+
+ * [GBQJ-366] In some cases, when calling executeQuery() for a result set, 
+   the driver returns an error. 
+
+ * [GBQJ-371] When retrying failed queries, the driver encounters a rate 
+   limit. 
+ 
+   This issue has been resolved. The driver now retries failed queries
+   using an exponential back-off mechanism. 
+   
+ * [GBQJ-375] The driver ignores the StringColumnLength property. 
+
+ * [GBQJ-378] The DSI_MULT_RESULT_SETS connection property returns false 
+   instead of true. 
+   
+ * [GBQJ-383] When using prepared statements to set null parameters for string
+   datatypes, the driver returns a null pointer exception.
+ 
+ 
+Known Issues
+The following are known issues that you may encounter due to limitations in
+the data source, the driver, or an application.
+
+ * TRACE level logs incorrectly contain stack trace for function entrances.
+
+   When logging at the TRACE level (LogLevel=6), function entrance logs are 
+   generated for each function that is called. These logs incorrectly 
+   include a stack trace.
+
+ * Query prefixes are not supported.
+
+   The driver does not support query prefixes. To specify whether your query
+   statements are to be processed using standard SQL or legacy BigQuery SQL, 
+   you must configure the QueryDialect connection property. 
+
+   By default, QueryDialect is set to "SQL" so that the driver uses standard
+   SQL syntax. To use BigQuery SQL instead, set the property to "BIG_QUERY".
+
+ * Support for ODBC Escape Sequences is limited.
+
+   The only supported ODBC Escape Sequences are Scalar Functions of the form 
+   {fn func(args)} if func is supported by the Google BigQuery data source 
+   engine. 
+
+ * When casting data, you must specify the data type according to Google 
+   BigQuery standards.
+
+   When casting data to a specific data type, you must use the corresponding 
+   data type name shown in the "Casting" section of the Query Reference:
+   https://cloud.google.com/bigquery/sql-reference/functions-and-operators#casting. 
+
+   For example, to cast the "salary" column to the INTEGER type, you must 
+   specify INT64 instead of INTEGER: 
+
+      SELECT position, CAST(salary AS INT64) from Employee
+
+
+Workflow Changes =============================================================
+
+The following changes may disrupt established workflows for the driver. 
+
+
+1.2.2 ------------------------------------------------------------------------
+
+ * Removed support for JDBC 4.1 (Java 7)
+
+   Beginning with this release, the driver no longer supports JDBC 4.1 (Java 
+   7). For a list of supported JDBC versions, see the Installation and 
+   Configuration Guide.
+
+
+Version History ==============================================================
+
+1.2.8 ------------------------------------------------------------------------
+
+Released 2020-07-17
+
+Enhancements & New Features 
+
+ * [GBQJ-351] Location restrictions for datasets
+
+   You can now specify a location for the driver, so that the driver only 
+   queries datasets in that location. To do this, set the Location property to 
+   the name of the dataset location. For more information, see the 
+   Installation and Configuration Guide.
+
+
+Resolved Issues
+The following issues have been resolved in Simba JDBC Driver for Google 
+BigQuery 1.2.8.
+
+ * [GBQJ-359] In some cases, queries that include a newline before certain DDL 
+   or DML keywords cause an exception.
+
+ * [GBQJ-361] The getCatalogs() metadata function returns only the first 50 
+   projects.
+
+   This issue has been resolved. The getCatalogs() function now returns all 
+   projects.
+
+
+1.2.4 ------------------------------------------------------------------------
+
+Released 2020-05-11
+
+Enhancements & New Features 
+
+ * [GBQJ-321] Support for BigQuery scripting
+
+   The driver now supports BigQuery scripting for Standard SQL. For more 
+   information, see "Scripting in Standard SQL" in the BigQuery documentation: 
+   https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting
+   
+* [GBQJ-344] Support for additional passthrough query properties
+
+   You can now pass a property through to the server by using the
+   QueryProperties connection URL. For more information, see the
+   Installation and Configuration Guide.    
+
+
+Resolved Issues
+The following issues have been resolved in Simba JDBC Driver for Google 
+BigQuery 1.2.4.
+
+ * [GBQJ-336] In some cases, complex queries cause the driver to terminate 
+   unexpectedly.
+
+ * [GBQJ-354] In some cases, if you include comments between DDL statements, 
+   the statement executes correctly but the driver generates an empty result 
+   set.
+
+ * [GBQJ-357] If you use getProcedureColumns() to retrieve Array, Struct, or 
+   Geography types, the driver terminates unexpectedly.
+   
+ * [GBQJ-354] In some cases, if you include comments between DDL statements,
+   the statement executes correctly but the driver generates an empty result
+   set.  
+
+ * [GBQJ-310] When using the Numeric data type, the REST API does not include
+   leading zeros.
+   
+   This issue has been resolved. The driver now uses the default BigQuery
+   scale of 9 for Numeric data. 
+ 
+ * [GBQJ-310] When using the Boolean or Datetime data types, there are
+   discrepancies between flat and nested columns.
+   
+   This issue has been resolved. The format of Boolean and Datetime data in
+   nested columns now matches the format of flat columns.
+
+
+1.2.3 ------------------------------------------------------------------------
+
+Released 2020-03-27
+
+Enhancements & New Features 
+
+ * [GBQJ-325] Support for DDL ALTER TABLE SET OPTIONS statements.
+
+   The driver now supports ALTER TABLE SET OPTIONS statements in DDL. For 
+   more information, see "ALTER TABLE SET OPTIONS" in the Google BigQuery 
+   documentation:
+   https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_set_options_statement 
+
+ * [GBQJ-302] Support for catalog metadata API calls for persistent functions.
+
+   The driver now supports catalog metadata API calls for persistent 
+   functions. 
+
+ * [GBQJ-324] Support for CREATE, CREATE OR REPLACE, DROP statements for  
+   FUNCTION and PROCEDURE. 
+
+   The driver now supports these statements.
+
+ * [GBQJ-327] Support for JDBC Batch Execute 
+
+   The driver now supports JDBC Batch Execute.
+   
+
+Resolved Issues
+The following issue has been resolved in Simba JDBC Driver for Google 
+BigQuery 1.2.3. 
+
+ * [GBQJ-334] Temporary tables never expire
+
+   This issue has been resolved. Now, temporary tables expire after one hour 
+   by default. You can change this expiration time by setting the new 
+   LargeResultsDatasetExpirationTime connection property. For more 
+   information, see the Installation and Configuration Guide.
+
+
+1.2.2 ------------------------------------------------------------------------
+
+Released 2019-09-23
+
+Enhancements & New Features 
+
+ * [GBQJ-303] Avro library update
+ 
+   The driver now uses Avro version 1.9.
+
+   As a result of this update, the driver no longer supports JDBC 4.1. For 
+   more information, see "Workflow Changes" in this document.
+
+
+Resolved Issues
+The following issues have been resolved in Simba JDBC Driver for Google 
+BigQuery 1.2.2. 
+
+ * [GBJQ-298] Some data types are returned differently in nested ARRAY and 
+   STRUCT formats than they are in flat data.
+
+   This issue has been resolved. The following data types in nested ARRAY and 
+   STRUCT formats are now returned differently to match the representation 
+   that would be expected if they were in flat columns:
+   - BYTES
+   - DATE
+   - DATETIME
+   - NUMERIC
+   - TIME
+   - TIMESTAMP
+
+   Note: The Storage API returns NUMERIC data in a nested ARRAY or STRUCT 
+   with trailing zeroes. The REST API trims the trailing zeroes.
+
+ * [GBQJ-309] The driver incorrectly rounds BigDecimal parameter values that 
+   are bound to prepared statements. 
+
+
+1.2.1 ------------------------------------------------------------------------
+
+Released 2019-05-15
+
+Enhancements & New Features 
+
+ * [GBQJ-291] Updated Google Cloud BigQuery Storage API
+ 
+   The driver has been updated to use version 0.85 of the Google Cloud 
+   BigQuery Storage API.
+
+
+1.2.0 ------------------------------------------------------------------------
+
+Released 2019-03-01
+
+Enhancements & New Features 
+
+ * [GBJQ-269] Support for the BigQuery Storage API
+
+   The driver can now use BigQuery Storage API to more efficiently process
+   large result sets. For more information, see the Installation and 
+   Configuration Guide.
+
+ * [GBQJ-273] Updated OAuth URLs
+
+   The URLs used by the driver for OAuth authentication have been updated
+   to remain current.
+
+
+Resolved Issues
+The following issues were resolved in Simba JDBC Driver for Google BigQuery 
+1.2.0. 
+
+ * [GBQJ-284] In some cases, when executing a query that takes a long time 
+   to complete, the query fails and the driver returns a GeneralException 
+   error.
+
+   This issue has been resolved. The driver now returns a more informative
+   error message if a long-running query times out.
+
+ * [GBQJ-274] In some cases, the driver cannot retrieve arrays with primitive 
+   types.
+
+
+============================================================================== 

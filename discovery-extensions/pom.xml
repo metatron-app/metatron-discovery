@@ -28,6 +28,7 @@
                 <module>mssql-connection</module>
                 <module>athena-connection</module>
                 <module>oracle-connection</module>
+                <module>bigquery-connection</module>
             </modules>
         </profile>
     </profiles>
@@ -57,7 +58,7 @@
                     <artifactId>pf4j</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>slf4j-log4j12</artifactId>
+                    <artifactId>slfcom.simba.googlebigquery.jdbc42.Driver4j-log4j12</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
                 <exclusion>
@@ -123,4 +124,7 @@
         </plugins>
     </build>
 
+  <modules>
+    <module>bigquery-connection</module>
+  </modules>
 </project>
