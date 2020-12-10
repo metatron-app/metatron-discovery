@@ -124,7 +124,4 @@
         </plugins>
     </build>
 
-  <modules>
-    <module>bigquery-connection</module>
-  </modules>
 </project>
