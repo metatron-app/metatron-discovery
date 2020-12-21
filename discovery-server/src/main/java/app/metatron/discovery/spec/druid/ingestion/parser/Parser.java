@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = StringParser.class, name = "string"),
     @JsonSubTypes.Type(value = OrcParser.class, name = "orc"),
     @JsonSubTypes.Type(value = ParquetParser.class, name = "parquet"),
+    @JsonSubTypes.Type(value = MapParser.class, name = "map"),
 })
 public interface Parser {
 }

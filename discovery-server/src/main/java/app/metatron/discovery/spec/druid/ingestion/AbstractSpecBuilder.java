@@ -384,7 +384,10 @@ public class AbstractSpecBuilder {
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
-      parser = new ParquetParser(parseSpec);
+
+      //Using MapParser instead of ParquetParser due to library conflict in druid
+//      parser = new ParquetParser(parseSpec);
+      parser = new MapParser(parseSpec);
 
     } else {
       throw new IllegalArgumentException("Not supported format.");
