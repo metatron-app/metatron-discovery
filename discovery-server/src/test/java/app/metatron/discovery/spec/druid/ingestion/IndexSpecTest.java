@@ -158,7 +158,7 @@ public class IndexSpecTest {
     DocumentContext jsonContext = JsonPath.parse(GlobalObjectMapper.writeValueAsString(ingestionSpec));
 
     assertThat(jsonContext.read("$['ioConfig']['type']"), is("hadoop"));
-    assertThat(jsonContext.read("$['dataSchema']['parser']['type']"), is("parquet"));
+    assertThat(jsonContext.read("$['dataSchema']['parser']['type']"), is("map"));
     assertThat(jsonContext.read("$['dataSchema']['parser']['parseSpec']['timestampSpec']['replaceWrongColumn']"), is(false));
 
     boolean thrown = false;
