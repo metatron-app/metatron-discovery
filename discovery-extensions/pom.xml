@@ -28,6 +28,7 @@
                 <module>mssql-connection</module>
                 <module>athena-connection</module>
                 <module>oracle-connection</module>
+                <module>bigquery-connection</module>
             </modules>
         </profile>
     </profiles>
