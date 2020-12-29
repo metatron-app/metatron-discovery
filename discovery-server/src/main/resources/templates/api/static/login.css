@@ -158,6 +158,13 @@ body{overflow:hidden}
 .popup_common .layout-popup .popup-container .buttons{text-align:center;margin:3.3em 0 0}
 .popup_common .layout-popup .popup-container .buttons .btn-action{background-color:#272950;min-width:8em}
 .popup_common .layout-popup .popup-container .buttons .btn-action:hover{background-color:#7575ea;text-decoration:none}
+
+.ddp-form-login a.ddp-link-search {color:#272950; font-size:13px; font-weight: 300;}
+.ddp-form-login a.ddp-link-sign  {position:relative; margin-left:12px; padding-left:12px; color:#272950; font-size:13px;font-weight: 300;}
+.ddp-form-login a.ddp-link-sign:before {display:inline-block; height:13px;  position:absolute; top:50%; left:0; margin-top:-7px; border-left:1px solid #585879; content:'';}
+.ddp-form-login a.ddp-link-search:hover {text-decoration: underline;}
+.ddp-form-login a.ddp-link-sign:hover  {text-decoration: underline;}
+
 @keyframes lds-wedges{
 0%{transform:rotate(0)}
 100%{transform:rotate(360deg)}

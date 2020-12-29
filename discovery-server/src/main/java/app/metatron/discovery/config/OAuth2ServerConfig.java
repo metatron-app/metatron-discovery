@@ -223,6 +223,8 @@ public class OAuth2ServerConfig {
           .antMatchers(HttpMethod.POST, "/api/oauth/client/check").permitAll()
           //별도 로그인 처리
           .antMatchers("/api/oauth/client/login").permitAll()
+          .antMatchers("/api/oauth/client/join").permitAll()
+          .antMatchers("/api/oauth/client/reset-password").permitAll()
           .antMatchers("/api/oauth/client/logout").permitAll()
           .antMatchers(HttpMethod.GET, "/api/oauth/*").permitAll()
 
