@@ -109,6 +109,10 @@
                  th:text="#{message.app.oauth.login}"></a>
             </div>
             <span class="mobile ddp-ui-error" name="loginFailMsg"></span>
+            <div class="ddp-help">
+              <a id="btnResetPassword" href="javascript:" class="ddp-link-search" th:text="#{message.app.oauth.login.find.passwd}"></a>
+              <a id="btnJoin" href="javascript:" class="ddp-link-sign" th:text="#{message.app.oauth.login.join}"></a>
+            </div>
           </div>
           <div class="ddp-copyright" th:utext="${copyrightHtml}">
           </div>
@@ -227,6 +231,13 @@
         oauthLogin.init();
       });
       $("input[name=username]").focus();
+
+      $('#btnResetPassword').bind('click', function() {
+        location.href = '/api/oauth/client/reset-password' + location.search;
+      });
+      $('#btnJoin').bind('click', function() {
+        location.href = '/api/oauth/client/join' + location.search;
+      });
     },
     checkIp: function() {
       var method = 'POST';
