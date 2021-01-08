@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.storage;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.util.CaseInsensitiveConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,9 @@ public class StorageController {
         if(storageProperties == null || storageProperties.getStagedb() == null) {
           return ResponseEntity.noContent().build();
         }
-        StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
+        StorageProperties.StageDBConnection stageDBConnection = GlobalObjectMapper
+            .readValue(GlobalObjectMapper.writeValueAsString(
+                storageProperties.getStagedb()), StorageProperties.StageDBConnection.class);
         //masking username, password
         stageDBConnection.setUsername(null);
         stageDBConnection.setPassword(null);
