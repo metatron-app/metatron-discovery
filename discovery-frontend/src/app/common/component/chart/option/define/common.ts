@@ -505,6 +505,8 @@ export enum ColorRangeType {
  */
 export enum EventType {
 
+  // 초기 진입시
+  INIT = <any>'init',
   // 누적모드
   CUMULATIVE = <any>'cumulativeMode',
   // 선반 변경시

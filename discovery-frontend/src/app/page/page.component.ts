@@ -31,7 +31,14 @@ import {PopupService} from '../common/service/popup.service';
 
 import {StringUtil} from '../common/util/string.util';
 import {Pivot} from '../domain/workbook/configurations/pivot';
-import {ConnectionType, Datasource, Field, FieldPivot, FieldRole, LogicalType} from '../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  Field,
+  FieldPivot,
+  FieldRole,
+  LogicalType
+} from '../domain/datasource/datasource';
 import {
   BarMarkType,
   ChartColorType,
@@ -55,7 +62,6 @@ import {Subject} from 'rxjs/Subject';
 import {DIRECTION, Sort} from '../domain/workbook/configurations/sort';
 import {Filter} from '../domain/workbook/configurations/filter/filter';
 import {OptionGenerator} from '../common/component/chart/option/util/option-generator';
-import {Widget} from '../domain/dashboard/widget/widget';
 import {ImageService} from '../common/service/image.service';
 import {ExpressionField} from '../domain/workbook/configurations/field/expression-field';
 import {DashboardService} from '../dashboard/service/dashboard.service';
@@ -68,7 +74,7 @@ import {DragulaService} from '../../lib/ng2-dragula';
 import {PageDataContextComponent} from './page-data/page-data-context.component';
 import {Format} from '../domain/workbook/configurations/format';
 import {FilterUtil} from '../dashboard/util/filter.util';
-import {isNullOrUndefined, isUndefined} from 'util';
+import {isNullOrUndefined} from 'util';
 import {AnalysisComponent} from './component/analysis/analysis.component';
 import {AnalysisPredictionService} from './component/analysis/service/analysis.prediction.service';
 import {CustomField} from '../domain/workbook/configurations/field/custom-field';
@@ -3069,7 +3075,30 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
   }
 
-  public getFieldSearchList(list: Field[]): Field[] {
+  public getFieldSearchList(fields: Field[]): Field[] {
+    let list: Field[] = _.cloneDeep(fields);
+    for (let item of list) {
+      this.pivot.rows.forEach(field => {
+        if (field.name === item.name) {
+          item.pivot = item.pivot ? item.pivot : [];
+          item.pivot.push(FieldPivot.ROWS);
+        }
+      });
+
+      this.pivot.columns.forEach(field => {
+        if (field.name === item.name) {
+          item.pivot = item.pivot ? item.pivot : [];
+          item.pivot.push(FieldPivot.COLUMNS);
+        }
+      });
+
+      this.pivot.aggregations.forEach(field => {
+        if (field.name === item.name) {
+          item.pivot = item.pivot ? item.pivot : [];
+          item.pivot.push(FieldPivot.AGGREGATIONS);
+        }
+      });
+    }
 
     // 반환 목록
     let result: Field[] = [];
@@ -3902,7 +3931,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     if (this.chart === undefined || this.chart === null) {
       // 최초 페이지 진입 후에는 initView가 끝난 후에 호출 해야함
-      setTimeout(() => this.drawChart(), 300);
+      setTimeout(() => this.drawChart({type: EventType.INIT}), 300);
       return;
     }
 
@@ -3951,7 +3980,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     // (bar차트) 행 또는 교차 선반에 값이 올라갈 경우 차원값 색상 및 범례 변경
-    if ('bar' == this.selectChart) {
+    if ('bar' == this.selectChart && params.type != EventType.INIT) {
 
       let isChangeDimensionType: boolean = false;
 
@@ -3977,6 +4006,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
 
     } // end if - barChart
+
+    if (params.type === EventType.INIT) {
+      params.type = '';
+    }
 
     this.loadingShow();
     this.isNoData = false;
