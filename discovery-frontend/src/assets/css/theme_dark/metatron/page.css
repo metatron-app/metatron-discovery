@@ -4039,6 +4039,14 @@
     color:#fff;
 }
 
+.theme-dark .ddp-box-widget .pivot-view .pivot-view-body .pivot-view-wrap .pivot-view-cell {
+  color: #4e5368;
+}
+
+.theme-dark .ddp-box-widget .pivot-view .pivot-view-body .pivot-view-wrap .pivot-view-cell.numeric {
+  color: #297bb8;
+}
+
 .theme-dark .ddp-box-widget .ddp-ui-graph-name {
     position: relative;
     padding: 4px 5px 4px 10px;
