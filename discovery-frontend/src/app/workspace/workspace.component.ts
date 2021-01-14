@@ -1553,7 +1553,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         // 워크스페이스 데이터
         this.workspace = workspace;
         // 워크스페이스 이름
-        this.workspaceName = (workspace.publicType === PublicType.PRIVATE && workspace.createdBy && workspace.createdBy.fullName)? workspace.createdBy.fullName + '\'s Workspace': workspace.name;
+        this.workspaceName = (workspace.publicType === PublicType.PRIVATE && workspace.owner && workspace.owner.fullName)? workspace.owner.fullName + '\'s Workspace': workspace.name;
         // 워크스페이스 설명
         this.workspaceDescription = workspace.description;
         // 워크스페이스 소유자
