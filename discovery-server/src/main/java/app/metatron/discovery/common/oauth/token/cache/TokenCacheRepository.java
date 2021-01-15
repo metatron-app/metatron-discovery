@@ -76,7 +76,7 @@ public class TokenCacheRepository {
     if (clientDetails != null
         && clientDetails.getAccessTokenValiditySeconds() != null
         && clientDetails.getRefreshTokenValiditySeconds() != null
-        && clientDetails.getAccessTokenValiditySeconds() == clientDetails.getRefreshTokenValiditySeconds()) {
+        && clientDetails.getAccessTokenValiditySeconds().equals(clientDetails.getRefreshTokenValiditySeconds())) {
       return true;
     }
     return false;
