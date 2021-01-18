@@ -18,7 +18,7 @@ Step 2. After uncompressing the downloaded zip file, copy it under bigquery-conn
 cp SimbaJDBCDriverforGoogleBigQuery42_1.2.11.1014/* metatron-discovery/discovery-extensions/bigquery-connection/src/main/resources/lib/
 ``` 
 
-** Important **
+**Important**   
 There is a conflict problem with the slf4j library, so when copying the files, you need to exclude the slf4j-api-*.jar files.
 
 
