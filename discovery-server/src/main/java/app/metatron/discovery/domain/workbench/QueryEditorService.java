@@ -428,12 +428,14 @@ public class QueryEditorService {
       DateTime finishDateTime = DateTime.now();
 
       //Query 시작 종료 시간 기록
-      queryResult.setStartDateTime(startDateTime);
-      queryResult.setFinishDateTime(finishDateTime);
-      queryResult.setAuditId(auditId);
-      queryResult.setQueryHistoryId(queryHistoryId);
-      queryResult.setQueryEditorId(queryEditorId);
-      queryResult.setMaxNumRows(Long.valueOf(maxResultSize));
+      if(queryResult != null) {
+        queryResult.setStartDateTime(startDateTime);
+        queryResult.setFinishDateTime(finishDateTime);
+        queryResult.setAuditId(auditId);
+        queryResult.setQueryHistoryId(queryHistoryId);
+        queryResult.setQueryEditorId(queryEditorId);
+        queryResult.setMaxNumRows(Long.valueOf(maxResultSize));
+      }
 
       sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex, queryEditorId,
               workbenchId, webSocketId);
