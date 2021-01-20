@@ -74,7 +74,7 @@
         <junit.version>4.12</junit.version>
 
         <jackson.version>2.9.9</jackson.version>
-        <jackson.databind.version>2.9.10.4</jackson.databind.version>
+        <jackson.databind.version>2.9.10.7</jackson.databind.version>
 
         <metatron.metis.version>2.0.0-SNAPSHOT</metatron.metis.version>
 
