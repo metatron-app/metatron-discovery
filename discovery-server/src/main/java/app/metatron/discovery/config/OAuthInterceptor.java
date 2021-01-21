@@ -129,20 +129,22 @@ public class OAuthInterceptor implements HandlerInterceptor {
 
         // getting username, clientid, clientip
         String clientId = authFromToken.getOAuth2Request().getClientId();
-        if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+        if (tokenCacheRepository.isCheckIp(clientId)) {
           String username = authFromToken.getName();
           String userHost = HttpUtils.getClientIp(request);
 
           if (username != null) {
             // getting whitelist in cache
-            CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
-            if (cachedToken != null) {
-              String cachedUserHost = cachedToken.getUserIp();
-              // if not matched in whitelist cache, throw exception
-              if (!userHost.equals(cachedUserHost)) {
-                LOGGER.info("Cached Whitelist token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-                throw new InvalidTokenException("User ip is not in whitelist.");
-              }
+            Map<String, CachedToken> cachedTokenMap = tokenCacheRepository.getCachedToken(username, clientId);
+            if (cachedTokenMap != null) {
+              cachedTokenMap.forEach((s, cachedToken) -> {
+                if (!s.equals(tokenCacheRepository.getCacheKey(username, clientId, userHost))) {
+                  LOGGER.info("Cached Token's ip ({}) is not matched userIp ({})", cachedToken.getUserIp(), userHost);
+                  throw new InvalidTokenException("User ip is not in whitelist.");
+                }
+              });
+            } else {
+              LOGGER.info("Cached Token({}, {}, {}) is not existed", username, clientId, userHost);
             }
           }
         }

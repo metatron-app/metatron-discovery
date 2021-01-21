@@ -23,7 +23,6 @@ import app.metatron.discovery.common.oauth.CookieManager;
 import app.metatron.discovery.common.oauth.token.cache.CachedToken;
 import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.common.saml.SAMLAuthenticationInfo;
-import app.metatron.discovery.config.ApiResourceConfig;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
@@ -32,6 +31,7 @@ import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.HttpUtils;
 
 import com.google.common.collect.Maps;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -224,18 +224,23 @@ public class AuthenticationController {
     try {
       String username = request.getParameter("username");
       String clientId = BasicTokenExtractor.extractClientId(request.getHeader("Authorization"));
-      CachedToken cachedToken =
-          tokenCacheRepository.getCachedToken(username, clientId);
-      if (cachedToken != null && cachedToken.getExpiration() != null) {
-        String userHost = HttpUtils.getClientIp(request);
-        if (System.currentTimeMillis() > cachedToken.getExpiration().getTime() || cachedToken.getUserIp().equals(userHost)) {
-          return ResponseEntity.ok(true);
-        } else {
-          return ResponseEntity.ok(cachedToken.getUserIp());
+      String userHost = HttpUtils.getClientIp(request);
+
+      if (tokenCacheRepository.isCheckIp(clientId)) {
+        Map<String, CachedToken> cachedTokenMap = tokenCacheRepository.getCachedToken(username, clientId);
+        if (cachedTokenMap != null) {
+          for (Map.Entry<String, CachedToken> entry : cachedTokenMap.entrySet()) {
+            CachedToken cachedToken = entry.getValue();
+            if (cachedToken != null && cachedToken.getExpiration() != null) {
+              if (!userHost.equals(cachedToken.getUserIp()) &&
+                  cachedToken.getExpiration().getTime() > System.currentTimeMillis()) {
+                return ResponseEntity.ok(cachedToken.getUserIp());
+              }
+            }
+          }
         }
-      } else {
-        return ResponseEntity.ok(true);
       }
+      return ResponseEntity.ok(true);
     } catch (Exception e) {
       return ResponseEntity.badRequest().build();
     }
@@ -357,7 +362,7 @@ public class AuthenticationController {
     }
     jdbcClientDetailsService.updateClientDetails(baseClientDetails);
     LOGGER.info("Update ClientId {}", GlobalObjectMapper.writeValueAsString(baseClientDetails));
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(baseClientDetails);
   }
 
   @DeleteMapping(value = "/oauth/{clientId}")
@@ -480,6 +485,12 @@ public class AuthenticationController {
     }
     if (StringUtils.isNotEmpty(oauthClientInformation.getCopyrightHtml())) {
       additionalInformation.put("copyrightHtml", oauthClientInformation.getCopyrightHtml());
+    }
+    if (oauthClientInformation.isStoreCache() != null) {
+      additionalInformation.put("storeCache", oauthClientInformation.isStoreCache());
+    }
+    if (oauthClientInformation.isCheckIp() != null) {
+      additionalInformation.put("checkIp", oauthClientInformation.isCheckIp());
     }
   }
 

@@ -42,6 +42,10 @@ public class OauthClientInformation implements Serializable {
 
   String copyrightHtml;
 
+  Boolean storeCache;
+
+  Boolean checkIp;
+
   public String getRedirectUri() {
     return redirectUri;
   }
@@ -134,4 +138,11 @@ public class OauthClientInformation implements Serializable {
     this.copyrightHtml = copyrightHtml;
   }
 
+  public Boolean isStoreCache() { return storeCache; }
+
+  public void setStoreCache(Boolean storeCache) { this.storeCache = storeCache; }
+
+  public Boolean isCheckIp() { return checkIp; }
+
+  public void setCheckIp(Boolean checkIp) { this.checkIp = checkIp; }
 }

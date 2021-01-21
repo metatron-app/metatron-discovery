@@ -62,22 +62,29 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     super.storeAccessToken(token, authentication);
 
     String clientId = authentication.getOAuth2Request().getClientId();
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       String grantType = authentication.getOAuth2Request().getGrantType();
-      LOGGER.debug("Store accessToken Token (GrantType-{})", grantType);
+      LOGGER.debug("Store Access Token (GrantType-{})", grantType);
 
-      String userHost;
-      try {
-        userHost = HttpUtils.getClientIp(httpServletRequest);
-      } catch (IllegalStateException ise) {
-        userHost = getRemoteAddress();
+      if (tokenCacheRepository.isCheckIp(clientId)) {
+        tokenCacheRepository.removeCachedTokenByUsernameAndClientId(authentication.getName(), clientId);
       }
 
-      tokenCacheRepository.putAccessCachedToken(authentication.getName(), clientId, token.getValue(), userHost);
+      tokenCacheRepository.putAccessCachedToken(authentication.getName(), clientId, token.getValue(), getUserHost());
       if (token.getRefreshToken() != null) {
         storeRefreshToken(token.getRefreshToken(), authentication);
       }
     }
+  }
+
+  private String getUserHost() {
+    String userHost;
+    try {
+      userHost = HttpUtils.getClientIp(httpServletRequest);
+    } catch (IllegalStateException ise) {
+      userHost = getRemoteAddress();
+    }
+    return userHost;
   }
 
   /**
@@ -102,10 +109,10 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     super.storeRefreshToken(refreshToken, authentication);
 
     String clientId = authentication.getOAuth2Request().getClientId();
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       String grantType = authentication.getOAuth2Request().getGrantType();
       LOGGER.debug("Store Refresh Token (GrantType-{})", grantType);
-      tokenCacheRepository.putRefreshCachedToken(authentication.getName(), clientId, refreshToken.getValue());
+      tokenCacheRepository.putRefreshCachedToken(authentication.getName(), clientId, getUserHost(), refreshToken.getValue());
     }
   }
 
@@ -113,7 +120,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   public OAuth2AccessToken readAccessToken(String tokenValue) {
     OAuth2Authentication authentication = readAuthentication(tokenValue);
     String clientId = authentication.getOAuth2Request().getClientId();
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       String cacheKey = getCacheKey(authentication);
       CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
 
@@ -136,7 +143,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2RefreshToken refreshToken = super.readRefreshToken(tokenValue);
     OAuth2Authentication authentication = readAuthentication(tokenValue);
     String clientId = authentication.getOAuth2Request().getClientId();
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       String cacheKey = getCacheKey(authentication);
       CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
       if (cachedToken != null && cachedToken.getExpiration() != null) {
@@ -153,10 +160,10 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2Authentication authentication = readAuthentication(token.getValue());
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       LOGGER.debug("Remove Access Token");
       String username = authentication.getName();
-      tokenCacheRepository.removeAccessCachedToken(username,clientId);
+      tokenCacheRepository.removeAccessCachedToken(username, clientId, getUserHost());
     }
   }
 
@@ -167,10 +174,10 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2Authentication authentication = readAuthentication(token.getValue());
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       LOGGER.debug("Remove Refresh Token");
       String username = authentication.getName();
-      tokenCacheRepository.removeRefreshCachedToken(username,clientId);
+      tokenCacheRepository.removeRefreshCachedToken(username, clientId, getUserHost());
     }
   }
 
@@ -181,10 +188,10 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2Authentication authentication = readAuthentication(refreshToken.getValue());
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       LOGGER.debug("Remove Access Token using Refresh Token");
       String username = authentication.getName();
-      tokenCacheRepository.removeAccessCachedToken(username,clientId);
+      tokenCacheRepository.removeAccessCachedToken(username, clientId, getUserHost());
     }
   }
 
@@ -192,7 +199,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication) {
     String clientId = authentication.getOAuth2Request().getClientId();
 
-    if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+    if (tokenCacheRepository.isStoreCache(clientId)) {
       String cacheKey = getCacheKey(authentication);
       CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
       if (cachedToken != null && cachedToken.getAccessToken() != null) {
@@ -206,6 +213,6 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
   }
 
   private String getCacheKey(OAuth2Authentication authentication) {
-    return authentication.getName() + "|" + authentication.getOAuth2Request().getClientId();
+    return tokenCacheRepository.getCacheKey(authentication.getName(), authentication.getOAuth2Request().getClientId(), getUserHost());
   }
 }

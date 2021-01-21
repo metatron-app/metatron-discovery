@@ -17,6 +17,7 @@ package app.metatron.discovery.common.oauth.token.filter;
 import app.metatron.discovery.common.oauth.CustomBearerTokenExtractor;
 import app.metatron.discovery.common.oauth.token.cache.CachedToken;
 import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
+import app.metatron.discovery.util.HttpUtils;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -67,12 +68,13 @@ public class RefreshTokenRetentionFilter implements Filter {
         String clientId = oAuth2Authentication.getOAuth2Request().getClientId();
         if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
           String username = oAuth2Authentication.getName();
-          CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
+          String userHost = HttpUtils.getClientIp(httpServletRequest);
+          CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId, userHost);
           if (cachedToken != null) {
             Date newRefreshTokenExpiration = DateTime.now().plusSeconds(tokenCacheRepository.getRefreshTokenValiditySeconds(clientId)).toDate();
-            LOGGER.debug("Token ({}) expiration retention to {} from {}", username + "|" + clientId,
+            LOGGER.debug("Token ({}) expiration retention to {} from {}", username + "|" + clientId + "|" + userHost,
                          newRefreshTokenExpiration, cachedToken.getExpiration());
-            tokenCacheRepository.extendRefreshCachedToken(oAuth2Authentication, newRefreshTokenExpiration);
+            tokenCacheRepository.putRefreshCachedToken(username, clientId, userHost, newRefreshTokenExpiration);
           }
         }
       }

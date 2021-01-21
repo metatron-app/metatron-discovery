@@ -16,6 +16,7 @@ package app.metatron.discovery.common.oauth.token.cache;
 
 import com.google.common.collect.Maps;
 
+import org.infinispan.spring.provider.SpringEmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Repository;
@@ -49,6 +49,8 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 public class TokenCacheRepository {
 
   private static Logger LOGGER = LoggerFactory.getLogger(TokenCacheRepository.class);
+
+  private final String cacheName = "token-cache";
 
   @Autowired
   JdbcClientDetailsService jdbcClientDetailsService;
@@ -71,6 +73,18 @@ public class TokenCacheRepository {
     LOGGER.info("ClientDetailsMap init : {}", GlobalObjectMapper.writeValueAsString(clientDetailsMap));
   }
 
+  public boolean isStoreCache(String clientId) {
+    ClientDetails clientDetails = clientDetailsMap.get(clientId);
+    if (clientDetails != null
+        && clientDetails.getAdditionalInformation() != null
+        && clientDetails.getAdditionalInformation().get("storeCache") != null
+        && Boolean.parseBoolean(clientDetails.getAdditionalInformation().get("storeCache").toString())) {
+      return true;
+    } else {
+      return isTimeoutClientDetails(clientId) || isCheckIp(clientId);
+    }
+  }
+
   public boolean isTimeoutClientDetails(String clientId) {
     ClientDetails clientDetails = clientDetailsMap.get(clientId);
     if (clientDetails != null
@@ -82,30 +96,39 @@ public class TokenCacheRepository {
     return false;
   }
 
-  public int getRefreshTokenValiditySeconds(String clientId) {
+  public boolean isCheckIp(String clientId) {
     ClientDetails clientDetails = clientDetailsMap.get(clientId);
-    return clientDetails.getRefreshTokenValiditySeconds();
+    if (clientDetails != null
+        && clientDetails.getAdditionalInformation() != null
+        && clientDetails.getAdditionalInformation().get("checkIp") != null
+        && Boolean.parseBoolean(clientDetails.getAdditionalInformation().get("checkIp").toString())) {
+      return true;
+    }
+    return false;
   }
 
-  public CachedToken getCachedToken(String username, String clientId) {
-    String tokenKey = username + "|" + clientId;
-    return getCachedToken(tokenKey);
+  public int getRefreshTokenValiditySeconds(String clientId) {
+    return clientDetailsMap.get(clientId).getRefreshTokenValiditySeconds();
+  }
+
+  public CachedToken getCachedToken(String username, String clientId, String userIp) {
+    return getCachedToken(getCacheKey(username, clientId, userIp));
   }
 
   @Cacheable(key = "#tokenKey")
   public CachedToken getCachedToken(String tokenKey) {
     try {
-      CachedToken cachedToken = cacheManager.getCache("token-cache").get(tokenKey, CachedToken.class);
+      CachedToken cachedToken = cacheManager.getCache(cacheName).get(tokenKey, CachedToken.class);
       return cachedToken;
     } catch (Exception e) {
       return null;
     }
   }
 
-  @CachePut(key = "#username + '|' + #clientId")
+  @CachePut(key = "#username + '|' + #clientId + '|' + #userIp")
   public CachedToken putAccessCachedToken(String username, String clientId, String accessToken, String userIp) {
-    LOGGER.debug("store Token : {}|{}, {}", username, clientId, userIp);
-    CachedToken cachedToken = getCachedToken(username, clientId);
+    LOGGER.debug("store Token : {}|{}|{}", username, clientId, userIp);
+    CachedToken cachedToken = getCachedToken(username, clientId, userIp);
     if (cachedToken != null) {
       cachedToken.setUserIp(userIp);
       cachedToken.setAccessToken(accessToken);
@@ -115,48 +138,44 @@ public class TokenCacheRepository {
     return cachedToken;
   }
 
-  public CachedToken putRefreshCachedToken(String username, String clientId, String refreshToken) {
+  @CachePut(key = "#username + '|' + #clientId + '|' + #userIp")
+  public CachedToken putRefreshCachedToken(String username, String clientId, String userIp, String refreshToken) {
     OAuth2RefreshToken oAuth2RefreshToken = tokenStore.readRefreshToken(refreshToken);
     if (oAuth2RefreshToken instanceof ExpiringOAuth2RefreshToken) {
-      return putRefreshCachedToken(username, clientId, refreshToken, ((ExpiringOAuth2RefreshToken) oAuth2RefreshToken).getExpiration());
+      CachedToken cachedToken = getCachedToken(username, clientId, userIp);
+      if (cachedToken != null) {
+        cachedToken.setRefreshToken(refreshToken);
+        cachedToken.setExpiration(((ExpiringOAuth2RefreshToken) oAuth2RefreshToken).getExpiration());
+      }
+      return cachedToken;
     } else {
-      throw new OAuth2Exception("refreshToken does not have expiration");
+      throw new InvalidTokenException("refreshToken does not have expiration");
     }
   }
 
-  @CachePut(key = "#username + '|' + #clientId")
-  public CachedToken putRefreshCachedToken(String username, String clientId, String refreshToken, Date expiration) {
-    CachedToken cachedToken = getCachedToken(username, clientId);
-    if (cachedToken != null) {
-      cachedToken.setRefreshToken(refreshToken);
-      cachedToken.setExpiration(expiration);
-    }
-    return cachedToken;
-  }
-
-  @CachePut(key = "#username + '|' + #clientId")
-  public CachedToken putRefreshCachedToken(String username, String clientId, Date expiration) {
-    CachedToken cachedToken = getCachedToken(username, clientId);
+  @CachePut(key = "#username + '|' + #clientId + '|' + #userIp")
+  public CachedToken putRefreshCachedToken(String username, String clientId, String userIp, Date expiration) {
+    CachedToken cachedToken = getCachedToken(username, clientId, userIp);
     if (cachedToken != null) {
       cachedToken.setExpiration(expiration);
     }
     return cachedToken;
   }
 
-  @CachePut(key = "#username + '|' + #clientId")
-  public CachedToken removeAccessCachedToken(String username, String clientId) {
-    LOGGER.debug("remove Token(AccessToken) : {}|{}", username, clientId);
-    CachedToken cachedToken = getCachedToken(username, clientId);
+  @CachePut(key = "#username + '|' + #clientId + '|' + #userIp")
+  public CachedToken removeAccessCachedToken(String username, String clientId, String userIp) {
+    LOGGER.debug("remove Token(AccessToken) : {}|{}|{}", username, clientId, userIp);
+    CachedToken cachedToken = getCachedToken(username, clientId, userIp);
     if (cachedToken != null) {
       cachedToken.setAccessToken(null);
     }
     return cachedToken;
   }
 
-  @CachePut(key = "#username + '|' + #clientId")
-  public CachedToken removeRefreshCachedToken(String username, String clientId) {
-    LOGGER.debug("remove Token(RefreshToken) : {}|{}", username, clientId);
-    CachedToken cachedToken = getCachedToken(username, clientId);
+  @CachePut(key = "#username + '|' + #clientId + '|' + #userIp")
+  public CachedToken removeRefreshCachedToken(String username, String clientId, String userIp) {
+    LOGGER.debug("remove Token(RefreshToken) : {}|{}|{}", username, clientId, userIp);
+    CachedToken cachedToken = getCachedToken(username, clientId, userIp);
     if (cachedToken != null) {
       cachedToken.setRefreshToken(null);
       cachedToken.setExpiration(null);
@@ -164,16 +183,36 @@ public class TokenCacheRepository {
     return cachedToken;
   }
 
-  public CachedToken extendRefreshCachedToken(OAuth2Authentication authentication, Date expiration) {
-    String username = authentication.getName();
-    String clientId = authentication.getOAuth2Request().getClientId();
-    return putRefreshCachedToken(username, clientId, expiration);
-  }
-
   @CacheEvict
   public void removeCachedToken(String tokenKey){
     LOGGER.debug("remove Token : {}", tokenKey);
-    cacheManager.getCache("token-cache").evict(tokenKey);
+    cacheManager.getCache(cacheName).evict(tokenKey);
+  }
+
+  public Map<String, CachedToken> getCachedToken(String username, String clientId) {
+    Map<String, CachedToken> entries = Maps.newHashMap();
+    ((SpringEmbeddedCacheManager) cacheManager).getCache(cacheName).getNativeCache().forEach(
+        (o, o2) -> {
+          String key = String.valueOf(o);
+          if (key.startsWith(username + "|" + clientId + "|")) {
+            if (o2 instanceof CachedToken) {
+              entries.put(key, (CachedToken) o2);
+            }
+          }
+        }
+    );
+    return entries;
+  }
+
+  public void removeCachedTokenByUsernameAndClientId(String username, String clientId) {
+    Map<String, CachedToken> cachedTokenMap = getCachedToken(username, clientId);
+    cachedTokenMap.keySet().forEach(s -> {
+      removeCachedToken(s);
+    });
+  }
+
+  public String getCacheKey(String username, String clientId, String userIp) {
+    return username + "|" + clientId + "|" + userIp;
   }
 
 }

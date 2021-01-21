@@ -28,6 +28,8 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 public class CustomDefaultTokenService extends DefaultTokenServices {
@@ -63,18 +65,18 @@ public class CustomDefaultTokenService extends DefaultTokenServices {
 
       // getting username, clientid, clientip
       String clientId = this.getClientId(accessTokenValue);
-      if (tokenCacheRepository.isTimeoutClientDetails(clientId)) {
+      if (tokenCacheRepository.isCheckIp(clientId)) {
         String username = (String) oAuth2AccessToken.getAdditionalInformation().get("user_name");
         if (username != null && !oAuth2AccessToken.isExpired()) {
           // getting whitelist in cache
-          CachedToken cachedToken = tokenCacheRepository.getCachedToken(username, clientId);
-          if (cachedToken != null) {
-            String cachedUserHost = cachedToken.getUserIp();
-            // if not matched in whitelist cache, throw exception
-            if (!userHost.equals(cachedUserHost)) {
-              LOGGER.info("Cached Token's ip ({}) is not matched userIp ({})", cachedUserHost, userHost);
-              throw new InvalidTokenException("User ip is not in whitelist.");
-            }
+          Map<String, CachedToken> cachedTokenMap = tokenCacheRepository.getCachedToken(username, clientId);
+          if (cachedTokenMap != null) {
+            cachedTokenMap.forEach((s, cachedToken) -> {
+              if (!s.equals(tokenCacheRepository.getCacheKey(username, clientId, userHost))) {
+                LOGGER.info("Cached Token's ip ({}) is not matched userIp ({})", cachedToken.getUserIp(), userHost);
+                throw new InvalidTokenException("User ip is not in whitelist.");
+              }
+            });
           } else {
             LOGGER.info("Cached Token({}, {}, {}) is not existed", username, clientId, userHost);
           }
