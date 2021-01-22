@@ -227,7 +227,7 @@ public class AuthenticationController {
       String userHost = HttpUtils.getClientIp(request);
 
       if (tokenCacheRepository.isCheckIp(clientId)) {
-        Map<String, CachedToken> cachedTokenMap = tokenCacheRepository.getCachedToken(username, clientId);
+        Map<String, CachedToken> cachedTokenMap = tokenCacheRepository.getCachedTokenMap(username, clientId);
         if (cachedTokenMap != null) {
           for (Map.Entry<String, CachedToken> entry : cachedTokenMap.entrySet()) {
             CachedToken cachedToken = entry.getValue();

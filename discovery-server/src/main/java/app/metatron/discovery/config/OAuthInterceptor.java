@@ -135,7 +135,7 @@ public class OAuthInterceptor implements HandlerInterceptor {
 
           if (username != null) {
             // getting whitelist in cache
-            Map<String, CachedToken> cachedTokenMap = tokenCacheRepository.getCachedToken(username, clientId);
+            Map<String, CachedToken> cachedTokenMap = tokenCacheRepository.getCachedTokenMap(username, clientId);
             if (cachedTokenMap != null) {
               cachedTokenMap.forEach((s, cachedToken) -> {
                 if (!s.equals(tokenCacheRepository.getCacheKey(username, clientId, userHost))) {

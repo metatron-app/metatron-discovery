@@ -186,7 +186,7 @@ public class TokenCacheRepository {
     cacheManager.getCache(cacheName).evict(tokenKey);
   }
 
-  public Map<String, CachedToken> getCachedToken(String username, String clientId) {
+  public Map<String, CachedToken> getCachedTokenMap(String username, String clientId) {
     Map<String, CachedToken> entries = Maps.newHashMap();
     ((SpringEmbeddedCacheManager) cacheManager).getCache(cacheName).getNativeCache().forEach(
         (o, o2) -> {
@@ -202,7 +202,7 @@ public class TokenCacheRepository {
   }
 
   public void removeCachedTokenByUsernameAndClientId(String username, String clientId) {
-    Map<String, CachedToken> cachedTokenMap = getCachedToken(username, clientId);
+    Map<String, CachedToken> cachedTokenMap = getCachedTokenMap(username, clientId);
     cachedTokenMap.keySet().forEach(s -> {
       removeCachedToken(s);
     });
