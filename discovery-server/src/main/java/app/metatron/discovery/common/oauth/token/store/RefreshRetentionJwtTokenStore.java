@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -121,8 +120,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2Authentication authentication = readAuthentication(tokenValue);
     String clientId = authentication.getOAuth2Request().getClientId();
     if (tokenCacheRepository.isStoreCache(clientId)) {
-      String cacheKey = getCacheKey(authentication);
-      CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
+      CachedToken cachedToken = tokenCacheRepository.getCachedToken(authentication.getName(), authentication.getOAuth2Request().getClientId(), getUserHost());
 
       OAuth2AccessToken accessToken = super.readAccessToken(tokenValue);
       if (accessToken != null && cachedToken != null
@@ -144,8 +142,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     OAuth2Authentication authentication = readAuthentication(tokenValue);
     String clientId = authentication.getOAuth2Request().getClientId();
     if (tokenCacheRepository.isStoreCache(clientId)) {
-      String cacheKey = getCacheKey(authentication);
-      CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
+      CachedToken cachedToken = tokenCacheRepository.getCachedToken(authentication.getName(), authentication.getOAuth2Request().getClientId(), getUserHost());
       if (cachedToken != null && cachedToken.getExpiration() != null) {
         return new DefaultExpiringOAuth2RefreshToken(tokenValue, cachedToken.getExpiration());
       }
@@ -200,8 +197,7 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     String clientId = authentication.getOAuth2Request().getClientId();
 
     if (tokenCacheRepository.isStoreCache(clientId)) {
-      String cacheKey = getCacheKey(authentication);
-      CachedToken cachedToken = tokenCacheRepository.getCachedToken(cacheKey);
+      CachedToken cachedToken = tokenCacheRepository.getCachedToken(authentication.getName(), authentication.getOAuth2Request().getClientId(), getUserHost());
       if (cachedToken != null && cachedToken.getAccessToken() != null) {
         return readAccessToken(cachedToken.getAccessToken());
       } else {
@@ -212,7 +208,4 @@ public class RefreshRetentionJwtTokenStore extends JwtTokenStore {
     }
   }
 
-  private String getCacheKey(OAuth2Authentication authentication) {
-    return tokenCacheRepository.getCacheKey(authentication.getName(), authentication.getOAuth2Request().getClientId(), getUserHost());
-  }
 }

@@ -111,14 +111,11 @@ public class TokenCacheRepository {
     return clientDetailsMap.get(clientId).getRefreshTokenValiditySeconds();
   }
 
+  @Cacheable(key = "#username + '|' + #clientId + '|' + #userIp")
   public CachedToken getCachedToken(String username, String clientId, String userIp) {
-    return getCachedToken(getCacheKey(username, clientId, userIp));
-  }
-
-  @Cacheable(key = "#tokenKey")
-  public CachedToken getCachedToken(String tokenKey) {
     try {
-      CachedToken cachedToken = cacheManager.getCache(cacheName).get(tokenKey, CachedToken.class);
+      CachedToken cachedToken =
+          cacheManager.getCache(cacheName).get(getCacheKey(username, clientId, userIp), CachedToken.class);
       return cachedToken;
     } catch (Exception e) {
       return null;
