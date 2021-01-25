@@ -115,7 +115,7 @@ public class WorkspacePredicate {
     return builder;
   }
 
-  public static Predicate searchPublicTypeAndNameContainsAndActive(Workspace.PublicType publicType, String nameContains, Boolean active) {
+  public static Predicate searchPublicTypeAndNameContainsAndActiveAndIds(Workspace.PublicType publicType, String nameContains, Boolean active, String workspaceIds) {
 
     BooleanBuilder builder = new BooleanBuilder();
     QWorkspace workspace = QWorkspace.workspace;
@@ -128,6 +128,10 @@ public class WorkspacePredicate {
       } else {
         builder.and(workspace.active.isFalse());
       }
+    }
+
+    if (StringUtils.isNotEmpty(workspaceIds)) {
+      builder.and(workspace.id.in(workspaceIds.split(",")));
     }
 
     return builder;
