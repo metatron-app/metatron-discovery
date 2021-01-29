@@ -1226,7 +1226,7 @@
     <dependency>
       <groupId>io.kubernetes</groupId>
       <artifactId>client-java</artifactId>
-      <version>1.0.0-beta3</version>
+      <version>9.0.2</version>
     </dependency>
     <dependency>
       <groupId>io.kubernetes</groupId>
