@@ -6,7 +6,9 @@ import org.pf4j.PluginWrapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
@@ -211,7 +213,9 @@ public class BigQueryConnectionExtension extends Plugin {
 
     @Override
     public String getQuotedFieldName(JdbcConnectInformation connectInfo, String fieldName) {
-      return null;
+      return Arrays.stream(fieldName.split("\\."))
+                   .map(spliced -> "`" + spliced + "`")
+                   .collect(Collectors.joining("."));
     }
 
     @Override
