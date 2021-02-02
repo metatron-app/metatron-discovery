@@ -238,6 +238,7 @@ public class WorkspaceController {
       @RequestParam(required = false) String linkedId,
       @RequestParam(required = false) boolean onlyLinked,
       @RequestParam(required = false) String nameContains,
+      @RequestParam(required = false) String workspaceIds,
       Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
 
     Workspace.PublicType type = SearchParamValidator.enumUpperValue(Workspace.PublicType.class,
@@ -263,7 +264,7 @@ public class WorkspaceController {
 
     } else {
       Page<Workspace> workspaces = workspaceRepository
-          .findAll(WorkspacePredicate.searchPublicTypeAndNameContainsAndActive(type, nameContains, true), pageable);
+          .findAll(WorkspacePredicate.searchPublicTypeAndNameContainsAndActiveAndIds(type, nameContains, true, workspaceIds), pageable);
 
       // 특정 데이터 소스에 연결된 Workspace 찾기
       List<String> linkedWorkspaceIds = null;
