@@ -1,0 +1,9585 @@
+var items8 = [{
+    "SUM(Sales)": 433,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000000447034836,
+    "count": 2,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Akron",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 267,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Alexandria",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 244,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Allen",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 12,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Allentown",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 3048,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3800000101327896,
+    "count": 4,
+    "SUM(Discount)": 1.5200000405311584,
+    "City": "Amarillo",
+    "Discount_sum": 1.5200000405311584
+}, {
+    "SUM(Sales)": 3752,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000335276127,
+    "count": 8,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Anaheim",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 355,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Andover",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 130,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Apopka",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1758,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.17500000447034836,
+    "count": 2,
+    "SUM(Discount)": 0.3500000089406967,
+    "City": "Apple Valley",
+    "Discount_sum": 0.3500000089406967
+}, {
+    "SUM(Sales)": 3644,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2076923159452585,
+    "count": 13,
+    "SUM(Discount)": 2.7000001072883606,
+    "City": "Arlington",
+    "Discount_sum": 2.7000001072883606
+}, {
+    "SUM(Sales)": 497,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Arvada",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 187,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Athens",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1853,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Atlanta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 875,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Auburn",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 5237,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.4095238220124018,
+    "count": 21,
+    "SUM(Discount)": 8.600000262260437,
+    "City": "Aurora",
+    "Discount_sum": 8.600000262260437
+}, {
+    "SUM(Sales)": 536,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.40000001589457196,
+    "count": 3,
+    "SUM(Discount)": 1.2000000476837158,
+    "City": "Austin",
+    "Discount_sum": 1.2000000476837158
+}, {
+    "SUM(Sales)": 848,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.1100000023841858,
+    "count": 5,
+    "SUM(Discount)": 0.550000011920929,
+    "City": "Bakersfield",
+    "Discount_sum": 0.550000011920929
+}, {
+    "SUM(Sales)": 4016,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.027272728356448086,
+    "count": 11,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Baltimore",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 109,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bangor",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 9,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Beaumont",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 306,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Belleville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 20,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bellevue",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2666,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bellingham",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 310,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3333333333333333,
+    "count": 3,
+    "SUM(Discount)": 1,
+    "City": "Bethlehem",
+    "Discount_sum": 1
+}, {
+    "SUM(Sales)": 788,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.36666667461395264,
+    "count": 3,
+    "SUM(Discount)": 1.100000023841858,
+    "City": "Bloomington",
+    "Discount_sum": 1.100000023841858
+}, {
+    "SUM(Sales)": 696,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Boise",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 130,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bossier City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 141,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bowling Green",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 374,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000670552254,
+    "count": 4,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Boynton Beach",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Brentwood",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 241,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.25,
+    "count": 2,
+    "SUM(Discount)": 0.5,
+    "City": "Bristol",
+    "Discount_sum": 0.5
+}, {
+    "SUM(Sales)": 1593,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Broken Arrow",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 731,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Broomfield",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 455,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3100000023841858,
+    "count": 2,
+    "SUM(Discount)": 0.6200000047683716,
+    "City": "Brownsville",
+    "Discount_sum": 0.6200000047683716
+}, {
+    "SUM(Sales)": 528,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Bryan",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 5950,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.08000000268220901,
+    "count": 5,
+    "SUM(Discount)": 0.4000000134110451,
+    "City": "Buffalo",
+    "Discount_sum": 0.4000000134110451
+}, {
+    "SUM(Sales)": 355,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.5,
+    "count": 1,
+    "SUM(Discount)": 0.5,
+    "City": "Buffalo Grove",
+    "Discount_sum": 0.5
+}, {
+    "SUM(Sales)": 14,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bullhead City",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 111,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Burbank",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 7532,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Burlington",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 338,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Caldwell",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1453,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.13750000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.550000011920929,
+    "City": "Camarillo",
+    "Discount_sum": 0.550000011920929
+}, {
+    "SUM(Sales)": 27,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Cambridge",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 28,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Canton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 790,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 2,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Carol Stream",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 41,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 2,
+    "SUM(Discount)": 1.2000000476837158,
+    "City": "Carrollton",
+    "Discount_sum": 1.2000000476837158
+}, {
+    "SUM(Sales)": 152,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Champaign",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 925,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3000000019868215,
+    "count": 3,
+    "SUM(Discount)": 0.9000000059604645,
+    "City": "Chandler",
+    "Discount_sum": 0.9000000059604645
+}, {
+    "SUM(Sales)": 1795,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000000695387524,
+    "count": 6,
+    "SUM(Discount)": 1.8000000417232513,
+    "City": "Charlotte",
+    "Discount_sum": 1.8000000417232513
+}, {
+    "SUM(Sales)": 68,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Charlottesville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 641,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Chattanooga",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 4554,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Chesapeake",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1075,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2500000074505806,
+    "count": 4,
+    "SUM(Discount)": 1.0000000298023224,
+    "City": "Chester",
+    "Discount_sum": 1.0000000298023224
+}, {
+    "SUM(Sales)": 1603,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Cheyenne",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 12494,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.4779411834828994,
+    "count": 68,
+    "SUM(Discount)": 32.50000047683716,
+    "City": "Chicago",
+    "Discount_sum": 32.50000047683716
+}, {
+    "SUM(Sales)": 1957,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.12000000178813934,
+    "count": 5,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Chico",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 666,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Chula Vista",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 79,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Cincinnati",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 129,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Citrus Heights",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 465,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Clarksville",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 910,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2875000052154064,
+    "count": 8,
+    "SUM(Discount)": 2.3000000417232513,
+    "City": "Cleveland",
+    "Discount_sum": 2.3000000417232513
+}, {
+    "SUM(Sales)": 255,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Clifton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1337,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.04285714456013271,
+    "count": 7,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Clinton",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 233,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "College Station",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 3206,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.34444444212648606,
+    "count": 9,
+    "SUM(Discount)": 3.0999999791383743,
+    "City": "Colorado Springs",
+    "Discount_sum": 3.0999999791383743
+}, {
+    "SUM(Sales)": 9390,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.07777777976459926,
+    "count": 18,
+    "SUM(Discount)": 1.4000000357627869,
+    "City": "Columbia",
+    "Discount_sum": 1.4000000357627869
+}, {
+    "SUM(Sales)": 9728,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.16041667138536772,
+    "count": 48,
+    "SUM(Discount)": 7.70000022649765,
+    "City": "Columbus",
+    "Discount_sum": 7.70000022649765
+}, {
+    "SUM(Sales)": 6163,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.1350000023841858,
+    "count": 10,
+    "SUM(Discount)": 1.350000023841858,
+    "City": "Concord",
+    "Discount_sum": 1.350000023841858
+}, {
+    "SUM(Sales)": 302,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Conway",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 12,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Coral Gables",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 386,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Coral Springs",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 108,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 3,
+    "SUM(Discount)": 1.8000000715255737,
+    "City": "Corpus Christi",
+    "Discount_sum": 1.8000000715255737
+}, {
+    "SUM(Sales)": 726,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.033333333830038704,
+    "count": 6,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Costa Mesa",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 47,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Covington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3149,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.11250000447034836,
+    "count": 8,
+    "SUM(Discount)": 0.9000000357627869,
+    "City": "Cranston",
+    "Discount_sum": 0.9000000357627869
+}, {
+    "SUM(Sales)": 8,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Cuyahoga Falls",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 7305,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.4481481666918154,
+    "count": 27,
+    "SUM(Discount)": 12.100000500679016,
+    "City": "Dallas",
+    "Discount_sum": 12.100000500679016
+}, {
+    "SUM(Sales)": 27,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Danbury",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Danville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 192,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 1,
+    "SUM(Discount)": 0.44999998807907104,
+    "City": "Daytona Beach",
+    "Discount_sum": 0.44999998807907104
+}, {
+    "SUM(Sales)": 363,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Dearborn",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 181,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Dearborn Heights",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2895,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3750000149011612,
+    "count": 8,
+    "SUM(Discount)": 3.0000001192092896,
+    "City": "Decatur",
+    "Discount_sum": 3.0000001192092896
+}, {
+    "SUM(Sales)": 186,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Deltona",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 4088,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.31818181547251617,
+    "count": 11,
+    "SUM(Discount)": 3.4999999701976776,
+    "City": "Denver",
+    "Discount_sum": 3.4999999701976776
+}, {
+    "SUM(Sales)": 1436,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Des Moines",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 725,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.46666669845581055,
+    "count": 3,
+    "SUM(Discount)": 1.4000000953674316,
+    "City": "Des Plaines",
+    "Discount_sum": 1.4000000953674316
+}, {
+    "SUM(Sales)": 16364,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 28,
+    "SUM(Discount)": 0,
+    "City": "Detroit",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1491,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.06000000238418579,
+    "count": 5,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Dover",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Draper",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1121,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000000447034836,
+    "count": 2,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Dublin",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 1408,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Dubuque",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 336,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Durham",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 27,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "East Point",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1086,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Eau Claire",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1448,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Edmonds",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 865,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "El Cajon",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 2150,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.36000001430511475,
+    "count": 5,
+    "SUM(Discount)": 1.8000000715255737,
+    "City": "El Paso",
+    "Discount_sum": 1.8000000715255737
+}, {
+    "SUM(Sales)": 634,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Elmhurst",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 419,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.17500000447034836,
+    "count": 2,
+    "SUM(Discount)": 0.3500000089406967,
+    "City": "Encinitas",
+    "Discount_sum": 0.3500000089406967
+}, {
+    "SUM(Sales)": 755,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Eugene",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 258,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Evanston",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 3611,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.050000001986821495,
+    "count": 6,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Everett",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 3644,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.17000000476837157,
+    "count": 10,
+    "SUM(Discount)": 1.7000000476837158,
+    "City": "Fairfield",
+    "Discount_sum": 1.7000000476837158
+}, {
+    "SUM(Sales)": 546,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Farmington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1352,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.15555556118488312,
+    "count": 9,
+    "SUM(Discount)": 1.400000050663948,
+    "City": "Fayetteville",
+    "Discount_sum": 1.400000050663948
+}, {
+    "SUM(Sales)": 2250,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Florence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 858,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.36666665971279144,
+    "count": 3,
+    "SUM(Discount)": 1.0999999791383743,
+    "City": "Fort Collins",
+    "Discount_sum": 1.0999999791383743
+}, {
+    "SUM(Sales)": 2078,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.29999999403953553,
+    "count": 5,
+    "SUM(Discount)": 1.4999999701976776,
+    "City": "Fort Lauderdale",
+    "Discount_sum": 1.4999999701976776
+}, {
+    "SUM(Sales)": 1299,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.428000009059906,
+    "count": 5,
+    "SUM(Discount)": 2.14000004529953,
+    "City": "Fort Worth",
+    "Discount_sum": 2.14000004529953
+}, {
+    "SUM(Sales)": 7021,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.11538461996958806,
+    "count": 13,
+    "SUM(Discount)": 1.5000000596046448,
+    "City": "Franklin",
+    "Discount_sum": 1.5000000596046448
+}, {
+    "SUM(Sales)": 436,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.23333334177732468,
+    "count": 3,
+    "SUM(Discount)": 0.700000025331974,
+    "City": "Freeport",
+    "Discount_sum": 0.700000025331974
+}, {
+    "SUM(Sales)": 16,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Fremont",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 5520,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.12857143155166081,
+    "count": 7,
+    "SUM(Discount)": 0.9000000208616257,
+    "City": "Fresno",
+    "Discount_sum": 0.9000000208616257
+}, {
+    "SUM(Sales)": 30,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Frisco",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 174,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Gaithersburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 9,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Garland",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 43,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Georgetown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2367,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.25,
+    "count": 6,
+    "SUM(Discount)": 1.5,
+    "City": "Gilbert",
+    "Discount_sum": 1.5
+}, {
+    "SUM(Sales)": 126,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Gladstone",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1549,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 5,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Glendale",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 567,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.45000001788139343,
+    "count": 4,
+    "SUM(Discount)": 1.8000000715255737,
+    "City": "Grand Prairie",
+    "Discount_sum": 1.8000000715255737
+}, {
+    "SUM(Sales)": 12,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Greeley",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 36,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Green Bay",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 826,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2500000074505806,
+    "count": 4,
+    "SUM(Discount)": 1.0000000298023224,
+    "City": "Greensboro",
+    "Discount_sum": 1.0000000298023224
+}, {
+    "SUM(Sales)": 429,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Greenville",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 1425,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Greenwood",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1682,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Gresham",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 86,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Gulfport",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1067,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Hackensack",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 191,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hamilton",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1128,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Hampton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 241,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3199999928474426,
+    "count": 1,
+    "SUM(Discount)": 0.3199999928474426,
+    "City": "Harlingen",
+    "Discount_sum": 0.3199999928474426
+}, {
+    "SUM(Sales)": 4180,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Harrisonburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 691,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Hattiesburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 64,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Helena",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 754,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hempstead",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 8863,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 15,
+    "SUM(Discount)": 0,
+    "City": "Henderson",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 73,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hendersonville",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 862,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.17500000447034836,
+    "count": 2,
+    "SUM(Discount)": 0.3500000089406967,
+    "City": "Hesperia",
+    "Discount_sum": 0.3500000089406967
+}, {
+    "SUM(Sales)": 1390,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Hialeah",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1838,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 3,
+    "SUM(Discount)": 0.9000000357627869,
+    "City": "Highland Park",
+    "Discount_sum": 0.9000000357627869
+}, {
+    "SUM(Sales)": 11,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hillsboro",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 337,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hollywood",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 302,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Holyoke",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 160,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Hot Springs",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 23182,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.4288888978369442,
+    "count": 81,
+    "SUM(Discount)": 34.74000072479248,
+    "City": "Houston",
+    "Discount_sum": 34.74000072479248
+}, {
+    "SUM(Sales)": 4105,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.4022222293747796,
+    "count": 9,
+    "SUM(Discount)": 3.6200000643730164,
+    "City": "Huntsville",
+    "Discount_sum": 3.6200000643730164
+}, {
+    "SUM(Sales)": 1926,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Indianapolis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 557,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Inglewood",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 8190,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.06153846360169924,
+    "count": 13,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Jackson",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 8821,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2395833358168602,
+    "count": 24,
+    "SUM(Discount)": 5.750000059604645,
+    "City": "Jacksonville",
+    "Discount_sum": 5.750000059604645
+}, {
+    "SUM(Sales)": 87,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Jefferson City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1746,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Jonesboro",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1747,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Kenosha",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 198,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Kent",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 213,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Kirkwood",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3339,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.24444444311989677,
+    "count": 9,
+    "SUM(Discount)": 2.199999988079071,
+    "City": "Knoxville",
+    "Discount_sum": 2.199999988079071
+}, {
+    "SUM(Sales)": 271,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "La Crosse",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 582,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "La Porte",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 3279,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 9,
+    "SUM(Discount)": 0,
+    "City": "Lafayette",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 204,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.15000000596046448,
+    "count": 1,
+    "SUM(Discount)": 0.15000000596046448,
+    "City": "Laguna Niguel",
+    "Discount_sum": 0.15000000596046448
+}, {
+    "SUM(Sales)": 52,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Lake Charles",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 284,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Lake Elsinore",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 970,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Lake Forest",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 2490,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.23571428656578064,
+    "count": 7,
+    "SUM(Discount)": 1.6500000059604645,
+    "City": "Lakeland",
+    "Discount_sum": 1.6500000059604645
+}, {
+    "SUM(Sales)": 2158,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Lakeville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4619,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.07307692445241488,
+    "count": 13,
+    "SUM(Discount)": 0.9500000178813934,
+    "City": "Lakewood",
+    "Discount_sum": 0.9500000178813934
+}, {
+    "SUM(Sales)": 929,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.25714286097458433,
+    "count": 7,
+    "SUM(Discount)": 1.8000000268220901,
+    "City": "Lancaster",
+    "Discount_sum": 1.8000000268220901
+}, {
+    "SUM(Sales)": 309,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Lansing",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 140,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Laredo",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 41,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Las Cruces",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 223,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Las Vegas",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 27,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Laurel",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1714,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.08571428912026542,
+    "count": 7,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Lawrence",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 249,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Lawton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 766,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 2,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "League City",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 194,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Lincoln Park",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 22,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Little Rock",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 72,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 1,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Littleton",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 5934,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.18888889087571037,
+    "count": 9,
+    "SUM(Discount)": 1.7000000178813934,
+    "City": "Long Beach",
+    "Discount_sum": 1.7000000178813934
+}, {
+    "SUM(Sales)": 749,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Longmont",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Longview",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1526,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.26666667064030963,
+    "count": 3,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Lorain",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 54002,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.11363636673270881,
+    "count": 154,
+    "SUM(Discount)": 17.500000476837158,
+    "City": "Los Angeles",
+    "Discount_sum": 17.500000476837158
+}, {
+    "SUM(Sales)": 4473,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.12500000093132257,
+    "count": 16,
+    "SUM(Discount)": 2.000000014901161,
+    "City": "Louisville",
+    "Discount_sum": 2.000000014901161
+}, {
+    "SUM(Sales)": 842,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Lowell",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Lubbock",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 142,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Macon",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3268,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Madison",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 174,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Malden",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1044,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Manchester",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 517,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Mansfield",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 122,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Manteca",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 183,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Marietta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1844,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2500000074505806,
+    "count": 6,
+    "SUM(Discount)": 1.5000000447034836,
+    "City": "Marion",
+    "Discount_sum": 1.5000000447034836
+}, {
+    "SUM(Sales)": 207,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Marlborough",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 69,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Mason",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 57,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Mcallen",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 504,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 2,
+    "SUM(Discount)": 0.8999999761581421,
+    "City": "Medina",
+    "Discount_sum": 0.8999999761581421
+}, {
+    "SUM(Sales)": 2548,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.24444445139831966,
+    "count": 9,
+    "SUM(Discount)": 2.200000062584877,
+    "City": "Memphis",
+    "Discount_sum": 2.200000062584877
+}, {
+    "SUM(Sales)": 429,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 3,
+    "SUM(Discount)": 0.9000000357627869,
+    "City": "Mentor",
+    "Discount_sum": 0.9000000357627869
+}, {
+    "SUM(Sales)": 1133,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Meriden",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 42,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Meridian",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1267,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.4199999928474426,
+    "count": 5,
+    "SUM(Discount)": 2.099999964237213,
+    "City": "Mesa",
+    "Discount_sum": 2.099999964237213
+}, {
+    "SUM(Sales)": 6,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Mesquite",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 1573,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2312500011175871,
+    "count": 8,
+    "SUM(Discount)": 1.8500000089406967,
+    "City": "Miami",
+    "Discount_sum": 1.8500000089406967
+}, {
+    "SUM(Sales)": 209,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Middletown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 564,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Midland",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 664,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Milford",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 6651,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 16,
+    "SUM(Discount)": 0,
+    "City": "Milwaukee",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3457,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Minneapolis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 978,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Miramar",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 648,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Mishawaka",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 291,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.15000000596046448,
+    "count": 1,
+    "SUM(Discount)": 0.15000000596046448,
+    "City": "Mission Viejo",
+    "Discount_sum": 0.15000000596046448
+}, {
+    "SUM(Sales)": 1868,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Mobile",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 162,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Modesto",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1062,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.1666666716337204,
+    "count": 6,
+    "SUM(Discount)": 1.0000000298023224,
+    "City": "Monroe",
+    "Discount_sum": 1.0000000298023224
+}, {
+    "SUM(Sales)": 936,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Montgomery",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 480,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Moorhead",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 885,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Moreno Valley",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 475,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.17500001192092896,
+    "count": 2,
+    "SUM(Discount)": 0.3500000238418579,
+    "City": "Morgan Hill",
+    "Discount_sum": 0.3500000238418579
+}, {
+    "SUM(Sales)": 74,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Morristown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 563,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Mount Pleasant",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 200,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Murfreesboro",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 192,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Murray",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 262,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Muskogee",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 603,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Naperville",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 21,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Nashua",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 294,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2500000074505806,
+    "count": 4,
+    "SUM(Discount)": 1.0000000298023224,
+    "City": "Nashville",
+    "Discount_sum": 1.0000000298023224
+}, {
+    "SUM(Sales)": 96,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "New Albany",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 693,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 2,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "New Rochelle",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 75376,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10994764647558722,
+    "count": 191,
+    "SUM(Discount)": 21.000000476837158,
+    "City": "New York City",
+    "Discount_sum": 21.000000476837158
+}, {
+    "SUM(Sales)": 3116,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.1111111127667957,
+    "count": 18,
+    "SUM(Discount)": 2.0000000298023224,
+    "City": "Newark",
+    "Discount_sum": 2.0000000298023224
+}, {
+    "SUM(Sales)": 591,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Newport News",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2679,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Noblesville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 367,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Normal",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "North Charleston",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2530,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 5,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "North Las Vegas",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 22,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Norwich",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 581,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Oak Park",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3019,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.08888889021343654,
+    "count": 9,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Oakland",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1801,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.07692307692307693,
+    "count": 13,
+    "SUM(Discount)": 1,
+    "City": "Oceanside",
+    "Discount_sum": 1
+}, {
+    "SUM(Sales)": 903,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 2,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Odessa",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 2057,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Oklahoma City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 41,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Olathe",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 759,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Olympia",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1928,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Omaha",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 284,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Ontario",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 2525,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Orem",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 290,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Orlando",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 160,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Oxnard",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 233,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Palm Coast",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 255,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Park Ridge",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 917,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.36666665971279144,
+    "count": 3,
+    "SUM(Discount)": 1.0999999791383743,
+    "City": "Parker",
+    "Discount_sum": 1.0999999791383743
+}, {
+    "SUM(Sales)": 3644,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 4,
+    "SUM(Discount)": 1.2000000476837158,
+    "City": "Parma",
+    "Discount_sum": 1.2000000476837158
+}, {
+    "SUM(Sales)": 3019,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.23636363717642697,
+    "count": 11,
+    "SUM(Discount)": 2.6000000089406967,
+    "City": "Pasadena",
+    "Discount_sum": 2.6000000089406967
+}, {
+    "SUM(Sales)": 976,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pasco",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 174,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Passaic",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 637,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Paterson",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 617,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.32499999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.6499999910593033,
+    "City": "Pembroke Pines",
+    "Discount_sum": 0.6499999910593033
+}, {
+    "SUM(Sales)": 839,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.36666667461395264,
+    "count": 6,
+    "SUM(Discount)": 2.200000047683716,
+    "City": "Peoria",
+    "Discount_sum": 2.200000047683716
+}, {
+    "SUM(Sales)": 121,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Perth Amboy",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 147,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.45000001788139343,
+    "count": 2,
+    "SUM(Discount)": 0.9000000357627869,
+    "City": "Pharr",
+    "Discount_sum": 0.9000000357627869
+}, {
+    "SUM(Sales)": 36487,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.27657658774573524,
+    "count": 111,
+    "SUM(Discount)": 30.70000123977661,
+    "City": "Philadelphia",
+    "Discount_sum": 30.70000123977661
+}, {
+    "SUM(Sales)": 3764,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3214285671710968,
+    "count": 14,
+    "SUM(Discount)": 4.499999940395355,
+    "City": "Phoenix",
+    "Discount_sum": 4.499999940395355
+}, {
+    "SUM(Sales)": 146,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Pico Rivera",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2059,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30666667222976685,
+    "count": 3,
+    "SUM(Discount)": 0.9200000166893005,
+    "City": "Plano",
+    "Discount_sum": 0.9200000166893005
+}, {
+    "SUM(Sales)": 707,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Plantation",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 390,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Pocatello",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 743,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pomona",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pompano Beach",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 246,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3199999928474426,
+    "count": 1,
+    "SUM(Discount)": 0.3199999928474426,
+    "City": "Port Arthur",
+    "Discount_sum": 0.3199999928474426
+}, {
+    "SUM(Sales)": 232,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Port Saint Lucie",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 991,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.32499999552965164,
+    "count": 4,
+    "SUM(Discount)": 1.2999999821186066,
+    "City": "Portland",
+    "Discount_sum": 1.2999999821186066
+}, {
+    "SUM(Sales)": 2718,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.04285714456013271,
+    "count": 7,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Providence",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 2206,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Provo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 330,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.15000000596046448,
+    "count": 2,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Quincy",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 420,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Raleigh",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 142,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Rapid City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 850,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.29999999701976776,
+    "count": 3,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Reading",
+    "Discount_sum": 0.8999999910593033
+}, {
+    "SUM(Sales)": 749,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.17500001192092896,
+    "count": 2,
+    "SUM(Discount)": 0.3500000238418579,
+    "City": "Redlands",
+    "Discount_sum": 0.3500000238418579
+}, {
+    "SUM(Sales)": 212,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3000000019868215,
+    "count": 3,
+    "SUM(Discount)": 0.9000000059604645,
+    "City": "Redmond",
+    "Discount_sum": 0.9000000059604645
+}, {
+    "SUM(Sales)": 308,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.15000000596046448,
+    "count": 1,
+    "SUM(Discount)": 0.15000000596046448,
+    "City": "Redondo Beach",
+    "Discount_sum": 0.15000000596046448
+}, {
+    "SUM(Sales)": 362,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Revere",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 191,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Richardson",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 3571,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 16,
+    "SUM(Discount)": 0,
+    "City": "Richmond",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1114,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Rio Rancho",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 2352,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.08888889021343654,
+    "count": 9,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Rochester",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 881,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.4000000059604645,
+    "count": 2,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Rockford",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 173,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Rockville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 130,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 2,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Rome",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 89,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Roseville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 780,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Roswell",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 421,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.46000000834465027,
+    "count": 2,
+    "SUM(Discount)": 0.9200000166893005,
+    "City": "Round Rock",
+    "Discount_sum": 0.9200000166893005
+}, {
+    "SUM(Sales)": 1596,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 4,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Sacramento",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 20,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Saginaw",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 226,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.45000001788139343,
+    "count": 4,
+    "SUM(Discount)": 1.8000000715255737,
+    "City": "Saint Charles",
+    "Discount_sum": 1.8000000715255737
+}, {
+    "SUM(Sales)": 604,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Saint Cloud",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 697,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Saint Peters",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 533,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Saint Petersburg",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1391,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.125,
+    "count": 4,
+    "SUM(Discount)": 0.5,
+    "City": "Salem",
+    "Discount_sum": 0.5
+}, {
+    "SUM(Sales)": 148,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.15000000596046448,
+    "count": 1,
+    "SUM(Discount)": 0.15000000596046448,
+    "City": "Salinas",
+    "Discount_sum": 0.15000000596046448
+}, {
+    "SUM(Sales)": 638,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 3,
+    "SUM(Discount)": 0.9000000357627869,
+    "City": "San Angelo",
+    "Discount_sum": 0.9000000357627869
+}, {
+    "SUM(Sales)": 5156,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3500000089406967,
+    "count": 12,
+    "SUM(Discount)": 4.200000107288361,
+    "City": "San Antonio",
+    "Discount_sum": 4.200000107288361
+}, {
+    "SUM(Sales)": 683,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.15000000596046448,
+    "count": 1,
+    "SUM(Discount)": 0.15000000596046448,
+    "City": "San Bernardino",
+    "Discount_sum": 0.15000000596046448
+}, {
+    "SUM(Sales)": 20030,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.11739130901253741,
+    "count": 46,
+    "SUM(Discount)": 5.400000214576721,
+    "City": "San Diego",
+    "Discount_sum": 5.400000214576721
+}, {
+    "SUM(Sales)": 36357,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10196078758613736,
+    "count": 102,
+    "SUM(Discount)": 10.40000033378601,
+    "City": "San Francisco",
+    "Discount_sum": 10.40000033378601
+}, {
+    "SUM(Sales)": 1790,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "San Gabriel",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1375,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.0900000050663948,
+    "count": 10,
+    "SUM(Discount)": 0.9000000506639481,
+    "City": "San Jose",
+    "Discount_sum": 0.9000000506639481
+}, {
+    "SUM(Sales)": 10,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "San Marcos",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 1570,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Sandy Springs",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 221,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Sanford",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 649,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 3,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Santa Ana",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 362,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Santa Barbara",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 293,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Scottsdale",
+    "Discount_sum": 0.8999999910593033
+}, {
+    "SUM(Sales)": 41002,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.06185567194653541,
+    "count": 97,
+    "SUM(Discount)": 6.000000178813934,
+    "City": "Seattle",
+    "Discount_sum": 6.000000178813934
+}, {
+    "SUM(Sales)": 14,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Sierra Vista",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 183,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Sioux Falls",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 355,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 3,
+    "SUM(Discount)": 1.8000000715255737,
+    "City": "Skokie",
+    "Discount_sum": 1.8000000715255737
+}, {
+    "SUM(Sales)": 902,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Smyrna",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 86,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Southaven",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 641,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Spokane",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 12045,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.19259258994349726,
+    "count": 27,
+    "SUM(Discount)": 5.199999928474426,
+    "City": "Springfield",
+    "Discount_sum": 5.199999928474426
+}, {
+    "SUM(Sales)": 630,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Stockton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 983,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Suffolk",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 216,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Sunnyvale",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 47,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Superior",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 393,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Tallahassee",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 2556,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.24545454437082465,
+    "count": 11,
+    "SUM(Discount)": 2.699999988079071,
+    "City": "Tampa",
+    "Discount_sum": 2.699999988079071
+}, {
+    "SUM(Sales)": 302,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Taylor",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 308,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Tempe",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 605,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Texarkana",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 790,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 3,
+    "SUM(Discount)": 0.9000000357627869,
+    "City": "Texas City",
+    "Discount_sum": 0.9000000357627869
+}, {
+    "SUM(Sales)": 56,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Thornton",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 23,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Thousand Oaks",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 14,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Tigard",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 22,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Tinley Park",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 222,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2666666756073634,
+    "count": 3,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Toledo",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 1114,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Torrance",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 212,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Trenton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2420,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.2000000076368451,
+    "count": 8,
+    "SUM(Discount)": 1.600000061094761,
+    "City": "Troy",
+    "Discount_sum": 1.600000061094761
+}, {
+    "SUM(Sales)": 2670,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.23333333432674408,
+    "count": 9,
+    "SUM(Discount)": 2.1000000089406967,
+    "City": "Tucson",
+    "Discount_sum": 2.1000000089406967
+}, {
+    "SUM(Sales)": 4124,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Tulsa",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 142,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Tuscaloosa",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1128,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Twin Falls",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 83,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 1,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Tyler",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 40,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Utica",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1049,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Vallejo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Vancouver",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 500,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000397364299,
+    "count": 3,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Vineland",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 1677,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Virginia Beach",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 328,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.3199999928474426,
+    "count": 1,
+    "SUM(Discount)": 0.3199999928474426,
+    "City": "Waco",
+    "Discount_sum": 0.3199999928474426
+}, {
+    "SUM(Sales)": 393,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Warner Robins",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1347,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Washington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 173,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Waterbury",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2299,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 4,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Watertown",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 1952,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Waynesboro",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 242,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "West Allis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 67,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "West Jordan",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 162,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Westfield",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 288,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Westland",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 555,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 4,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Westminster",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1288,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.46666667858759564,
+    "count": 3,
+    "SUM(Discount)": 1.4000000357627869,
+    "City": "Wheeling",
+    "Discount_sum": 1.4000000357627869
+}, {
+    "SUM(Sales)": 71,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Wichita",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3136,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.10000000397364299,
+    "count": 6,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Wilmington",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 163,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Wilson",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 845,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Woodstock",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 53,
+    "Category": "Furniture",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Woonsocket",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 852,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Yonkers",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 422,
+    "Category": "Furniture",
+    "AVG(Discount)": 0.30000001192092896,
+    "count": 1,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "York",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 26,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Aberdeen",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.800000011920929,
+    "count": 1,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Abilene",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1113,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3785714219723429,
+    "count": 14,
+    "SUM(Discount)": 5.299999907612801,
+    "City": "Akron",
+    "Discount_sum": 5.299999907612801
+}, {
+    "SUM(Sales)": 942,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.022222222553359136,
+    "count": 9,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Albuquerque",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 4880,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 10,
+    "SUM(Discount)": 0,
+    "City": "Alexandria",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5,
+    "count": 2,
+    "SUM(Discount)": 1,
+    "City": "Allen",
+    "Discount_sum": 1
+}, {
+    "SUM(Sales)": 820,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2999999910593033,
+    "count": 5,
+    "SUM(Discount)": 1.4999999552965164,
+    "City": "Allentown",
+    "Discount_sum": 1.4999999552965164
+}, {
+    "SUM(Sales)": 20,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 2,
+    "SUM(Discount)": 0.8999999761581421,
+    "City": "Altoona",
+    "Discount_sum": 0.8999999761581421
+}, {
+    "SUM(Sales)": 74,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Amarillo",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 3812,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.07058823634596433,
+    "count": 17,
+    "SUM(Discount)": 1.2000000178813934,
+    "City": "Anaheim",
+    "Discount_sum": 1.2000000178813934
+}, {
+    "SUM(Sales)": 81,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Andover",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 240,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.033333333830038704,
+    "count": 3,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Ann Arbor",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 19,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Antioch",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 775,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999999304612476,
+    "count": 6,
+    "SUM(Discount)": 2.6999999582767487,
+    "City": "Apopka",
+    "Discount_sum": 2.6999999582767487
+}, {
+    "SUM(Sales)": 252,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Apple Valley",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 22,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Appleton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3775,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.19459459749428,
+    "count": 37,
+    "SUM(Discount)": 7.200000107288361,
+    "City": "Arlington",
+    "Discount_sum": 7.200000107288361
+}, {
+    "SUM(Sales)": 14,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Arlington Heights",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 6,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Arvada",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 112,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.28333332637945813,
+    "count": 6,
+    "SUM(Discount)": 1.6999999582767487,
+    "City": "Asheville",
+    "Discount_sum": 1.6999999582767487
+}, {
+    "SUM(Sales)": 199,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Athens",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 11013,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 29,
+    "SUM(Discount)": 0,
+    "City": "Atlanta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 23,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Atlantic City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2246,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.010000000149011612,
+    "count": 20,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Auburn",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 3310,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.36216216151778763,
+    "count": 37,
+    "SUM(Discount)": 13.399999976158142,
+    "City": "Aurora",
+    "Discount_sum": 13.399999976158142
+}, {
+    "SUM(Sales)": 2861,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3777777883741591,
+    "count": 27,
+    "SUM(Discount)": 10.200000286102295,
+    "City": "Austin",
+    "Discount_sum": 10.200000286102295
+}, {
+    "SUM(Sales)": 79,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Avondale",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 328,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0800000011920929,
+    "count": 10,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Bakersfield",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1639,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 27,
+    "SUM(Discount)": 0,
+    "City": "Baltimore",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 362,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Bangor",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 89,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bartlett",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 14,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bayonne",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 10,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Baytown",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5000000074505806,
+    "count": 2,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Beaumont",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 73,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.350000012665987,
+    "count": 4,
+    "SUM(Discount)": 1.400000050663948,
+    "City": "Bedford",
+    "Discount_sum": 1.400000050663948
+}, {
+    "SUM(Sales)": 1345,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Belleville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 83,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0800000011920929,
+    "count": 5,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Bellevue",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bellingham",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1379,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 2,
+    "SUM(Discount)": 0.8999999761581421,
+    "City": "Bethlehem",
+    "Discount_sum": 0.8999999761581421
+}, {
+    "SUM(Sales)": 2583,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Beverly",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 8,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Billings",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 604,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.15999999791383743,
+    "count": 10,
+    "SUM(Discount)": 1.5999999791383743,
+    "City": "Bloomington",
+    "Discount_sum": 1.5999999791383743
+}, {
+    "SUM(Sales)": 45,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Boca Raton",
+    "Discount_sum": 0.8999999910593033
+}, {
+    "SUM(Sales)": 3,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Boise",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 70,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4399999976158142,
+    "count": 5,
+    "SUM(Discount)": 2.199999988079071,
+    "City": "Bolingbrook",
+    "Discount_sum": 2.199999988079071
+}, {
+    "SUM(Sales)": 641,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Bossier City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 799,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3,
+    "count": 5,
+    "SUM(Discount)": 1.5,
+    "City": "Bowling Green",
+    "Discount_sum": 1.5
+}, {
+    "SUM(Sales)": 96,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2833333338300387,
+    "count": 6,
+    "SUM(Discount)": 1.7000000029802322,
+    "City": "Boynton Beach",
+    "Discount_sum": 1.7000000029802322
+}, {
+    "SUM(Sales)": 44,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Bozeman",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3774,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 10,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Brentwood",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 53,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Bridgeton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 551,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.25555555688010323,
+    "count": 9,
+    "SUM(Discount)": 2.300000011920929,
+    "City": "Bristol",
+    "Discount_sum": 2.300000011920929
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Broken Arrow",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 62,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5333333412806193,
+    "count": 3,
+    "SUM(Discount)": 1.600000023841858,
+    "City": "Broomfield",
+    "Discount_sum": 1.600000023841858
+}, {
+    "SUM(Sales)": 586,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000670552254,
+    "count": 4,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Brownsville",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 88,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.6800000309944153,
+    "count": 5,
+    "SUM(Discount)": 3.4000001549720764,
+    "City": "Bryan",
+    "Discount_sum": 3.4000001549720764
+}, {
+    "SUM(Sales)": 3071,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 4,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Buffalo",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 8,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bullhead City",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1856,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Burbank",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4152,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.11874999850988388,
+    "count": 16,
+    "SUM(Discount)": 1.899999976158142,
+    "City": "Burlington",
+    "Discount_sum": 1.899999976158142
+}, {
+    "SUM(Sales)": 117,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Caldwell",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Camarillo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 99,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Cambridge",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 790,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Canton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 350,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06000000238418579,
+    "count": 10,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Carlsbad",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 516,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Carol Stream",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 488,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4666666802432802,
+    "count": 9,
+    "SUM(Discount)": 4.200000122189522,
+    "City": "Carrollton",
+    "Discount_sum": 4.200000122189522
+}, {
+    "SUM(Sales)": 243,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Cary",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 122,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Cedar Hill",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 152,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000670552254,
+    "count": 4,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Chandler",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 14,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Chapel Hill",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 4351,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.32121212283770245,
+    "count": 33,
+    "SUM(Discount)": 10.60000005364418,
+    "City": "Charlotte",
+    "Discount_sum": 10.60000005364418
+}, {
+    "SUM(Sales)": 35,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Charlottesville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 17,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5333333412806193,
+    "count": 3,
+    "SUM(Discount)": 1.600000023841858,
+    "City": "Chattanooga",
+    "Discount_sum": 1.600000023841858
+}, {
+    "SUM(Sales)": 662,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 9,
+    "SUM(Discount)": 0,
+    "City": "Chesapeake",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 776,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.35000001192092894,
+    "count": 10,
+    "SUM(Discount)": 3.5000001192092896,
+    "City": "Chester",
+    "Discount_sum": 3.5000001192092896
+}, {
+    "SUM(Sales)": 13861,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4053475997027229,
+    "count": 187,
+    "SUM(Discount)": 75.80000114440918,
+    "City": "Chicago",
+    "Discount_sum": 75.80000114440918
+}, {
+    "SUM(Sales)": 85,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Chico",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 376,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Chula Vista",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 521,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.35384615797262925,
+    "count": 13,
+    "SUM(Discount)": 4.60000005364418,
+    "City": "Cincinnati",
+    "Discount_sum": 4.60000005364418
+}, {
+    "SUM(Sales)": 1707,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.32499999552965164,
+    "count": 4,
+    "SUM(Discount)": 1.2999999821186066,
+    "City": "Clarksville",
+    "Discount_sum": 1.2999999821186066
+}, {
+    "SUM(Sales)": 3347,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3041666739930709,
+    "count": 24,
+    "SUM(Discount)": 7.300000175833702,
+    "City": "Cleveland",
+    "Discount_sum": 7.300000175833702
+}, {
+    "SUM(Sales)": 82,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Clifton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1904,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 18,
+    "SUM(Discount)": 0,
+    "City": "Clinton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 10,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Clovis",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 64,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Coachella",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 58,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5,
+    "count": 2,
+    "SUM(Discount)": 1,
+    "City": "College Station",
+    "Discount_sum": 1
+}, {
+    "SUM(Sales)": 431,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3333333253860474,
+    "count": 15,
+    "SUM(Discount)": 4.9999998807907104,
+    "City": "Colorado Springs",
+    "Discount_sum": 4.9999998807907104
+}, {
+    "SUM(Sales)": 12514,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.057692309125111654,
+    "count": 52,
+    "SUM(Discount)": 3.000000074505806,
+    "City": "Columbia",
+    "Discount_sum": 3.000000074505806
+}, {
+    "SUM(Sales)": 13520,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.1746268628248528,
+    "count": 134,
+    "SUM(Discount)": 23.399999618530273,
+    "City": "Columbus",
+    "Discount_sum": 23.399999618530273
+}, {
+    "SUM(Sales)": 146,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Commerce City",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1129,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.07500000204890966,
+    "count": 16,
+    "SUM(Discount)": 1.2000000327825546,
+    "City": "Concord",
+    "Discount_sum": 1.2000000327825546
+}, {
+    "SUM(Sales)": 112,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Conroe",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 221,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Coon Rapids",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 40,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Coppell",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 440,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 5,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Coral Springs",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 112,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.31999999582767485,
+    "count": 5,
+    "SUM(Discount)": 1.5999999791383743,
+    "City": "Corpus Christi",
+    "Discount_sum": 1.5999999791383743
+}, {
+    "SUM(Sales)": 274,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Costa Mesa",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Cottage Grove",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 267,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Covington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 877,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 8,
+    "SUM(Discount)": 0,
+    "City": "Cranston",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 21,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 2,
+    "SUM(Discount)": 1.399999976158142,
+    "City": "Cuyahoga Falls",
+    "Discount_sum": 1.399999976158142
+}, {
+    "SUM(Sales)": 6006,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.37307692949588483,
+    "count": 104,
+    "SUM(Discount)": 38.80000066757202,
+    "City": "Dallas",
+    "Discount_sum": 38.80000066757202
+}, {
+    "SUM(Sales)": 1178,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.16666666666666666,
+    "count": 6,
+    "SUM(Discount)": 1,
+    "City": "Danville",
+    "Discount_sum": 1
+}, {
+    "SUM(Sales)": 32,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Davis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 30,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Daytona Beach",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 1240,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.033333333830038704,
+    "count": 3,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Dearborn",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 771,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Dearborn Heights",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 942,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.1600000023841858,
+    "count": 20,
+    "SUM(Discount)": 3.200000047683716,
+    "City": "Decatur",
+    "Discount_sum": 3.200000047683716
+}, {
+    "SUM(Sales)": 7,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.800000011920929,
+    "count": 1,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Deer Park",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 195,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Delray Beach",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 23,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Deltona",
+    "Discount_sum": 0.8999999910593033
+}, {
+    "SUM(Sales)": 3634,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2789473721855565,
+    "count": 19,
+    "SUM(Discount)": 5.300000071525574,
+    "City": "Denver",
+    "Discount_sum": 5.300000071525574
+}, {
+    "SUM(Sales)": 369,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.018181818452748386,
+    "count": 11,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Des Moines",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 385,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5,
+    "count": 2,
+    "SUM(Discount)": 1,
+    "City": "Des Plaines",
+    "Discount_sum": 1
+}, {
+    "SUM(Sales)": 18436,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.01076923104432913,
+    "count": 65,
+    "SUM(Discount)": 0.7000000178813934,
+    "City": "Detroit",
+    "Discount_sum": 0.7000000178813934
+}, {
+    "SUM(Sales)": 892,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 9,
+    "SUM(Discount)": 0,
+    "City": "Dover",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 132,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.34285713945116314,
+    "count": 7,
+    "SUM(Discount)": 2.399999976158142,
+    "City": "Dublin",
+    "Discount_sum": 2.399999976158142
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Dubuque",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 528,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2714285658938544,
+    "count": 7,
+    "SUM(Discount)": 1.899999961256981,
+    "City": "Durham",
+    "Discount_sum": 1.899999961256981
+}, {
+    "SUM(Sales)": 168,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Eagan",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 346,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "East Orange",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 166,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "East Point",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 321,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Eau Claire",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 88,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.40000000099341076,
+    "count": 3,
+    "SUM(Discount)": 1.2000000029802322,
+    "City": "Edinburg",
+    "Discount_sum": 1.2000000029802322
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Edmond",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 415,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 8,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Edmonds",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 684,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.30909091369672254,
+    "count": 11,
+    "SUM(Discount)": 3.400000050663948,
+    "City": "El Paso",
+    "Discount_sum": 3.400000050663948
+}, {
+    "SUM(Sales)": 12,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Elkhart",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 257,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Elmhurst",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 2,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 1,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Elyria",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 54,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Encinitas",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Englewood",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 94,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Escondido",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 710,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Eugene",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 988,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.016666666915019352,
+    "count": 12,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Everett",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 4257,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.12499999840344701,
+    "count": 28,
+    "SUM(Discount)": 3.4999999552965164,
+    "City": "Fairfield",
+    "Discount_sum": 3.4999999552965164
+}, {
+    "SUM(Sales)": 920,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Fargo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 13,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Farmington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4887,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.19629629673781218,
+    "count": 27,
+    "SUM(Discount)": 5.300000011920929,
+    "City": "Fayetteville",
+    "Discount_sum": 5.300000011920929
+}, {
+    "SUM(Sales)": 1349,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 12,
+    "SUM(Discount)": 0,
+    "City": "Florence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 29,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.36666667461395264,
+    "count": 3,
+    "SUM(Discount)": 1.100000023841858,
+    "City": "Fort Collins",
+    "Discount_sum": 1.100000023841858
+}, {
+    "SUM(Sales)": 1374,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.36666666467984516,
+    "count": 6,
+    "SUM(Discount)": 2.199999988079071,
+    "City": "Fort Lauderdale",
+    "Discount_sum": 2.199999988079071
+}, {
+    "SUM(Sales)": 1340,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5000000111758709,
+    "count": 16,
+    "SUM(Discount)": 8.000000178813934,
+    "City": "Fort Worth",
+    "Discount_sum": 8.000000178813934
+}, {
+    "SUM(Sales)": 98,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5000000074505806,
+    "count": 2,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Frankfort",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 3362,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.14444444411330754,
+    "count": 18,
+    "SUM(Discount)": 2.5999999940395355,
+    "City": "Franklin",
+    "Discount_sum": 2.5999999940395355
+}, {
+    "SUM(Sales)": 303,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2000000008514949,
+    "count": 7,
+    "SUM(Discount)": 1.4000000059604645,
+    "City": "Freeport",
+    "Discount_sum": 1.4000000059604645
+}, {
+    "SUM(Sales)": 1023,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Fremont",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 950,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0800000011920929,
+    "count": 15,
+    "SUM(Discount)": 1.2000000178813934,
+    "City": "Fresno",
+    "Discount_sum": 1.2000000178813934
+}, {
+    "SUM(Sales)": 55,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Garden City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 58,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.40000001589457196,
+    "count": 3,
+    "SUM(Discount)": 1.2000000476837158,
+    "City": "Garland",
+    "Discount_sum": 1.2000000476837158
+}, {
+    "SUM(Sales)": 195,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 2,
+    "SUM(Discount)": 0.8999999761581421,
+    "City": "Gastonia",
+    "Discount_sum": 0.8999999761581421
+}, {
+    "SUM(Sales)": 1044,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Georgetown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1273,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2000000054637591,
+    "count": 6,
+    "SUM(Discount)": 1.2000000327825546,
+    "City": "Gilbert",
+    "Discount_sum": 1.2000000327825546
+}, {
+    "SUM(Sales)": 463,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3153846137798749,
+    "count": 13,
+    "SUM(Discount)": 4.099999979138374,
+    "City": "Glendale",
+    "Discount_sum": 4.099999979138374
+}, {
+    "SUM(Sales)": 35,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Goldsboro",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 16,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Grand Island",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 160,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.37142858122076305,
+    "count": 7,
+    "SUM(Discount)": 2.6000000685453415,
+    "City": "Grand Prairie",
+    "Discount_sum": 2.6000000685453415
+}, {
+    "SUM(Sales)": 429,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Grand Rapids",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 41,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Grapevine",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 1282,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 5,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Great Falls",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 19,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Greeley",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 23,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Green Bay",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 194,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4857142759220941,
+    "count": 7,
+    "SUM(Discount)": 3.3999999314546585,
+    "City": "Greensboro",
+    "Discount_sum": 3.3999999314546585
+}, {
+    "SUM(Sales)": 55,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.36666667461395264,
+    "count": 3,
+    "SUM(Discount)": 1.100000023841858,
+    "City": "Greenville",
+    "Discount_sum": 1.100000023841858
+}, {
+    "SUM(Sales)": 240,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Greenwood",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 48,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Gresham",
+    "Discount_sum": 0.8999999910593033
+}, {
+    "SUM(Sales)": 4,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 1,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Grove City",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 80,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Gulfport",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 191,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Hackensack",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 44,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Hagerstown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 61,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 3,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Haltom City",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 137,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Hamilton",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 1368,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Hampton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 230,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Harlingen",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 184,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Harrisonburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 742,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Hattiesburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 40,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Helena",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1315,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 6,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Hempstead",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 4617,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0062500000931322575,
+    "count": 32,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Henderson",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 246,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 4,
+    "SUM(Discount)": 1.7999999821186066,
+    "City": "Hendersonville",
+    "Discount_sum": 1.7999999821186066
+}, {
+    "SUM(Sales)": 252,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hesperia",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 638,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2909090952439742,
+    "count": 11,
+    "SUM(Discount)": 3.200000047683716,
+    "City": "Hialeah",
+    "Discount_sum": 3.200000047683716
+}, {
+    "SUM(Sales)": 5,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 1,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Hickory",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 43,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.600000003973643,
+    "count": 3,
+    "SUM(Discount)": 1.800000011920929,
+    "City": "Highland Park",
+    "Discount_sum": 1.800000011920929
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 2,
+    "SUM(Discount)": 0.8999999761581421,
+    "City": "Hillsboro",
+    "Discount_sum": 0.8999999761581421
+}, {
+    "SUM(Sales)": 138,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Holland",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 350,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.31111111243565875,
+    "count": 9,
+    "SUM(Discount)": 2.800000011920929,
+    "City": "Hollywood",
+    "Discount_sum": 2.800000011920929
+}, {
+    "SUM(Sales)": 132,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Homestead",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 499,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Hoover",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 56,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Hot Springs",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 16370,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.407792211094976,
+    "count": 231,
+    "SUM(Discount)": 94.20000076293945,
+    "City": "Houston",
+    "Discount_sum": 94.20000076293945
+}, {
+    "SUM(Sales)": 128,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Huntington Beach",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1862,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3157894713313956,
+    "count": 19,
+    "SUM(Discount)": 5.999999955296516,
+    "City": "Huntsville",
+    "Discount_sum": 5.999999955296516
+}, {
+    "SUM(Sales)": 2417,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Independence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 6175,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 18,
+    "SUM(Discount)": 0,
+    "City": "Indianapolis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1845,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.018181818452748386,
+    "count": 11,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Inglewood",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 10,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Iowa City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 517,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2857142857142857,
+    "count": 7,
+    "SUM(Discount)": 2,
+    "City": "Irving",
+    "Discount_sum": 2
+}, {
+    "SUM(Sales)": 9189,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.027450980509028715,
+    "count": 51,
+    "SUM(Discount)": 1.4000000059604645,
+    "City": "Jackson",
+    "Discount_sum": 1.4000000059604645
+}, {
+    "SUM(Sales)": 6702,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3232876764584894,
+    "count": 73,
+    "SUM(Discount)": 23.600000381469727,
+    "City": "Jacksonville",
+    "Discount_sum": 23.600000381469727
+}, {
+    "SUM(Sales)": 544,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.35,
+    "count": 10,
+    "SUM(Discount)": 3.5,
+    "City": "Johnson City",
+    "Discount_sum": 3.5
+}, {
+    "SUM(Sales)": 411,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Jonesboro",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Jupiter",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 6,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Keller",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 17,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Kenner",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Kenosha",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1152,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.11428571598870414,
+    "count": 7,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Kent",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 28,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Kirkwood",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 500,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2714285807950156,
+    "count": 14,
+    "SUM(Discount)": 3.8000001311302185,
+    "City": "Knoxville",
+    "Discount_sum": 3.8000001311302185
+}, {
+    "SUM(Sales)": 60,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "La Crosse",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 83,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "La Mesa",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 400,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 6,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "La Porte",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 3647,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 18,
+    "SUM(Discount)": 0,
+    "City": "Lafayette",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 47,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Laguna Niguel",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 496,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Lake Charles",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 656,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Lake Forest",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1828,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.36666667461395264,
+    "count": 9,
+    "SUM(Discount)": 3.3000000715255737,
+    "City": "Lakeland",
+    "Discount_sum": 3.3000000715255737
+}, {
+    "SUM(Sales)": 2103,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 13,
+    "SUM(Discount)": 0,
+    "City": "Lakeville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1356,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.170370367942033,
+    "count": 27,
+    "SUM(Discount)": 4.599999934434891,
+    "City": "Lakewood",
+    "Discount_sum": 4.599999934434891
+}, {
+    "SUM(Sales)": 2940,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3266666730244954,
+    "count": 30,
+    "SUM(Discount)": 9.800000190734863,
+    "City": "Lancaster",
+    "Discount_sum": 9.800000190734863
+}, {
+    "SUM(Sales)": 691,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.02500000037252903,
+    "count": 4,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Lansing",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 66,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3714285748345511,
+    "count": 7,
+    "SUM(Discount)": 2.600000023841858,
+    "City": "Laredo",
+    "Discount_sum": 2.600000023841858
+}, {
+    "SUM(Sales)": 57,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Las Cruces",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 488,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0800000011920929,
+    "count": 10,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Las Vegas",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 125,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Laurel",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3070,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 30,
+    "SUM(Discount)": 0,
+    "City": "Lawrence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 809,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Lawton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 5,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Layton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 108,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000670552254,
+    "count": 4,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "League City",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 249,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Lebanon",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 218,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Leominster",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 48,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Lewiston",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 193,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 2,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Lincoln Park",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 55,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Lindenhurst",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1291,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 17,
+    "SUM(Discount)": 0,
+    "City": "Little Rock",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 137,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Lodi",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 197,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 4,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Logan",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 4729,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.023255814300027003,
+    "count": 43,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Long Beach",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 94,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Longview",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 103,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.32500000670552254,
+    "count": 4,
+    "SUM(Discount)": 1.3000000268220901,
+    "City": "Lorain",
+    "Discount_sum": 1.3000000268220901
+}, {
+    "SUM(Sales)": 48820,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.04424379426254376,
+    "count": 443,
+    "SUM(Discount)": 19.600000858306885,
+    "City": "Los Angeles",
+    "Discount_sum": 19.600000858306885
+}, {
+    "SUM(Sales)": 2671,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.1517241365950683,
+    "count": 29,
+    "SUM(Discount)": 4.399999961256981,
+    "City": "Louisville",
+    "Discount_sum": 4.399999961256981
+}, {
+    "SUM(Sales)": 18,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.36666667461395264,
+    "count": 3,
+    "SUM(Discount)": 1.100000023841858,
+    "City": "Loveland",
+    "Discount_sum": 1.100000023841858
+}, {
+    "SUM(Sales)": 2675,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 10,
+    "SUM(Discount)": 0,
+    "City": "Lowell",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 87,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5,
+    "count": 4,
+    "SUM(Discount)": 2,
+    "City": "Lubbock",
+    "Discount_sum": 2
+}, {
+    "SUM(Sales)": 105,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Macon",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1902,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Madison",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 55,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Malden",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 825,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 9,
+    "SUM(Discount)": 0,
+    "City": "Manchester",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 41,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Mansfield",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 330,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Manteca",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 883,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Maple Grove",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 16,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Margate",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 2453,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Marietta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 596,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000298023223,
+    "count": 10,
+    "SUM(Discount)": 1.0000000298023224,
+    "City": "Marion",
+    "Discount_sum": 1.0000000298023224
+}, {
+    "SUM(Sales)": 102,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Marysville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 2,
+    "SUM(Discount)": 1.399999976158142,
+    "City": "Mason",
+    "Discount_sum": 1.399999976158142
+}, {
+    "SUM(Sales)": 397,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.45714286395481657,
+    "count": 14,
+    "SUM(Discount)": 6.400000095367432,
+    "City": "Mcallen",
+    "Discount_sum": 6.400000095367432
+}, {
+    "SUM(Sales)": 91,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.32499999925494194,
+    "count": 4,
+    "SUM(Discount)": 1.2999999970197678,
+    "City": "Medford",
+    "Discount_sum": 1.2999999970197678
+}, {
+    "SUM(Sales)": 43,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Medina",
+    "Discount_sum": 0.8999999910593033
+}, {
+    "SUM(Sales)": 96,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Melbourne",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 3395,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3,
+    "count": 20,
+    "SUM(Discount)": 6,
+    "City": "Memphis",
+    "Discount_sum": 6
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Mentor",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 418,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 10,
+    "SUM(Discount)": 0,
+    "City": "Meriden",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 287,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Meridian",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1837,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.33157894878011,
+    "count": 19,
+    "SUM(Discount)": 6.30000002682209,
+    "City": "Mesa",
+    "Discount_sum": 6.30000002682209
+}, {
+    "SUM(Sales)": 40,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.6000000089406967,
+    "count": 3,
+    "SUM(Discount)": 1.8000000268220901,
+    "City": "Mesquite",
+    "Discount_sum": 1.8000000268220901
+}, {
+    "SUM(Sales)": 3435,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3794871721512232,
+    "count": 39,
+    "SUM(Discount)": 14.799999713897705,
+    "City": "Miami",
+    "Discount_sum": 14.799999713897705
+}, {
+    "SUM(Sales)": 708,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Middletown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4728,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.009090909226374193,
+    "count": 11,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Midland",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 98,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Milford",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1856,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 19,
+    "SUM(Discount)": 0,
+    "City": "Milwaukee",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 13036,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 17,
+    "SUM(Discount)": 0,
+    "City": "Minneapolis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 552,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3,
+    "count": 5,
+    "SUM(Discount)": 1.5,
+    "City": "Miramar",
+    "Discount_sum": 1.5
+}, {
+    "SUM(Sales)": 128,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Mishawaka",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 365,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Mission Viejo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 488,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Missoula",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 6,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.800000011920929,
+    "count": 1,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Missouri City",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 286,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Mobile",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 297,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05714285799435207,
+    "count": 7,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Monroe",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 412,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Montgomery",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 377,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.02500000037252903,
+    "count": 8,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Moreno Valley",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 71,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Morgan Hill",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4479,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Morristown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1511,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.033333333830038704,
+    "count": 6,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Mount Vernon",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 58,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.45000000049670535,
+    "count": 6,
+    "SUM(Discount)": 2.7000000029802322,
+    "City": "Murfreesboro",
+    "Discount_sum": 2.7000000029802322
+}, {
+    "SUM(Sales)": 147,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Murray",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 485,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Murrieta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 20,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Muskogee",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 300,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5600000143051147,
+    "count": 5,
+    "SUM(Discount)": 2.8000000715255737,
+    "City": "Naperville",
+    "Discount_sum": 2.8000000715255737
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Nashua",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2611,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.27142857511838275,
+    "count": 21,
+    "SUM(Discount)": 5.700000077486038,
+    "City": "Nashville",
+    "Discount_sum": 5.700000077486038
+}, {
+    "SUM(Sales)": 113,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "New Albany",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 83,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "New Bedford",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 15,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "New Brunswick",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 61,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "New Castle",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 342,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0800000011920929,
+    "count": 5,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "New Rochelle",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 71318,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05226860375239931,
+    "count": 551,
+    "SUM(Discount)": 28.80000066757202,
+    "City": "New York City",
+    "Discount_sum": 28.80000066757202
+}, {
+    "SUM(Sales)": 6973,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.07777777700512498,
+    "count": 54,
+    "SUM(Discount)": 4.199999958276749,
+    "City": "Newark",
+    "Discount_sum": 4.199999958276749
+}, {
+    "SUM(Sales)": 1131,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 10,
+    "SUM(Discount)": 0,
+    "City": "Newport News",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 35,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Niagara Falls",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 13,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Noblesville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 17,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Norfolk",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 269,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "North Charleston",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 6129,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.02500000037252903,
+    "count": 8,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "North Las Vegas",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 22,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "North Miami",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 391,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Norwich",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 10,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Oak Park",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1699,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.03636363690549677,
+    "count": 11,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Oakland",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 966,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06153846245545607,
+    "count": 13,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Oceanside",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 73,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.40000000099341076,
+    "count": 3,
+    "SUM(Discount)": 1.2000000029802322,
+    "City": "Odessa",
+    "Discount_sum": 1.2000000029802322
+}, {
+    "SUM(Sales)": 3364,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 13,
+    "SUM(Discount)": 0,
+    "City": "Oklahoma City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 798,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Olathe",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 60,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Olympia",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1178,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 18,
+    "SUM(Discount)": 0,
+    "City": "Omaha",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 211,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Orange",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 470,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.033333333830038704,
+    "count": 6,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Orem",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 160,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3428571415799005,
+    "count": 7,
+    "SUM(Discount)": 2.3999999910593033,
+    "City": "Orlando",
+    "Discount_sum": 2.3999999910593033
+}, {
+    "SUM(Sales)": 3,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 1,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Ormond Beach",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 322,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.6000000238418579,
+    "count": 3,
+    "SUM(Discount)": 1.8000000715255737,
+    "City": "Oswego",
+    "Discount_sum": 1.8000000715255737
+}, {
+    "SUM(Sales)": 572,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Overland Park",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 72,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Owensboro",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1315,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 6,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Oxnard",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 41,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5333333263794581,
+    "count": 3,
+    "SUM(Discount)": 1.5999999791383743,
+    "City": "Palm Coast",
+    "Discount_sum": 1.5999999791383743
+}, {
+    "SUM(Sales)": 144,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Park Ridge",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 151,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.49999999105930326,
+    "count": 5,
+    "SUM(Discount)": 2.4999999552965164,
+    "City": "Parker",
+    "Discount_sum": 2.4999999552965164
+}, {
+    "SUM(Sales)": 235,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2000000054637591,
+    "count": 6,
+    "SUM(Discount)": 1.2000000327825546,
+    "City": "Parma",
+    "Discount_sum": 1.2000000327825546
+}, {
+    "SUM(Sales)": 1632,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.14400000333786012,
+    "count": 25,
+    "SUM(Discount)": 3.6000000834465027,
+    "City": "Pasadena",
+    "Discount_sum": 3.6000000834465027
+}, {
+    "SUM(Sales)": 1226,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 5,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pasco",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 690,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Passaic",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1325,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 13,
+    "SUM(Discount)": 0,
+    "City": "Paterson",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5,
+    "count": 2,
+    "SUM(Discount)": 1,
+    "City": "Pearland",
+    "Discount_sum": 1
+}, {
+    "SUM(Sales)": 194,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.38750000298023224,
+    "count": 8,
+    "SUM(Discount)": 3.100000023841858,
+    "City": "Pembroke Pines",
+    "Discount_sum": 3.100000023841858
+}, {
+    "SUM(Sales)": 2,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 1,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Pensacola",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 546,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.45384615201216477,
+    "count": 13,
+    "SUM(Discount)": 5.899999976158142,
+    "City": "Peoria",
+    "Discount_sum": 5.899999976158142
+}, {
+    "SUM(Sales)": 999,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Perth Amboy",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 727,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pharr",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 30670,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.33942306958712065,
+    "count": 312,
+    "SUM(Discount)": 105.89999771118164,
+    "City": "Philadelphia",
+    "Discount_sum": 105.89999771118164
+}, {
+    "SUM(Sales)": 3692,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4027026988364555,
+    "count": 37,
+    "SUM(Discount)": 14.899999856948853,
+    "City": "Phoenix",
+    "Discount_sum": 14.899999856948853
+}, {
+    "SUM(Sales)": 13,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Pine Bluff",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4133,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 11,
+    "SUM(Discount)": 0,
+    "City": "Plainfield",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 573,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.2857142857142857,
+    "count": 7,
+    "SUM(Discount)": 2,
+    "City": "Plano",
+    "Discount_sum": 2
+}, {
+    "SUM(Sales)": 181,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4,
+    "count": 5,
+    "SUM(Discount)": 2,
+    "City": "Plantation",
+    "Discount_sum": 2
+}, {
+    "SUM(Sales)": 1738,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 6,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Pleasant Grove",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 512,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pocatello",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 441,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Pomona",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 64,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pompano Beach",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 51,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Port Arthur",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 8,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Port Orange",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 17,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Port Saint Lucie",
+    "Discount_sum": 0.8999999910593033
+}, {
+    "SUM(Sales)": 16,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Portage",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 968,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.31538461721860445,
+    "count": 13,
+    "SUM(Discount)": 4.100000023841858,
+    "City": "Portland",
+    "Discount_sum": 4.100000023841858
+}, {
+    "SUM(Sales)": 5040,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 17,
+    "SUM(Discount)": 0,
+    "City": "Providence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 556,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.07500000298023224,
+    "count": 8,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Provo",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 915,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5333333263794581,
+    "count": 6,
+    "SUM(Discount)": 3.1999999582767487,
+    "City": "Pueblo",
+    "Discount_sum": 3.1999999582767487
+}, {
+    "SUM(Sales)": 520,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.22666666507720948,
+    "count": 15,
+    "SUM(Discount)": 3.399999976158142,
+    "City": "Quincy",
+    "Discount_sum": 3.399999976158142
+}, {
+    "SUM(Sales)": 1180,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.34999999552965166,
+    "count": 10,
+    "SUM(Discount)": 3.4999999552965164,
+    "City": "Raleigh",
+    "Discount_sum": 3.4999999552965164
+}, {
+    "SUM(Sales)": 232,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 4,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Rancho Cucamonga",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 11,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Rapid City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Reading",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 845,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.015384615613864018,
+    "count": 13,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Redlands",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 287,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3599999934434891,
+    "count": 5,
+    "SUM(Discount)": 1.7999999672174454,
+    "City": "Redmond",
+    "Discount_sum": 1.7999999672174454
+}, {
+    "SUM(Sales)": 138,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0800000011920929,
+    "count": 5,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Redondo Beach",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 42,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Redwood City",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 169,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Reno",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 203,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Renton",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 471,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Revere",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 8656,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 58,
+    "SUM(Discount)": 0,
+    "City": "Richmond",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 862,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.033333333830038704,
+    "count": 12,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Riverside",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 3697,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 35,
+    "SUM(Discount)": 1.4000000208616257,
+    "City": "Rochester",
+    "Discount_sum": 1.4000000208616257
+}, {
+    "SUM(Sales)": 12,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Rock Hill",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 846,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.575000012293458,
+    "count": 8,
+    "SUM(Discount)": 4.600000098347664,
+    "City": "Rockford",
+    "Discount_sum": 4.600000098347664
+}, {
+    "SUM(Sales)": 26,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Rockville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 40,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Rogers",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 135,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Rome",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 9,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.800000011920929,
+    "count": 1,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Romeoville",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 2948,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.018181818452748386,
+    "count": 22,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Roseville",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 4760,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 12,
+    "SUM(Discount)": 0,
+    "City": "Roswell",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3959,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Round Rock",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 35,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Royal Oak",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 5172,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 6,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Sacramento",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 244,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Saginaw",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 83,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Saint Charles",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 175,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Saint Louis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 78,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Saint Paul",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 797,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.32500000298023224,
+    "count": 8,
+    "SUM(Discount)": 2.600000023841858,
+    "City": "Saint Petersburg",
+    "Discount_sum": 2.600000023841858
+}, {
+    "SUM(Sales)": 1113,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.19642857249294007,
+    "count": 28,
+    "SUM(Discount)": 5.500000029802322,
+    "City": "Salem",
+    "Discount_sum": 5.500000029802322
+}, {
+    "SUM(Sales)": 581,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.0857142869915281,
+    "count": 7,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Salinas",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 803,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.07500000111758709,
+    "count": 8,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Salt Lake City",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 12,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.800000011920929,
+    "count": 1,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "San Angelo",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 4289,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4625000096857548,
+    "count": 32,
+    "SUM(Discount)": 14.800000309944153,
+    "City": "San Antonio",
+    "Discount_sum": 14.800000309944153
+}, {
+    "SUM(Sales)": 297,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 8,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "San Bernardino",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 90,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "San Clemente",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 7738,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.04545454680919647,
+    "count": 88,
+    "SUM(Discount)": 4.0000001192092896,
+    "City": "San Diego",
+    "Discount_sum": 4.0000001192092896
+}, {
+    "SUM(Sales)": 42274,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.045962733511598956,
+    "count": 322,
+    "SUM(Discount)": 14.800000190734863,
+    "City": "San Francisco",
+    "Discount_sum": 14.800000190734863
+}, {
+    "SUM(Sales)": 271,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "San Gabriel",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3085,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06206896644214104,
+    "count": 29,
+    "SUM(Discount)": 1.8000000268220901,
+    "City": "San Jose",
+    "Discount_sum": 1.8000000268220901
+}, {
+    "SUM(Sales)": 4,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "San Luis Obispo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 77,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "San Marcos",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 75,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "San Mateo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 241,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 8,
+    "SUM(Discount)": 0,
+    "City": "Sandy Springs",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 5,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.699999988079071,
+    "count": 1,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Sanford",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 589,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Santa Ana",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 399,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Santa Barbara",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 223,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 6,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Santa Clara",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 8,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Santa Fe",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 115,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Santa Maria",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 697,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.32499999180436134,
+    "count": 8,
+    "SUM(Discount)": 2.5999999344348907,
+    "City": "Scottsdale",
+    "Discount_sum": 2.5999999344348907
+}, {
+    "SUM(Sales)": 36038,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06024096481292602,
+    "count": 249,
+    "SUM(Discount)": 15.000000238418579,
+    "City": "Seattle",
+    "Discount_sum": 15.000000238418579
+}, {
+    "SUM(Sales)": 78,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Sheboygan",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 13,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Shelton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 62,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Sierra Vista",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 562,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Sioux Falls",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 173,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4571428511823927,
+    "count": 7,
+    "SUM(Discount)": 3.1999999582767487,
+    "City": "Skokie",
+    "Discount_sum": 3.1999999582767487
+}, {
+    "SUM(Sales)": 1684,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.11111110945542653,
+    "count": 18,
+    "SUM(Discount)": 1.9999999701976776,
+    "City": "Smyrna",
+    "Discount_sum": 1.9999999701976776
+}, {
+    "SUM(Sales)": 407,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "South Bend",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 845,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Southaven",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 165,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Sparks",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 310,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Spokane",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Springdale",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 13885,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.125,
+    "count": 104,
+    "SUM(Discount)": 13,
+    "City": "Springfield",
+    "Discount_sum": 13
+}, {
+    "SUM(Sales)": 110,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Sterling Heights",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 502,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 4,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Stockton",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 616,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 8,
+    "SUM(Discount)": 0,
+    "City": "Suffolk",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 328,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Summerville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 80,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Sunnyvale",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1127,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Superior",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 480,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.29999999701976776,
+    "count": 10,
+    "SUM(Discount)": 2.9999999701976776,
+    "City": "Tallahassee",
+    "Discount_sum": 2.9999999701976776
+}, {
+    "SUM(Sales)": 1413,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.45000000298023224,
+    "count": 4,
+    "SUM(Discount)": 1.800000011920929,
+    "City": "Tamarac",
+    "Discount_sum": 1.800000011920929
+}, {
+    "SUM(Sales)": 1746,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.38181818750771607,
+    "count": 22,
+    "SUM(Discount)": 8.400000125169754,
+    "City": "Tampa",
+    "Discount_sum": 8.400000125169754
+}, {
+    "SUM(Sales)": 10,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Taylor",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 29,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Temecula",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 143,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.26249999925494194,
+    "count": 8,
+    "SUM(Discount)": 2.0999999940395355,
+    "City": "Tempe",
+    "Discount_sum": 2.0999999940395355
+}, {
+    "SUM(Sales)": 75,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "The Colony",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 151,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.36666667461395264,
+    "count": 3,
+    "SUM(Discount)": 1.100000023841858,
+    "City": "Thomasville",
+    "Discount_sum": 1.100000023841858
+}, {
+    "SUM(Sales)": 81,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000670552254,
+    "count": 4,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Thornton",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 201,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Thousand Oaks",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 750,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.32499999552965164,
+    "count": 4,
+    "SUM(Discount)": 1.2999999821186066,
+    "City": "Tigard",
+    "Discount_sum": 1.2999999821186066
+}, {
+    "SUM(Sales)": 1485,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.34285714512779597,
+    "count": 21,
+    "SUM(Discount)": 7.200000047683716,
+    "City": "Toledo",
+    "Discount_sum": 7.200000047683716
+}, {
+    "SUM(Sales)": 1647,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Torrance",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 386,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.014285714498588018,
+    "count": 7,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Trenton",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 863,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.23749999795109034,
+    "count": 16,
+    "SUM(Discount)": 3.7999999672174454,
+    "City": "Troy",
+    "Discount_sum": 3.7999999672174454
+}, {
+    "SUM(Sales)": 1014,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3785714294229235,
+    "count": 14,
+    "SUM(Discount)": 5.300000011920929,
+    "City": "Tucson",
+    "Discount_sum": 5.300000011920929
+}, {
+    "SUM(Sales)": 800,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 15,
+    "SUM(Discount)": 0,
+    "City": "Tulsa",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 34,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Tuscaloosa",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 20,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Twin Falls",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 237,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.800000011920929,
+    "count": 3,
+    "SUM(Discount)": 2.400000035762787,
+    "City": "Tyler",
+    "Discount_sum": 2.400000035762787
+}, {
+    "SUM(Sales)": 149,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Urbandale",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 135,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 4,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Utica",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 423,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Vacaville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 172,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.12000000178813934,
+    "count": 5,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Vallejo",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 44,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Vancouver",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 60,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Vineland",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3316,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 8,
+    "SUM(Discount)": 0,
+    "City": "Virginia Beach",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 311,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Visalia",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 278,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.5600000292062759,
+    "count": 5,
+    "SUM(Discount)": 2.8000001460313797,
+    "City": "Waco",
+    "Discount_sum": 2.8000001460313797
+}, {
+    "SUM(Sales)": 42,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Warner Robins",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 175,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Warwick",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 139,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Washington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 427,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Waterbury",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 30,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Waterloo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1747,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 6,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Watertown",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 55,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Waukesha",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 318,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Wausau",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 252,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Waynesboro",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 9,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "West Allis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 246,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 4,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "West Jordan",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 85,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "West Palm Beach",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 103,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Westfield",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1661,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.010000000149011612,
+    "count": 10,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Westland",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 1865,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.07500000298023224,
+    "count": 8,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Westminster",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 658,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 4,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Wheeling",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 530,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Wichita",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2377,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.08400000154972076,
+    "count": 25,
+    "SUM(Discount)": 2.100000038743019,
+    "City": "Wilmington",
+    "Discount_sum": 2.100000038743019
+}, {
+    "SUM(Sales)": 205,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.4,
+    "count": 5,
+    "SUM(Discount)": 2,
+    "City": "Wilson",
+    "Discount_sum": 2
+}, {
+    "SUM(Sales)": 607,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Woodbury",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 25,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Woodland",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 26,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.3333333383003871,
+    "count": 3,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Woodstock",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 142,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Woonsocket",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 667,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.07500000298023224,
+    "count": 8,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Yonkers",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 396,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 4,
+    "SUM(Discount)": 1.7999999523162842,
+    "City": "York",
+    "Discount_sum": 1.7999999523162842
+}, {
+    "SUM(Sales)": 51,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Yucaipa",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 55,
+    "Category": "Office Supplies",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 2,
+    "SUM(Discount)": 0.8999999761581421,
+    "City": "Yuma",
+    "Discount_sum": 0.8999999761581421
+}, {
+    "SUM(Sales)": 1183,
+    "Category": "Technology",
+    "AVG(Discount)": 0.3200000047683716,
+    "count": 5,
+    "SUM(Discount)": 1.600000023841858,
+    "City": "Akron",
+    "Discount_sum": 1.600000023841858
+}, {
+    "SUM(Sales)": 1277,
+    "Category": "Technology",
+    "AVG(Discount)": 0.12000000178813934,
+    "count": 5,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Albuquerque",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 372,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Alexandria",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 21,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Allen",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 22,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Allentown",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 651,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Amarillo",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 422,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Anaheim",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 649,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Ann Arbor",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 43,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Apple Valley",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1650,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Appleton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 12799,
+    "Category": "Technology",
+    "AVG(Discount)": 0.0800000011920929,
+    "count": 10,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Arlington",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1364,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Asheville",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1336,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Athens",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 4334,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Atlanta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 35,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Auburn",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3108,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000447034835,
+    "count": 10,
+    "SUM(Discount)": 2.0000000447034836,
+    "City": "Aurora",
+    "Discount_sum": 2.0000000447034836
+}, {
+    "SUM(Sales)": 2663,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2222222255335914,
+    "count": 9,
+    "SUM(Discount)": 2.0000000298023224,
+    "City": "Austin",
+    "Discount_sum": 2.0000000298023224
+}, {
+    "SUM(Sales)": 867,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Avondale",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 202,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bakersfield",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 503,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Baltimore",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 693,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Bangor",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 169,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Bayonne",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 440,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Beaumont",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 154,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bedford",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 240,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Belleville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1100,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bellingham",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 175,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bloomington",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 18,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Boca Raton",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 395,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Boise",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 148,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Bolingbrook",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 647,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Bossier City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1138,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2500000074505806,
+    "count": 4,
+    "SUM(Discount)": 1.0000000298023224,
+    "City": "Bowling Green",
+    "Discount_sum": 1.0000000298023224
+}, {
+    "SUM(Sales)": 1294,
+    "Category": "Technology",
+    "AVG(Discount)": 0.12000000178813934,
+    "count": 5,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Brentwood",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 460,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Bristol",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 822,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Broken Arrow",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 252,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Brownsville",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 44,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Buffalo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 476,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Buffalo Grove",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1280,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Burbank",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 9984,
+    "Category": "Technology",
+    "AVG(Discount)": 0.13999999761581422,
+    "count": 5,
+    "SUM(Discount)": 0.699999988079071,
+    "City": "Burlington",
+    "Discount_sum": 0.699999988079071
+}, {
+    "SUM(Sales)": 376,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Cambridge",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 67,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Carlsbad",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1672,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Carrollton",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 261,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Cary",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 278,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Cedar Rapids",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 7546,
+    "Category": "Technology",
+    "AVG(Discount)": 0.22307692124293402,
+    "count": 13,
+    "SUM(Discount)": 2.899999976158142,
+    "City": "Charlotte",
+    "Discount_sum": 2.899999976158142
+}, {
+    "SUM(Sales)": 331,
+    "Category": "Technology",
+    "AVG(Discount)": 0.3000000019868215,
+    "count": 3,
+    "SUM(Discount)": 0.9000000059604645,
+    "City": "Chattanooga",
+    "Discount_sum": 0.9000000059604645
+}, {
+    "SUM(Sales)": 781,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Chesapeake",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 119,
+    "Category": "Technology",
+    "AVG(Discount)": 0.4000000059604645,
+    "count": 2,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Chester",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 22185,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2067796658661406,
+    "count": 59,
+    "SUM(Discount)": 12.200000286102295,
+    "City": "Chicago",
+    "Discount_sum": 12.200000286102295
+}, {
+    "SUM(Sales)": 8,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Chico",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1013,
+    "Category": "Technology",
+    "AVG(Discount)": 0.26666667064030963,
+    "count": 3,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Cincinnati",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 45,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Clarksville",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 2088,
+    "Category": "Technology",
+    "AVG(Discount)": 0.32000000178813937,
+    "count": 10,
+    "SUM(Discount)": 3.2000000178813934,
+    "City": "Cleveland",
+    "Discount_sum": 3.2000000178813934
+}, {
+    "SUM(Sales)": 2274,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Clinton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 101,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Clovis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 100,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Coachella",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 58,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Colorado Springs",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 3384,
+    "Category": "Technology",
+    "AVG(Discount)": 0.03636363690549677,
+    "count": 11,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Columbia",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 15242,
+    "Category": "Technology",
+    "AVG(Discount)": 0.18974359218890852,
+    "count": 39,
+    "SUM(Discount)": 7.400000095367432,
+    "City": "Columbus",
+    "Discount_sum": 7.400000095367432
+}, {
+    "SUM(Sales)": 3253,
+    "Category": "Technology",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 5,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Concord",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 282,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Coon Rapids",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 96,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Coppell",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 53,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Coral Gables",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 499,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Costa Mesa",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 120,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Cottage Grove",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 100,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Covington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 6818,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20769230964092109,
+    "count": 26,
+    "SUM(Discount)": 5.400000050663948,
+    "City": "Dallas",
+    "Discount_sum": 5.400000050663948
+}, {
+    "SUM(Sales)": 51,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Daytona Beach",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 100,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Dearborn Heights",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2708,
+    "Category": "Technology",
+    "AVG(Discount)": 0.05714285799435207,
+    "count": 7,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Decatur",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 48,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Delray Beach",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 684,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Deltona",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 4477,
+    "Category": "Technology",
+    "AVG(Discount)": 0.23571428656578064,
+    "count": 14,
+    "SUM(Discount)": 3.300000011920929,
+    "City": "Denver",
+    "Discount_sum": 3.300000011920929
+}, {
+    "SUM(Sales)": 3658,
+    "Category": "Technology",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 5,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Des Moines",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 384,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Des Plaines",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 7653,
+    "Category": "Technology",
+    "AVG(Discount)": 0.004545454613187097,
+    "count": 22,
+    "SUM(Discount)": 0.10000000149011612,
+    "City": "Detroit",
+    "Discount_sum": 0.10000000149011612
+}, {
+    "SUM(Sales)": 2497,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Dover",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 239,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Draper",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1149,
+    "Category": "Technology",
+    "AVG(Discount)": 0.33999999761581423,
+    "count": 5,
+    "SUM(Discount)": 1.699999988079071,
+    "City": "Dublin",
+    "Discount_sum": 1.699999988079071
+}, {
+    "SUM(Sales)": 264,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Dubuque",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 16,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Durham",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 46,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Eagan",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 32,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "East Orange",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 75,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "East Point",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 240,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Eau Claire",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 945,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Edmond",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 662,
+    "Category": "Technology",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Edmonds",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 713,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "El Paso",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 160,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Elkhart",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 120,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Encinitas",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 109,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Englewood",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1496,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Evanston",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 1067,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Everett",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1550,
+    "Category": "Technology",
+    "AVG(Discount)": 0.1600000023841858,
+    "count": 5,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Fairfield",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 160,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Farmington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 685,
+    "Category": "Technology",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 5,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Fayetteville",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 4024,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Florence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 48,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Fort Collins",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1478,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Fort Lauderdale",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 3962,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2000000054637591,
+    "count": 6,
+    "SUM(Discount)": 1.2000000327825546,
+    "City": "Fort Worth",
+    "Discount_sum": 1.2000000327825546
+}, {
+    "SUM(Sales)": 875,
+    "Category": "Technology",
+    "AVG(Discount)": 0.033333333830038704,
+    "count": 6,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Franklin",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 80,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Fremont",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1419,
+    "Category": "Technology",
+    "AVG(Discount)": 0.15000000223517418,
+    "count": 4,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Fresno",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 27,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Frisco",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 232,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Gaithersburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 258,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Garden City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 701,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Gastonia",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 700,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Georgetown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 534,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Gilbert",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 38,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Gladstone",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 908,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 5,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Glendale",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 158,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Glenview",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 285,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Grand Prairie",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 98,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Grand Rapids",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3323,
+    "Category": "Technology",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Great Falls",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 469,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Green Bay",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1387,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Greensboro",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 1635,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2750000059604645,
+    "count": 4,
+    "SUM(Discount)": 1.100000023841858,
+    "City": "Greenville",
+    "Discount_sum": 1.100000023841858
+}, {
+    "SUM(Sales)": 403,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Gresham",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 120,
+    "Category": "Technology",
+    "AVG(Discount)": 0.4000000059604645,
+    "count": 1,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Grove City",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 198,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Hackensack",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 208,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Haltom City",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 226,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Hampton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 23,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Harrisonburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 292,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Hattiesburg",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 340,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Helena",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 520,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hempstead",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 4070,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Henderson",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 100,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Hesperia",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 311,
+    "Category": "Technology",
+    "AVG(Discount)": 0.399999996026357,
+    "count": 3,
+    "SUM(Discount)": 1.199999988079071,
+    "City": "Hialeah",
+    "Discount_sum": 1.199999988079071
+}, {
+    "SUM(Sales)": 36,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hickory",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 154,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Highland Park",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 53,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hillsboro",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 384,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Hollywood",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 26,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Hoover",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 30,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Hot Springs",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 24952,
+    "Category": "Technology",
+    "AVG(Discount)": 0.21846153919513409,
+    "count": 65,
+    "SUM(Discount)": 14.200000047683716,
+    "City": "Houston",
+    "Discount_sum": 14.200000047683716
+}, {
+    "SUM(Sales)": 2400,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Huntington Beach",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 3227,
+    "Category": "Technology",
+    "AVG(Discount)": 0.12500000186264515,
+    "count": 8,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Huntsville",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 1204,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Indianapolis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1077,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Inglewood",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 89,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Irving",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 7586,
+    "Category": "Technology",
+    "AVG(Discount)": 0.016666667328940496,
+    "count": 18,
+    "SUM(Discount)": 0.30000001192092896,
+    "City": "Jackson",
+    "Discount_sum": 0.30000001192092896
+}, {
+    "SUM(Sales)": 29189,
+    "Category": "Technology",
+    "AVG(Discount)": 0.23214286140033177,
+    "count": 28,
+    "SUM(Discount)": 6.5000001192092896,
+    "City": "Jacksonville",
+    "Discount_sum": 6.5000001192092896
+}, {
+    "SUM(Sales)": 4709,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Jamestown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 221,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Johnson City",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 760,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Jonesboro",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 72,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Kenner",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2145,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Kenosha",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 346,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 5,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Kent",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 752,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Kissimmee",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 90,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Knoxville",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 500,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "La Crosse",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 285,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "La Mesa",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 70,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "La Porte",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 46,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "La Quinta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 18109,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Lafayette",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 40,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Laguna Niguel",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1292,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000794728598,
+    "count": 6,
+    "SUM(Discount)": 1.2000000476837158,
+    "City": "Lakeland",
+    "Discount_sum": 1.2000000476837158
+}, {
+    "SUM(Sales)": 12215,
+    "Category": "Technology",
+    "AVG(Discount)": 0.13333333366447025,
+    "count": 9,
+    "SUM(Discount)": 1.2000000029802322,
+    "City": "Lakewood",
+    "Discount_sum": 1.2000000029802322
+}, {
+    "SUM(Sales)": 6023,
+    "Category": "Technology",
+    "AVG(Discount)": 0.3222222278515498,
+    "count": 9,
+    "SUM(Discount)": 2.900000050663948,
+    "City": "Lancaster",
+    "Discount_sum": 2.900000050663948
+}, {
+    "SUM(Sales)": 611,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Lansing",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 818,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 5,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Laredo",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 1123,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Las Vegas",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 2873,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Lawrence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 240,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Lebanon",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1517,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Lehi",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 68,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Lewiston",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 115,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Linden",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2247,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 6,
+    "SUM(Discount)": 0,
+    "City": "Little Rock",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 83,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Logan",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2797,
+    "Category": "Technology",
+    "AVG(Discount)": 0.08888889021343654,
+    "count": 9,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Long Beach",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 166,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Longmont",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 387,
+    "Category": "Technology",
+    "AVG(Discount)": 0.30000000447034836,
+    "count": 2,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Lorain",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 73035,
+    "Category": "Technology",
+    "AVG(Discount)": 0.12266666889190674,
+    "count": 150,
+    "SUM(Discount)": 18.40000033378601,
+    "City": "Los Angeles",
+    "Discount_sum": 18.40000033378601
+}, {
+    "SUM(Sales)": 5205,
+    "Category": "Technology",
+    "AVG(Discount)": 0.14166666691501936,
+    "count": 12,
+    "SUM(Discount)": 1.7000000029802322,
+    "City": "Louisville",
+    "Discount_sum": 1.7000000029802322
+}, {
+    "SUM(Sales)": 1322,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Lowell",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 480,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Lubbock",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 117,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Macon",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 178,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Madison",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 258,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Manchester",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 274,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Manhattan",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 303,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Marietta",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 931,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2500000037252903,
+    "count": 4,
+    "SUM(Discount)": 1.0000000149011612,
+    "City": "Marion",
+    "Discount_sum": 1.0000000149011612
+}, {
+    "SUM(Sales)": 412,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Mcallen",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1931,
+    "Category": "Technology",
+    "AVG(Discount)": 0.4199999928474426,
+    "count": 5,
+    "SUM(Discount)": 2.099999964237213,
+    "City": "Medina",
+    "Discount_sum": 2.099999964237213
+}, {
+    "SUM(Sales)": 2,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Memphis",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 240,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Mentor",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 936,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Mesa",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 6,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Mesquite",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 3663,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000596046447,
+    "count": 10,
+    "SUM(Discount)": 2.0000000596046448,
+    "City": "Miami",
+    "Discount_sum": 2.0000000596046448
+}, {
+    "SUM(Sales)": 238,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Middletown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 200,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Milford",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2906,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 10,
+    "SUM(Discount)": 0,
+    "City": "Milwaukee",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 378,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Minneapolis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 120,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Mission Viejo",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 3310,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Mobile",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 165,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Modesto",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1611,
+    "Category": "Technology",
+    "AVG(Discount)": 0.05000000074505806,
+    "count": 8,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Monroe",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 28,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Montebello",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2375,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Montgomery",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 64,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Moorhead",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 480,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Morristown",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 608,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Mount Vernon",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 78,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Murfreesboro",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 72,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Murray",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1440,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Muskogee",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 387,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Naperville",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 3164,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2749999947845936,
+    "count": 4,
+    "SUM(Discount)": 1.0999999791383743,
+    "City": "Nashville",
+    "Discount_sum": 1.0999999791383743
+}, {
+    "SUM(Sales)": 152,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "New Bedford",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 24,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "New Castle",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 220,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "New Rochelle",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 109236,
+    "Category": "Technology",
+    "AVG(Discount)": 0.007058823634596432,
+    "count": 170,
+    "SUM(Discount)": 1.2000000178813934,
+    "City": "New York City",
+    "Discount_sum": 1.2000000178813934
+}, {
+    "SUM(Sales)": 18486,
+    "Category": "Technology",
+    "AVG(Discount)": 0.15652173498402472,
+    "count": 23,
+    "SUM(Discount)": 3.5999999046325684,
+    "City": "Newark",
+    "Discount_sum": 3.5999999046325684
+}, {
+    "SUM(Sales)": 1600,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Newport News",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 165,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Niagara Falls",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 400,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Noblesville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1351,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Norman",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1142,
+    "Category": "Technology",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "North Las Vegas",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1247,
+    "Category": "Technology",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 6,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Oakland",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 1584,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Oceanside",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1177,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Oklahoma City",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 57,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Olathe",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 202,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Olympia",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 3206,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Omaha",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 340,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Orland Park",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1292,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Orlando",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 35,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Overland Park",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 83,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Oxnard",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 116,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Palatine",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 286,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Park Ridge",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1945,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000049670538,
+    "count": 6,
+    "SUM(Discount)": 1.2000000029802322,
+    "City": "Pasadena",
+    "Discount_sum": 1.2000000029802322
+}, {
+    "SUM(Sales)": 698,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Passaic",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 282,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Paterson",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 470,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pearland",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 904,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000670552254,
+    "count": 4,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Pembroke Pines",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 458,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 4,
+    "SUM(Discount)": 0.800000011920929,
+    "City": "Peoria",
+    "Discount_sum": 0.800000011920929
+}, {
+    "SUM(Sales)": 597,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Perth Amboy",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 666,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pharr",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 41928,
+    "Category": "Technology",
+    "AVG(Discount)": 0.34122807937755917,
+    "count": 114,
+    "SUM(Discount)": 38.90000104904175,
+    "City": "Philadelphia",
+    "Discount_sum": 38.90000104904175
+}, {
+    "SUM(Sales)": 3547,
+    "Category": "Technology",
+    "AVG(Discount)": 0.24166666467984518,
+    "count": 12,
+    "SUM(Discount)": 2.899999976158142,
+    "City": "Phoenix",
+    "Discount_sum": 2.899999976158142
+}, {
+    "SUM(Sales)": 200,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Pine Bluff",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 394,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Plainfield",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 899,
+    "Category": "Technology",
+    "AVG(Discount)": 0.24000000655651094,
+    "count": 5,
+    "SUM(Discount)": 1.2000000327825546,
+    "City": "Plano",
+    "Discount_sum": 1.2000000327825546
+}, {
+    "SUM(Sales)": 549,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Plantation",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 400,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pleasant Grove",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 442,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Pocatello",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 300,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Pomona",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Pompano Beach",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 440,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Port Arthur",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 2094,
+    "Category": "Technology",
+    "AVG(Discount)": 0.2714285744088037,
+    "count": 7,
+    "SUM(Discount)": 1.9000000208616257,
+    "City": "Portland",
+    "Discount_sum": 1.9000000208616257
+}, {
+    "SUM(Sales)": 8223,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 7,
+    "SUM(Discount)": 0,
+    "City": "Providence",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 772,
+    "Category": "Technology",
+    "AVG(Discount)": 0.44999998807907104,
+    "count": 2,
+    "SUM(Discount)": 0.8999999761581421,
+    "City": "Pueblo",
+    "Discount_sum": 0.8999999761581421
+}, {
+    "SUM(Sales)": 428,
+    "Category": "Technology",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Quincy",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 2909,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 8,
+    "SUM(Discount)": 1.600000023841858,
+    "City": "Raleigh",
+    "Discount_sum": 1.600000023841858
+}, {
+    "SUM(Sales)": 334,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Redding",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1296,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Redlands",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 598,
+    "Category": "Technology",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 3,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Redmond",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 1513,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Redondo Beach",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 476,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Reno",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1040,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Renton",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1098,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Richardson",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 5910,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 16,
+    "SUM(Discount)": 0,
+    "City": "Richmond",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1082,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Riverside",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1927,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 9,
+    "SUM(Discount)": 0,
+    "City": "Rochester",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 133,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Rochester Hills",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1440,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Rockford",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 270,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Rockville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 270,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Rome",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 550,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Roseville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1112,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Roswell",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 474,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Round Rock",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 544,
+    "Category": "Technology",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 3,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Sacramento",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 132,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Saginaw",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1352,
+    "Category": "Technology",
+    "AVG(Discount)": 0.16666666666666666,
+    "count": 3,
+    "SUM(Discount)": 0.5,
+    "City": "Saint Charles",
+    "Discount_sum": 0.5
+}, {
+    "SUM(Sales)": 728,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Saint Cloud",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 112,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Saint Louis",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 115,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Saint Paul",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 359,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Saint Petersburg",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 942,
+    "Category": "Technology",
+    "AVG(Discount)": 0.15000000596046448,
+    "count": 8,
+    "SUM(Discount)": 1.2000000476837158,
+    "City": "Salem",
+    "Discount_sum": 1.2000000476837158
+}, {
+    "SUM(Sales)": 12403,
+    "Category": "Technology",
+    "AVG(Discount)": 0.24000000754992168,
+    "count": 15,
+    "SUM(Discount)": 3.600000113248825,
+    "City": "San Antonio",
+    "Discount_sum": 3.600000113248825
+}, {
+    "SUM(Sales)": 19753,
+    "Category": "Technology",
+    "AVG(Discount)": 0.11666666964689891,
+    "count": 36,
+    "SUM(Discount)": 4.200000107288361,
+    "City": "San Diego",
+    "Discount_sum": 4.200000107288361
+}, {
+    "SUM(Sales)": 34059,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10232558222704155,
+    "count": 86,
+    "SUM(Discount)": 8.800000071525574,
+    "City": "San Francisco",
+    "Discount_sum": 8.800000071525574
+}, {
+    "SUM(Sales)": 1614,
+    "Category": "Technology",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 3,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "San Jose",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 21,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "San Marcos",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 187,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Sandy Springs",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2127,
+    "Category": "Technology",
+    "AVG(Discount)": 0.15000000223517418,
+    "count": 4,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Santa Ana",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 3529,
+    "Category": "Technology",
+    "AVG(Discount)": 0.13333333532015482,
+    "count": 3,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Santa Barbara",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 93,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Santa Fe",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 475,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 2,
+    "SUM(Discount)": 0.4000000059604645,
+    "City": "Scottsdale",
+    "Discount_sum": 0.4000000059604645
+}, {
+    "SUM(Sales)": 42512,
+    "Category": "Technology",
+    "AVG(Discount)": 0.08292683014055578,
+    "count": 82,
+    "SUM(Discount)": 6.800000071525574,
+    "City": "Seattle",
+    "Discount_sum": 6.800000071525574
+}, {
+    "SUM(Sales)": 2,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Sheboygan",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 60,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Shelton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 393,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Sioux Falls",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 39,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Skokie",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 654,
+    "Category": "Technology",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Smyrna",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 831,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "South Bend",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 524,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Southaven",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2396,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Sparks",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1078,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Spokane",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 17122,
+    "Category": "Technology",
+    "AVG(Discount)": 0.15624999720603228,
+    "count": 32,
+    "SUM(Discount)": 4.999999910593033,
+    "City": "Springfield",
+    "Discount_sum": 4.999999910593033
+}, {
+    "SUM(Sales)": 96,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Stockton",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 79,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Summerville",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 340,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Sunnyvale",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 126,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Superior",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 6379,
+    "Category": "Technology",
+    "AVG(Discount)": 0.26000000536441803,
+    "count": 5,
+    "SUM(Discount)": 1.3000000268220901,
+    "City": "Tallahassee",
+    "Discount_sum": 1.3000000268220901
+}, {
+    "SUM(Sales)": 895,
+    "Category": "Technology",
+    "AVG(Discount)": 0.3000000019868215,
+    "count": 3,
+    "SUM(Discount)": 0.9000000059604645,
+    "City": "Tampa",
+    "Discount_sum": 0.9000000059604645
+}, {
+    "SUM(Sales)": 42,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Taylor",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 779,
+    "Category": "Technology",
+    "AVG(Discount)": 0.06666666766007741,
+    "count": 3,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Temecula",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 617,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000670552254,
+    "count": 4,
+    "SUM(Discount)": 0.8000000268220901,
+    "City": "Tempe",
+    "Discount_sum": 0.8000000268220901
+}, {
+    "SUM(Sales)": 49,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Texarkana",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 67,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "The Colony",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 627,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Thornton",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 16,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Thousand Oaks",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 630,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 3,
+    "SUM(Discount)": 0.6000000089406967,
+    "City": "Tigard",
+    "Discount_sum": 0.6000000089406967
+}, {
+    "SUM(Sales)": 2757,
+    "Category": "Technology",
+    "AVG(Discount)": 0.350000012665987,
+    "count": 8,
+    "SUM(Discount)": 2.800000101327896,
+    "City": "Toledo",
+    "Discount_sum": 2.800000101327896
+}, {
+    "SUM(Sales)": 371,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Torrance",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 1168,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Trenton",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1225,
+    "Category": "Technology",
+    "AVG(Discount)": 0.24000000357627868,
+    "count": 5,
+    "SUM(Discount)": 1.2000000178813934,
+    "City": "Troy",
+    "Discount_sum": 1.2000000178813934
+}, {
+    "SUM(Sales)": 2625,
+    "Category": "Technology",
+    "AVG(Discount)": 0.25555555356873405,
+    "count": 9,
+    "SUM(Discount)": 2.2999999821186066,
+    "City": "Tucson",
+    "Discount_sum": 2.2999999821186066
+}, {
+    "SUM(Sales)": 634,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 4,
+    "SUM(Discount)": 0,
+    "City": "Tulsa",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 28,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Tyler",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 480,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Utica",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 618,
+    "Category": "Technology",
+    "AVG(Discount)": 0.10000000149011612,
+    "count": 2,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Vancouver",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 87,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Vineland",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 761,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Virginia Beach",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 8,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Visalia",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 2252,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Warwick",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1380,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Washington",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 727,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 3,
+    "SUM(Discount)": 0,
+    "City": "Waterbury",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 855,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 2,
+    "SUM(Discount)": 0,
+    "City": "Waynesboro",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 56,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "West Palm Beach",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 255,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Westfield",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 110,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Westland",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1407,
+    "Category": "Technology",
+    "AVG(Discount)": 0.12000000476837158,
+    "count": 5,
+    "SUM(Discount)": 0.6000000238418579,
+    "City": "Westminster",
+    "Discount_sum": 0.6000000238418579
+}, {
+    "SUM(Sales)": 445,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Whittier",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 225,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Wichita",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 1786,
+    "Category": "Technology",
+    "AVG(Discount)": 0.04000000059604645,
+    "count": 5,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Wilmington",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 240,
+    "Category": "Technology",
+    "AVG(Discount)": 0.20000000298023224,
+    "count": 1,
+    "SUM(Discount)": 0.20000000298023224,
+    "City": "Woodland",
+    "Discount_sum": 0.20000000298023224
+}, {
+    "SUM(Sales)": 273,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 1,
+    "SUM(Discount)": 0,
+    "City": "Woodstock",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 6140,
+    "Category": "Technology",
+    "AVG(Discount)": 0,
+    "count": 5,
+    "SUM(Discount)": 0,
+    "City": "Yonkers",
+    "Discount_sum": 0
+}, {
+    "SUM(Sales)": 786,
+    "Category": "Technology",
+    "AVG(Discount)": 0.44999999552965164,
+    "count": 2,
+    "SUM(Discount)": 0.8999999910593033,
+    "City": "Yuma",
+    "Discount_sum": 0.8999999910593033
+}];

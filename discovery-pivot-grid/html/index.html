@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Pivot Grid Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script type="text/javascript" src="pivot.grid.min.js"></script>
+
+  <link href="pivot.view.css" rel="stylesheet" />
+</head>
+<body>
+    <h1>Pivot Grid Test</h1>
+
+    <p>
+        <div>헤더설정</div>
+        <select id="fontSize" autocomplete="false">
+            <option value="11">11</option>
+            <option value="13" selected>13</option>
+            <option value="15">15</option>
+        </select>
+        <select id="textAlign" autocomplete="false">
+            <option value="left" selected>left</option>
+            <option value="center">center</option>
+            <option value="right">right</option>
+        </select>
+        <select id="textAlignVertical" autocomplete="false">
+            <option value="top">top</option>
+            <option value="middle" selected>middle</option>
+            <option value="bottom">bottom</option>
+        </select>
+    </p>
+    <p>
+        <button id="button1">data1</button>
+        <button id="button2" style="text-align: left">
+            Dimension : SubCategory<br>
+            Measure : Sales<br>
+            Pivot - Vertical
+        </button>
+        <button id="button3" style="text-align: left">
+            Dimension : SubCategory<br>
+            Measure : Sales<br>
+            Original - Vertical
+        </button>
+        <button id="button4" style="text-align: left">
+            Dimension : SubCategory<br>
+            Measure : Sales<br>
+            Pivot - Horizontal
+        </button>
+        <button id="button5" style="text-align: left">
+            Dimension : Country-Region-State-Category-SubCategory<br>
+            Measure : Sales<br>
+            Original - Vertical
+        </button>
+        <button id="button6" style="text-align: left">
+            Dimension : Country-Region-State<br>
+            Dimension : Category-SubCategory<br>
+            Measure : Sales<br>
+            Pivot - Vertical
+        </button>
+        <button id="button7" style="text-align: left">
+            Dimension : Country-Region-State<br>
+            Dimension : Category-SubCategory<br>
+            Measure : Sales<br>
+            Pivot - Horizontal
+        </button>
+        <button id="button8" style="text-align: left">
+            Dimension : Country-Region-State<br>
+            Dimension : Category-SubCategory<br>
+            Measure : Sales<br>
+            Pivot - Horizontal<br>
+            showAxisZ : false
+        </button>
+        <button id="button9" style="text-align: left">
+            Dimension : Country-Region-State<br>
+            Dimension : Category-SubCategory<br>
+            Measure : Sales<br>
+            Pivot - Vertical<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_1col_pivot" style="text-align: left">
+            Dimension : State<br>
+            Dimension : <br>
+            Measure : <br>
+            Pivot - Vertical<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_1row_pivot" style="text-align: left">
+            Dimension : <br>
+            Dimension : Category<br>
+            Measure : <br>
+            Pivot - Vertical<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_sum" style="text-align: left">
+            Dimension : Category-SubCategory<br>
+            Dimension : Region<br>
+            Measure : Sales, Profit<br>
+            Pivot - Vertical<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_sum_horizontal" style="text-align: left">
+            Dimension : Category-SubCategory<br>
+            Dimension : Region<br>
+            Measure : Sales, Profit<br>
+            Pivot - Horizontal<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_sum_horizontal2" style="text-align: left">
+            Dimension : Category-SubCategory<br>
+            Dimension : Region<br>
+            Measure : Sales, Profit<br>
+            Pivot - Horizontal<br>
+            ShowAxisZ : true
+        </button>
+        <button id="button_horizontal_non_x" style="text-align: left">
+            Dimension : <br>
+            Dimension : Category<br>
+            Measure : Sales, Profit<br>
+            Pivot - Horizontal<br>
+            ShowAxisZ : true
+        </button>
+        <button id="button_vertical_non_x" style="text-align: left">
+            Dimension : <br>
+            Dimension : Category<br>
+            Measure : Sales, Profit<br>
+            Pivot - Vertical<br>
+            ShowAxisZ : true
+        </button>
+        <button id="button_horizontal_non_x_data" style="text-align: left">
+            Dimension : <br>
+            Dimension : Category<br>
+            Measure : Sales, Profit<br>
+            Pivot - Horizontal<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_vertical_non_x_data" style="text-align: left">
+            Dimension : <br>
+            Dimension : Category<br>
+            Measure : Sales, Profit<br>
+            Pivot - Vertical<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_2col_pivot" style="text-align: left">
+            Dimension : Category, Region<br>
+            Dimension : <br>
+            Measure : <br>
+            Pivot - Vertical<br>
+            ShowAxisZ : true
+        </button>
+        <button id="button_2row_pivot" style="text-align: left">
+            Dimension : <br>
+            Dimension : Category, Region<br>
+            Measure : <br>
+            Pivot - Horizontal<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button_3row_pivot" style="text-align: left">
+            Dimension : <br>
+            Dimension : Region, Category, Sub-Category<br>
+            Measure : Sales <br>
+            Pivot - Horizontal<br>
+            ShowAxisZ : false
+        </button>
+        <button id="button10" style="text-align: left">data10</button>
+        <button id="sample1" style="text-align: left">sample1</button>
+    </p>
+
+    <div style="width: 100%; height: 800px;">
+        <div id="pivotView"></div>
+    </div>
+
+    <script src="./data/items.js"></script>
+    <script src="./data/items1.js"></script>
+    <script src="./data/items2.js"></script>
+    <script src="./data/items3.js"></script>
+    <script src="./data/items4.js"></script>
+    <script src="./data/items5.js"></script>
+    <script src="./data/items6.js"></script>
+    <script src="./data/items7.js"></script>
+    <script src="./data/items8.js"></script>
+    <script src="./data/item_1col_pivot.js"></script>
+    <script src="./data/item_1row_pivot.js"></script>
+    <script src="./data/item_2col_pivot.js"></script>
+    <script src="./data/item_2row_pivot.js"></script>
+    <script src="./data/item_3row_pivot.js"></script>
+    <script src="./data/item_sum.js"></script>
+    <script src="./data/item_sum_horizontal.js"></script>
+    <script src="./data/item_sum_horizontal2.js"></script>
+    <script src="./data/items_horizontal_non_x.js"></script>
+    <script src="./data/sample1.js"></script>
+    <script src="./index.js"></script>
+</body>
+</html>

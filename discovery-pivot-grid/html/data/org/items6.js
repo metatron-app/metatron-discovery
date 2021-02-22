@@ -1,0 +1,94 @@
+var items6 = [{
+    "SUM(Discount)": 39.939998626708984,
+    "OrderDate": "1일"
+}, {
+    "SUM(Discount)": 48.25,
+    "OrderDate": "2일"
+}, {
+    "SUM(Discount)": 65.54000091552734,
+    "OrderDate": "3일"
+}, {
+    "SUM(Discount)": 50.29999923706055,
+    "OrderDate": "4일"
+}, {
+    "SUM(Discount)": 65.6500015258789,
+    "OrderDate": "5일"
+}, {
+    "SUM(Discount)": 50.63999938964844,
+    "OrderDate": "6일"
+}, {
+    "SUM(Discount)": 51.02000045776367,
+    "OrderDate": "7일"
+}, {
+    "SUM(Discount)": 48.25,
+    "OrderDate": "8일"
+}, {
+    "SUM(Discount)": 47.02000045776367,
+    "OrderDate": "9일"
+}, {
+    "SUM(Discount)": 49.900001525878906,
+    "OrderDate": "10일"
+}, {
+    "SUM(Discount)": 53.650001525878906,
+    "OrderDate": "11일"
+}, {
+    "SUM(Discount)": 55.17000198364258,
+    "OrderDate": "12일"
+}, {
+    "SUM(Discount)": 44.720001220703125,
+    "OrderDate": "13일"
+}, {
+    "SUM(Discount)": 51.119998931884766,
+    "OrderDate": "14일"
+}, {
+    "SUM(Discount)": 54.27000045776367,
+    "OrderDate": "15일"
+}, {
+    "SUM(Discount)": 39.349998474121094,
+    "OrderDate": "16일"
+}, {
+    "SUM(Discount)": 46.150001525878906,
+    "OrderDate": "17일"
+}, {
+    "SUM(Discount)": 51.790000915527344,
+    "OrderDate": "18일"
+}, {
+    "SUM(Discount)": 52.06999969482422,
+    "OrderDate": "19일"
+}, {
+    "SUM(Discount)": 67.54000091552734,
+    "OrderDate": "20일"
+}, {
+    "SUM(Discount)": 58.56999969482422,
+    "OrderDate": "21일"
+}, {
+    "SUM(Discount)": 59.599998474121094,
+    "OrderDate": "22일"
+}, {
+    "SUM(Discount)": 48.150001525878906,
+    "OrderDate": "23일"
+}, {
+    "SUM(Discount)": 56.79999923706055,
+    "OrderDate": "24일"
+}, {
+    "SUM(Discount)": 54.31999969482422,
+    "OrderDate": "25일"
+}, {
+    "SUM(Discount)": 60.75,
+    "OrderDate": "26일"
+}, {
+    "SUM(Discount)": 39.17000198364258,
+    "OrderDate": "27일"
+}, {
+    "SUM(Discount)": 36.51000213623047,
+    "OrderDate": "28일"
+}, {
+    "SUM(Discount)": 40.790000915527344,
+    "OrderDate": "29일"
+}, {
+    "SUM(Discount)": 41.970001220703125,
+    "OrderDate": "30일"
+}, {
+    "SUM(Discount)": 31.1200008392334,
+    "OrderDate": "31일"
+}];
