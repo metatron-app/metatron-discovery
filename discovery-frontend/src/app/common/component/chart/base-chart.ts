@@ -1469,7 +1469,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     } else {
       delete this.chartOption.dataZoom;
-      delete this.chartOption.toolbox.feature.dataZoom;
+      if (this.chartOption.toolbox && this.chartOption.toolbox.feature) {
+        delete this.chartOption.toolbox.feature.dataZoom;
+      }
     }
 
     // 차트옵션 반환
