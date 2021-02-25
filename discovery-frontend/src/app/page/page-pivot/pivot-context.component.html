@@ -1,4 +1,6 @@
-<div id="editFieldLayer" class="ddp-ui-layer-box ddp-layer-shelf" [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
+<div id="editFieldLayer" class="ddp-ui-layer-box ddp-layer-shelf"
+     [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()"
+     [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
   <div *ngIf="editingField">
     <div class="ddp-ui-layer-title" title="{{editingField.name}}">
       {{editingField.name}}
@@ -23,7 +25,7 @@
           {{'msg.page.th.alias-this-chart' | translate}}
           <div class="ddp-data-result">
             <span class="ddp-txt-result" title="{{getDisplayEditingPivotAlias( editingField )}}">
-              {{getDisplayEditingPivotAlias( editingField )}}
+              {{getDisplayEditingPivotAlias(editingField)}}
               <em class="ddp-icon-view"></em>
             </span>
           </div>
@@ -52,11 +54,13 @@
           {{'msg.page.th.edit-cond' | translate}}
           <div class="ddp-data-result ddp-padr0">
             <span class="ddp-txt-result">{{unescapeCustomColumnExpr(editingField.field.expr)}}</span>
-            <em (click)="changePivotContext.emit({type: 'customField', value: editingField.field})" class="ddp-btn-option"></em>
+            <em (click)="changePivotContext.emit({type: 'customField', value: editingField.field})"
+                class="ddp-btn-option"></em>
           </div>
         </a>
       </li>
-      <li *ngIf="['timestamp'].indexOf(editingField?.type) == -1 && 'map' !== uiOption.type?.toString()" (mouseover)="fix2DepthContext = false;">
+      <li *ngIf="['timestamp'].indexOf(editingField?.type) == -1 && 'map' !== uiOption.type?.toString()"
+          (mouseover)="fix2DepthContext = false;">
         <a href="javascript:">
           {{'msg.page.th.align' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -146,13 +150,15 @@
         <!-- 2depth -->
         <div class="ddp-ui-layer-sub">
           <ul class="ddp-list-popup">
-            <li (click)="combineChangeSeriesConvertType('bar')" [ngClass]="{'ddp-selected' : !editingField || !editingField?.options ? combineAggIndex % 2 == 0 : -1 !== editingField.options.indexOf('bar')}">
+            <li (click)="combineChangeSeriesConvertType('bar')"
+                [ngClass]="{'ddp-selected' : !editingField || !editingField?.options ? combineAggIndex % 2 == 0 : -1 !== editingField.options.indexOf('bar')}">
               <a href="javascript:">
                 {{'msg.page.li.bar' | translate}}
                 <em class="ddp-icon-check"></em>
               </a>
             </li>
-            <li (click)="combineChangeSeriesConvertType('line')" [ngClass]="{'ddp-selected' : !editingField || !editingField?.options ? combineAggIndex % 2 !== 0 : -1 !== editingField.options.indexOf('line')}">
+            <li (click)="combineChangeSeriesConvertType('line')"
+                [ngClass]="{'ddp-selected' : !editingField || !editingField?.options ? combineAggIndex % 2 !== 0 : -1 !== editingField.options.indexOf('line')}">
               <a href="javascript:">
                 {{'msg.page.li.line' | translate}}
                 <em class="ddp-icon-check"></em>
@@ -168,10 +174,10 @@
           <div class="ddp-data-result ddp-type">
             {{
             !editingField.format ? '' :
-            editingField.format.type == 'number' ? ('msg.page.li.num' | translate) :
-            editingField.format.type == 'currency' ? ('msg.page.li.currency' | translate) :
-            editingField.format.type == 'percent' ? ('msg.page.li.percent' | translate) :
-            editingField.format.type == 'exponent10' ? ('msg.page.th.exponential.form' | translate) : ''
+              editingField.format.type == 'number' ? ('msg.page.li.num' | translate) :
+                editingField.format.type == 'currency' ? ('msg.page.li.currency' | translate) :
+                  editingField.format.type == 'percent' ? ('msg.page.li.percent' | translate) :
+                    editingField.format.type == 'exponent10' ? ('msg.page.th.exponential.form' | translate) : ''
             }}
             <em class="ddp-icon-view"></em>
           </div>
@@ -179,25 +185,29 @@
         <!-- 2depth -->
         <div class="ddp-ui-layer-sub">
           <ul class="ddp-list-popup">
-            <li (click)="onChangeFormat('number')" [class.ddp-selected]="editingField.format && editingField.format.type == 'number'">
+            <li (click)="onChangeFormat('number')"
+                [class.ddp-selected]="editingField.format && editingField.format.type == 'number'">
               <a href="javascript:">
                 {{'msg.page.li.num' | translate}}
                 <em class="ddp-icon-check"></em>
               </a>
             </li>
-            <li (click)="onChangeFormat('currency')" [class.ddp-selected]="editingField.format && editingField.format.type == 'currency'">
+            <li (click)="onChangeFormat('currency')"
+                [class.ddp-selected]="editingField.format && editingField.format.type == 'currency'">
               <a href="javascript:">
                 {{'msg.page.li.currency' | translate}}
                 <em class="ddp-icon-check"></em>
               </a>
             </li>
-            <li (click)="onChangeFormat('percent')" [class.ddp-selected]="editingField.format && editingField.format.type == 'percent'">
+            <li (click)="onChangeFormat('percent')"
+                [class.ddp-selected]="editingField.format && editingField.format.type == 'percent'">
               <a href="javascript:">
                 {{'msg.page.li.percent' | translate}}
                 <em class="ddp-icon-check"></em>
               </a>
             </li>
-            <li (click)="onChangeFormat('exponent10')" [class.ddp-selected]="editingField.format && editingField.format.type == 'exponent10'">
+            <li (click)="onChangeFormat('exponent10')"
+                [class.ddp-selected]="editingField.format && editingField.format.type == 'exponent10'">
               <a href="javascript:">
                 {{'msg.page.th.exponential.form' | translate}}
                 <em class="ddp-icon-check"></em>
@@ -210,6 +220,105 @@
               </a>
             </li>
           </ul>
+          <!-- Detail Setting -->
+          <div class="ddp-ui-layer-sub type-setting" style="display:block;">
+            <div class="ddp-ui-layer-title">
+              Format
+            </div>
+            <!-- selectbox -->
+            <div class="ddp-type-selectbox ">
+              <span class="ddp-txt-selectbox">Number</span>
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-ellipsis">
+                <li>
+                  <a href="#">
+                    1
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    Series
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    Series
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //selectbox -->
+            <div class="ddp-ui-layer-title">
+              Decimal Place
+            </div>
+            <!-- selectbox -->
+            <div class="ddp-type-selectbox ">
+              <span class="ddp-txt-selectbox">Number</span>
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-ellipsis">
+                <li>
+                  <a href="#">
+                    1
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    Series
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    Series
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //selectbox -->
+            <div class="ddp-ui-layer-title">
+              Number Abbreviations
+            </div>
+            <!-- selectbox -->
+            <div class="ddp-type-selectbox ">
+              <span class="ddp-txt-selectbox">Number</span>
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-ellipsis">
+                <li>
+                  <a href="#">
+                    1
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    Series
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    Series
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //selectbox -->
+
+            <label class="ddp-label-checkbox ddp-position">
+              <input type="checkbox">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">천단위 구분자 사용</span>
+            </label>
+
+            <div class="ddp-wrap-option-slider">
+              <span class="ddp-label-slider">Custom Symbol</span>
+              <!-- Slide THREE -->
+              <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                <input type="checkbox" value="None" id="check2" name="check">
+                <label for="check2"><span class="ddp-slide"></span></label>
+              </div>
+              <!-- //Slide THREE -->
+            </div>
+            <div class="form-preview">
+              <div class="ddp-list-label">미리보기</div>
+              <div class="ddp-preview">1.000.000</div>
+            </div>
+          </div>
+          <!-- //Detail Setting -->
         </div>
         <!-- //2depth -->
       </li>
@@ -254,7 +363,8 @@
           </div>
           <ul class="ddp-list-popup">
             <!-- 초단위 제거 요청으로 주석처리 -->
-            <li (click)="onChangeGranularity(false, 'SECOND')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'SECOND')"
+            <li (click)="onChangeGranularity(false, 'SECOND')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'SECOND')"
                 *ngIf="isUseGranularity(false, 'SECOND')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('SECOND')">
               <a href="javascript:">
@@ -265,7 +375,8 @@
               </a>
             </li>
             <!-- //초단위 제거 요청으로 주석처리 -->
-            <li (click)="onChangeGranularity(false, 'MINUTE')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'MINUTE')"
+            <li (click)="onChangeGranularity(false, 'MINUTE')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'MINUTE')"
                 *ngIf="isUseGranularity(false, 'MINUTE')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('MINUTE')">
               <a href="javascript:">
@@ -275,7 +386,8 @@
                 </div>
               </a>
             </li>
-            <li (click)="onChangeGranularity(false, 'HOUR')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'HOUR')"
+            <li (click)="onChangeGranularity(false, 'HOUR')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'HOUR')"
                 *ngIf="isUseGranularity(false, 'HOUR')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('HOUR')">
               <a href="javascript:">
@@ -285,7 +397,8 @@
                 </div>
               </a>
             </li>
-            <li (click)="onChangeGranularity(false, 'DAY')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'DAY')"
+            <li (click)="onChangeGranularity(false, 'DAY')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'DAY')"
                 *ngIf="isUseGranularity(false, 'DAY')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('DAY')">
               <a href="javascript:">
@@ -307,7 +420,8 @@
               </a>
             </li>
             -->
-            <li (click)="onChangeGranularity(false, 'MONTH')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'MONTH')"
+            <li (click)="onChangeGranularity(false, 'MONTH')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'MONTH')"
                 *ngIf="isUseGranularity(false, 'MONTH')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('MONTH')">
               <a href="javascript:">
@@ -317,7 +431,8 @@
                 </div>
               </a>
             </li>
-            <li (click)="onChangeGranularity(false, 'QUARTER')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'QUARTER')"
+            <li (click)="onChangeGranularity(false, 'QUARTER')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'QUARTER')"
                 *ngIf="isUseGranularity(false, 'QUARTER')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('QUARTER')">
               <a href="javascript:">
@@ -327,7 +442,8 @@
                 </div>
               </a>
             </li>
-            <li (click)="onChangeGranularity(false, 'YEAR')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'YEAR')"
+            <li (click)="onChangeGranularity(false, 'YEAR')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'YEAR')"
                 *ngIf="isUseGranularity(false, 'YEAR')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('YEAR')">
               <a href="javascript:">
@@ -338,7 +454,8 @@
               </a>
             </li>
 
-            <li (click)="onChangeGranularity(false, 'NONE')" [class.ddp-selected]="isGranularitySelected(editingField, false, 'NONE')"
+            <li (click)="onChangeGranularity(false, 'NONE')"
+                [class.ddp-selected]="isGranularitySelected(editingField, false, 'NONE')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('NONE')">
               <a href="javascript:">
                 {{'msg.page.li.none' | translate}}
@@ -352,7 +469,8 @@
           </div>
           <ul class="ddp-list-popup">
             <!-- 초단위 제거 요청으로 주석처리 -->
-            <li (click)="onChangeGranularity(true, 'SECOND')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'SECOND')"
+            <li (click)="onChangeGranularity(true, 'SECOND')"
+                [class.ddp-selected]="isGranularitySelected(editingField, true, 'SECOND')"
                 *ngIf="isUseGranularity(true, 'SECOND')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('SECOND')">
               <a href="javascript:">
@@ -363,7 +481,8 @@
               </a>
             </li>
             <!-- //초단위 제거 요청으로 주석처리 -->
-            <li (click)="onChangeGranularity(true, 'MINUTE')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'MINUTE')"
+            <li (click)="onChangeGranularity(true, 'MINUTE')"
+                [class.ddp-selected]="isGranularitySelected(editingField, true, 'MINUTE')"
                 *ngIf="isUseGranularity(true, 'MINUTE')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('MINUTE')">
               <a href="javascript:">
@@ -373,7 +492,8 @@
                 </div>
               </a>
             </li>
-            <li (click)="onChangeGranularity(true, 'HOUR')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'HOUR')"
+            <li (click)="onChangeGranularity(true, 'HOUR')"
+                [class.ddp-selected]="isGranularitySelected(editingField, true, 'HOUR')"
                 *ngIf="isUseGranularity(true, 'HOUR')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('HOUR')">
               <a href="javascript:">
@@ -397,7 +517,8 @@
               <!-- 3depth -->
               <div class="ddp-ui-layer-sub">
                 <ul class="ddp-list-popup">
-                  <li (click)="onChangeGranularity(true, 'DAY', 'WEEK')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'DAY', 'WEEK')"
+                  <li (click)="onChangeGranularity(true, 'DAY', 'WEEK')"
+                      [class.ddp-selected]="isGranularitySelected(editingField, true, 'DAY', 'WEEK')"
                       [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('DAY')">
                     <a href="javascript:">
                       By week
@@ -407,7 +528,8 @@
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
-                  <li (click)="onChangeGranularity(true, 'DAY', 'MONTH')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'DAY', 'MONTH')"
+                  <li (click)="onChangeGranularity(true, 'DAY', 'MONTH')"
+                      [class.ddp-selected]="isGranularitySelected(editingField, true, 'DAY', 'MONTH')"
                       [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('DAY')">
                     <a href="javascript:">
                       By month
@@ -417,7 +539,8 @@
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
-                  <li (click)="onChangeGranularity(true, 'DAY', 'YEAR')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'DAY', 'YEAR')"
+                  <li (click)="onChangeGranularity(true, 'DAY', 'YEAR')"
+                      [class.ddp-selected]="isGranularitySelected(editingField, true, 'DAY', 'YEAR')"
                       [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('DAY')">
                     <a href="javascript:">
                       By year
@@ -445,7 +568,8 @@
               <!-- 3depth -->
               <div class="ddp-ui-layer-sub">
                 <ul class="ddp-list-popup">
-                  <li (click)="onChangeGranularity(true, 'WEEK', 'MONTH')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'WEEK', 'MONTH')"
+                  <li (click)="onChangeGranularity(true, 'WEEK', 'MONTH')"
+                      [class.ddp-selected]="isGranularitySelected(editingField, true, 'WEEK', 'MONTH')"
                       [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('WEEK')">
                     <a href="javascript:">
                       By month
@@ -455,7 +579,8 @@
                       <em class="ddp-icon-check"></em>
                     </a>
                   </li>
-                  <li (click)="onChangeGranularity(true, 'WEEK', 'YEAR')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'WEEK', 'YEAR')"
+                  <li (click)="onChangeGranularity(true, 'WEEK', 'YEAR')"
+                      [class.ddp-selected]="isGranularitySelected(editingField, true, 'WEEK', 'YEAR')"
                       [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('WEEK')">
                     <a href="javascript:">
                       By year
@@ -492,7 +617,8 @@
                   <!--<em class="ddp-icon-check"></em>-->
                   <!--</a>-->
                   <!--</li>-->
-                  <li (click)="onChangeGranularity(true, 'MONTH', 'YEAR')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'MONTH', 'YEAR')"
+                  <li (click)="onChangeGranularity(true, 'MONTH', 'YEAR')"
+                      [class.ddp-selected]="isGranularitySelected(editingField, true, 'MONTH', 'YEAR')"
                       [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('MONTH')">
                     <a href="javascript:">
                       By year
@@ -506,7 +632,8 @@
               </div>
               <!-- //3depth -->
             </li>
-            <li (click)="onChangeGranularity(true, 'QUARTER')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'QUARTER')"
+            <li (click)="onChangeGranularity(true, 'QUARTER')"
+                [class.ddp-selected]="isGranularitySelected(editingField, true, 'QUARTER')"
                 *ngIf="isUseGranularity(true, 'QUARTER')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('QUARTER')">
               <a href="javascript:">
@@ -516,7 +643,8 @@
                 </div>
               </a>
             </li>
-            <li (click)="onChangeGranularity(true, 'YEAR')" [class.ddp-selected]="isGranularitySelected(editingField, true, 'YEAR')"
+            <li (click)="onChangeGranularity(true, 'YEAR')"
+                [class.ddp-selected]="isGranularitySelected(editingField, true, 'YEAR')"
                 *ngIf="isUseGranularity(true, 'YEAR')"
                 [class.ddp-disabled]="-1 !== editingField.granularityList.indexOf('YEAR')">
               <a href="javascript:">
