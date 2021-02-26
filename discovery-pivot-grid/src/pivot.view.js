@@ -17,6 +17,9 @@ function viewer(zs) {
         // #20161230-01 : 값 필드 표시 방향 선택 기능
         Viewer.DATA_COL_MODE = common.DATA_COL_MODE;
 
+        // #20210225-01 : 정렬 타입 선택 기능
+        Viewer.SORT_COL_MODE = common.SORT_COL_MODE;
+
         Viewer.FROZEN_COLUMN_ADDITIONAL_KEY = 'additional';
 
         Viewer.SHOW_CALCULATED_COLUMN_WIDTH = 120;
@@ -162,9 +165,15 @@ function viewer(zs) {
                 useSelectStyle: true,
                 onAxisXClick: undefined,
                 onAxisYClick: undefined,
+                onAxisZClick: undefined,
                 onBodyCellClick: undefined,
                 dataColumnMode: Viewer.DATA_COL_MODE.LEFT, // TOP, LEFT 	-- #20161230-01 : 값 필드 표시 방향 선택 기능
                 yAxisAutoSort: false, // boolean 		-- #20170629-01 : y축 자동정렬 여부
+                yAxisSort: false,   // boolean      -- #20210225-01 : y축 정렬 여부
+                sortColumnParentKeys: null,   // -- #20210226-01 : 정렬 컬럼의 상위 컬럼 키
+                sortColumnParentVals: null,   // -- #20210226-01 : 정렬 컬럼의 상위 컬럼 값
+                sortColumnMeasure: null,   // -- #20210226-01 : 정렬 컬럼의 측정값
+                sortType: 'NONE',   // NONE, ASC, DESC -- #20210226-01 : 정렬 유형
                 header: {
                     showHeader: true, // 헤더
                     align: { // 정렬
@@ -281,6 +290,9 @@ function viewer(zs) {
                 if (this._settings.calcCellStyle) {
                     items.rows.push('TOTAL');
                     items.columns.forEach(col => {
+                        if (col.value.length > col.categoryName.length) {
+                            col.value.splice(col.value.length-1, 1);
+                        }
                         col.value.push(this.getSummaryValue(col.value, this._settings.calcCellStyle));
                     });
                 }
@@ -535,9 +547,29 @@ function viewer(zs) {
                         if (!xGroup.item) {
                             objViewer._xItems.push(xGroup.item = item);
                         }
+
+                        // 20210226 - harry
                         if (!yGroup.item) {
-                            objViewer._yItems.push(yGroup.item = item);
+                            if (objViewer._settings.yAxisSort) {
+                                let arrSortColumnKeys = objViewer._settings.sortColumnKeys.split(common.__fieldSeparator);
+                                let arrSortColumnVals = objViewer._settings.sortColumnVals.split(common.__fieldSeparator);
+                                let isYItem = false;
+
+                                for (let key of arrSortColumnKeys) {
+                                    isYItem = ( item.hasOwnProperty(key) && arrSortColumnVals.indexOf(item[key]) > -1 );
+                                    if (!isYItem) {
+                                        break;
+                                    }
+                                }
+
+                                if (isYItem) {
+                                    objViewer._yItems.push(yGroup.item = item);
+                                }
+                            } else {
+                                objViewer._yItems.push(yGroup.item = item);
+                            }
                         }
+
                         objViewer._items.push(item);
 
                         context["item"] = item;
@@ -601,8 +633,27 @@ function viewer(zs) {
                         }
                         yGroup = yGroup[itemValue];
                     } // end for - yProps
+
+                    // 20210226 - harry
                     if (!yGroup.item) {
-                        objViewer._yItems.push(yGroup.item = item);
+                        if (objViewer._settings.yAxisSort) {
+                            let arrSortColumnKeys = objViewer._settings.sortColumnKeys.split(common.__fieldSeparator);
+                            let arrSortColumnVals = objViewer._settings.sortColumnVals.split(common.__fieldSeparator);
+                            let isYItem = false;
+
+                            for (let key of arrSortColumnKeys) {
+                                isYItem = ( item.hasOwnProperty(key) && arrSortColumnVals.indexOf(item[key]) > -1 );
+                                if (!isYItem) {
+                                    break;
+                                }
+                            }
+
+                            if (isYItem) {
+                                objViewer._yItems.push(yGroup.item = item);
+                            }
+                        } else {
+                            objViewer._yItems.push(yGroup.item = item);
+                        }
                     }
 
                     context["item"] = item;
@@ -655,6 +706,52 @@ function viewer(zs) {
                     return nOrder;
                 }); // end sort
                 // _yItems 정렬 - End
+            }
+
+            // 20210226 - harry
+            if (objViewer._settings.yAxisSort) {
+                // _yItems 정렬 - Start
+                this._yItems.sort(function (currItem, nextItem) {
+                    let nOrder = 0;
+
+                    try {
+                        let propertyName = objViewer._settings.sortColumnMeasure;
+
+                        //값이 null일 경우 정렬이 정상적이지 않는 문제로 추가된 로직
+                        let currAxisItem = (currItem[propertyName]) ? currItem[propertyName] : currItem[propertyName] = 0;
+                        let nextAxisItem = (nextItem[propertyName]) ? nextItem[propertyName] : nextItem[propertyName] = 0;
+
+                        if (currAxisItem < nextAxisItem) {
+                            nOrder = (objViewer._settings.sortType === Viewer.SORT_COL_MODE.ASC) ? -1 : 1;
+                        } else if (currAxisItem > nextAxisItem) {
+                            nOrder = (objViewer._settings.sortType === Viewer.SORT_COL_MODE.ASC) ? 1 : -1;
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+
+                    return nOrder;
+                }); // end sort
+                // _yItems 정렬 - End
+            }
+
+            // 20210226 - harry
+            // _yItems 총합(totalItem) 지정
+            let totalItem = null;
+            for (let yItem of this._yItems) {
+                for (let yProp of this._settings.yProperties) {
+                    if (yItem[yProp.name] === 'TOTAL') {
+                        totalItem = yItem;
+                        break;
+                    }
+                }
+            }
+
+            // 20210226 - harry
+            // _yItems 총합(totalItem)의 index 재설정 (_yItems 마지막 요소로 위치하도록 설정)
+            if (totalItem) {
+                this._yItems.splice(this._yItems.indexOf(totalItem), 1);
+                this._yItems.push(totalItem);
             }
 
             // 데이터 범위 정보 설정 - Start
@@ -740,6 +837,26 @@ function viewer(zs) {
                     $container.find('.' + pivotStyle.cssClass.bodyHover).removeClass(pivotStyle.cssClass.bodyHover);
                 }) // on - mouseleave  : yAxisSelector
                 .on('click', xAxisSelector, function () {
+
+                    // 20210226 - harry
+                    let elmData = $(this).attr('title');
+                    let elmParentKeys = $(this).attr('data-parent-keys');
+                    let elmParentVals = $(this).attr('data-parent-vals');
+                    let elmSort = $(this).attr('data-sort');
+
+                    // 20210226 - harry
+                    // z축 클릭시 _settings에 정렬에 필요한 프로퍼티 설정
+                    if ( !_.isEmpty( _.find( objViewer._settings.zProperties, function(o) { return _.eq(o.name, elmData); } ) ) ) {
+                        objViewer._settings.sortType = (elmSort === Viewer.SORT_COL_MODE.NONE) ? Viewer.SORT_COL_MODE.ASC : ( (elmSort === Viewer.SORT_COL_MODE.ASC) ? Viewer.SORT_COL_MODE.DESC : Viewer.SORT_COL_MODE.NONE );
+                        objViewer._settings.yAxisSort = (objViewer._settings.sortType !== Viewer.SORT_COL_MODE.NONE);
+                        objViewer._settings.sortColumnKeys = elmParentKeys.split('||').join(common.__fieldSeparator);
+                        objViewer._settings.sortColumnVals = elmParentVals.split('||').join(common.__fieldSeparator);
+                        objViewer._settings.sortColumnMeasure = elmData;
+
+                        objViewer.update(objViewer._settings);
+                        return;
+                    }
+
                     if ('function' === typeof objViewer._settings.onAxisXClick && 0 === $xAxis.filter('[data-disabled=Y]').length) {
                         // 선택된 축 정보를 조회 후, 데이터 반환
                         let evtData = pivotStyle.getSelectedAxisData.apply(objViewer, [$(this), 'X', $xAxis, $yAxis]);
@@ -2365,7 +2482,10 @@ function viewer(zs) {
                         for (let zpi = 0; zpi < zPropMax; zpi++) {
                             // z-axis 추가
                             columnAttributes = {};
-                            columnAttributes["class"] = pivotStyle.cssClass.headCell;
+
+                            // 20210226 - harry
+                            columnAttributes["class"] = pivotStyle.cssClass.headCell + ' ' + pivotStyle.cssClass.axisX;
+
                             columnAttributes["title"] = this._settings.zProperties[zpi].name;
                             columnAttributes["data-key"] = 'dataAxis';
                             columnAttributes["data-colIdx"] = zPropMax * xii + zpi;
@@ -2375,9 +2495,20 @@ function viewer(zs) {
                             columnAttributes["data-parent-vals"] = strVals;
                             // #20161229-01 : 축 선택 시 상위 축 정보 포함 제공 - End
 
+                            // 20210226 - harry
+                            // columnAttributes 정보가 선택한 z축 cell 정보와 일치하는 경우
+                            // 선택한 z축 cell의 정렬 타입에 따라 columnAttributes["data-sort"] 설정
+                            if (this._settings.sortColumnVals + common.__fieldSeparator + this._settings.sortColumnMeasure
+                                === columnAttributes['data-parent-vals'].split('||').join(common.__fieldSeparator) + common.__fieldSeparator + columnAttributes['title']) {
+                                columnAttributes["data-sort"] = this._settings.sortType;
+                            } else {
+                                columnAttributes["data-sort"] = Viewer.SORT_COL_MODE.NONE;
+                            }
+
                             columnStyles = {};
                             columnStyles["height"] = cellHeight + "px";
-                            let zPropName = this._settings.zProperties[zpi].name;
+
+                            let zPropName = this._settings.zProperties[zpi].name
 
                             // 20180807 : Koo : Resize Column - S
                             // columnStyles["left"] = (((zPropMax * xii) + zpi) * cellWidth) + "px";
@@ -2418,7 +2549,16 @@ function viewer(zs) {
                             columnStyles["color"] = this._settings.header.font.color;
                             columnStyles["background-color"] = this._settings.header.backgroundColor;
                             html.push("<div " + common.attributesString(columnAttributes, columnStyles) + ">");
+
+                            // 20210226 - harry
+                            // columnAttributes["data-sort"] 값에 정렬타입(ASC,DESC)이 지정된 경우
+                            // 정렬 타입에 따라 zPropname 설정
+                            if (columnAttributes["data-sort"] !== Viewer.SORT_COL_MODE.NONE) {
+                                zPropName += ( columnAttributes["data-sort"] === Viewer.SORT_COL_MODE.NONE ? '' : ( columnAttributes["data-sort"] === Viewer.SORT_COL_MODE.ASC ? ' ▲' : ' ▼') );
+                            }
+
                             html.push(zPropName);
+
                             // 20180807 : Koo : Resize Column - E
                             columnAttributes = {};
                             columnAttributes["class"] = pivotStyle.cssClass.resizeHandle;

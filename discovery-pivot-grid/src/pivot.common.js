@@ -29,6 +29,13 @@ function zs() {
         'LEFT': 'LEFT'
     };
 
+    // #20210225-01 - harry : 정렬 타입 선택 기능
+    common.SORT_COL_MODE = {
+        'NONE': 'NONE',
+        'ASC': 'ASC',
+        'DESC': 'DESC'
+    };
+
     common.capitalize = function (str) {
         if (typeof str !== 'string') return '';
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
