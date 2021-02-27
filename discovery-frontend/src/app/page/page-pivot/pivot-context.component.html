@@ -1,5 +1,5 @@
 <div id="editFieldLayer" class="ddp-ui-layer-box ddp-layer-shelf"
-     [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside()"
+     [style.display]="editingField == null ? 'none' : 'block'" (clickOutside)="clickOutside($event)"
      [excludeBeforeClick]="true" [exclude]="'.ddp-icon-layer'">
   <div *ngIf="editingField">
     <div class="ddp-ui-layer-title" title="{{editingField.name}}">
@@ -20,7 +20,7 @@
         </a>
       </li>
 
-      <li [class.ddp-hover]="fix2DepthContext">
+      <li [class.ddp-hover]="fix2DepthContext" (mouseover)="fixMeasureFormatContext = false;">
         <a (mouseover)="setEditingFieldAlias( editingField );" href="javascript:">
           {{'msg.page.th.alias-this-chart' | translate}}
           <div class="ddp-data-result">
@@ -49,7 +49,7 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="editingField.subType == 'user_expr'">
+      <li *ngIf="editingField.subType == 'user_expr'" (mouseover)="fixMeasureFormatContext = false;">
         <a href="javascript:">
           {{'msg.page.th.edit-cond' | translate}}
           <div class="ddp-data-result ddp-padr0">
@@ -60,7 +60,7 @@
         </a>
       </li>
       <li *ngIf="['timestamp'].indexOf(editingField?.type) == -1 && 'map' !== uiOption.type?.toString()"
-          (mouseover)="fix2DepthContext = false;">
+          (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
         <a href="javascript:">
           {{'msg.page.th.align' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -94,7 +94,7 @@
         <!-- //2depth -->
       </li>
       <!--<li *ngIf="editingField.type == 'measure' && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">-->
-      <li *ngIf="showAggregate()" (mouseover)="fix2DepthContext = false;">
+      <li *ngIf="showAggregate()" (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
         <a href="javascript:">
           {{'msg.page.th.aggregate' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -139,7 +139,8 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="chartType == 'combine' && editingField.type == 'measure'" (mouseover)="fix2DepthContext = false;">
+      <li *ngIf="chartType == 'combine' && editingField.type == 'measure'"
+          (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
         <a href="javascript:">
           {{'msg.page.th.vslztn' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -168,7 +169,8 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="!uiOption?.split && editingField.type == 'measure'" (mouseover)="fix2DepthContext = false;">
+      <li *ngIf="!uiOption?.split && editingField.type == 'measure'"
+          (mouseover)="fixMeasureFormatContext = true;fix2DepthContext = false;" >
         <a href="javascript:">
           {{'msg.page.th.format' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -183,7 +185,7 @@
           </div>
         </a>
         <!-- 2depth -->
-        <div class="ddp-ui-layer-sub">
+        <div class="ddp-ui-layer-sub" [ngStyle]="{'display' : ( fixMeasureFormatContext ? 'block' : 'none' ) }">
           <ul class="ddp-list-popup">
             <li (click)="onChangeFormat('number')"
                 [class.ddp-selected]="editingField.format && editingField.format.type == 'number'">
@@ -221,103 +223,10 @@
             </li>
           </ul>
           <!-- Detail Setting -->
-          <div class="ddp-ui-layer-sub type-setting" style="display:block;">
-            <div class="ddp-ui-layer-title">
-              Format
-            </div>
-            <!-- selectbox -->
-            <div class="ddp-type-selectbox ">
-              <span class="ddp-txt-selectbox">Number</span>
-              <ul class="ddp-list-selectbox ddp-selectdown ddp-ellipsis">
-                <li>
-                  <a href="#">
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Series
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Series
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <!-- //selectbox -->
-            <div class="ddp-ui-layer-title">
-              Decimal Place
-            </div>
-            <!-- selectbox -->
-            <div class="ddp-type-selectbox ">
-              <span class="ddp-txt-selectbox">Number</span>
-              <ul class="ddp-list-selectbox ddp-selectdown ddp-ellipsis">
-                <li>
-                  <a href="#">
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Series
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Series
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <!-- //selectbox -->
-            <div class="ddp-ui-layer-title">
-              Number Abbreviations
-            </div>
-            <!-- selectbox -->
-            <div class="ddp-type-selectbox ">
-              <span class="ddp-txt-selectbox">Number</span>
-              <ul class="ddp-list-selectbox ddp-selectdown ddp-ellipsis">
-                <li>
-                  <a href="#">
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Series
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Series
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <!-- //selectbox -->
-
-            <label class="ddp-label-checkbox ddp-position">
-              <input type="checkbox">
-              <i class="ddp-icon-checkbox"></i>
-              <span class="ddp-txt-checkbox">천단위 구분자 사용</span>
-            </label>
-
-            <div class="ddp-wrap-option-slider">
-              <span class="ddp-label-slider">Custom Symbol</span>
-              <!-- Slide THREE -->
-              <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                <input type="checkbox" value="None" id="check2" name="check">
-                <label for="check2"><span class="ddp-slide"></span></label>
-              </div>
-              <!-- //Slide THREE -->
-            </div>
-            <div class="form-preview">
-              <div class="ddp-list-label">미리보기</div>
-              <div class="ddp-preview">1.000.000</div>
-            </div>
-          </div>
+          <div *ngIf="'grid' === chartType"
+               page-pivot-format class="ddp-ui-layer-sub type-setting" style="display:block;"
+               [format]="editingField.fieldFormat ? editingField.fieldFormat : editingField.format"
+               (changeFormat)="onPivotFormatChange($event)"></div>
           <!-- //Detail Setting -->
         </div>
         <!-- //2depth -->

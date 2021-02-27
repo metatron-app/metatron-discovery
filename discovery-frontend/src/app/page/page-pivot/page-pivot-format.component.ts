@@ -12,20 +12,14 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {AbstractFormatItemComponent} from "./abstract-format-item.component";
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractFormatItemComponent} from "../chart-style/format/abstract-format-item.component";
 
 @Component({
-  selector: '[format-item]',
-  templateUrl: './format-item.component.html'
+  selector: '[page-pivot-format]',
+  templateUrl: './page-pivot-format.component.html'
 })
-export class FormatItemComponent extends AbstractFormatItemComponent implements OnInit, OnDestroy {
+export class PagePivotFormatComponent extends AbstractFormatItemComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor

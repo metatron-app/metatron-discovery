@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { DIRECTION } from 'app/domain/workbook/configurations/sort';
-import { GranularityType } from './timestamp-field';
-import { Field as DatasourceField, FieldPivot } from '../../../datasource/datasource';
-import { Format } from '../format';
+import {DIRECTION} from 'app/domain/workbook/configurations/sort';
+import {GranularityType} from './timestamp-field';
+import {Field as DatasourceField, FieldPivot} from '../../../datasource/datasource';
+import {Format} from '../format';
 
 export abstract class Field {
   // 타입
@@ -85,5 +85,7 @@ export abstract class Field {
   aggregated?: boolean;
 
   // only used in UI
-  isCustomField?: boolean
+  isCustomField?: boolean;
+
+  fieldFormat?: Format;
 }
