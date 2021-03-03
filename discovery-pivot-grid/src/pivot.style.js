@@ -55,7 +55,9 @@ function style(zs) {
 		txtMiddle		 : "ddp-valign-middle",
 		txtBottom		 : "ddp-valign-bottom",
 		//add steve
-		resizeHandle: "pivot-resizable-handle"
+		resizeHandle: "pivot-resizable-handle",
+		//add harry
+		axisXSort: "pivot-axis-x-sort"
 	}; // end of PivotStyle.cssClass
 
 	// Add Function by eltriny - Start
