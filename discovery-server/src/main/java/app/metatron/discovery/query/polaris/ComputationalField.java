@@ -733,9 +733,22 @@ public class ComputationalField {
         queryContext.put("postProcessing", processingMap);
         finalize = true;
       } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new CardinalityAggregation(paramName,
-                Collections.singletonList(context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "")),
-                context.fnArgs().getChild(0).getText(), true));
+        fieldExpression = context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "");
+        String predicate = context.fnArgs().getChild(0).getText();
+        if (context.getChild(0) instanceof ExprParser.FunctionExprContext) {
+          fieldExpression = replaceArgWithVirtualColumn((ExprParser.ExprContext) context.fnArgs().getChild(0), virtualColumns);
+        }
+
+        //Change the aggregation type of IFCOUNTD user calculation formula to thetaSketch type
+        aggregations
+            .add(new DistinctSketchAggregation(paramName, fieldExpression, 65536L, predicate, true));
+        Map<String, Object> processingMap = Maps.newHashMap();
+        processingMap.put("type", "sketch.estimate");
+        queryContext.put("postProcessing", processingMap);
+
+//        aggregations.add(new CardinalityAggregation(paramName,
+//                Collections.singletonList(context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "")),
+//                context.fnArgs().getChild(0).getText(), true));
         paramName = "ROUND(" + paramName + ")";
 
         // set true case of only "ifcountd" function
