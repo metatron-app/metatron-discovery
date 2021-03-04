@@ -553,16 +553,20 @@ function viewer(zs) {
                         if (objViewer._settings.yAxisSort) {
                             let arrSortColumnParentKeys = objViewer._settings.sortColumnParentKeys.split(common.__fieldSeparator);
                             let arrSortColumnParentVals = objViewer._settings.sortColumnParentVals.split(common.__fieldSeparator);
-                            let isYItem = false;
 
-                            for (let key of arrSortColumnParentKeys) {
-                                isYItem = ( item.hasOwnProperty(key) && arrSortColumnParentVals.indexOf(item[key]) > -1 );
-                                if (!isYItem) {
-                                    break;
+                            // x축 dimension 유무에 따른 분기
+                            if (arrSortColumnParentKeys.join('').trim().length > 0) {
+                                let isYItem = false;
+                                for (let key of arrSortColumnParentKeys) {
+                                    isYItem = ( item.hasOwnProperty(key) && arrSortColumnParentVals.indexOf(item[key]) > -1 );
+                                    if (!isYItem) {
+                                        break;
+                                    }
                                 }
-                            }
-
-                            if (isYItem) {
+                                if (isYItem) {
+                                    objViewer._yItems.push(yGroup.item = item);
+                                }
+                            } else {
                                 objViewer._yItems.push(yGroup.item = item);
                             }
                         } else {
@@ -639,16 +643,20 @@ function viewer(zs) {
                         if (objViewer._settings.yAxisSort) {
                             let arrSortColumnParentKeys = objViewer._settings.sortColumnParentKeys.split(common.__fieldSeparator);
                             let arrSortColumnParentVals = objViewer._settings.sortColumnParentVals.split(common.__fieldSeparator);
-                            let isYItem = false;
 
-                            for (let key of arrSortColumnParentKeys) {
-                                isYItem = ( item.hasOwnProperty(key) && arrSortColumnParentVals.indexOf(item[key]) > -1 );
-                                if (!isYItem) {
-                                    break;
+                            // x축 dimension 유무에 따른 분기
+                            if (arrSortColumnParentKeys.join('').trim().length > 0) {
+                                let isYItem = false;
+                                for (let key of arrSortColumnParentKeys) {
+                                    isYItem = ( item.hasOwnProperty(key) && arrSortColumnParentVals.indexOf(item[key]) > -1 );
+                                    if (!isYItem) {
+                                        break;
+                                    }
                                 }
-                            }
-
-                            if (isYItem) {
+                                if (isYItem) {
+                                    objViewer._yItems.push(yGroup.item = item);
+                                }
+                            } else {
                                 objViewer._yItems.push(yGroup.item = item);
                             }
                         } else {
