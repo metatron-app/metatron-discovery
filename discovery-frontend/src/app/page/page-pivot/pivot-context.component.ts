@@ -85,7 +85,6 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 

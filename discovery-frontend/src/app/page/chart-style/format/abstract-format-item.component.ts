@@ -25,7 +25,6 @@ import {
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {SelectComponent} from "../../../common/component/select/select.component";
 import {Format} from "../../../domain/workbook/configurations/format";
-import {Field as AbstractField} from '../../../domain/workbook/configurations/field/field';
 import {
   ChartType,
   GridViewType,
@@ -72,10 +71,6 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   // 포맷 정보가 바뀐 경우
   @Output('changeFormat')
   public changeEvent: EventEmitter<any> = new EventEmitter();
-
-  // 필드
-  @Input()
-  public field: AbstractField;
 
   public uiOption: UIOption;
 
@@ -362,13 +357,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     this.preview = FormatOptionConverter.getFormatValue(1000, this.format);
 
     // Dispatch Event
-    if( this.field ) {
-      this.field.format = this.format;
-      this.changeEvent.emit(this.field);
-    }
-    else {
-      this.changeEvent.emit(this.format);
-    }
+    this.changeEvent.emit(this.format);
   }
 
   /**

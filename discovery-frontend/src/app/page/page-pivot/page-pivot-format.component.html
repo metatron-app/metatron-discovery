@@ -72,7 +72,7 @@
         [array]="positionList"
         [viewKey]="'name'"
         [defaultIndex]="'BEFORE' === customSymbol?.pos?.toString() ? 0 : 1"
-        (onSelected)="changePosition($event)" >
+        (onSelected)="changePosition($event)">
       </component-select>
     </div>
   </div>
@@ -84,3 +84,10 @@
   <div class="ddp-preview">{{preview}}</div>
 </div>
 <!-- // 미리보기 -->
+
+<div class="buttons">
+  <button (click)="clearFormat()" type="button"
+          style="width:100%;cursor:pointer;padding: 5px 0;color: #eeeef0;font-size: 12px;text-align: center; background-color: #4b515b;">
+    Clear
+  </button>
+</div>

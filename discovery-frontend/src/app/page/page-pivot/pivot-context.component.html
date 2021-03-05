@@ -169,66 +169,68 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="!uiOption?.split && editingField.type == 'measure'"
-          (mouseover)="fixMeasureFormatContext = true;fix2DepthContext = false;" >
+      <li *ngIf="!uiOption?.split && editingField.type == 'measure' && 'grid' === chartType"
+          (mouseover)="fixMeasureFormatContext = true;fix2DepthContext = false;">
         <a href="javascript:">
           {{'msg.page.th.format' | translate}}
           <div class="ddp-data-result ddp-type">
             {{
-            !editingField.format ? '' :
-              editingField.format.type == 'number' ? ('msg.page.li.num' | translate) :
-                editingField.format.type == 'currency' ? ('msg.page.li.currency' | translate) :
-                  editingField.format.type == 'percent' ? ('msg.page.li.percent' | translate) :
-                    editingField.format.type == 'exponent10' ? ('msg.page.th.exponential.form' | translate) : ''
+            !editingField.fieldFormat ? '' :
+              editingField.fieldFormat.type == 'number' ? ('msg.page.li.num' | translate) :
+                editingField.fieldFormat.type == 'currency' ? ('msg.page.li.currency' | translate) :
+                  editingField.fieldFormat.type == 'percent' ? ('msg.page.li.percent' | translate) :
+                    editingField.fieldFormat.type == 'exponent10' ? ('msg.page.th.exponential.form' | translate) : ''
             }}
             <em class="ddp-icon-view"></em>
           </div>
         </a>
-        <!-- 2depth -->
-        <div class="ddp-ui-layer-sub" [ngStyle]="{'display' : ( fixMeasureFormatContext ? 'block' : 'none' ) }">
-          <ul class="ddp-list-popup">
-            <li (click)="onChangeFormat('number')"
-                [class.ddp-selected]="editingField.format && editingField.format.type == 'number'">
-              <a href="javascript:">
-                {{'msg.page.li.num' | translate}}
-                <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li (click)="onChangeFormat('currency')"
-                [class.ddp-selected]="editingField.format && editingField.format.type == 'currency'">
-              <a href="javascript:">
-                {{'msg.page.li.currency' | translate}}
-                <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li (click)="onChangeFormat('percent')"
-                [class.ddp-selected]="editingField.format && editingField.format.type == 'percent'">
-              <a href="javascript:">
-                {{'msg.page.li.percent' | translate}}
-                <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li (click)="onChangeFormat('exponent10')"
-                [class.ddp-selected]="editingField.format && editingField.format.type == 'exponent10'">
-              <a href="javascript:">
-                {{'msg.page.th.exponential.form' | translate}}
-                <em class="ddp-icon-check"></em>
-              </a>
-            </li>
-            <li (click)="onChangeFormat('')">
-              <a href="javascript:">
-                {{'msg.page.li.detail-settings' | translate}}
-                <em class="ddp-btn-option"></em>
-              </a>
-            </li>
-          </ul>
-          <!-- Detail Setting -->
-          <div *ngIf="'grid' === chartType"
-               page-pivot-format class="ddp-ui-layer-sub type-setting" style="display:block;"
-               [format]="editingField.fieldFormat ? editingField.fieldFormat : editingField.format"
-               (changeFormat)="onPivotFormatChange($event)"></div>
-          <!-- //Detail Setting -->
+        <!-- 2depth - Detail Setting -->
+        <div page-pivot-format class="ddp-ui-layer-sub type-setting"
+             [format]="editingField.fieldFormat ? editingField.fieldFormat : editingField.format"
+             [ngStyle]="{'display' : ( fixMeasureFormatContext ? 'block' : 'none' ) }"
+             (changeFormat)="onPivotFormatChange($event)">
         </div>
+        <!-- // 2depth - Detail Setting -->
+        <!--
+                <div class="ddp-ui-layer-sub" [ngStyle]="{'display' : ( fixMeasureFormatContext ? 'block' : 'none' ) }">
+                  <ul class="ddp-list-popup">
+                    <li (click)="onChangeFormat('number')"
+                        [class.ddp-selected]="editingField.format && editingField.format.type == 'number'">
+                      <a href="javascript:">
+                        {{'msg.page.li.num' | translate}}
+                        <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li (click)="onChangeFormat('currency')"
+                        [class.ddp-selected]="editingField.format && editingField.format.type == 'currency'">
+                      <a href="javascript:">
+                        {{'msg.page.li.currency' | translate}}
+                        <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li (click)="onChangeFormat('percent')"
+                        [class.ddp-selected]="editingField.format && editingField.format.type == 'percent'">
+                      <a href="javascript:">
+                        {{'msg.page.li.percent' | translate}}
+                        <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li (click)="onChangeFormat('exponent10')"
+                        [class.ddp-selected]="editingField.format && editingField.format.type == 'exponent10'">
+                      <a href="javascript:">
+                        {{'msg.page.th.exponential.form' | translate}}
+                        <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+                    <li (click)="onChangeFormat('')">
+                      <a href="javascript:">
+                        {{'msg.page.li.detail-settings' | translate}}
+                        <em class="ddp-btn-option"></em>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+        -->
         <!-- //2depth -->
       </li>
       <li *ngIf="false && ['measure', 'FIXME-측정값기타'].indexOf(editingField.type ) > -1">

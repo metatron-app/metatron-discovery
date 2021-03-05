@@ -30,4 +30,13 @@ export class PagePivotFormatComponent extends AbstractFormatItemComponent implem
               protected injector: Injector) {
     super(elementRef, injector);
   }
+
+  /**
+   * 포맷 클리어
+   */
+  public clearFormat(): void {
+    this.format = {};
+    // Dispatch Event
+    this.changeEvent.emit(undefined);
+  } // func - clearFormat
 }
