@@ -51,10 +51,12 @@
 <!-- // 천단위 구분자 -->
 
 <div class="ddp-wrap-option-slider">
-  <span class="ddp-label-slider">{{'msg.page.format.custom.symbol' | translate}}</span>
-  <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-    <input type="checkbox" id="customSymbol" [ngModel]="customSymbol" (click)="showCustomSymbol()">
-    <label for="customSymbol"><span class="ddp-slide"></span></label>
+  <div class="txt-slider">
+    <span class="ddp-label-slider">{{'msg.page.format.custom.symbol' | translate}}</span>
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" id="customSymbol" [ngModel]="customSymbol" (click)="showCustomSymbol()">
+      <label for="customSymbol"><span class="ddp-slide"></span></label>
+    </div>
   </div>
   <div *ngIf="customSymbol" class="ddp-list-sub2">
     <div class="ddp-divide2">
