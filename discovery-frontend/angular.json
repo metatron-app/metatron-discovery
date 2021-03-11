@@ -65,7 +65,7 @@
               "src/lib/moment/moment-timezone-with-data.min.js",
               "src/lib/dom-to-image/dom-to-image.js",
               "src/lib/rome/rome.standalone.js",
-              "src/lib/pivot-grid/pivot.grid.js",
+              "src/lib/pivot-grid/pivot.grid.min.js",
               "src/lib/caret/jquery.caret.min.js",
               "src/lib/tui/markdown-it.js",
               "src/lib/tui//tui-code-snippet.js",
