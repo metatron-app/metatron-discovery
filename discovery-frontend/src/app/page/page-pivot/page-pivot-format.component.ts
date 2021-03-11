@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {AbstractFormatItemComponent} from "../chart-style/format/abstract-format-item.component";
 
 @Component({
@@ -31,6 +31,20 @@ export class PagePivotFormatComponent extends AbstractFormatItemComponent implem
     super(elementRef, injector);
   }
 
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this._setPositionTypeSettingLayer();
+  }
+
+  /**
+   * Window resize
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  public onResize(event) {
+    this._setPositionTypeSettingLayer();
+  }
+
   /**
    * 포맷 클리어
    */
@@ -39,4 +53,19 @@ export class PagePivotFormatComponent extends AbstractFormatItemComponent implem
     // Dispatch Event
     this.changeEvent.emit(undefined);
   } // func - clearFormat
+
+  /**
+   * 그리드 포맷 설정 레이어 위치
+   * @private
+   */
+  private _setPositionTypeSettingLayer() {
+    const docHeight = document.body.clientHeight;
+    // 745 - 레이어가 정상적으로 표시되는 최소 사이즈
+    if( 745 > docHeight ) {
+      const diffHeight = 745 - docHeight;
+      this.elementRef.nativeElement.style.top = ( -1 * ( 20 + diffHeight ) ) + 'px';
+    } else {
+      this.elementRef.nativeElement.style.top = '-20px';
+    }
+  } // func - _setPositionTypeSettingLayer
 }

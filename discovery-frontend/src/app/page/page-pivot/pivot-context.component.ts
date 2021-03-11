@@ -13,7 +13,17 @@
  */
 
 import {AbstractComponent} from '../../common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {Field, Field as AbstractField} from '../../domain/workbook/configurations/field/field';
 import {Alert} from '../../common/util/alert.util';
 import * as _ from 'lodash';
@@ -468,11 +478,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
 
     // 현재필드의 보조축인지 체크
-    if (this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias;
   }
 
   /**
@@ -533,6 +539,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * 사용 가능한 Granularity인지 여부
    * @param discontinuous
    * @param unit
+   * @param granularity
    * @param byUnit
    */
   private useGranularity(discontinuous: boolean, unit: string, granularity: GranularityType, byUnit?: string): boolean {
@@ -621,18 +628,16 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
   /**
    * return pivot or shelf by chart type
-   * @returns {any[]}
+   * @returns {Field[]}
    */
   private returnPivotShelf(): Field[] {
-
-    let list = [];
-
+    let list: any[];
     if (ChartType.MAP === this.uiOption.type) {
       list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
     } else {
       list = _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations);
     }
-
     return list;
   }
+
 }
