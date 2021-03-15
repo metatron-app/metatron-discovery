@@ -1,0 +1,5 @@
+INSERT INTO user_group(ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, GROUP_DESC, GROUP_NAME, GROUP_PREDEFINED, GROUP_MEMBER_COUNT) VALUES
+('group_test_01', 'admin', TIMESTAMP '2017-09-10 10:30:00.00', 'admin', now(), 0, 'description_01', 'group-test-01', FALSE, 0);
+
+INSERT INTO user_org_member(ID, MEMBER_ID, MEMBER_NAME, MEMBER_TYPE, ORG_ID) VALUES
+(999, 'group_test_01', 'group_test_01', 'GROUP', 'org_test_01');

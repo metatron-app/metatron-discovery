@@ -163,10 +163,11 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
-  @Sql("/sql/test_group_list.sql")
+  @Sql({"/sql/test_organization.sql", "/sql/test_group_list.sql"})
   public void deleteGroup() {
 
     String groupId = "group_test_01";
+    String orgCode = "ORG01";
 
     // @formatter:off
     given()
@@ -188,6 +189,18 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
     .then()
       .statusCode(HttpStatus.SC_NOT_FOUND)
       .log().all();
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/organizations/{code}/members", orgCode)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK)
+      .body("content", empty());
     // @formatter:on
 
   }
@@ -533,6 +546,62 @@ public class GroupRestIntegrationTest extends AbstractRestIntegrationTest {
       .get("/api/groups/search/keyword")
     .then()
       .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "admin", value = {"PERM_SYSTEM_MANAGE_USER"})
+  @Sql({"/sql/test_organization.sql", "/sql/test_group_delete.sql"})
+  public void should_delete_org_member_when_remove_group() {
+
+    String groupId = "group_test_01";
+    String orgCode = "ORG01";
+
+    /*
+      Delete the Group
+     */
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .accept(ContentType.JSON)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .delete("/api/groups/{groupId}", groupId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_NO_CONTENT);
+    // @formatter:on
+
+    /*
+      Confirm deleted the group
+     */
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/groups/{groupId}", groupId)
+    .then()
+      .statusCode(HttpStatus.SC_NOT_FOUND);
+    // @formatter:on
+
+    /*
+      Confirm deleted the organization member
+     */
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/organizations/{code}/members", orgCode)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK)
+      .body("content", empty());
     // @formatter:on
   }
 

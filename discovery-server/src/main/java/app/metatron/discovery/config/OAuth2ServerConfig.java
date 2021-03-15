@@ -70,7 +70,6 @@ import app.metatron.discovery.common.oauth.CustomWebResponseExceptionTranslator;
 import app.metatron.discovery.common.oauth.OauthProperties;
 import app.metatron.discovery.common.oauth.token.cache.TokenCacheRepository;
 import app.metatron.discovery.common.oauth.token.filter.RefreshTokenRetentionFilter;
-import app.metatron.discovery.common.oauth.token.filter.WhitelistAuthenticationFilter;
 import app.metatron.discovery.common.oauth.token.service.CustomDefaultTokenService;
 import app.metatron.discovery.common.oauth.token.store.RefreshRetentionJwtTokenStore;
 import app.metatron.discovery.common.saml.SAMLTokenConverter;
@@ -351,15 +350,6 @@ public class OAuth2ServerConfig {
       refreshTokenCacheFilter.setTokenCacheRepository(tokenCacheRepository);
       refreshTokenCacheFilter.setTokenStore(tokenStore());
       registrationBean.setFilter(refreshTokenCacheFilter);
-      return registrationBean;
-    }
-
-    public FilterRegistrationBean whitelistCheckFilterRegistrationBean(){
-      FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-      WhitelistAuthenticationFilter whitelistAuthenticationFilter = new WhitelistAuthenticationFilter();
-      whitelistAuthenticationFilter.setTokenCacheRepository(tokenCacheRepository);
-      whitelistAuthenticationFilter.setJwtTokenStore(tokenStore());
-      registrationBean.setFilter(whitelistAuthenticationFilter);
       return registrationBean;
     }
 

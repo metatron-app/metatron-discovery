@@ -14,52 +14,6 @@
 
 package app.metatron.discovery.domain.mdm;
 
-import com.google.common.collect.Lists;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.RevisionType;
-import org.hibernate.envers.query.AuditEntity;
-import org.hibernate.envers.query.AuditQuery;
-import org.hibernate.proxy.HibernateProxy;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.core.event.AfterCreateEvent;
-import org.springframework.data.rest.core.event.BeforeCreateEvent;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.supercsv.prefs.CsvPreference;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-
 import app.metatron.discovery.common.data.projection.DataGrid;
 import app.metatron.discovery.common.data.projection.Row;
 import app.metatron.discovery.common.entity.DomainType;
@@ -94,11 +48,7 @@ import app.metatron.discovery.domain.tag.TagDomainRepository;
 import app.metatron.discovery.domain.tag.TagRepository;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.workbench.QueryEditor;
-import app.metatron.discovery.domain.workbench.QueryHistory;
-import app.metatron.discovery.domain.workbench.QueryHistoryRepository;
-import app.metatron.discovery.domain.workbench.Workbench;
-import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbench.*;
 import app.metatron.discovery.domain.workbook.DashBoard;
 import app.metatron.discovery.domain.workbook.DashboardRepository;
 import app.metatron.discovery.domain.workbook.WorkBook;
@@ -108,6 +58,42 @@ import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.HibernateUtils;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
+import org.hibernate.proxy.HibernateProxy;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.rest.core.event.AfterCreateEvent;
+import org.springframework.data.rest.core.event.BeforeCreateEvent;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.supercsv.prefs.CsvPreference;
+
+import javax.persistence.EntityManager;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component("metadataService")
@@ -122,7 +108,7 @@ public class MetadataService implements ApplicationEventPublisherAware {
   @Autowired
   JdbcConnectionService jdbcConnectionService;
 
-  @Autowired
+  @Autowired(required = false)
   StorageProperties storageProperties;
 
   @Autowired

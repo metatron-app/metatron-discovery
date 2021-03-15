@@ -42,6 +42,27 @@
 
 package app.metatron.discovery.query.druid.queries;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.exception.BadRequestException;
@@ -55,53 +76,67 @@ import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
 import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
 import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.*;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.Field;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
+import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.*;
+import app.metatron.discovery.domain.workbook.configurations.filter.LikeFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.MeasureInequalityFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.MeasurePositionFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.RegExprFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.WildCardFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.DefaultFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
-import app.metatron.discovery.query.druid.*;
+import app.metatron.discovery.query.druid.AbstractQueryBuilder;
+import app.metatron.discovery.query.druid.Aggregation;
+import app.metatron.discovery.query.druid.Dimension;
+import app.metatron.discovery.query.druid.Granularity;
+import app.metatron.discovery.query.druid.Having;
+import app.metatron.discovery.query.druid.PostAggregation;
+import app.metatron.discovery.query.druid.PostProcessor;
+import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
 import app.metatron.discovery.query.druid.extractionfns.ExpressionFunction;
 import app.metatron.discovery.query.druid.filters.AndFilter;
-import app.metatron.discovery.query.druid.funtions.*;
+import app.metatron.discovery.query.druid.filters.InFilter;
+import app.metatron.discovery.query.druid.funtions.CaseFunc;
+import app.metatron.discovery.query.druid.funtions.CastFunc;
+import app.metatron.discovery.query.druid.funtions.LookupMapFunc;
+import app.metatron.discovery.query.druid.funtions.RunningSumFunc;
+import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
 import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
-import app.metatron.discovery.query.druid.havings.*;
+import app.metatron.discovery.query.druid.havings.EqualTo;
+import app.metatron.discovery.query.druid.havings.GreaterThan;
+import app.metatron.discovery.query.druid.havings.GreaterThanOrEqual;
+import app.metatron.discovery.query.druid.havings.LessThan;
+import app.metatron.discovery.query.druid.havings.LessThanOrEqual;
 import app.metatron.discovery.query.druid.limits.DefaultLimit;
 import app.metatron.discovery.query.druid.limits.OrderByColumn;
 import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
+import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.model.HoltWintersPostProcessor;
 import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
 import app.metatron.discovery.query.druid.postprocessor.PostAggregationProcessor;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.data.CandidateQueryRequest.RESULT_VALUE_NAME_PREFIX;
 import static app.metatron.discovery.domain.workbook.configurations.Sort.Direction.ASC;
 import static app.metatron.discovery.domain.workbook.configurations.Sort.Direction.DESC;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 import static app.metatron.discovery.domain.workbook.configurations.filter.MeasurePositionFilter.PositionType.BOTTOM;
-import static app.metatron.discovery.domain.workbook.configurations.filter.WildCardFilter.ContainsType.*;
+import static app.metatron.discovery.domain.workbook.configurations.filter.WildCardFilter.ContainsType.AFTER;
+import static app.metatron.discovery.domain.workbook.configurations.filter.WildCardFilter.ContainsType.BEFORE;
+import static app.metatron.discovery.domain.workbook.configurations.filter.WildCardFilter.ContainsType.BOTH;
 import static app.metatron.discovery.query.druid.Query.RESERVED_WORD_COUNT;
 
 /**
@@ -805,6 +840,15 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
       PivotWindowingSpec pivotWindowingSpec = pivotFormat.toEnginePivotSpec(
               partitionExpressions.toArray(new String[partitionExpressions.size()]));
 
+      // add sorting columns for cumulative option
+      Boolean isCumulative = chartFormat.getOptionValue(ChartResultFormat.OPTION_IS_CUMULATIVE);
+      if (BooleanUtils.isTrue(isCumulative)) {
+        List<OrderByColumn> orderColumns = ((DefaultLimit) limitSpec).getColumns();
+        if (CollectionUtils.isNotEmpty(orderColumns)) {
+          pivotWindowingSpec.setSortingColumns(orderColumns);
+        }
+      }
+
       this.windowingSpecs.add(pivotWindowingSpec);
       exclusivePivotColumn(pivotFormat);
     }
@@ -908,6 +952,20 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     return this;
   }
 
+  public Optional<Field> getDimensionFieldWithName(String fieldName){
+    return this.projections.stream()
+                           .filter(projectionField -> projectionField instanceof DimensionField && projectionField.getColunm().equals(fieldName))
+                           .findFirst();
+  }
+
+  public String getDimensionAlias(String fieldName){
+    Optional<Field> field = getDimensionFieldWithName(fieldName);
+    if(field.isPresent()) {
+      return StringUtils.defaultIfEmpty(field.get().getAlias(), fieldName);
+    }
+    return fieldName;
+  }
+
   @Override
   public GroupByQuery build() {
 
@@ -980,6 +1038,33 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     }
 
     groupByQuery.setContext(context);
+
+    // replace filter dimension to dimension alias
+    if(this.filter != null && this.filter.getFields() != null && !this.filter.getFields().isEmpty()){
+      List<app.metatron.discovery.query.druid.Filter> filters = this.filter.getFields();
+      for(app.metatron.discovery.query.druid.Filter filterField : filters) {
+        if(filterField instanceof InFilter){
+          //find projection with fieldName
+          String dimensionWithAlias = getDimensionAlias(((InFilter) filterField).getDimension());
+          ((InFilter) filterField).setDimension(dimensionWithAlias);
+        }
+      }
+    }
+
+    // replace windowingSpec's column name to dimension alias
+    if(this.windowingSpecs != null && !this.windowingSpecs.isEmpty()){
+      for(WindowingSpec windowingSpec : this.windowingSpecs){
+        List<String> partitionColumns = windowingSpec.getPartitionColumns();
+        if(partitionColumns != null && !partitionColumns.isEmpty()){
+          for(int i = 0; i < partitionColumns.size(); ++i){
+            String columnName = partitionColumns.get(i);
+            //find projection with columnName
+            String dimensionWithAlias = getDimensionAlias(columnName);
+            partitionColumns.set(i, dimensionWithAlias);
+          }
+        }
+      }
+    }
 
     return groupByQuery;
 

@@ -34,6 +34,8 @@ public class DistinctSketchAggregation implements Aggregation {
 
   Boolean shouldFinalize;
 
+  String predicate;
+
   public DistinctSketchAggregation() {
   }
 
@@ -41,6 +43,14 @@ public class DistinctSketchAggregation implements Aggregation {
     this.name = name;
     this.fieldName = fieldName;
     this.size = size;
+    this.shouldFinalize = shouldFinalize;
+  }
+
+  public DistinctSketchAggregation(String name, String fieldName, Long size, String predicate, Boolean shouldFinalize) {
+    this.name = name;
+    this.fieldName = fieldName;
+    this.size = size;
+    this.predicate = predicate;
     this.shouldFinalize = shouldFinalize;
   }
 
@@ -69,6 +79,14 @@ public class DistinctSketchAggregation implements Aggregation {
     this.size = size;
   }
 
+  public String getPredicate() {
+    return predicate;
+  }
+
+  public void setPredicate(String predicate) {
+    this.predicate = predicate;
+  }
+
   public Boolean getShouldFinalize() {
     return shouldFinalize;
   }
@@ -79,11 +97,12 @@ public class DistinctSketchAggregation implements Aggregation {
 
   @Override
   public String toString() {
-    return "GenericSumAggregation{" +
-            "name='" + name + '\'' +
-            ", fieldName='" + fieldName + '\'' +
-            ", size='" + size + '\'' +
-            ", shouldFinalize='" + shouldFinalize + '\'' +
-            '}';
+    return "DistinctSketchAggregation{" +
+        "name='" + name + '\'' +
+        ", fieldName='" + fieldName + '\'' +
+        ", size=" + size +
+        ", shouldFinalize=" + shouldFinalize +
+        ", predicate='" + predicate + '\'' +
+        '}';
   }
 }

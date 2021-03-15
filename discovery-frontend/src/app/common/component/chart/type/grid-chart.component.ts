@@ -568,7 +568,14 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     }
 
     // 차트 데이터 주입
-    this.chart.initialize(data, this.gridModel);
+    try {
+      this.chart.initialize(data, this.gridModel);
+    } catch (e) {
+      console.log( e );
+      // No Data 이벤트 발생
+      this.noData.emit();
+      return;
+    }
   }
 
   /**

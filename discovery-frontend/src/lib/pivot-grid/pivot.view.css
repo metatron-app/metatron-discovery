@@ -38,9 +38,12 @@
 /*.pivot-view-row.ddp-txt-center { text-align: center; }*/
 /*.pivot-view-row.ddp-txt-right { text-align: right; }*/
 
-.pivot-view-row.ddp-txt-left  .pivot-view-cell { display:flex; justify-content: flex-start; }
-.pivot-view-row.ddp-txt-center  .pivot-view-cell { display:flex; justify-content: center; }
-.pivot-view-row.ddp-txt-right  .pivot-view-cell { display:flex; justify-content: flex-end; }
+.pivot-view-row.ddp-txt-left .pivot-view-cell { display:flex; justify-content: flex-start; }
+.pivot-view-row.ddp-txt-center .pivot-view-cell { display:flex; justify-content: center; }
+.pivot-view-row.ddp-txt-right .pivot-view-cell { display:flex; justify-content: flex-end; }
+.pivot-view-cell.ddp-txt-left { display:flex; justify-content: flex-start; }
+.pivot-view-cell.ddp-txt-center { display:flex; justify-content: center; }
+.pivot-view-cell.ddp-txt-right { display:flex; justify-content: flex-end; }
 
 .pivot-view .pivot-view-body .pivot-view-frozen {line-height:30px !important;}
 
@@ -82,7 +85,7 @@
   border-bottom: 1px solid #f0f0f0;
 }
 .pivot-view.pivot-view-scroll-horizontal .pivot-view-head {
-    border-right: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
   border-bottom: 1px solid #f0f0f0;
 }
 .pivot-view .pivot-view-body {
@@ -108,34 +111,27 @@
   border-top: 1px solid #f0f0f0;
 }
 
-.pivot-view .pivot-view-body .pivot-view-wrap .pivot-view-cell.txt-right {
-  text-align: right;
-}
-.pivot-view .pivot-view-head .pivot-view-wrap .pivot-view-cell.txt-right {
-  text-align: right;
-}
 /* Add Click Event Style - by eltriny */
 .pivot-view .pivot-view-body .pivot-view-wrap .pivot-view-cell.numeric {
-    /*text-align: right;*/
-    color: #297bb8;
+  /*text-align: right;*/
+  color: #297bb8;
 }
 .pivot-view .pivot-axis-x:hover,
 .pivot-view .pivot-axis-y:hover {
-    border: 1px solid #666eb2 !important;
+  border: 1px solid #666eb2 !important;
 }
 .pivot-view .pivot-axis-selected-body, .pivot-axis-selected-body div,
 .pivot-view .pivot-body-hover, .pivot-body-hover div {
-    background-color : #e7e7ea !important;
-    color: #666eb2 !important;
+  background-color : #e7e7ea !important;
+  color: #666eb2 !important;
 }
 .pivot-view .pivot-body-selected, .pivot-body-selected div,
 .pivot-view .pivot-axis-selected {
-    background-color: #666eb2 !important;
-    color: #FFFFFF !important;
+  background-color: #666eb2 !important;
+  color: #FFFFFF !important;
 }
 /* Add Click Event Style - by eltriny */
 .pivot-view .pivot-view-body .span.txt-bottom {position: relative}
-.pivot-view .pivot-view-body.txt-right {text-align: right; display:block;}
 .pivot-view span {position:absolute; height: 30px; line-height: 30px;}
 .pivot-view span.remark-right {text-align: right; display: block;}
 .pivot-view span.remark-left {padding-left: 10px; display: block;}
