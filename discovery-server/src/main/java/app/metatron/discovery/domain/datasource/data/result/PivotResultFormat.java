@@ -328,7 +328,7 @@ public class PivotResultFormat extends SearchResultFormat {
         // Escape separator if nodeKey start with separator. ex. -SUM(m1) --SUM(m1)
         fieldName = fieldName.startsWith(separator) ? fieldName.substring(pivots.size()) : fieldName;
 
-        if(replacedKeyFields.contains(fieldName))
+        if(selectedKeyField.contains(fieldName))
           continue;
 
         // Percentage Case
