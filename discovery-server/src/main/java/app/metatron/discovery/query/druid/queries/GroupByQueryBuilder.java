@@ -840,6 +840,15 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
       PivotWindowingSpec pivotWindowingSpec = pivotFormat.toEnginePivotSpec(
               partitionExpressions.toArray(new String[partitionExpressions.size()]));
 
+      // add sorting columns for cumulative option
+      Boolean isCumulative = chartFormat.getOptionValue(ChartResultFormat.OPTION_IS_CUMULATIVE);
+      if (BooleanUtils.isTrue(isCumulative)) {
+        List<OrderByColumn> orderColumns = ((DefaultLimit) limitSpec).getColumns();
+        if (CollectionUtils.isNotEmpty(orderColumns)) {
+          pivotWindowingSpec.setSortingColumns(orderColumns);
+        }
+      }
+
       this.windowingSpecs.add(pivotWindowingSpec);
       exclusivePivotColumn(pivotFormat);
     }
