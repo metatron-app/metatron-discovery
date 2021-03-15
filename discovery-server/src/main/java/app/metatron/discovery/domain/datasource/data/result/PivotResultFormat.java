@@ -302,8 +302,11 @@ public class PivotResultFormat extends SearchResultFormat {
         }
       }
 
+      // If there is more than one pivot field, the "__time" field is used.
+      List<String> selectedKeyField = pivots.size() > 0 ? replacedKeyFields : keyFields;
+
       List<String> rowKeys = Lists.newArrayList();
-      for (String keyField : replacedKeyFields) {
+      for (String keyField : selectedKeyField) {
         rowKeys.add(aNode.get(keyField).textValue());
       }
 
