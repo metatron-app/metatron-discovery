@@ -17,18 +17,20 @@ package app.metatron.discovery.domain.scheduling.engine;
 import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import app.metatron.discovery.common.SlackSender;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.monitoring.EngineMonitoring;
@@ -54,11 +56,17 @@ public class EngineMonitoringJob extends QuartzJobBean {
   @Autowired
   EngineProperties engineProperties;
 
+  @Autowired(required = false)
+  SlackSender slackSender;
+
+  @Value("${polaris.engine.notification.type:}")
+  String[] types;
+
   public EngineMonitoringJob() {
   }
 
   @Override
-  protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+  protected void executeInternal(JobExecutionContext jobExecutionContext) {
 
     LOGGER.debug("########### engine monitoring job : check server health");
 
@@ -93,6 +101,7 @@ public class EngineMonitoringJob extends QuartzJobBean {
 
           monitoringRepository.save(patchTarget);
 
+          sendNotification(patchTarget);
         }
       } else {
         try {
@@ -109,6 +118,7 @@ public class EngineMonitoringJob extends QuartzJobBean {
 
               monitoringRepository.save(patchTarget);
 
+              sendNotification(patchTarget);
             } else {
               LOGGER.warn("{} status is not normal", target.getHostname());
             }
@@ -120,9 +130,33 @@ public class EngineMonitoringJob extends QuartzJobBean {
           patchTarget.setStatus(false);
 
           monitoringRepository.save(patchTarget);
-
         }
       }
     }
   }
+
+  private void sendNotification(EngineMonitoring target) {
+    if (slackSender == null) {
+      LOGGER.debug("SlackSender is null, check you application.yaml");
+      return;
+    }
+
+    if (types.length == 0 || Arrays.stream(types).anyMatch(target.getType()::equals)) {
+      StringBuilder builder = new StringBuilder();
+      if (target.getStatus()) {
+        builder.append(":large_green_circle: *");
+      } else {
+        builder.append(":x: *");
+      }
+      builder.append(target.getType()).append("* (");
+      builder.append(target.getHostname()).append(":").append(target.getPort()).append(")");
+      builder.append("'s status is ");
+      if (!target.getStatus()) {
+        builder.append("not ");
+      }
+      builder.append("normal");
+      slackSender.send(builder.toString());
+    }
+  }
+
 }
