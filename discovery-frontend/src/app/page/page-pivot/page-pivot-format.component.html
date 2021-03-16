@@ -6,13 +6,14 @@
   [viewKey]="'name'"
   (onSelected)="onTypeChange($event)">
 </component-select>
+<div style="height: 4px;"></div>
 <!-- 통화일때 -->
 <component-select
   #signListSelect
   *ngIf="selectedType['value'] == 'currency'"
   [array]="currencySignList"
   [viewKey]="'name'"
-  (onSelected)="onSignChange($event)">
+  (onSelected)="onSignChange($event)" >
 </component-select>
 <!-- // 통화일때 -->
 <!-- // 표시 형식 -->
