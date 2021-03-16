@@ -129,7 +129,7 @@ polaris:
         remoteType: LOCAL
         localBaseDir: ${java.io.tmpdir:-/tmp}
     notification:
-      type: broker,overload,coordicator,historical,middleManager # Specify the server type to be notified.
+      type: broker,overload,coordinator,historical,middleManager # Specify the server type to be notified.
       slack:
         hookUrl: # Specify the slack webhook URL.
         channel: # Specifies the slack channel name to receive notifications.
