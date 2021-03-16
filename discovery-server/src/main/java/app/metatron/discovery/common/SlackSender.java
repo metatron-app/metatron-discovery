@@ -26,7 +26,7 @@ public class SlackSender {
   @Value("${polaris.engine.notification.slack.hookUrl}")
   String slackHookUrl;
 
-  @Value("${polaris.engine.notification.slack.channel}")
+  @Value("${polaris.engine.notification.slack.channel:}")
   String slackChannel;
 
   @PostConstruct
