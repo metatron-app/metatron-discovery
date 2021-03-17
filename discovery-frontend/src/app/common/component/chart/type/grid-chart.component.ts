@@ -392,9 +392,11 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
 
           if( pivot.fieldFormat ) {
             ( originAggregations[0]['fieldFormat'] ) || ( originAggregations[0]['fieldFormat'] = [] );
-            const fieldFormat = JSON.parse(JSON.stringify(pivot.fieldFormat));
-            fieldFormat['aggrColumn'] = pivot.field.name;
-            originAggregations[0]['fieldFormat'].push( fieldFormat );
+            if( -1 === originAggregations[0]['fieldFormat'].findIndex( item => pivot.field.name === item['aggrColumn'] ) ) {
+              const fieldFormat = JSON.parse(JSON.stringify(pivot.fieldFormat));
+              fieldFormat['aggrColumn'] = pivot.field.name;
+              originAggregations[0]['fieldFormat'].push( fieldFormat );
+            }
           }
 
         }
