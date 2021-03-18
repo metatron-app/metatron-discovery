@@ -302,8 +302,11 @@ public class PivotResultFormat extends SearchResultFormat {
         }
       }
 
+      // If there is more than one pivot field, the "__time" field is used.
+      List<String> selectedKeyField = pivots.size() > 0 ? replacedKeyFields : keyFields;
+
       List<String> rowKeys = Lists.newArrayList();
-      for (String keyField : replacedKeyFields) {
+      for (String keyField : selectedKeyField) {
         rowKeys.add(aNode.get(keyField).textValue());
       }
 
@@ -325,7 +328,7 @@ public class PivotResultFormat extends SearchResultFormat {
         // Escape separator if nodeKey start with separator. ex. -SUM(m1) --SUM(m1)
         fieldName = fieldName.startsWith(separator) ? fieldName.substring(pivots.size()) : fieldName;
 
-        if(replacedKeyFields.contains(fieldName))
+        if(selectedKeyField.contains(fieldName))
           continue;
 
         // Percentage Case
