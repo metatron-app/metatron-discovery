@@ -12,31 +12,22 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  Injector,
-  Input,
-  OnInit,
-  SimpleChange,
-  SimpleChanges,
-  ViewChild
-} from '@angular/core';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { SubscribeArg } from '../../../common/domain/subscribe-arg';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { PopupService } from '../../../common/service/popup.service';
-import { BoundFilter } from '../../../domain/workbook/configurations/filter/bound-filter';
-import { AbstractFilterPanelComponent } from '../abstract-filter-panel.component';
+import {Component, ElementRef, Injector, OnInit, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {SubscribeArg} from '../../../common/domain/subscribe-arg';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {PopupService} from '../../../common/service/popup.service';
+import {BoundFilter} from '../../../domain/workbook/configurations/filter/bound-filter';
+import {AbstractFilterPanelComponent} from '../abstract-filter-panel.component';
 import * as _ from 'lodash';
-import { Field } from '../../../domain/datasource/datasource';
-import { BoundFilterComponent } from './bound-filter.component';
+import {Field} from '../../../domain/datasource/datasource';
+import {BoundFilterComponent} from './bound-filter.component';
 
 @Component({
   selector: 'bound-filter-panel',
   templateUrl: './bound-filter-panel.component.html'
 })
-export class BoundFilterPanelComponent extends AbstractFilterPanelComponent implements OnInit {
+export class BoundFilterPanelComponent extends AbstractFilterPanelComponent<BoundFilter> implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -51,14 +42,6 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 필터
-  public filter: BoundFilter;
-
-  public isNewFilter:boolean = false;
-
-  @Input('filter')
-  public originalFilter: BoundFilter;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -92,11 +75,7 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
     const filterChanges: SimpleChange = changes.originalFilter;
     if (filterChanges) {
       const currFilter: BoundFilter = _.cloneDeep(filterChanges.currentValue);
-
-      this.setPanelData(currFilter);    // 패널에서 사용하는 데이터 설정
-
-      (this.dataSource) && (this._candidate(currFilter)); // 후보값 조회
-
+      this._initComponent(currFilter);
     }
   } // function - ngOnChanges
 
@@ -104,16 +83,9 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
    * 화면 초기화
    */
   public ngAfterViewInit() {
+    super.ngAfterViewInit();
 
-    if( this.originalFilter['isNew'] ) {
-      this.isNewFilter = true;
-      this.safelyDetectChanges();
-      delete this.originalFilter['isNew'];
-      setTimeout( () => {
-        this.isNewFilter = false;
-        this.safelyDetectChanges();
-      }, 1500 );
-    }
+    this._initComponent(this.originalFilter);
 
     // 위젯에서 필터를 업데이트 popup은 아니지만 동일한 기능이 필요해서 popupService를 사용
     const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {
@@ -189,6 +161,18 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컴포넌트 초기 설정
+   * @param {BoundFilter} filter
+   * @private
+   */
+  private _initComponent(filter: BoundFilter): void {
+    if (filter) {
+      this.setPanelData(filter);    // 패널에서 사용하는 데이터 설정
+      (this.dataSource) && (this._candidate(filter)); // 후보값 조회
+    }
+  } // func - _initComponent
 
   /**
    * 필터 값 조회

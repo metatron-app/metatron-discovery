@@ -17,8 +17,8 @@
   <div class="ddp-ui-popup">
     <!-- title -->
     <div class="ddp-ui-popup-title">
-      <span class="ddp-txt-title-name">{{'msg.board.hierarchy.title' | translate }}</span>
-      <span class="ddp-txt-sub-title">{{'msg.board.hierarchy.desc' | translate }}</span>
+      <span class="ddp-txt-title-name">{{title}}</span>
+      <span class="ddp-txt-sub-title">{{description}}</span>
 
       <div class="ddp-ui-pop-buttons">
         <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
@@ -32,12 +32,13 @@
       <div class="ddp-wrap-order">
         <!-- result -->
         <div class="ddp-ui-result">
-          <span class="ddp-data-result"><strong>{{cntWidgets}}</strong> widgets</span>
+          <span class="ddp-data-result"><strong>{{summary.value}}</strong> {{summary.label}}</span>
         </div>
         <!-- //result -->
-        <div class="ddp-wrap-order-setting">
-          <div class="sys-tree-container" (mousedown)="treeMouseDown($event)" (mouseup)="treeMouseUp($event)"></div>
-        </div>
+<!--        <ul class="ddp-tree-number" #treeNumber>-->
+<!--          <li *ngFor="let i of getNumberOfTree">{{i+1}}</li>-->
+<!--        </ul>-->
+        <div class="ddp-wrap-order-setting" (mousedown)="treeMouseDown($event)" (mouseup)="treeMouseUp($event)" ></div>
       </div>
       <!-- //order -->
     </div>

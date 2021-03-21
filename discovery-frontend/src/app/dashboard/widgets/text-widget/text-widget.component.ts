@@ -24,7 +24,7 @@ import * as $ from "jquery";
   templateUrl: './text-widget.component.html',
   styleUrls: ['./text-widget.component.css']
 })
-export class TextWidgetComponent extends AbstractWidgetComponent implements OnInit, OnDestroy {
+export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

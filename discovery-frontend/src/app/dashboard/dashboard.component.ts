@@ -32,6 +32,7 @@ import {Workbook} from '../domain/workbook/workbook';
 import {
   BoardDataSource,
   Dashboard,
+  DashboardWidgetRelation,
   LayoutMode,
   PresentationDashboard
 } from '../domain/dashboard/dashboard';
@@ -42,12 +43,7 @@ import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.l
 import {Filter} from '../domain/workbook/configurations/filter/filter';
 import {PopupService} from '../common/service/popup.service';
 import {DatasourceService} from '../datasource/service/datasource.service';
-import {
-  ConnectionType,
-  Datasource,
-  TempDsStatus,
-  TemporaryDatasource
-} from 'app/domain/datasource/datasource';
+import {ConnectionType, Datasource, TempDsStatus, TemporaryDatasource} from 'app/domain/datasource/datasource';
 import {Modal} from '../common/domain/modal';
 import {ConfirmModalComponent} from '../common/component/modal/confirm/confirm.component';
 import {CommonConstant} from '../common/constant/common.constant';
@@ -58,12 +54,14 @@ import {DashboardUtil} from './util/dashboard.util';
 import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {isNullOrUndefined} from "util";
 import {Message} from '@stomp/stompjs';
+import {FilterWidget} from "../domain/dashboard/widget/filter-widget";
+import {InclusionFilter} from "../domain/workbook/configurations/filter/inclusion-filter";
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [ '.ddp-div-table { position: absolute;top: 0;left: 0;right: 0;bottom: 0; }' ]
+  styles: ['.ddp-div-table { position: absolute;top: 0;left: 0;right: 0;bottom: 0; }']
 })
 export class DashboardComponent extends DashboardLayoutComponent implements OnInit, OnDestroy {
 
@@ -94,8 +92,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   public expiredDatasource: Datasource;   // 만료된 데이터소스 정보 ( for Linked Datasource )
   public ingestionStatus: { progress: number, message: string, step?: number };  // 적재 진행 정보
 
-  public isError:boolean = false;
-  public errorMsg:string;
+  public isError: boolean = false;
+  public errorMsg: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -185,7 +183,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         });
       }
     }
-    this.dashboardEvent.emit({ name: 'LAYOUT_INITIALISED' });
+    this.dashboardEvent.emit({name: 'LAYOUT_INITIALISED'});
   } // function - onLayoutInitialised
 
   /**
@@ -197,10 +195,26 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     // 필터 정보 갱신
     DashboardUtil.updateBoardFilter(this.dashboard, filter, true);
 
+    // 하위 필터 초기화
+    const filterWidget: FilterWidget = DashboardUtil.getFilterWidgetByFilter(this.dashboard, filter);
+    if (filterWidget) {
+      this._getAllChildWidgetRelation(filterWidget.id, this.dashboard.configuration.filterRelations,
+        (target: DashboardWidgetRelation, children: string[]) => {
+          children.forEach(childId => {
+            const childWidget: FilterWidget = DashboardUtil.getWidget(this.dashboard, childId) as FilterWidget;
+            (<InclusionFilter>childWidget.configuration.filter).valueList = [];
+            DashboardUtil.updateBoardFilter(this.dashboard, childWidget.configuration.filter, true);
+            // 하위 차트 삭제
+          });
+          return true;
+        }, this.dashboard
+      );
+    }
+
     // 대시보드 필터 정보 조회 및 각 위젯 적용
     const boardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard);
     if (boardFilters && boardFilters.length > 0) {
-      this.broadCaster.broadcast('SET_GLOBAL_FILTER', { filters: boardFilters });
+      this.broadCaster.broadcast('SET_GLOBAL_FILTER', {filters: boardFilters, exclude: filter});
     }
     this.selectionFilter.init();
   } // function - changeFilterWidgetEventHandler
@@ -257,7 +271,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    * request reload board
    */
   public reloadBoard() {
-    this.dashboardEvent.emit({ name: 'RELOAD_BOARD' });
+    this.dashboardEvent.emit({name: 'RELOAD_BOARD'});
   } // function - reloadBoard
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -276,7 +290,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       type: 'RE-INGEST',
       afterConfirm: () => {
         this.datasourceStatus = TempDsStatus.PREPARING;
-        this.ingestionStatus = { progress: 0, message: '', step: 1 };
+        this.ingestionStatus = {progress: 0, message: '', step: 1};
         this.showBoardLoading();
         this.checkAndConnectWebSocket(true).then(() => {
           this.changeDetect.markForCheck();
@@ -311,11 +325,11 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   private _processIngestion(progressTopic: string) {
     try {
       // console.info('>>>> progressTopic', progressTopic);
-      const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+      const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
       const subscription = CommonConstant.stomp.watch(progressTopic).subscribe((msg: Message) => {
 
-        const data: { progress: number, message: string } = JSON.parse( msg.body );
+        const data: { progress: number, message: string } = JSON.parse(msg.body);
 
         if (-1 === data.progress) {
           this.ingestionStatus = data;
@@ -384,8 +398,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         linkedDsList.forEach(dsInfo => {
           promises.push(new Promise<any>((res, rej) => {
             const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard, dsInfo);
-            if( isNullOrUndefined( boardDsInfo['temporaryId'] ) ) {
-              rej( 'INVALID_LINKED_DATASOURCE' );
+            if (isNullOrUndefined(boardDsInfo['temporaryId'])) {
+              rej('INVALID_LINKED_DATASOURCE');
               return;
             }
             this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
@@ -396,8 +410,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
 
               if (ds.temporary && TempDsStatus.ENABLE === ds.temporary.status) {
                 boardDsInfo.metaDataSource = ds;
-                if( dashboard.configuration.filters ) {
-                  dashboard.configuration.filters = ds.temporary.filters.concat( dashboard.configuration.filters);
+                if (dashboard.configuration.filters) {
+                  dashboard.configuration.filters = ds.temporary.filters.concat(dashboard.configuration.filters);
                 } else {
                   dashboard.configuration.filters = ds.temporary.filters;
                 }
@@ -432,7 +446,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
           }
           this.safelyDetectChanges();
         }).catch((error) => {
-          if( 'INVALID_LINKED_DATASOURCE' === error ) {
+          if ('INVALID_LINKED_DATASOURCE' === error) {
             this.showError();
             this.onLayoutInitialised();
             this.hideBoardLoading();

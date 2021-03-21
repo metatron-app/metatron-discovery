@@ -122,7 +122,8 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
       !prevFilter || prevFilter.field !== currFilter.field || prevFilter.timeUnit !== currFilter.timeUnit ||
       0 < _.difference(prevFilter.valueList, currFilter.valueList).length ||
       0 < _.difference(prevFilter.candidateValues, currFilter.candidateValues).length)) {
-      this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+      // this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+      this.setData(filterChanges.currentValue);
     }
   } // function - ngOnChanges
 

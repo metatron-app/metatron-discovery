@@ -192,7 +192,7 @@ export class WidgetService extends AbstractService {
    * @returns {Promise<any>}
    */
   public previewWidget(widgetId: string, original: boolean, preview:boolean, param: any = null): Promise<any> {
-    const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=${preview}`;
+    const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=${preview}&limit=100000000`;
     return this.post(url, param);
   } // function - previewWidget
 

@@ -137,8 +137,16 @@
     <div *ngIf="isTimeFilter" [ngStyle]="{
       'top' : ( isShowTitle ? ( ( isRelativeTypeTimeFilter ) ? '47px' : '39px' ) : '0px' ),
       'padding-top' : ( ( isListTypeTimeFilter || isDiscontinuousFilter ) ? '0px' : '' )
-    }"
-         class="ddp-ui-widget-contents" >
+    }" class="ddp-ui-widget-contents" >
+
+<!--
+      <div class="ddp-toggle">
+        <ul class="ddp-list-buttons">
+          <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeTypeTimeFilter">Absolute</li>
+          <li (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeTypeTimeFilter">Relative</li>
+        </ul>
+      </div>
+-->
 
       <!-- 전체 기간 선택 탭 영역 -->
       <div class="ddp-filter-view ddp-full" >
@@ -150,7 +158,7 @@
       <div *ngIf="isRelativeTypeTimeFilter" class="ddp-filter-view ddp-full">
         <app-time-relative-filter
           [mode]="'WIDGET'" [filter]="filter"
-          (change)="changeFilterEvent($event)">
+          (changeEvent)="changeFilterEvent($event)">
         </app-time-relative-filter>
       </div>
       <!-- // Relative Time Filter -->
@@ -159,7 +167,7 @@
       <app-time-range-filter
         *ngIf="isRangeTypeTimeFilter"
         [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
-        (change)="changeFilterEvent($event)">
+        (changeEvent)="changeFilterEvent($event)">
       </app-time-range-filter>
       <!-- // Range Time Filter -->
 

@@ -50,8 +50,12 @@ import {Widget} from '../../../domain/dashboard/widget/widget';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {FilterUtil} from '../../util/filter.util';
 import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart.component';
-import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
-import {BoardConfiguration, BoardDataSource, LayoutMode} from '../../../domain/dashboard/dashboard';
+import {
+  BoardConfiguration,
+  BoardDataSource,
+  DashboardWidgetRelation,
+  LayoutMode
+} from '../../../domain/dashboard/dashboard';
 import {GridChartComponent} from '../../../common/component/chart/type/grid-chart.component';
 import {BarChartComponent} from '../../../common/component/chart/type/bar-chart.component';
 import {LineChartComponent} from '../../../common/component/chart/type/line-chart.component';
@@ -84,7 +88,7 @@ declare let moment;
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: ['.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50% !important; left: 50% !important; margin-left: -350px; margin-top: -250px;}']
 })
-export class PageWidgetComponent extends AbstractWidgetComponent implements OnInit, OnDestroy {
+export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget> implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -266,7 +270,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 테마 변경 이벤트
     this.subscriptions.push(
-      this.broadCaster.on<any>('CHANGE_THEME').subscribe(data => {
+      this.broadCaster.on<any>('CHANGE_THEME').subscribe(() => {
         this.chart.draw(true);
       })
     );
@@ -345,7 +349,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
               console.error(e);
             }
           }
-          this._search(null, data.filters);
+          this._search(null, data.filters, data.isForceUpdate);
         }
 
         this.query.selectionFilters = data.filters;
@@ -1039,11 +1043,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public showDownloadLayer(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
-      this._dataDownComp.openGridDown(event, this._dataGridComp);
-    } else {
-      this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown, this.query);
-    }
+    // if (ConnectionType.LINK === ConnectionType[this.widget.configuration.dataSource.connType]) {
+    //   this._dataDownComp.openGridDown(event, this._dataGridComp);
+    // } else {
+    //   this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown, this.query);
+    // }
+    this._dataDownComp.openGridDown(event, this._dataGridComp);
   } // function - showDownloadLayer
 
   /**
@@ -1325,7 +1330,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // Hierarchy 설정
     if (boardConf.relations) {
-      const relations: DashboardPageRelation[] = boardConf.relations;
+      const relations: DashboardWidgetRelation[] = boardConf.relations;
       const parentWidgetId: string = this._findParentWidgetId(widget.id, relations);
       if (parentWidgetId) {
         this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
@@ -1379,9 +1384,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 데이터 검색
    * @param {Filter[]} globalFilters
    * @param {Filter[]} selectionFilters
+   * @param {boolean} isForceLoad
    * @private
    */
-  private _search(globalFilters ?: Filter[], selectionFilters ?: Filter[]) {
+  private _search(globalFilters ?: Filter[], selectionFilters ?: Filter[], isForceLoad?: boolean) {
 
     if (selectionFilters && selectionFilters.some(item => -1 < this._childWidgetIds.indexOf(item['selectedWidgetId']))) {
       return;
@@ -1584,7 +1590,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this._currentSelectionFilters = currentSelectionFilters;
     this._currentSelectionFilterString = JSON.stringify(currentSelectionFilters);
     this._currentGlobalFilterString = JSON.stringify(cloneGlobalFilters);
-    const disableCache: boolean = this.isRealTimeWidget;
+    const disableCache: boolean = isForceLoad || this.isRealTimeWidget;
 
     this.datasourceService.searchQuery(cloneQuery, disableCache).then((data) => {
 
@@ -1755,41 +1761,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   } // function - _initGridChart
 
   /**
-   * 부모 위젯 아이디 탐색
-   * @param {string} widgetId
-   * @param {DashboardPageRelation[]} relations
-   * @returns {string}
-   * @private
-   */
-  private _findParentWidgetId(widgetId: string, relations: DashboardPageRelation[]): string {
-    let parentId: string = '';
-
-    relations.some(item => {
-      if (item.children) {
-        if (-1 < item.children.findIndex(child => child.ref === widgetId)) {
-          parentId = item.ref;
-          return true;
-        } else {
-          parentId = this._findParentWidgetId(widgetId, item.children);
-          return ('' !== parentId);
-        }
-      } else {
-        return false;
-      }
-    });
-
-    return parentId;
-  } // function - _findParentWidgetId
-
-  /**
    * 자식 위젯 아이디 탐색
    * @param {string} widgetId
-   * @param {DashboardPageRelation[]} relations
+   * @param {DashboardWidgetRelation[]} relations
    * @param {boolean} isCollect
    * @return {string}
    * @private
    */
-  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect: boolean = false): string[] {
+  private _findChildWidgetIds(widgetId: string, relations: DashboardWidgetRelation[], isCollect: boolean = false): string[] {
     let childIds: string[] = [];
 
     relations.forEach(item => {

@@ -77,7 +77,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public mode: string = 'CHANGE';             // CHANGE, PANEL, WIDGET
 
   // 필터 변경 이벤트
-  @Output('change')
+  @Output()
   public changeEvent: EventEmitter<TimeRelativeFilter> = new EventEmitter();
 
   public isShortLabel: boolean = false;
@@ -111,7 +111,8 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public ngOnChanges(changes: SimpleChanges) {
     const filterChanges: SimpleChange = changes.inputFilter;
     if (filterChanges && filterChanges.currentValue) {
-      this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+      // this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+      this.setData(filterChanges.currentValue);
     }
   } // function - ngOnChanges
 

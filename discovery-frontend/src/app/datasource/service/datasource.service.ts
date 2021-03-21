@@ -38,17 +38,14 @@ import {Field, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
-import {WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
+import {ContainsType, WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
 import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
 import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
 import {FilteringType} from '../../domain/workbook/configurations/field/timestamp-field';
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import {
-  GeoBoundaryFormat,
-  GeoHashFormat
-} from '../../domain/workbook/configurations/field/geo-field';
+import {GeoBoundaryFormat, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -274,11 +271,20 @@ export class DatasourceService extends AbstractService {
             }
           });
         }
+
+        if(searchWord) {
+          let wildcard: WildCardFilter = new WildCardFilter();
+          wildcard.value = searchWord;
+          wildcard.contains = ContainsType.BOTH;
+          wildcard.field = param.targetField.name;
+          tempFilters.push(wildcard);
+        }
+
         param.filters = param.filters.concat(tempFilters);
         (param.targetField) && (param.targetField.type = 'dimension');
 
         param.sortBy = (sortBy) ? sortBy : 'COUNT';
-        param.searchWord = (searchWord) ? searchWord : '';
+        // param.searchWord = (searchWord) ? searchWord : '';
         param.limit = FilterUtil.CANDIDATE_LIMIT;
 
       } else if ('bound' === filter.type) {

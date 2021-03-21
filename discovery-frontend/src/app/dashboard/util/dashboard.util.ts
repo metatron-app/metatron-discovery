@@ -28,7 +28,6 @@ import {isNullOrUndefined, isObject} from 'util';
 import {FilterWidget, FilterWidgetConfiguration} from '../../domain/dashboard/widget/filter-widget';
 import {PageWidget} from '../../domain/dashboard/widget/page-widget';
 import {TextWidget} from '../../domain/dashboard/widget/text-widget';
-import {DashboardPageRelation} from '../../domain/dashboard/widget/page-widget.relation';
 import {BoardWidgetOptions, WidgetShowType} from '../../domain/dashboard/dashboard.globalOptions';
 import {StringUtil} from '../../common/util/string.util';
 import {CommonUtil} from '../../common/util/common.util';
@@ -671,11 +670,12 @@ export class DashboardUtil {
   /**
    * 특정 필드에 대한 보드 필터 조회
    * @param {Dashboard} board
-   * @param {Field} field
+   * @param {string} dataSource
+   * @param {string} fieldName
    * @return {Filter}
    */
-  public static getBoardFilter(board: Dashboard, field: Field): Filter {
-    return board.configuration.filters.find(item => item.dataSource === field.dataSource && item.field === field.name);
+  public static getBoardFilter(board: Dashboard, dataSource:string, fieldName: string): Filter {
+    return board.configuration.filters.find(item => item.dataSource === dataSource && item.field === fieldName);
   } // function - getBoardFilter
 
   /**
@@ -974,19 +974,6 @@ export class DashboardUtil {
   } // function - isSameFilterAndWidget
 
   /**
-   * 페이지 연관관계 설정
-   * @param {Dashboard} board
-   * @param {DashboardPageRelation[]} rels
-   * @returns {Dashboard}
-   */
-  public static setDashboardConfRelations(board: Dashboard, rels: DashboardPageRelation[]): Dashboard {
-    if (rels) {
-      board.configuration.relations = rels;
-    }
-    return board;
-  } // function - setDashboardConfRelations
-
-  /**
    * Convert spec to UI
    * @param {Dashboard} boardInfo
    * @return {Dashboard}
@@ -1124,3 +1111,4 @@ export class ChartLimitInfo {
   public currentCnt: number;
   public maxCnt: number
 }
+

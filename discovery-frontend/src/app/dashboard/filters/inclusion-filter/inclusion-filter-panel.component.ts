@@ -17,7 +17,6 @@ import {
   Component,
   ElementRef,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit, ViewChild
@@ -44,7 +43,7 @@ import {isNullOrUndefined} from 'util';
   selector: 'inclusion-filter-panel',
   templateUrl: './inclusion-filter-panel.component.html'
 })
-export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent implements OnInit, OnChanges, OnDestroy {
+export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<InclusionFilter> implements OnInit, OnChanges, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -62,10 +61,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 필터
-  public filter: InclusionFilter;
-
   // 페이징 관련
   public pageCandidateList: Candidate[] = [];
   public currentPage = 1;
@@ -79,12 +74,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   public isMultiSelector: boolean = false;        // 복수 선택 여부
   public isSearchFocus: boolean = false;          // 검색바 포커스 여부
   public isOverCandidateWarning: boolean = false;  // Candidate Limit 을 넘겼는지 여부
-  public isNewFilter:boolean = false;
 
   public searchAllMessage = '';
-
-  @Input('filter')
-  public originalFilter: InclusionFilter;
 
   public isDeSelected: boolean = false;
 
@@ -110,25 +101,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    */
   public ngOnInit() {
     super.ngOnInit();
-  }
-
-  /**
-   * 화면 초기화
-   */
-  public ngAfterViewInit() {
-    super.ngAfterViewInit();
-
-    this._initComponent(this.originalFilter);
-
-    if( this.originalFilter['isNew'] ) {
-      this.isNewFilter = true;
-      this.safelyDetectChanges();
-      delete this.originalFilter['isNew'];
-      setTimeout( () => {
-        this.isNewFilter = false;
-        this.safelyDetectChanges();
-      }, 1500 );
-    }
 
     // 필터 선택 변경
     this.subscriptions.push(
@@ -144,8 +116,15 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       if (data.type === 'page' && this.isDashboardMode) return;
 
       // 필터 위젯에서 값이 변경될 경우
-      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.dataSource === data.data.dataSource) {
-        this._initComponent(data.data);
+      if ('change-filter' === data.name) {
+        if( this.filter.field === data.data.field && this.filter.dataSource === data.data.dataSource ) {
+          this.originalFilter = data.data;
+          this._initComponent(this.originalFilter);
+        } else if (this.parentWidget
+          && this.parentWidget.configuration.filter.field === data.data.field
+          && this.parentWidget.configuration.filter.dataSource === data.data.dataSource) {
+          this._initComponent(this.filter);
+        }
       } else if ('remove-filter' === data.name && this.filter.ui.importanceType === 'general') {
         this._resetList(data.data);
       } else if ('reset-general-filter' === data.name && this.filter.ui.importanceType === 'general') {
@@ -160,7 +139,15 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       }
     });
     this.subscriptions.push(popupSubscribe);
-    this.changeDetect.detectChanges();
+  }
+
+  /**
+   * 화면 초기화
+   */
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this._initComponent(this.originalFilter);
+    this.safelyDetectChanges();
   } // function - ngAfterViewInit
 
   /**
@@ -175,6 +162,10 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+
+  public get isValidList() {
+    return this._candidateList && 0 < this._candidateList.length;
+  }
 
   /**
    * 검색 입력을 비활성 처리 합니다.
@@ -516,50 +507,88 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     if (this.filter && this.dashboard && this.field) {
       // 필터 데이터 후보 조회
       this.loadingShow();
-      // this.datasourceService.getCandidateForFilter(
-      //   this.filter, this.dashboard, this.getFiltersParam(this.filter), this.field).then((result) => {
+
+      // let prevFilter: Filter[] = FilterUtil.getDefaultFilters(this.filter, this.boardFilters);
+      let prevFilter: Filter[] = [];
+      if (this.parentWidget) {
+        prevFilter = prevFilter.concat(this.getParentFilter(this.filter, this.dashboard));
+        // const isSelectedParentFilter:boolean
+        //   = prevFilter.some(item => {
+        //   return DashboardUtil.isSameFilterAndWidget( this.dashboard, item, this.parentWidget )
+        //     && (<InclusionFilter>item).valueList
+        //     && 0 < (<InclusionFilter>item).valueList.length;
+        // });
+        // if (!isSelectedParentFilter) {
+        //   this._candidateList = [];
+        //   this.sortCandidateValues(this.filter);  // 정렬
+        //   this.isShowFilter = true;
+        //   return;
+        // }
+      }
+
       this.datasourceService.getCandidateForFilter(
-        this.filter, this.dashboard, [], this.field, 'COUNT', this.searchText).then((result) => {
+        this.filter, this.dashboard, prevFilter, this.field, 'COUNT', this.searchText).then((result) => {
 
         this._candidateList = [];
 
         // 사용자 정의 값 추가
         this.addDefineValues();
 
-        // 선택된 후보값 목록
-        const selectedCandidateValues: string[] = this.filter.candidateValues;
+        if (this.parentWidget) {
+          // 계층 구조의 하위 필터 목록 처리
+          this._candidateList
+            = result.map(item => this._objToCandidate(item, this.field));
+        } else {
+          // 일반 필터의 목록 처리
+          // 선택된 후보값 목록
+          const selectedCandidateValues: string[] = this.filter.candidateValues;
 
-        if (selectedCandidateValues && 0 < selectedCandidateValues.length) {
-          // 후보값 추가
-          selectedCandidateValues.forEach((selectedItem) => {
-            const item = result.find(item => item.field === selectedItem);
-            if (item) {
-              this._candidateList.push(this._objToCandidate(item, this.field));
-            } else {
-              this._candidateList.push(this._stringToCandidate(selectedItem));
-            }
-          });
-          // 후보값에 포함되지 않은 검색값 추가
-          if (this.searchText) {
-            result.forEach(searchItem => {
-              const item = this._candidateList.find(item => item.name === searchItem.field);
-              if (isNullOrUndefined(item)) {
-                this._candidateList.push(this._objToCandidate(searchItem, this.field));
+          if (selectedCandidateValues && 0 < selectedCandidateValues.length) {
+            // 후보값 추가
+            selectedCandidateValues.forEach((selectedItem) => {
+              const item = result.find(item => item.field === selectedItem);
+              if (item) {
+                this._candidateList.push(this._objToCandidate(item, this.field));
+              } else {
+                this._candidateList.push(this._stringToCandidate(selectedItem));
               }
             });
+            // 후보값에 포함되지 않은 검색값 추가
+            if (this.searchText) {
+              result.forEach(searchItem => {
+                const item = this._candidateList.find(item => item.name === searchItem.field);
+                if (isNullOrUndefined(item)) {
+                  this._candidateList.push(this._objToCandidate(searchItem, this.field));
+                }
+              });
+            }
+          } else {
+            // 전체 목록 추가
+            this.filter.candidateValues = [];
+            result.forEach(item => {
+              this.filter.candidateValues.push( item.field );
+              this._candidateList.push(this._objToCandidate(item, this.field));
+            });
           }
-        } else {
-          // 전체 목록 추가
-          this.filter.candidateValues = [];
-          result.forEach(item => {
-            this.filter.candidateValues.push( item.field );
-            this._candidateList.push(this._objToCandidate(item, this.field));
-          });
         }
 
         // 추가 데이터가 있는지 여부
         if (isInit) {
           this.isOverCandidateWarning = (FilterUtil.CANDIDATE_LIMIT <= result.length || result.length > this.candidateListSize);
+        }
+
+        // 조회 목록에서 없는 선택값을 제거한다. ( Filter Hierarchy 기능 )
+        if (this.filter.valueList && this.filter.valueList.length > 0) {
+          let isBroadcastChange: boolean = false;
+          this.filter.valueList
+            = this.filter.valueList.filter(valueItem => {
+            if (this._candidateList.some(candidateItem => candidateItem.name === valueItem)) {
+              return true;
+            } else {
+              isBroadcastChange = true;
+              return false;
+            }
+          });
         }
 
         // 정렬

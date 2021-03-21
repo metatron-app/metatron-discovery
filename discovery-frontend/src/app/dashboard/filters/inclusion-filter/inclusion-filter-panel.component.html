@@ -27,7 +27,8 @@
         </span>
         <span class="ddp-txt-itemtype">
           <span class="ddp-data-name">{{filter.field}}</span>
-          <span class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!parentWidget" class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!!parentWidget" class="ddp-data-sub">{{dataSource?.name + ' - ' + parentWidget?.configuration.filter.field}}</span>
           <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
             {{ 'msg.board.ui.filter.used-this-chart' | translate }}
           </span>
@@ -284,6 +285,15 @@
       </div>
       <!-- // 목록 제한 및 페이징 영역 -->
     </div>
+
+    <!-- Hierarchy 표시 영역 -->
+    <div *ngIf="parentWidget && !isValidList" class="ddp-ui-divide">
+      <div class="ddp-ui-filter-info"
+           [innerHTML]="'msg.board.ui.select-data' | translate : { value : parentWidget.name}" >
+      </div>
+    </div>
+    <!-- // Hierarchy 표시 영역 -->
+
   </div>
 </div>
 <!-- // 컨텐츠 영역 -->
