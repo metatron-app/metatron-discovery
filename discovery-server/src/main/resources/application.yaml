@@ -98,6 +98,9 @@ polaris:
       -
         method: GET
         api: /api/monitoring/ingestion/task/*/log
+      -
+        method: GET
+        api: /api/mobile/validate
   datasource:
     connections:
       ORACLE: ["ENGINE", "LIVE"]
@@ -372,6 +375,9 @@ polaris:
   #      timeout: 36000
   user:
     use_organization: false
+  mobile:
+    resource-path: classpath:resource-mobile/
+    client-id: polaris_client
 
 ---
 # (mysql DB 생성 script)

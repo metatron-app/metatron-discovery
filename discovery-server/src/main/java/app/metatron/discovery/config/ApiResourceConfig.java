@@ -101,6 +101,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.servlet.ViewResolver;
@@ -151,8 +152,10 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   private static final String TTF = RESOURCE_PATH + "*.*.ttf";
 
   public final static String APP_UI_ROUTE_PREFIX = "/app/v2/";
+  public final static String MOBILE_APP_UI_ROUTE_PREFIX = "/mobile/";
   public final static String API_PREFIX = "/api";
   public final static String REDIRECT_URL = "redirect:" + APP_UI_ROUTE_PREFIX + "index.html";
+  public final static String MOBILE_REDIRECT_URL = "redirect:" + MOBILE_APP_UI_ROUTE_PREFIX + "index.html";
   public final static String REDIRECT_PATH_URL = REDIRECT_URL + "?path=";
 
   @Autowired
@@ -167,18 +170,25 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
   @Value("${polaris.static-path:}")
   private String staticPath;
 
+  @Value("${polaris.mobile.resource-path: classpath:resource-mobile/}")
+  private String mobileResourcePath;
+
   /**
    * Maps all AngularJS routes to index so that they work with direct linking.
    */
   @Controller
   static class Routes {
 
-    @RequestMapping({
-            "/"
-    })
+    @GetMapping(path = {"/mobile/", "/mobile"})
+    public String mobileIndex() {
+      return MOBILE_REDIRECT_URL;
+    }
+
+    @RequestMapping({"/"})
     public String index() {
       return REDIRECT_URL;
     }
+
   }
 
   /**
@@ -201,6 +211,9 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     registry.addResourceHandler("/resource/**")
             .addResourceLocations("classpath:resource/");
+
+    registry.addResourceHandler("/mobile/**")
+            .addResourceLocations(mobileResourcePath);
 
     ofNullable(cacheControlMaxAge).ifPresent(value -> {
       try {
@@ -249,6 +262,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     //        registry.addViewController("/assets/**").setViewName("forward:/resource/index.html");
     registry.addViewController("/app/**").setViewName("forward:/resource/index.html");
     registry.addViewController("/app/v2/**").setViewName("forward:/resource/index.html");
+    registry.addViewController("/mobile/**/{path:[^\\.]+}").setViewName("forward:/mobile/index.html");
   }
 
   @Bean
