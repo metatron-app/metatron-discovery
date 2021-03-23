@@ -57,6 +57,7 @@ public class MobileRestIntegrationTest extends AbstractRestIntegrationTest {
     given()
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
+      .log().all()
     .when()
       .get("/api/mobile/validate");
 

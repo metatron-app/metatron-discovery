@@ -98,6 +98,9 @@ polaris:
       -
         method: GET
         api: /api/monitoring/ingestion/task/*/log
+      -
+        method: GET
+        api: /api/mobile/validate
   datasource:
     connections:
       ORACLE: ["ENGINE", "LIVE"]
