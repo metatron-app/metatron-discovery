@@ -1,0 +1,96 @@
+<!-- 표시 형식 -->
+<div class="ddp-ui-layer-title">{{'msg.page.format.format.title' | translate}}</div>
+<component-select
+  #typeListSelect
+  [array]="typeList"
+  [viewKey]="'name'"
+  (onSelected)="onTypeChange($event)">
+</component-select>
+<div style="height: 4px;"></div>
+<!-- 통화일때 -->
+<component-select
+  #signListSelect
+  *ngIf="selectedType['value'] == 'currency'"
+  [array]="currencySignList"
+  [viewKey]="'name'"
+  (onSelected)="onSignChange($event)" >
+</component-select>
+<!-- // 통화일때 -->
+<!-- // 표시 형식 -->
+
+<!-- 소수점 자릿수 설정 -->
+<ng-container *ngIf="selectedType['value'] != 'currency'" [class.ddp-disabled]="selectedType?.value == 'origin'">
+  <div class="ddp-ui-layer-title">{{'msg.page.th.decimal.place' | translate}}</div>
+  <div class="ddp-input-number">
+    <input (keyup)="$event.keyCode == 13 ? onDigitValid() : null"
+           (clickOutside)="onDigitValid()"
+           [(ngModel)]="decimalCopy" type="number" maxlength="1">
+    <div class="ddp-input-number-nav">
+      <div (click)="onDigitChange(false)" class="ddp-input-number-button ddp-input-number-down"></div>
+      <div (click)="onDigitChange(true)" class="ddp-input-number-button ddp-input-number-up"></div>
+    </div>
+  </div>
+</ng-container>
+<!-- // 소수점 자릿수 설정 -->
+
+<!-- 수치표기 약어설정 -->
+<div class="ddp-ui-layer-title">{{'msg.page.format.numeric.alias' | translate}}</div>
+<component-select
+  #numericAliasListSelect
+  [array]="numericAliasList"
+  [viewKey]="'name'"
+  (onSelected)="onNumericAliasChange($event)">
+</component-select>
+<!-- // 수치표기 약어설정 -->
+
+<!-- 천단위 구분자 -->
+<label (click)="$event.preventDefault(); onThousandsSepChange()" class="ddp-label-checkbox ddp-position">
+  <input [checked]="useThousandsSep" type="checkbox">
+  <i class="ddp-icon-checkbox"></i>
+  <span class="ddp-txt-checkbox">{{'msg.page.th.thousand.sep' | translate}}</span>
+</label>
+<!-- // 천단위 구분자 -->
+
+<div class="ddp-wrap-option-slider">
+  <div class="txt-slider">
+    <span class="ddp-label-slider">{{'msg.page.format.custom.symbol' | translate}}</span>
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" id="customSymbol" [ngModel]="customSymbol" (click)="showCustomSymbol()">
+      <label for="customSymbol"><span class="ddp-slide"></span></label>
+    </div>
+  </div>
+  <div *ngIf="customSymbol" class="ddp-list-sub2">
+    <div class="ddp-divide2">
+      <div class="ddp-list-label">{{'msg.page.format.custom.symbol.enter' | translate}}</div>
+      <component-input
+        [inputClass]="'ddp-input-typebasic'"
+        [value]="customSymbol['value']"
+        [isTrim]="false"
+        (changeValue)="customSymbol['value'] = $event; changeSymbol();">
+      </component-input>
+    </div>
+    <div class="ddp-divide2">
+      <div class="ddp-list-label">{{'msg.page.format.custom.symbol.position' | translate}}</div>
+      <component-select
+        [array]="positionList"
+        [viewKey]="'name'"
+        [defaultIndex]="'BEFORE' === customSymbol?.pos?.toString() ? 0 : 1"
+        (onSelected)="changePosition($event)">
+      </component-select>
+    </div>
+  </div>
+</div>
+
+<!-- 미리보기 -->
+<div class="form-preview">
+  <div class="ddp-list-label">{{'msg.page.format.preview' | translate}}</div>
+  <div class="ddp-preview">{{preview}}</div>
+</div>
+<!-- // 미리보기 -->
+
+<div class="buttons">
+  <button (click)="clearFormat()" type="button"
+          style="width:100%;cursor:pointer;padding: 5px 0;color: #eeeef0;font-size: 12px;text-align: center; background-color: #4b515b;">
+    Clear
+  </button>
+</div>
