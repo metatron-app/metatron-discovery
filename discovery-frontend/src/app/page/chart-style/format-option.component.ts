@@ -13,18 +13,17 @@
  */
 
 import {
-  Component, ElementRef, Injector, OnDestroy, OnInit, Input, ViewChild, ViewChildren,
-  QueryList, Output, EventEmitter
+  Component, ElementRef, Injector, OnDestroy, OnInit, Input, ViewChild,
+  Output, EventEmitter
 } from '@angular/core';
 import { Field as AbstractField } from '../../domain/workbook/configurations/field/field';
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import * as _ from 'lodash';
 import {Format} from "../../domain/workbook/configurations/format";
-import {UIOption, UIChartFormat, UIChartFormatItem} from "../../common/component/chart/option/ui-option";
+import {UIOption, UIChartFormat} from "../../common/component/chart/option/ui-option";
 import {CustomField} from "../../domain/workbook/configurations/field/custom-field";
 import {FormatItemComponent} from "./format/format-item.component";
 import {BaseOptionComponent} from "./base-option.component";
-import { UIFormatSymbolPosition } from '../../common/component/chart/option/define/common';
 
 @Component({
   selector: 'format-option',

@@ -12,25 +12,35 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { Field, Field as AbstractField } from '../../domain/workbook/configurations/field/field';
-import { FieldRole } from '../../domain/datasource/datasource';
-import { Alert } from '../../common/util/alert.util';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {Field, Field as AbstractField} from '../../domain/workbook/configurations/field/field';
+import {Alert} from '../../common/util/alert.util';
 import * as _ from 'lodash';
-import { StringUtil } from '../../common/util/string.util';
-import { DIRECTION } from '../../domain/workbook/configurations/sort';
-import { ChartType, EventType, SeriesType } from '../../common/component/chart/option/define/common';
-import { AggregationType } from '../../domain/workbook/configurations/field/measure-field';
-import { UIChartAxis } from '../../common/component/chart/option/ui-option/ui-axis';
-import { Modal } from '../../common/domain/modal';
-import { UIChartColorByValue, UIOption } from '../../common/component/chart/option/ui-option';
-import { ByTimeUnit, GranularityType, TimeUnit } from '../../domain/workbook/configurations/field/timestamp-field';
-import { Pivot } from '../../domain/workbook/configurations/pivot';
-import { PageWidget } from '../../domain/dashboard/widget/page-widget';
-import { Shelf } from '../../domain/workbook/configurations/shelf/shelf';
-import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
+import {StringUtil} from '../../common/util/string.util';
+import {DIRECTION} from '../../domain/workbook/configurations/sort';
+import {ChartType, EventType, SeriesType} from '../../common/component/chart/option/define/common';
+import {AggregationType} from '../../domain/workbook/configurations/field/measure-field';
+import {UIChartAxis} from '../../common/component/chart/option/ui-option/ui-axis';
+import {Modal} from '../../common/domain/modal';
+import {UIChartColorByValue, UIOption} from '../../common/component/chart/option/ui-option';
+import {ByTimeUnit, GranularityType, TimeUnit} from '../../domain/workbook/configurations/field/timestamp-field';
+import {Pivot} from '../../domain/workbook/configurations/pivot';
+import {PageWidget} from '../../domain/dashboard/widget/page-widget';
+import {Shelf} from '../../domain/workbook/configurations/shelf/shelf';
+import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
+import {Format} from "../../domain/workbook/configurations/format";
 
 @Component({
   selector: 'pivot-context',
@@ -80,11 +90,11 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
   // 2Depth 컨텍스트 메뉴 고정여부
   public fix2DepthContext: boolean = false;
+  public fixMeasureFormatContext: boolean = false;
 
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 
@@ -108,8 +118,8 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * @param {Field} editingField
    */
   public setEditingFieldAlias(editingField: AbstractField) {
-    if( this.isSetPivotAlias(editingField) ) {
-      if( editingField.pivotAlias ) {
+    if (this.isSetPivotAlias(editingField)) {
+      if (editingField.pivotAlias) {
         this.editingFieldAlias = editingField.pivotAlias.trim();
       } else {
         this.editingFieldAlias = editingField.alias.trim();
@@ -140,8 +150,8 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     if (editingField.pivotAlias) {
       return true;
     } else {
-      return ( editingField.alias && editingField.alias !== editingField.name
-        && editingField.fieldAlias !== editingField.alias );
+      return (editingField.alias && editingField.alias !== editingField.name
+        && editingField.fieldAlias !== editingField.alias);
     }
   } // function - isSetPivotAlias
 
@@ -169,7 +179,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     });
     if (duppIndex == -1) {
       this.widget.dashBoard.configuration['fields'].forEach((field, index) => {
-        if( field.nameAlias && field.nameAlias['nameAlias'] == this.editingFieldAlias ) {
+        if (field.nameAlias && field.nameAlias['nameAlias'] == this.editingFieldAlias) {
           duppIndex = index;
           return false;
         }
@@ -195,7 +205,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     this.fix2DepthContext = false;
 
     // 이벤트 발생
-    this.changePivotContext.emit({type: 'changePivot', value : EventType.PIVOT_ALIAS});
+    this.changePivotContext.emit({type: 'changePivot', value: EventType.PIVOT_ALIAS});
 
     //
     this.editingFieldChange.emit(this.editingField);
@@ -219,7 +229,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     this.fix2DepthContext = false;
 
     // 이벤트 발생
-    this.changePivotContext.emit({type: 'changePivot', value : EventType.PIVOT_ALIAS});
+    this.changePivotContext.emit({type: 'changePivot', value: EventType.PIVOT_ALIAS});
   }
 
   /**
@@ -327,8 +337,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
       }
       field.format.type = formatType;
       this.changePivotContext.emit({type: 'format', value: field});
-    }
-    else {
+    } else {
       this.changePivotContext.emit({type: 'format', value: null});
     }
   }
@@ -410,7 +419,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.page.chart.color.measure.range.grid.original.description');
       modal.data = {
-        data: { discontinuous: discontinuous, unit: unit, byUnit: byUnit },
+        data: {discontinuous: discontinuous, unit: unit, byUnit: byUnit},
         eventType: EventType.GRANULARITY
       };
 
@@ -441,8 +450,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
     if (!discontinuous) {
       return (!field.format.discontinuous && field.format.unit == TimeUnit[unit]);
-    }
-    else {
+    } else {
       return (field.format.discontinuous && field.format.unit == TimeUnit[unit])
         && (!byUnit || (byUnit && field.format.byUnit == ByTimeUnit[byUnit]));
     }
@@ -454,8 +462,8 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * @return {string}
    */
   public getAliasPlaceholder(field: AbstractField): string {
-    const displayName: string = ( field.fieldAlias ) ? field.fieldAlias : field.name;
-    return ( field['aggregationType'] ) ? ( field['aggregationType'] + '(' + displayName + ')' ) : displayName;
+    const displayName: string = (field.fieldAlias) ? field.fieldAlias : field.name;
+    return (field['aggregationType']) ? (field['aggregationType'] + '(' + displayName + ')') : displayName;
   } // function - getAliasPlaceholder
 
 
@@ -470,24 +478,31 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
 
     // 현재필드의 보조축인지 체크
-    if (this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias) {
-      return true;
-    }
-    else {
-      return false;
-    }
+    return this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias;
   }
 
   /**
    * when click outside of context menu
+   *
+   * @param event - 마우스 이벤트
    */
-  public clickOutside() {
+  public clickOutside(event: MouseEvent) {
     this.editingField = null;
     this.fix2DepthContext = false;
+    this.fixMeasureFormatContext = false;
 
     // when it's null, two way binding doesn't work
     this.changePivotContext.emit({type: 'outside', value: this.editingField});
   }
+
+  /**
+   * pivot change event
+   * @param changedFormat
+   */
+  public onPivotFormatChange(changedFormat: Format) {
+    this.editingField.fieldFormat = changedFormat;
+    this.changePivotContext.emit({type: 'changePivot'});
+  } // func - onPivotFormatChange
 
   /**
    * show / hide aggregate context menu
@@ -524,6 +539,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * 사용 가능한 Granularity인지 여부
    * @param discontinuous
    * @param unit
+   * @param granularity
    * @param byUnit
    */
   private useGranularity(discontinuous: boolean, unit: string, granularity: GranularityType, byUnit?: string): boolean {
@@ -612,18 +628,16 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
   /**
    * return pivot or shelf by chart type
-   * @returns {any[]}
+   * @returns {Field[]}
    */
   private returnPivotShelf(): Field[] {
-
-    let list = [];
-
+    let list: any[];
     if (ChartType.MAP === this.uiOption.type) {
       list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
     } else {
       list = _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations);
     }
-
     return list;
   }
+
 }
