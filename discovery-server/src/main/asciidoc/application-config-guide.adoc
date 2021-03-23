@@ -186,5 +186,8 @@ polaris:
       lockCount: 5                        # The Password must match within that number.
       countOfHistory: -1                  # This is the past history number to compare when changing the password. -1 to Disable
       excludeLockUsername: [polaris]      # Whitelist except login password lock. (default: admin)
+  mobile:
+    resource-path: classpath:resource-mobile/  # You can specify the location of web resources for mobile services. (You can use "file" schema as resource path format. ex. "file:/resource-mobile")
+    client-id: polaris_client                  # If you have a client ID for mobile service, you can specify it.
 ----
 

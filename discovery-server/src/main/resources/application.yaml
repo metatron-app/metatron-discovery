@@ -372,6 +372,9 @@ polaris:
   #      timeout: 36000
   user:
     use_organization: false
+  mobile:
+    resource-path: classpath:resource-mobile/
+    client-id: polaris_client
 
 ---
 # (mysql DB 생성 script)
