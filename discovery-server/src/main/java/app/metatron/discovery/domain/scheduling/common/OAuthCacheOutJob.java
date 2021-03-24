@@ -53,17 +53,22 @@ public class OAuthCacheOutJob extends QuartzJobBean {
     LOGGER.info("## Start batch job for checking expired oauth token.");
     SpringCache tokenCache = (SpringCache) cacheManager.getCache("token-cache");
     tokenCache.getNativeCache().forEach((key, cachedToken) -> {
-      Date expiration = ((CachedToken) cachedToken).getExpiration();
-      if(expiration != null && expiration.getTime() < System.currentTimeMillis()){
-        LOGGER.debug("Token expired : {}", key);
-        tokenCacheRepository.removeCachedToken(key.toString());
-      } else {
-        String accessToken = ((CachedToken) cachedToken).getAccessToken();
-        String refreshToken = ((CachedToken) cachedToken).getRefreshToken();
-        if (StringUtils.isBlank(accessToken) && StringUtils.isBlank(refreshToken)) {
+      if (cachedToken instanceof CachedToken) {
+        Date expiration = ((CachedToken) cachedToken).getExpiration();
+        if(expiration != null && expiration.getTime() < System.currentTimeMillis()){
           LOGGER.debug("Token expired : {}", key);
           tokenCacheRepository.removeCachedToken(key.toString());
+        } else {
+          String accessToken = ((CachedToken) cachedToken).getAccessToken();
+          String refreshToken = ((CachedToken) cachedToken).getRefreshToken();
+          if (StringUtils.isBlank(accessToken) && StringUtils.isBlank(refreshToken)) {
+            LOGGER.debug("Token expired : {}", key);
+            tokenCacheRepository.removeCachedToken(key.toString());
+          }
         }
+      } else {
+        LOGGER.debug("Token is NullValue : {}", key);
+        tokenCacheRepository.removeCachedToken(key.toString());
       }
     });
     LOGGER.info("## End batch job for checking expired oauth token.");
