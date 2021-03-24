@@ -496,20 +496,20 @@ public class AuthenticationController {
 
   private void logoutProcess(HttpServletRequest request, HttpServletResponse response) {
     Cookie accessToken = CookieManager.getAccessToken(request);
-    if (accessToken != null || request.getParameter("access_token") != null) {
-      String accessTokenValue = accessToken != null ? accessToken.getValue() : request.getParameter("access_token");
+    String paramAccessToken = request.getParameter("access_token");
+    if (paramAccessToken != null || accessToken != null) {
+      String accessTokenValue = paramAccessToken != null ? paramAccessToken : accessToken.getValue();
       String userHost = HttpUtils.getClientIp(request);
       String userAgent = request.getHeader("user-agent");
       try {
         StatLogger.logout(this.tokenStore.readAuthentication(accessTokenValue), userHost, userAgent);
+        OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessTokenValue);
+        String username = authFromToken.getName();
+        String clientId = authFromToken.getOAuth2Request().getClientId();
+        tokenCacheRepository.removeCachedToken(username + "|" + clientId + "|" + userHost);
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
       }
-
-      OAuth2Authentication authFromToken = this.tokenStore.readAuthentication(accessTokenValue);
-      String username = authFromToken.getName();
-      String clientId = authFromToken.getOAuth2Request().getClientId();
-      tokenCacheRepository.removeCachedToken(username + "|" + clientId);
     }
     CookieManager.removeAllToken(response);
   }
