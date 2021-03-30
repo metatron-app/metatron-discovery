@@ -196,10 +196,14 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     this.subscriptions.push(
       this.broadCaster.on<any>('SET_GLOBAL_FILTER').subscribe((data) => {
         this.dashboard.configuration.filters = data.filters;
-        if( this.filter ) {
+        if (this.filter) {
           if (data.exclude) {
             if (this.filter.dataSource !== data.exclude.dataSource || this.filter.field !== data.exclude.field) {
-              this._candidate(this.filter);
+              let isClearValueList: boolean = false;
+              if (this.parentWidget && 'include' === this.filter.type) {
+                isClearValueList = DashboardUtil.isSameFilterAndWidget(this.dashboard, data.exclude, this.parentWidget);
+              }
+              this._candidate(this.filter, isClearValueList);
             }
           } else {
             this._candidate(this.filter);
@@ -569,8 +573,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   /**
    * Inclusion 및 Bound 필터에 대한 후보값 조회
    * @param {Filter} filter
+   * @param {boolean} isClearValueList
    */
-  private _candidate(filter: Filter) {
+  private _candidate(filter: Filter, isClearValueList: boolean = false) {
 
     if (!filter) {
       return;
@@ -607,8 +612,13 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
 
           // 기본값 설정
           const inclusionFilter: InclusionFilter = <InclusionFilter>filter;
-          if (inclusionFilter.hasOwnProperty('valueList') && inclusionFilter.valueList.length > 0) {
-            this.selectedItems = inclusionFilter.valueList.map(item => this._stringToCandidate(item));
+          if( isClearValueList ) {
+            this.selectedItems = [];
+            inclusionFilter.valueList = [];
+          } else {
+            if (inclusionFilter.hasOwnProperty('valueList') && inclusionFilter.valueList.length > 0) {
+              this.selectedItems = inclusionFilter.valueList.map(item => this._stringToCandidate(item));
+            }
           }
 
           this.candidateList = [];
@@ -837,7 +847,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * @param widgetInfo
    * @private
    */
-  private _initializeFilterWidget(widgetInfo:FilterWidget): void {
+  private _initializeFilterWidget(widgetInfo: FilterWidget): void {
     this.widget = widgetInfo;
     this.dashboard = this.widget.dashBoard;
     const filter: Filter = this.getFilter();

@@ -123,6 +123,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
         } else if (this.parentWidget
           && this.parentWidget.configuration.filter.field === data.data.field
           && this.parentWidget.configuration.filter.dataSource === data.data.dataSource) {
+          this.filter.valueList = []; // 상위 필터 값 변경으로 인한 초기화
           this._initComponent(this.filter);
         }
       } else if ('remove-filter' === data.name && this.filter.ui.importanceType === 'general') {
