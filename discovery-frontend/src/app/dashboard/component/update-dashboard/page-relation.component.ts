@@ -12,20 +12,24 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 import {
-  Component, ElementRef, Injector, OnDestroy, OnInit, Output, EventEmitter
+  Component, ElementRef, Injector, OnDestroy, OnInit, Output, EventEmitter, Input, Renderer2, ChangeDetectionStrategy
 } from '@angular/core';
-import * as _ from 'lodash';
-import { FunctionValidator } from '../../../common/component/chart/option/define/common';
-import { DashboardPageRelation, DashboardWidgetRelation } from '../../../domain/dashboard/widget/page-widget.relation';
-import { Widget } from '../../../domain/dashboard/widget/widget';
+import {FunctionValidator} from '../../../common/component/chart/option/define/common';
+import {Widget} from '../../../domain/dashboard/widget/widget';
+import {DashboardWidgetRelation} from "../../../domain/dashboard/dashboard";
+import {PageWidgetConfiguration} from "../../../domain/dashboard/widget/page-widget";
+import {FilterWidgetConfiguration} from "../../../domain/dashboard/widget/filter-widget";
+import {Field} from "../../../domain/datasource/datasource";
+import {DashboardUtil} from "../../util/dashboard.util";
 
 declare let $;
 
 @Component({
   selector: 'app-page-relation',
-  templateUrl: './page-relation.component.html'
+  templateUrl: './page-relation.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PageRelationComponent extends AbstractComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -34,9 +38,6 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
 
   // 차트 기능 확인기
   private _chartFuncValidator: FunctionValidator = new FunctionValidator();
-
-  // 위젯 목록
-  private _widgets:Widget[] = [];
 
   // 트리 객체
   private _$tree;
@@ -50,14 +51,17 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
   // 표시여부
   public isShow: boolean = false;
 
-  // 트리 정보
-  public nodes: DashboardWidgetRelation[] = [];
+  public title: string;
 
-  // 위젯 갯수
-  public cntWidgets: number = 0;
+  public description: string;
 
   @Output()
-  public changeRelation: EventEmitter<DashboardWidgetRelation[]> = new EventEmitter();
+  public changeRelation: EventEmitter<{ relations: DashboardWidgetRelation[], type: string }> = new EventEmitter();
+
+  @Input()
+  public hierarchyType: string;
+
+  public summary: { value: number, label: string } = {value: 0, label: ''};
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -65,7 +69,8 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
 
   // 생성자
   constructor(protected element: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected renderer: Renderer2) {
     super(element, injector);
   }
 
@@ -90,28 +95,72 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get getNumberOfTree() {
+    let list = [];
+    for (let i = 0; i < this.summary.value; i++) {
+      list.push(i);
+    }
+    return list;
+  }
+
   /**
    * 컴포넌트 실행함수
    */
-  public run(nodes: DashboardWidgetRelation[], widgets:Widget[]) {
+  public run(initialData: { nodes: DashboardWidgetRelation[], widgets: Widget[], title?: string, description?: string }) {
+
     this.loadingShow();
+
+    // number of widgets
+    this.summary.label = 'widgets';
+    this.summary.value = initialData.widgets.length || 0;
+
+    // set title and description
+    if (this.hierarchyType === 'filter') {
+      this.title = initialData.title;
+      this.description = initialData.description;
+    } else {
+      this.title = this.translateService.instant('msg.board.hierarchy.title');
+      this.description = this.translateService.instant('msg.board.hierarchy.desc');
+    }
+
+    // open popup
     this.isShow = true;
-    this._widgets = widgets;  // 전체 위젯 목록 저장
-    this.nodes = _.cloneDeep(nodes);
-    this.cntWidgets = this._getCntNodes(nodes);
-    let data = this._getTreeData(nodes);
+
+    // if node is empty, return
+    if (!initialData.nodes) {
+      this.loadingHide();
+      this.close();
+      return;
+    }
+
+    // make draggable tree sturcture
+    let data = this._getTreeData(initialData.nodes, initialData.widgets, this.hierarchyType);
     this.safelyDetectChanges();
     setTimeout(() => {
-      this._$tree = $('.sys-tree-container');
+      this._$tree = $('.ddp-wrap-order-setting');
       this._$tree.tree({
         data: data,
         autoOpen: true,
         dragAndDrop: true,
+        onCanMove: (node) => {
+          return (this.hierarchyType !== 'filter' || 'include' === node.type);
+        },
         onCanMoveTo: (moved_node, target_node, position) => {
           $('.ddp-drag-enable').removeClass('ddp-drag-enable');
           $('.ddp-drag-disable').removeClass('ddp-drag-disable');
-          if ('inside' === position && target_node.widgetData.chartType) {
-            if (this._chartFuncValidator.checkUseSelectionByTypeString(target_node.widgetData.chartType)) {
+          if ('inside' === position && target_node.type) {
+            if (moved_node.dataSource === target_node.dataSource &&
+              (
+                this._chartFuncValidator.checkUseSelectionByTypeString(target_node.type) ||
+                (this.hierarchyType === 'filter' && 'include' === target_node.type)
+              )
+            ) {
+              // set max depth
+              let max_depth: number = this.hierarchyType === 'filter' ? 8 : 2;
+              if (this._getNodeDepth(target_node) > max_depth) {
+                $(target_node.element).addClass('ddp-drag-disable');
+                return false
+              }
               $(target_node.element).addClass('ddp-drag-enable');
               return true;
             } else {
@@ -126,16 +175,16 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
           $('li.jqtree-element').removeClass('ddp-drag-enable').removeClass('ddp-drag-disable');
         },
         onCreateLi: (node, $li) => {
-          $li.find('.jqtree-element').html(
-            '<div class="jqtree-title jqtree_common node-content-wrapper" role="treeitem" aria-selected="false" aria-expanded="false">' +
-              '<em class="ddp-data-num" style="left:' + (-12 * this._getNodeDepth(node.parent)) + 'px;" >' +
-                ($('.node-content-wrapper').length + 1) +
-              '</em>' +
-              '<em class="ddp-node-depth" ></em>' +
-              '<em class="ddp-img-chart-' + node.widgetData.chartType + '"></em>' +
-              '<span>' + node.name + '</span>' +
-            '</div>'
-          );
+          let html = `<div class="jqtree-title jqtree_common node-content-wrapper" role="treeitem" aria-selected="false" aria-expanded="false">
+           <em class="ddp-node-depth" ></em>`;
+          if (this.hierarchyType === 'filter') {
+            html += '<em class="ddp-box-type type-' + node.dimensionMeasure + '"><em class="' + node.cssClass + ' type-absolute"></em></em>'
+          } else {
+            html += '<em class="ddp-img-chart-' + node.type + '"></em>'
+          }
+          html += `<span>${node.name}</span></div>`;
+
+          $li.find('.jqtree-element').html(html);
         }
       });
       this.loadingHide();
@@ -147,16 +196,16 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
    */
   public close() {
     this.isShow = false;
+    this.safelyDetectChanges();
   } // function - close
 
   /**
    * 페이지 연관관계를 저장함
    */
   public savePageRelation() {
-    const treeNodes = JSON.parse( this._$tree.tree('toJson') );
-    const rels:DashboardPageRelation[] = treeNodes.map( node => this._toBoardPageRelation( node ) );
-    const pageWidgetRels: DashboardWidgetRelation[] = rels.map(rel => new DashboardWidgetRelation(rel, this._widgets));
-    this.changeRelation.emit(pageWidgetRels);
+    const treeNodes = JSON.parse(this._$tree.tree('toJson'));
+    const rels: DashboardWidgetRelation[] = treeNodes.map(node => this._toBoardPageRelation(node));
+    this.changeRelation.emit({relations: rels, type: this.hierarchyType});
     this.close();
   } // function - savePageRelation
 
@@ -164,12 +213,12 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
    * 트리 마우스 다운 이벤트
    * @param {MouseEvent} event
    */
-  public treeMouseDown(event:MouseEvent) {
-    const $target = $( event.target );
-    if( $target.hasClass( 'node-content-wrapper' ) ) {
-      $target.addClass( 'ddp-tree-drag-start' );
-    } else if( 0 < $target.closest( '.node-content-wrapper' ).length ) {
-      $target.closest( '.node-content-wrapper' ).addClass( 'ddp-tree-drag-start' );
+  public treeMouseDown(event: MouseEvent) {
+    const $target = $(event.target);
+    if ($target.hasClass('node-content-wrapper')) {
+      $target.addClass('ddp-tree-drag-start');
+    } else if (0 < $target.closest('.node-content-wrapper').length) {
+      $target.closest('.node-content-wrapper').addClass('ddp-tree-drag-start');
     }
   } // function - treeMouseDown
 
@@ -177,8 +226,8 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
    * 트리 마우스 업 이벤트
    * @param {MouseEvent} event
    */
-  public treeMouseUp(event:MouseEvent) {
-    this._$tree.find( '.ddp-tree-drag-start' ).removeClass( 'ddp-tree-drag-start' );
+  public treeMouseUp(event: MouseEvent) {
+    this._$tree.find('.ddp-tree-drag-start').removeClass('ddp-tree-drag-start');
   } // function - treeMouseUp
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -191,14 +240,13 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
   /**
    * 노드 데이터를 Dashboard Page Relation 객체로 변환
    * @param nodeData
-   * @returns {DashboardPageRelation}
+   * @returns {DashboardWidgetRelation}
    * @private
    */
-  private _toBoardPageRelation( nodeData ) {
-    const pageRel = new DashboardPageRelation();
-    pageRel.ref = nodeData.id;
+  private _toBoardPageRelation(nodeData) {
+    const pageRel = new DashboardWidgetRelation(nodeData.id);
     if (nodeData.children && 0 < nodeData.children.length) {
-      pageRel.children = nodeData.children.map(item => this._toBoardPageRelation( item ) );
+      pageRel.children = nodeData.children.map(item => this._toBoardPageRelation(item));
     }
     return pageRel;
   } // function - _toBoardPageRelation
@@ -216,18 +264,52 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
   /**
    * Tree Data를 위한 데이터 변환
    * @param {DashboardWidgetRelation[]} nodes
+   * @param {Widget[]} widgets
+   * @param type
    * @returns {any}
    * @private
    */
-  private _getTreeData(nodes: DashboardWidgetRelation[]) {
+  private _getTreeData(nodes: DashboardWidgetRelation[], widgets: Widget[], type: string) {
+
     let nodeList: any = [];
-    nodes.forEach(item => {
-      const widgetData:any = _.cloneDeep( item );
-      delete widgetData['children'];
-      delete widgetData['_widgets'];
-      let nodeData: any = { id: item.id, label: item.name, widgetData: widgetData };
+    nodes.some((item) => {
+      const widgetInfo = widgets.find(widget => widget.id === item.ref);
+
+      if( !widgetInfo ) {
+        return false;
+      }
+
+      let nodeData: any = {
+        id: item.ref,
+        label: widgetInfo.name
+      };
+      if (type === 'filter') {
+        const conf: FilterWidgetConfiguration = widgetInfo.configuration as FilterWidgetConfiguration;
+        // find field
+        let field = DashboardUtil.getFieldByName(widgetInfo.dashBoard, conf.filter.dataSource, conf.filter.field );
+
+        // find css class
+        let cssClass = Field.getDimensionTypeIconClass(field);
+
+        // find if its dimension or measure
+        let dimensionMeasure = field.role.toString().toLowerCase();
+        if (dimensionMeasure === 'timestamp') {
+          dimensionMeasure = 'dimension'
+        }
+
+        nodeData.dataSource = conf.filter.dataSource;
+        nodeData.type = conf.filter.type;
+        nodeData['cssClass'] = cssClass;
+        nodeData['dimensionMeasure'] = dimensionMeasure;
+
+      } else {
+        const conf:PageWidgetConfiguration = widgetInfo.configuration as PageWidgetConfiguration;
+        nodeData.dataSource = ( 'multi' === conf.dataSource.type ) ? '' : conf.dataSource.name;
+        nodeData.type = conf.chart.type;
+      }
+
       if (item.children && 0 < item.children.length) {
-        nodeData.children = this._getTreeData(item.children);
+        nodeData.children = this._getTreeData(item.children, widgets, type);
       }
       nodeList.push(nodeData);
     });

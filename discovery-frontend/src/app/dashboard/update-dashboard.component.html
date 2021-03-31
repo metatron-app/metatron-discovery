@@ -179,27 +179,27 @@
             <!-- // Title -->
             <!-- Chart List Contents -->
             <div class="ddp-wrap-downmenu" >
-              <ul class="ddp-list-chart" *ngIf="hierarchy">
-                <li *ngFor="let widgetRel_1 of hierarchy.get()">
+              <ul class="ddp-list-chart" *ngIf="dashboard">
+                <li *ngFor="let widgetRel_1 of dashboard.configuration.relations">
                   <a href="javascript:"
-                     (invoke)="setDragWidget($event, widgetRel_1)"
-                     [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_1.id) ? 'disable' : 'enable'">
+                     (invoke)="setDragWidget($event, widgetRel_1.ref)"
+                     [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_1.ref) ? 'disable' : 'enable'">
                     <div class="ddp-chart-images">
                       <span class="ddp-wrap-chartimg">
-                        <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_1.id)}}"></em>
+                        <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_1.ref)}}"></em>
                       </span>
-                      <em *ngIf="isWidgetInLayout(widgetRel_1.id)" class="ddp-icon-used"></em>
+                      <em *ngIf="isWidgetInLayout(widgetRel_1.ref)" class="ddp-icon-used"></em>
                     </div>
 
                     <div class="ddp-data-info">
-                      <span class="ddp-data-name">{{widgetRel_1.name}}</span>
-                      <span class="ddp-data-used">{{getChartFields(widgetRel_1.id)}}</span>
+                      <span class="ddp-data-name">{{getWidgetName(widgetRel_1.ref)}}</span>
+                      <span class="ddp-data-used">{{getChartFields(widgetRel_1.ref)}}</span>
                     </div>
 
                     <!-- button -->
                     <div class="ddp-btn-control">
-                      <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_1.id)"></em>
-                      <em class="ddp-icon-del-s" (click)="setRemoveWidget(widgetRel_1.id)"></em>
+                      <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_1.ref)"></em>
+                      <em class="ddp-icon-del-s" (click)="setRemoveChart(widgetRel_1.ref)"></em>
                     </div>
                     <!-- // button -->
                   </a>
@@ -207,24 +207,24 @@
                   <ul *ngIf="widgetRel_1.children && 0 < widgetRel_1.children.length" class="ddp-list-chart-2depth">
                     <li *ngFor="let widgetRel_2 of widgetRel_1.children">
                       <a href="javascript:"
-                         (invoke)="setDragWidget($event, widgetRel_2)"
-                         [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_2.id) ? 'disable' : 'enable'">
+                         (invoke)="setDragWidget($event, widgetRel_2.ref)"
+                         [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_2.ref) ? 'disable' : 'enable'">
                         <div class="ddp-chart-images">
                           <span class="ddp-wrap-chartimg">
-                            <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_2.id)}}"></em>
+                            <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_2.ref)}}"></em>
                           </span>
-                          <em *ngIf="isWidgetInLayout(widgetRel_2.id)" class="ddp-icon-used"></em>
+                          <em *ngIf="isWidgetInLayout(widgetRel_2.ref)" class="ddp-icon-used"></em>
                         </div>
 
                         <div class="ddp-data-info">
-                          <span class="ddp-data-name">{{widgetRel_2.name}}</span>
-                          <span class="ddp-data-used">{{getChartFields(widgetRel_2.id)}}</span>
+                          <span class="ddp-data-name">{{getWidgetName(widgetRel_2.ref)}}</span>
+                          <span class="ddp-data-used">{{getChartFields(widgetRel_2.ref)}}</span>
                         </div>
 
                         <!-- button -->
                         <div class="ddp-btn-control">
-                          <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_2.id)"></em>
-                          <em class="ddp-icon-del-s" (click)="setRemoveWidget(widgetRel_2.id)"></em>
+                          <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_2.ref)"></em>
+                          <em class="ddp-icon-del-s" (click)="setRemoveChart(widgetRel_2.ref)"></em>
                         </div>
                         <!-- //button -->
                       </a>
@@ -232,24 +232,24 @@
                       <ul *ngIf="widgetRel_2.children && 0 < widgetRel_2.children.length" class="ddp-list-chart-3depth">
                         <li *ngFor="let widgetRel_3 of widgetRel_2.children">
                           <a href="javascript:"
-                             (invoke)="setDragWidget($event, widgetRel_3)"
-                             [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_3.id) ? 'disable' : 'enable'">
+                             (invoke)="setDragWidget($event, widgetRel_3.ref)"
+                             [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_3.ref) ? 'disable' : 'enable'">
                             <div class="ddp-chart-images">
                               <span class="ddp-wrap-chartimg">
-                                <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_3.id)}}"></em>
+                                <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_3.ref)}}"></em>
                               </span>
-                              <em *ngIf="isWidgetInLayout(widgetRel_3.id)" class="ddp-icon-used"></em>
+                              <em *ngIf="isWidgetInLayout(widgetRel_3.ref)" class="ddp-icon-used"></em>
                             </div>
 
                             <div class="ddp-data-info">
-                              <span class="ddp-data-name">{{widgetRel_3.name}}</span>
-                              <span class="ddp-data-used">{{getChartFields(widgetRel_3.id)}}</span>
+                              <span class="ddp-data-name">{{getWidgetName(widgetRel_3.ref)}}</span>
+                              <span class="ddp-data-used">{{getChartFields(widgetRel_3.ref)}}</span>
                             </div>
 
                             <!-- button -->
                             <div class="ddp-btn-control">
-                              <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_3.id)"></em>
-                              <em class="ddp-icon-del-s" (click)="setRemoveWidget(widgetRel_3.id)"></em>
+                              <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_3.ref)"></em>
+                              <em class="ddp-icon-del-s" (click)="setRemoveChart(widgetRel_3.ref)"></em>
                             </div>
                             <!-- //button -->
                           </a>
@@ -265,7 +265,7 @@
             <!-- // Chart List Contents -->
             <!-- Hierarchy Button -->
             <div class="ddp-foot-buttons">
-              <a href="javascript:" class="ddp-btn-set" (click)="showSetPageRelation()">
+              <a href="javascript:" class="ddp-btn-set" (click)="showSetPageRelation('page')">
                 <em class="ddp-icon-hierarch"></em>
                 {{'msg.board.btn.hierarchy' | translate}}
               </a>
@@ -284,7 +284,7 @@
         <!-- // Text List Side Menu -->
         <!-- Filter List Side Menu -->
         <div class="ddp-ui-boardside-in ddp-filter-boardside" *ngIf="selectedRightTab == rightTab.FILTER">
-          <div class="ddp-area-boardside">
+          <div class="ddp-area-boardside ddp-chart-boardside">
             <!-- Title -->
             <div class="ddp-ui-boardside-title">
               {{'msg.board.filter.title.global-filter' | translate}}
@@ -302,14 +302,56 @@
             </div>
             <!-- // Title -->
             <!-- Filter List Contents -->
-            <div class="ddp-ui-boardside-scroll">
-              <div class="ddp-box-down" [class.ddp-border-none]="0 === boardUtil.getFilterWidgets(dashboard).length">
-                <div *ngFor="let item of boardUtil.getFilterWidgets(dashboard);trackBy:filterListTrackByFn;let idx = index"
-                     (click)="openIndexFilterPanel = idx" [class.ddp-selected]="idx === openIndexFilterPanel"
+            <div class="ddp-ui-boardside-scroll ddp-wrap-downmenu">
+              <div class="ddp-box-down" [class.ddp-border-none]="0 === defaultFilterListInPanel.length"
+                   [style.padding-bottom]="0 === defaultFilterListInPanel.length ? 0 : ''">
+                <div *ngFor="let item of defaultFilterListInPanel;let idx = index"
+                     (click)="openPanelDefaultFilter = idx;openPanelGeneralFilter = -1;"
+                     [class.ddp-selected]="idx === openPanelDefaultFilter"
+                     class="ddp-wrap-divide ddp-dropdown" >
+                  <time-filter-panel
+                    *ngIf="filterUtil.isTimeFilter(item)"
+                    [filter]="item"
+                    [dashboard]="dashboard"
+                    [isWidgetInLayout]="false"
+                    [isDraggable]="false"
+                    (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                    (updateFilterEvent)="updateFilter($event)"
+                    (deleteFilterEvent)="deleteFilter($event)"
+                    (changeChartToGlobalEvent)="openChangeFilterConfirm($event)" >
+                  </time-filter-panel>
+                  <inclusion-filter-panel
+                    *ngIf="item.type === 'include'"
+                    [filter]="item"
+                    [dashboard]="dashboard"
+                    [isWidgetInLayout]="false"
+                    [isDraggable]="false"
+                    (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                    (updateFilterEvent)="updateFilter($event)"
+                    (deleteFilterEvent)="deleteFilter($event)"
+                    (changeChartToGlobalEvent)="openChangeFilterConfirm($event)" >
+                  </inclusion-filter-panel>
+                  <bound-filter-panel
+                    *ngIf="item.type === 'bound'"
+                    [filter]="item"
+                    [dashboard]="dashboard"
+                    [isWidgetInLayout]="false"
+                    [isDraggable]="false"
+                    (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                    (updateFilterEvent)="updateFilter($event)"
+                    (deleteFilterEvent)="deleteFilter($event)"
+                    (changeChartToGlobalEvent)="openChangeFilterConfirm($event)" >
+                  </bound-filter-panel>
+                </div>
+              </div>
+              <div class="ddp-box-down" [class.ddp-border-none]="0 === generalFilterListInPanel.length">
+                <div *ngFor="let item of generalFilterListInPanel;trackBy:filterListTrackByFn;let idx = index"
+                     (click)="openPanelGeneralFilter = idx;openPanelDefaultFilter = -1;"
+                     [class.ddp-selected]="idx === openPanelGeneralFilter"
                      class="ddp-wrap-divide ddp-dropdown" >
                   <time-filter-panel
                     *ngIf="filterUtil.isTimeFilter(getFilterForFilterWidget(item))"
-                    [filter]="getFilterForFilterWidget(item)"
+                    [widget]="item"
                     [dashboard]="dashboard"
                     [isWidgetInLayout]="isWidgetInLayout(item.id)"
                     [isDraggable]="isDraggableFilterWidget(item)"
@@ -321,7 +363,7 @@
                   </time-filter-panel>
                   <inclusion-filter-panel
                     *ngIf="getFilterForFilterWidget(item).type === 'include'"
-                    [filter]="getFilterForFilterWidget(item)"
+                    [widget]="item"
                     [dashboard]="dashboard"
                     [isWidgetInLayout]="isWidgetInLayout(item.id)"
                     [isDraggable]="isDraggableFilterWidget(item)"
@@ -333,7 +375,7 @@
                   </inclusion-filter-panel>
                   <bound-filter-panel
                     *ngIf="getFilterForFilterWidget(item).type === 'bound'"
-                    [filter]="getFilterForFilterWidget(item)"
+                    [widget]="item"
                     [dashboard]="dashboard"
                     [isWidgetInLayout]="isWidgetInLayout(item.id)"
                     [isDraggable]="isDraggableFilterWidget(item)"
@@ -347,6 +389,14 @@
               </div>
             </div>
             <!-- // Filter List Contents -->
+            <!-- Hierarchy Button -->
+            <div *ngIf="isPossibleSettingFilterRelation()" class="ddp-foot-buttons">
+              <a href="javascript:" class="ddp-btn-set" (click)="showSetPageRelation('filter')">
+                <em class="ddp-icon-hierarch"></em>
+                Set filter hierarchy
+              </a>
+            </div>
+            <!-- // Hierarchy Button -->
           </div>
         </div>
         <!-- // Filter List Side Menu -->
@@ -410,7 +460,7 @@
 <app-page #page *ngIf="isShowPage"
           [widget]="selectedPageWidget"
           (changeFieldAlias)="updateFieldAndWidgetPivot($event)" (close)="closeComponent( 'PAGE' )"></app-page>
-<app-page-relation (changeRelation)="changePageWidgetRelation($event)"></app-page-relation>
+<app-page-relation (changeRelation)="changeWidgetRelation($event)" [hierarchyType]="hierarchyType"></app-page-relation>
 <app-update-datasource *ngIf="isUpdateDataSource"
                        [workbookId]="workbook.id" [workbookName]="workbook.name"
                        [workspaceId]="workbook['workspaceId']" [dashboard]="dashboard"

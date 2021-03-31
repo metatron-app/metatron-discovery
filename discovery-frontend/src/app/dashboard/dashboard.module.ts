@@ -27,7 +27,6 @@ import { TextWidgetComponent } from './widgets/text-widget/text-widget.component
 import { TextWidgetUpdateComponent } from './widgets/text-widget/text-widget.update.component';
 import { FilterWidgetComponent } from './widgets/filter-widget/filter-widget.component';
 import { ErrorWidgetComponent } from './widgets/error-widget.component';
-import { ParameterComponent } from './filters/parameter/parameter.component';
 import { DashboardLayoutConfigComponent } from './component/update-dashboard/dashboard.layout.config.component';
 import { PageShareModule } from '../page/page-share.module';
 import { WidgetService } from './service/widget.service';
@@ -99,7 +98,6 @@ const dashboardRoutes: Routes = [
     TextWidgetUpdateComponent,
     FilterWidgetComponent,
     ErrorWidgetComponent,
-    ParameterComponent,
     TextWidgetPanelComponent,
     DatasourcePanelComponent,
     DashboardLayoutConfigComponent,

@@ -24,14 +24,8 @@ import {
   MeasureInequalityFilter
 } from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AggregationType} from '../../domain/workbook/configurations/field/measure-field';
-import {
-  MeasurePositionFilter,
-  PositionType
-} from '../../domain/workbook/configurations/filter/measure-position-filter';
-import {
-  ContainsType,
-  WildCardFilter
-} from '../../domain/workbook/configurations/filter/wild-card-filter';
+import {MeasurePositionFilter, PositionType} from '../../domain/workbook/configurations/filter/measure-position-filter';
+import {ContainsType, WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
 import {Datasource, Field} from '../../domain/datasource/datasource';
 import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
@@ -41,10 +35,7 @@ import {isNullOrUndefined} from 'util';
 import {TimeListFilter} from '../../domain/workbook/configurations/filter/time-list-filter';
 import {TimeAllFilter} from '../../domain/workbook/configurations/filter/time-all-filter';
 import {TimeRangeFilter} from '../../domain/workbook/configurations/filter/time-range-filter';
-import {
-  TimeRelativeFilter,
-  TimeRelativeTense
-} from '../../domain/workbook/configurations/filter/time-relative-filter';
+import {TimeRelativeFilter, TimeRelativeTense} from '../../domain/workbook/configurations/filter/time-relative-filter';
 import {DashboardUtil} from './dashboard.util';
 import {
   IntervalFilter,
@@ -59,7 +50,31 @@ declare let moment;
 
 export class FilterUtil {
 
-  public static CANDIDATE_LIMIT:number = 100;
+  public static CANDIDATE_LIMIT: number = 100;
+
+  /**
+   * 기본 필터 조회
+   * return Filter;
+   */
+  public static getDefaultFilters(filter: Filter, boardFilters: Filter[]): Filter[] {
+
+    if (!boardFilters) boardFilters = [];
+
+    let filters: Filter[] = [];
+    if (filter.ui) {
+      if (filter.ui.widgetId) {
+        // 차트필터 - 글로벌필터를 사전 필터로 추가
+        filters = filters.concat(boardFilters);
+      } else if (filter.ui.importanceType === 'general') {
+        // 필수 필터 추가
+        filters = filters.concat(boardFilters.filter(item => 'recommended' === item.ui.importanceType && item.ui.importanceType));
+      } else {
+        // 타임스탬프 + 자기보다 시퀀스가 낮은(우선순위가 높은) 필터
+        filters = filters.concat(boardFilters.filter(item => item.ui.filteringSeq < filter.ui.filteringSeq));
+      }
+    }
+    return filters;
+  } // function - getDefaultFilters
 
   /**
    * 필터 패널 내용 목록 조회
@@ -69,7 +84,7 @@ export class FilterUtil {
    */
   public static getPanelContentsList(filterList: Filter[], dashboard: Dashboard, inclusionFilterFunc: Function) {
     filterList.forEach((filter: Filter) => {
-      filter['dsName'] = dashboard.dataSources.find( item => item.engineName === filter.dataSource ).name;
+      filter['dsName'] = dashboard.dataSources.find(item => item.engineName === filter.dataSource).name;
       filter['fieldObj'] = DashboardUtil.getFieldByName(dashboard, filter.dataSource, filter.field, filter.ref);
       if ('include' === filter.type) {
         (inclusionFilterFunc) && (inclusionFilterFunc(<InclusionFilter>filter, filter['fieldObj']));
@@ -468,8 +483,8 @@ export class FilterUtil {
    * @returns {string}
    */
   public static getDateTimeFormat(date: (Date | string), timeUnit: TimeUnit, isStart: boolean = true): string {
-    if( date.constructor === String ) {
-      date = (<string>date).replace( '.000Z', '' );
+    if (date.constructor === String) {
+      date = (<string>date).replace('.000Z', '');
     }
     switch (timeUnit) {
       case TimeUnit.SECOND:
@@ -675,13 +690,13 @@ export class FilterUtil {
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
-    if( !timeFilter.intervals
+    if (!timeFilter.intervals
       && ds && ds.summary
-      && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime ) {
-      ( timeFilter as TimeRangeFilter ).intervals = [
-        FilterUtil.getDateTimeFormat( ds.summary.ingestionMinTime, TimeUnit.SECOND)
+      && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
+      (timeFilter as TimeRangeFilter).intervals = [
+        FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, TimeUnit.SECOND)
         + '/'
-        + FilterUtil.getDateTimeFormat( ds.summary.ingestionMaxTime, TimeUnit.SECOND)
+        + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, TimeUnit.SECOND)
       ];
     }
 

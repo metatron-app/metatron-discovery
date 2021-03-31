@@ -20,7 +20,6 @@ import { Filter } from '../workbook/configurations/filter/filter';
 import { BoardGlobalOptions } from './dashboard.globalOptions';
 import { CustomField } from '../workbook/configurations/field/custom-field';
 import { CommonUtil } from '../../common/util/common.util';
-import { DashboardPageRelation } from './widget/page-widget.relation';
 import {Sort} from "../workbook/configurations/sort";
 
 /**
@@ -64,13 +63,24 @@ export class BoardConfiguration {
   public options?: BoardGlobalOptions;  // 보드 전체 옵션
   public widgets?: LayoutWidgetInfo[];  // 대시보드 내 배치되는 Widget 정보
   public content?: any[];
-  public relations?: DashboardPageRelation[];    // 페이지 관계 설정
+  public relations?: DashboardWidgetRelation[];       // 페이지 관계 설정
+  public filterRelations?: DashboardWidgetRelation[]; // 필터 관계 설정
   public customFields?: CustomField[];  // 사용자 정의 필드 정보 -> 추후에 userDefinedFields 으로 변경되어야 한다.
   public filters?: Filter[];            // WorkBoard 내 Global Filter 설정
 
   // for UI
   public fields?: Field[];              // 필드 목록
   public layout?: DashboardLayout;      // Layout 정보
+  public filterRelMap?: {
+    [key: string]: {
+      dataSource: string,
+      field: string,
+      type: string
+      relItem: DashboardWidgetRelation,
+      widgetId: string,
+      parents: string[],
+    }
+  };  // UI 상에서 필터 관계를 매번 찾기에는 퍼포먼스에 문제가 있어 필요한 정보를 임시 저장함
 
   constructor() {
     this.options = new BoardGlobalOptions();
@@ -79,6 +89,15 @@ export class BoardConfiguration {
   }
 } // structure - BoardConfiguration
 
+// 대시보드 페이지 연관관계
+export class DashboardWidgetRelation {
+  public ref: string;
+  public children: DashboardWidgetRelation[];
+
+  constructor(ref: string) {
+    this.ref = ref;
+  }
+}
 
 // 대시보드에서 사용하는 데이터소스 정보 ( 조인등의 정보 )
 export class BoardDataSource {

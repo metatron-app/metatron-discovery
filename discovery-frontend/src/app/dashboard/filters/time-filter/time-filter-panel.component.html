@@ -27,7 +27,8 @@
         </span>
         <span class="ddp-txt-itemtype">
           <span class="ddp-data-name">{{filter.field}}</span>
-          <span class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!parentWidget" class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!!parentWidget" class="ddp-data-sub">{{dataSource?.name + ' - ' + parentWidget?.configuration.filter.field}}</span>
           <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
               {{ 'msg.board.ui.filter.used-this-chart' | translate }}
           </span>
@@ -207,7 +208,7 @@
       <div *ngIf="isRelativeType" class="ddp-ui-toggle-contents">
         <app-time-relative-filter
           [mode]="'PANEL'" [filter]="filter"
-          (change)="changeFilterEvent($event)">
+          (changeEvent)="changeFilterEvent($event)">
         </app-time-relative-filter>
       </div>
       <!-- // 상대적인 기간 선택 탭 영역 -->
@@ -215,7 +216,7 @@
       <div *ngIf="isRangeType" class="ddp-ui-toggle-contents">
         <app-time-range-filter
           [mode]="'PANEL'" [filter]="filter" [dashboard]="dashboard"
-          (change)="changeFilterEvent($event)">
+          (changeEvent)="changeFilterEvent($event)">
         </app-time-range-filter>
       </div>
       <!-- // 특정 기간 선택 탭 영역 -->
@@ -240,7 +241,7 @@
       <div *ngIf="isRangeType" class="ddp-ui-toggle-contents">
         <app-time-range-filter
           [mode]="'PANEL'" [filter]="filter" [dashboard]="dashboard"
-          (change)="changeFilterEvent($event)">
+          (changeEvent)="changeFilterEvent($event)">
         </app-time-range-filter>
       </div>
       <!-- // 특정 기간 선택 탭 영역 -->

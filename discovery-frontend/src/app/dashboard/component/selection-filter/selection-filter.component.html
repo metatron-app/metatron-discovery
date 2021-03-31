@@ -19,14 +19,14 @@
     <a href="javascript:" class="ddp-btn-next"></a>
     <em class="ddp-bg-shadow"></em>
   </div>
-  <!-- //button -->
+  <!-- // button -->
 
   <div class="ddp-wrap-board-filter" [class.ddp-initial]="scrollFreezing">
     <!-- filter list -->
     <div class="ddp-list-board-filter ddp-clear">
 
       <!-- Global Filters -->
-      <div *ngIf="dashboard && 0 < boardFilters.length" class="ddp-box-board-time">
+      <div *ngIf="isValidDashboard && 0 < boardFilters.length" class="ddp-box-board-time">
         <a href="javascript:" class="ddp-btn-time"><em class="ddp-icon-time4"></em></a>
         <!-- tooltip -->
         <div class="ddp-ui-tooltip-info" >
@@ -81,7 +81,8 @@
     <!-- //filter list -->
 
   </div>
-  <div class="ddp-wrap-right" [style.padding-right]="showBtnWidget ? '145px' : '5px'">
+
+  <div class="ddp-wrap-right" [style.padding-right]="showBtnWidget ? '320px' : '160px'">
     <a href="javascript:" class="ddp-btn-reset ddp-hover-tooltip" (click)="resetFilter()" *ngIf="selectionFilterList.length != 0">
       <em class="ddp-bg-shadow"></em>
       {{'msg.board.filter.btn.refresh' | translate}}
@@ -92,4 +93,49 @@
       <!-- //tooltip -->
     </a>
   </div>
+
+  <!-- 새로고침 영역 -->
+  <div class="ddp-wrap-right ddp-ui-board-update" [style.padding-right]="showBtnWidget ? '145px' : '20px'">
+<!--    <span class="rs-data-update">최근 데이터 업데이트 {{ingestionHistory?.modifiedTime | date: 'yyyy-MM-dd HH:mm:ss'}}</span>-->
+
+    <a href="javascript:" class="rs-component-box-btn " tooltip="수동 업데이트" direction="down" (click)="updateDashboard()">
+      <i class="rs-icon-refresh"></i>
+    </a>
+    <!-- switch -->
+    <!-- checked 일 때 is-selected 추가 -->
+    <div class="rs-wrap-swtich" [class.is-selected]="isAutoUpdate">
+      <label class="rs-switch-auto" (click)="onClickAutoUpdate()">
+        <input type="checkbox" [checked]="isAutoUpdate">
+        <span class="rs-txt-auto"></span>
+        <i></i>
+        <div class="txt-tooltip"></div>
+      </label>
+
+      <div class="rs-component-popup" *ngIf="isShowUpdateCycle && isAutoUpdate">
+        <a href="javascript:" class="rs-btn-pop-close" (click)="onClickUpdateCancel()"></a>
+        <div class="rs-popup-title">
+          자동 업데이트 주기
+        </div>
+        <div class="rs-form-update">
+          <input type="text" class="rs-component-input" [(ngModel)]="updateTime">
+          <!-- selectbox -->
+          <component-select
+            [array]="updateCycle"
+            [viewKey]="'label'"
+            [className]="'rs-component-selectbox'"
+            (onSelected)="setCurrentCycle($event)"></component-select>
+          <!-- //selectbox -->
+          <button class="rs-component-btn-pop type-dark" (click)="applyUpdateCycle()">적용</button>
+        </div>
+      </div>
+    </div>
+    <!-- //switch -->
+
+    <a href="javascript:" class="rs-component-btn-icon1 type-option" [class.is-disabled]="!isAutoUpdate"
+       (click)="isShowUpdateCycle = !isShowUpdateCycle"></a>
+
+    <hr *ngIf="showBtnWidget" class="rs-title-line">
+  </div>
+  <!-- // 새로고침 영역 -->
+
 </div>

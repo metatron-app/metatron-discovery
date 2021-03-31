@@ -13,15 +13,14 @@
  */
 
 import { ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
 import { Widget } from '../../domain/dashboard/widget/widget';
 import { EventBroadcaster } from '../../common/event/event.broadcaster';
 import { LayoutMode } from '../../domain/dashboard/dashboard';
-import * as $ from "jquery";
 import {Alert} from "../../common/util/alert.util";
 import {isNullOrUndefined} from "util";
+import {AbstractDashboardComponent} from "../abstract.dashboard.component";
 
-export abstract class AbstractWidgetComponent extends AbstractComponent implements OnInit, OnDestroy {
+export abstract class AbstractWidgetComponent<T extends Widget> extends AbstractDashboardComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -30,7 +29,7 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public widget: Widget;
+  public widget: T;
 
   // 위젯 권한 모드
   public isEditMode: boolean = false;
@@ -76,6 +75,7 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   }
 
   public ngAfterViewInit() {
+    super.ngAfterViewInit();
     this.isViewMode = (
       this.layoutMode === LayoutMode.VIEW
       || this.layoutMode === LayoutMode.VIEW_AUTH_MGMT
@@ -84,11 +84,6 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
     this.isAuthMgmtViewMode = ( this.layoutMode === LayoutMode.VIEW_AUTH_MGMT );
     this.isEditMode = ( this.layoutMode === LayoutMode.EDIT );
   } // function - ngAfterViewInit
-
-  // Destroy
-  public ngOnDestroy() {
-    super.ngOnDestroy();
-  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method

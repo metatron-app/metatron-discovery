@@ -13,7 +13,7 @@
  */
 
 import * as _ from 'lodash';
-import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
 import {Field, FieldRole} from '../../../domain/datasource/datasource';
 import {AbstractFilterPanelComponent} from '../abstract-filter-panel.component';
 import {ByTimeUnit, TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
@@ -36,7 +36,7 @@ import {TimeUnitSelectResult} from "../component/timeUnit-select.component";
   selector: 'time-filter-panel',
   templateUrl: './time-filter-panel.component.html'
 })
-export class TimeFilterPanelComponent extends AbstractFilterPanelComponent implements OnInit {
+export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeFilter> implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -65,10 +65,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 필터
-  public filter: TimeFilter;
-
   public isTimeStamp = false;
 
   public isContinuousByAll: boolean = false;      // Granularity 가 지정되지 않은 연속성 여부 판단
@@ -77,7 +73,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
   public isRelativeType: boolean = false;         // Relative Time Filter
   public isRangeType: boolean = false;            // Range Time Filter
   public isListType: boolean = false;             // List Time Filter
-  public isNewFilter:boolean = false;
 
   public dpContinuousList: string[] = ['Second', 'Minute', 'Hour', 'Day', 'Week', 'Month', 'Year', 'None'];
   public dpDiscontinuousList: any[] = [
@@ -89,9 +84,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     { name: 'Month by year', unit: 'MONTH', byUnit: 'YEAR' },
     { name: 'Year', unit: 'YEAR' }
   ];
-
-  @Input('filter')
-  public originalFilter: TimeFilter;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -113,26 +105,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
    */
   public ngOnInit() {
     super.ngOnInit();
-    console.info( '>>>> time-filter-panel init' );
-  }
-
-  /**
-   * 화면 초기화
-   */
-  public ngAfterViewInit() {
-    super.ngAfterViewInit();
-    // 컴포넌트 초기화
-    this._initialize(this.originalFilter);
-
-    if( this.originalFilter['isNew'] ) {
-      this.isNewFilter = true;
-      this.safelyDetectChanges();
-      delete this.originalFilter['isNew'];
-      setTimeout( () => {
-        this.isNewFilter = false;
-        this.safelyDetectChanges();
-      }, 1500 );
-    }
 
     // 위젯에서 필터를 업데이트 popup은 아니지만 동일한 기능이 필요해서 popupService를 사용
     const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {
@@ -146,7 +118,15 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
       }
     });
     this.subscriptions.push(popupSubscribe);
+  }
 
+  /**
+   * 화면 초기화
+   */
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    // 컴포넌트 초기화
+    this._initialize(this.originalFilter);
   } // function - ngAfterViewInit
 
   /**

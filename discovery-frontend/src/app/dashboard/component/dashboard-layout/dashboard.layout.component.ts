@@ -28,7 +28,6 @@ import {
 } from '@angular/core';
 
 import {Widget} from '../../../domain/dashboard/widget/widget';
-import {AbstractComponent} from '../../../common/component/abstract.component';
 import {DashboardWidgetComponent} from './dashboard.widget.component';
 import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
 import {
@@ -52,10 +51,7 @@ import {
 } from '../../../domain/datasource/datasource';
 import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
 import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {
-  FilterWidget,
-  FilterWidgetConfiguration
-} from '../../../domain/dashboard/widget/filter-widget';
+import {FilterWidget, FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {PopupService} from '../../../common/service/popup.service';
 import {FilterUtil} from '../../util/filter.util';
@@ -76,10 +72,11 @@ import {IntervalFilter} from '../../../domain/workbook/configurations/filter/int
 import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
 import {CommonConstant} from "../../../common/constant/common.constant";
 import {ChartType} from "../../../common/component/chart/option/define/common";
+import {AbstractDashboardComponent} from "../../abstract.dashboard.component";
 
 declare let GoldenLayout: any;
 
-export abstract class DashboardLayoutComponent extends AbstractComponent implements OnInit, OnDestroy {
+export abstract class DashboardLayoutComponent extends AbstractDashboardComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | ViewChild Variables
@@ -1229,7 +1226,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       // Data migration
       {
-        // convert map old spec
+        // convert map old spec or filter widget
         boardInfo.widgets.forEach(widget => {
           if ('page' === widget.type && ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
             const widgetConf: PageWidgetConfiguration = <PageWidgetConfiguration>widget.configuration;
@@ -1250,6 +1247,14 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
               }
             });
             widgetConf.dataSource = boardInfo.configuration.dataSource; // 무조건!! 위 shelf migration 보다 나중에!! 실행되어야 한다.
+          } else if ('filter' === widget.type) {
+            const widgetConf: FilterWidgetConfiguration = <FilterWidgetConfiguration>widget.configuration;
+            if (!widgetConf.filter) {
+              widgetConf.filter = {} as any;
+              Object.keys(widgetConf).forEach( key => {
+                widgetConf.filter[key] = widgetConf[key];
+              });
+            }
           }
         });
 
@@ -1381,6 +1386,35 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
             }
           });
           // Adjust filter widget information error - E
+
+          // set filter relation
+          if (boardInfo.widgets && !boardInfo.configuration.filterRelations) {
+            boardInfo.configuration.filterRelations = [];
+            boardInfo.widgets.forEach(widget => {
+              if ('filter' === widget.type) {
+                const widgetFilter = (<FilterWidget>widget).configuration.filter;
+                if (boardInfo.configuration.filters.some(filterItem => {
+                  if (widgetFilter.dataSource === filterItem.dataSource && widgetFilter.field === filterItem.field) {
+                    return 'recommended' !== filterItem.ui.importanceType;
+                  } else {
+                    return false;
+                  }
+                })) {
+                  // 일반 필터만 추가함
+                  if (!this._findWidgetRelation(widget.id, boardInfo.configuration.filterRelations, [], () => true)) {
+                    // 필터 relation 을 생성한다.
+                    (boardInfo.configuration.filterRelations) || (boardInfo.configuration.filterRelations = []);
+                    this._addWidgetRelation(widget.id, boardInfo.configuration.filterRelations);
+                    boardInfo['change'] = true;
+                  }
+                }
+              }
+            });
+          } // end if - filterRelations
+
+          // 필터 관계 맵 생성
+          this._generateFilterRelationMap(boardInfo);
+
         } // end if - filters
 
         Promise.all(promises).then(() => {

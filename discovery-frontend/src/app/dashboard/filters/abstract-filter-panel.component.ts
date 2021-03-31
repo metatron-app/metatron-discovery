@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
 import {
   ElementRef,
   EventEmitter,
@@ -29,8 +28,10 @@ import {Dashboard} from '../../domain/dashboard/dashboard';
 import {ConnectionType, Datasource, Field} from '../../domain/datasource/datasource';
 import {DashboardUtil} from '../util/dashboard.util';
 import {FilterUtil} from '../util/filter.util';
+import {FilterWidget, FilterWidgetConfiguration} from "../../domain/dashboard/widget/filter-widget";
+import {AbstractDashboardComponent} from "../abstract.dashboard.component";
 
-export class AbstractFilterPanelComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -39,10 +40,14 @@ export class AbstractFilterPanelComponent extends AbstractComponent implements O
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // 필터
+  public filter: T;
+  public originalFilter: T;
+  public filterWidget: FilterWidget;
+  public parentWidget: FilterWidget;
 
   // 상세 메뉴
   public field: Field;
@@ -50,6 +55,7 @@ export class AbstractFilterPanelComponent extends AbstractComponent implements O
   public isShowDetailMenu: boolean = false;
   public isShowFilter: boolean = false;
   public isBoardFilter: boolean = true;
+  public isNewFilter: boolean = false;
 
   // 기능 버튼 활성화 여부
   public isDeletable: boolean = false;
@@ -57,6 +63,21 @@ export class AbstractFilterPanelComponent extends AbstractComponent implements O
 
   // 대시보드 필터 목록
   public boardFilters: Filter[];
+
+  @Input('filter')
+  public set setOriginalFilter(filter: Filter) {
+    if (filter) {
+      this.originalFilter = filter as T;
+    }
+  }
+
+  @Input('widget')
+  public set setWidget(widget: FilterWidget) {
+    if (widget && widget.configuration) {
+      this.filterWidget = widget;
+      this.parentWidget = widget.parent;
+    }
+  }
 
   // 대시보드
   @Input()
@@ -111,7 +132,7 @@ export class AbstractFilterPanelComponent extends AbstractComponent implements O
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected elementRef: ElementRef,
+  protected constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
   }
@@ -136,6 +157,28 @@ export class AbstractFilterPanelComponent extends AbstractComponent implements O
     const boardChanges: SimpleChange = changes.dashboard;
     if (boardChanges && boardChanges.currentValue) {
       this.boardFilters = DashboardUtil.getBoardFilters(boardChanges.currentValue);
+    }
+  } // function - ngOnChanges
+
+  /**
+   * 화면 초기화
+   */
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+
+    if (this.filterWidget) {
+      const conf: FilterWidgetConfiguration = this.filterWidget.configuration as FilterWidgetConfiguration;
+      this.originalFilter = DashboardUtil.getBoardFilter(this.dashboard, conf.filter.dataSource, conf.filter.field) as T;
+    }
+
+    if (this.originalFilter['isNew']) {
+      this.isNewFilter = true;
+      this.safelyDetectChanges();
+      delete this.originalFilter['isNew'];
+      setTimeout(() => {
+        this.isNewFilter = false;
+        this.safelyDetectChanges();
+      }, 1500);
     }
   } // function - ngOnChanges
 

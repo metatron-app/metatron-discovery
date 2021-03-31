@@ -70,7 +70,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   public mode: string = 'CHANGE';          // 화면 모드
 
   // 필터 변경 이벤트
-  @Output('change')
+  @Output()
   public changeEvent: EventEmitter<TimeRangeFilter> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -107,14 +107,15 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
       if (this.isLoaded && currFilter && (
         !prevFilter || prevFilter.field !== currFilter.field ||
         0 < _.difference(prevFilter.intervals, currFilter.intervals).length)) {
-        this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+        // this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+        this.setData(filterChanges.currentValue);
       }
     }
   } // function - ngOnChanges
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.setData(this.inputFilter, true);
+    this.setData(this.inputFilter);
   }
 
   /**

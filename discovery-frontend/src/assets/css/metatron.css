@@ -1,0 +1,99 @@
+
+.ddp-ui-board-update { display: flex; align-items: center; height: 33px; }
+.ddp-ui-board-update * {flex:none;}
+.ddp-ui-board-update .rs-data-update {margin-right:14px;color:#90969f; font-size:12px;}
+.ddp-ui-board-update hr.rs-title-line {display:inline-block; margin:0 17px; height:17px; border-left:1px solid #ddd;}
+
+/****************************************************************************
+   box button
+*************************************************************************/
+.ddp-ui-board-update .rs-component-box-btn {display:inline-block; position:relative; width:24px; height:24px;border-radius:2px; background-color:#fff;}
+.ddp-ui-board-update .rs-component-box-btn:hover {background-color:#f6f6f7;}
+.ddp-ui-board-update .rs-component-box-btn [class*="rs-icon-"] {display:inline-block; position:absolute; top:50%; left:50%; background:url(../images/icon_component_group1.png) no-repeat; content:'';}
+.ddp-ui-board-update .rs-component-box-btn .rs-icon-refresh {width:16px; height:12px; margin:-6px 0 0 -8px; background-position:-34px -112px;}
+
+.ddp-ui-board-update .rs-wrap-swtich.is-selected .rs-component-popup {display:block;z-index: 20;}
+.ddp-ui-board-update .rs-wrap-swtich .rs-component-popup {display:none; position:absolute; top:100%; right:0; margin:14px 0 0 0;}
+.ddp-ui-board-update .rs-wrap-swtich {position:relative; display:inline-block;margin:0 8px 0 2px;}
+.ddp-ui-board-update .rs-wrap-swtich .rs-switch-auto:hover .txt-tooltip {display:block;}
+.ddp-ui-board-update .rs-wrap-swtich .rs-switch-auto .txt-tooltip{display:none; position:absolute; top:100%; white-space: nowrap; right:0; left:initial; z-index:10;}
+.ddp-ui-board-update .rs-wrap-swtich .rs-switch-auto .txt-tooltip:before {display: inline-block; width: 4px; height: 8px;position:absolute; bottom: 22px; left:50%; margin:2px 0 0 -2px;  transform: rotate(90deg);background: url(../images/icon_tagview.png) no-repeat; content:'';}
+.ddp-ui-board-update .rs-wrap-swtich .rs-switch-auto .txt-tooltip:after {
+  display:inline-block;padding: 6px;margin:7px 0 0 0; content: '자동 업데이트 켜기'; background-color: rgba(53, 57, 63, 0.9);border-radius:2px;color:#fff;font-size:12px;line-height:12px; }
+.ddp-ui-board-update .rs-wrap-swtich .rs-switch-auto input:checked + span + i + .txt-tooltip:after {content: '자동 업데이트 끄기';}
+
+.ddp-ui-board-update .rs-switch-auto {cursor:pointer;}
+.ddp-ui-board-update .rs-switch-auto i {display:inline-block; width:22px; height:14px; background:url(../images/icon_toggle.png) no-repeat; vertical-align: top;}
+.ddp-ui-board-update .rs-switch-auto > span {display:inline-block; width:57px;}
+.ddp-ui-board-update .rs-switch-auto > span:before {margin-right:7px; color:#b6b9c2; font-size:11px; content:'Auto OFF'; vertical-align: top;}
+.ddp-ui-board-update .rs-switch-auto > input:checked + span + i {background-position-y:-15px;}
+.ddp-ui-board-update .rs-switch-auto > input:checked + span:before {color:#666eb2;content:'Auto ON'}
+.ddp-ui-board-update .rs-switch-auto > input {display:none;}
+
+/****************************************************************************
+   popup
+*************************************************************************/
+.rs-form-update {display:flex;}
+.rs-form-update .rs-component-input {display:inline-block; margin-right:4px; width:82px;}
+.rs-form-update .rs-component-selectbox {display:inline-block; width:82px;}
+.rs-form-update .rs-component-btn-pop {cursor:pointer;min-width:48px; width:auto; padding:0 12px; margin-left:7px; height:30px;border-radius:2px; border:1px solid #d0d1d8; color:#90969f; font-size:13px; text-align:center;}
+.rs-form-update .rs-component-btn-pop:hover {border:1px solid #90969f; color:#4b515b}
+.rs-form-update .rs-component-btn-pop.type-dark {border-color:#4b515b; background-color:#4b515b; color:#fff;}
+.rs-form-update .rs-component-btn-pop.type-dark:hover {border-color:#35393f; background-color:#35393f}
+
+.rs-component-popup {position:relative; padding:14px 16px;border-radius: 2px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3); border: solid 1px #dddddd; background-color:#fff;}
+.rs-component-popup.type-popup {padding:0;}
+.rs-component-popup .rs-popup-title {padding-bottom:14px;font-weight:bold;}
+.rs-component-popup .rs-popup-table tr th {padding:2px 0; color:#b7bac1; font-size:12px; font-weight:normal; text-align:left;}
+.rs-component-popup .rs-popup-table tr td {padding:2px 0 2px 13px; font-size:12px; color:#4b515b; white-space:nowrap; text-overflow: ellipsis; overflow:hidden;}
+.rs-component-popup .rs-popup-table.type-table tr td {white-space:normal;}
+.rs-component-popup .rs-popup-table.type-table tr th {vertical-align: top;}
+
+.rs-component-popup .rs-line {margin:10px 0;border-top:1px solid #e5e6e8;}
+
+.rs-component-popup .rs-data-report {display:flex;}
+.rs-component-popup .rs-data-report .rs-txt-report {display:flex; flex:auto; overflow:auto; }
+.rs-component-popup .rs-data-report .rs-txt-report .rs-data-name {flex:initial;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;color:#4b515b; font-size:12px;}
+.rs-component-popup .rs-data-report .rs-data-num {flex:auto; color:#b7bac1; font-size:12px; margin:0 4px; white-space:nowrap;}
+.rs-component-popup .rs-btn-pop {position:absolute; top:15px; right:21px;}
+.rs-component-popup .rs-btn-pop-close {display:inline-block; position:absolute; top:15px; right:15px; width:16px; height:16px; background:url(../images/icon_close.png) no-repeat; background-position-x:-17px;}
+.rs-component-popup .rs-btn-pop-close:hover {background-position-x:0;}
+
+.rs-component-popup .rs-name-top {display:flex; align-items: center; padding:7px 10px 9px 10px;border-bottom:1px solid #e7e7ea; }
+.rs-component-popup .rs-name-top > .rs-btn-back {display:inline-block; flex:none;width:18px; height:18px; margin-right:6px; background:url(../images/icon_component_group3.png) no-repeat; background-position:-19px -15px;}
+.rs-component-popup .rs-name-top > .rs-data-name {flex:auto;color:#4b515b; font-size:14px; font-weight:bold; line-height:24px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.rs-component-popup .rs-name-top > .rs-btn-new-folder {display:inline-block;flex:none;width:18px; height:16px;margin:1px 0 0 2px; background:url(../images/icon_folder.png) no-repeat; background-position:left -16px;}
+.rs-component-popup .rs-name-top > .rs-btn-new-folder:hover {background-position-x:-19px;}
+
+.rs-component-btn-icon1 {display:inline-block; background:url(../images/icon_component_group1.png) no-repeat;}
+.rs-component-btn-icon1.type-down-r {width:15px; height:16px;background-position:left -27px;}
+.rs-component-btn-icon1.type-down-r:hover {background-position:-16px -27px;}
+.rs-component-btn-icon1.type-report {width:12px; height:14px; background-position:left -299px;}
+.rs-component-btn-icon1.type-report:hover {background-position-x:-13px;}
+.rs-component-btn-icon1.type-out-link {width:12px; height:12px; background-position:left -151px;}
+.rs-component-btn-icon1.type-out-link:hover {background-position-x:-13px;}
+.rs-component-btn-icon1.type-info {width:14px; height:14px; background-position:-15px -164px;}
+.rs-component-btn-icon1.type-info:hover {background-position:-30px -164px;}
+
+.rs-component-btn-icon1.type-refresh {width:15px; height:12px; background-position:left -112px;}
+.rs-component-btn-icon1.type-refresh:hover {background-position:-17px -112px;}
+.rs-component-btn-icon1.type-edit {width:13px; height:13px; background-position-x:-14px;}
+.rs-component-btn-icon1.type-edit:hover {background-position-x:-28px;}
+.rs-component-btn-icon1.type-delete {width:12px; height:13px; background-position:-13px -14px;}
+.rs-component-btn-icon1.type-delete:hover {background-position:-26px -14px;}
+.rs-component-btn-icon1.type-option {width:14px; height:14px; background-position:left -341px;}
+.rs-component-btn-icon1.type-option:hover {background-position-x:-15px;}
+.rs-component-btn-icon1.type-option.is-disabled {background-position-x:-30px; cursor:no-drop;}
+.rs-component-btn-icon1.type-copy {width:13px;height:13px;background-position:-14px -209px;}
+
+.rs-component-btn-icon1.type-copy:hover {background-position-x:-28px;}
+.rs-component-btn-icon1.type-del {width:12px; height:13px; background-position:-26px -14px;}
+.rs-component-btn-icon1.type-del:hover {background-position-x:-39px;}
+
+/****************************************************************************
+   Filter Widget
+*************************************************************************/
+.ddp-box-widget .ddp-toggle {
+  padding: 0 0 5px 0;
+  text-align: center;
+}
