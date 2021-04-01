@@ -3730,8 +3730,11 @@
   "msg.page.calc.label.font.background.color": "배경 색상",
   "msg.page.calc.label.grand.total": "총합",
   "msg.page.calc.show.calculated.row": "연산 행 표시",
+  "msg.page.calc.show.calculated.partial-row": "연산 부분 행 표시",
   "msg.page.calc.show.calculated.column": "연산 열 표시",
+  "msg.page.calc.show.calculated.partial-column": "연산 부분 열 표시",
   "msg.page.waterfall.color.direction": "색상 구분",
+
   "msg.page.prediction.analysis": "분석",
   "msg.page.prediction.sub.menu": "예측선",
   "msg.page.prediction.span.active": "활성화",

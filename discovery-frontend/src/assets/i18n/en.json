@@ -3752,7 +3752,9 @@
   "msg.page.calc.label.font.background.color": "Background Color",
   "msg.page.calc.label.grand.total": "Grand Total",
   "msg.page.calc.show.calculated.row": "Show Calculated Row",
+  "msg.page.calc.show.calculated.partial-row": "Show calculated partial rows",
   "msg.page.calc.show.calculated.column": "Show Calculated Column",
+  "msg.page.calc.show.calculated.partial-column": "Show calculated partial column",
   "msg.page.waterfall.color.direction": "Color Direction",
 
   "msg.page.prediction.analysis": "Analysis",

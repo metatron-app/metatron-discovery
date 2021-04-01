@@ -45,8 +45,14 @@ export interface UIGridChart extends UIOption {
   // 연산행
   totalValueStyle?: TotalValueStyle;
 
+  // 부분 연산행
+  subTotalValueStyle?: TotalValueStyle;
+
   // 연산열
   showCalculatedColumnStyle?: TotalValueStyle;
+
+  // 부분 연산열
+  subTotalColumnStyle?: TotalValueStyle;
 
   ////////////////////////////////////////////
   // UI 스펙

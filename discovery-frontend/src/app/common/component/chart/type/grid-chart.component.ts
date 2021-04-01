@@ -43,7 +43,7 @@ import {
 import {Pivot} from '../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
 import {UIChartColorByCell, UIOption} from '../option/ui-option';
-import {UIGridChart} from '../option/ui-option/ui-grid-chart';
+import {TotalValueStyle, UIGridChart} from '../option/ui-option/ui-grid-chart';
 import {UIChartColorGradationByCell} from '../option/ui-option/ui-color';
 
 declare let pivot: any;
@@ -527,33 +527,32 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
 
       // 연산행 설정
       if ((<UIGridChart>this.uiOption).totalValueStyle) {
-        const totalValueStyle = (<UIGridChart>this.uiOption).totalValueStyle;
-
-        this.gridModel.totalValueStyle = (<UIGridChart>this.uiOption).totalValueStyle;
-        this.gridModel.totalValueStyle.font = {};
-        this.gridModel.totalValueStyle.font.size = this.setFontSize(totalValueStyle.fontSize);
-        this.gridModel.totalValueStyle.font.color = totalValueStyle.fontColor;
-        this.gridModel.totalValueStyle.font.styles = totalValueStyle.fontStyles;
-
-        this.gridModel.totalValueStyle.align = {};
-        this.gridModel.totalValueStyle.align.hAlign = totalValueStyle.hAlign;
-        this.gridModel.totalValueStyle.align.vAlign = totalValueStyle.vAlign;
+        this.gridModel.totalValueStyle
+          = this._getGridTotalStyle((<UIGridChart>this.uiOption).totalValueStyle);
       }
       // 연산열 설정
       if ((<UIGridChart>this.uiOption).showCalculatedColumnStyle) {
-        const showCalculatedColumnStyle = (<UIGridChart>this.uiOption).showCalculatedColumnStyle;
-
-        this.gridModel.showCalculatedColumnStyle = (<UIGridChart>this.uiOption).showCalculatedColumnStyle;
-        this.gridModel.showCalculatedColumnStyle.font = {};
-        this.gridModel.showCalculatedColumnStyle.font.size = this.setFontSize(showCalculatedColumnStyle.fontSize);
-        this.gridModel.showCalculatedColumnStyle.font.color = showCalculatedColumnStyle.fontColor;
-        this.gridModel.showCalculatedColumnStyle.font.styles = showCalculatedColumnStyle.fontStyles;
-
-        this.gridModel.showCalculatedColumnStyle.align = {};
-        this.gridModel.showCalculatedColumnStyle.align.hAlign = showCalculatedColumnStyle.hAlign;
-        this.gridModel.showCalculatedColumnStyle.align.vAlign = showCalculatedColumnStyle.vAlign;
+        this.gridModel.showCalculatedColumnStyle
+          = this._getGridTotalStyle((<UIGridChart>this.uiOption).showCalculatedColumnStyle);
       }
-
+      // 부분 연산행 설정
+      if((<UIGridChart>this.uiOption).subTotalValueStyle) {
+        const gridStyle = this._getGridTotalStyle((<UIGridChart>this.uiOption).subTotalValueStyle);
+        this.gridModel.subCalcCellStyle
+          = rows.reduce((acc, item) => {
+          acc[item.name.toLowerCase()] = JSON.parse(JSON.stringify(gridStyle));
+          return acc;
+        }, {});
+      }
+      // 부분 연산열 설정
+      if((<UIGridChart>this.uiOption).subTotalColumnStyle) {
+        const gridStyle = this._getGridTotalStyle((<UIGridChart>this.uiOption).subTotalColumnStyle);
+        this.gridModel.subCalcCellStyle
+          = cols.reduce((acc, item) => {
+          acc[item.name.toLowerCase()] = JSON.parse(JSON.stringify(gridStyle));
+          return acc;
+        }, this.gridModel.subCalcCellStyle ? this.gridModel.subCalcCellStyle : {});
+      }
 
       // 숫자 포멧 설정
       this.gridModel.format = this.uiOption.valueFormat;
@@ -608,6 +607,23 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 그리드 합계 스타일 생성
+   * @param valueStyle - 차트 합께 스타일
+   * @private 그리드 합계 스타일
+   */
+  private _getGridTotalStyle(valueStyle: TotalValueStyle) {
+    const gridStyle = JSON.parse(JSON.stringify(valueStyle));
+    gridStyle.font = {};
+    gridStyle.font.size = this.setFontSize(valueStyle.fontSize);
+    gridStyle.font.color = valueStyle.fontColor;
+    gridStyle.font.styles = valueStyle.fontStyles;
+
+    gridStyle.align = {};
+    gridStyle.align.hAlign = valueStyle.hAlign;
+    gridStyle.align.vAlign = valueStyle.vAlign;
+    return gridStyle;
+  } // func - _getGridTotalStyle
 
   /**
    * grid 사용자 색상설정
