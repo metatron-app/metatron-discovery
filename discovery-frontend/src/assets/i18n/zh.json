@@ -1911,6 +1911,7 @@
   "msg.storage.ui.list.timestamp": "日期/时间",
   "msg.storage.ui.list.date": "日期/时间",
   "msg.storage.ui.list.array" : "数组",
+  "msg.storage.ui.list.hashed.map" : "Hashed Map",
   "msg.storage.ui.list.lnt": "纬度",
   "msg.storage.ui.list.lng": "经度",
   "msg.storage.ui.list.email": "邮件",

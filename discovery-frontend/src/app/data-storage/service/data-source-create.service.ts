@@ -164,6 +164,11 @@ export class DataSourceCreateService {
         value: LogicalType.ARRAY
       },
       {
+        label: this._translateService.instant('msg.storage.ui.list.hashed.map'),
+        icon: 'ddp-icon-type-etc',
+        value: LogicalType.HASHED_MAP
+      },
+      {
         label: this._translateService.instant('msg.storage.ui.list.lnt'),
         icon: 'ddp-icon-type-latitude',
         value: LogicalType.LNT

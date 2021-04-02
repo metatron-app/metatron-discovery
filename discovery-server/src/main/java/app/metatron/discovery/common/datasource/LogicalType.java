@@ -46,7 +46,8 @@ public enum LogicalType {
   POSTAL_CODE,
   PHONE_NUMBER,  // Phone Number
   URL,
-  HTTP_CODE;
+  HTTP_CODE,
+  HASHED_MAP;
 
   public List<String> getGeoPointKeys() {
     return Lists.newArrayList("lat", "lon", "coord");

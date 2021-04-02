@@ -55,7 +55,11 @@ export namespace Type {
     ////////////////////////////////////////////////////////////////////////////
     // Value to be used only metadata
     ////////////////////////////////////////////////////////////////////////////
-    LONG = 'LONG'
+    LONG = 'LONG',
+    ////////////////////////////////////////////////////////////////////////////
+    // Value to be used distinct count
+    ////////////////////////////////////////////////////////////////////////////
+    HASHED_MAP = 'HASHED_MAP'
   }
 
   export enum FieldFormat {
@@ -66,7 +70,7 @@ export namespace Type {
     GEO_LINE = 'geo_line',
     GEO_POLYGON = 'geo_polygon'
   }
-  
+
   export enum MetadataSource {  // TODO 추후 동적필터가 들어오게되면 제거 필요
     ENGINE = 'ENGINE',
     JDBC = 'JDBC',

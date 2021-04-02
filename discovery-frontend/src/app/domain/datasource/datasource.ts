@@ -366,7 +366,9 @@ export class Field {
       case LogicalType.GEO_POLYGON:
         return 'ddp-icon-type-polygon';
       case LogicalType.ARRAY:
-        return 'ddp-icon-type-array'
+        return 'ddp-icon-type-array';
+      case LogicalType.HASHED_MAP:
+        return 'ddp-icon-type-etc';
       default:
         return '';
     }
@@ -396,6 +398,8 @@ export class Field {
       return 'ddp-icon-dimension-tf';
     } else if ('ARRAY' === logicalType) {
       return 'ddp-icon-dimension-array';
+    } else if ('HASHED_MAP' === logicalType) {
+      return 'ddp-icon-dimension-ab';
     } else if ('GEO_POINT' === logicalType) {
       return 'ddp-icon-map-view ddp-icon-dimension-point';
     } else if ('GEO_LINE' === logicalType) {
@@ -427,6 +431,8 @@ export class Field {
       return 'ddp-icon-measure-tf';
     } else if ('ARRAY' === logicalType) {
       return 'ddp-icon-measure-array';
+    } else if ('HASHED_MAP' === logicalType) {
+      return 'ddp-icon-measure-ab';
     } else if ('GEO_POINT' === logicalType) {
       return 'ddp-icon-map-view ddp-icon-measure-point';
     } else if ('GEO_LINE' === logicalType) {
@@ -608,7 +614,8 @@ export enum LogicalType {
   GEO_POINT = <any>'GEO_POINT',
   GEO_LINE = <any>'GEO_LINE',
   GEO_POLYGON = <any>'GEO_POLYGON',
-  USER_DEFINED = <any>'user_defined'
+  USER_DEFINED = <any>'user_defined',
+  HASHED_MAP = <any>'HASHED_MAP'
 }
 
 export enum FieldRole {
