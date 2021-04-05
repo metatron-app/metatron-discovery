@@ -55,5 +55,7 @@ export enum AggregationType {
   APPROX = <any>'APPROX',
 
   // 계산식내 집계함수 포함 경우
-  COMPLEX = <any>'COMPLEX'
+  COMPLEX = <any>'COMPLEX',
+
+  IFCOUNTD = <any>'IFCOUNTD'
 }

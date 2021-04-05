@@ -234,6 +234,7 @@ public class MeasureField extends Field {
     NONE, MIN, MAX, COUNT, COUNTD, SUM, AVG, STDDEV, MEDIAN, AREA, RANGE, PERCENTILE, FIRST, LAST, // 사용자 노출 타입
     SLOPE,
     VARIATION, APPROX,  // Ingestion 타입
-    COMPLEX             // 계산식내 집계함수 포함 경우
+    COMPLEX,            // 계산식내 집계함수 포함 경우
+    IFCOUNTD
   }
 }

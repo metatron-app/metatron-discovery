@@ -39,6 +39,7 @@ public enum DataType {
   STRUCT,
   WKT,
   MAP,
+  HASHED_MAP,
   UNKNOWN;
 
   public String toSqlDataType() {

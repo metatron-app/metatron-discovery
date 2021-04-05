@@ -693,6 +693,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       {label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE'},
       {label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP'},
       {label: this.translateService.instant('msg.storage.ui.list.array'), value: 'ARRAY'},
+      {label: this.translateService.instant('msg.storage.ui.list.hashed.map'), value: 'HASHED_MAP'},
       {label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT'},
       {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'},
       {label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true},

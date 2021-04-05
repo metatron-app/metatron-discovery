@@ -167,7 +167,7 @@
             <div class="ddp-add-filter">
               <ul class="ddp-list-filter">
                 <li *ngFor="let field of measureFields" (click)="selectField(field)"
-                    [class.ddp-selected]="isSelectedField(field)" [class.ddp-disabled]="field['type'] === 'ARRAY'">
+                    [class.ddp-selected]="isSelectedField(field)" [class.ddp-disabled]="field['type'] === 'ARRAY' || field['type'] === 'HASHED_MAP'">
                   <div class="ddp-data-filter">
                     <div class="ddp-ui-icons">
                     <span *ngIf="field['someChartFilter']" class="ddp-link-filter">
