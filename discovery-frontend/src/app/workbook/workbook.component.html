@@ -398,7 +398,12 @@
 
     <!-- 좌측 제목/설명 영역 -->
     <div class="ddp-wrap-box">
-      <em (dblclick)="copyBoardIdToClipboard()" class="ddp-icon-dashboard2"></em>
+      <em (click)="copyBoardUrlToClipboard()" class="ddp-icon-dashboard2 ddp-hover-tooltip" style="cursor: pointer;">
+        <div class="ddp-ui-tooltip-info ddp-down" style="left:-10px; right: -75px;">
+          <em class="ddp-icon-view-top" style="left:21px;"></em>
+          {{ 'msg.board.ui.copy-url' | translate}}
+        </div>
+      </em>
       <div class="ddp-ui-naviarea">
         <!-- name -->
         <div class="ddp-box-navi" [ngClass]="{'ddp-selected' : isDashboardNameEditMode}">

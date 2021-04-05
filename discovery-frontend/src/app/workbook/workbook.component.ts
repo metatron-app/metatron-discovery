@@ -12,15 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
@@ -100,6 +92,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   // Dashboard util for getDashboardImage
   private dashboardUtil: DashboardUtil = new DashboardUtil();
+
+  // URL Hash ( Dashboard Id or Dashboard Order Number )
+  private _routeFragment: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -250,7 +245,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       })
     );
 
-
     // 대시보드 생성 완료
     this.subscriptions.push(
       this.broadCaster.on<any>('WORKBOOK_RELOAD_BOARD_LIST').subscribe((data: { boardId: string }) => {
@@ -262,59 +256,79 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       })
     );
 
-    // Router에서 파라미터 전달 받기
-    this.activatedRoute.params.subscribe((params) => {
-
-      // 워크북 아이디 저장
-      this.workbookId = params['workbookId'];
-
-      // save dashboard id
-      this.dashboardId = params['dashboardId'];
-
-      // Send statistics data
-      this.sendViewActivityStream(this.workbookId, 'WORKBOOK');
-
-      this._getWorkbook().then((workbook: Workbook) => {
-
-        // 워크스페이스 조회
-        this.workspaceService.getWorkSpace(this.workbook.workspaceId, 'forDetailView').then((workspace: Workspace) => {
-
-          // 워크스페이스 저장
-          this.workspace = workspace;
-
-          // 퍼미션 체커 정의
-          this._permissionChecker = new PermissionChecker(workspace);
-
-          if (workspace.active && this._permissionChecker.isViewWorkbook()) {
-
-            // 관리 유저 여부 설정
-            this.isChangeAuthUser =
-              (this._permissionChecker.isManageWorkbook()
-                || this._permissionChecker.isEditWorkbook(workbook.createdBy.username));
-
-            // 만약 새로 생성이라면
-            const afterCreateWorkbookCmd: string = sessionStorage.getItem('AFTER_CREATE_WORKBOOK');
-
-            this.loadingHide();
-
-            if ('CREATE_DASHBOARD' === afterCreateWorkbookCmd) {
-              sessionStorage.removeItem('AFTER_CREATE_WORKBOOK');
-              this.createDashboard();
-            } else {
-              // 대시보드 조회
-              this.loadDashboardList(0);
-            }
-          } else {
-            // 경고창 표시
-            this.openAccessDeniedConfirm();
+    this.subscriptions.push(
+      this.activatedRoute.fragment
+        .subscribe((fragment: string) => {
+          this._routeFragment = fragment;
+          if (this.workbookId) {
+            this.loadDashboardList(0, this._routeFragment);
           }
+          console.log("==>>>>>>>>> My hash fragment is here - ", fragment)
+        })
+    );
 
-        });
-      });
+    // Router에서 파라미터 전달 받기
+    this.subscriptions.push(
+      this.activatedRoute.params
+        .subscribe((params) => {
 
-      // 댓글 조회
-      this._getComments();
-    });
+          console.log('==>>>>>>>> activatedRoute.params - ', params);
+
+          // 워크북 아이디 저장
+          this.workbookId = params['workbookId'];
+
+          // save dashboard id
+          this.dashboardId = params['dashboardId'];
+
+          // Send statistics data
+          this.sendViewActivityStream(this.workbookId, 'WORKBOOK');
+
+          this._getWorkbook().then((workbook: Workbook) => {
+
+            // 워크스페이스 조회
+            this.workspaceService.getWorkSpace(this.workbook.workspaceId, 'forDetailView').then((workspace: Workspace) => {
+
+              // 워크스페이스 저장
+              this.workspace = workspace;
+
+              // 퍼미션 체커 정의
+              this._permissionChecker = new PermissionChecker(workspace);
+
+              if (workspace.active && this._permissionChecker.isViewWorkbook()) {
+
+                // 관리 유저 여부 설정
+                this.isChangeAuthUser =
+                  (this._permissionChecker.isManageWorkbook()
+                    || this._permissionChecker.isEditWorkbook(workbook.createdBy.username));
+
+                // 만약 새로 생성이라면
+                const afterCreateWorkbookCmd: string = sessionStorage.getItem('AFTER_CREATE_WORKBOOK');
+
+                this.loadingHide();
+
+                if ('CREATE_DASHBOARD' === afterCreateWorkbookCmd) {
+                  sessionStorage.removeItem('AFTER_CREATE_WORKBOOK');
+                  this.createDashboard();
+                } else {
+                  // 대시보드 조회
+                  if (this._routeFragment) {
+                    this.loadDashboardList(0, this._routeFragment);
+                  } else {
+                    this.loadDashboardList(0);
+                  }
+                }
+              } else {
+                // 경고창 표시
+                this.openAccessDeniedConfirm();
+              }
+
+            });
+          });
+
+          // 댓글 조회
+          this._getComments();
+        })
+    );
 
     // z-index 이슈를 해결하기 위한 코드
     $('.ddp-layout-contents').addClass('ddp-layout-board');
@@ -339,7 +353,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * unload 전 실행
    */
   public execBeforeUnload() {
-    if (this.mode === 'UPDATE' && this._updateBoardComp ) {
+    if (this.mode === 'UPDATE' && this._updateBoardComp) {
       this.useUnloadConfirm = this._updateBoardComp.execBeforeUnload();
     }
   } // function - execBeforeUnload
@@ -348,8 +362,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   @HostListener('click', ['$event.target'])
   public clickOther(target) {
     if (this.isShowDetailMenu) {
-      const $eventTarget:JQuery = $( target );
-      if( !$eventTarget.hasClass('ddp-ui-more')
+      const $eventTarget: JQuery = $(target);
+      if (!$eventTarget.hasClass('ddp-ui-more')
         && 0 === $eventTarget.closest('.ddp-ui-more').length
         && !$eventTarget.hasClass('ddp-popup-lnbmore')
         && 0 === $eventTarget.closest('.ddp-popup-lnbmore').length) {
@@ -441,7 +455,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
         // 현재 보고있는 페이지 인 경우
         if (this.selectedDashboard.id === dashboard.id) {
-          this._setSelectedDashboard( null );
+          this._setSelectedDashboard(null);
         }
 
         this._getWorkbook().then(() => {
@@ -566,7 +580,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * Toggle datasource layer
    */
   public toggleDatasourceLayer() {
-    if( this.datasources && 0 < this.datasources.length ) {
+    if (this.datasources && 0 < this.datasources.length) {
       this.isShowDatasourceMenu = !this.isShowDatasourceMenu;
     }
   } // function - toggleDatasourceLayer
@@ -750,7 +764,15 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // Select Dashboard
       if (0 < this.dashboards.length) {
         if (targetBoardId) {
-          const selectedBoard: Dashboard = this.dashboards.find(item => item.id === targetBoardId);
+          let selectedBoard: Dashboard;
+          if (/^\d+$/gi.test(targetBoardId)) {
+            if (Number(targetBoardId) < this.dashboards.length) {
+              selectedBoard = this.dashboards[targetBoardId];
+            }
+          } else {
+            selectedBoard = this.dashboards.find(item => item.id === targetBoardId);
+          }
+
           if (selectedBoard) {
             this.loadAndSelectDashboard(selectedBoard);
           } else {
@@ -766,13 +788,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
               return dashboard.id === this.dashboardId;
             });
             this.loadAndSelectDashboard(this.dashboards[index]);
-          // else load first dashboard in dashboard list
+            // else load first dashboard in dashboard list
           } else {
             this.loadAndSelectDashboard(this.dashboards[0]);
           }
         }
       } else {
-        this._setSelectedDashboard( null );
+        this._setSelectedDashboard(null);
       }
 
       // detect changes
@@ -894,11 +916,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   /**
    * 대시보드 아이디 클립보드에 복사
    */
-  public copyBoardIdToClipboard() {
+  public copyBoardUrlToClipboard() {
     if (this.selectedDashboard) {
-      this._clipboardService.copyFromContent( this.selectedDashboard.id );
+      this._clipboardService
+        .copyFromContent(location.protocol + '//' + location.host + location.pathname + '#' + this.selectedDashboard.id);
+      Alert.success(this.translateService.instant('msg.board.alert.copy.dashboard-url'));
     }
-  } // function - copyBoardIdToClipboard
+  } // function - copyBoardUrlToClipboard
 
   /**
    * 대시보드 생성
@@ -975,7 +999,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public updateCompleteDashboard(dashboard) {
     // 업데이트한 대시보드 선택처리
-    this._setSelectedDashboard( dashboard );
+    this._setSelectedDashboard(dashboard);
     // 좌측 대시보드 리스트 썸네일 갱신
     this.dashboards.forEach((board) => {
       if (board.id === dashboard.id) {
@@ -1013,7 +1037,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public detailDashboard(dashboard: Dashboard) {
     if (!this.isInvalidDatasource(dashboard)) {
-      this.loadAndSelectDashboard(dashboard);
+      // this.loadAndSelectDashboard(dashboard);
+      this.router.navigate(['/workbook/' + this.workbookId], {fragment: dashboard.id}).then();
     }
   }
 
@@ -1026,7 +1051,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.tempLoadBoard = dashboard;
     if (this.isInvalidDatasource(dashboard)) {
       if (this._boardComp) {
-        this._setSelectedDashboard( undefined );
+        this._setSelectedDashboard(undefined);
         this._boardComp.showError(this.translateService.instant('msg.space.ui.dashboard.unauthorized'));
         this._boardComp.hideBoardLoading();
       }
@@ -1039,7 +1064,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
           // save data for selected dashboard
           board.workBook = this.workbook;
-          this._setSelectedDashboard( board );
+          this._setSelectedDashboard(board);
           this.tempLoadBoard = undefined;
 
           this.scrollToDashboard(board.id); // scroll to item
@@ -1090,7 +1115,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this._boardComp.hideError();
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
         board.workBook = this.workbook;
-        this._setSelectedDashboard( board );
+        this._setSelectedDashboard(board);
         this.loadingHide(); // 로딩 숨김
         this.changeDetect.detectChanges();    // 변경 갱신
       }).catch(() => {
@@ -1149,7 +1174,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    *
    * @param {string} inputName
    */
-  public renameDashboard(inputName:string) {
+  public renameDashboard(inputName: string) {
     this.isDashboardNameEditMode = false;
     inputName = inputName ? inputName.trim() : '';
     if (inputName && 0 < inputName.length) {
@@ -1178,7 +1203,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    *
    * @param {string} inputDesc
    */
-  public changeDesc(inputDesc:string) {
+  public changeDesc(inputDesc: string) {
     this.isDashboardDescEditMode = false;
     this.selectedDashboard.description = inputDesc;
     this.updateDashboard(this.selectedDashboard);
@@ -1202,7 +1227,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * 대시보드의 데이터소스 Publish 체크
    * @returns {boolean}
    */
-  public isInvalidDatasource(dashboard:Dashboard): boolean {
+  public isInvalidDatasource(dashboard: Dashboard): boolean {
     return dashboard.dataSources.filter((ds) => ds.valid).length == 0;
   }
 
@@ -1339,6 +1364,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   private _setSelectedDashboard(dashboard) {
     this.selectedDashboard = dashboard;
-    this.dashboardService.setCurrentDashboard( dashboard );
+    this.dashboardService.setCurrentDashboard(dashboard);
   }
 }
