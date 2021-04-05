@@ -31,14 +31,7 @@ import {PopupService} from '../common/service/popup.service';
 
 import {StringUtil} from '../common/util/string.util';
 import {Pivot} from '../domain/workbook/configurations/pivot';
-import {
-  ConnectionType,
-  Datasource,
-  Field,
-  FieldPivot,
-  FieldRole,
-  LogicalType
-} from '../domain/datasource/datasource';
+import {ConnectionType, Datasource, Field, FieldPivot, FieldRole, LogicalType} from '../domain/datasource/datasource';
 import {
   BarMarkType,
   ChartColorType,
@@ -693,7 +686,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       if (ConnectionType.LINK === this.dataSource.connType) {
         this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
-                              isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
       } else {
         this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
           isNullOrUndefined(this.widget.configuration.dataSource.engineName) ? this.widget.configuration.dataSource.name : this.widget.configuration.dataSource.engineName);
@@ -755,7 +748,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.loadingShow();
 
     // type 관련 변경 필요 (symbol & cluster) 이는 cluster 타입이 option panel에서 따로 분리된 이유임
-    if ( _.eq(this.selectChart, ChartType.MAP) && this.uiOption['layers']
+    if (_.eq(this.selectChart, ChartType.MAP) && this.uiOption['layers']
       && this.uiOption['layers'][this.uiOption['layerNum']]['type'] == MapLayerType.CLUSTER
       && !_.isUndefined(this.uiOption['layers'][this.uiOption['layerNum']]['clustering'])
       && this.uiOption['layers'][this.uiOption['layerNum']]['clustering']) {
@@ -774,6 +767,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         param = _.extend({}, this.widget, {shelf: this.shelf});
       } else {
         param = _.extend({}, this.widget, {pivot: this.pivot});
+      }
+
+      if (ChartType.GRID.toString() === this.selectChart && this.chart.chart) {
+        param.configuration.chart.gridColumnWidth = this.chart.chart.getLeafColumnWidth();
       }
 
       // 서버에 저장될필요 없는 파라미터 제거
@@ -834,6 +831,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         configuration: this.widgetConfiguration,
         name: this.widget.name
       };
+
+
+      if(ChartType.GRID.toString() === this.selectChart && this.chart.chart) {
+        param.configuration.chart['gridColumnWidth'] = this.chart.chart.getLeafColumnWidth();
+      }
 
       // 서버에 저장될필요 없는 파라미터 제거
       param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
@@ -1596,7 +1598,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.fieldDetailLayer = field;
 
     // 해당 context menu init, context menu show hide에 따른 field icon show hide 설정하기
-    let bdDatasource:BoardDataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
+    let bdDatasource: BoardDataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
     if (bdDatasource.type === 'multi') {
       bdDatasource = this.widget.dashBoard.configuration.dataSource.dataSources.find((datasource) => {
         return DashboardUtil.isSameDataSource(datasource, this.dataSource);
@@ -1912,7 +1914,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       const globalFilters = this.widget.dashBoard.configuration.filters;
       let idx = _.findIndex(globalFilters, {field: selectedField.name});
-      if( -1 < idx ) {
+      if (-1 < idx) {
         Alert.warning(this.translateService.instant('msg.board.alert.global-filter.del.error'));
         return;
       }
@@ -1938,7 +1940,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       selectedField.useFilter = true;
 
-      let newFilter:Filter;
+      let newFilter: Filter;
       if (selectedField.logicalType === LogicalType.TIMESTAMP) {
         // 시간 필터
         const timeFilter = FilterUtil.getTimeRangeFilter(selectedField, undefined, undefined, this.dataSource);
@@ -1984,7 +1986,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
       newFilter.dataSource = this.dataSource.engineName;
 
-      this.updateFilter( newFilter, true );
+      this.updateFilter(newFilter, true);
     }
   } // function - toggleFilter
 
@@ -2291,11 +2293,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   public getCntShelfItem(type: 'DIMENSION' | 'MEASURE'): number {
 
     let cntShelfItems = 0;
-    const strType:string = type.toLowerCase();
-    if( ChartType.MAP === this.widgetConfiguration.chart.type ) {
+    const strType: string = type.toLowerCase();
+    if (ChartType.MAP === this.widgetConfiguration.chart.type) {
       // 선택된 아이템 변수 - shelf 정보가 있는 아이템만 설정
-      this.shelf.layers.forEach( layer => {
-        cntShelfItems = cntShelfItems + layer.fields.filter( field => {
+      this.shelf.layers.forEach(layer => {
+        cntShelfItems = cntShelfItems + layer.fields.filter(field => {
           return strType === field.type && field.field.dataSource === this.dataSource.engineName;
         }).length;
       });
@@ -3943,7 +3945,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         // 옵션 초기화
         this.uiOption = OptionGenerator.initUiOption(this.uiOption);
 
-        if( this.selectChart == 'map' ){
+        if (this.selectChart == 'map') {
           this._setDefaultAreaForBBox(this.dataSource);
         }
 

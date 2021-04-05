@@ -439,6 +439,11 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       }
     };
 
+    // Grid Width 설정
+    if( (<UIGridChart>this.uiOption).gridColumnWidth ) {
+      this.gridModel.columnWidth = (<UIGridChart>this.uiOption).gridColumnWidth;
+    }
+
     // view 모드일 경우에는 클릭이벤트 삭제
     if (this.viewMode === true) {
       delete this.gridModel.onAxisXClick;
