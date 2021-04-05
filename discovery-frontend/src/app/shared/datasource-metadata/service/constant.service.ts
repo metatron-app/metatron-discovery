@@ -104,16 +104,19 @@ export class ConstantService {
         return type.value !== Type.Logical.ALL
           && type.value !== Type.Logical.GEO_POINT
           && type.value !== Type.Logical.GEO_POLYGON
-          && type.value !== Type.Logical.GEO_LINE;
+          && type.value !== Type.Logical.GEO_LINE
+          && type.value !== Type.Logical.HASHED_MAP;
       }));
   }
 
   public getTypeFiltersInDimensionIncludeGeoTypes() {
-    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL));
+    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL
+                                                    && type.value !== Type.Logical.HASHED_MAP));
   }
 
   public getTypeFiltersInDimensionOnlyBaseTypeString() {
-    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL));
+    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL
+                                                    && type.value !== Type.Logical.HASHED_MAP));
   }
 
   public getTypeFiltersInMeasure() {
