@@ -158,6 +158,9 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
       case 'ARRAY':
         result = 'ddp-icon-type-array';
         break;
+      case 'HASHED_MAP':
+        result = 'ddp-icon-type-etc';
+        break;
       case 'CALCULATED':
         result = 'ddp-icon-type-sharp';
         break;

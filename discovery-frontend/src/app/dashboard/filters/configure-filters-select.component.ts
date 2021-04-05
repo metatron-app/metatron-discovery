@@ -222,7 +222,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
    * @param {Field | CustomField} field
    */
   public selectField(field: Field | CustomField) {
-    if (field['type'] === 'ARRAY') {
+    if (field['type'] === 'ARRAY' || field['type'] === 'HASHED_MAP') {
       return;
     }
 

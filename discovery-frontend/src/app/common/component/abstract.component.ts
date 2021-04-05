@@ -312,6 +312,9 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         case 'ARRAY':
           result = 'ddp-icon-type-array';
           break;
+        case 'HASHED_MAP':
+          result = 'ddp-icon-type-etc';
+          break;
         case 'CALCULATED':
           result = 'ddp-icon-type-sharp';
           break;
@@ -558,6 +561,11 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         label: this.translateService.instant('msg.storage.ui.list.array'),
         value: 'ARRAY',
         icon: 'ddp-icon-type-array'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.hashed.map'),
+        value: 'HASHED_MAP',
+        icon: 'ddp-icon-type-etc'
       },
       {
         label: this.translateService.instant('msg.metadata.ui.dictionary.type.latitude'),

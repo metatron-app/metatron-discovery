@@ -47,6 +47,7 @@ import {StringUtil} from "../../../common/util/string.util";
 import {DatasourceService} from "../../../datasource/service/datasource.service";
 import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
 import {GranularityService} from "../../service/granularity.service";
+import {AggregationType} from "../../../domain/workbook/configurations/field/measure-field";
 
 declare const moment;
 
@@ -273,6 +274,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       case LogicalType.GEO_LINE:
       case LogicalType.GEO_POLYGON:
       case LogicalType.ARRAY:
+      case LogicalType.HASHED_MAP:
         return '';
       case LogicalType.INTEGER:
         return '0';
@@ -502,6 +504,8 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
           });
       } else if (type.value === Type.Logical.ARRAY) {
         this.selectedField.type = type.value;
+      } else if (type.value === Type.Logical.HASHED_MAP) {
+        this.selectedField.aggrType = AggregationType.IFCOUNTD;
       } else {
         delete this.selectedField.format;
       }

@@ -112,6 +112,8 @@
                           <!-- //문자열 -->
                           <em class="ddp-icon-dimension-array"
                               *ngIf="field.logicalType?.toString() === 'ARRAY'"></em>
+                          <em class="ddp-icon-dimension-ab"
+                              *ngIf="field.logicalType?.toString() === 'HASHED_MAP'"></em>
                           <!-- 위도 / 경도 -->
                           <em class="ddp-icon-dimension-latitude"
                               *ngIf="field.logicalType?.toString() === 'LNT'"></em>
@@ -256,6 +258,8 @@
                               *ngIf="field.logicalType?.toString() === 'TIMESTAMP'"></em>
                           <em class="ddp-icon-measure-array"
                               *ngIf="field.logicalType?.toString() === 'ARRAY'"></em>
+                          <em class="ddp-icon-measure-ab"
+                              *ngIf="field.logicalType?.toString() === 'HASHED_MAP'"></em>
                           <em class="ddp-icon-measure-sharp"
                               *ngIf="field.logicalType?.toString() === 'DOUBLE' || field.logicalType?.toString() === 'INTEGER' || field.type === 'user_expr'"></em>
                           <!-- boolean -->

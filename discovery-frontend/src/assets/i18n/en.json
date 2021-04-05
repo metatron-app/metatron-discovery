@@ -1972,6 +1972,7 @@
   "msg.storage.ui.list.timestamp" : "Timestamp",
   "msg.storage.ui.list.date" : "Date/Time",
   "msg.storage.ui.list.array" : "Array",
+  "msg.storage.ui.list.hashed.map" : "Hashed Map",
   "msg.storage.ui.list.lnt" : "Latitude",
   "msg.storage.ui.list.lng" : "Longitude",
   "msg.storage.ui.list.email" : "Email",

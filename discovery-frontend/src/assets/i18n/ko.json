@@ -1957,6 +1957,7 @@
   "msg.storage.ui.list.timestamp": "타임스탬프",
   "msg.storage.ui.list.date": "날짜/시간",
   "msg.storage.ui.list.array" : "배열",
+  "msg.storage.ui.list.hashed.map" : "Hashed Map",
   "msg.storage.ui.list.lnt": "위도",
   "msg.storage.ui.list.lng": "경도",
   "msg.storage.ui.list.email": "이메일",

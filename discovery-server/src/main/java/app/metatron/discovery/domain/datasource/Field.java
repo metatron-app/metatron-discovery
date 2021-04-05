@@ -408,6 +408,8 @@ public class Field implements MetatronDomain<Long> {
         return new VarianceAggregation(name, getOriginalName());
       case APPROX:
         return new ApproxHistogramFoldAggregation(name, getOriginalName());
+      case IFCOUNTD:
+        return new DistinctSketchAggregation(name, getOriginalName(), 65536L, true);
       default:
         return new GenericSumAggregation(name, getOriginalName(), "double");
     }
@@ -463,6 +465,9 @@ public class Field implements MetatronDomain<Long> {
       case "INT":
       case "BIGINT":
         this.type = DataType.INTEGER;
+        this.role = FieldRole.MEASURE;
+        break;
+      case "HASHED_MAP":
         this.role = FieldRole.MEASURE;
         break;
       default:
