@@ -1752,6 +1752,9 @@
   "msg.board.ui.cant-not-down-aggregate" : "Original view cannot be supported for custom columns with aggregate functions",
   "msg.board.error.deny-datasource" : "Datasource({{datasource}}) usages is not allowed.",
   "msg.board.ui.custom-action" : "Event Trigger",
+  "msg.board.ui.copy-url": "Copy dashboard url",
+  "msg.board.alert.copy.dashboard-url": "Dashboard url copied",
+
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",
   "msg.storage.th.allowance":"Allowance",
