@@ -66,24 +66,6 @@ public class MobileController {
   @RequestMapping(value = "/validate", method = RequestMethod.GET, produces = "application/json")
   public ResponseEntity<?> validateMobileService() {
 
-    // Check mobile resources in this server.
-    String testResourcePath;
-    if(mobileResourcePath.endsWith("/")) {
-      testResourcePath = mobileResourcePath + "index.html";
-    } else {
-      testResourcePath = mobileResourcePath + "/index.html";
-    }
-
-    try {
-      File file = ResourceUtils.getFile(testResourcePath);
-      if(!file.exists()) {
-        throw new FileNotFoundException();
-      }
-    } catch (FileNotFoundException e) {
-      LOGGER.warn("Mobile resource not found : {}", testResourcePath);
-      throw new MobileException(MOBILE_RESOURCE_NOT_FOUND, "Mobile resource not found.");
-    }
-
     // Check a client id for mobile service
     Map<String, Object> responses = new LinkedHashMap<>();
     try {
