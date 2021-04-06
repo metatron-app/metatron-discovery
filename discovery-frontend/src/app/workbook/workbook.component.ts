@@ -765,7 +765,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         if (targetBoardId) {
           let selectedBoard: Dashboard;
           if (/^\d+$/gi.test(targetBoardId)) {
-            if (Number(targetBoardId) < this.dashboards.length) {
+            if (Number(targetBoardId) <= this.dashboards.length) {
               selectedBoard = this.dashboards[Number(targetBoardId) - 1];
             }
           } else {
@@ -777,6 +777,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           } else {
             if (this.dashboardPage.totalPages > this.dashboardPage.number + 1) {
               this.loadDashboardList(this.dashboardPage.number + 1, targetBoardId);
+            } else {
+              this.detailDashboard(this.dashboards[0]);
             }
           }
         } else {
