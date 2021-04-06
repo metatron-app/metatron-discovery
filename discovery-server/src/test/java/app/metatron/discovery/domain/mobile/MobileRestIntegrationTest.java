@@ -46,10 +46,7 @@ public class MobileRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void validate() {
 
-    /*
-        "resource-path" value from mobile-config.properties
-        "client-id" value from default client id (polaris_client)
-     */
+    // "client-id" value from default client id (polaris_client)
 
     // @formatter:off
     Response createResponse =
