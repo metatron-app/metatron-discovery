@@ -31,7 +31,6 @@ import static com.jayway.restassured.RestAssured.given;
 /**
  *
  */
-@TestPropertySource({"/config/mobile-config.properties"})
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class MobileRestIntegrationTest extends AbstractRestIntegrationTest {
 
