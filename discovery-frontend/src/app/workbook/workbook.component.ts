@@ -245,25 +245,23 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       })
     );
 
-    // 대시보드 생성 완료
-    this.subscriptions.push(
-      this.broadCaster.on<any>('WORKBOOK_RELOAD_BOARD_LIST').subscribe((data: { boardId: string }) => {
-        this._getWorkbook().then(() => {
-          // 생성 후 체크가 모두 선택
-          this.selectedDatasources = this.datasources.map(ds => ds.id);
-          this.loadDashboardList(0, data.boardId);
-        });
-      })
-    );
-
     this.subscriptions.push(
       this.activatedRoute.fragment
         .subscribe((fragment: string) => {
           this._routeFragment = fragment;
           if (this.workbookId) {
-            this.loadDashboardList(0, this._routeFragment);
+            if( this.isShowCreateDashboard ) {
+              this._getWorkbook().then(() => {
+                // 생성 후 체크가 모두 선택
+                this.selectedDatasources = this.datasources.map(ds => ds.id);
+                this.loadDashboardList(0, this._routeFragment);
+                this.closeCreateDashboard();
+              });
+            } else {
+              this.loadDashboardList(0, this._routeFragment);
+            }
           }
-          console.log("==>>>>>>>>> My hash fragment is here - ", fragment)
+          // console.log("==>>>>>>>>> My hash fragment is here - ", fragment);
         })
     );
 
@@ -272,7 +270,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.activatedRoute.params
         .subscribe((params) => {
 
-          console.log('==>>>>>>>> activatedRoute.params - ', params);
+          // console.log('==>>>>>>>> activatedRoute.params - ', params);
 
           // 워크북 아이디 저장
           this.workbookId = params['workbookId'];
@@ -461,7 +459,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         this._getWorkbook().then(() => {
           this.selectedDatasources = this.datasources.map(ds => ds.id);
           this.loadingHide();
-          this.loadDashboardList(0);
+          // this.loadDashboardList(0);
+          this.detailDashboard(this.dashboards[0]);
         });
 
       }).catch(() => {
@@ -767,7 +766,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           let selectedBoard: Dashboard;
           if (/^\d+$/gi.test(targetBoardId)) {
             if (Number(targetBoardId) < this.dashboards.length) {
-              selectedBoard = this.dashboards[targetBoardId];
+              selectedBoard = this.dashboards[Number(targetBoardId) - 1];
             }
           } else {
             selectedBoard = this.dashboards.find(item => item.id === targetBoardId);
