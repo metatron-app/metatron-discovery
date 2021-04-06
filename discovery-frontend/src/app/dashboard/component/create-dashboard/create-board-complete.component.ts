@@ -172,8 +172,8 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
         .then((board:Dashboard) => {
           Alert.success(`'${this.dashboard.name}' ` + this.translateService.instant('msg.board.alert.create.success'));
           this.loadingHide();
-          this.broadCaster.broadcast('WORKBOOK_RELOAD_BOARD_LIST', { boardId: board.id });
-          this.close();
+          this.router.navigate(['/workbook/' + this._workbookId], {fragment: board.id}).then();
+
         }).catch(err => this.commonExceptionHandler(err));
     }
   } // function - complete
