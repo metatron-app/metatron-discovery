@@ -16,6 +16,7 @@ package app.metatron.discovery.util;
 
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.FontFamily;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -136,7 +137,7 @@ public class ExcelUtils {
 
         // Foreground color
         cellStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
-        cellStyle.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         return cellStyle;
     }
