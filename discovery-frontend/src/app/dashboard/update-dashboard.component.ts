@@ -265,6 +265,14 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         const board: Dashboard = this.dashboard;
         this.widgetService.createWidget(newWidgetInfo, board.id).then(resWidgetInfo => {
           const pageWidget: PageWidget = _.extend(new PageWidget(), resWidgetInfo);
+
+          // 위젯필터가 있는 경우 정보 추가
+          if (pageWidget.configuration.filters) {
+            pageWidget.configuration.filters.forEach(filter => {
+              (filter.ui) || (filter.ui = {});
+              filter.ui.widgetId = pageWidget.id;
+            })
+          }
           this.dashboard = this._addWidget(this.dashboard, pageWidget);
           this.appendWidgetInLayout([pageWidget]);
           this.hideBoardLoading();
