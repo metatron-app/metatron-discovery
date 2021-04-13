@@ -25,6 +25,6 @@ export class Permission {
 }
 
 export enum DomainType {
-  SYSTEM = <any>'SYSTEM',
-  WORKSPACE = <any>'WORKSPACE'
+  SYSTEM = 'SYSTEM',
+  WORKSPACE = 'WORKSPACE'
 }

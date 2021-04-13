@@ -217,7 +217,7 @@ export class ScrollLoadingGridModel {
     if( this._isLoadingData ) {
       return;
     }
-    // console.info(from + ':this.totalRowCnt:'+ this.totalRowCnt);
+    // console.log(from + ':this.totalRowCnt:'+ this.totalRowCnt);
     let lastPageNumber: number = Math.floor(this.totalRowCnt / this._pageSize);
     if(this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber +1;
 

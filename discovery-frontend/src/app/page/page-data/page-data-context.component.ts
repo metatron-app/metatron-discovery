@@ -301,8 +301,8 @@ export class PageDataContextComponent extends AbstractComponent {
     this.editingFieldAlias = '';
     this.fix2DepthContext = false;
 
-    // console.info('>>>>>> this.selectedField.nameAlias', this.selectedField.nameAlias);
-    // console.info('>>>>>> this.selectedField', this.selectedField);
+    // console.log('>>>>>> this.selectedField.nameAlias', this.selectedField.nameAlias);
+    // console.log('>>>>>> this.selectedField', this.selectedField);
 
     // 이벤트 발생
     this._changeAlias(this.editingFieldAlias);

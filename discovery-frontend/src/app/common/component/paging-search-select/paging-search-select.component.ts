@@ -13,20 +13,18 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output
+  AfterViewInit,
+  Component, ElementRef, EventEmitter, HostListener,
+  Injector, Input, OnDestroy, OnInit, Output
 } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
-import {StringUtil} from "../../util/string.util";
+import {StringUtil} from '../../util/string.util';
 
 @Component({
   selector: 'component-paging-search-select',
-  templateUrl: './paging-search-select.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './paging-search-select.component.html'
 })
-export class PagingSearchSelectComponent extends AbstractComponent implements OnInit {
+export class PagingSearchSelectComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -234,11 +232,7 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
    */
   public get getResultOption() {
     // search option 일때만 적용
-    if (this.isSearchOptions
-      && this.selectedItem) {
-      return true;
-    }
-    return false;
+    return !!(this.isSearchOptions && this.selectedItem);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -268,6 +262,7 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
    * 컴포넌트 내부  host 클릭이벤트 처리
    * @param event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
@@ -312,10 +307,8 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
    * @returns {boolean}
    */
   private get getMoreInternalPage(): boolean {
-    if (this.array.length > ((this.pageNum + 1) * this.internalSize)) {
-      return true;
-    }
-    return false;
+    return this.array.length > ((this.pageNum + 1) * this.internalSize);
+
   }
 
   /**

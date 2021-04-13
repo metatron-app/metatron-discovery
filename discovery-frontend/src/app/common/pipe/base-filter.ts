@@ -15,7 +15,7 @@
 /**
  * Created by LDL on 2017. 7. 7..
  */
-import { Injectable, Pipe, PipeTransform } from '@angular/core';
+import {Injectable, Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'baseFilter',
@@ -49,7 +49,7 @@ export class BaseFilter implements PipeTransform {
       if (typeof args[0] === 'string') {
 
         return items.filter(item => {
-          return ( item.toLowerCase ) ? item.toLowerCase().includes(args[0].toLowerCase()) : false;
+          return (item.toLowerCase) ? item.toLowerCase().includes(args[0].toLowerCase()) : false;
         });
       }
       return items;

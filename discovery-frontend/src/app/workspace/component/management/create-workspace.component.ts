@@ -349,7 +349,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
           this.roleSetList = result['_embedded']['roleSets'];
           this.selectRoleSet( this.roleSetList[0], false );
         }
-        resolve();
+        resolve(null);
         this.loadingHide();
       }).catch(err => {
         this.commonExceptionHandler(err);

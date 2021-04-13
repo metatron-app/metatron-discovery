@@ -161,7 +161,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     this.setNumericAlias = this.format.abbr;
     if (this.format.customSymbol) {
       this.customSymbol = {};
-      this.customSymbol.value = this.format.customSymbol ? this.format.customSymbol.value : "";
+      this.customSymbol.value = this.format.customSymbol ? this.format.customSymbol.value :  '';
       this.customSymbol.pos = this.format.customSymbol ? this.format.customSymbol.pos : UIFormatSymbolPosition.BEFORE;
       this.customSymbol.abbreviations = this.format.customSymbol ? this.format.customSymbol.abbreviations : false;
     }

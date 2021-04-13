@@ -82,30 +82,30 @@ export class ElapsedTime {
 
 export enum SsType {
 
-  FILE = <any>'FILE',
-  HDFS = <any>'HDFS',
-  JDBC = <any>'JDBC',
-  HIVE = <any>'HIVE'
+  FILE = 'FILE',
+  HDFS = 'HDFS',
+  JDBC = 'JDBC',
+  HIVE = 'HIVE'
 }
 
 export enum Mode {
-  OVERWRITE = <any>'OVERWRITE',
-  APPEND = <any>'APPEND'
+  OVERWRITE = 'OVERWRITE',
+  APPEND = 'APPEND'
 }
 
 export enum Compression {
 
-  NONE = <any>'NONE',
-  SNAPPY = <any>'SNAPPY',
-  ZLIB = <any>'ZLIB',
+  NONE = 'NONE',
+  SNAPPY = 'SNAPPY',
+  ZLIB = 'ZLIB',
 }
 
 export enum Format {
 
-  CSV = <any>'CSV',
-  JSON = <any>'JSON',
-  ORC = <any>'ORC',
-  PARQUET = <any>'PARQUET'
+  CSV = 'CSV',
+  JSON = 'JSON',
+  ORC = 'ORC',
+  PARQUET = 'PARQUET'
 
 }
 

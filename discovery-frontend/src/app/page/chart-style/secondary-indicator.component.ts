@@ -89,7 +89,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
   ];
 
   // 목표값
-  public standardValueTemp: string = "";
+  public standardValueTemp: string =  '';
   public standardValue: number;
 
   // 비교기간 여부
@@ -170,7 +170,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         const field: any = this.pivot.aggregations[num];
         let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
         let displayName: any = aggs[num];
-        if( field.aggregationType && field.aggregationType != "" ) {
+        if( field.aggregationType && field.aggregationType !=  '' ) {
           alias = field.aggregationType +"("+ alias +")";
         }
 
@@ -346,17 +346,17 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public isTargetAll(): boolean {
     const option: UILabelChart = <UILabelChart>this.uiOption;
-    let indicatorType: string = "";
-    let rangeUnit: string = "";
+    let indicatorType: string =  '';
+    let rangeUnit: string =  '';
     let targetValue: number = undefined;
-    let mark: string = "";
+    let mark: string =  '';
     let isAll: boolean = true;
     _.each(option.secondaryIndicators, (series) => {
       const labelSeries: UILabelSecondaryIndicator = (<UILabelSecondaryIndicator>series);
       if( !_.isUndefined(labelSeries.show) ) {
 
         let seriesIndicatorType: string = String(labelSeries.indicatorType);
-        if( indicatorType == "" ) {
+        if( indicatorType ==  '' ) {
           indicatorType = seriesIndicatorType;
         }
         else if( indicatorType != seriesIndicatorType ) {
@@ -364,7 +364,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         }
 
         let seriesRangeUnit: string = String(labelSeries.rangeUnit);
-        if( _.isUndefined(rangeUnit) || rangeUnit == "" ) {
+        if( _.isUndefined(rangeUnit) || rangeUnit ==  '' ) {
           rangeUnit = seriesRangeUnit;
         }
         else if( _.eq(seriesIndicatorType, LabelSecondaryIndicatorType.PERIOD)
@@ -386,7 +386,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         }
 
         let seriesMark: string = String(labelSeries.mark);
-        if( mark == "" ) {
+        if( mark ==  '' ) {
           mark = seriesMark;
         }
         else if( mark != seriesMark ) {
@@ -469,7 +469,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
           : this.indicatorList[0]
       );
       // 목표값
-      this.standardValueTemp = _.isUndefined(option.secondaryIndicators[0].targetValue) ? "" : String(option.secondaryIndicators[0].targetValue);
+      this.standardValueTemp = _.isUndefined(option.secondaryIndicators[0].targetValue) ?  '' : String(option.secondaryIndicators[0].targetValue);
       this.standardValue = _.isUndefined(option.secondaryIndicators[0].targetValue) ? undefined : option.secondaryIndicators[0].targetValue;
       _.each(option.secondaryIndicators, (series) => {
         series.targetValue = this.standardValue;
@@ -491,7 +491,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
               : this.indicatorList[0]
           );
           // 목표값
-          this.standardValueTemp = _.isUndefined(series.targetValue) ? "" : String(series.targetValue);
+          this.standardValueTemp = _.isUndefined(series.targetValue) ?  '' : String(series.targetValue);
           this.standardValue = _.isUndefined(series.targetValue) ? undefined : series.targetValue;
           // 표시방식
           this.changeMarkType(String(series.mark));
@@ -522,7 +522,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     this.changeDetect.detectChanges();
 
     if( _.eq(indicatorType, LabelSecondaryIndicatorType.PERIOD) ) {
-      let value: string = "";
+      let value: string =  '';
       if( this.target['value'] == '') {
         value = _.isUndefined(option.secondaryIndicators[0].rangeUnit)
           ? this.periodList[0]['value']
@@ -560,7 +560,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public revokeTargetValue(): void {
 
-    this.standardValueTemp = _.isUndefined(this.standardValue) || this.standardValue == 0 ? "" : String(this.standardValue);
+    this.standardValueTemp = _.isUndefined(this.standardValue) || this.standardValue == 0 ?  '' : String(this.standardValue);
   }
 
   /**
@@ -845,7 +845,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     if( granularityScore <= 3 ) {
       this.periodList.push({name: this.translateService.instant('msg.page.common.kpi.indocator.period.hour'), value: 'HOUR'});
     }
-    console.info(this.periodList);
+    console.log(this.periodList);
   }
 
 }

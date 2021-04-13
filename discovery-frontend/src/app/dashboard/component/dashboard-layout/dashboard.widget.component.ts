@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { ChangeDetectionStrategy, Component, ElementRef, Injector, OnDestroy } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import {ActivatedRoute} from "@angular/router";
-import { LayoutMode, LayoutWidgetInfo } from '../../../domain/dashboard/dashboard';
-import { BoardWidgetOptions } from '../../../domain/dashboard/dashboard.globalOptions';
+import {ChangeDetectionStrategy, Component, ElementRef, Injector, OnDestroy} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {LayoutMode, LayoutWidgetInfo} from '@domain/dashboard/dashboard';
+import {BoardWidgetOptions} from '@domain/dashboard/dashboard.globalOptions';
 
 @Component({
   selector: 'dashboard-widget',
@@ -45,7 +45,7 @@ export class DashboardWidgetComponent extends AbstractComponent implements OnDes
   public isPageWidget: boolean = false;
   public isFilterWidget: boolean = false;
 
-  public isShowTitle:boolean = false;
+  public isShowTitle: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -74,7 +74,7 @@ export class DashboardWidgetComponent extends AbstractComponent implements OnDes
   /**
    * 클래스 초기화
    */
-  public init(widget: Widget, widgetOpts: BoardWidgetOptions, layoutMode: LayoutMode, widgetInfo:LayoutWidgetInfo) {
+  public init(widget: Widget, widgetOpts: BoardWidgetOptions, layoutMode: LayoutMode, widgetInfo: LayoutWidgetInfo) {
     super.ngOnInit();
     this._widget = widget;
     this._widgetOpts = widgetOpts;
@@ -91,7 +91,7 @@ export class DashboardWidgetComponent extends AbstractComponent implements OnDes
         break;
     }
     this.isWidget = true;
-    ( widgetInfo ) && ( this.isShowTitle = widgetInfo.title );
+    (widgetInfo) && (this.isShowTitle = widgetInfo.title);
     this.safelyDetectChanges();
   } // function - init
 

@@ -40,6 +40,6 @@ export class WorkspaceMemberProjections {
 }
 
 export enum MemberType {
-  GROUP = <any>'GROUP',
-  USER = <any>'USER',
+  GROUP = 'GROUP',
+  USER = 'USER',
 }

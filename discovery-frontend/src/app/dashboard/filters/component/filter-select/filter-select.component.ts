@@ -11,36 +11,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as _ from 'lodash';
+import {isNullOrUndefined} from 'util';
 
 import {
   AfterContentChecked,
   Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, HostListener,
   Injector,
-  Input,
+  Input, OnDestroy,
   OnInit,
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Alert} from '../../../../common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+
 import {
   Candidate,
   InclusionFilter,
   InclusionSelectorType
-} from '../../../../domain/workbook/configurations/filter/inclusion-filter';
-import {isNullOrUndefined} from "util";
-import {DatasourceService} from "../../../../datasource/service/datasource.service";
-import {Dashboard} from "../../../../domain/dashboard/dashboard";
-import * as _ from 'lodash';
+} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'component-filter-select',
-  templateUrl: './filter-select.component.html',
-  host: {'(document:click)': 'onClickHost($event)'}
+  templateUrl: './filter-select.component.html'
 })
-export class FilterSelectComponent extends AbstractComponent implements OnInit, AfterContentChecked {
+export class FilterSelectComponent extends AbstractComponent implements OnInit, AfterContentChecked, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -248,6 +249,7 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
    * 마우스 아웃처리
    * @param {MouseEvent} event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event: MouseEvent) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
@@ -336,11 +338,10 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
       if (resultCandidates && resultCandidates.length > 0) {
         resultCandidates.forEach((resultCandidate) => {
           if (this.existCandidate(resultCandidate.field) === false) {
-            let candidate = new Candidate();
+            const candidate = new Candidate();
             candidate.count = resultCandidate.count;
             candidate.name = resultCandidate.field;
             candidate.isTemporary = true;
-
             this.candidateList.push(candidate);
           }
         });
@@ -419,7 +420,7 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
 
   /**
    * update combo-box label
-   * @param selectedArray
+   * @param items
    */
   public updateView(items?: any) {
     let selectedItems = this.selectedItems;
@@ -439,9 +440,8 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
 
   /**
    * 전체선택
-   * @param $event
    */
-  public checkAll($event?) {
+  public checkAll() {
     // 모형 모드일 때는 기능 동작을 하지 않는다
     if (this.isMockup) {
       Alert.info(this.translateService.instant('msg.board.alert.not-select-editmode'));
@@ -474,11 +474,11 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
   } // function - isSelectedItem
 
   public isSelectorTypeSingle(): boolean {
-    return (<InclusionFilter>this.filter).selector === InclusionSelectorType.SINGLE_COMBO;
+    return (this.filter as InclusionFilter).selector === InclusionSelectorType.SINGLE_COMBO;
   }
 
   public isSelectorTypeMulti(): boolean {
-    return (<InclusionFilter>this.filter).selector === InclusionSelectorType.MULTI_COMBO;
+    return (this.filter as InclusionFilter).selector === InclusionSelectorType.MULTI_COMBO;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -506,11 +506,7 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
 
   private existCandidate(name: string): boolean {
     const filteredCandidates = this.candidateList.filter(candidate => candidate.name === name);
-    if (filteredCandidates != null && filteredCandidates.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return filteredCandidates != null && filteredCandidates.length > 0;
   }
 
 }

@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {PeriodComponent} from '../../../../common/component/period/period.component';
-import {PeriodData} from '../../../../common/value/period.data.value';
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../../common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {PeriodData} from '@common/value/period.data.value';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Modal} from '@common/domain/modal';
 import {PermissionService} from '../../../../user/service/permission.service';
-import {RoleSet, RoleSetScope} from '../../../../domain/user/role/roleSet';
-import {Alert} from '../../../../common/util/alert.util';
+import {RoleSet, RoleSetScope} from '@domain/user/role/roleSet';
+import {Alert} from '@common/util/alert.util';
 import {CreatePermissionSchemaComponent} from './create-permission-schema.component';
-import {Page} from '../../../../domain/common/page';
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
+import {Page} from '@domain/common/page';
+import {ActivatedRoute} from '@angular/router';
+import {isNullOrUndefined} from 'util';
 
 declare let moment: any;
 
@@ -32,7 +32,7 @@ declare let moment: any;
   selector: 'app-permission-schemas',
   templateUrl: './permission-schemas.component.html'
 })
-export class PermissionSchemasComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class PermissionSchemasComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

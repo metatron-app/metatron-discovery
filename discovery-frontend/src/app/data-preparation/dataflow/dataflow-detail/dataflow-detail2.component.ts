@@ -772,7 +772,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     }).catch((error) => {
       this.loadingHide();
       Alert.error(this.translateService.instant(error.message));
-      console.info('error -> ', error);
+      console.log('error -> ', error);
     });
   }
 
@@ -799,7 +799,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     this.loadingShow();
 
     this.dfService.swapDataset(param).then((result) => {
-      // console.info('swapping >>>>>>>>>>>>', result);
+      // console.log('swapping >>>>>>>>>>>>', result);
       Alert.success('Swap successful');
 
       this.isSelectDatasetPopupOpen = false;
@@ -809,7 +809,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
     }).catch((error) => {
       Alert.fail('Swap failed');
-      console.info(error);
+      console.log(error);
       this.loadingHide();
     });
   }
@@ -821,7 +821,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    */
   public openAddDatasetPopup(data :any) {
 
-    // console.info('openAddDatasetPopup', data);
+    // console.log('openAddDatasetPopup', data);
     if(data === null) {
       this.swapDatasetId = null;
       this.longUpdatePopupType = 'add';

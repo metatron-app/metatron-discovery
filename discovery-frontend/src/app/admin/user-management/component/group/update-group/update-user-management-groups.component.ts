@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Output } from '@angular/core';
-import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Action, User } from '../../../../../domain/user/user';
-import { Alert } from '../../../../../common/util/alert.util';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
+import {Action, User} from '../../../../../domain/user/user';
+import {Alert} from '../../../../../common/util/alert.util';
 import * as _ from 'lodash';
-import { isUndefined } from 'util';
-import { Group } from '../../../../../domain/user/group';
-import { GroupMember } from '../../../../../domain/user/group-member';
+import {isUndefined} from 'util';
+import {Group} from '../../../../../domain/user/group';
+import {GroupMember} from '../../../../../domain/user/group-member';
 
 @Component({
   selector: 'app-update-user-management-groups',
@@ -71,24 +71,6 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
               protected injector: Injector) {
 
     super(elementRef, injector);
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -246,7 +228,7 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
    */
   public isAllSelectedMember(): boolean {
     if (this.memberList.length !== 0) {
-      for (let index = 0; index < this.memberList.length; index++) {
+      for (let index = 0, nMax = this.memberList.length; index < nMax; index++) {
         // 조회된 멤버 목록 중 선택목록에 하나라도 없다면 false
         // if (_.findIndex(this.selectedMember, {id: this.memberList[index].id}) === -1) {
         if (_.findIndex(this.selectedMember, {username: this.memberList[index].username}) === -1) {
@@ -451,7 +433,6 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
 
   /**
    * 사용자가 속한 멤버 변경에 이용하는 파라메터
-   * @returns {any}
    * @private
    */
   private _getUpdateParam(): any {

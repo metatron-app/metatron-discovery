@@ -13,9 +13,9 @@
  */
 
 import { Component, ElementRef, Injector, OnInit, OnDestroy, Input } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { BoardDataSourceRelation } from '../../../domain/dashboard/dashboard';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
+import { BoardDataSourceRelation } from '@domain/dashboard/dashboard';
 
 @Component({
   selector: 'create-board-ds-relation',

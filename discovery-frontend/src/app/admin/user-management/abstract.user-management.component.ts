@@ -12,15 +12,14 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { ElementRef, Injector } from '@angular/core';
 import { GroupsService } from './service/groups.service';
 import { MembersService } from './service/members.service';
-import { PopupService } from '../../common/service/popup.service';
+
 /**
  * Created by juheeko on 18/10/2017.
  */
-
 export abstract class AbstractUserManagementComponent extends AbstractComponent {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -57,24 +56,6 @@ export abstract class AbstractUserManagementComponent extends AbstractComponent 
 
     // groups 서비스
     this.groupsService = injector.get(GroupsService);
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destroy
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

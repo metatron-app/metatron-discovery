@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 
-import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
-import { TextWidgetEditorComponent } from './text-widget-editor.component';
+import {COMPOSITION_BUFFER_MODE} from '@angular/forms';
+import {TextWidgetEditorComponent} from './text-widget-editor.component';
 
 @NgModule({
   imports: [],

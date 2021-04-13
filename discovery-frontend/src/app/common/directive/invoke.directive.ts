@@ -12,15 +12,18 @@
  * limitations under the License.
  */
 
-import { Directive, Output, EventEmitter, AfterContentInit, Inject, ElementRef } from '@angular/core';
+import {AfterContentInit, Directive, ElementRef, EventEmitter, Inject, Output} from '@angular/core';
 
-@Directive({ selector: '[invoke]' })
+@Directive({selector: '[invoke]'})
 export class InvokeDirective implements AfterContentInit {
   @Output() invoke: EventEmitter<any> = new EventEmitter<any>();
-  constructor(@Inject(ElementRef) private element: ElementRef) {}
+
+  constructor(@Inject(ElementRef) private element: ElementRef) {
+  }
+
   public ngAfterContentInit() {
     setTimeout(() => {
       this.invoke.emit(this.element);
-    }, 250 );
+    }, 250);
   }
 }

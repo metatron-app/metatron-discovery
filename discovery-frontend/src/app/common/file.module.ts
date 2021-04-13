@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from './common.module';
-import { FileUploadModule } from 'ng2-file-upload';
+import {NgModule} from '@angular/core';
+import {CommonModule} from './common.module';
+import {FileUploadModule} from 'ng2-file-upload';
 
 @NgModule({
   imports: [

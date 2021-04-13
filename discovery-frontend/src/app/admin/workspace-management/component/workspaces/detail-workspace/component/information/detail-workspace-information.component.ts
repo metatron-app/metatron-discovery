@@ -13,10 +13,12 @@
  */
 
 import {Component, ElementRef, Injector, Input, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../../../../../../common/component/abstract.component';
+
+import {AbstractComponent} from '@common/component/abstract.component';
+import {UserProfile} from '@domain/user/user-profile';
+import {PublicType} from '@domain/workspace/workspace';
+
 import {MemberGroupViewComponent} from '../viewer/member-group-view.component';
-import {UserProfile} from '../../../../../../../domain/user/user-profile';
-import {PublicType} from '../../../../../../../domain/workspace/workspace';
 
 @Component({
   selector: 'detail-workspaces-information',
@@ -70,24 +72,6 @@ export class DetailWorkspaceInformationComponent extends AbstractComponent {
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -98,7 +82,7 @@ export class DetailWorkspaceInformationComponent extends AbstractComponent {
     // 쿠키서비스에 현재 url 저장
     this._savePrevRouterUrl();
     // 퍼미션 스키마 페이지로 이동
-    this.router.navigate(['/admin/workspaces/permission', this.roleset.id]);
+    this.router.navigate(['/admin/workspaces/permission', this.roleset.id]).then();
   }
 
   /**

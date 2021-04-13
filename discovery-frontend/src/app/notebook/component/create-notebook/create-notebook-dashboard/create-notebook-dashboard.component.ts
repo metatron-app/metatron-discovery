@@ -178,7 +178,7 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
     this.workspaceService.getWorkbooks(workspaceId, bookId, 'forTreeView')
       .then((workbooks) => {
         this.loadingHide();
-        console.info('workbooks', workbooks);
+        console.log('workbooks', workbooks);
         // this.bookTree = workbooks;
         // this.node.push(this.bookTree);
         this.node.push(workbooks);
@@ -195,7 +195,7 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
     this.loadingShow();
     this.dashboardService.getDashboard(dashboardId)
       .then((data) => {
-        console.info('dashboardDetail', data);
+        console.log('dashboardDetail', data);
         this.loadingHide();
         this.selectedBoardId = data.id;
         if (data.dataSources.length > 0) {
@@ -207,7 +207,7 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
       .catch((error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.nbook.alert.dashboard.retrieve.fail'));
-        console.info('dashboardDetail', error);
+        console.log('dashboardDetail', error);
       });
   }
 
@@ -246,7 +246,7 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
 
   /** 클릭시 내부 컨텐츠 show */
   protected showBooks(book: Book, index: number) {
-    console.info('showbooks', book, index);
+    console.log('showbooks', book, index);
     this.selectedDatasourceId = '';
     this.selectedBoardId = '';
     // 뎁스 자르기

@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-import { UIOption } from '../ui-option';
-import { BarMarkType, LineMarkType, LineMode, LineStyle, PointShape } from '../define/common';
+import {UIOption} from '../ui-option';
+import {BarMarkType, LineMarkType} from '../define/common';
+
 /**
  * 컴바인차트 화면 UI에 필요한 옵션
  * Version 2.0
@@ -21,10 +22,10 @@ import { BarMarkType, LineMarkType, LineMode, LineStyle, PointShape } from '../d
 export interface UICombineChart extends UIOption {
 
   // Bar Chart 표시 방식
-  barMarkType : BarMarkType;
+  barMarkType: BarMarkType;
 
   // Line Chart 표시 방식
-  lineMarkType : LineMarkType;
+  lineMarkType: LineMarkType;
 }
 
 

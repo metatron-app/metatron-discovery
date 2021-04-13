@@ -406,7 +406,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
       downloadCsvForm.submit();
     } catch (e) {
       // 재현이 되지 않음.
-      console.info('Download error : ' + e);
+      console.log('Download error : ' + e);
     }
   }
 

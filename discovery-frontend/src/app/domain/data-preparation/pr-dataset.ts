@@ -96,36 +96,36 @@ export class Datasets {
 }
 
 export enum DsType {
-  IMPORTED = <any>'IMPORTED',
-  WRANGLED = <any>'WRANGLED',
+  IMPORTED = 'IMPORTED',
+  WRANGLED = 'WRANGLED',
 }
 
 export enum ImportType {
-  UPLOAD = <any>'UPLOAD',
-  URI = <any>'URI',
-  DATABASE = <any>'DATABASE',
-  STAGING_DB = <any>'STAGING_DB',
-  DRUID = <any>'DRUID',
+  UPLOAD = 'UPLOAD',
+  URI = 'URI',
+  DATABASE = 'DATABASE',
+  STAGING_DB = 'STAGING_DB',
+  DRUID = 'DRUID',
 }
 
 export enum StorageType {
-  LOCAL = <any>'LOCAL',
-  HDFS = <any>'HDFS',
-  S3 = <any>'S3',
-  BLOB = <any>'BLOB',
-  FTP = <any>'FTP',
+  LOCAL = 'LOCAL',
+  HDFS = 'HDFS',
+  S3 = 'S3',
+  BLOB = 'BLOB',
+  FTP = 'FTP',
 }
 
 export enum FileFormat {
-  CSV = <any>'CSV',
-  EXCEL = <any>'EXCEL',
-  JSON = <any>'JSON',
-  TXT= <any>'TXT'
+  CSV = 'CSV',
+  EXCEL = 'EXCEL',
+  JSON = 'JSON',
+  TXT= 'TXT'
 }
 
 export enum RsType {
-  TABLE = <any>'TABLE',
-  QUERY = <any>'QUERY',
+  TABLE = 'TABLE',
+  QUERY = 'QUERY',
 }
 
 export class Field {

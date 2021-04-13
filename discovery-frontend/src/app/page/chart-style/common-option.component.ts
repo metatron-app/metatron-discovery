@@ -260,7 +260,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
           const field: any = this.pivot.aggregations[num];
           let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
           let displayName: any = aggs[num];
-          if( field.aggregationType && field.aggregationType != "" ) {
+          if( field.aggregationType && field.aggregationType !=  '' ) {
             alias = field.aggregationType +"("+ alias +")";
           }
 
@@ -392,7 +392,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
             this.kpiText = option.annotations[0].description;
           }
           else {
-            this.kpiText = "";
+            this.kpiText =  '';
           }
           this.kpiTextTemp = this.kpiText;
         } else {
@@ -400,10 +400,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
           this.textTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
 
           if (option.annotations[0].show) {
-            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description : "";
+            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description :  '';
           }
           else {
-            this.kpiText = "";
+            this.kpiText =  '';
           }
           this.kpiTextTemp = this.kpiText;
         }
@@ -462,8 +462,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
   ];
   public kpiIconTarget: Object = this.kpiIconTargetList[0];
   public kpiTextTarget: Object = this.kpiIconTargetList[0];
-  public kpiText: string = "";
-  public kpiTextTemp: string = "";
+  public kpiText: string =  '';
+  public kpiTextTemp: string =  '';
 
   // 기본 limit값
   public DEFAULT_LIMIT: number = 1000;
@@ -1168,13 +1168,13 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiIsIconAll(): boolean {
     const option: UILabelChart = <UILabelChart>this.uiOption;
-    let iconType: string = "";
+    let iconType: string =  '';
     let isAll: boolean = true;
     _.each(option.icons, (series) => {
       const labelSeries: UILabelIcon = (<UILabelIcon>series);
       if (!_.isUndefined(labelSeries.show)) {
         let seriesIconType: string = labelSeries.iconType;
-        if (iconType == "") {
+        if (iconType ==  '') {
           iconType = seriesIconType;
         }
         else if (iconType != seriesIconType) {
@@ -1241,12 +1241,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
     const option: UILabelChart = <UILabelChart>this.uiOption;
     let show: boolean = !option.annotations[0].show;
     if (show) {
-      this.kpiText = "";
+      this.kpiText =  '';
       this.kpiTextTemp = this.kpiText;
     }
     _.each(option.annotations, (series) => {
       if (show) {
-        series.description = "";
+        series.description =  '';
         series.show = true;
       }
       else {
@@ -1321,14 +1321,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
     const option: UILabelChart = <UILabelChart>this.uiOption;
     this.kpiTextTarget = target;
     if (this.kpiTextTarget['value'] == '') {
-      this.kpiText = option.annotations[0].description ? option.annotations[0].description : "";
+      this.kpiText = option.annotations[0].description ? option.annotations[0].description :  '';
       this.kpiTextTemp = this.kpiText;
     }
     else {
       const labelSeries: UILabelAnnotation[] = (<UILabelAnnotation[]>option.annotations);
       for (let num = 0; num < labelSeries.length; num++) {
         if (labelSeries[num].seriesName == this.kpiTextTarget['value']) {
-          this.kpiText = labelSeries[num].description ? labelSeries[num].description : "";
+          this.kpiText = labelSeries[num].description ? labelSeries[num].description :  '';
           this.kpiTextTemp = this.kpiText;
           break;
         }

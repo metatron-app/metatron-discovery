@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { CreateBoardDsNetworkComponent } from './create-board-ds-network.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { CreateBoardCompleteComponent } from './create-board-complete.component';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {CreateBoardDsNetworkComponent} from './create-board-ds-network.component';
+import {CreateBoardCompleteComponent} from './create-board-complete.component';
 
 @Component({
   selector: 'app-create-board',

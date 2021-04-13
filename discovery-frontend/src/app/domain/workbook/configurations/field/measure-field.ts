@@ -33,29 +33,29 @@ export class MeasureField extends Field {
  */
 export enum AggregationType {
   // 사용자 노출 타입
-  SUM = <any>'SUM',
-  AVG = <any>'AVG',
-  COUNT = <any>'COUNT',
-  MIN = <any>'MIN',
-  MAX = <any>'MAX',
-  PERCENTILE = <any>'PERCENTILE',
+  SUM = 'SUM',
+  AVG = 'AVG',
+  COUNT = 'COUNT',
+  MIN = 'MIN',
+  MAX = 'MAX',
+  PERCENTILE = 'PERCENTILE',
 
-  NONE = <any>'NONE',
+  NONE = 'NONE',
 
-  STDDEV = <any>'STDDEV',
-  MEDIAN = <any>'MEDIAN',
-  AREA = <any>'AREA',
-  RANGE = <any>'RANGE',
-  QUANTILE = <any>'QUANTILE',
+  STDDEV = 'STDDEV',
+  MEDIAN = 'MEDIAN',
+  AREA = 'AREA',
+  RANGE = 'RANGE',
+  QUANTILE = 'QUANTILE',
 
-  SLOPE = <any>'SLOPE',
+  SLOPE = 'SLOPE',
 
   // Ingestion 타입
-  VARIATION = <any>'VARIATION',
-  APPROX = <any>'APPROX',
+  VARIATION = 'VARIATION',
+  APPROX = 'APPROX',
 
   // 계산식내 집계함수 포함 경우
-  COMPLEX = <any>'COMPLEX',
+  COMPLEX = 'COMPLEX',
 
-  IFCOUNTD = <any>'IFCOUNTD'
+  IFCOUNTD = 'IFCOUNTD'
 }

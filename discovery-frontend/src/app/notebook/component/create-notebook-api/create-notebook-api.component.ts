@@ -102,9 +102,9 @@ export class CreateNotebookApiComponent extends AbstractPopupComponent implement
     if (this.kernel === 'SPARK') {
       this.selectedType = 'Void';
     }
-    console.info('result', this.result);
+    console.log('result', this.result);
     if (this.result !== null) {
-      console.info('result', this.result);
+      console.log('result', this.result);
       this.argName = this.result.name;
       this.argDescription = this.result.desc;
       this.selectedType = this.result.returnType;

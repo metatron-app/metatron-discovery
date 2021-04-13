@@ -21,7 +21,6 @@ import {
   AxisType,
   BarMarkType,
   ChartAxisLabelType,
-  ChartColorList,
   ChartColorType,
   ChartGradientType,
   ChartType,
@@ -51,16 +50,16 @@ import {
   UIOrient,
   UIPosition
 } from '../define/common';
-import { Title } from '../define/title';
-import { Legend } from '../define/legend';
-import { Grid } from '../define/grid';
+import {Title} from '../define/title';
+import {Legend} from '../define/legend';
+import {Grid} from '../define/grid';
 import {Axis, AxisLabel, AxisLine, AxisTick, Radar, SplitLine} from '../define/axis';
-import { DataZoomType, InsideDataZoom, SliderDataZoom } from '../define/datazoom';
-import { Tooltip } from '../define/tooltip';
-import { Toolbox } from '../define/toolbox';
-import { Brush } from '../define/brush';
-import { Series } from '../define/series';
-import { BaseOption } from '../base-option';
+import {DataZoomType, InsideDataZoom, SliderDataZoom} from '../define/datazoom';
+import {Tooltip} from '../define/tooltip';
+import {Toolbox} from '../define/toolbox';
+import {Brush} from '../define/brush';
+import {Series} from '../define/series';
+import {BaseOption} from '../base-option';
 import {
   ColorRange,
   UIChartAxis,
@@ -73,9 +72,9 @@ import {
   UIChartZoom,
   UIOption
 } from '../ui-option';
-import { PiecewiseVisualmap, Visualmap, VisualMapType } from '../define/visualmap';
+import {PiecewiseVisualmap, Visualmap, VisualMapType} from '../define/visualmap';
 import * as _ from 'lodash';
-import { Graphic } from '../define/graphic';
+import {Graphic} from '../define/graphic';
 import {
   DataStyle,
   GraphicStyle,
@@ -86,28 +85,28 @@ import {
   SymbolStyle,
   TextStyle
 } from '../define/style';
-import { UIBarChart } from '../ui-option/ui-bar-chart';
-import { UILineChart } from '../ui-option/ui-line-chart';
-import { UIScatterChart } from '../ui-option/ui-scatter-chart';
-import { UIGridChart } from '../ui-option/ui-grid-chart';
-import { UIChartColorBySingle } from '../ui-option/ui-color';
-import { UILabelChart } from '../ui-option/ui-label-chart';
-import { UIChartDataLabel } from '../ui-option/ui-datalabel';
-import { UICombineChart } from '../ui-option/ui-combine-chart';
-import { UIPieChart } from '../ui-option/ui-pie-chart';
-import { UIRadarChart } from '../ui-option/ui-radar-chart';
+import {UIBarChart} from '../ui-option/ui-bar-chart';
+import {UILineChart} from '../ui-option/ui-line-chart';
+import {UIScatterChart} from '../ui-option/ui-scatter-chart';
+import {UIGridChart} from '../ui-option/ui-grid-chart';
+import {UIChartColorBySingle} from '../ui-option/ui-color';
+import {UILabelChart} from '../ui-option/ui-label-chart';
+import {UIChartDataLabel} from '../ui-option/ui-datalabel';
+import {UICombineChart} from '../ui-option/ui-combine-chart';
+import {UIPieChart} from '../ui-option/ui-pie-chart';
+import {UIRadarChart} from '../ui-option/ui-radar-chart';
 
-import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
-import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
-import {MapLineStyle, MapThickness, MapType} from '../define/map/map-common';
-import { UIMapOption } from '../ui-option/map/ui-map-chart';
-import {CommonConstant} from "../../../../constant/common.constant";
+import {CustomSymbol} from '../../../../../domain/workbook/configurations/format';
+import {UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue} from '../ui-option/ui-axis';
+import {MapBy, MapLayerType, MapLineStyle, MapType} from '../define/map/map-common';
+import {UIMapOption} from '../ui-option/map/ui-map-chart';
+import {CommonConstant} from '../../../../constant/common.constant';
 
 export namespace OptionGenerator {
 
   // 축 라인
-  export function defaultLimit( type:ChartType ):number {
-    return (ChartType.SANKEY == type) ? 50 : 1000;
+  export function defaultLimit(type: ChartType): number {
+    return (ChartType.SANKEY === type) ? 50 : 1000;
   }
 
   export function initUiOption(uiOption: UIOption): UIOption {
@@ -146,7 +145,7 @@ export namespace OptionGenerator {
         uiOption = OptionGenerator.WordCloudChart.defaultWordCloudChartUIOption();
         break;
       case ChartType.WATERFALL :
-        uiOption = OptionGenerator.WateFallChart.defaultWateFallChartUIOption();
+        uiOption = OptionGenerator.WaterFallChart.defaultWaterFallChartUIOption();
         break;
       case ChartType.RADAR :
         uiOption = OptionGenerator.RadarChart.defaultRadarChartUIOption();
@@ -170,20 +169,16 @@ export namespace OptionGenerator {
         uiOption = OptionGenerator.MapViewChart.defaultMapViewChartUIOption();
         break;
       default:
-        console.info('스타일 초기화 실패 => ', type);
+        console.log('스타일 초기화 실패 => ', type);
         break;
     }
 
     // set default limit
-    if( type !== ChartType.WORDCLOUD && type !== ChartType.SANKEY && type !== ChartType.NETWORK
-      && type !== ChartType.GAUGE && type !== ChartType.TREEMAP ) {
+    if (type !== ChartType.WORDCLOUD && type !== ChartType.SANKEY && type !== ChartType.NETWORK
+      && type !== ChartType.GAUGE && type !== ChartType.TREEMAP) {
       uiOption.limitCheck = true;
-      uiOption.limit = OptionGenerator.defaultLimit( type );
+      uiOption.limit = OptionGenerator.defaultLimit(type);
     }
-
-    console.info('== initUiOption ==');
-    console.info(uiOption);
-    console.info('==================');
 
     return uiOption;
   }
@@ -290,14 +285,6 @@ export namespace OptionGenerator {
       };
     });
 
-    // 축 라벨 스타일
-    const axisLabelStyle = ((): TextStyle => {
-      return {
-        fontSize: 13,
-        fontFamily: 'SpoqaHanSans'
-      };
-    });
-
     // 축 단위 라벨
     const axisLabel = ((show: boolean): AxisLabel => {
       return {
@@ -329,7 +316,7 @@ export namespace OptionGenerator {
 
     // radar
     const radar = ((): Radar => {
-      return { indicator: [] };
+      return {indicator: []};
     });
 
     /**
@@ -420,7 +407,7 @@ export namespace OptionGenerator {
      * @returns {OptionGenerator.Legend}
      */
     export function custom(show: boolean, seriesSync: boolean, left: Position, symbol: SymbolType, width: string | number, itemGap: number, pageItems: number): Legend {
-      return { show, seriesSync, left, symbol, width, itemGap, pageItems, textStyle: legendTextStyle() };
+      return {show, seriesSync, left, symbol, width, itemGap, pageItems, textStyle: legendTextStyle()};
     }
 
   }
@@ -508,7 +495,7 @@ export namespace OptionGenerator {
       return {
         show,
         feature: {
-          dataZoom : {
+          dataZoom: {
             show
           }
         }
@@ -776,7 +763,7 @@ export namespace OptionGenerator {
      */
     export function opacity1(): ItemStyleSet {
       return {
-        normal: { opacity : 1 },
+        normal: {opacity: 1},
         emphasis: {}
       };
     }
@@ -950,6 +937,8 @@ export namespace OptionGenerator {
      * @preset 스택 bar 라벨 스타일 생성
      *
      * @param orient
+     * @param show
+     * @param chartType
      * @returns {{normal: LabelStyle, emphasis: LabelStyle}}
      */
     export function stackBarLabelStyle(orient: Orient, show?: boolean, chartType?: ChartType): LabelStyleSet {
@@ -963,6 +952,7 @@ export namespace OptionGenerator {
      * @preset multiple bar 라벨 스타일 생성
      *
      * @param orient
+     * @param show
      * @returns {{normal: LabelStyle}}
      */
     export function multipleBarLabelStyle(orient: Orient, show?: boolean): LabelStyleSet {
@@ -1072,8 +1062,8 @@ export namespace OptionGenerator {
       /**
        * Color by Measure 옵션 생성
        *
-       * @param {ChartColorList} codes
-       * @returns {UIChartColorByMeasure}
+       * @param {ChartColorList} schema
+       * @returns {UIChartColorBySeries}
        */
       export function measureUIChartColor(schema: string): UIChartColorBySeries {
         return {
@@ -1086,8 +1076,7 @@ export namespace OptionGenerator {
        * Color By Value 옵션 생성
        *
        * @param {ChartGradientType} mode
-       * @param {ChartColorList} codes
-       * @param {ColorRange[]} ranges
+       * @param {string} schema
        * @returns {UIChartColorByValue}
        */
       export function valueUIChartColor(mode: ChartGradientType, schema: string): UIChartColorByValue {
@@ -1169,7 +1158,7 @@ export namespace OptionGenerator {
 
       /**
        * 사용자 기호설정
-       * @param pos : 위치
+       * @param pos
        */
       export function customSymbol(pos: UIFormatSymbolPosition): CustomSymbol {
         return {
@@ -1223,7 +1212,7 @@ export namespace OptionGenerator {
       export function axisLabelForValue(type: ChartAxisLabelType): UIChartAxisLabelValue {
         return {
           type,
-          useDefault : true
+          useDefault: true
         }
       }
 
@@ -1377,7 +1366,7 @@ export namespace OptionGenerator {
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL)],
         mark: BarMarkType.MULTIPLE,
         align: UIOrient.VERTICAL,
-        //series: UI.Presentation.barPresentation(DataUnit.NONE),
+        // series: UI.Presentation.barPresentation(DataUnit.NONE),
         fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
@@ -1402,7 +1391,7 @@ export namespace OptionGenerator {
     /**
      * Gauge Bar 차트 옵션 생성
      *
-     * @returns {UIOption}
+     * @returns {UIBarChart}
      */
     export function gaugeBarChartUIOption(): UIBarChart {
       return {
@@ -1477,7 +1466,7 @@ export namespace OptionGenerator {
      * @returns {UIOption}
      */
     export function defaultControlLineChartUIOption(): UIOption {
-      return _.extend(defaultLineChartUIOption(), { type: ChartType.CONTROL });
+      return _.extend(defaultLineChartUIOption(), {type: ChartType.CONTROL});
     }
 
   }
@@ -1770,14 +1759,14 @@ export namespace OptionGenerator {
   /**
    * WaterFall Chart
    */
-  export namespace WateFallChart {
+  export namespace WaterFallChart {
 
     /**
-     * 기본 WateFall 차트 옵션 생성
+     * 기본 WaterFall 차트 옵션 생성
      *
      * @returns {BaseOption}
      */
-    export function defaultWateFallChartOption(): BaseOption {
+    export function defaultWaterFallChartOption(): BaseOption {
       return {
         type: ChartType.WATERFALL,
         grid: [Grid.verticalMode(10, 0, 0, 10, false, true, false)],
@@ -1791,11 +1780,11 @@ export namespace OptionGenerator {
     }
 
     /**
-     * 화면 UI와 연동되는 기본 WateFall 차트 옵션 생성
+     * 화면 UI와 연동되는 기본 WaterFall 차트 옵션 생성
      *
-     * @returns {UIOption}
+     * @returns {UIBarChart}
      */
-    export function defaultWateFallChartUIOption(): UIBarChart {
+    export function defaultWaterFallChartUIOption(): UIBarChart {
       return {
         type: ChartType.WATERFALL,
         xAxis: UI.Axis.xAxis(AxisLabelType.ROW, true, true, UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY)),
@@ -1884,7 +1873,7 @@ export namespace OptionGenerator {
         xAxis: UI.Axis.xAxis(AxisLabelType.ROW, true, true, UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY)),
         yAxis: UI.Axis.yAxis(AxisLabelType.COLUMN, true, true, UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE)),
         secondaryAxis: UI.Axis.yAxis(AxisLabelType.SUBCOLUMN, true, true, UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE)),
-        //label: UI.Label.axisLabel(false, false, [UI.Label.labelMode(AxisLabelType.ROW, true, true, AxisLabelMark.HORIZONTAL), UI.Label.labelMode(AxisLabelType.COLUMN, true, true, AxisLabelMark.HORIZONTAL), UI.Label.labelMode(AxisLabelType.SUBCOLUMN, true, true, AxisLabelMark.HORIZONTAL)]),
+        // label: UI.Label.axisLabel(false, false, [UI.Label.labelMode(AxisLabelType.ROW, true, true, AxisLabelMark.HORIZONTAL), UI.Label.labelMode(AxisLabelType.COLUMN, true, true, AxisLabelMark.HORIZONTAL), UI.Label.labelMode(AxisLabelType.SUBCOLUMN, true, true, AxisLabelMark.HORIZONTAL)]),
         dataLabel: UI.DataLabel.label(false),
         legend: UI.Legend.pagingLegend(true, 5),
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL)],
@@ -1924,7 +1913,12 @@ export namespace OptionGenerator {
         color: UI.Color.dimensionUIChartColor('SC1'),
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
         fontSize: FontSize.NORMAL,
-        dataLabel: {showValue: true, hAlign: UIPosition.CENTER, vAlign: UIPosition.CENTER, displayTypes: [,,, UIChartDataLabelDisplayType.SERIES_NAME]}
+        dataLabel: {
+          showValue: true,
+          hAlign: UIPosition.CENTER,
+          vAlign: UIPosition.CENTER,
+          displayTypes: [, , , UIChartDataLabelDisplayType.SERIES_NAME]
+        }
       };
     }
   }
@@ -1958,7 +1952,7 @@ export namespace OptionGenerator {
         type: ChartType.NETWORK,
         color: UI.Color.dimensionUIChartColor('SC1'),
         legend: UI.Legend.pagingLegend(true, 5),
-        dataLabel: UI.DataLabel.label(true, [,,,,,,,,, UIChartDataLabelDisplayType.NODE_NAME], DataLabelPosition.TOP),
+        dataLabel: UI.DataLabel.label(true, [, , , , , , , , , UIChartDataLabelDisplayType.NODE_NAME], DataLabelPosition.TOP),
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1993,7 +1987,7 @@ export namespace OptionGenerator {
         type: ChartType.SANKEY,
         color: UI.Color.dimensionUIChartColor('SC1'),
         legend: UI.Legend.pagingLegend(true, 5),
-        dataLabel: UI.DataLabel.label(true, [,,,,,,,,, UIChartDataLabelDisplayType.NODE_NAME]),
+        dataLabel: UI.DataLabel.label(true, [, , , , , , , , , UIChartDataLabelDisplayType.NODE_NAME]),
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -2024,44 +2018,45 @@ export namespace OptionGenerator {
      */
     export function defaultMapViewChartUIOption(): UIMapOption {
 
-      let defaultStyle:string = 'Light';
-      const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
-      if ( propMapConf ) {
-        const objConf = JSON.parse( propMapConf );
-        ( objConf && objConf.defaultBaseMap ) && ( defaultStyle = objConf.defaultBaseMap );
+      let defaultStyle: string = 'Light';
+      const propMapConf = sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG);
+      if (propMapConf) {
+        const objConf = JSON.parse(propMapConf);
+        (objConf && objConf.defaultBaseMap) && (defaultStyle = objConf.defaultBaseMap);
       }
 
-      return <any>{
+      return {
         type: ChartType.MAP,
         layerNum: 0,
         showMapLayer: true,
         map: MapType.OSM,
         style: defaultStyle,
-        licenseNotation: "© OpenStreetMap contributors",
+        licenseNotation: '© OpenStreetMap contributors',
         showDistrictLayer: true,
-        districtUnit: "state",
+        districtUnit: 'state',
         layers: [
           {
-            type: "symbol",
-            name: "Layer1",
-            symbol: "CIRCLE",        // CIRCLE, SQUARE, TRIANGLE
+            type: MapLayerType.SYMBOL,
+            name: 'Layer1',
+            symbol: 'CIRCLE',        // CIRCLE, SQUARE, TRIANGLE
             color: {
-              by: "NONE",            // NONE, MEASURE, DIMENSION
-              column: "NONE",
-              schema: "#6344ad",
-              transparency: 50
+              by: MapBy.NONE,            // NONE, MEASURE, DIMENSION
+              column: 'NONE',
+              schema: '#6344ad',
+              transparency: 50,
+              settingUseFl: false
             },
             size: {
-              "by": "NONE",
-              "column": "NONE",
-              "max": 10
+              by: 'NONE',
+              column: 'NONE',
+              max: 10
             },
             outline: null,
             clustering: false,
             coverage: 50,
             thickness: {
-              by: "NONE",
-              column: "NONE",
+              by: MapBy.NONE,
+              column: 'NONE',
               maxValue: 2
             },
             lineStyle: MapLineStyle.SOLID
@@ -2076,27 +2071,27 @@ export namespace OptionGenerator {
         toolTip: {
           displayColumns: [],
           displayTypes: [
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "LAYER_NAME",
-            "LOCATION_INFO",
-            "DATA_VALUE"
-          ]
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'LAYER_NAME',
+            'LOCATION_INFO',
+            'DATA_VALUE'
+          ] as UIChartDataLabelDisplayType[]
         }
       };
     }

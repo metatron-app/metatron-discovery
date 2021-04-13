@@ -58,7 +58,7 @@ export class ResultNotebookApiComponent extends AbstractPopupComponent implement
 
     this.loadingShow();
     if (!isUndefined(this.result)) {
-      console.info('===>', this.result);
+      console.log('===>', this.result);
       this.notebookService.runNotebookApi(this.result)
         .then((result) => {
           this.loadingHide();

@@ -53,7 +53,7 @@ export class ToolOptionConverter {
 
   /**
    * 확대 툴의 대상 축 설정
-   * @param ption
+   * @param option
    * @param uiOption
    */
   public static convertDataZoomShow(option: BaseOption, uiOption: UIOption): BaseOption {
@@ -71,10 +71,10 @@ export class ToolOptionConverter {
 
   /**
    * dataZoom show / hide 설정
-   * @param ption
-   * @param uiOption
+   * @param option
+   * @param _uiOption
    */
-  public static convertDataZoomAxis(option: BaseOption, uiOption: UIOption): BaseOption {
+  public static convertDataZoomAxis(option: BaseOption, _uiOption: UIOption): BaseOption {
 
     if (_.isUndefined(option.toolbox)) return option;
     if (_.eq(option.xAxis[0].type, AxisType.CATEGORY)) {
@@ -98,7 +98,7 @@ export class ToolOptionConverter {
     const orient: UIOrient = uiOption['align'];
 
     // default일때(세로모드, x축 category, y축 value)에는 변경하지않음
-    if (_.eq(orient, UIOrient.VERTICAL) && option.yAxis[0].type == AxisType.VALUE && option.xAxis[0].type == AxisType.CATEGORY) return option;
+    if (_.eq(orient, UIOrient.VERTICAL) && option.yAxis[0].type === AxisType.VALUE && option.xAxis[0].type === AxisType.CATEGORY) return option;
 
     if (_.isUndefined(option.dataZoom)) return option;
     option.dataZoom.map((obj) => {
@@ -150,7 +150,7 @@ export class ToolOptionConverter {
   public static convertGridByLabelShow(option: BaseOption, uiOption: UIOption): BaseOption {
 
     // chartZoom이 없는경우 return
-    if (!uiOption.chartZooms || uiOption.chartZooms.length == 0) return option;
+    if (!uiOption.chartZooms || uiOption.chartZooms.length === 0) return option;
 
     // chartZoom이 가로일때에는 수직모드, chartZoom이 세로일때에는 수평모드
     const orient: UIOrient = _.gt(uiOption.chartZooms.length, 1)
@@ -170,37 +170,37 @@ export class ToolOptionConverter {
         case UIOrient.BOTH:
 
           // x축 레이블 표시가 false인경우 축제목이 true인경우 (dataZoom이 있는축)
-          if (false == uiOption.xAxis.showLabel && true == uiOption.xAxis.showName) {
-            obj.bottom = <any>(obj.bottom) + 15;
+          if (false === uiOption.xAxis.showLabel && true === uiOption.xAxis.showName) {
+            obj.bottom = (obj.bottom as number) + 15;
           }
 
           // y축 레이블 표시가 false인경우 축제목이 true인경우 (dataZoom이 있는축)
-          if (false == uiOption.yAxis.showLabel && true == uiOption.yAxis.showName) {
-            obj.left = <any>(obj.left) + 15;
+          if (false === uiOption.yAxis.showLabel && true === uiOption.yAxis.showName) {
+            obj.left = (obj.left as number) + 15;
           }
 
           break;
         case UIOrient.VERTICAL:
 
           // x축 레이블 표시가 false이고 축제목이 true인경우 (dataZoom이 있는축)
-          if (false == uiOption.xAxis.showLabel && true == uiOption.xAxis.showName) {
-            obj.bottom = <any>(obj.bottom) + 15;
+          if (false === uiOption.xAxis.showLabel && true === uiOption.xAxis.showName) {
+            obj.bottom = (obj.bottom as number) + 15;
           }
 
           // y축 레이블 표시가 false인경우 (dataZoom이 없는축)
-          if (false == uiOption.yAxis.showLabel) {
-            obj.left = <any>(obj.left) + 20;
+          if (false === uiOption.yAxis.showLabel) {
+            obj.left = (obj.left as number) + 20;
           }
           break;
         case UIOrient.HORIZONTAL:
 
           // x축 레이블 표시가 false인경우 (dataZoom이 없는축)
-          if (false == uiOption.xAxis.showLabel) {
-            obj.bottom = <any>(obj.bottom) + 20;
+          if (false === uiOption.xAxis.showLabel) {
+            obj.bottom = (obj.bottom as number) + 20;
           }
           // y축 레이블 표시가 false이고 축제목이 true인경우 (dataZoom이 없는축)
-          if (false == uiOption.yAxis.showLabel && true == uiOption.yAxis.showName) {
-            obj.left = <any>(obj.left) + 15;
+          if (false === uiOption.yAxis.showLabel && true === uiOption.yAxis.showName) {
+            obj.left = (obj.left as number) + 15;
           }
           break;
       }
@@ -216,7 +216,7 @@ export class ToolOptionConverter {
   public static convertGridAxisRotate(option: BaseOption, uiOption: UIOption): BaseOption {
 
     // chartZoom이 없는경우 return
-    if (!uiOption.chartZooms || uiOption.chartZooms.length == 0) return option;
+    if (!uiOption.chartZooms || uiOption.chartZooms.length === 0) return option;
 
     // chartZoom이 가로일때에는 수직모드, chartZoom이 세로일때에는 수평모드
     const orient: UIOrient = _.gt(uiOption.chartZooms.length, 1)
@@ -238,7 +238,7 @@ export class ToolOptionConverter {
 
     // DataZoom(미니맵) 존재 여부에 따라서 여백 조정
     // vertical 모드일때 bottom부분의경우 dataZoom이 없는경우에도 10을 설정해줘야 짤리지 않음
-    option.grid.map((obj, idx) => {
+    option.grid.map((_obj, idx) => {
       option.grid[idx] = _.eq(orient, UIOrient.BOTH)
         ? OptionGenerator.Grid.bothMode(10, 10, 10, 20, withLegend, withDataZooom)
         : _.eq(orient, UIOrient.VERTICAL)

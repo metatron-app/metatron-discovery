@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Position} from "./common";
+import {Position} from './common';
 
 export interface Label {
 

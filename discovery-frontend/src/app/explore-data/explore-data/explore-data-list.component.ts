@@ -132,8 +132,8 @@ export class ExploreDataListComponent extends AbstractComponent {
           filterKey: "updatedTimeFrom",
           filterName: "msg.storage.ui.criterion.created-time",
           filterSubKey: "updatedTimeTo",
-          filterSubValue: "",
-          filterValue: ""
+          filterSubValue:  '',
+          filterValue:  ''
         }
       ]
     };

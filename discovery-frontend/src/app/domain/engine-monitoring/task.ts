@@ -26,19 +26,19 @@ export class Task {
 }
 
 export enum TaskStatus {
-  ALL = <any>'ALL',
-  PENDING = <any>'PENDING',
-  WAITING = <any>'WAITING',
-  RUNNING = <any>'RUNNING',
-  SUCCESS = <any>'SUCCESS',
-  FAILED = <any>'FAILED'
+  ALL = 'ALL',
+  PENDING = 'PENDING',
+  WAITING = 'WAITING',
+  RUNNING = 'RUNNING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED'
 }
 
 export enum TaskType {
-  ALL = <any>'ALL',
-  INDEX = <any>'index',
-  KAFKA = <any>'index_kafka',
-  HADOOP = <any>'index_hadoop'
+  ALL = 'ALL',
+  INDEX = 'index',
+  KAFKA = 'index_kafka',
+  HADOOP = 'index_hadoop'
 }
 
 // ONLY USE UI

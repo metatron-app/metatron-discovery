@@ -14,7 +14,7 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../abstract.component';
-import { Modal } from '../../../domain/modal';
+import { Modal } from '@common/domain/modal';
 
 @Component({
   selector: 'app-delete-modal',

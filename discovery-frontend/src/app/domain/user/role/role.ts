@@ -39,11 +39,11 @@ export class Role extends AbstractHistoryEntity {
 }
 
 export enum RoleScope {
-  GLOBAL = <any>'GLOBAL',
-  WORKSPACE = <any>'WORKSPACE'
+  GLOBAL = 'GLOBAL',
+  WORKSPACE = 'WORKSPACE'
 }
 
 export enum RoleType {
-  USER = <any>'USER',
-  GROUP = <any>'GROUP'
+  USER = 'USER',
+  GROUP = 'GROUP'
 }

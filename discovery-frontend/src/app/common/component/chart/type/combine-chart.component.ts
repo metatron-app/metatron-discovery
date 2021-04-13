@@ -16,9 +16,9 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { BaseChart, PivotTableInfo } from '../base-chart';
-import { BaseOption } from '../option/base-option';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {BaseChart, PivotTableInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
 import {
   AxisType,
   BarMarkType,
@@ -32,22 +32,21 @@ import {
   ShelveType,
   SymbolType
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import { Series } from '../option/define/series';
-import { UICombineChart } from '../option/ui-option/ui-combine-chart';
-import { UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue } from '../option/ui-option/ui-axis';
-import { AxisOptionConverter } from '../option/converter/axis-option-converter';
-import { Axis } from '../option/define/axis';
-import { DataZoomType } from '../option/define/datazoom';
-import { UIOption } from '../option/ui-option';
+import {Series} from '../option/define/series';
+import {UICombineChart} from '../option/ui-option/ui-combine-chart';
+import {UIChartAxis, UIChartAxisGrid} from '../option/ui-option/ui-axis';
+import {AxisOptionConverter} from '../option/converter/axis-option-converter';
+import {Axis} from '../option/define/axis';
+import {DataZoomType} from '../option/define/datazoom';
 
 @Component({
   selector: 'combine-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class CombineChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
+export class CombineChartComponent extends BaseChart<UICombineChart> implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -75,7 +74,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -110,9 +109,9 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
   public isValid(pivot: Pivot): boolean {
     return ((this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP)) > 0)
       && ((this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) >= 2
-      && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) <= 4)
-      && (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0)
+        && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) <= 4)
+      && (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0)
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -146,7 +145,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
   protected additionalBasic(): BaseOption {
 
     // Secondary Axis Migration
-    if( !this.uiOption.secondaryAxis  ) {
+    if (!this.uiOption.secondaryAxis) {
       this.uiOption.secondaryAxis = _.cloneDeep(this.uiOption.yAxis);
     }
 
@@ -183,7 +182,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
   protected convertYAxisData(): BaseOption {
 
     const yAxis: string[] = this.fieldInfo.aggs;
-    _.each(yAxis, (axis, idx) => {
+    _.each(yAxis, (_axis, idx) => {
       const axisIdx = idx % 2;
       if (idx < 2) {
         this.chartOption.yAxis[axisIdx].name = yAxis[idx];
@@ -210,29 +209,29 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, AxisType.Y);
+    const axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, AxisType.Y);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = this.chartOption[AxisType.Y];
+    const axis: Axis[] = this.chartOption[AxisType.Y];
 
     _.each(axis, (option: Axis, index) => {
 
       // Value축일 경우
-      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
+      if ((axisOption[index].label) && _.eq((axisOption[index].label).type, AxisType.VALUE)
         && axisOption[index].grid) {
 
         // Sub Axis
-        if( index % 2 != 0 ) {
+        if (index % 2 !== 0) {
 
           // Min / Max값을 다시 구한다.
           let min = null;
           let max = null;
-          this.data.columns.map((column, index) => {
-            if( index % 2 != 0 ) {
+          this.data.columns.map((column, colIdx) => {
+            if (colIdx % 2 !== 0) {
               column.value.map((value) => {
                 if (min == null || value < min) {
                   min = value;
@@ -249,12 +248,11 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
           AxisOptionConverter.axisMinMax[AxisType.SUB].max = max;
 
           // 오토스케일 적용시
-          if( axisOption[index].grid.autoScaled ) {
+          if (axisOption[index].grid.autoScaled) {
             delete option.min;
             delete option.max;
             option.scale = true;
-          }
-          else {
+          } else {
             delete option.scale;
           }
         }
@@ -264,8 +262,8 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
           // Min / Max값을 다시 구한다.
           let min = null;
           let max = null;
-          this.data.columns.map((column, index) => {
-            if( index % 2 == 0 ) {
+          this.data.columns.map((column, colIdx) => {
+            if (colIdx % 2 === 0) {
               column.value.map((value) => {
                 if (min == null || value < min) {
                   min = value;
@@ -283,18 +281,17 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
 
           // 기준선 변경시
           let baseline = 0;
-          if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-            baseline = <number>axisOption[index].baseline;
+          if (axisOption[index].baseline && axisOption[index].baseline !== 0) {
+            baseline = axisOption[index].baseline as number;
           }
 
           // 축 범위 자동설정이 설정되지 않았고
           // 오토스케일 적용시
-          if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+          if (baseline === 0 && axisOption[index].grid.autoScaled) {
             delete option.min;
             delete option.max;
             option.scale = true;
-          }
-          else {
+          } else {
             delete option.scale;
           }
         }
@@ -325,7 +322,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
         if (-1 !== this.pivot.aggregations[idx].options.indexOf(SeriesType.BAR.toString())) {
 
           typeValue = SeriesType.BAR;
-        // line타입일때
+          // line타입일때
         } else {
           typeValue = SeriesType.LINE;
         }
@@ -334,12 +331,12 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
       const series: Series = {
         type: typeValue ? typeValue : _.eq(idx % 2, 0) ? SeriesType.BAR : SeriesType.LINE,
         name: column.name,
-        data: column.value.map( ( val, idx ) => {
+        data: column.value.map((val, colValIdx) => {
           return {
-            name : column.seriesName[idx],
-            value : val,
-            selected : false,
-            itemStyle : OptionGenerator.ItemStyle.opacity1()
+            name: column.seriesName[colValIdx],
+            value: val,
+            selected: false,
+            itemStyle: OptionGenerator.ItemStyle.opacity1()
           }
         }),
         originData: _.cloneDeep(column.value),
@@ -413,7 +410,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     this.chart.on('datazoom', (param) => {
 
       this.chartOption.dataZoom.map((zoom, index) => {
-        if( _.eq(zoom.type, DataZoomType.SLIDER) ) {
+        if (_.eq(zoom.type, DataZoomType.SLIDER)) {
           this.uiOption.chartZooms[index].start = param.start;
           this.uiOption.chartZooms[index].end = param.end;
         }
@@ -425,10 +422,10 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    * 시리즈 데이터 선택 - 차트별 재설정
    * @param seriesData
    */
-  protected selectSeriesData( seriesData ) {
-    this.chartOption.series.forEach( seriesItem => {
-      seriesItem.data.some( dataItem => {
-        if( dataItem.name === seriesData.name ) {
+  protected selectSeriesData(seriesData) {
+    this.chartOption.series.forEach(seriesItem => {
+      seriesItem.data.some(dataItem => {
+        if (dataItem.name === seriesData.name) {
           dataItem.symbolSize = 10;
           dataItem.itemStyle.normal.opacity = 1;
           dataItem.selected = true;
@@ -443,10 +440,10 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    * 시리즈 데이터 선택 해제 - 차트별 재설정
    * @param seriesData
    */
-  protected unselectSeriesData( seriesData ) {
-    this.chartOption.series.forEach( seriesItem => {
-      seriesItem.data.some( dataItem => {
-        if( dataItem.name === seriesData.name ) {
+  protected unselectSeriesData(seriesData) {
+    this.chartOption.series.forEach(seriesItem => {
+      seriesItem.data.some(dataItem => {
+        if (dataItem.name === seriesData.name) {
           dataItem.symbolSize = 4;
           dataItem.itemStyle.normal.opacity = 0.2;
           dataItem.selected = false;
@@ -461,7 +458,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    * 전체 선택 해제 처리 - 차트별 재설정
    * @param seriesData
    */
-  protected clearSelectSeriesData( seriesData ) {
+  protected clearSelectSeriesData(seriesData) {
     seriesData.itemStyle.normal.opacity = 1;
     seriesData.symbolSize = 4;
     seriesData.selected = false;
@@ -476,7 +473,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    */
   private convertBarViewType(): BaseOption {
 
-    const type = (<UICombineChart>this.uiOption).barMarkType;
+    const type = this.uiOption.barMarkType;
 
     const series = this.chartOption.series;
     series.map((obj) => {
@@ -494,7 +491,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     });
 
     // 수치값 라벨 위치 재조정
-    //return this.valueLabelPosition();
+    // return this.valueLabelPosition();
 
     return this.chartOption;
   }
@@ -504,6 +501,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    *
    * @returns {BaseOption}
    */
+
   /*
   private  valueLabelPosition(): BaseOption {
 
@@ -530,7 +528,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    */
   private convertLineViewType(): BaseOption {
 
-    const type = (<UICombineChart>this.uiOption).lineMarkType;
+    const type = this.uiOption.lineMarkType;
 
     const series = this.chartOption.series;
     series.map((obj) => {
@@ -550,7 +548,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     const getPosition = ((pos: DataLabelPosition): Position => {
       let position: Position = null;
 
-      switch(pos) {
+      switch (pos) {
         case DataLabelPosition.OUTSIDE_TOP :
         case DataLabelPosition.TOP :
           position = Position.TOP;
@@ -589,7 +587,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
       if (!option.label) option.label = {normal: {}};
 
       // 짝수인경우 => 바차트
-      if (index % 2 == 0) {
+      if (index % 2 === 0) {
 
         option.label.normal.position = getPosition(this.uiOption.dataLabel.pos);
         // 홀수인경우 => 라인차트
@@ -601,15 +599,15 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     return this.chartOption;
   }
 
-  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
+  protected calculateMinMax(grid: UIChartAxisGrid, result: any, _isYAxis: boolean): void {
 
     // 축범위 자동설정일 경우
-    if( grid.autoScaled ) {
+    if (grid.autoScaled) {
       // Min / Max값을 다시 구한다.
       let min = null;
       let max = null;
       result.data.columns.map((column, index) => {
-        if( index % 2 == 0 ) {
+        if (index % 2 === 0) {
           column.value.map((value) => {
             if (min == null || value < min) {
               min = value;
@@ -626,93 +624,85 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     }
 
     // Min / Max값이 없다면 수행취소
-    if( ((_.isUndefined(grid.min) || grid.min == 0)
-      && (_.isUndefined(grid.max) || grid.max == 0)) ) {
+    if (((_.isUndefined(grid.min) || grid.min === 0)
+      && (_.isUndefined(grid.max) || grid.max === 0))) {
       return;
     }
 
     // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
+    const seriesList = [];
     result.data.columns.map((column) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
-      if( nameArr.length > 1 ) {
+      const nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+      let name = '';
+      if (nameArr.length > 1) {
         nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
+          if (index < nameArr.length - 1) {
+            if (index > 0) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
           }
         });
-      }
-      else {
+      } else {
         name = nameArr[0];
       }
 
       let isAlready = false;
       seriesList.map((series) => {
-        if( series == name ) {
+        if (series === name) {
           isAlready = true;
           return false;
         }
       });
 
-      if( !isAlready ) {
+      if (!isAlready) {
         seriesList.push(name);
       }
     });
 
     // Min/Max 처리
-    if( !result.data.categories || result.data.categories.length == 0 ) {
+    if (!result.data.categories || result.data.categories.length === 0) {
       result.data.columns.map((column, index) => {
-        if( index % 2 == 0 ) {
-          column.value.map((value, index) => {
-            if( value < grid.min ) {
-              column.value[index] = grid.min;
-            }
-            else if( value > grid.max ) {
-              column.value[index] = grid.max;
+        if (index % 2 === 0) {
+          column.value.map((value, colValIdx) => {
+            if (value < grid.min) {
+              column.value[colValIdx] = grid.min;
+            } else if (value > grid.max) {
+              column.value[colValIdx] = grid.max;
             }
           });
         }
       });
-    }
-    else {
+    } else {
 
       _.each(result.data.categories, (category) => {
-        let totalValue = [];
-        let seriesValue = [];
+        const totalValue = [];
+        const seriesValue = [];
         result.data.columns.map((column) => {
 
-          if( column.name.indexOf(category.name) == -1 ) {
+          if (column.name.indexOf(category.name) === -1) {
             return true;
           }
 
           column.value.map((value, index) => {
-            if( _.isUndefined(totalValue[index]) || isNaN(totalValue[index]) ) {
+            if (_.isUndefined(totalValue[index]) || isNaN(totalValue[index])) {
               totalValue[index] = 0;
               seriesValue[index] = 0;
             }
 
-            if( totalValue[index] > grid.max ) {
+            if (totalValue[index] > grid.max) {
               column.value[index] = 0;
-            }
-            else if( totalValue[index] + value > grid.max ) {
-              if( seriesValue[index] <= 0 ) {
+            } else if (totalValue[index] + value > grid.max) {
+              if (seriesValue[index] <= 0) {
                 column.value[index] = grid.max;
+              } else {
+                column.value[index] = (grid.max as number) - totalValue[index];
               }
-              else {
-                column.value[index] = (<number>grid.max) - totalValue[index];
-              }
-            }
-            else if( totalValue[index] + value < grid.min ) {
+            } else if (totalValue[index] + value < grid.min) {
               column.value[index] = 0;
-            }
-            else if( totalValue[index] < grid.min && totalValue[index] + value > grid.min ) {
+            } else if (totalValue[index] < grid.min && totalValue[index] + value > grid.min) {
               column.value[index] = totalValue[index] + value;
-            }
-            else {
+            } else {
               column.value[index] = value;
             }
             seriesValue[index] += column.value[index];
@@ -722,10 +712,10 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
 
         // Min값보다 작다면
         _.each(totalValue, (value, valueIndex) => {
-          if( value < grid.min ) {
+          if (value < grid.min) {
             result.data.columns.map((column) => {
-              column.value.map((value, index) => {
-                if( index == valueIndex ) {
+              column.value.map((_value, index) => {
+                if (index === valueIndex) {
                   column.value[index] = 0;
                 }
               });
@@ -740,7 +730,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    * change dataLabel, tooltip by single series, multi series
    * @returns {UIOption}
    */
-  protected setDataLabel(): UIOption {
+  protected setDataLabel(): UICombineChart {
 
     /**
      * check multi series <=> single series
@@ -751,10 +741,10 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
       if (!this.prevPivot) return true;
 
       // prev series is multi(true) or single
-      const prevSeriesMulti: boolean = ( this.prevPivot.aggregations.length > 1 );
+      const prevSeriesMulti: boolean = (this.prevPivot.aggregations.length > 1);
 
       // current series is multi(true) or single
-      const currentSeriesMulti: boolean = ( this.pivot.aggregations.length > 1 );
+      const currentSeriesMulti: boolean = (this.pivot.aggregations.length > 1);
 
       // if it's changed
       if (prevSeriesMulti !== currentSeriesMulti) {

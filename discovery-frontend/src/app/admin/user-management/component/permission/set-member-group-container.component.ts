@@ -19,10 +19,10 @@ import {
 import { PermissionService } from '../../../../user/service/permission.service';
 import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
 import { SetMemberGroupComponent } from './set-member-group.component';
-import { Alert } from '../../../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 import * as _ from 'lodash';
-import { Role, RoleType } from '../../../../domain/user/role/role';
-import { Action } from '../../../../domain/user/user';
+import { Role, RoleType } from '@domain/user/role/role';
+import { Action } from '@domain/user/user';
 
 @Component({
   selector: 'app-set-member-group-container',
@@ -156,7 +156,7 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
       });
 
       this.flag = true;
-      this.permissionService.addRemoveAssignedRoleMember(this.role.id,result).then((result) => {
+      this.permissionService.addRemoveAssignedRoleMember(this.role.id,result).then(() => {
         this.allList = [];
         this.cloneGroups = [];
         this.cloneMembers = [];
@@ -219,15 +219,14 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
         if (result._embedded) {
           this.allList = this.allList.length === 0 ? result._embedded.users : this.allList.concat(result._embedded.users);
 
-          let simplifiedList = [];
-          this.allList.map((item,index) => {
+          const simplifiedList = [];
+          this.allList.map((item) => {
             simplifiedList.push({directoryId : item.username, directoryName : item.fullName, type : 'USER', imageUrl : item.imageUrl});
 
             // imageurl이 있으면 넣어준다.
-            this.cloneMembers.filter((data) => {
-              if (data.directoryId === item.id) {
-                if (item.imageUrl ? data.imageUrl = item.imageUrl : null)
-                return data;
+            this.cloneMembers.forEach((memberData) => {
+              if (memberData.directoryId === item.id && item.imageUrl) {
+                memberData.imageUrl = item.imageUrl;
               }
             });
           });
@@ -267,7 +266,7 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
           // 그룹 리스트 가져오기
           this.allList = this.allList.length === 0 ? result._embedded.groups : this.allList.concat(result._embedded.groups);
 
-          let simplifiedList = [];
+          const simplifiedList = [];
           this.allList.map((item) => {
             simplifiedList.push({directoryId : item.id, directoryName : item.name, type : 'GROUP'});
           });

@@ -117,7 +117,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
     this._command = data.command;
 
     const condition = data.val;
-    const needCol = data.needCol; // need $col 
+    const needCol = data.needCol; // need $col
 
     // set fields (columns)
     this._fields = _.cloneDeep(fields);
@@ -486,11 +486,11 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
 }
 
 enum FunctionCategory {
-  STRING = <any>'STRING',
-  LOGICAL = <any>'LOGICAL',
-  TIMESTAMP = <any>'TIMESTAMP',
-  AGGREGATION = <any>'AGGREGATION',
-  MATH = <any>'MATH'
+  STRING = 'STRING',
+  LOGICAL = 'LOGICAL',
+  TIMESTAMP = 'TIMESTAMP',
+  AGGREGATION = 'AGGREGATION',
+  MATH = 'MATH'
 }
 
 class FormulaFunctionCategory {

@@ -90,7 +90,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
     // 웹소켓 아이디
     WorkbenchService.websocketId = CommonConstant.websocketId;
     try {
-      console.info('this.websocketId', WorkbenchService.websocketId);
+      console.log('this.websocketId', WorkbenchService.websocketId);
       const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
       (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
@@ -100,7 +100,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
         const data = JSON.parse(msg.body);
 
         if (data['connected'] === true) {
-          console.info('connected');
+          console.log('connected');
         }
         (callback) && (callback.call(this));
       }, headers);
@@ -117,7 +117,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
         }
       );
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
   } // function - createWebSocket
 }

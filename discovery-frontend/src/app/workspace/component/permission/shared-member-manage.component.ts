@@ -175,7 +175,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         this.roleSet = result;
         this.defaultRole = result.roles.find(item => item.defaultRole);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(err => reject(err));
     }));
     Promise.all(promise).then(() => {
@@ -532,7 +532,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         this.showMoreWsUser = this._checkShowMore( data.page );
         this._orgWsUsers = _.cloneDeep(this.workspaceUsers);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         reject();
@@ -563,7 +563,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         this.showMoreWsGroup = this._checkShowMore( data.page );
         this._orgWsGroups = _.cloneDeep(this.workspaceGroups);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         reject();
@@ -600,7 +600,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         }
         this.showMoreAllUser = this._checkShowMore( users.page );
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         reject();
@@ -636,7 +636,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         }
         this.showMoreAllGroup = this._checkShowMore( groups.page );
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.group.retrieve.fail'));
         reject();

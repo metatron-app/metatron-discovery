@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {MapBy, MapLayerType, MapSymbolType} from '../../define/map/map-common';
+import {MapBy, MapLayerType, MapLineStyle, MapSymbolType} from '../../define/map/map-common';
 import { ColorRange } from '../ui-color';
-import {MapOutline} from "./ui-outline";
+import {MapOutline} from './ui-outline';
 
 /**
  * map chart layer
@@ -27,6 +27,22 @@ export interface UILayers {
   name?: string;
 
   color?: SymbolColor;
+
+  symbol?: string;    // CIRCLE, SQUARE, TRIANGLE
+
+  size?: LayerSize;
+
+  outline?: MapOutline;
+
+  clustering?: boolean;
+
+  coverage?: number;
+
+  // Thickness of line
+  thickness?: UIThickness;
+
+  // line style (solid, dashed, dotted)
+  lineStyle?: MapLineStyle;
 
   ////////////////////////
   ///// UI Spec
@@ -81,7 +97,7 @@ interface SymbolColor {
   ////////////////////////
 
   // color by dimension custom color setting
-  mapping?: Object
+  mapping?: object;
 
   // color by measure custom color setting
   ranges?: ColorRange[];
@@ -116,4 +132,35 @@ interface SymbolColor {
   clusterTransparency?: number;
 
   changeRange? : boolean;
+}
+
+interface LayerSize {
+  by: string;
+  column: string;
+  max: number
+}
+
+/**
+ * Thickness of line
+ */
+interface UIThickness {
+
+  // Color specification criteria
+  by?: MapBy;
+
+  // Column Name
+  column?: string;
+
+  // Max value of thickness
+  maxValue?: number;
+
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
+
+  // Column Aggregation type (measure)
+  aggregationType?: string;
+
+  // Column granularity (timestamp)
+  granularity?: string;
 }

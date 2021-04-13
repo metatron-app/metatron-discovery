@@ -102,7 +102,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   /** 컬럼 선택시 backtick을 붙일지 여부 */
   @Input()
-  public isBackTick = true; 
+  public isBackTick = true;
 
   /** 화살표 버튼이 눌러졌는지 여부 (한글 완전히 입력하지 않았을 경우 down arrow 검사용) */
   public isArrowDown = false;
@@ -112,7 +112,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   /* 제안 화면에 표시할 아이템 */
   public suggestItems: any = [];
-  
+
   /** 제안 목록에서 위 아래 화살표로 선택한 포지션 */
   public selectedIndex: number = -1;
 
@@ -139,7 +139,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     private dataflowModelService: DataflowModelService,
     protected elementRef: ElementRef,
     protected injector: Injector) {
-    
+
       super(elementRef, injector);
       // 룰 제안 초기화
       this.ruleSuggest = new RuleSuggest();
@@ -200,14 +200,14 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * subscribe 설정
    */
   public setBroadcast() {
-    
+
     this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
       if (this._FIELD_COMBO_ID !== data.id) {
         this.isSuggestOpen = false;
       }
     })
-  
-  } 
+
+  }
 
   /**
    * Set focus on input
@@ -240,7 +240,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
 
     return value;
-   
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -248,16 +248,16 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 제안 스타일 
-   * @param idx 
-   * @param item 
+   * 제안 스타일
+   * @param idx
+   * @param item
    */
   public getSuggestStyle(idx, item) {
 
     const color = item.type === 'func' ? 'Olive' : 'DodgerBlue';
 
     if( this.selectedIndex == idx ) {
-      // 아이템이 선택 되었을때 
+      // 아이템이 선택 되었을때
       return {
         'background-color':'#f6f6f7',
         'color': color
@@ -268,14 +268,14 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       }
     }
   }
-  
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * 이벤트 무효화 시키지 위한 동작
-   * @param $event 
+   * @param $event
    */
   public onKeyDown( $event) {
 
@@ -294,7 +294,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
           if( keyCode === 38 ) {
             if( this.selectedIndex > -1 ) {
               // 화살표가 suggetion 위에 있을 경우 아무 일도 하지 않는다.
-              $event.preventDefault();  
+              $event.preventDefault();
             } else {
               // 리스트 맨 아래 아이템이 선택된다
               this.selectedIndex = this.suggestItems.length;
@@ -307,16 +307,16 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
             $event.preventDefault();
           }
         }
-        
+
       }
     }catch (e) {
-      console.info('onKeyDown Exception', e);
+      console.log('onKeyDown Exception', e);
     }
   }
 
   /**
-   * text box key 이벤트 
-   * @param $event 
+   * text box key 이벤트
+   * @param $event
    */
   public onKeyUp( $event) {
 
@@ -327,15 +327,15 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     try{
       return this.prcessEvent($event);
     } catch (e) {
-      console.info('onKeyUp Exception', e);
+      console.log('onKeyUp Exception', e);
     }
-  } 
+  }
 
   public onClick( $event ) {
 
     const input = $event.currentTarget;
     if( this.isEmptyViewAll && input.value.trim().length < 1) {
-      // 아무 것도 입력 되지 않았을 경우 
+      // 아무 것도 입력 되지 않았을 경우
       this.setSuggetionInfoByType();
     } else {
       this.closeSuggest();
@@ -345,22 +345,22 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   /**
    * 제안 정보 설정
-   * @param ruleString 
-   * @param poz 
+   * @param ruleString
+   * @param poz
    */
   protected setSuggetionInfo( ruleString: string, poz: number) {
 
     const parseInfo = this.ruleSuggest.getParseInfo(ruleString);
 
     const tokenPoz = poz - 1; /* antlr 파서 토큰 위치  poz - 1 */
-    
+
     const tokenInfo = this.ruleSuggest.getPozToken( parseInfo, tokenPoz );
 
     let funcType = this.funcType ;
     let columnType = this.columnType;
 
     try{
-      // 부모가 함수 이름인지 
+      // 부모가 함수 이름인지
       const parFuncName = this.ruleSuggest.getParentFuction(parseInfo.tokens, tokenPoz);
 
       // 함수가 컬럼 이름만 파라마터로 취하는지 여부
@@ -372,11 +372,11 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
         columnType = 'no';
       }
     }catch(e) {
-      console.info('warn RuleSuggestInputComponent.setSuggetionInfo ',e);
+      console.log('warn RuleSuggestInputComponent.setSuggetionInfo ',e);
     }
 
     const itemList = this.ruleSuggest.getList(tokenInfo, tokenPoz, funcType, columnType );
-    
+
     this.selectedTokenInfo = tokenInfo;
 
     if( itemList && itemList.length > 0 ){
@@ -387,7 +387,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     } else {
       this.initSuggest();
     }
-    
+
   }
 
   @ViewChild('dataPrepddpInputSelectbox')
@@ -420,7 +420,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   /**
    * 첫번째는 함수 목록만 보여 주는 경우
-   * @param tokenLength 토큰의 개수가 <=4 
+   * @param tokenLength 토큰의 개수가 <=4
    */
   protected isFisrtFuncCommand(tokenLength: number = 3) {
     if( !this.command ) {
@@ -443,8 +443,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   /**
    * 제안 정보 설정
-   * @param ruleString 
-   * @param poz 
+   * @param ruleString
+   * @param poz
    */
   protected setSuggetionInfoByType( funcType?: string, columnType?:string) {
 
@@ -462,8 +462,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       columnType = 'no';
     }
     const columnList = this.ruleSuggest.getColumnList('',columnType);
-    
-    const itemList = funcList.concat(columnList);  
+
+    const itemList = funcList.concat(columnList);
 
     this.selectedTokenInfo = {
         text: '',
@@ -483,7 +483,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     } else {
       this.initSuggest();
     }
-    
+
   }
 
   /**
@@ -501,7 +501,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     let inputVal = input.value;
 
     if(inputVal.trim().length < 1) {
-      //문쟈열 입력이 없으면 
+      //문쟈열 입력이 없으면
 
       input.blur();
 
@@ -515,7 +515,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       input.selectionEnd = valueLength;
 
       this.formula = input.value;
-      
+
       this.onChange.emit(this.formula);
 
       input.focus();
@@ -525,10 +525,10 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
       let start = this.selectedTokenInfo.start - baseLength;
       let end = this.selectedTokenInfo.stop - baseLength;
-      
+
       const preStr = inputVal.substring(0, start);
       const postStr = inputVal.substring(end+1);
-      
+
 
       input.blur();
 
@@ -543,7 +543,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       input.selectionEnd = start + valueLength;
 
       this.formula = input.value;
-      
+
       this.onChange.emit(this.formula);
 
       input.focus();
@@ -561,7 +561,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     if (this.isSuggestOpen) {
       // window, aggr 때는 셀렉트 박스 닫힐때 broadcast 하지 않음 (replace 때문에 함 - scroll 위치 잡아야함 )
       if (this.funcType !== 'window' && this.funcType !== 'aggr') {
-        console.info('rule-suggest-input');
+        console.log('rule-suggest-input');
         this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: this._FIELD_COMBO_ID, isShow: false });
       }
       this.initSuggest();
@@ -574,7 +574,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   /**
    * 제안 이벤트 실행
-   * @param $event 
+   * @param $event
    */
   protected prcessEvent($event) {
     const keyCode = $event.keyCode;
@@ -597,17 +597,17 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
         this.isArrowDown = false;
         return true;
       }
-    } else if (keyCode === 13 || keyCode === 108) {   
+    } else if (keyCode === 13 || keyCode === 108) {
       // Enter
       return this.processEnter($event);
-    } else if(keyCode === 27) {   
+    } else if(keyCode === 27) {
       // ESC
       return this.processEsc();
-    } else if(keyCode === 37) {   
+    } else if(keyCode === 37) {
       // Arrow Left
       this.initSuggest();
       return true;
-    } else if(keyCode === 39) {   
+    } else if(keyCode === 39) {
       // Arrow Left
       this.initSuggest();
       return true;
@@ -615,7 +615,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       // backspace
       const input = $event.currentTarget;
       if( this.isEmptyViewAll && input.value.trim().length < 1) {
-        // 아무 것도 입력 되지 않았을 경우 
+        // 아무 것도 입력 되지 않았을 경우
         this.setSuggetionInfoByType();
       } else {
         this.initSuggest();
@@ -623,7 +623,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
       return true;
     }
-    
+
     let isNumber = false;
     let isLowerChar = false;
     let isUpperChar = false;
@@ -643,17 +643,17 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       this.processEsc()
       return true;
     }
-  
+
     const input = $event.currentTarget;
 
     const baseString = this.getBaseRule();
-    const ruleString = baseString + input.value; 
+    const ruleString = baseString + input.value;
     const inputPoz = this.getCursorPosition( input);
 
     const poz = inputPoz+baseString.length;
-    
+
     this.setSuggetionInfo(ruleString, poz);
-    
+
 
     if( $event.preventDefault ) {
       // 기본 이벤트 취소
@@ -706,7 +706,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
         this.selectedIndex = 0;
       }
 
-      // 화살표 움직임시 스크롤바 조정 
+      // 화살표 움직임시 스크롤바 조정
       let sHeight = this.selectedIndex * this.itemHeight;
       this.$element.find('.ddp-wrap-popup2').scrollTop(sHeight);
 
@@ -725,7 +725,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   protected processEnter($event?) {
 
     if (0 <= this.selectedIndex && this.selectedIndex < this.suggestItems.length) {
-      // 자동완성 선택이 있으면 
+      // 자동완성 선택이 있으면
       this.onSelectAutoComplete(this.suggestItems[this.selectedIndex]);
 
       if( $event && $event.preventDefault ) {
@@ -752,7 +752,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     let value = item.value;
 
     if( item.type === 'column') {
-      // add backticks to column name ; 
+      // add backticks to column name ;
       if( this.isBackTick ) {
         value = '`' + value + '`';
       }
@@ -770,7 +770,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   protected getSelectionStart(input) {
     return input.selectionStart;
   }
-  
+
   /** 선택 끝 위치 */
   protected getSelectionEnd(input) {
     return input.selectionEnd;

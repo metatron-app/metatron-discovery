@@ -277,7 +277,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       return;
     }
     // 값이 비어있다면 0으로 치환
-    if( _.eq(value, "") ) {
+    if( _.eq(value,  '') ) {
       this.axisTemp.grid.min = 0;
     }
 
@@ -320,7 +320,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     this.changeBaseline.emit(this.axis);
 
     // 값이 0이라면 빈값으로 치환
-    if( _.eq(value, "") ) {
+    if( _.eq(value,  '') ) {
       this.axisTemp.grid.min = null;
     // set thousand comma, decimal value
     } else {
@@ -339,7 +339,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     }
     // 값이 비어있다면 0으로 치환
     let isDefaultValue : boolean = false;
-    if( _.eq(value, "") ) {
+    if( _.eq(value,  '') ) {
       isDefaultValue = true;
       this.axisTemp.grid.max = 0;
     }
@@ -385,7 +385,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     this.changeBaseline.emit(this.axis);
 
     // 값이 0이라면 빈값으로 치환
-    if( _.eq(value, "") ) {
+    if( _.eq(value,  '') ) {
       this.axisTemp.grid.max = null;
     // set thousand comma, decimal value
     } else {

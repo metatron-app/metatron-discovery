@@ -12,10 +12,9 @@
  * limitations under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { FileLikeObject, FileUploader } from 'ng2-file-upload';
-import { CommonConstant } from '../constant/common.constant';
-import { Alert } from '../util/alert.util';
+import {Injectable} from '@angular/core';
+import {FileLikeObject, FileUploader} from 'ng2-file-upload';
+import {Alert} from '../util/alert.util';
 
 @Injectable()
 export class FileService {
@@ -40,20 +39,20 @@ export class FileService {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public uploadFile() {
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<any>((resolve, _reject) => {
 
-      const url = CommonConstant.API_CONSTANT.API_URL + ``;
-      const options = {
-        url,
-        headers: [{
-          name: 'Accept',
-          value: 'application/json, text/plain, */*',
-        },
-        {
-          name: 'Authorization',
-          // value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-        }]
-      };
+      // const url = CommonConstant.API_CONSTANT.API_URL + ``;
+      // const options = {
+      //   url,
+      //   headers: [{
+      //     name: 'Accept',
+      //     value: 'application/json, text/plain, */*',
+      //   },
+      //     {
+      //       name: 'Authorization',
+      //       // value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+      //     }]
+      // };
 
       // this.uploader = new FileUploader(options);
 
@@ -63,7 +62,7 @@ export class FileService {
       };
 
       // 파일 형식을 지원하지 않을 때
-      this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
+      this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, _filter: any, _options: any) => {
         Alert.error(item.name + '이 파일은 지원하지 않는 형식의 파일입니다.');
       };
 

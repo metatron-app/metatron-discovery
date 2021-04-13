@@ -365,7 +365,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
    */
   public showChildren(catalogId: string) {
     this.catalogService.getTreeCatalogs(catalogId).then((result) => {
-      console.info('하위 --> ', result);
+      console.log('하위 --> ', result);
     }).catch((error) => {
       Alert.error(error);
     });

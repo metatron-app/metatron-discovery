@@ -25,11 +25,11 @@ export interface Title {
   show?: boolean;
 
   // 이름
-  text?: String;
+  text?: string;
 
-  link?: String;
+  link?: string;
 
-  target?: String;
+  target?: string;
 
   // 텍스트 스타일
   textStyle?: TextStyle;
@@ -40,11 +40,11 @@ export interface Title {
   textBaseLine?: Position;
 
   // 서브타이틀 이름
-  subText?: String;
+  subText?: string;
 
-  subLink?: String;
+  subLink?: string;
 
-  subTarget?: String;
+  subTarget?: string;
 
   // 서브타이틀 텍스트 스타일
   subtextStyle?: TextStyle;

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnInit} from '@angular/core';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -21,7 +21,7 @@ import * as _ from 'lodash';
   selector: 'app-user-management',
   templateUrl: './user-management.component.html'
 })
-export class UserManagementComponent extends AbstractComponent {
+export class UserManagementComponent extends AbstractComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -59,7 +59,7 @@ export class UserManagementComponent extends AbstractComponent {
       if (-1 === _.findIndex(this.tabList, { id: params['tabId'] })) {
 
         // members페이지로 redirect
-        this.router.navigateByUrl('/admin/user/members');
+        this.router.navigateByUrl('/admin/user/members').then();
       }
 
       // 탭 아이디를 설정
@@ -80,13 +80,6 @@ export class UserManagementComponent extends AbstractComponent {
     this.removeBodyScrollHidden();
   }
 
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -101,8 +94,7 @@ export class UserManagementComponent extends AbstractComponent {
     this.tabId = tabId;
 
     // 페이지 이동
-    this.router.navigateByUrl('/admin/user/' + tabId);
-
+    this.router.navigateByUrl('/admin/user/' + tabId).then();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

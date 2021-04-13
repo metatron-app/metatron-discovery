@@ -64,9 +64,9 @@ export class FilteringOptions {
  * 필터링 옵션 타입 열거형
  */
 export enum FilteringOptionType {
-  INCLUSION = <any>'INCLUSION',
-  //TODO INTERVAL 추후 지울것
-  INTERVAL = <any>'INTERVAL',
-  TIME = <any>'TIME'
+  INCLUSION = 'INCLUSION',
+  // TODO INTERVAL 추후 지울것
+  INTERVAL = 'INTERVAL',
+  TIME = 'TIME'
 }
 

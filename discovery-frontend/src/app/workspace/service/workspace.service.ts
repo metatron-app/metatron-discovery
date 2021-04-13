@@ -26,7 +26,6 @@ import { Page } from '../../domain/common/page';
 import { SYSTEM_PERMISSION } from '../../common/permission/permission';
 import { PermissionService } from '../../user/service/permission.service';
 import { RoleSet } from '../../domain/user/role/roleSet';
-import { saveAs } from 'file-saver';
 
 @Injectable()
 export class WorkspaceService extends AbstractService {
@@ -205,7 +204,7 @@ export class WorkspaceService extends AbstractService {
    * @param {string} workspaceId
    * @return {Promise<any>}
    */
-  public deleteWorkspace(workspaceId: string): Promise<any> {
+  public deleteWorkspace(workspaceId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.permissionService.getWorkspaceCustomRoleSet(workspaceId).then((wsCustomResult: RoleSet) => {
         if (wsCustomResult) {

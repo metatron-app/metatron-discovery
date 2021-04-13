@@ -292,7 +292,7 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
       }
 
     } else {
-      console.info('not supposed to click --> ');
+      console.log('not supposed to click --> ');
       if(this.statisticsData.value === 'resource') {
         this.sortOutput.emit({names : {name : 'msg.statistics.th.resource.usage', label : 'resource', arrayList : 'resourceList'}, values : {name : data === 'sumMemorySeconds' ? 'incrementMemorySeconds' : 'incrementVcoreSeconds', sort : this.selectedContentSort.sort, size : 15, page : this.pageResult.number} });
       } else if (this.statisticsData.value !== 'elapsedTime' && data === 'startTime') {

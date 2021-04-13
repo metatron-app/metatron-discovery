@@ -23,7 +23,7 @@ export class StagedbEnabledGuard implements CanActivate {
   constructor(private storageService: StorageService) {
   }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+  canActivate(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     return this.storageService.checkEnableStageDB().then(() => true).catch(() => true);
   }
 

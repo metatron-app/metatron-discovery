@@ -386,7 +386,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       .replace(/ WITH /ig,"~::~WITH ")
 
       //.replace(/\,\s{0,}\(/ig,",~::~( ")
-      //.replace(/\,/ig,",~::~"+tab+tab+"")
+      //.replace(/\,/ig,",~::~"+tab+tab+ '')
 
       .replace(/ ALL /ig," ALL ")
       .replace(/ AS /ig," AS ")
@@ -467,11 +467,11 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       parenthesisLevel = that.isSubquery(ar[ix], parenthesisLevel);
 
       if( /\s{0,}\s{0,}SELECT\s{0,}/.exec(ar[ix]))  {
-        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+"")
+        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+ '')
       }
 
       if( /\s{0,}\s{0,}SET\s{0,}/.exec(ar[ix]))  {
-        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+"")
+        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+ '')
       }
 
       if( /\s{0,}\(\s{0,}SELECT\s{0,}/.exec(ar[ix]))  {

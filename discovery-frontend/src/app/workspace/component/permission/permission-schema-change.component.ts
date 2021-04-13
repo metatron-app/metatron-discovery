@@ -250,7 +250,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
           }
           this.roleSetList = roleSetList;
         }
-        resolve();
+        resolve(null);
         this.loadingHide();
       }).catch(err => {
         this.commonExceptionHandler(err);

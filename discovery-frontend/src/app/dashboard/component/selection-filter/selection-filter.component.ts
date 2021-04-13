@@ -14,18 +14,21 @@
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
+
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {ChartSelectInfo} from '../../../common/component/chart/base-chart';
-import {ChartSelectMode} from '../../../common/component/chart/option/define/common';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
-import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {InclusionFilter, InclusionSelectorType} from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import {FilterUtil} from "../../util/filter.util";
-import {Dashboard} from "../../../domain/dashboard/dashboard";
-import {DatasourceService} from "../../../datasource/service/datasource.service";
-import {Field, IngestionHistory} from "../../../domain/datasource/datasource";
+
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ChartSelectInfo} from '@common/component/chart/base-chart';
+import {ChartSelectMode} from '@common/component/chart/option/define/common';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {Field, IngestionHistory} from '@domain/datasource/datasource';
+import {InclusionFilter, InclusionSelectorType} from '@domain/workbook/configurations/filter/inclusion-filter';
+
+import {FilterUtil} from '../../util/filter.util';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'selection-filter',
@@ -387,28 +390,28 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     });
   } // function - _getApiFilters
 
-  /**
-   * 배치 히스토리 조회
-   * @param {string} datasourceId
-   */
-  private getBatchHistory(datasourceId: string) {
-    // 로딩 시작
-    this.loadingShow();
-
-    const params = {
-      page: this.pageResult.number,
-      size: this.pageResult.size
-    };
-
-    this.datasourceService.getBatchHistories(datasourceId, params)
-      .then((histories) => {
-        this.ingestionHistory = histories['_embedded'].ingestionHistories[0];
-        this.loadingHide();
-      })
-      .catch(() => {
-        this.loadingHide();
-      });
-  } // func - getBatchHistory
+  // /**
+  //  * 배치 히스토리 조회
+  //  * @param {string} datasourceId
+  //  */
+  // private getBatchHistory(datasourceId: string) {
+  //   // 로딩 시작
+  //   this.loadingShow();
+  //
+  //   const params = {
+  //     page: this.pageResult.number,
+  //     size: this.pageResult.size
+  //   };
+  //
+  //   this.datasourceService.getBatchHistories(datasourceId, params)
+  //     .then((histories) => {
+  //       this.ingestionHistory = histories['_embedded'].ingestionHistories[0];
+  //       this.loadingHide();
+  //     })
+  //     .catch(() => {
+  //       this.loadingHide();
+  //     });
+  // } // func - getBatchHistory
 
   /**
    * 자동 업데이트 관련 초기화
@@ -436,7 +439,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   private _addSelectionFilter(filters: SelectionFilter[], selectInfoData: SelectionInfoData,
                               params: { engineName: string, widgetId: string, selectType: string }) {
 
-    const filter: SelectionFilter = filters.find((filter: SelectionFilter) => filter.field === selectInfoData.name);
+    const filter: SelectionFilter = filters.find((selFilter: SelectionFilter) => selFilter.field === selectInfoData.name);
 
     let newValues = selectInfoData.data;
     (typeof newValues === 'string') && (newValues = [newValues]);
@@ -516,8 +519,8 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
         // 데이터를 정렬 할 수 있는 형태로 변환
         const timeValList = filter.valueList.map(item => {
           const splitDate: string[] = item.split(/\s|-/);
-          let strYear: string = '';
-          let strQuarter: string = '';
+          let strYear: string;
+          let strQuarter: string;
           if (-1 < splitDate[0].indexOf('Q')) {
             strYear = splitDate[1];
             strQuarter = splitDate[0];
@@ -556,16 +559,16 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
 
     // 셀렉션필터에 의한 변경
     if (_.isArray(data)) {
-      const selectionFilters: SelectionFilter[] = <SelectionFilter[]>data;
-      // console.info('셀렉션필터에 의한 변경', selectionFilters);
-      // console.info('모든 차트에 필터 추가');
+      const selectionFilters: SelectionFilter[] = data;
+      // console.log('셀렉션필터에 의한 변경', selectionFilters);
+      // console.log('모든 차트에 필터 추가');
 
       this.broadCaster.broadcast('SET_SELECTION_FILTER', {filters: selectionFilters, isForceUpdate: isForceUpdate});
 
     } else {
       // 차트에 의한 변경
-      // console.info('위젯에 의한 변경', data, data.chartSelectInfo.mode);
-      // console.info('위젯 해당 필터들 추가해서 다시 draw 요청');
+      // console.log('위젯에 의한 변경', data, data.chartSelectInfo.mode);
+      // console.log('위젯 해당 필터들 추가해서 다시 draw 요청');
 
       const externalFilterData: any = {
         isForceUpdate: isForceUpdate
@@ -602,18 +605,18 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       savedList = savedList.filter(savedItem => savedItem.params.widgetId !== newItem.params.widgetId);
       savedList.push(newItem);
     } else {
-      let isMergedWidget: boolean = savedList.some(savedItem => {
+      const isMergedWidget: boolean = savedList.some(savedItem => {
         // 동일 위젯 정보를 찾는다
         if (savedItem.params.widgetId === newItem.params.widgetId) {
           newItem.data.forEach(newItemData => {
 
             // 필드 정보가 존재할 경우 필드 정보 내 데이터를 추가해준다.
-            let isMerged: boolean = savedItem.data.some(savedItemData => {
+            const isMerged: boolean = savedItem.data.some(savedItemData => {
               if (savedItemData.alias === newItemData.alias) {
                 savedItemData.data
                   = savedItemData.data
                   .concat(newItemData.data)
-                  .filter((elem, pos, arr) => arr.indexOf(elem) == pos);
+                  .filter((elem, pos, arr) => arr.indexOf(elem) === pos);
                 return true;
               }
             });
@@ -682,7 +685,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     this._chartSelectionList.some((savedItem: ChartSelectInfo, fieldIdx: number) => {
 
       // 지정된 필드의 위치를 찾는다
-      let nEmptyDataIndex: number = savedItem.data.findIndex(savedItemData => savedItemData.alias === filter.alias);
+      const nEmptyDataIndex: number = savedItem.data.findIndex(savedItemData => savedItemData.alias === filter.alias);
 
       // 데이터가 없는 필드에 대해서는 필드를 제거해준다.
       if (-1 < nEmptyDataIndex) {

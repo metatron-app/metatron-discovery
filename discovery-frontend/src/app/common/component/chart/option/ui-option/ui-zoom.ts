@@ -12,7 +12,8 @@
  * limitations under the License.
  */
 
-import {UIOrient} from "../define/common";
+import {UIOrient} from '../define/common';
+
 /**
  * ChartZoom
  */

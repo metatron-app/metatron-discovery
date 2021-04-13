@@ -61,7 +61,7 @@ export class DetailWorkbenchDataconnectionInfo extends AbstractComponent impleme
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public ngOnInit(): void {
-    console.info('dataconnection', this.dataconnection);
+    console.log('dataconnection', this.dataconnection);
     // 권한 정보가 없을 경우
     if( isNullOrUndefined(this.dataconnection.authenticationType)  ){
       this.dataconnection.authenticationType = 'MANUAL';

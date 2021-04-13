@@ -18,26 +18,32 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnChanges,
+  OnDestroy,
   OnInit,
-  Output, SimpleChange,
-  SimpleChanges,
-  ViewChild
+  Output,
+  SimpleChange,
+  SimpleChanges
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+
 import {
-  BoardGlobalOptions, BoardLayoutOptions,
-  BoardLayoutType, BoardSyncOptions,
-  BoardWidgetOptions, WidgetShowType
-} from '../../../domain/dashboard/dashboard.globalOptions';
-import {BoardConfiguration, Dashboard} from '../../../domain/dashboard/dashboard';
-import {SourceType} from '../../../domain/datasource/datasource';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+  BoardGlobalOptions,
+  BoardLayoutOptions,
+  BoardLayoutType,
+  BoardSyncOptions,
+  BoardWidgetOptions,
+  WidgetShowType
+} from '@domain/dashboard/dashboard.globalOptions';
+import {BoardConfiguration, Dashboard} from '@domain/dashboard/dashboard';
+import {SourceType} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-dashboard-layout-config',
   templateUrl: './dashboard.layout.config.component.html'
 })
-export class DashboardLayoutConfigComponent extends AbstractComponent implements OnInit {
+export class DashboardLayoutConfigComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables

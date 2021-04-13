@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from './common.module';
-import { DataPreviewComponent } from './component/data-preview/data.preview.component';
-import { DatasourceAliasService } from '../datasource/service/datasource-alias.service';
-import { DataDownloadComponent } from './component/data-download/data.download.component';
-import { WidgetService } from '../dashboard/service/widget.service';
-import {TimezoneService} from "../data-storage/service/timezone.service";
+import {NgModule} from '@angular/core';
+import {CommonModule} from './common.module';
+import {DataPreviewComponent} from './component/data-preview/data.preview.component';
+import {DatasourceAliasService} from '../datasource/service/datasource-alias.service';
+import {DataDownloadComponent} from './component/data-download/data.download.component';
+import {WidgetService} from '../dashboard/service/widget.service';
+import {TimezoneService} from '../data-storage/service/timezone.service';
 
 @NgModule({
   imports: [
@@ -38,4 +38,5 @@ import {TimezoneService} from "../data-storage/service/timezone.service";
     TimezoneService
   ]
 })
-export class DataPreviewModule { }
+export class DataPreviewModule {
+}

@@ -241,7 +241,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.metadataService.updateMetadata(this.selectedMetadataId, {name: this.name}).then((result: Metadata) => {
       this.metadataModelService.updateMetadataName(result.name);
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
       Alert.error('Failed to modify metadata name');
     });
   } // function - onNameChange

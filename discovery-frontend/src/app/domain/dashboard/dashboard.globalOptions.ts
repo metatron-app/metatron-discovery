@@ -73,15 +73,15 @@ export class BoardSyncOptions {
  * 레이아웃 타입
  */
 export enum BoardLayoutType {
-  FIT_TO_SCREEN = <any>'FIT_TO_SCREEN',
-  FIT_TO_HEIGHT = <any>'FIT_TO_HEIGHT'
+  FIT_TO_SCREEN = 'FIT_TO_SCREEN',
+  FIT_TO_HEIGHT = 'FIT_TO_HEIGHT'
 }
 
 /**
  * 위젯 표시 여부
  */
 export enum WidgetShowType {
-  ON = <any>'ON',
-  OFF = <any>'OFF',
-  BY_WIDGET = <any>'BY_WIDGET'
+  ON = 'ON',
+  OFF = 'OFF',
+  BY_WIDGET = 'BY_WIDGET'
 }

@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PublicType, WorkspaceAdmin} from '@domain/workspace/workspace';
 import * as _ from 'lodash';
-import { PublicType, WorkspaceAdmin } from '../../../../../../../domain/workspace/workspace';
-import { WorkspaceService } from '../../../../../../../workspace/service/workspace.service';
+import {WorkspaceService} from '../../../../../../../workspace/service/workspace.service';
 
 declare let echarts;
 declare let moment;
@@ -25,7 +25,7 @@ declare let moment;
   selector: 'detail-workspaces-statistics',
   templateUrl: './detail-workspace-statistics.component.html'
 })
-export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
+export class DetailWorkspaceStatisticsComponent extends AbstractComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -52,7 +52,7 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
   private _selectedPeriod: any;
 
   // 기간 범위 날짜 리스트
-  private _rangeList: any[]= [];
+  private _rangeList: any[] = [];
   // 선택된 기간 범위 날짜
   private _selectedRange: any;
 
@@ -73,7 +73,7 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
       // 기간 범위 리스트
       this._rangeList = this._getPeriodRangeList();
       // 선택된 기간 범위
-      this._selectedRange =  this._rangeList[0];
+      this._selectedRange = this._rangeList[0];
       // 통계 조회
       this._getWorkspaceStatistics();
     }
@@ -113,12 +113,6 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
     super.ngOnInit();
     // ui init
     this._initView();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-    // Destory
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -314,7 +308,7 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });
@@ -340,13 +334,15 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
     // pie Option
     const pieOption = _.cloneDeep(this._pieOption);
     // data
-    for(let item in bookItems) {
-      // item label
-      const label = this._getBookLabel(item);
-      // 범례
-      pieOption.legend.data.push(label);
-      // 데이터
-      pieOption.series[0].data.push({value: bookItems[item], name: label});
+    for (const item in bookItems) {
+      if (item) {
+        // item label
+        const label = this._getBookLabel(item);
+        // 범례
+        pieOption.legend.data.push(label);
+        // 데이터
+        pieOption.series[0].data.push({value: bookItems[item], name: label});
+      }
     }
     return pieOption;
   }
@@ -358,7 +354,7 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
    * @returns {Object}
    * @private
    */
-  private _getLineOption(rows: any, datas: any) : object{
+  private _getLineOption(rows: any, datas: any): object {
     // line Option
     const lineOption = _.cloneDeep(this._lineOption);
     // xAxis 데이터
@@ -399,11 +395,11 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
     if (this._selectedPeriod.value === 'OVERALL') {
       params['timeUnit'] = 'month';
       params['from'] = this._workspace.createdTime;
-      params['to'] =  moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
+      params['to'] = moment().format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
     } else {
       params['timeUnit'] = 'day';
       params['from'] = this._selectedRange.startTime;
-      params['to'] =  this._selectedRange.endTime;
+      params['to'] = this._selectedRange.endTime;
     }
 
     return params
@@ -458,18 +454,18 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
     // pie option
     this._pieOption = {
       tooltip: {
-        formatter: "{c} ({d}%)"
+        formatter: '{c} ({d}%)'
       },
       legend: {
         orient: 'horizontal',
         y: 'bottom',
-        data:[]
+        data: []
       },
       series: [
         {
           // 시계방향으로 큰 값 순서대로 그림
           clockwise: false,
-          type:'pie',
+          type: 'pie',
           radius: ['50%', '70%'],
           label: {
             normal: {
@@ -477,7 +473,7 @@ export class DetailWorkspaceStatisticsComponent extends AbstractComponent {
               position: 'center'
             },
           },
-          data:[]
+          data: []
         }
       ]
     };

@@ -12,11 +12,8 @@
  * limitations under the License.
  */
 
-import { UIOption } from '../ui-option';
-import {
-  AnnotationPosition, FontSize,
-  GridViewType, Operator, UIFontStyle, UIOrient, UIPosition
-} from '../define/common';
+import {UIOption} from '../ui-option';
+
 /**
  * 폭포차트 화면 UI에 필요한 옵션
  * Version 2.0

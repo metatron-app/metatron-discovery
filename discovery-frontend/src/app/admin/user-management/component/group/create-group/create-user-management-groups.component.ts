@@ -50,20 +50,6 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
     super(element, injector);
   }
 
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
   /**
    * init
    */

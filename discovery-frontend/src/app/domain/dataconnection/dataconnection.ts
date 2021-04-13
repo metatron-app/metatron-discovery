@@ -123,7 +123,7 @@ export enum Scope {
 
 // TODO 추후 DataStorageConstant.Dataconnection.Authentiacation 변경 요구
 export enum AuthenticationType {
-  USERINFO = <any>'USERINFO',
-  MANUAL = <any>'MANUAL',
-  DIALOG = <any>'DIALOG'
+  USERINFO = 'USERINFO',
+  MANUAL = 'MANUAL',
+  DIALOG = 'DIALOG'
 }

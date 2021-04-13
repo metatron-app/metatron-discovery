@@ -300,7 +300,7 @@ export class PreparationCommonUtil {
       }
       return result;
     } catch(error) {
-      console.info('error -> ', error);
+      console.log('error -> ', error);
       return undefined;
     }
   }

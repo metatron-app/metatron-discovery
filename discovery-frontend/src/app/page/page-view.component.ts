@@ -319,12 +319,12 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
   public geoType: LogicalType;
 
   // public getSankeyNotAllNode(): boolean {
-  //   console.info(this.isSankeyNotAllNode);
+  //   console.log(this.isSankeyNotAllNode);
   //   let isSankeyNotAllNode: boolean = this.isSankeyNotAllNode && !this.isNoData && this.isChartView == 'block' && this.selectChart == 'sankey';
   //   return isSankeyNotAllNode;
   // }
   // public setSankeyNotAllNode(isSankeyNotAllNode: boolean): void {
-  //   console.info(this.isSankeyNotAllNode);
+  //   console.log(this.isSankeyNotAllNode);
   //   this.isSankeyNotAllNode = isSankeyNotAllNode;
   // }
 
@@ -810,7 +810,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
         })
         .catch((err) => {
           this.loadingHide();
-          console.info(err);
+          console.log(err);
         });
     } else {
       // 위젯 수정
@@ -853,7 +853,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
         })
         .catch((err) => {
           this.loadingHide();
-          console.info(err);
+          console.log(err);
         });
     }
   }
@@ -1067,7 +1067,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
 
     // Set
     this.widget.name = this.editingPageName.trim();
-    console.info(this.widget.name);
+    console.log(this.widget.name);
   }
 
   /**
@@ -1351,7 +1351,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
           this.isError = true;
           this.loadingHide();
           this.commonExceptionHandler(error);
-          console.info('error', error);
+          console.log('error', error);
         });
     }
   }
@@ -1558,7 +1558,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
    * @param uiOption
    */
   protected updateUIOption(uiOption) {
-    console.info('updateUIOption~');
+    console.log('updateUIOption~');
     this.uiOption = _.extend({}, this.uiOption, uiOption);
   }
 
@@ -1567,7 +1567,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
    * @param {ChartSelectInfo} data
    */
   protected chartSelectInfo(data: ChartSelectInfo) {
-    // console.info(data.mode, data.data);
+    // console.log(data.mode, data.data);
 
     // this.chartSelectInfoEvent.emit(data);
   }
@@ -1702,8 +1702,8 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
         }
 
         this.sorts = sortList;
-        console.info(this.sorts);
-        console.info('==========');
+        console.log(this.sorts);
+        console.log('==========');
       } else {
         this.sorts = [];
       }
@@ -2059,7 +2059,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
         this.gridChart.resultData = this.resultData;
       }
     } catch (err) {
-      //console.info(err);
+      //console.log(err);
     }
   }
 
@@ -2658,8 +2658,8 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
   //     biType: targetField.biType
   //   };
   //
-  //   // console.info( '>>>>>>> targetField', _.cloneDeep( targetField ) );
-  //   // console.info( '>>>>>>> current targetField', targetField );
+  //   // console.log( '>>>>>>> targetField', _.cloneDeep( targetField ) );
+  //   // console.log( '>>>>>>> current targetField', targetField );
   //
   //   // 이미 선반에 들어가있는지 여부
   //   let isAlreadyPivot: boolean = false;
@@ -3166,7 +3166,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
   public static updatePivotAliasFromField(pivot: Pivot, field: Field) {
     pivot.columns.forEach(col => {
       if (col.name === field.name) {
-        // console.info( '>>>>> col alias : %s, fieldAlias : %s, newAlias : %s', col.alias, col.fieldAlias, field.nameAlias.nameAlias );
+        // console.log( '>>>>> col alias : %s, fieldAlias : %s, newAlias : %s', col.alias, col.fieldAlias, field.nameAlias.nameAlias );
         (col.fieldAlias === col.alias || col.name === col.alias) && (col.alias = field.nameAlias.nameAlias);
         col.fieldAlias = field.nameAlias.nameAlias;
         col.field = _.merge(col.field, field);
@@ -3175,7 +3175,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
     });
     pivot.rows.forEach(row => {
       if (row.name === field.name) {
-        // console.info( '>>>>> row alias : %s, fieldAlias : %s, newAlias : %s', row.alias, row.fieldAlias, field.nameAlias.nameAlias );
+        // console.log( '>>>>> row alias : %s, fieldAlias : %s, newAlias : %s', row.alias, row.fieldAlias, field.nameAlias.nameAlias );
         (row.fieldAlias === row.alias || row.name === row.alias) && (row.alias = field.nameAlias.nameAlias);
         row.fieldAlias = field.nameAlias.nameAlias;
         row.field = _.merge(row.field, field);
@@ -3184,7 +3184,7 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
     });
     pivot.aggregations.forEach(aggr => {
       if (aggr.name === field.name) {
-        // console.info( '>>>>> row alias : %s, fieldAlias : %s, newAlias : %s', aggr.alias, aggr.fieldAlias, field.nameAlias.nameAlias );
+        // console.log( '>>>>> row alias : %s, fieldAlias : %s, newAlias : %s', aggr.alias, aggr.fieldAlias, field.nameAlias.nameAlias );
         (aggr.fieldAlias === aggr.alias || aggr.name === aggr.alias) && (aggr.alias = field.nameAlias.nameAlias);
         aggr.fieldAlias = field.nameAlias.nameAlias;
         aggr.field = _.merge(aggr.field, field);

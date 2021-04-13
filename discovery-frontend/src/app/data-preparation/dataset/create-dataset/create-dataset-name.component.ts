@@ -203,7 +203,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       const streams = from(params).pipe(
         concatMap(stream => this._createFileDataset(stream)
           .catch((error) => {
-            console.info(error)
+            console.log(error)
           })));
 
       this.loadingShow();

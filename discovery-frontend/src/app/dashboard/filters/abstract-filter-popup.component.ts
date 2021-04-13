@@ -13,9 +13,9 @@
  */
 
 import { ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractPopupComponent } from '../../common/component/abstract-popup.component';
-import { Field } from '../../domain/datasource/datasource';
-import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { Field } from '@domain/datasource/datasource';
+import { CustomField } from '@domain/workbook/configurations/field/custom-field';
 
 export class AbstractFilterPopupComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -154,7 +154,7 @@ export class AbstractFilterPopupComponent extends AbstractPopupComponent impleme
 
     let field: Field | CustomField;
     // 필드 조회
-    for (let i = 0; i < this.summaryFields.length; i += 1) {
+    for (let i = 0, nMax = this.summaryFields.length; i < nMax; i += 1) {
       if (fieldName === this.summaryFields[i].name) {
         field = this.summaryFields[i];
         break;

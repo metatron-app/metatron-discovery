@@ -1787,7 +1787,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
                   boardInfo.configuration.filters = ds.temporary.filters;
                 }
 
-                res();
+                res(null);
               }).catch(err => rej(err));
             }));
           });
@@ -1871,7 +1871,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           this.imageService.uploadImage(dashboard.name, blobData, dashboard.id, 'page', 250).then((response) => {
             resolve(response);
           }).catch((err) => {
-            console.info(err);
+            console.log(err);
             reject(err);
           });
         }).catch((err) => this.commonExceptionHandler(err));
@@ -2001,7 +2001,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
                 if (isReloadWidget && null !== this.getWidgetComp(filterWidget.id)) {
                   this.reloadWidget(filterWidget);
                 }
-                res2();
+                res2(null);
               }));
             } else {
               promises.push(new Promise((res2) => {
@@ -2009,7 +2009,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
                 this.widgetService.createWidget(newFilterWidget, this.dashboard.id).then((result) => {
                   // 위젯 등록
                   this.dashboard = this._addWidget(this.dashboard, _.merge(newFilterWidget, result));
-                  res2();
+                  res2(null);
                 });
               }));
             }
@@ -2025,14 +2025,14 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
             promises.push(new Promise((res2) => {
               this.widgetService.deleteWidget(widget.id).then(() => {
                 this.removeWidget(widget.id);
-                res2();
+                res2(null);
               });
             }));
           }
         });
 
         Promise.all(promises).then(() => {
-          res1();
+          res1(null);
         }).catch(() => this.hideBoardLoading());
       }
     });
@@ -2041,9 +2041,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 }
 
 enum RightTab {
-  CHART = <any>'CHART',
-  TEXT = <any>'TEXT',
-  FILTER = <any>'FILTER',
-  LAYOUT = <any>'LAYOUT',
-  NONE = <any>'NONE'
+  CHART = 'CHART',
+  TEXT = 'TEXT',
+  FILTER = 'FILTER',
+  LAYOUT = 'LAYOUT',
+  NONE = 'NONE'
 }

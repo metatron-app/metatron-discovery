@@ -1067,7 +1067,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     }).catch((error) => {
       this.loadingHide();
       Alert.error(this.translateService.instant(error.message));
-      console.info('error -> ', error);
+      console.log('error -> ', error);
     });
   }
 
@@ -1094,7 +1094,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.loadingShow();
 
     this.dataflowService.swapDataset(param).then((result) => {
-      // console.info('swapping >>>>>>>>>>>>', result);
+      // console.log('swapping >>>>>>>>>>>>', result);
       Alert.success('Swap successful');
 
       this.isSelectDatasetPopupOpen = false;
@@ -1104,7 +1104,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
     }).catch((error) => {
       Alert.fail('Swap failed');
-      console.info(error);
+      console.log(error);
       this.loadingHide();
     });
   }
@@ -1116,7 +1116,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   public openAddDatasetPopup(data :any) {
 
-    // console.info('openAddDatasetPopup', data);
+    // console.log('openAddDatasetPopup', data);
     if(data === null) {
       this.swapDatasetId = null;
       this.longUpdatePopupType = 'add';

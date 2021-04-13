@@ -24,7 +24,7 @@ import {PermissionService} from '../../../../../user/service/permission.service'
 import {CommonUtil} from '../../../../../common/util/common.util';
 import {Group} from '../../../../../domain/user/group';
 import {ChangeWorkspaceOwnerModalComponent} from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
-import {Location} from "@angular/common";
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-member-detail',
@@ -167,7 +167,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
 
   /**
    * 현재 사용자가 포함된 그룹 목록
-   * @returns {any}
+   * @returns {Group[]}
    */
   public getGroupList(): Group[] {
     // groups가 있으면 filter
@@ -185,7 +185,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    * @returns {string}
    */
   public getUserStatus(): string {
-    if (this.userData.status && this.userData.status != Status.INITIAL) {
+    if (this.userData.status && this.userData.status !== Status.INITIAL) {
       return this.userStatusList.filter((item) => {
         return item.value === this.userData.status.toString();
       })[0].label;
@@ -324,7 +324,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     const url = this.cookieService.get('PREV_ROUTER_URL');
     if (url) {
       this.cookieService.delete('PREV_ROUTER_URL');
-      this.router.navigate([url]);
+      this.router.navigate([url]).then();
     } else {
       this._location.back();
     }
@@ -338,7 +338,7 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     // 쿠키에 현재 url 저장
     this._savePrevRouterUrl();
     // 그룹 상세화면으로 이동
-    this.router.navigate(['/admin/user/groups', groupId]);
+    this.router.navigate(['/admin/user/groups', groupId]).then();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

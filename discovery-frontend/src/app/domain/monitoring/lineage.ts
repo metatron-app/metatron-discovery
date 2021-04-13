@@ -53,8 +53,8 @@ export class SearchTableLineage extends AbstractHistoryEntity {
 }
 
 export enum TableType {
-  TABLE = <any>'TABLE',
-  COLUMN = <any>'COLUMN'
+  TABLE = 'TABLE',
+  COLUMN = 'COLUMN'
 }
 
 export class SearchSqlLineage extends AbstractHistoryEntity {
@@ -87,23 +87,23 @@ export class LineageDownload extends AbstractHistoryEntity {
 }
 
 export enum ShapeType {
-  EDGE = <any>'EDGE',
-  NODE = <any>'NODE'
+  EDGE = 'EDGE',
+  NODE = 'NODE'
 }
 
 export enum EntityType {
-  QUERY = <any>'QUERY',
-  SQL = <any>'SQL',
-  TABLE = <any>'TABLE',
-  COLUMN = <any>'COLUMN',
-  FILE = <any>'FILE',
-  WORKFLOW = <any>'WORKFLOW',
-  ADD = <any>'ADD'
+  QUERY = 'QUERY',
+  SQL = 'SQL',
+  TABLE = 'TABLE',
+  COLUMN = 'COLUMN',
+  FILE = 'FILE',
+  WORKFLOW = 'WORKFLOW',
+  ADD = 'ADD'
 }
 
 export enum ColumnType {
-  MEASURE = <any>'MEASURE',
-  DIMENSION = <any>'DIMENSION',
+  MEASURE = 'MEASURE',
+  DIMENSION = 'DIMENSION',
 }
 
 export class LineageTableColumn {

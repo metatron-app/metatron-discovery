@@ -147,16 +147,16 @@ export interface DataBackground {
  * dataZoom 타입 - 미니맵(slider), 내부 스크롤
  */
 export enum DataZoomType {
-  INSIDE = <any>'inside',
-  SLIDER = <any>'slider'
+  INSIDE = 'inside',
+  SLIDER = 'slider'
 }
 
 /**
  *
  */
 export enum FilterMode {
-  FILTER = <any>'filter',
-  WEAKFILTER = <any>'weakfilter',
-  EMPTY = <any>'empty',
-  NONE = <any>'none'
+  FILTER = 'filter',
+  WEAKFILTER = 'weakfilter',
+  EMPTY = 'empty',
+  NONE = 'none'
 }

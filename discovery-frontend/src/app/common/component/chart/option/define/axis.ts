@@ -403,9 +403,9 @@ export interface Indicator {
  * 축 정보 가이드 타입
  */
 export enum AxisPointerType {
-  LINE = <any>'line',
-  SHADOW = <any>'shadow',
-  CROSS = <any>'cross',
+  LINE = 'line',
+  SHADOW = 'shadow',
+  CROSS = 'cross'
 }
 
 

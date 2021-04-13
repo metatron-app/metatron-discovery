@@ -16,15 +16,7 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {BaseChart, ChartSelectInfo} from '../base-chart';
 import {BaseOption} from '../option/base-option';
 import {
@@ -40,7 +32,7 @@ import {
   UIOrient,
   UIPosition
 } from '../option/define/common';
-import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
 import {UIChartColorByCell, UIOption} from '../option/ui-option';
 import {UIGridChart} from '../option/ui-option/ui-grid-chart';
@@ -52,7 +44,7 @@ declare let pivot: any;
   selector: 'grid-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
+export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -182,10 +174,10 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
    * 선반정보를 기반으로 차트를 그릴수 있는지 여부를 체크
    * - 반드시 각 차트에서 Override
    */
-  public isValid(pivot: Pivot): boolean {
-    return ((this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) > 0 || this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) > 0)
-      || (this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.DIMENSION) > 0 || this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.TIMESTAMP) > 0))
-      && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0);
+  public isValid(pivotInfo: Pivot): boolean {
+    return ((this.getFieldTypeCount(pivotInfo, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) > 0 || this.getFieldTypeCount(pivotInfo, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) > 0)
+      || (this.getFieldTypeCount(pivotInfo, ShelveType.ROWS, ShelveFieldType.DIMENSION) > 0 || this.getFieldTypeCount(pivotInfo, ShelveType.ROWS, ShelveFieldType.TIMESTAMP) > 0))
+      && (this.getFieldTypeCount(pivotInfo, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(pivotInfo, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0);
     // return ((this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP)) > 0)
     //   && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0)
     //   && (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
@@ -201,12 +193,12 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     const selectMode = params.isSelect ? ChartSelectMode.ADD : ChartSelectMode.SUBTRACT;
     const selectDataList = [];
 
-    const pivot = $(this)[0]['shelve'];
+    const shelve = $(this)[0]['shelve'];
     // pivot값이 없는경우 return
-    if (!pivot || !pivot.columns) return;
+    if (!shelve || !shelve.columns) return;
 
     // 행, 열 선반 리스트
-    const shelveList = _.cloneDeep(pivot.columns.concat(pivot.rows));
+    const shelveList = _.cloneDeep(shelve.columns.concat(shelve.rows));
 
     // 부모데이터가 있는경우 (축을 클릭했을때)
     if (!_.isUndefined(params.parentData)) {
@@ -227,15 +219,15 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
         _.forEach(params.parentData, (value, key) => {
           // selectData[key] = [value];
 
-          const data = _.cloneDeep(_.find(shelveList, {alias: key}));
+          const shelveData = _.cloneDeep(_.find(shelveList, {alias: key}));
 
           // 찾은 데이터가 없는경우 return
-          if (!data) return;
+          if (!shelveData) return;
 
-          data['data'] = [value];
+          shelveData['data'] = [value];
 
           // dataList에 추가
-          selectDataList.push(data);
+          selectDataList.push(shelveData);
         });
       }
       // 부모데이터가 없는경우 (셀을 클릭했을때)
@@ -317,17 +309,17 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       return {name};
     });
     let aggregations: any;
-    if( this.pivot && this.pivot.aggregations && 0 < this.pivot.aggregations.length ) {
-      aggregations = this.pivot.aggregations.map((pivot) => {
+    if (this.pivot && this.pivot.aggregations && 0 < this.pivot.aggregations.length) {
+      aggregations = this.pivot.aggregations.map((aggr) => {
         const aggrInfo = {
-          name : _.isUndefined(pivot.alias) ? pivot.name : pivot.alias,
+          name: _.isUndefined(aggr.alias) ? aggr.name : aggr.alias,
           digits: 2
         };
-        if( pivot.field && pivot.field.logicalType ) {
-          aggrInfo['type'] = pivot.field.logicalType;
+        if (aggr.field && aggr.field.logicalType) {
+          aggrInfo['type'] = aggr.field.logicalType;
         }
-        if( pivot.fieldFormat ) {
-          aggrInfo['fieldFormat'] = pivot.fieldFormat;
+        if (aggr.fieldFormat) {
+          aggrInfo['fieldFormat'] = aggr.fieldFormat;
         }
         return aggrInfo;
       });
@@ -341,7 +333,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     this.originData = [];
 
     // 원본 보기일경우 데이터 재가공
-    if ((<UIGridChart>this.uiOption).dataType == GridViewType.MASTER) {
+    if ((this.uiOption as UIGridChart).dataType === GridViewType.MASTER) {
 
       // for setting aggregations original name
       let originAggregations: any = this.fieldOriginInfo.aggs.map((name) => {
@@ -349,16 +341,16 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       });
 
       const columns = this.data.columns;
-      let removeAggregationType = function (field) {
-        let regExp = /\((.*)\)/gi;
-        let match = regExp.exec(field.name);
+      const removeAggregationType = (field) => {
+        const regExp = /\((.*)\)/gi;
+        const match = regExp.exec(field.name);
         if (match != null && match.length > 1) {
           field.name = match[1];
         } else field.name;
       };
 
       // aggregation 함수 제거
-      for (let i = 0; i < originAggregations.length; i++) {
+      for (let i = 0, nMax = originAggregations.length; i < nMax; i++) {
         removeAggregationType(originAggregations[i]);
       }
 
@@ -367,35 +359,35 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       // 같은 이름을 가진 measure값 제거
       originAggregations = _.uniqBy(originAggregations, 'name');
 
-      let newData = [];
+      const newData = [];
       for (let i = 0; i < columns[0].value.length; i++) {
         for (let j = 0; j < originAggregations.length; j++) {
-          let key = originAggregations[j].name;
+          const key = originAggregations[j].name;
 
-          let json = {};
-          json["&nbsp;"] = i + 1;
-          json["COLUMNS"] = key;
-          json["VALUE"] = columns[j].value[i];
+          const json = {};
+          json['&nbsp;'] = i + 1;
+          json['COLUMNS'] = key;
+          json['VALUE'] = columns[j].value[i];
 
           newData.push(json);
         }
       }
 
-      cols = [{"name": "COLUMNS"}];
-      rows = [{"name": "&nbsp;"}];
-      originAggregations = [{name: "VALUE"}];
+      cols = [{name: 'COLUMNS'}];
+      rows = [{name: '&nbsp;'}];
+      originAggregations = [{name: 'VALUE'}];
 
-      this.pivot.aggregations.map((pivot) => {
-        if( pivot.field && pivot.field.logicalType ) {
-          ( originAggregations[0].type ) || ( originAggregations[0].type = {} );
-          originAggregations[0].type[ pivot.name ] = pivot.field.logicalType;
+      this.pivot.aggregations.map((aggr) => {
+        if (aggr.field && aggr.field.logicalType) {
+          (originAggregations[0].type) || (originAggregations[0].type = {});
+          originAggregations[0].type[aggr.name] = aggr.field.logicalType;
 
-          if( pivot.fieldFormat ) {
-            ( originAggregations[0]['fieldFormat'] ) || ( originAggregations[0]['fieldFormat'] = [] );
-            if( -1 === originAggregations[0]['fieldFormat'].findIndex( item => pivot.field.name === item['aggrColumn'] ) ) {
-              const fieldFormat = JSON.parse(JSON.stringify(pivot.fieldFormat));
-              fieldFormat['aggrColumn'] = pivot.field.name;
-              originAggregations[0]['fieldFormat'].push( fieldFormat );
+          if (aggr.fieldFormat) {
+            (originAggregations[0]['fieldFormat']) || (originAggregations[0]['fieldFormat'] = []);
+            if (-1 === originAggregations[0]['fieldFormat'].findIndex(item => aggr.field.name === item['aggrColumn'])) {
+              const fieldFormat = JSON.parse(JSON.stringify(aggr.fieldFormat));
+              fieldFormat['aggrColumn'] = aggr.field.name;
+              originAggregations[0]['fieldFormat'].push(fieldFormat);
             }
           }
 
@@ -440,8 +432,8 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     };
 
     // Grid Width 설정
-    if( (<UIGridChart>this.uiOption).gridColumnWidth ) {
-      this.gridModel.columnWidth = (<UIGridChart>this.uiOption).gridColumnWidth;
+    if ((this.uiOption as UIGridChart).gridColumnWidth) {
+      this.gridModel.columnWidth = (this.uiOption as UIGridChart).gridColumnWidth;
     }
 
     // view 모드일 경우에는 클릭이벤트 삭제
@@ -454,15 +446,15 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     // UI 옵션 적용
     if (this.uiOption && this.uiOption.color) {
 
-      this.gridModel.useSelectStyle = this.uiOption && _.eq((<UIGridChart>this.uiOption).dataType, GridViewType.PIVOT);
-      this.gridModel.leftAxisWidth = this.uiOption && _.eq((<UIGridChart>this.uiOption).dataType, GridViewType.PIVOT) ? 120 : 65;
-      const schema = (<UIChartColorByCell>this.uiOption.color).schema;
+      this.gridModel.useSelectStyle = this.uiOption && _.eq((this.uiOption as UIGridChart).dataType, GridViewType.PIVOT);
+      this.gridModel.leftAxisWidth = this.uiOption && _.eq((this.uiOption as UIGridChart).dataType, GridViewType.PIVOT) ? 120 : 65;
+      const schema = (this.uiOption.color as UIChartColorByCell).schema;
       this.gridModel.showColorStep = !_.isEmpty(schema);
 
-      const cellColor = (<UIChartColorByCell>this.uiOption.color);
+      const cellColor = this.uiOption.color;
 
       // 원본타입일때 zProperties의 VALUE값 hide
-      if (_.eq((<UIGridChart>this.uiOption).dataType, GridViewType.MASTER)) this.gridModel.showDataColumn = false;
+      if (_.eq((this.uiOption as UIGridChart).dataType, GridViewType.MASTER)) this.gridModel.showDataColumn = false;
 
       // 색상 설정여부
       this.gridModel.body.color.showColorStep = true;
@@ -474,67 +466,67 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       this.setRangeColor(cellColor, this.gridModel);
 
       // 폰트컬러가 있는겨웅 폰트컬러로 설정
-      if ((<UIGridChart>this.uiOption).contentStyle.fontColor && '' !== (<UIGridChart>this.uiOption).contentStyle.fontColor) {
+      if (this.uiOption.contentStyle.fontColor && '' !== this.uiOption.contentStyle.fontColor) {
 
         // visualGradations이 있는경우 stepTextColor를 visualGradations개수만큼 설정
         if (this.uiOption.color['visualGradations'] && this.uiOption.color['visualGradations'].length > 0) {
           this.gridModel.body.color.stepTextColors = this.uiOption.color['visualGradations'].map(() => {
-            return (<UIGridChart>this.uiOption).contentStyle.fontColor
+            return this.uiOption.contentStyle.fontColor
           });
         } else {
-          this.gridModel.body.color.stepTextColors = [(<UIGridChart>this.uiOption).contentStyle.fontColor];
+          this.gridModel.body.color.stepTextColors = [this.uiOption.contentStyle.fontColor];
         }
       }
 
       // 본문스타일 show head column
-      this.gridModel.body.showAxisZ = (<UIGridChart>this.uiOption).contentStyle
-        ? (<UIGridChart>this.uiOption).contentStyle.showHeader
-          ? (<UIGridChart>this.uiOption).contentStyle.showHeader
+      this.gridModel.body.showAxisZ = this.uiOption.contentStyle
+        ? this.uiOption.contentStyle.showHeader
+          ? this.uiOption.contentStyle.showHeader
           : false
         : false;
-      this.gridModel.dataColumnMode = _.eq((<UIGridChart>this.uiOption).measureLayout, UIOrient.HORIZONTAL)
+      this.gridModel.dataColumnMode = _.eq(this.uiOption.measureLayout, UIOrient.HORIZONTAL)
         ? this.chart.DATA_COL_MODE.TOP
         : this.chart.DATA_COL_MODE.LEFT;
 
       // 정렬 설정
       // 헤더에서는 문자값만 있으므로 기본설정 선택시 왼쪽정렬로 설정
-      if (UIPosition.AUTO == (<UIGridChart>this.uiOption).headerStyle.hAlign) {
+      if (UIPosition.AUTO === this.uiOption.headerStyle.hAlign) {
         this.gridModel.header.align.hAlign = UIPosition.LEFT.toString().toLowerCase();
       } else {
         // 가로정렬
-        this.gridModel.header.align.hAlign = (<UIGridChart>this.uiOption).headerStyle.hAlign.toString().toLowerCase();
+        this.gridModel.header.align.hAlign = this.uiOption.headerStyle.hAlign.toString().toLowerCase();
       }
 
       // 본문에서는 auto시 숫자값은 오른쪽, 문자값은 왼쪽으로 정렬됨
-      this.gridModel.body.align.hAlign = (<UIGridChart>this.uiOption).contentStyle.hAlign.toString().toLowerCase();
+      this.gridModel.body.align.hAlign = this.uiOption.contentStyle.hAlign.toString().toLowerCase();
 
       // 세로정렬
-      this.gridModel.header.align.vAlign = (<UIGridChart>this.uiOption).headerStyle.vAlign.toString().toLowerCase();
-      this.gridModel.body.align.vAlign = (<UIGridChart>this.uiOption).contentStyle.vAlign.toString().toLowerCase();
+      this.gridModel.header.align.vAlign = this.uiOption.headerStyle.vAlign.toString().toLowerCase();
+      this.gridModel.body.align.vAlign = this.uiOption.contentStyle.vAlign.toString().toLowerCase();
 
       // 폰트사이즈 설정
-      this.gridModel.header.font.size = this.setFontSize((<UIGridChart>this.uiOption).headerStyle.fontSize);
-      this.gridModel.body.font.size = this.setFontSize((<UIGridChart>this.uiOption).contentStyle.fontSize);
+      this.gridModel.header.font.size = this.setFontSize(this.uiOption.headerStyle.fontSize);
+      this.gridModel.body.font.size = this.setFontSize(this.uiOption.contentStyle.fontSize);
 
       // 폰트스타일 설정
-      this.gridModel.header.font.styles = (<UIGridChart>this.uiOption).headerStyle.fontStyles;
-      this.gridModel.body.font.styles = (<UIGridChart>this.uiOption).contentStyle.fontStyles;
+      this.gridModel.header.font.styles = this.uiOption.headerStyle.fontStyles;
+      this.gridModel.body.font.styles = this.uiOption.contentStyle.fontStyles;
 
       // 헤더 보이기
-      this.gridModel.header.showHeader = (<UIGridChart>this.uiOption).headerStyle.showHeader;
+      this.gridModel.header.showHeader = this.uiOption.headerStyle.showHeader;
 
       // 설명 설정
-      this.gridModel.remark = (<UIGridChart>this.uiOption).annotation;
+      this.gridModel.remark = this.uiOption.annotation;
 
       // 헤더 색상설정
-      this.gridModel.header.font.color = (<UIGridChart>this.uiOption).headerStyle.fontColor;
-      this.gridModel.header.backgroundColor = (<UIGridChart>this.uiOption).headerStyle.backgroundColor;
+      this.gridModel.header.font.color = this.uiOption.headerStyle.fontColor;
+      this.gridModel.header.backgroundColor = this.uiOption.headerStyle.backgroundColor;
 
       // 연산행 설정
-      if ((<UIGridChart>this.uiOption).totalValueStyle) {
-        const totalValueStyle = (<UIGridChart>this.uiOption).totalValueStyle;
+      if (this.uiOption.totalValueStyle) {
+        const totalValueStyle = this.uiOption.totalValueStyle;
 
-        this.gridModel.totalValueStyle = (<UIGridChart>this.uiOption).totalValueStyle;
+        this.gridModel.totalValueStyle = this.uiOption.totalValueStyle;
         this.gridModel.totalValueStyle.font = {};
         this.gridModel.totalValueStyle.font.size = this.setFontSize(totalValueStyle.fontSize);
         this.gridModel.totalValueStyle.font.color = totalValueStyle.fontColor;
@@ -545,10 +537,10 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
         this.gridModel.totalValueStyle.align.vAlign = totalValueStyle.vAlign;
       }
       // 연산열 설정
-      if ((<UIGridChart>this.uiOption).showCalculatedColumnStyle) {
-        const showCalculatedColumnStyle = (<UIGridChart>this.uiOption).showCalculatedColumnStyle;
+      if (this.uiOption.showCalculatedColumnStyle) {
+        const showCalculatedColumnStyle = this.uiOption.showCalculatedColumnStyle;
 
-        this.gridModel.showCalculatedColumnStyle = (<UIGridChart>this.uiOption).showCalculatedColumnStyle;
+        this.gridModel.showCalculatedColumnStyle = this.uiOption.showCalculatedColumnStyle;
         this.gridModel.showCalculatedColumnStyle.font = {};
         this.gridModel.showCalculatedColumnStyle.font.size = this.setFontSize(showCalculatedColumnStyle.fontSize);
         this.gridModel.showCalculatedColumnStyle.font.color = showCalculatedColumnStyle.fontColor;
@@ -576,10 +568,10 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
   protected apply(initFl: boolean = true): void {
 
     // 원본보기일때 원본보기 데이터로 정제된 데이터를 설정
-    const data = (<UIGridChart>this.uiOption).dataType == GridViewType.MASTER ? this.originData : this.data;
+    const data = this.uiOption.dataType === GridViewType.MASTER ? this.originData : this.data;
 
     if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
-      let strScript = '(' + this.userCustomFunction + ')';
+      const strScript = '(' + this.userCustomFunction + ')';
       // ( new Function( 'return ' + strScript ) )();
       try {
         this.gridModel = eval(strScript)({name: 'InitWidgetEvent', data: this.gridModel});
@@ -592,7 +584,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     try {
       this.chart.initialize(data, this.gridModel);
     } catch (e) {
-      console.log( e );
+      console.log(e);
       // No Data 이벤트 발생
       this.noData.emit();
       return;
@@ -627,13 +619,13 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     if (cellColor.ranges && cellColor.ranges.length > 0) {
 
       // gradation일때
-      if (this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
+      if (this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT === this.uiOption.color['customMode']) {
 
-        this.setGradationRangeColor(<UIChartColorGradationByCell>cellColor, gridModel);
+        this.setGradationRangeColor(cellColor as UIChartColorGradationByCell, gridModel);
       } else {
         rangeList = _.cloneDeep(cellColor.ranges);
 
-        let rangeColors = [];
+        const rangeColors = [];
 
         // gt, lte값을 min / max 값으로 치환
         rangeList.forEach((item) => {
@@ -658,7 +650,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
       return item['color']
     });
 
-    if (CellColorTarget.BACKGROUND == (<UIChartColorByCell>this.uiOption.color).colorTarget) {
+    if (CellColorTarget.BACKGROUND === this.uiOption.color.colorTarget) {
       gridModel.body.color.stepColors = codes;
     } else {
       gridModel.body.color.stepTextColors = codes;
@@ -696,7 +688,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
    */
   private setGridData(): UIOption {
 
-    const uiOption = <UIGridChart>this.uiOption;
+    const uiOption = this.uiOption;
 
     if (!uiOption.headerStyle) uiOption.headerStyle = {};
     if (!uiOption.headerStyle.fontSize) uiOption.headerStyle.fontSize = FontSize.NORMAL;
@@ -715,7 +707,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     if (!uiOption.contentStyle.fontColor) uiOption.contentStyle.fontColor = '';
     if (_.isUndefined(uiOption.headerStyle.showHeader)) uiOption.headerStyle.showHeader = false;
 
-    if (ChartColorType.SINGLE == uiOption.color.type && !uiOption.color['code']) uiOption.color['code'] = '';
+    if (ChartColorType.SINGLE === uiOption.color.type && !uiOption.color['code']) uiOption.color['code'] = '';
     return this.uiOption
   }
 

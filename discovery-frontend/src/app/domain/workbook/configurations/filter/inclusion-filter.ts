@@ -73,17 +73,17 @@ export class Candidate {
 }
 
 export enum InclusionSortBy {
-  COUNT = <any>'COUNT',
-  TEXT = <any>'TEXT',
-  NUMERIC = <any>'NUMERIC',
-  DATE = <any>'DATE'
+  COUNT = 'COUNT',
+  TEXT = 'TEXT',
+  NUMERIC = 'NUMERIC',
+  DATE = 'DATE'
 }
 
 export enum InclusionSelectorType {
-  SINGLE_LIST = <any>'SINGLE_LIST',
-  SINGLE_COMBO = <any>'SINGLE_COMBO',
-  MULTI_LIST = <any>'MULTI_LIST',
-  MULTI_COMBO = <any>'MULTI_COMBO',
-  USER_DEFINED = <any>'USER_DEFINED'
+  SINGLE_LIST = 'SINGLE_LIST',
+  SINGLE_COMBO = 'SINGLE_COMBO',
+  MULTI_LIST = 'MULTI_LIST',
+  MULTI_COMBO = 'MULTI_COMBO',
+  USER_DEFINED = 'USER_DEFINED'
 }
 

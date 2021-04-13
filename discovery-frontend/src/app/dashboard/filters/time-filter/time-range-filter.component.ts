@@ -22,19 +22,19 @@ import {
   Input,
   SimpleChange,
   SimpleChanges,
-  EventEmitter, Output
+  EventEmitter, Output, OnChanges, AfterViewInit
 } from '@angular/core';
-import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {Dashboard} from '../../../domain/dashboard/dashboard';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {TimeRange, TimeRangeData} from '../component/time-range.component';
 
 @Component({
   selector: 'app-time-range-filter',
   templateUrl: './time-range-filter.component.html'
 })
-export class TimeRangeFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
+export class TimeRangeFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -305,7 +305,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   private _broadcastChange() {
     const filterData: TimeRangeFilter = this.getData();
     // 결과 값이 다를 경우만 이벤트 전달하여 차트 갱신
-    if (this.lastIntervals != filterData.intervals.join('')) {
+    if (this.lastIntervals !== filterData.intervals.join('')) {
       this.lastIntervals = filterData.intervals.join('');
       this.changeEvent.emit(filterData);
     }

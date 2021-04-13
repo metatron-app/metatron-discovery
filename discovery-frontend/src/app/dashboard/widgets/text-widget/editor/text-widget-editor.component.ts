@@ -12,9 +12,10 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 
-declare const nicEditor,nicEditors:any;
+declare const nicEditor;
+declare const nicEditors: any;
 declare let $;
 
 /**
@@ -48,7 +49,8 @@ export class TextWidgetEditorComponent implements OnInit, OnDestroy {
   /**
    * 생성자
    */
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
@@ -73,12 +75,12 @@ export class TextWidgetEditorComponent implements OnInit, OnDestroy {
 
   public init(): void {
     new nicEditor({
-      buttonList : ['fontSize','forecolor','bgcolor','bold','italic','underline','left','center','right','justify','ol','ul','indent','outdent','link','unlink'],
-      maxHeight : 245
+      buttonList: ['fontSize', 'forecolor', 'bgcolor', 'bold', 'italic', 'underline', 'left', 'center', 'right', 'justify', 'ol', 'ul', 'indent', 'outdent', 'link', 'unlink'],
+      maxHeight: 245
     }).panelInstance('editSection');
-    setTimeout( () => {
-      $( this.elementRef.nativeElement ).focus();
-    }, 1000 );
+    setTimeout(() => {
+      $(this.elementRef.nativeElement).focus();
+    }, 1000);
   }
 
   /**

@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../abstract.component';
-import { Modal } from '../../../domain/modal';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {AbstractComponent} from '../../abstract.component';
+import {Modal} from '@common/domain/modal';
 
 @Component({
   selector: 'component-confirm-ref',
@@ -26,8 +26,8 @@ export class ConfirmRefModalComponent extends AbstractComponent {
   modal: Modal;
 
   // 변경 이벤트
-  @Output() readonly cancelEvent =  new EventEmitter();
-  @Output() readonly confirmEvent =  new EventEmitter();
+  @Output() readonly cancelEvent = new EventEmitter();
+  @Output() readonly confirmEvent = new EventEmitter();
 
   // 생성자
   constructor(protected elementRef: ElementRef,

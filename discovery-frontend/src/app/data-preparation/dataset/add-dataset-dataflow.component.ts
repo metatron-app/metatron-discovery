@@ -110,7 +110,7 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
     // first get dataflow info -> need dataset ids in this dataflow
     this.dataflowService.getDataflow(this.selectedDataflowId).then((result) => {
 
-      console.info('result ==> ', result );
+      console.log('result ==> ', result );
       if (result.datasets && result.datasets.length > 0) {
         dsIds = result.datasets.map((item) => {
           return item.dsId;
@@ -124,18 +124,18 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
       // update dataflow with dataset ids
       this.dataflowService.updateDataSets(this.selectedDataflowId, { dsIds : dsIds }).then((result) => {
 
-        console.info('result ==> ', result );
+        console.log('result ==> ', result );
         this.router.navigate(['/management/datapreparation/dataflow', this.selectedDataflowId]);
         this.cookieService.set('FIND_WRANGLED',this.datasetId);
 
       }).catch((error) => {
         this.loadingHide();
-        console.info('error -> ', error);
+        console.log('error -> ', error);
       });
 
     }).catch((error => {
       this.loadingHide();
-      console.info('error -> ', error);
+      console.log('error -> ', error);
     }));
 
 
@@ -172,7 +172,7 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
         }
       }
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
     })
   }
 

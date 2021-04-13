@@ -112,7 +112,7 @@ export class ChartSummaryComponent extends AbstractComponent implements OnInit {
       .catch((error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.nbook.alert.chart.retrieve.fail'));
-        console.info('dashboardDetail', error);
+        console.log('dashboardDetail', error);
       });
   }
 

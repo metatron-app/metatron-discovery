@@ -399,7 +399,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
 
 
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
     })
   } // function - cancelSnapshotConfirm
 

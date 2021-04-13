@@ -79,14 +79,14 @@ export class Audit extends AbstractHistoryEntity{
 
 // Query 상태
 export enum AuditStatus {
-  SUCCESS = <any>'SUCCESS',
-  FAIL = <any>'FAIL',
-  RUNNING = <any>'RUNNING',
-  CANCELLED = <any>'CANCELLED'
+  SUCCESS = 'SUCCESS',
+  FAIL = 'FAIL',
+  RUNNING = 'RUNNING',
+  CANCELLED = 'CANCELLED'
 }
 
 // AuditType
 export enum AuditType {
-  QUERY = <any>'QUERY',
-  JOB = <any>'JOB'
+  QUERY = 'QUERY',
+  JOB = 'JOB'
 }

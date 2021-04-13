@@ -13,12 +13,12 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
+import {HttpHeaders} from '@angular/common/http';
 import 'rxjs/add/operator/toPromise';
 import {saveAs} from 'file-saver';
-import {Extension} from "../domain/extension";
-import {CookieConstant} from "../constant/cookie.constant";
-import {AbstractService} from "./abstract.service";
+import {Extension} from '../domain/extension';
+import {CookieConstant} from '../constant/cookie.constant';
+import {AbstractService} from './abstract.service';
 
 @Injectable()
 export class CommonService extends AbstractService {
@@ -48,9 +48,9 @@ export class CommonService extends AbstractService {
   public downloadManual(lang: string) {
 
     const headers = new HttpHeaders({
-      'Accept': 'application/pdf,*/*;',
+      Accept: 'application/pdf,*/*;',
       'Content-Type': 'application/octet-binary',
-      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
+      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
     this.http.get(this.API_URL + `common/manual/download?lang=${lang}`,

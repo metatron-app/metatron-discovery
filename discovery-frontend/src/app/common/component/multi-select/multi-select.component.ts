@@ -13,19 +13,16 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output
+  Component, ElementRef, EventEmitter, HostListener,
+  Injector, Input, OnDestroy, OnInit, Output
 } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
 
 @Component({
   selector: 'component-multi-select',
-  templateUrl: './multi-select.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './multi-select.component.html'
 })
-export class MultiSelectComponent extends AbstractComponent implements OnInit {
+export class MultiSelectComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -161,15 +158,15 @@ export class MultiSelectComponent extends AbstractComponent implements OnInit {
       if (typeof item === 'string') {
         this.viewText = this.selectedArray.join(',');
       } else {
-        this.viewText = this.selectedArray.map((item) => {
-          return item[this.viewKey];
+        this.viewText = this.selectedArray.map((selectedItem) => {
+          return selectedItem[this.viewKey];
         }).join(',');
       }
     }
 
 
     // 이벤트 발생
-    //this.onSelected.emit(item);
+    // this.onSelected.emit(item);
     this.onSelected.emit(this.selectedArray);
   }
 
@@ -179,6 +176,7 @@ export class MultiSelectComponent extends AbstractComponent implements OnInit {
   }
 
   // 컴포넌트 내부  host 클릭이벤트 처리
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {

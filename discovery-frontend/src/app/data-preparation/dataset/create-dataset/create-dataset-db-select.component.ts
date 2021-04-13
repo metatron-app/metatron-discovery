@@ -284,7 +284,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       })
       .catch((err) => {
         this.loadingHide();
-        console.info('getConnections err)', err.toString());
+        console.log('getConnections err)', err.toString());
       });
   }
 

@@ -170,7 +170,7 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
         })
         .catch((error) => {
           this.loadingHide();
-          console.info(error);
+          console.log(error);
           if (error.message === 'notebook url is invalid') {
             this.isUrlValidError = true;
           } else {
@@ -187,7 +187,7 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
         })
         .catch((error) => {
           this.loadingHide();
-          console.info(error);
+          console.log(error);
           if (error.message === 'notebook url is invalid') {
             this.isUrlValidError = true;
           } else {

@@ -439,7 +439,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param index
    */
   public rowSelection(index): void {
-    // console.info('index', index);
+    // console.log('index', index);
     this.__selectedRows = index;
     if (this._gridSelectionModelType === 'cell') {
       this.rowAllUnSelection();

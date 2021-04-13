@@ -554,87 +554,87 @@ export class IngestionHistory extends AbstractHistoryEntity {
 
 // job 상태
 export enum IngestionStatus {
-  SUCCESS = <any>'SUCCESS',
-  FAILED = <any>'FAILED',
-  RUNNING = <any>'RUNNING',
-  PASS = <any>'PASS'
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  RUNNING = 'RUNNING',
+  PASS = 'PASS'
 }
 
 // dsType
 export enum DataSourceType {
-  MASTER = <any>'MASTER',
-  JOIN = <any>'JOIN',
-  VOLATILITY = <any>'VOLATILITY'
+  MASTER = 'MASTER',
+  JOIN = 'JOIN',
+  VOLATILITY = 'VOLATILITY'
 }
 
 // connType
 export enum ConnectionType {
-  ENGINE = <any>'ENGINE',
-  LINK = <any>'LINK'
+  ENGINE = 'ENGINE',
+  LINK = 'LINK'
 }
 
 // srcType
 export enum SourceType {
-  FILE = <any>'FILE',
-  HDFS = <any>'HDFS',
-  HIVE = <any>'HIVE',
-  JDBC = <any>'JDBC',
-  REALTIME = <any>'REALTIME',
-  IMPORT = <any>'IMPORT',
-  SNAPSHOT = <any>'SNAPSHOT',
-  NONE = <any>'NONE',
-  ENGINE = <any>'ENGINE',
-  STAGEDB = <any>'STAGEDB'
+  FILE = 'FILE',
+  HDFS = 'HDFS',
+  HIVE = 'HIVE',
+  JDBC = 'JDBC',
+  REALTIME = 'REALTIME',
+  IMPORT = 'IMPORT',
+  SNAPSHOT = 'SNAPSHOT',
+  NONE = 'NONE',
+  ENGINE = 'ENGINE',
+  STAGEDB = 'STAGEDB'
 }
 
 export enum Status {
-  ENABLED = <any>'ENABLED',
-  PREPARING = <any>'PREPARING',
-  FAILED = <any>'FAILED',
-  BAD = <any>'BAD',
-  DISABLED = <any>'DISABLED'
+  ENABLED = 'ENABLED',
+  PREPARING = 'PREPARING',
+  FAILED = 'FAILED',
+  BAD = 'BAD',
+  DISABLED = 'DISABLED'
 }
 
 export enum LogicalType {
-  TEXT = <any>'STRING',
-  STRING = <any>'STRING',
-  INTEGER = <any>'INTEGER',
-  FLOAT = <any>'DOUBLE',
-  DOUBLE = <any>'DOUBLE',
-  TIMESTAMP = <any>'TIMESTAMP',
-  BOOLEAN = <any>'BOOLEAN',
-  MAP = <any>'STRUCT',
-  STRUCT = <any>'STRUCT',
-  ARRAY = <any>'ARRAY',
-  LNT = <any>'LNT',
-  LNG = <any>'LNG',
-  POSTAL_CODE = <any>'POSTAL_CODE',
-  PHONE_NUMBER = <any>'PHONE_NUMBER',
-  ETC = <any>'ETC',
-  GEO_POINT = <any>'GEO_POINT',
-  GEO_LINE = <any>'GEO_LINE',
-  GEO_POLYGON = <any>'GEO_POLYGON',
-  USER_DEFINED = <any>'user_defined',
-  HASHED_MAP = <any>'HASHED_MAP'
+  TEXT = 'STRING',
+  STRING = 'STRING',
+  INTEGER = 'INTEGER',
+  FLOAT = 'DOUBLE',
+  DOUBLE = 'DOUBLE',
+  TIMESTAMP = 'TIMESTAMP',
+  BOOLEAN = 'BOOLEAN',
+  MAP = 'STRUCT',
+  STRUCT = 'STRUCT',
+  ARRAY = 'ARRAY',
+  LNT = 'LNT',
+  LNG = 'LNG',
+  POSTAL_CODE = 'POSTAL_CODE',
+  PHONE_NUMBER = 'PHONE_NUMBER',
+  ETC = 'ETC',
+  GEO_POINT = 'GEO_POINT',
+  GEO_LINE = 'GEO_LINE',
+  GEO_POLYGON = 'GEO_POLYGON',
+  USER_DEFINED = 'user_defined',
+  HASHED_MAP = 'HASHED_MAP'
 }
 
 export enum FieldRole {
-  DIMENSION = <any>'DIMENSION',
-  MEASURE = <any>'MEASURE',
-  TIMESTAMP = <any>'TIMESTAMP'
+  DIMENSION = 'DIMENSION',
+  MEASURE = 'MEASURE',
+  TIMESTAMP = 'TIMESTAMP'
 }
 
 /**
  * 필드가 올려진 선반 타입
  */
 export enum FieldPivot {
-  ROWS = <any>'ROWS',
-  COLUMNS = <any>'COLUMNS',
-  AGGREGATIONS = <any>'AGGREGATIONS',
+  ROWS = 'ROWS',
+  COLUMNS = 'COLUMNS',
+  AGGREGATIONS = 'AGGREGATIONS',
   // temp, for map chart
-  MAP_LAYER0 = <any>'MAP_LAYER0',
-  MAP_LAYER1 = <any>'MAP_LAYER1',
-  MAP_LAYER2 = <any>'MAP_LAYER2'
+  MAP_LAYER0 = 'MAP_LAYER0',
+  MAP_LAYER1 = 'MAP_LAYER1',
+  MAP_LAYER2 = 'MAP_LAYER2'
 }
 
 /**
@@ -665,9 +665,9 @@ export class FieldValueAlias extends FieldAlias {
  * Temporary Datasource Status
  */
 export enum TempDsStatus {
-  ENABLE = <any>'ENABLE',
-  PREPARING = <any>'PREPARING',
-  DISABLE = <any>'DISABLE'
+  ENABLE = 'ENABLE',
+  PREPARING = 'PREPARING',
+  DISABLE = 'DISABLE'
 }
 
 export class FieldFormat {
@@ -779,13 +779,13 @@ export class FieldFormat {
 
 export enum FieldFormatType {
   // TIMESTAMP
-  DATE_TIME = <any>'time_format',
-  UNIX_TIME = <any>'time_unix',
-  TEMPORARY_TIME = <any>'time_temporary',
+  DATE_TIME = 'time_format',
+  UNIX_TIME = 'time_unix',
+  TEMPORARY_TIME = 'time_temporary',
   // GEO type
-  GEO_POINT = <any>'geo_point',
-  GEO_LINE = <any>'geo_line',
-  GEO_POLYGON = <any>'geo_polygon',
+  GEO_POINT = 'geo_point',
+  GEO_LINE = 'geo_line',
+  GEO_POLYGON = 'geo_polygon',
 }
 
 export enum FieldFormatUnit {

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import {LegendConvertType, UIPosition} from "../define/common";
-import {TextStyle} from "../define/style";
+import {LegendConvertType, UIPosition} from '../define/common';
+import {TextStyle} from '../define/style';
 /**
  * Legend
  */

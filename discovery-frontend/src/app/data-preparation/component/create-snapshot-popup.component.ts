@@ -598,7 +598,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         this.dbList = data['databases'];
       }
     }).catch((error) => {
-      console.info('error -> ', error);
+      console.log('error -> ', error);
       this._isDataprepStagingEnabled = false;
     });
   }
@@ -635,7 +635,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
 
         this.loadingHide();
-        resolve();
+        resolve(null);
       }).catch((err) => reject(err));
 
     });

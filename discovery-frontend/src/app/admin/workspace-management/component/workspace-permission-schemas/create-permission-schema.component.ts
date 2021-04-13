@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { RoleSet, RoleSetScope } from '../../../../domain/user/role/roleSet';
+import { RoleSet, RoleSetScope } from '@domain/user/role/roleSet';
 import { PermissionSchemaComponent } from '../../../../workspace/component/permission/permission-schema.component';
-import { CommonUtil } from '../../../../common/util/common.util';
-import { StringUtil } from '../../../../common/util/string.util';
+import { CommonUtil } from '@common/util/common.util';
+import { StringUtil } from '@common/util/string.util';
 
 @Component({
   selector: 'app-create-permission-schema',

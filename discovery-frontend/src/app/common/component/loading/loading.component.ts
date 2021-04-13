@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import {Component, Injector, ElementRef, Input, Output, EventEmitter} from "@angular/core";
-import {AbstractComponent} from "../abstract.component";
+import {Component, Injector, ElementRef, Input, Output, EventEmitter, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
 
 @Component({
     selector    : '[loading]',
     templateUrl : './loading.component.html'
 })
-export class LoadingComponent extends AbstractComponent {
+export class LoadingComponent extends AbstractComponent implements OnInit, OnDestroy {
 
     /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     | Private Variables
@@ -45,7 +45,7 @@ export class LoadingComponent extends AbstractComponent {
     public canceling: boolean = false;
 
     // 취소 이벤트
-    @Output("cancel")
+    @Output('cancel')
     public cancelEvent: EventEmitter<void> = new EventEmitter<void>();
 
     /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

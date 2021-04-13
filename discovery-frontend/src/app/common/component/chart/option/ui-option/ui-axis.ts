@@ -12,11 +12,8 @@
  * limitations under the License.
  */
 
-import {
-  AxisOrientType, ChartAxisGridType, ChartAxisLabelType, AxisLabelType, AxisLabelMark,
-  AxisLabelRotate
-} from "../define/common";
-import {UIChartFormat} from "./ui-format";
+import {AxisLabelRotate, AxisLabelType, ChartAxisGridType, ChartAxisLabelType} from '../define/common';
+import {UIChartFormat} from './ui-format';
 
 /**
  * Axis

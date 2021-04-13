@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-import { UIOption } from '../ui-option';
-import { LineMarkType, LineMode, LineStyle, PointShape } from '../define/common';
+import {UIOption} from '../ui-option';
+import {PointShape} from '../define/common';
+
 /**
  * 스케터차트 화면 UI에 필요한 옵션
  * Version 2.0

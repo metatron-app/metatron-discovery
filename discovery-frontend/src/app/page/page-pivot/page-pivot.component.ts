@@ -184,7 +184,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
 
-    console.info(this.filterFiledList);
+    console.log(this.filterFiledList);
   }
 
   @Input('shelf')
@@ -202,7 +202,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       this.pivot = pivot;
     }
 
-    console.info('pivot!', this.pivot);
+    console.log('pivot!', this.pivot);
     this.changePivot();
   }
 
@@ -212,7 +212,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // 기존 chartType값 설정
     const initChartType = this.chartType;
 
-    console.info(`차트타입이 변경됨 ${this.chartType} => ${chartType}`);
+    console.log(`차트타입이 변경됨 ${this.chartType} => ${chartType}`);
     this.chartType = chartType;
 
     if (this.chartType) {
@@ -266,7 +266,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const windowResizeSubscribe = resizeEvent$.subscribe((data) => {
       this.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
-      console.info('resize pivot! - TODO scrollCheck');
+      console.log('resize pivot! - TODO scrollCheck');
     });
 
     this.subscriptions.push(windowResizeSubscribe);
@@ -429,7 +429,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     } else if (targetContainer === 'aggregation') {
       shelf = this.pivot.aggregations;
     } else {
-      console.info('정의되지 않은 drop', targetContainer);
+      console.log('정의되지 않은 drop', targetContainer);
       return;
     }
 
@@ -499,7 +499,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       shelf = this.pivot.aggregations;
       shelfElement = this.$element.find('#shelfAggregation');
     } else {
-      console.info('정의되지 않은 drop', targetContainer);
+      console.log('정의되지 않은 drop', targetContainer);
       return;
     }
 
@@ -1426,7 +1426,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   }
 
   protected onClickedOutside(event) {
-    console.info(event);
+    console.log(event);
     this.editingField = null;
   }
 
@@ -1484,7 +1484,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const $this = $(event.currentTarget);
     // this.$editFieldLayer.show();
-    console.info('openFieldSetting', this.$editFieldLayer.width(), $this.offset());
+    console.log('openFieldSetting', this.$editFieldLayer.width(), $this.offset());
 
     if ($this.offset().left > $(window).width() / 2) {
       this.$editFieldLayer.css(
@@ -1568,7 +1568,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const $this = $(event.currentTarget);
     // this.$editFieldLayer.show();
-    console.info('openFieldSetting', this.$editFieldLayer.width(), $this.offset());
+    console.log('openFieldSetting', this.$editFieldLayer.width(), $this.offset());
 
     if ($this.offset().left > $(window).width() / 2) {
       this.$editFieldLayer.css(
@@ -1591,7 +1591,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     // const field: Field = event.dragData;
 
-    console.info('onDropSuccess', field, shelf);
+    console.log('onDropSuccess', field, shelf);
 
     let targetShelf;
     if ('column' === shelf) {
@@ -1607,7 +1607,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     let targetField;
 
     if (field instanceof AbstractField) {
-      console.info('AbstractField', field);
+      console.log('AbstractField', field);
 
     } else {
 
@@ -1750,7 +1750,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   }
 
   protected onSortSuccess(event) {
-    console.info('onSortSuccess', event);
+    console.log('onSortSuccess', event);
   }
 
   protected checkAlias(field: AbstractField) {
@@ -1758,7 +1758,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     if (['measure', 'calculated'].indexOf(field.type) > -1) {
       // TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅
       if (field.type === 'calculated') {
-        console.info('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
+        console.log('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
       }
       const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
       // field.alias = `${aggType}(${field.name})`;
