@@ -1,10 +1,10 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {StringUtil} from "../../../../common/util/string.util";
+import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
+import {AbstractComponent} from "@common/component/abstract.component";
+import {StringUtil} from "@common/util/string.util";
 import * as _ from "lodash";
-import {CommonUtil} from "../../../../common/util/common.util";
-import {Book} from "../../../../domain/workspace/book";
-import {Alert} from "../../../../common/util/alert.util";
+import {CommonUtil} from "@common/util/common.util";
+import {Book} from "@domain/workspace/book";
+import {Alert} from "@common/util/alert.util";
 import {WorkbookService} from "../../../service/workbook.service";
 import {ExploreConstant} from "../../../../explore-data/constant/explore.constant";
 
@@ -156,7 +156,7 @@ export class CreateWorkbookComponent extends AbstractComponent {
       this.completedPopup.emit(result.id);
       // close
       this.closePopup();
-    }).catch((error) => {
+    }).catch((_error) => {
       Alert.error(this.translateService.instant('msg.book.alert.create.workbook.fail'));
       this.loadingHide();
     });

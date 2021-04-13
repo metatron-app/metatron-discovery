@@ -14,14 +14,14 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import {Location} from '@angular/common';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Workbench } from '../../../../domain/workbench/workbench';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Workbench } from '@domain/workbench/workbench';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { ConnectionRequest } from '../../../../domain/dataconnection/connectionrequest';
-import { ImplementorType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import { Alert } from '@common/util/alert.util';
+import { ConnectionRequest } from '@domain/dataconnection/connectionrequest';
+import { ImplementorType, Dataconnection } from '@domain/dataconnection/dataconnection';
 import { isUndefined } from 'util';
-import { StringUtil } from '../../../../common/util/string.util';
+import { StringUtil } from '@common/util/string.util';
 
 @Component({
   selector: 'app-workbench-login',

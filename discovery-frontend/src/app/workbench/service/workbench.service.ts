@@ -13,10 +13,10 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
-import {QueryEditor, Workbench} from '../../domain/workbench/workbench';
-import {CommonUtil} from '../../common/util/common.util';
-import {Page} from '../../domain/common/page';
+import {AbstractService} from '@common/service/abstract.service';
+import {QueryEditor, Workbench} from '@domain/workbench/workbench';
+import {CommonUtil} from '@common/util/common.util';
+import {Page} from '@domain/common/page';
 import {isNullOrUndefined} from "util";
 
 @Injectable()

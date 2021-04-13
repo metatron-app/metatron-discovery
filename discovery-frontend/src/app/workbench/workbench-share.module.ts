@@ -18,7 +18,7 @@ import { CreateWorkbenchCompleteComponent } from './component/create-workbench/c
 import { CreateWorkbenchComponent } from './component/create-workbench/create-workbench.component';
 import { WorkbenchService } from './service/workbench.service';
 import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { DetailWorkbenchDataconnectionInfo } from './component/detail-workbench/detail-workbench-dataconnection-info/detail-workbench-dataconnection-info';
 import { DetailWorkbenchDatabase } from './component/detail-workbench/detail-workbench-database/detail-workbench-database';
 import { DetailWorkbenchTable } from './component/detail-workbench/detail-workbench-table/detail-workbench-table';

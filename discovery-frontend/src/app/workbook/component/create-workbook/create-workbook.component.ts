@@ -14,13 +14,13 @@
 
 import { Component, ElementRef, EventEmitter,
   Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Workbook } from '../../../domain/workbook/workbook';
-import { CommonUtil } from '../../../common/util/common.util';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Workbook } from '@domain/workbook/workbook';
+import { CommonUtil } from '@common/util/common.util';
 import { WorkbookService } from '../../service/workbook.service';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonConstant } from '../../../common/constant/common.constant';
-import { Book } from '../../../domain/workspace/book';
+import { Alert } from '@common/util/alert.util';
+import { CommonConstant } from '@common/constant/common.constant';
+import { Book } from '@domain/workspace/book';
 
 @Component({
   selector: 'app-create-workbook',
@@ -147,7 +147,7 @@ export class CreateWorkbookComponent extends AbstractComponent implements OnInit
       this.loadingHide();
       Alert.success(`'${result.name}’ ` + this.translateService.instant('msg.book.alert.create.workbook.success'));
       this.close();
-    }).catch((error) => {
+    }).catch((_error) => {
       Alert.error(this.translateService.instant('msg.book.alert.create.workbook.fail'));
       this.loadingHide();
     });

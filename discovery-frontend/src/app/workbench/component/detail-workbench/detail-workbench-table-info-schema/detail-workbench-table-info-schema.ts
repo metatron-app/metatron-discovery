@@ -17,9 +17,8 @@ import {
   Output
 } from '@angular/core';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
 import { isUndefined } from 'util';
-import { StringUtil } from '../../../../common/util/string.util';
+import { StringUtil } from '@common/util/string.util';
 import { WorkbenchService } from '../../../service/workbench.service';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 

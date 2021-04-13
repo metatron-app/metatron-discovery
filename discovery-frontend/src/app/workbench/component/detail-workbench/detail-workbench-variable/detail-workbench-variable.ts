@@ -13,17 +13,16 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
+  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output
 } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Workbench } from '../../../../domain/workbench/workbench';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Workbench } from '@domain/workbench/workbench';
 import { isUndefined } from 'util';
 import { WorkbenchService } from '../../../service/workbench.service';
-import { CommonConstant } from '../../../../common/constant/common.constant';
+import { CommonConstant } from '@common/constant/common.constant';
 import * as _ from 'lodash';
-import { StringUtil } from '../../../../common/util/string.util';
-import { Alert } from '../../../../common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { Alert } from '@common/util/alert.util';
 
 /**
  * Global variable in detail workbench

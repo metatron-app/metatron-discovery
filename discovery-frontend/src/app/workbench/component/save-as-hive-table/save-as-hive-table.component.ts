@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkbenchService} from "../../service/workbench.service";
-import {StringUtil} from "../../../common/util/string.util";
+import {StringUtil} from "@common/util/string.util";
 import {CommonUtil} from "app/common/util/common.util";
-import {Alert} from "../../../common/util/alert.util";
+import {Alert} from "@common/util/alert.util";
 
 @Component({
   selector: 'app-save-as-hive-table',
@@ -104,7 +104,7 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
 
       this.loadingShow();
       this.workbenchService.importFile(this.workbenchId, params)
-        .then((response) => {
+        .then((_response) => {
           this.loadingHide();
           Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
           this.saveSucceed.emit();

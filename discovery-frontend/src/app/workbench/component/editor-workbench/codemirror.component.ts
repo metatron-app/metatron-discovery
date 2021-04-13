@@ -17,7 +17,6 @@ import {
   Component,
   Input,
   Output,
-  ElementRef,
   ViewChild,
   EventEmitter,
   forwardRef,
@@ -257,7 +256,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
   }
 
   private getSelectedRange() {
-    return { from: this.instance.getCursor(true), to: this.instance.getCursor(false) };
+    return { from: this.instance.getCursor("start"), to: this.instance.getCursor("end") };
   }
 
   public resize(height:number) : void {
@@ -510,7 +509,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
     const lines:any[] = [];
     this.instance.doc.children.forEach((item) => {
       if(!isUndefined(item.lines)) {
-        item.lines.forEach((item2, idx) => {
+        item.lines.forEach((item2, _idx) => {
           lines.push(item2);
         });
       } else {

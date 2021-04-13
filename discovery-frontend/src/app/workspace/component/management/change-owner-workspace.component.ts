@@ -13,12 +13,12 @@
  */
 
 import { ElementRef, OnDestroy, OnInit, Injector, Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { Workspace } from '../../../domain/workspace/workspace';
-import { Alert } from '../../../common/util/alert.util';
+import { Workspace } from '@domain/workspace/workspace';
+import { Alert } from '@common/util/alert.util';
 import { Page, PageResult } from 'app/domain/common/page';
 import { WorkspaceService } from '../../service/workspace.service';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { WorkspaceMemberProjection } from '../../../domain/workspace/workspace-member';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { WorkspaceMemberProjection } from '@domain/workspace/workspace-member';
 import {isNullOrUndefined} from "util";
 
 @Component({

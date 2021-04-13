@@ -14,7 +14,7 @@
 
 import { NgModule } from '@angular/core';
 import { EditorComponent } from './component/detail-workbench/datail-workbench-editor/editor.component';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 
 @NgModule({
   imports: [CommonModule],

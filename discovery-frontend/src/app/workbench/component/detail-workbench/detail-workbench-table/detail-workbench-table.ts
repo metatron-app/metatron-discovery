@@ -27,11 +27,11 @@ import {
 } from '@angular/core';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
 import { isNullOrUndefined, isUndefined } from 'util';
-import { Page } from '../../../../domain/common/page';
-import { StringUtil } from '../../../../common/util/string.util';
+import { Page } from '@domain/common/page';
+import { StringUtil } from '@common/util/string.util';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 import { WorkbenchService } from '../../../service/workbench.service';
-import {ImplementorType} from "../../../../domain/dataconnection/dataconnection";
+import {ImplementorType} from "@domain/dataconnection/dataconnection";
 
 @Component({
   selector: 'detail-workbench-table',
@@ -171,7 +171,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   // }
 
   // close table info popup
-  public tableInfoClose($event) {
+  public tableInfoClose(_$event) {
     document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
     this.selectedTableInfoLayer = false;
   }
@@ -307,9 +307,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   /**
    * Set table list
-   * @param {string} connectionId
-   * @param {string} databaseName
    * @private
+   * @param dataconnection
    */
   private _setTableList(dataconnection: any): void {
     // 호출 횟수 증가
@@ -369,7 +368,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     this.selectedNum = index;
     // $('.ddp-list-table').find('li:eq('+ index + ')').addClass('ddp-info-selected');
     event.stopImmediatePropagation();
-    const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
     this.tableParams = {
       dataconnection: this.inputParams.dataconnection,
       selectedTable: item,
@@ -380,7 +378,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   }
 
   // Show/hide Schema information popup
-  public showTableSchemaInfo(item: string, index: number): void {
+  public showTableSchemaInfo(item: string, _index: number): void {
     if (this.disable) {
       return;
     }
@@ -402,7 +400,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
    */
   public setTableSql(item) {
     if( ImplementorType.DRUID === this.implementorType || ImplementorType.POSTGRESQL === this.implementorType ) {
-      this.sqlIntoEditorEvent.emit('\nSELECT * FROM "' + this.inputParams.dataconnection.database + '"."' + item + '";');
+      this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '"."' + item + '";');
     } else {
       this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
     }

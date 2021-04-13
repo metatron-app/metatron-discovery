@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {ElementRef, Injector} from '@angular/core';
-import {CommonConstant} from '../../common/constant/common.constant';
-import {CookieConstant} from '../../common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {WorkbenchService} from '../service/workbench.service';
 import {Message} from '@stomp/stompjs';
 

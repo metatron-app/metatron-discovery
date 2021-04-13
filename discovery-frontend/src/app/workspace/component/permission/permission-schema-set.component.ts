@@ -22,10 +22,11 @@ import {
   ViewChild,
   Component
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { RoleSet } from 'app/domain/user/role/roleSet';
 import { PermissionService } from '../../../user/service/permission.service';
 import { PermissionSchemaComponent } from './permission-schema.component';
+
 
 @Component({
   selector: 'app-permission-schema-set',
