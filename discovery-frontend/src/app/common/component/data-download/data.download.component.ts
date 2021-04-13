@@ -17,27 +17,27 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Injector, Input,
-  OnChanges,
+  HostListener,
+  Injector,
+  Input,
   OnDestroy,
-  OnInit, Output,
-  SimpleChanges
+  OnInit,
+  Output
 } from '@angular/core';
 import {WidgetService} from '../../../dashboard/service/widget.service';
 import {saveAs} from 'file-saver';
 import {GridComponent} from '../grid/grid.component';
 import {CommonUtil} from '../../util/common.util';
 import {Alert} from '../../util/alert.util';
-import {SearchQueryRequest} from "../../../domain/datasource/data/search-query-request";
-import {QueryParam} from "../../../domain/dashboard/dashboard";
-import {DatasourceService} from "../../../datasource/service/datasource.service";
+import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
+import {QueryParam} from '@domain/dashboard/dashboard';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'data-download',
-  templateUrl: './data.download.component.html',
-  host: {'(document:click)': 'onClickHost($event)'}
+  templateUrl: './data.download.component.html'
 })
-export class DataDownloadComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
+export class DataDownloadComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -113,13 +113,6 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   }
 
   /**
-   * Input 값 변경 체크
-   * @param {SimpleChanges} changes
-   */
-  public ngOnChanges(changes: SimpleChanges) {
-  }
-
-  /**
    * 컴포넌트 제거
    */
   public ngOnDestroy() {
@@ -130,6 +123,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * 외부영역 클릭
    * @param {MouseEvent} event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event: MouseEvent) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     const $target: any = $(event.target);
@@ -149,6 +143,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {MouseEvent} event
    * @param {string} widgetId
    * @param {boolean} isOriginDown
+   * @param {SearchQueryRequest} query
    */
   public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown: boolean = true, query: SearchQueryRequest = null) {
     this._openComponent(event, 'RIGHT');
@@ -233,7 +228,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     } else if ('GRID' === this.mode) {
       this._gridComp.csvDownload('data');
     } else if ('DATA' === this.mode) {
-      if( !this._downData.rows && this._queryParams ) {
+      if (!this._downData.rows && this._queryParams) {
         this.loadingShow();
         this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
           this._dataDownload(this._downData.cols, downData, 'CSV');
@@ -272,7 +267,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     } else if ('GRID' === this.mode) {
       this._gridComp.excelDownload('data');
     } else if ('DATA' === this.mode) {
-      if( !this._downData.rows && this._queryParams ) {
+      if (!this._downData.rows && this._queryParams) {
         this.loadingShow();
         this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
           this._dataDownload(this._downData.cols, downData, 'EXCEL');
@@ -311,13 +306,13 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     const lnbmoreTop: number = $target.offset().top;
     switch (position) {
       case 'RIGHT' :
-        this.$element.find('.ddp-box-layout4.ddp-download').css({'left': lnbmoreLeft - 340, 'top': lnbmoreTop + 20});
+        this.$element.find('.ddp-box-layout4.ddp-download').css({left: lnbmoreLeft - 340, top: lnbmoreTop + 20});
         break;
       case 'CENTER' :
-        this.$element.find('.ddp-box-layout4.ddp-download').css({'left': lnbmoreLeft - 170, 'top': lnbmoreTop + 20});
+        this.$element.find('.ddp-box-layout4.ddp-download').css({left: lnbmoreLeft - 170, top: lnbmoreTop + 20});
         break;
       case 'LEFT' :
-        this.$element.find('.ddp-box-layout4.ddp-download').css({'left': lnbmoreLeft, 'top': lnbmoreTop + 20});
+        this.$element.find('.ddp-box-layout4.ddp-download').css({left: lnbmoreLeft, top: lnbmoreTop + 20});
         break;
       default :
     }

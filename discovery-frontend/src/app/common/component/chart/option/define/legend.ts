@@ -16,8 +16,9 @@
  * Created by Dolkkok on 2017. 7. 17..
  */
 
-import { Orient, SymbolType } from './common';
-import { TextStyle } from './style';
+import {Orient, Position, SymbolType} from './common';
+import {TextStyle} from './style';
+
 export interface Legend {
 
   // 표시여부
@@ -54,7 +55,7 @@ export interface Legend {
   align?: Position;
 
   // 상 하 좌 우 여백
-  padding?: number| number[];
+  padding?: number | number[];
 
   // 항목간 간격
   itemGap?: number;
@@ -70,7 +71,7 @@ export interface Legend {
 
   inactiveColor?: string;
 
-  selected?: Object;
+  selected?: object;
 
   // 텍스트 스타일
   textStyle?: TextStyle;

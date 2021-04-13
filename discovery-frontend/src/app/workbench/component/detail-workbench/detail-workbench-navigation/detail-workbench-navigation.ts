@@ -86,9 +86,9 @@ export class DetailWorkbenchNavigation extends AbstractComponent implements OnIn
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public goWorkbench(item:any) {
-    console.info(item);
+    console.log(item);
     const temp = 'workbench/' + item.id;
-    console.info('temp', temp);
+    console.log('temp', temp);
     // this.router.navigate([temp]);
     window.location.href = CommonConstant.API_CONSTANT.BASE_URL + temp;
   }
@@ -112,7 +112,7 @@ export class DetailWorkbenchNavigation extends AbstractComponent implements OnIn
   // select box 선택
   public onSelectedFilter(event) {
     this.selectedData = event.name;
-    console.info('onSelectedFilter', this.selectedData);
+    console.log('onSelectedFilter', this.selectedData);
   }
 
   // open filter show/hide

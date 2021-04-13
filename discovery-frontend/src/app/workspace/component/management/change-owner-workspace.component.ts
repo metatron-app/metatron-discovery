@@ -207,7 +207,7 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
         } else {
           this.isDisplayBtnUserMore = false;
         }
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         // 로딩 hide

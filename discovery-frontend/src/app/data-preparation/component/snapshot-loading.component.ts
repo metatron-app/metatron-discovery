@@ -148,7 +148,7 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
         this.getSnapshotDetailWithInterval();
       }
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
       clearInterval(this.interval);
       this.close();
     })

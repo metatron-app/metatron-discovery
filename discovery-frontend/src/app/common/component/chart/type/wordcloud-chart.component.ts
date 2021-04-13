@@ -16,24 +16,21 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import {
-  AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {BaseChart, PivotTableInfo} from '../base-chart';
-import {BaseOption} from "../option/base-option";
-import {
-  ChartType, SymbolType, ShelveType, ShelveFieldType, SeriesType
-} from '../option/define/common';
+import {BaseOption} from '../option/base-option';
+import {ChartType, SeriesType, ShelveFieldType, ShelveType, SymbolType} from '../option/define/common';
 import {OptionGenerator} from '../option/util/option-generator';
-import {Pivot} from "../../../../domain/workbook/configurations/pivot";
-import {ColorOptionConverter} from "../option/converter/color-option-converter";
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {ColorOptionConverter} from '../option/converter/color-option-converter';
 import * as _ from 'lodash';
+import {UIOption} from '@common/component/chart/option/ui-option';
 
 @Component({
   selector: 'wordcloud-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class WordCloudChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
+export class WordCloudChartComponent extends BaseChart<UIOption> implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -54,7 +51,7 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -88,8 +85,8 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
    */
   public isValid(pivot: Pivot): boolean {
     return this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) > 0
-      && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0
-      && ((this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) == 1)
+      && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0
+      && ((this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) === 1)
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -124,8 +121,8 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
       rotationRange: [-90, 90],
       rotationStep: 45,
       animation: false,
-      textStyle: { normal: OptionGenerator.TextStyle.auto(), emphasis: {} },
-      data: this.data.columns[0].value.map( item => {
+      textStyle: {normal: OptionGenerator.TextStyle.auto(), emphasis: {}},
+      data: this.data.columns[0].value.map(item => {
         item.selected = false;
         item.textStyle = OptionGenerator.ItemStyle.auto();
         return item;
@@ -187,7 +184,7 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
    * 시리즈 데이터 선택 - 차트별 재설정
    * @param seriesData
    */
-  protected selectSeriesData( seriesData ) {
+  protected selectSeriesData(seriesData) {
     delete seriesData.textStyle.normal.color;
     seriesData.selected = true;
   } // function - selectSeriesData
@@ -196,7 +193,7 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
    * 시리즈 데이터 선택 해제 - 차트별 재설정
    * @param seriesData
    */
-  protected unselectSeriesData( seriesData ) {
+  protected unselectSeriesData(seriesData) {
     seriesData.textStyle.normal.color = '#aaaaaa';
     seriesData.selected = false;
   } // function - unselectSeriesData
@@ -205,7 +202,7 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
    * 전체 선택 해제 처리 - 차트별 재설정
    * @param seriesData
    */
-  protected clearSelectSeriesData( seriesData ) {
+  protected clearSelectSeriesData(seriesData) {
     delete seriesData.textStyle.normal.color;
     seriesData.selected = false;
   } // function - clearSelectSeriesData
@@ -231,7 +228,7 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
     });
 
     // 색상 설정
-    this.chartOption = ColorOptionConverter.convertColor(this.chartOption, this.uiOption, this.fieldOriginInfo, this.fieldInfo, this.pivotInfo, this.drawByType);
+    this.chartOption = ColorOptionConverter.convertColor(this.chartOption, this.uiOption, this.fieldOriginInfo, this.fieldInfo, this.pivotInfo);
 
     // 원복
     this.fieldInfo = cloneFieldInfo;

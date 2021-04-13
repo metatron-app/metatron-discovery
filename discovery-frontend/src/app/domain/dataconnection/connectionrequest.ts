@@ -23,6 +23,6 @@ export class ConnectionRequest extends AbstractHistoryEntity {
 }
 
 export enum DataType {
-  TABLE = <any>'TABLE',
-  QUERY = <any>'QUERY'
+  TABLE = 'TABLE',
+  QUERY = 'QUERY'
 }

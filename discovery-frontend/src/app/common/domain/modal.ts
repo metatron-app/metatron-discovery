@@ -19,9 +19,9 @@ export class Modal {
   public btnName: string;
   public btnCancel?: string;
   public isShowCancel: boolean = true;
-  public isScroll:boolean = false;
+  public isScroll: boolean = false;
   public data?: any;
-  public afterConfirm?:Function;
+  public afterConfirm?: (confirmData?: Modal) => void;
 }
 
 export class Log {

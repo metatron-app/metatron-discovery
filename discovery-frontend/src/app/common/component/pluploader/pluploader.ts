@@ -1,3 +1,4 @@
+/* tslint:disable */
 import * as _ from 'lodash';
 
 // https://github.com/moxiecode/plupload/wiki/Options
@@ -452,30 +453,52 @@ export namespace Pluploader {
     }
     export class UploaderOptions {
       //         // required
+      // @ts-ignore
       private browse_button: string;
+      // @ts-ignore
       private url: string;
       // optional
+      // @ts-ignore
       private filters: FileFilters;
+      // @ts-ignore
       private headers;
+      // @ts-ignore
       private multipart: boolean;
+      // @ts-ignore
       private multipart_params;
+      // @ts-ignore
       private max_retries: number;
+      // @ts-ignore
       private chunk_size: number | string;
+      // @ts-ignore
       private resize: ImageResize;
+      // @ts-ignore
       private drop_element: string;
+      // @ts-ignore
       private multi_selection: boolean;
+      // @ts-ignore
       private required_features: string | object;
+      // @ts-ignore
       private unique_names: boolean;
+      // @ts-ignore
       private runtimes: string;
+      // @ts-ignore
       private file_data_name: string;
+      // @ts-ignore
       private container: string;
+      // @ts-ignore
       private flash_swf_url: string;
+      // @ts-ignore
       private silverlight_xap_url: string;
 
+      // @ts-ignore
       private http_method: string;
+      // @ts-ignore
       private send_chunk_number: boolean;
+      // @ts-ignore
       private send_file_name: boolean;
 
+      // @ts-ignore
       private init;
 
       constructor(builder: UploaderOptionsBuilder) {
@@ -549,15 +572,23 @@ export namespace Pluploader {
     }
 
     export class UploaderEventBuilder {
+      // @ts-ignore
       private _init: Function;
       private _postInit: Function;
+      // @ts-ignore
       private _optionChanged: Function;
+      // @ts-ignore
       private _refresh: Function;
+      // @ts-ignore
       private _stateChanged: Function;
+      // @ts-ignore
       private _browse: Function;
+      // @ts-ignore
       private _fileFiltered: Function;
+      // @ts-ignore
       private _queueChanged: Function;
       private _filesAdded: Function;
+      // @ts-ignore
       private _filesRemoved: Function;
       private _beforeUpload: Function;
       private _uploadFile: Function;
@@ -566,7 +597,9 @@ export namespace Pluploader {
       private _chunkUploaded: Function;
       private _fileUploaded: Function;
       private _uploadComplete: Function;
+      // @ts-ignore
       private _error: Function;
+      // @ts-ignore
       private _destroy: Function;
 
       PostInit(callback: Function) {
@@ -658,24 +691,43 @@ export namespace Pluploader {
       }
     }
     export class UploaderEvent {
+      // @ts-ignore
       private Init: Function;
+      // @ts-ignore
       private PostInit: Function;
+      // @ts-ignore
       private OptionChanged: Function;
+      // @ts-ignore
       private Refresh: Function;
+      // @ts-ignore
       private StateChanged: Function;
+      // @ts-ignore
       private Browse: Function;
+      // @ts-ignore
       private FileFiltered: Function;
+      // @ts-ignore
       private QueueChanged: Function;
+      // @ts-ignore
       private FilesAdded: Function;
+      // @ts-ignore
       private FilesRemoved: Function;
+      // @ts-ignore
       private BeforeUpload: Function;
+      // @ts-ignore
       private UploadFile: Function;
+      // @ts-ignore
       private UploadProgress: Function;
+      // @ts-ignore
       private BeforeChunkUpload: Function;
+      // @ts-ignore
       private ChunkUploaded: Function;
+      // @ts-ignore
       private FileUploaded: Function;
+      // @ts-ignore
       private UploadComplete: Function;
+      // @ts-ignore
       private Error: Function;
+      // @ts-ignore
       private Destroy: Function;
 
       constructor(builder: UploaderEventBuilder) {
@@ -797,9 +849,13 @@ export namespace Pluploader {
       }
     }
     export class FileFilters {
+      // @ts-ignore
       private max_file_size: number | string = 0;
+      // @ts-ignore
       private mime_types = [];
+      // @ts-ignore
       private prevent_duplicates: boolean = false;
+      // @ts-ignore
       private prevent_empty: boolean = true;
 
       constructor(builder: FileFiltersBuilder) {

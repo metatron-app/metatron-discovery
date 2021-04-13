@@ -1711,7 +1711,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     promise.push(this._getDataset());
 
     Promise.all(promise).then((result) => {
-      console.info('promise finishe -->', result);
+      console.log('promise finishe -->', result);
       this.dataflow = result[0];
       this.dsName = result[1].dsName;
       this.dsList = result[0].datasets;

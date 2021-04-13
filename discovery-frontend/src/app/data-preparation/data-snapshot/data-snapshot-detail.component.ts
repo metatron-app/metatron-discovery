@@ -429,10 +429,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.close();
       } else {
         elm[0].style.display = "none";
-        elm[1].style.display = "";
+        elm[1].style.display =  '';
       }
     } else {
-      elm[0].style.display = "";
+      elm[0].style.display =  '';
       elm[1].style.display = "none";
     }
   }

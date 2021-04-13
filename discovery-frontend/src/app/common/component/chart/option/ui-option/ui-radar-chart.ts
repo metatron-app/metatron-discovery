@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-import { UIOption } from '../ui-option';
-import { LineMarkType, LineMode, LineStyle } from '../define/common';
+import {UIOption} from '../ui-option';
+import {LineMarkType} from '../define/common';
+
 /**
  * 레이더차트 화면 UI에 필요한 옵션
  * Version 2.0

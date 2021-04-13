@@ -1383,7 +1383,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         Alert.error(JSON.parse($(this).contents().find("body").text()).details);
       });
     } catch (e) {
-      console.info('다운로드 에러' + e);
+      console.log('다운로드 에러' + e);
     }
   }
 
@@ -1750,7 +1750,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.connTargetImgUrl
       = this.getConnImplementorWhiteImgUrl(dataConn.connectionInformation.implementor, dataConn.connectionInformation.iconResource2);
     try {
-      console.info('this.websocketId', this.websocketId);
+      console.log('this.websocketId', this.websocketId);
       const headers: any = {
         'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
       };
@@ -1827,7 +1827,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         }
       );
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
 
   }
@@ -2494,14 +2494,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       sizes: [20, 80],
       minSize: 230,
       elementStyle: (dimension, size, gutterSize) => {
-        // console.info( dimension, size, gutterSize );
+        // console.log( dimension, size, gutterSize );
         return {'width': `${size}%`};
       },
       onDrag: () => {
         resizeTimer = setTimeout(() => {
           $connLabel.width($lnbPanel.width() - 150);
         }, 100);
-        // console.info( $lnbPanel.width() );
+        // console.log( $lnbPanel.width() );
       },
       onDragEnd: () => {
         if (resizeTimer) {

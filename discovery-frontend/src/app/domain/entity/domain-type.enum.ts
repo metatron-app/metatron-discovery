@@ -13,7 +13,7 @@
  */
 
 export enum DomainType {
-  WORKSPACE = <any>'WORKSPACE',
-  WORKBOOK = <any>'WORKBOOK',
-  DASHBOARD = <any>'DASHBOARD'
+  WORKSPACE = 'WORKSPACE',
+  WORKBOOK = 'WORKBOOK',
+  DASHBOARD = 'DASHBOARD'
 }

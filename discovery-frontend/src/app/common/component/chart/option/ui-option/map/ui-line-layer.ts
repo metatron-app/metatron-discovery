@@ -29,38 +29,7 @@ export interface UILineLayer extends UILayers {
   // Target column Name
   target?: string;
 
-  // Thickness of line
-  thickness?: UIThickness;
-
-  // line style (solid, dashed, dotted)
-  lineStyle?: MapLineStyle;
-
   ////////////////////////
   ///// UI Spec
   ////////////////////////
-}
-
-/**
- * Thickness of line
- */
-interface UIThickness {
-
-  // Color specification criteria
-  by?: MapBy;
-
-  // Column Name
-  column?: string;
-
-  // Max value of thickness
-  maxValue?: number;
-
-  ////////////////////////
-  ///// UI Spec
-  ////////////////////////
-
-  // Column Aggregation type (measure)
-  aggregationType?: string;
-
-  // Column granularity (timestamp)
-  granularity?: string;
 }

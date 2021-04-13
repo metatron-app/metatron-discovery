@@ -543,7 +543,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     private _getStorageType(location) {
         for (let sType in StorageType) {
             if (StorageType[sType] == location) {
-                let enumType: StorageType = StorageType["" + sType];
+                let enumType: StorageType = StorageType[ '' + sType];
                 return enumType;
             }
         }

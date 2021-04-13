@@ -14,27 +14,39 @@
 
 import * as _ from 'lodash';
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
-import {ConnectionType, Datasource, Field, FieldRole} from '../../domain/datasource/datasource';
-import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
-import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {ConfigureFiltersInclusionComponent} from './inclusion-filter/configure-filters-inclusion.component';
-import {BoundFilter} from '../../domain/workbook/configurations/filter/bound-filter';
-import {ConfigureFiltersBoundComponent} from './bound-filter/configure-filters-bound.component';
-import {Widget} from '../../domain/dashboard/widget/widget';
-import {StringUtil} from '../../common/util/string.util';
-import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
-import {ConfigureFiltersTimeComponent} from './time-filter/configure-filters-time.component';
+import {StringUtil} from '@common/util/string.util';
+import {CommonConstant} from '@common/constant/common.constant';
+
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {ConnectionType, Datasource, Field, FieldRole} from '@domain/datasource/datasource';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+
 import {FilterUtil} from '../util/filter.util';
-import {CommonConstant} from "../../common/constant/common.constant";
+import {AbstractFilterPopupComponent} from './abstract-filter-popup.component';
+import {ConfigureFiltersInclusionComponent} from './inclusion-filter/configure-filters-inclusion.component';
+import {ConfigureFiltersBoundComponent} from './bound-filter/configure-filters-bound.component';
+import {ConfigureFiltersTimeComponent} from './time-filter/configure-filters-time.component';
 
 @Component({
   selector: 'app-config-filter-update',
   templateUrl: './configure-filters-update.component.html'
 })
 export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(protected elementRef: ElementRef,
+              protected injector: Injector) {
+    super(elementRef, injector);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -71,7 +83,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public isShowDsTooltip: boolean = false; // 데이터소스 툴팁 표시 여부
   public isShow: boolean = false;         // 컴포넌트 표시 여부
   public isDirectEdit: boolean = false;   // 바로 수정 여부
 
@@ -94,15 +105,8 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   @Output()
   public done: EventEmitter<Filter> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
-  constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
-    super(elementRef, injector);
-  }
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
@@ -185,9 +189,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
 
     this.done.emit(filter);
   } // function - emitUpdateFilter
-
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   /**
    * 측정값 여부 반환
@@ -291,24 +292,20 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
     this.safelyDetectChanges();
 
     if ('include' === targetFilter.type) {
-      this._inclusionComp.showComponent(board, <InclusionFilter>targetFilter, this.targetField);
+      this._inclusionComp.showComponent(board, targetFilter as InclusionFilter, this.targetField);
     } else if ('bound' === targetFilter.type) {
-      this._boundComp.showComponent(board, <BoundFilter>targetFilter, this.targetField);
+      this._boundComp.showComponent(board, targetFilter as BoundFilter, this.targetField);
     } else {
-      this._timeComp.showComponent(board, <TimeFilter>targetFilter, this.targetField);
+      this._timeComp.showComponent(board, targetFilter as TimeFilter, this.targetField);
     }
 
-    if(this._ddpTxtSub && this.isEllipsisActive(this._ddpTxtSub)) {
-      $(this._ddpTxtSub.nativeElement).attr("title", this.dataSource.name);
+    if (this._ddpTxtSub && this.isEllipsisActive(this._ddpTxtSub)) {
+      $(this._ddpTxtSub.nativeElement).attr('title', this.dataSource.name);
     }
   } // function - _openComponent
 
-  private isEllipsisActive(el : ElementRef) : boolean {
-    if(el.nativeElement.offsetWidth < el.nativeElement.scrollWidth) {
-      return true;
-    } else {
-      return false;
-    }
+  private isEllipsisActive(el: ElementRef): boolean {
+    return el.nativeElement.offsetWidth < el.nativeElement.scrollWidth;
   }
 
   /**

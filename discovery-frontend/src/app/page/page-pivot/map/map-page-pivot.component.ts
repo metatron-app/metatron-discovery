@@ -729,7 +729,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     if (targetContainer === 'layer') {
       shelf = this.shelf.layers[this.uiOption.layerNum];
     } else {
-      console.info('정의되지 않은 drop', targetContainer);
+      console.log('정의되지 않은 drop', targetContainer);
       return;
     }
 

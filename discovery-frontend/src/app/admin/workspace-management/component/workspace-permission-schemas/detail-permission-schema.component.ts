@@ -13,20 +13,20 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {ActivatedRoute} from '@angular/router';
 import {PermissionService} from '../../../../user/service/permission.service';
-import {RoleSet} from '../../../../domain/user/role/roleSet';
-import {Alert} from '../../../../common/util/alert.util';
-import {Modal} from '../../../../common/domain/modal';
-import {Location} from "@angular/common";
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
+import {RoleSet} from '@domain/user/role/roleSet';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {Location} from '@angular/common';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 import {isUndefined} from 'util';
-import {CommonUtil} from '../../../../common/util/common.util';
+import {CommonUtil} from '@common/util/common.util';
 import {PermissionSchemaSetComponent} from '../../../../workspace/component/permission/permission-schema-set.component';
 import * as _ from 'lodash';
-import {Page} from '../../../../domain/common/page';
-import {Workspace} from '../../../../domain/workspace/workspace';
+import {Page} from '@domain/common/page';
+import {Workspace} from '@domain/workspace/workspace';
 
 @Component({
   selector: 'app-detail-permission-schema',

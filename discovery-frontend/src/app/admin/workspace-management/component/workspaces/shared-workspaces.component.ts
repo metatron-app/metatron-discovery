@@ -12,18 +12,20 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {PublicType, WorkspaceAdmin} from '@domain/workspace/workspace';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {PeriodData} from '@common/value/period.data.value';
+import {Page} from '@domain/common/page';
+
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {PublicType, WorkspaceAdmin} from '../../../../domain/workspace/workspace';
-import {PeriodComponent} from '../../../../common/component/period/period.component';
-import {Modal} from '../../../../common/domain/modal';
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
-import {PeriodData} from '../../../../common/value/period.data.value';
-import {Page} from "../../../../domain/common/page";
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
 
 declare let moment: any;
 
@@ -31,7 +33,7 @@ declare let moment: any;
   selector: 'app-shared-workspaces',
   templateUrl: './shared-workspaces.component.html'
 })
-export class SharedWorkspacesComponent extends AbstractComponent {
+export class SharedWorkspacesComponent extends AbstractComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -142,8 +144,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
 
         this._filterDate = new PeriodData();
         this._filterDate.type = 'ALL';
-        const searchDateBy = params['searchDateBy'] ? params['searchDateBy']:'CREATED';
-        this._filterDate.dateType = searchDateBy;
+        this._filterDate.dateType = params['searchDateBy'] ? params['searchDateBy']:'CREATED';
         const from = params['from'];
         const to = params['to'];
         if (!isNullOrUndefined(from)) {
@@ -163,13 +164,6 @@ export class SharedWorkspacesComponent extends AbstractComponent {
         this._getWorkspaceListInServer();
       })
     );
-  }
-
-  /**
-   * 컴포넌트 종료
-   */
-  public ngOnDestroy() {
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

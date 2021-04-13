@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../../../../common/component/abstract.component';
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Page, PageResult } from '@domain/common/page';
 import { WorkspaceService } from '../../../../../../../workspace/service/workspace.service';
-import { Page, PageResult } from '../../../../../../../domain/common/page';
 
 @Component({
   selector: 'app-member-group-view',
@@ -111,7 +111,7 @@ export class MemberGroupViewComponent extends AbstractComponent implements OnIni
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });
@@ -138,7 +138,7 @@ export class MemberGroupViewComponent extends AbstractComponent implements OnIni
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });
@@ -163,7 +163,7 @@ export class MemberGroupViewComponent extends AbstractComponent implements OnIni
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });

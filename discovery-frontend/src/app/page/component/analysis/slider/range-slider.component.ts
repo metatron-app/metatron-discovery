@@ -25,7 +25,7 @@ declare let $;
 
 @Component({
   selector: 'range-slider-component',
-  template: `<input type="text" value=""/>`
+  template: `<input type="text" value= ''/>`
 })
 export class RangeSliderComponent extends AbstractComponent implements OnChanges {
 

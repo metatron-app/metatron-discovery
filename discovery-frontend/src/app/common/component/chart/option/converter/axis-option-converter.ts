@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { BaseOption } from '../base-option';
-import { UIOption } from '../ui-option';
+import {BaseOption} from '../base-option';
+import {UIOption} from '../ui-option';
 import {
   AxisDefaultColor,
   AxisLabelRotate,
@@ -22,12 +22,12 @@ import {
   ChartAxisLabelType,
   UIOrient
 } from '../define/common';
-import { Axis } from '../define/axis';
+import {Axis} from '../define/axis';
 import * as _ from 'lodash';
-import { UIChartAxis, UIChartAxisLabelValue } from '../ui-option/ui-axis';
-import { FormatOptionConverter } from './format-option-converter';
-import { OptionGenerator } from '../util/option-generator';
-import { isNull, isUndefined } from 'util';
+import {UIChartAxis, UIChartAxisLabelValue} from '../ui-option/ui-axis';
+import {FormatOptionConverter} from './format-option-converter';
+import {OptionGenerator} from '../util/option-generator';
+import {isNull, isUndefined} from 'util';
 import UI = OptionGenerator.UI;
 
 /**
@@ -39,7 +39,7 @@ export class AxisOptionConverter {
  | Public Variable
  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public static axisMinMax: Object = {
+  public static axisMinMax: object = {
     xAxis: {min: 0, max: 0},
     yAxis: {min: 0, max: 0},
     subAxis: {min: 0, max: 0}
@@ -82,7 +82,7 @@ export class AxisOptionConverter {
     chartOption = this.convertAxisLabelMaxLength(chartOption, uiOption, axisType);
 
     // 축 Min/Max 자동설정
-    chartOption = this.convertAxisMinMax(chartOption, uiOption, axisType, data);
+    chartOption = this.convertAxisMinMax(chartOption, uiOption, axisType);
 
     // 축 범위 자동설정
     chartOption = this.convertAxisAutoScale(chartOption, uiOption, axisType, data);
@@ -108,20 +108,20 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     // 적용
     _.each(axis, (option, index) => {
 
       // Show 여부
-      let isShow: boolean = axisOption[index].showName;
+      const isShow: boolean = axisOption[index].showName;
 
       // 적용
       option.name = !isShow ? '' : '' === option.name ? option.axisName : option.name;
@@ -145,20 +145,20 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     // 적용
     _.each(axis, (option, index) => {
 
       // 축명
-      let name: string = axisOption[index].customName ? axisOption[index].customName : axisOption[index].name;
+      const name: string = axisOption[index].customName ? axisOption[index].customName : axisOption[index].name;
 
       // 적용
       option.name = _.isEmpty(name) ? option.axisName : name;
@@ -182,20 +182,20 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     // 적용
     _.each(axis, (option, index) => {
 
       // Show 여부
-      let isShow: boolean = axisOption[index].showLabel;
+      const isShow: boolean = axisOption[index].showLabel;
 
       // 적용
       option.axisLabel.show = isShow;
@@ -226,25 +226,22 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     // 적용
     _.each(axis, (option, index) => {
 
-      // 회전 단위
-      let rotate: AxisLabelRotate = axisOption[index].label && axisOption[index].label['rotation']
+      // 회전 단위 적용
+      option.axisLabel.rotate = axisOption[index].label && axisOption[index].label['rotation']
         ? axisOption[index].label['rotation']
         : AxisLabelRotate.HORIZONTAL;
-
-      // 적용
-      option.axisLabel.rotate = rotate;
     });
 
     // 반환
@@ -264,19 +261,19 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     _.each(axis, (option: Axis, index) => {
 
       // align이 있으면서 horizontal인 경우
-      if (uiOption['align'] && UIOrient.HORIZONTAL == uiOption['align']) {
+      if (uiOption['align'] && UIOrient.HORIZONTAL === uiOption['align']) {
 
         // axisType이 X축이면서 label값이 없는경우 value값 설정
         if (_.eq(AxisType.X, axisType)) {
@@ -301,20 +298,20 @@ export class AxisOptionConverter {
       }
 
       // value type이 아닌경우 return
-      if (!_.eq(AxisLabelType.SUBCOLUMN, <UIChartAxisLabelValue>axisOption[index].mode) && (
-          !(<UIChartAxisLabelValue>axisOption[index].label) || !_.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE))
+      if (!_.eq(AxisLabelType.SUBCOLUMN, axisOption[index].mode) && (
+          !(axisOption[index].label) || !_.eq((axisOption[index].label).type, AxisType.VALUE))
       ) {
         return chartOption;
       }
 
       // 축의 format
-      const axisFormat = (<UIChartAxisLabelValue>axisOption[index].label) ? (<UIChartAxisLabelValue>axisOption[index].label).format : null;
+      const axisFormat = (axisOption[index].label) ? (axisOption[index].label as UIChartAxisLabelValue).format : null;
 
       // 축의 format값이 있는경우 축의 format값으로 설정 / 없는경우 숫자포멧값으로 설정
       const format = axisFormat ? axisFormat : uiOption.valueFormat;
 
       // 기준선
-      const baseline: number = <number>axisOption[index].baseline;
+      const baseline: number = axisOption[index].baseline as number;
 
       if (format) {
         option.axisLabel.formatter = ((params): any => {
@@ -332,35 +329,34 @@ export class AxisOptionConverter {
    * @param chartOption
    * @param uiOption
    * @param axisType
-   * @param data
    */
-  public static convertAxisMinMax(chartOption: BaseOption, uiOption: UIOption, axisType: AxisType, data?: any): BaseOption {
+  public static convertAxisMinMax(chartOption: BaseOption, uiOption: UIOption, axisType: AxisType): BaseOption {
 
     ///////////////////////////
     // UI 옵션에서 값 추출
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     _.each(axis, (option: Axis, index) => {
 
       // Value축일 경우
-      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
+      if ((axisOption[index].label) && _.eq((axisOption[index].label).type, AxisType.VALUE)
         && axisOption[index].grid && !axisOption[index].grid.autoScaled) {
 
-        if( axisOption[index].grid.min && axisOption[index].grid.min != 0 ) {
+        if( axisOption[index].grid.min && axisOption[index].grid.min !== 0 ) {
           option.min = axisOption[index].grid.min;
         }
 
-        if( axisOption[index].grid.max && axisOption[index].grid.max != 0 ) {
+        if( axisOption[index].grid.max && axisOption[index].grid.max !== 0 ) {
           option.max = axisOption[index].grid.max;
         }
       }
@@ -384,24 +380,24 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     _.each(axis, (option: Axis, index) => {
 
       // Value축일 경우
-      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
+      if ((axisOption[index].label) && _.eq((axisOption[index].label).type, AxisType.VALUE)
           && axisOption[index].grid ) {
 
         let min = null;
         let max = null;
-        let calculateMin = null;
+        // let calculateMin = null;
         if( data.categories && data.categories.length > 0 ) {
           _.each(data.categories, (category) => {
             _.each(category.value, (value) => {
@@ -413,14 +409,14 @@ export class AxisOptionConverter {
               }
             });
           });
-          calculateMin = Math.ceil(min - ((max - min) * 0.05))
+          // calculateMin = Math.ceil(min - ((max - min) * 0.05))
           // min = min > 0
           //   ? calculateMin >= 0 ? calculateMin : min
           //   : min;
           max = max == null ? 0 : max;
         }
         else {
-          calculateMin = Math.ceil(data.info.minValue - ((data.info.maxValue - data.info.minValue) * 0.05))
+          // calculateMin = Math.ceil(data.info.minValue - ((data.info.maxValue - data.info.minValue) * 0.05))
           min = data.info.minValue;
           // min = data.info.minValue > 0
           //   ? calculateMin >= 0 ? calculateMin : min
@@ -434,13 +430,13 @@ export class AxisOptionConverter {
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-          baseline = <number>axisOption[index].baseline;
+        if( axisOption[index].baseline && axisOption[index].baseline !== 0 ) {
+          baseline = axisOption[index].baseline as number;
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
-        if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+        if( baseline === 0 && axisOption[index].grid.autoScaled ) {
           // // 적용
           // option.min = min > 0
           //   ? Math.ceil(min - ((max - min) * 0.05))
@@ -475,7 +471,7 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     // 적용
     _.each(axis, (option) => {
@@ -492,7 +488,7 @@ export class AxisOptionConverter {
       if (!option.nameTextStyle.padding) option.nameTextStyle.padding = [];
 
       // dataZoom과 axisLabel사이의 padding값, default line색상 설정
-      if (AxisType.X == axisType) {
+      if (AxisType.X === axisType) {
         option.nameTextStyle.padding = [10, 10, 0, 0];
         if (_.find(uiOption.chartZooms, {orient: 'VERTICAL'})) {
           if (!option.splitLine || !option.splitLine.lineStyle) option.splitLine = {lineStyle : {}};
@@ -523,14 +519,14 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     let maxLength: number;
     // 적용
@@ -541,10 +537,10 @@ export class AxisOptionConverter {
       maxLength = axisOption[index].label['maxLength'];
 
       // 카테고리 타입일때만 max length 설정
-      if (ChartAxisLabelType.CATEGORY == axisOption[index].label.type && !isNull(maxLength) && !isUndefined(maxLength)) {
+      if (ChartAxisLabelType.CATEGORY === axisOption[index].label.type && !isNull(maxLength) && !isUndefined(maxLength)) {
         // 해당 maxLength까지의 길이로 데이터 설정
         option.data = option.data.map((item) => {
-          if (typeof item == 'string') {
+          if (typeof item === 'string') {
 
             return item.substr(0, maxLength) + (item.length > maxLength ? '...' : '');
           }
@@ -570,19 +566,19 @@ export class AxisOptionConverter {
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
+    const axisOption: UIChartAxis[] = this.getAxisOption(uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = chartOption[axisType];
+    const axis: Axis[] = chartOption[axisType];
 
     // 적용
     _.each(axis, (option, index) => {
       // 카테고리 축일때에만 설정
-      if (axisOption[index].label && ChartAxisLabelType.CATEGORY == axisOption[index].label.type) {
+      if (axisOption[index].label && ChartAxisLabelType.CATEGORY === axisOption[index].label.type) {
 
         if (!option.splitArea) {
 
@@ -627,17 +623,14 @@ export class AxisOptionConverter {
     //   }
     // });
 
-    let axisOption: UIChartAxis[] = _.filter(_.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.secondaryAxis)), (option) => {
-      if( axisType == AxisType.X ) {
+    // 반환
+    return _.filter(_.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.secondaryAxis)), (option) => {
+      if (axisType === AxisType.X) {
         return _.eq(option.mode, AxisLabelType.ROW) || _.eq(option.mode, AxisLabelType.SUBROW);
-      }
-      else {
+      } else {
         return _.eq(option.mode, AxisLabelType.COLUMN) || _.eq(option.mode, AxisLabelType.SUBCOLUMN);
       }
     });
-
-    // 반환
-    return axisOption;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

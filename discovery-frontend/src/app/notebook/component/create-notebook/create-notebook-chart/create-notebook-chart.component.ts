@@ -159,7 +159,7 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
           this.nameNode.push(book.id);
         }
         this.notebook.path = book.name;
-        console.info('this.notebook.path', this.notebook.path);
+        console.log('this.notebook.path', this.notebook.path);
         // 로딩 hide
         this.loadingHide();
       })
@@ -184,7 +184,7 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
     this.dashboardService.getDashboardWidget(dashboardId, 'forTreeView')
       .then((widget) => {
 
-        console.info('widget', widget);
+        console.log('widget', widget);
         // 데이터 넣기
         if (this.widgetAddFlag === true) {
           this.node.pop();

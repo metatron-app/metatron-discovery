@@ -93,54 +93,54 @@ export class ElapsedTime {
 }
 
 export enum SsType {
-  URI = <any>'URI',
-  DATABASE = <any>'DATABASE',
-  STAGING_DB = <any>'STAGING_DB',
-  DRUID = <any>'DRUID'
+  URI = 'URI',
+  DATABASE = 'DATABASE',
+  STAGING_DB = 'STAGING_DB',
+  DRUID = 'DRUID'
 }
 
 export enum AppendMode {
-  OVERWRITE = <any>'OVERWRITE',
-  APPEND = <any>'APPEND'
+  OVERWRITE = 'OVERWRITE',
+  APPEND = 'APPEND'
 }
 
 export enum HiveFileCompression {
-  NONE = <any>'NONE',
-  SNAPPY = <any>'SNAPPY',
-  ZLIB = <any>'ZLIB'
+  NONE = 'NONE',
+  SNAPPY = 'SNAPPY',
+  ZLIB = 'ZLIB'
 }
 
 export enum StorageType {
-  LOCAL = <any>'LOCAL',
-  HDFS = <any>'HDFS'
+  LOCAL = 'LOCAL',
+  HDFS = 'HDFS'
 }
 
 export enum UriFileFormat {
-  CSV = <any>'CSV',
-  JSON = <any>'JSON',
-  SQL = <any>'SQL'
+  CSV = 'CSV',
+  JSON = 'JSON',
+  SQL = 'SQL'
 }
 
 export enum HiveFileFormat {
-  CSV = <any>'CSV',
-  ORC = <any>'ORC'
+  CSV = 'CSV',
+  ORC = 'ORC'
 }
 
 export enum Engine {
-  EMBEDDED = <any>'EMBEDDED',
-  SPARK = <any>'SPARK'
+  EMBEDDED = 'EMBEDDED',
+  SPARK = 'SPARK'
 }
 
 export enum Status {
-  NOT_AVAILABLE = <any>'NOT_AVAILABLE',
-  INITIALIZING = <any>'INITIALIZING',
-  RUNNING = <any>'RUNNING',
-  WRITING = <any>'WRITING',
-  TABLE_CREATING = <any>'TABLE_CREATING',
-  SUCCEEDED = <any>'SUCCEEDED',
-  FAILED = <any>'FAILED',
-  CANCELING = <any>'CANCELING',
-  CANCELED = <any>'CANCELED'
+  NOT_AVAILABLE = 'NOT_AVAILABLE',
+  INITIALIZING = 'INITIALIZING',
+  RUNNING = 'RUNNING',
+  WRITING = 'WRITING',
+  TABLE_CREATING = 'TABLE_CREATING',
+  SUCCEEDED = 'SUCCEEDED',
+  FAILED = 'FAILED',
+  CANCELING = 'CANCELING',
+  CANCELED = 'CANCELED'
 }
 
 

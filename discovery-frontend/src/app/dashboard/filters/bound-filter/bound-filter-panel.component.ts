@@ -12,22 +12,34 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnInit, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {SubscribeArg} from '../../../common/domain/subscribe-arg';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {PopupService} from '../../../common/service/popup.service';
-import {BoundFilter} from '../../../domain/workbook/configurations/filter/bound-filter';
-import {AbstractFilterPanelComponent} from '../abstract-filter-panel.component';
 import * as _ from 'lodash';
-import {Field} from '../../../domain/datasource/datasource';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Injector,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {PopupService} from '@common/service/popup.service';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Field} from '@domain/datasource/datasource';
+import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
 import {BoundFilterComponent} from './bound-filter.component';
+import {AbstractFilterPanelComponent} from '../abstract-filter-panel.component';
 
 @Component({
   selector: 'bound-filter-panel',
   templateUrl: './bound-filter-panel.component.html'
 })
-export class BoundFilterPanelComponent extends AbstractFilterPanelComponent<BoundFilter> implements OnInit {
+export class BoundFilterPanelComponent extends AbstractFilterPanelComponent<BoundFilter>
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -42,6 +54,7 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent<Boun
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -120,8 +133,6 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent<Boun
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   /**
    * 값 초기화 (서버에 마지막으로 저장된 값)

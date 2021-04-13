@@ -87,8 +87,8 @@ export class CreateNotebookSelectComponent extends AbstractPopupComponent implem
       param = 'create-notebook-chart';
     } else if (arg === 'none') {
       param = 'create-notebook-name';
-      console.info(this.notebook);
-      console.info(this.notebook.datasource);
+      console.log(this.notebook);
+      console.log(this.notebook.datasource);
       this.notebook.datasource = new Datasource();
       this.notebook['datasource']['dsType'] = 'NONE';
     }

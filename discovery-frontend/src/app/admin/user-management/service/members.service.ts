@@ -16,10 +16,9 @@
  * Created by juheeko on 21/09/2017.
  */
 import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
+import { AbstractService } from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { CommonUtil } from '../../../common/util/common.util';
-import { Status } from '../../../domain/user/user';
+import { CommonUtil } from '@common/util/common.util';
 
 @Injectable()
 export class MembersService extends AbstractService {
@@ -58,12 +57,16 @@ export class MembersService extends AbstractService {
 
   /**
    * 가입신청한 사용자 목록 조회
-   * @param level 사용자 레벨, 시스템 관리자(SYSTEM_ADMIN), 데이터 관리자(SYSTEM_SUPERVISOR), 일반사용자(SYSTEM_USER)
-   * @param active true 인 경우 활성화 상태, false 인경우 비활성화 상태인 사용자 표시, 파라미터가 없는 경우 모두 표시
-   * @param nameContains username/fullname/email 에 포함된 문자열
-   * @param searchDateBy 생성일(CREATED)/수정일(MODIFIED) 기준 여부
-   * @param from 검색 시작일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
-   * @param to 검색 종료일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+   * @param param
+   * {
+   *    level 사용자 레벨, 시스템 관리자(SYSTEM_ADMIN), 데이터 관리자(SYSTEM_SUPERVISOR), 일반사용자(SYSTEM_USER)
+   *    active true 인 경우 활성화 상태, false 인경우 비활성화 상태인 사용자 표시, 파라미터가 없는 경우 모두 표시
+   *    nameContains username/fullname/email 에 포함된 문자열
+   *    searchDateBy 생성일(CREATED)/수정일(MODIFIED) 기준 여부
+   *    from 검색 시작일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+   *    to 검색 종료일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+   * }
+   * @param {string} projection
    * @returns {Promise<any>}
    */
   public getRequestedUser(param: any, projection: string = 'forListView'): Promise<any> {
@@ -106,8 +109,7 @@ export class MembersService extends AbstractService {
    */
   public getUserDetail(userId: string, projection: string = 'forDetailView'): Promise<any> {
     // URL
-    let url: string = this.API_URL + this.path + `/${userId}`;
-
+    const url: string = this.API_URL + this.path + `/${userId}`;
     return this.get(url + `?projection=${projection}`);
   }
 
@@ -172,18 +174,12 @@ export class MembersService extends AbstractService {
 
 
   public rejectUser(username: string, params : any): Promise<any> {
-
-    // URL
-    let url: string = this.API_URL + this.path + `/${username}/rejected`;
-
+    const url: string = this.API_URL + this.path + `/${username}/rejected`;
     return this.post(url,params);
   }
 
   public approveUser(username): Promise<any> {
-
-    // URL
-    let url: string = this.API_URL + this.path + `/${username}/approved`;
-
+    const url: string = this.API_URL + this.path + `/${username}/approved`;
     return this.post(url,{});
   }
 

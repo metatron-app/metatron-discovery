@@ -13,34 +13,32 @@
  */
 
 import * as _ from 'lodash';
-import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
-import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {BoardConfiguration, Dashboard} from '../../domain/dashboard/dashboard';
-import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
-import {Datasource, Field, FieldRole, LogicalType} from '../../domain/datasource/datasource';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {FilterUtil} from '../util/filter.util';
-import {ByTimeUnit, GranularityType, TimeUnit} from '../../domain/workbook/configurations/field/timestamp-field';
-import {Widget} from '../../domain/dashboard/widget/widget';
-import {BoundFilter} from '../../domain/workbook/configurations/filter/bound-filter';
-import {Modal} from '../../common/domain/modal';
-import {ConfirmModalComponent} from '../../common/component/modal/confirm/confirm.component';
-import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
-import {TimeAllFilter} from '../../domain/workbook/configurations/filter/time-all-filter';
-import {TimeListFilter} from '../../domain/workbook/configurations/filter/time-list-filter';
 import {isNullOrUndefined, isUndefined} from 'util';
+
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+
+import {BoardConfiguration} from '@domain/dashboard/dashboard';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {Datasource, Field, FieldRole, LogicalType} from '@domain/datasource/datasource';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {ByTimeUnit, GranularityType, TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {TimeListFilter} from '@domain/workbook/configurations/filter/time-list-filter';
+
+import {FilterUtil} from '../util/filter.util';
 import {DashboardUtil} from '../util/dashboard.util';
-import {Alert} from '../../common/util/alert.util';
-import {TimeRelativeFilter} from "../../domain/workbook/configurations/filter/time-relative-filter";
-import {TimeRangeFilter} from "../../domain/workbook/configurations/filter/time-range-filter";
-import {DashboardService} from "../service/dashboard.service";
-import * as moment from "moment";
+import {AbstractFilterPopupComponent} from './abstract-filter-popup.component';
 
 @Component({
   selector: 'app-config-filter-select',
   templateUrl: './configure-filters-select.component.html',
-  styles: ['.ddp-pop-filter .ddp-filter0 .ddp-list-filter { top : 0px !important;} '
-  ,'li.ddp-disabled div:before {display:inline-block; content:\'\';position:absolute; top:0; right:0; bottom:0; left:0; background-color:rgba(255,255,255,0.5); z-index:3; cursor: no-drop;}']
+  styles: ['.ddp-pop-filter .ddp-filter0 .ddp-list-filter { top : 0 !important;} '
+    , 'li.ddp-disabled div:before {display:inline-block; content:\'\';position:absolute; top:0; right:0; bottom:0; left:0; background-color:rgba(255,255,255,0.5); z-index:3; cursor: no-drop;}']
 })
 export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
 
@@ -59,22 +57,22 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
 
   private _allContinuousList: string[] = ['Minute', 'Hour', 'Day', 'Week', 'Month', 'Quarter', 'Year', 'None'];
   private _allDiscontinuousList = {
-    'DAY': [
+    DAY: [
       {name: 'Day by week', unit: 'DAY', byUnit: 'WEEK'},
       {name: 'Day by month', unit: 'DAY', byUnit: 'MONTH'},
       {name: 'Day by year', unit: 'DAY', byUnit: 'YEAR'}
     ],
-    'WEEK': [
+    WEEK: [
       {name: 'Week by month', unit: 'WEEK', byUnit: 'MONTH'},
       {name: 'Week by year', unit: 'WEEK', byUnit: 'YEAR'}
     ],
-    'MONTH': [
+    MONTH: [
       {name: 'Month by year', unit: 'MONTH', byUnit: 'YEAR'}
     ],
-    'QUARTER': [
+    QUARTER: [
       {name: 'Quarter', unit: 'QUARTER'}
     ],
-    'YEAR': [
+    YEAR: [
       {name: 'Year', unit: 'YEAR'}
     ]
   };
@@ -109,6 +107,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   public granularity: GranularityType;
   public dpContinuousList: string[] = [];
   public dpDiscontinuousList: any[] = [];
+
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   @Output('setFilter')
   public setFilterEvent: EventEmitter<{ key: string, filter: Filter, conf?: any }> = new EventEmitter();
@@ -180,7 +181,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   public selectDataSource(dataSource: Datasource) {
     // Granularity 별 항목 설정
     this.granularity = dataSource.granularity;
-    ( this.granularity ) || ( this.granularity = GranularityType.ALL );
+    (this.granularity) || (this.granularity = GranularityType.ALL);
     if (GranularityType.ALL !== this.granularity) {
       const strGranularity: string = this.granularity.toString();
       const idx: number = this._allContinuousList.findIndex(unit => unit.toUpperCase() === strGranularity);
@@ -214,8 +215,6 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - List Item
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   /**
    * 필드 선택 ( 타임 스탬프 필드가 아닐 경우 바로 편집 화면으로 이동 )
@@ -280,7 +279,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   public addFilter(field: Field | CustomField) {
     if (field.role === FieldRole.MEASURE) {
       // 측정값 필터
-      const boundFilter: BoundFilter = FilterUtil.getBasicBoundFilter(<Field>field);
+      const boundFilter: BoundFilter = FilterUtil.getBasicBoundFilter(field as Field);
       (this.widget) && (boundFilter.ui.widgetId = this.widget.id);
       this.setFilterEvent.emit({key: 'ADD', filter: boundFilter});
     } else {
@@ -291,7 +290,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
         inequality: this.conditionTypeList[0].value,
         position: this.limitTypeList[0].value
       };
-      const inclusionFilter = FilterUtil.getBasicInclusionFilter(<Field>field, null, preFilterData);
+      const inclusionFilter = FilterUtil.getBasicInclusionFilter(field as Field, null, preFilterData);
       if (field.type === 'user_expr') {
         inclusionFilter.ref = 'user_defined';
       }
@@ -310,9 +309,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     let timeFilter: TimeFilter;
     if (isNullOrUndefined(unit)) {
       // timeFilter = new TimeAllFilter(<Field>field);
-      timeFilter = FilterUtil.getTimeRangeFilter(<Field>field, undefined, undefined, this.selectedDataSource );
+      timeFilter = FilterUtil.getTimeRangeFilter(field as Field, undefined, undefined, this.selectedDataSource);
     } else {
-      timeFilter = new TimeListFilter(<Field>field);
+      timeFilter = new TimeListFilter(field as Field);
       timeFilter.timeUnit = unit;
       (byUnit) && (timeFilter.byTimeUnit = byUnit);
     }
@@ -340,7 +339,10 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
         // 보드 필터를 차트 필터로 변경
         this._openConfirmToChartFilter(field['thisChartFilter'] ? field['thisChartFilter'] : field['filter']);
       } else {
-        this.setFilterEvent.emit({key: 'EDIT', filter: field['thisChartFilter'] ? field['thisChartFilter'] : field['filter']});
+        this.setFilterEvent.emit({
+          key: 'EDIT',
+          filter: field['thisChartFilter'] ? field['thisChartFilter'] : field['filter']
+        });
       }
     }
   } // function - editFilter
@@ -370,11 +372,10 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
       (byUnit) && (timeFilter.byTimeUnit = byUnit);
     }
 
-    if( !timeFilter.clzField ) {
-      console.info( timeFilter );
+    if (!timeFilter.clzField) {
       // 필드 설정
-      let totalFields: (Field | CustomField)[] = DashboardUtil.getFieldsForMainDataSource(this._boardConf, timeFilter.dataSource);
-      timeFilter.clzField = totalFields.find( field => field.name === timeFilter.field ) as Field;
+      const totalFields: (Field | CustomField)[] = DashboardUtil.getFieldsForMainDataSource(this._boardConf, timeFilter.dataSource);
+      timeFilter.clzField = totalFields.find(totalField => totalField.name === timeFilter.field) as Field;
     }
 
     if (isToBoardFilter) {
@@ -473,15 +474,15 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
 
     // 필드 설정
     fields.forEach((field: Field) => {
-      let boardFilter: Filter = boardFilters.find( filter => {
+      const boardFilter: Filter = boardFilters.find(filter => {
         return field.name === filter.field && filter.dataSource === field.dataSource;
       });
 
       // 타임스탬프 필드 여부
-      field['isTimestamp'] = ('user_expr' !== field.type && (<Field>field).logicalType === LogicalType.TIMESTAMP);
+      field['isTimestamp'] = ('user_expr' !== field.type && (field as Field).logicalType === LogicalType.TIMESTAMP);
 
       // 타임스탬프로 지정된 필드가 없을 경우(디폴트) 또는 타임스탬프로 지정된 필드인경우
-      if (field.role === FieldRole.TIMESTAMP && (<Field>field).logicalType === LogicalType.TIMESTAMP) {
+      if (field.role === FieldRole.TIMESTAMP && (field as Field).logicalType === LogicalType.TIMESTAMP) {
         field['importanceType'] = 'timestamp';
       } else if (boardFilter && boardFilter.ui.filteringSeq) {
         field['importanceType'] = 'recommended';
@@ -512,8 +513,8 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     });
 
     // 필드 목록에 사용할 데이터 정리
-    let dimensionFields: (Field | CustomField)[] = fields.filter(item => item.role !== FieldRole.MEASURE);
-    let measureFields: (Field | CustomField)[] = fields.filter(item => item.role === FieldRole.MEASURE && 'user_expr' !== item.type);
+    const dimensionFields: (Field | CustomField)[] = fields.filter(item => item.role !== FieldRole.MEASURE);
+    const measureFields: (Field | CustomField)[] = fields.filter(item => item.role === FieldRole.MEASURE && 'user_expr' !== item.type);
 
     this.dimensionFields = dimensionFields;
     this.measureFields = measureFields;

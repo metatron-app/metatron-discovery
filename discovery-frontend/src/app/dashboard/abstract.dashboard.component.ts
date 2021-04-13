@@ -1,14 +1,28 @@
-import {AbstractComponent} from "../common/component/abstract.component";
-import {CommonUtil} from "../common/util/common.util";
-import {Datasource} from "../domain/datasource/datasource";
-import {Widget} from "../domain/dashboard/widget/widget";
-import {WidgetShowType} from "../domain/dashboard/dashboard.globalOptions";
-import {Dashboard, DashboardWidgetRelation, LayoutWidgetInfo} from "../domain/dashboard/dashboard";
-import {Filter} from "../domain/workbook/configurations/filter/filter";
-import {FilterWidget, FilterWidgetConfiguration} from "../domain/dashboard/widget/filter-widget";
-import {DashboardUtil} from "./util/dashboard.util";
-import {isNullOrUndefined} from "util";
-import * as _ from "lodash";
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import * as _ from 'lodash';
+import {isNullOrUndefined} from 'util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CommonUtil} from '@common/util/common.util';
+import {Datasource} from '@domain/datasource/datasource';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {WidgetShowType} from '@domain/dashboard/dashboard.globalOptions';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard, DashboardWidgetRelation, LayoutWidgetInfo} from '@domain/dashboard/dashboard';
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {DashboardUtil} from './util/dashboard.util';
 
 export class AbstractDashboardComponent extends AbstractComponent {
 
@@ -79,7 +93,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
         (target: DashboardWidgetRelation, hierarchy: string[]) => {
           if (0 < hierarchy.length) {
             prevFilter = hierarchy.map(item => {
-              const conf: FilterWidgetConfiguration = (<FilterWidget>DashboardUtil.getWidget(board, item)).configuration;
+              const conf: FilterWidgetConfiguration = (DashboardUtil.getWidget(board, item) as FilterWidget).configuration;
               return DashboardUtil.getBoardFilter(board, conf.filter.dataSource, conf.filter.field);
             });
           }
@@ -240,9 +254,9 @@ export class AbstractDashboardComponent extends AbstractComponent {
    */
   protected _getAllChildWidgetRelation(targetId: string, items: DashboardWidgetRelation[], callback: HierarchyCallback, board: Dashboard) {
 
-    const getChildItems = (items: DashboardWidgetRelation[], children: string[]) => {
-      if (items && 0 < items.length) {
-        return items.reduce((acc, item) => {
+    const getChildItems = (relItems: DashboardWidgetRelation[], children: string[]) => {
+      if (relItems && 0 < relItems.length) {
+        return relItems.reduce((acc, item) => {
           acc.push(item.ref);
           if (item.children && 0 < item.children.length) {
             acc = getChildItems(item.children, acc);

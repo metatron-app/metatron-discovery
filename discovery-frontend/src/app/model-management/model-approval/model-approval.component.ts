@@ -97,7 +97,7 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
 
     const popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
 
-      console.info('popupService 구독', data);
+      console.log('popupService 구독', data);
 
       if (data.name === 'close-detail') {
         this.getModelApprovalList(true);

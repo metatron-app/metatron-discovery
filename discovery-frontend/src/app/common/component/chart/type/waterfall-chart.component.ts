@@ -16,29 +16,34 @@
  * Created by Dolkkok on 2017. 8. 17..
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {
-  CHART_STRING_DELIMITER, ChartSelectMode, ChartType, Position, SeriesType, ShelveFieldType,
-  ShelveType, UIChartDataLabelDisplayType,
+  CHART_STRING_DELIMITER,
+  ChartType,
+  Position,
+  SeriesType,
+  ShelveFieldType,
+  ShelveType,
+  UIChartDataLabelDisplayType,
   WaterfallBarColor
 } from '../option/define/common';
 import {OptionGenerator} from '../option/util/option-generator';
 import {Series} from '../option/define/series';
 
 import * as _ from 'lodash';
-import optGen = OptionGenerator;
-import {Pivot} from '../../../../domain/workbook/configurations/pivot';
-import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {BaseChart, PivotTableInfo} from '../base-chart';
 import {BaseOption} from '../option/base-option';
-import {FormatOptionConverter} from "../option/converter/format-option-converter";
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
 import {UIChartFormat} from '../option/ui-option/ui-format';
 import {UIWaterfallChart} from '../option/ui-option/ui-waterfall-chart';
+import optGen = OptionGenerator;
 
 @Component({
   selector: 'waterfall-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class WaterFallChartComponent extends BaseChart implements OnInit, AfterViewInit {
+export class WaterFallChartComponent extends BaseChart<UIWaterfallChart> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -68,17 +73,6 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-  }
-
   // After View Init
   public ngAfterViewInit(): void {
     super.ngAfterViewInit();
@@ -93,11 +87,11 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    * - 반드시 각 차트에서 Override
    */
   public isValid(shelve: Pivot): boolean {
-    return this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) == 1
-      && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) == 1 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) == 0)
-        || (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) == 1))
-      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0)
+    return this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) === 1
+      && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) === 1 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) === 0)
+        || (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) === 1))
+      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0)
   }
 
   /**
@@ -144,13 +138,13 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
     const sourceData = column.value;
     const currentData = [0];
 
-    let barColor = (<UIWaterfallChart>this.uiOption).barColor;
+    const barColor = this.uiOption.barColor;
 
     // barColor, positiveColor가 있는경우 해당 색상으로 설정
-    let positiveColor = barColor && barColor.positive ? barColor.positive : WaterfallBarColor.POSITIVE.toString();
+    const positiveColor = barColor && barColor.positive ? barColor.positive : WaterfallBarColor.POSITIVE.toString();
 
     // barColor, negativeColor가 있는경우 해당 색상으로 설정
-    let negativeColor = barColor && barColor.negative ? barColor.negative : WaterfallBarColor.NEGATIVE.toString();
+    const negativeColor = barColor && barColor.negative ? barColor.negative : WaterfallBarColor.NEGATIVE.toString();
 
     const dataItemGenerator = (name, val, color) => {
       const item = {
@@ -211,7 +205,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
     // 증가, 감소 데이터만 보여지면 되기 때문에 currentData 는 투명 처리
     this.chartOption.series[0].itemStyle.normal.opacity = 0;
     this.chartOption.series[0].itemStyle.emphasis.opacity = 0;
-    this.chartOption.series[0].itemStyle.normal.color = "#ffffff";
+    this.chartOption.series[0].itemStyle.normal.color = '#ffffff';
 
     return this.chartOption;
   }
@@ -272,13 +266,13 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
     return option;
   }
 
-  /**
-   * 차트 선택 효과 설정(단일/리스트)
-   *
-   * @param option
-   * @param params
-   * @returns {BaseOption}
-   */
+  // /**
+  //  * 차트 선택 효과 설정(단일/리스트)
+  //  *
+  //  * @param option
+  //  * @param params
+  //  * @returns {BaseOption}
+  //  */
   // protected selectionAdd(option: BaseOption, params: any): BaseOption {
   //
   //   // 현재 차트 시리즈 리스트
@@ -422,12 +416,12 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
   /**
    * 차트에 옵션 반영
    * - Echart기반 차트가 아닐경우 Override 필요
-   * @param initFl 차트 초기화 여부
+   * @param _initFl 차트 초기화 여부
    */
-  protected apply(initFl: boolean = true): void {
+  protected apply(_initFl: boolean = true): void {
 
     if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
-      let strScript = '(' + this.userCustomFunction + ')';
+      const strScript = '(' + this.userCustomFunction + ')';
       // ( new Function( 'return ' + strScript ) )();
       try {
         this.chartOption = eval(strScript)({name: 'InitWidgetEvent', data: this.chartOption});
@@ -442,7 +436,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
     this.chart.group = 'group1';
     this.echarts.connect('group1');
 
-    console.info(this.chartOption);
+    console.log(this.chartOption);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -482,7 +476,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
       result = FormatOptionConverter.getTooltipName(nameList, this.pivot.columns, result, true);
 
       // category value 설정
-      let seriesValue = FormatOptionConverter.getTooltipValue(status.name, this.pivot.aggregations, format, sourceData[status.dataIndex]);
+      const seriesValue = FormatOptionConverter.getTooltipValue(status.name, this.pivot.aggregations, format, sourceData[status.dataIndex]);
       result.push(seriesValue);
 
     } else {
@@ -494,7 +488,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
 
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
 
-        let seriesValue = FormatOptionConverter.getTooltipValue(status.seriesName, this.pivot.aggregations, format, sourceData[status.dataIndex]);
+        const seriesValue = FormatOptionConverter.getTooltipValue(status.seriesName, this.pivot.aggregations, format, sourceData[status.dataIndex]);
         result.push(seriesValue);
       }
     }

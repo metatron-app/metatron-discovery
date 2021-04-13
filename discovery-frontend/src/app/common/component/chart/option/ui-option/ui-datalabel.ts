@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UIChartDataLabelDisplayType, UIPosition, DataLabelPosition} from "../define/common";
+import {UIChartDataLabelDisplayType, UIPosition, DataLabelPosition} from '../define/common';
 /**
  * Data Label
  */
@@ -68,5 +68,5 @@ export interface UIChartDataLabel {
   showValue?: boolean;
 
   // 미리보기 리스트
-  previewList?: Object[];
+  previewList?: object[];
 }

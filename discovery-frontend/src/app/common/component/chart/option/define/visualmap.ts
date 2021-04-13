@@ -16,7 +16,7 @@
  * Created by Dolkkok on 2017. 7. 17..
  */
 
-import { Orient, SymbolType } from './common';
+import {Orient, Position, SymbolType} from './common';
 import { SymbolStyle, TextStyle } from './style';
 
 /**
@@ -175,6 +175,6 @@ export interface VisualMapController {
 }
 
 export enum VisualMapType {
-  CONTINUOUS = <any>'continuous',
-  PIECEWISE = <any>'piecewise'
+  CONTINUOUS = 'continuous',
+  PIECEWISE = 'piecewise'
 }

@@ -14,7 +14,7 @@
 
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../abstract.component';
-import { Modal } from '../../../domain/modal';
+import { Modal } from '@common/domain/modal';
 
 @Component({
   selector: 'app-confirm-modal',

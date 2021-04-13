@@ -16,19 +16,19 @@
  * Created by Dolkkok on 2017. 7. 17..
  */
 
-import { Title } from './define/title';
-import { Axis, AxisPointer, Radar } from './define/axis';
-import { DataZoom } from './define/datazoom';
-import { Grid } from './define/grid';
-import { Legend } from './define/legend';
-import { Tooltip } from './define/tooltip';
-import { Series } from './define/series';
-import { Toolbox } from './define/toolbox';
-import { Brush } from './define/brush';
-import { ChartColorList, ChartType } from './define/common';
-import { Visualmap } from './define/visualmap';
-import { Graphic } from './define/graphic';
-import {Label} from "./define/label";
+import {Title} from './define/title';
+import {Axis, AxisPointer, Radar} from './define/axis';
+import {DataZoom} from './define/datazoom';
+import {Grid} from './define/grid';
+import {Legend} from './define/legend';
+import {Tooltip} from './define/tooltip';
+import {Series} from './define/series';
+import {Toolbox} from './define/toolbox';
+import {Brush} from './define/brush';
+import {ChartColorList, ChartType} from './define/common';
+import {Visualmap} from './define/visualmap';
+import {Graphic} from './define/graphic';
+import {Label} from './define/label';
 
 export interface BaseOption {
 

@@ -63,30 +63,28 @@ export class GridOption {
    *                {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
    *            ];
    *            var options = {
-   *	 			enableCellNavigation: true,
-   *	 			enableColumnReorder: false,
-   *	 			explicitInitialization: true
-   *	 		};
+   *              enableCellNavigation: true,
+   *              enableColumnReorder: false,
+   *              explicitInitialization: true
+   *            };
    *            $(function () {
-   *	 			var data = [];
-   *	 			for (var i = 0; i < 500; i++) {
-   *	 				data[i] = {
-   *	 				title: "Task " + i,
-   *	 				duration: "5 days",
-   *	 				percentComplete: Math.round(Math.random() * 100),
-   *	 				start: "01/01/2009",
-   *	 				finish: "01/05/2009",
-   *	 				effortDriven: (i % 5 == 0)
-   *	 			};
-   *	 		}
-   *
-   *	 		// create a detached container element
-   *	 		var myGrid = $("<div id='myGrid' style='width:600px;height:500px;'></div>");
-   *	 		grid = new Slick.Grid(myGrid, data, columns, options);
-   *	 		myGrid.appendTo($("#myTable"));
-   *	 		grid.init();
-   *
-   *	 	})
+   *              var data = [];
+   *              for (var i = 0; i < 500; i++) {
+   *                data[i] = {
+   *                  title: "Task " + i,
+   *                  duration: "5 days",
+   *                  percentComplete: Math.round(Math.random() * 100),
+   *                  start: "01/01/2009",
+   *                  finish: "01/05/2009",
+   *                  effortDriven: (i % 5 == 0)
+   *                };
+   *              }
+   *              // create a detached container element
+   *              var myGrid = $("<div id='myGrid' style='width:600px;height:500px;'></div>");
+   *              grid = new Slick.Grid(myGrid, data, columns, options);
+   *              myGrid.appendTo($("#myTable"));
+   *              grid.init();
+   *           })
    *    </script>
    *
    * @type {boolean}
@@ -1112,13 +1110,13 @@ export class Option {
   private _frozenRow: number;
   private _enableHeaderClick: boolean;
   private _nullCellStyleActivate: boolean;
-  private _enableHeaderMenu : boolean;
-  private _enableSeqSort : boolean;
+  private _enableHeaderMenu: boolean;
+  private _enableSeqSort: boolean;
 
   private _dualSelectionActivate: boolean;
   private _enableRowSelected: boolean;
   private _cellExternalCopyManagerActivate: boolean;
-  private _enableMultiSelectionWithCtrlAndShift : boolean;
+  private _enableMultiSelectionWithCtrlAndShift: boolean;
 
   get rowSelectionActivate(): boolean {
     return this._enableRowSelected;

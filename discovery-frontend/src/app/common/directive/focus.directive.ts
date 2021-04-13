@@ -1,4 +1,3 @@
-
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +12,18 @@
  * limitations under the License.
  */
 
-import { Directive, ElementRef, EventEmitter, Inject, Input, Renderer2 } from '@angular/core';
+import {Directive, ElementRef, Inject, Input, OnChanges} from '@angular/core';
+
 @Directive({
   selector: '[focus]'
 })
+export class FocusDirective implements OnChanges {
+  @Input() focus: boolean;
 
-export class FocusDirective {
-  @Input() focus:boolean;
-  constructor(@Inject(ElementRef) private element: ElementRef) {}
-  protected ngOnChanges() {
+  constructor(@Inject(ElementRef) private element: ElementRef) {
+  }
+
+  public ngOnChanges() {
     this.element.nativeElement.focus();
   }
 }

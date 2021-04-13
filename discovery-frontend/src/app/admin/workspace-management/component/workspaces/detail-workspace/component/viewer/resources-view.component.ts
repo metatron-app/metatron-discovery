@@ -13,11 +13,11 @@
  */
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../../../../../common/component/abstract.component';
-import { SourceType, Status } from '../../../../../../../domain/datasource/datasource';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { SourceType, Status } from '@domain/datasource/datasource';
+import {PageResult} from '@domain/common/page';
 import * as _ from 'lodash';
 import { WorkspaceService } from '../../../../../../../workspace/service/workspace.service';
-import {PageResult} from "../../../../../../../domain/common/page";
 
 @Component({
   selector: 'resources-viewer',
@@ -405,7 +405,7 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       })
@@ -433,7 +433,7 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       })
@@ -461,7 +461,7 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       })

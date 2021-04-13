@@ -35,7 +35,7 @@ export class WildCardFilter extends AdvancedFilter {
  */
 
 export enum ContainsType {
-  BEFORE = <any>'BEFORE',
-  AFTER = <any>'AFTER',
-  BOTH = <any>'BOTH'
+  BEFORE = 'BEFORE',
+  AFTER = 'AFTER',
+  BOTH = 'BOTH'
 }

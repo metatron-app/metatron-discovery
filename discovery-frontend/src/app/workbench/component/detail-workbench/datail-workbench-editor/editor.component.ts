@@ -296,9 +296,9 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
         if (qend === -1) {
           // 뒤로 조회
           let cnt = 0;
-          console.info('crow', crow);
+          console.log('crow', crow);
           for (let j = crow; j >= 0; j = j - 1) {
-            console.info('j', j);
+            console.log('j', j);
             if (lines[j].indexOf(';') > -1 && cnt === 0) {
               // ; 있으면
               qend = j;

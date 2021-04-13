@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { PermissionService } from '../../../../user/service/permission.service';
-import { Role } from 'app/domain/user/role/role';
-import { CommonUtil } from 'app/common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {PermissionService} from '../../../../user/service/permission.service';
+import {Role} from 'app/domain/user/role/role';
+import {CommonUtil} from 'app/common/util/common.util';
 
 @Component({
   selector: 'app-user-management-permission',
@@ -56,9 +56,9 @@ export class UserManagementPermissionComponent extends AbstractComponent impleme
   public ngOnInit() {
     super.ngOnInit();
     this.loadingShow();
-    this.permissionService.getRoles({ scope: 'GLOBAL' }).then((roles) => {
-      if( roles['_embedded'] && roles['_embedded']['roles'] ) {
-        this.roleList = roles['_embedded']['roles'].filter( item => {
+    this.permissionService.getRoles({scope: 'GLOBAL'}).then((roles) => {
+      if (roles['_embedded'] && roles['_embedded']['roles']) {
+        this.roleList = roles['_embedded']['roles'].filter(item => {
           return item.name !== '__ADMIN' && item.name !== '__GUEST';
         });
       }
@@ -79,9 +79,9 @@ export class UserManagementPermissionComponent extends AbstractComponent impleme
   /**
    * Navigate to role detail page
    * @param {Role} role
-   * */
+   */
   public moveToRoleDetail(role: Role) {
-    this.router.navigate(['/admin/user/permission/', role.id]);
+    this.router.navigate(['/admin/user/permission/', role.id]).then();
   } // function - moveToRoleDetail
 
   /**
@@ -89,9 +89,9 @@ export class UserManagementPermissionComponent extends AbstractComponent impleme
    * @param {string} role
    * @return {string}
    */
-  public getRoleName(role:string):string {
-    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
-    return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode);
+  public getRoleName(role: string): string {
+    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(role);
+    return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode);
   } // function - getRoleName
 
   /**
@@ -99,9 +99,9 @@ export class UserManagementPermissionComponent extends AbstractComponent impleme
    * @param {string} role
    * @return {string}
    */
-  public getRoleDesc(role:string):string {
-    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
-    return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode + '.desc') ;
+  public getRoleDesc(role: string): string {
+    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(role);
+    return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode + '.desc');
   } // function - getRoleDesc
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

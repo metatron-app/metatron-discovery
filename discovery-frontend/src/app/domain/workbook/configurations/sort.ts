@@ -26,7 +26,7 @@ export class Sort {
 }
 
 export enum DIRECTION {
-  ASC = <any>'ASC',
-  DESC = <any>'DESC',
-  NONE = <any>'NONE' // for UI
+  ASC = 'ASC',
+  DESC = 'DESC',
+  NONE = 'NONE' // for UI
 }

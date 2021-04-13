@@ -224,7 +224,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [tag.name]).then(() => {
       this._getMetadataDetail();
     }).catch((err) => {
-      console.info('error -> ', err);
+      console.log('error -> ', err);
     });
   }
 
@@ -247,7 +247,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
         this.tagFlag = false;
         $( '.ddp-tag-default input' ).trigger('blur');
       }).catch((err) => {
-        console.info('error -> ', err);
+        console.log('error -> ', err);
         this.tagFlag = false;
         $( '.ddp-tag-default input' ).trigger('blur');
       });

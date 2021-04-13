@@ -658,7 +658,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     this.dataflowService.getDatasetWrangledData(dataset.dsId)
       .then((result) => {
         this.loadingHide();
-        console.info('result', result);
+        console.log('result', result);
         const gridData = this.getGridDataFromGridResponse(result.gridResponse);
 
         // 데이터 그리드 미리보기
@@ -1046,7 +1046,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             .EnableColumnReorder(false)
             .build()
           );
-          resolve();
+          resolve(null);
         }, 100);
       } else {
         setTimeout(() => {
@@ -1058,7 +1058,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             .RowHeight(32)
             .build()
           );
-          resolve();
+          resolve(null);
         }, 100);
       }
     });

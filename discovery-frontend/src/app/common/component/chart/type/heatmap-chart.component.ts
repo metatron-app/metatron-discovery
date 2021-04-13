@@ -16,10 +16,9 @@
  * Created by Dolkkok on 2017. 8. 1..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {
   CHART_STRING_DELIMITER,
-  ChartSelectMode,
   ChartType,
   Position,
   SeriesType,
@@ -28,20 +27,20 @@ import {
   SymbolType,
   UIChartDataLabelDisplayType,
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
+import {OptionGenerator} from '../option/util/option-generator';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
-import { UIOption } from '../option/ui-option';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
-import { BaseOption } from '../option/base-option';
-import { UIChartFormat } from '../option/ui-option/ui-format';
-import { FormatOptionConverter } from '../option/converter/format-option-converter';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {UIOption} from '../option/ui-option';
+import {BaseChart, PivotTableInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
+import {UIChartFormat} from '../option/ui-option/ui-format';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
 
 @Component({
   selector: 'heatmap-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class HeatMapChartComponent extends BaseChart implements OnInit, AfterViewInit {
+export class HeatMapChartComponent extends BaseChart<UIOption> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -62,7 +61,7 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -99,9 +98,9 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     return (((this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP)) > 0)
       || ((this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.TIMESTAMP)) > 0))
       && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0)
   }
 
   /**
@@ -115,9 +114,9 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     this.data.columns.map((column) => {
       const nameList: string[] = _.split(column.name, CHART_STRING_DELIMITER);
 
-      let sliceList = [];
+      let sliceList: any[];
       // 열에만 dimension1개가 존재하는경우
-      if (0 == nameList.indexOf(this.pivot.aggregations[0].alias)) {
+      if (0 === nameList.indexOf(this.pivot.aggregations[0].alias)) {
         sliceList = _.slice(nameList, 0, this.fieldInfo.rows.length);
       } else {
         sliceList = _.slice(nameList, this.fieldInfo.cols.length);
@@ -173,11 +172,11 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     }];
 
     // 시리즈 데이터 설정
-    this.chartOption.series[0].data = this.data.columns.map( item => {
+    this.chartOption.series[0].data = this.data.columns.map(item => {
       item.selected = false;
       item.itemStyle = OptionGenerator.ItemStyle.opacity1();
       return item;
-    });;
+    });
 
     // uiData 설정
     this.chartOption.series[0].uiData = this.data.columns;
@@ -207,10 +206,10 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
       const nameList: string[] = _.split(data.name, CHART_STRING_DELIMITER);
 
       let categoryList = [];
-      let seriesList = [];
+      let seriesList: any[];
 
       // 열에만 dimension1개가 존재하는경우
-      if (0 == nameList.indexOf(this.pivot.aggregations[0].alias)) {
+      if (0 === nameList.indexOf(this.pivot.aggregations[0].alias)) {
         seriesList = nameList.splice(1, this.pivot.rows.length);
       } else {
         // columns 개수만큼 리스트 잘라서 설정
@@ -241,7 +240,7 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
       // label 포맷
       series.label.normal.formatter = ((params): any => {
 
-        let uiData = _.cloneDeep(series.uiData[params.dataIndex]);
+        const uiData = _.cloneDeep(series.uiData[params.dataIndex]);
 
         return this.getFormatHeatmapValueSeries(params, this.uiOption.valueFormat, this.uiOption, series, uiData);
       });
@@ -258,7 +257,7 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     // 축포맷이 아닌 기존 포맷으로 tooltip 설정
     this.chartOption.tooltip.formatter = ((params): any => {
 
-      let option = this.chartOption.series[params.seriesIndex];
+      const option = this.chartOption.series[params.seriesIndex];
 
       let uiData = _.cloneDeep(option.uiData);
       // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
@@ -282,8 +281,7 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     ////////////////////////////////////////////////////////
 
     // X축 명칭
-    let xAxisName = this.uiOption.xAxis.customName ? this.uiOption.xAxis.customName : _.join(this.fieldInfo.cols, CHART_STRING_DELIMITER);
-    this.chartOption.xAxis[0].name = xAxisName;
+    this.chartOption.xAxis[0].name = this.uiOption.xAxis.customName ? this.uiOption.xAxis.customName : _.join(this.fieldInfo.cols, CHART_STRING_DELIMITER);
     this.chartOption.xAxis[0].axisName = _.join(this.fieldInfo.cols, CHART_STRING_DELIMITER);
 
     ////////////////////////////////////////////////////////
@@ -293,9 +291,9 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     this.data.columns.map((column) => {
       const nameList: string[] = _.split(column.name, CHART_STRING_DELIMITER);
 
-      let sliceList = [];
+      let sliceList: any[];
       // 열에만 dimensions들이 있는경우
-      if (0 == nameList.indexOf(this.pivot.aggregations[0].alias)) {
+      if (0 === nameList.indexOf(this.pivot.aggregations[0].alias)) {
         sliceList = _.slice(nameList, 0, 1);
       } else {
         sliceList = _.slice(nameList, 0, this.fieldInfo.cols.length);
@@ -319,8 +317,7 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     ////////////////////////////////////////////////////////
 
     // Y축 명칭
-    let yAxisName = this.uiOption.yAxis.customName ? this.uiOption.yAxis.customName : _.join(this.fieldInfo.rows, CHART_STRING_DELIMITER);
-    this.chartOption.yAxis[0].name = yAxisName;
+    this.chartOption.yAxis[0].name = this.uiOption.yAxis.customName ? this.uiOption.yAxis.customName : _.join(this.fieldInfo.rows, CHART_STRING_DELIMITER);
     this.chartOption.yAxis[0].axisName = _.join(this.fieldInfo.rows, CHART_STRING_DELIMITER);
 
     ////////////////////////////////////////////////////////
@@ -331,9 +328,9 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     this.data.columns.map((column) => {
       const nameList: string[] = _.split(column.name, CHART_STRING_DELIMITER);
 
-      let sliceList = [];
+      let sliceList: any[];
       // 열에만 dimension1개가 존재하는경우
-      if (0 == nameList.indexOf(this.pivot.aggregations[0].alias)) {
+      if (0 === nameList.indexOf(this.pivot.aggregations[0].alias)) {
         sliceList = _.slice(nameList, 1, this.fieldInfo.rows.length + 1);
       } else {
         sliceList = _.slice(nameList, this.fieldInfo.cols.length);
@@ -346,6 +343,7 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
     // 차트옵션 반환
     return this.chartOption;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -353,10 +351,10 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
   /**
    * scatter tooltip 설정
    */
-  private getFormatHeatmapValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, series?: any, uiData?: any): string {
+  private getFormatHeatmapValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, _series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.toolTip) uiOption.toolTip = {};
       if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
@@ -364,23 +362,23 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
       // UI 데이터 가공
       let result: string[] = [];
 
-      if( uiData['categoryName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (uiData['categoryName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
-        let categoryNameList = _.split(uiData['categoryName'], CHART_STRING_DELIMITER);
+        const categoryNameList = _.split(uiData['categoryName'], CHART_STRING_DELIMITER);
 
         // category Name List 설정
         result = FormatOptionConverter.getTooltipName(categoryNameList, this.pivot.columns, result, true);
       }
-      if( uiData['seriesName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (uiData['seriesName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
-        let seriesNameList = _.split(uiData['seriesName'], CHART_STRING_DELIMITER);
+        const seriesNameList = _.split(uiData['seriesName'], CHART_STRING_DELIMITER);
 
         // series Name List 설정
         result = FormatOptionConverter.getTooltipName(seriesNameList, this.pivot.rows, result, true);
       }
-      if( uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+      if (uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
-        let seriesValue = FormatOptionConverter.getTooltipValue(params.seriesName, this.pivot.aggregations, this.uiOption.valueFormat, uiData['seriesValue']);
+        const seriesValue = FormatOptionConverter.getTooltipValue(params.seriesName, this.pivot.aggregations, this.uiOption.valueFormat, uiData['seriesValue']);
 
         result.push(seriesValue);
       }
@@ -396,14 +394,14 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
    * @param params
    * @param format
    * @param uiOption
-   * @param option
+   * @param series
    * @param uiData
    * @returns {string}
    */
   private getFormatHeatmapValueSeries(params, format: UIChartFormat, uiOption: UIOption, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.dataLabel || !uiOption.dataLabel.displayTypes) return '';
 
@@ -411,36 +409,35 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
       let isUiData: boolean = false;
       let result: string[] = [];
       // 해당 dataIndex 데이터애로 뿌려줌
-      if( uiData['categoryName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (uiData['categoryName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
         // category Name List 설정
-        let categoryNameList = _.split(uiData['categoryName'], CHART_STRING_DELIMITER);
+        const categoryNameList = _.split(uiData['categoryName'], CHART_STRING_DELIMITER);
         result = FormatOptionConverter.getTooltipName(categoryNameList, this.pivot.columns, result, false);
         isUiData = true;
       }
-      if( -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
-        let seriesNameList = _.split(uiData['seriesName'], CHART_STRING_DELIMITER);
+        const seriesNameList = _.split(uiData['seriesName'], CHART_STRING_DELIMITER);
         result = FormatOptionConverter.getTooltipName(seriesNameList, this.pivot.rows, result, false);
         isUiData = true;
       }
-      if(  -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+      if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         result.push(FormatOptionConverter.getFormatValue(uiData['seriesValue'], format));
         isUiData = true;
       }
 
-      let label: string = "";
+      let label: string = '';
 
       // UI 데이터기반 레이블 반환
-      if( isUiData ) {
-        for( let num: number = 0 ; num < result.length ; num++ ) {
-          if( num > 0 ) {
-            label += "\n";
+      if (isUiData) {
+        for (let num: number = 0; num < result.length; num++) {
+          if (num > 0) {
+            label += '\n';
           }
-          if(series.label && series.label.normal && series.label.normal.rich) {
-            label += '{align|'+ result[num] +'}';
-          }
-          else {
+          if (series.label && series.label.normal && series.label.normal.rich) {
+            label += '{align|' + result[num] + '}';
+          } else {
             label += result[num];
           }
         }

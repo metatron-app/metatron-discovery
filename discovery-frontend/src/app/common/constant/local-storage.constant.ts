@@ -14,9 +14,9 @@
 
 class LocalStorageKey {
   // 사용자가 최근 사용한 조건들(정렬, 뷰 종류, 북 종류 등등)
-  public USED_CRITERIA = "USED_CRITERIA";
-  public USER_SETTING = "USER_SETTING";
-  public ENGINE_MONITORING = "ENGINE_MONITORING";
+  public USED_CRITERIA = 'USED_CRITERIA';
+  public USER_SETTING = 'USER_SETTING';
+  public ENGINE_MONITORING = 'ENGINE_MONITORING';
 }
 
 export class LocalStorageConstant {

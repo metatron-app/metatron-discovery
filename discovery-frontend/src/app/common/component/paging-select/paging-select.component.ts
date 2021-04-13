@@ -13,19 +13,16 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output
+  Component, ElementRef, EventEmitter, HostListener,
+  Injector, Input, OnDestroy, OnInit, Output
 } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
 
 @Component({
   selector: 'component-paging-select',
-  templateUrl: './paging-select.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './paging-select.component.html'
 })
-export class PagingSelectComponent extends AbstractComponent implements OnInit {
+export class PagingSelectComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -155,6 +152,7 @@ export class PagingSelectComponent extends AbstractComponent implements OnInit {
    * 컴포넌트 내부  host 클릭이벤트 처리
    * @param event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {

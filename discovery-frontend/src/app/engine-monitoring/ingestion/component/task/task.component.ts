@@ -222,9 +222,9 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
       const matchType = !filterParam['taskType'] || filterParam['taskType'].length == 0 || filterParam['taskType'].some(type => this.getTypeTranslate(item.type) == type);
       const matchSearchWord = !filterParam['containsText'] || item.task_id.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
       const matchCreatedTime = (_.isNil(filterParam['createdTimeFrom'] && _.isNil(filterParam['createdTimeTo'])))
-        || (filterParam['createdTimeFrom'] == "" && filterParam['createdTimeTo'] == "")
-        || (filterParam['createdTimeFrom'] == "" && moment(item.created_time).isSameOrBefore(filterParam['createdTimeTo']))
-        || (filterParam['createdTimeTo'] == "" && moment(item.created_time).isSameOrAfter(filterParam['createdTimeFrom']))
+        || (filterParam['createdTimeFrom'] ==  '' && filterParam['createdTimeTo'] ==  '')
+        || (filterParam['createdTimeFrom'] ==  '' && moment(item.created_time).isSameOrBefore(filterParam['createdTimeTo']))
+        || (filterParam['createdTimeTo'] ==  '' && moment(item.created_time).isSameOrAfter(filterParam['createdTimeFrom']))
         || moment(item.created_time).isBetween(filterParam['createdTimeFrom'], filterParam['createdTimeTo']);
       return matchStatus && matchType && matchSearchWord && matchCreatedTime;
     })

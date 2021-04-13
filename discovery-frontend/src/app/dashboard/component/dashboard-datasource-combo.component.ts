@@ -18,28 +18,30 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output,
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {Datasource} from '../../domain/datasource/datasource';
-import {EventBroadcaster} from '../../common/event/event.broadcaster';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Datasource} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'dashboard-datasource-combo',
   templateUrl: './dashboard-datasource-combo.component.html'
 })
-export class DashboardDatasourceComboComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardDatasourceComboComponent extends AbstractComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // @ts-ignore
   @Input('dataSources') private _inputDataSources: Datasource[];
+  // @ts-ignore
   @Input('initialValue') private _initValue: Datasource;
   @Output('selectOption') private _selectOptionEvent: EventEmitter<Datasource> = new EventEmitter();
   @Output('showInfo') private _showInfoEvent: EventEmitter<Datasource> = new EventEmitter();
@@ -55,7 +57,7 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
   public dataSources: Datasource[] = [];    // 데이터소스 목록
   public selectedDataSource: Datasource;    // 선택된 데이터 소스
 
-  public searchText:string = '';
+  public searchText: string = '';
 
   @Input('enableInfo') public isEnableInfo: boolean = false;
   @Input('enableEditAssociationJoin') public isEnableEditAssociationJoin: boolean = false;
@@ -119,9 +121,9 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
    * @param $event
    */
   public toggleDataSourceList($event) {
-    const $targetElm = $( $event.target );
+    const $targetElm = $($event.target);
 
-    if( !$targetElm.hasClass( 'ddp-form-search' ) && 0 === $targetElm.closest( '.ddp-form-search' ).length ) {
+    if (!$targetElm.hasClass('ddp-form-search') && 0 === $targetElm.closest('.ddp-form-search').length) {
       this.isShowDataSourceOpts = !this.isShowDataSourceOpts;
     }
 
@@ -132,7 +134,7 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    if ( dataSource.valid ) {
+    if (dataSource.valid) {
       this.isShowDataSourceOpts = false;
       this.selectedDataSource = dataSource;
       this._selectOptionEvent.emit(dataSource);

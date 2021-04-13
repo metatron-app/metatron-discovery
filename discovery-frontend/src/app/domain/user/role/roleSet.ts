@@ -107,6 +107,6 @@ export class RoleSet extends AbstractHistoryEntity {
 }
 
 export enum RoleSetScope {
-  PUBLIC = <any>'PUBLIC',
-  PRIVATE = <any>'PRIVATE'
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE'
 }

@@ -606,7 +606,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
           this._showReingestion();
         }, headers);
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
   }
 

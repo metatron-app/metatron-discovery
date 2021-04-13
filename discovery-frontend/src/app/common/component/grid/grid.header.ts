@@ -309,19 +309,19 @@ export class SlickGridHeader {
     return this;
   }
 
-  build(): header {
-    return new header(this);
+  build(): Header {
+    return new Header(this);
   }
 
 }
 
 export enum GRID_EDIT_TYPE {
-  TEXT = <any>'REJECTED',
-  PERCENT = <any>'EXPIRED',
-  CHECK = <any>'LOCKED'
+  TEXT = 'REJECTED',
+  PERCENT = 'EXPIRED',
+  CHECK = 'LOCKED'
 }
 
-export class header {
+export class Header {
 
   private asyncPostRender: string;
   private behavior: string;

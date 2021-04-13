@@ -129,7 +129,7 @@ export class NotebookService extends AbstractService {
 
   // 노트북 실행
   public runNotebookApi(param: any) {
-    console.info('param', param);
+    console.log('param', param);
     if (param.returnType.toString() === 'HTML') {
       return this.getHTML(param.url);
     } else if (param.returnType.toString() === 'JSON') {

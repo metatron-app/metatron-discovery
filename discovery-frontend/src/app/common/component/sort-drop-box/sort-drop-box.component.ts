@@ -12,17 +12,24 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
 
 @Component({
   selector: 'component-sort-drop-box',
-  templateUrl: './sort-drop-box.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './sort-drop-box.component.html'
 })
-export class SortDropBoxComponent extends AbstractComponent implements OnInit {
+export class SortDropBoxComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -47,7 +54,7 @@ export class SortDropBoxComponent extends AbstractComponent implements OnInit {
   @Input() public defaultIndex = -1;
 
   // 변경 이벤트
-  @Output() public onSelected =  new EventEmitter();
+  @Output() public onSelected = new EventEmitter();
 
   // 선택 아이템
   public selectedItem: any;
@@ -60,7 +67,6 @@ export class SortDropBoxComponent extends AbstractComponent implements OnInit {
 
   // 문자열
   public isStringArray = false;
-
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -123,14 +129,15 @@ export class SortDropBoxComponent extends AbstractComponent implements OnInit {
   }
 
   // 컴포넌트 내부  host 클릭이벤트 처리
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
       // 팝업창 닫기
       this.isShowSelect = false;
     }
-
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -138,7 +145,6 @@ export class SortDropBoxComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
 
 }

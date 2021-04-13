@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
 import * as _ from 'lodash';
 
 @Component({
@@ -43,54 +43,54 @@ export class ColorTemplateComponent extends AbstractComponent {
   public notiChangeColor = new EventEmitter();
 
   // series color list
-  public defaultColorList: Object[] = [
-    { index: 1, colorNum: 'SC1' },
-    { index: 2, colorNum: 'SC2' },
-    { index: 3, colorNum: 'SC3' },
-    { index: 4, colorNum: 'SC4' },
-    { index: 5, colorNum: 'SC5' },
-    { index: 6, colorNum: 'SC6' },
-    { index: 7, colorNum: 'SC7' },
-    { index: 8, colorNum: 'SC8' },
-    { index: 9, colorNum: 'SC9' }
+  public defaultColorList: { index: number, colorNum: string }[] = [
+    {index: 1, colorNum: 'SC1'},
+    {index: 2, colorNum: 'SC2'},
+    {index: 3, colorNum: 'SC3'},
+    {index: 4, colorNum: 'SC4'},
+    {index: 5, colorNum: 'SC5'},
+    {index: 6, colorNum: 'SC6'},
+    {index: 7, colorNum: 'SC7'},
+    {index: 8, colorNum: 'SC8'},
+    {index: 9, colorNum: 'SC9'}
   ];
 
   // measure color list
-  public measureColorList: Object[] = [
-    { index: 1, colorNum: 'VC1' },
-    { index: 2, colorNum: 'VC2' },
-    { index: 3, colorNum: 'VC3' },
-    { index: 4, colorNum: 'VC4' },
-    { index: 5, colorNum: 'VC5' },
-    { index: 6, colorNum: 'VC6' },
-    { index: 7, colorNum: 'VC7' }
+  public measureColorList: { index: number, colorNum: string }[] = [
+    {index: 1, colorNum: 'VC1'},
+    {index: 2, colorNum: 'VC2'},
+    {index: 3, colorNum: 'VC3'},
+    {index: 4, colorNum: 'VC4'},
+    {index: 5, colorNum: 'VC5'},
+    {index: 6, colorNum: 'VC6'},
+    {index: 7, colorNum: 'VC7'}
   ];
 
   // measure reverse color list
-  public measureReverseColorList: Object[] = [
-    { index: 8, colorNum: 'VC8' },
-    { index: 9, colorNum: 'VC9' },
-    { index: 10, colorNum: 'VC10' },
-    { index: 11, colorNum: 'VC11' },
-    { index: 12, colorNum: 'VC12' },
-    { index: 13, colorNum: 'VC13' },
-    { index: 14, colorNum: 'VC14' },
-    { index: 15, colorNum: 'VC15' },
-    { index: 16, colorNum: 'VC16' },
-    { index: 17, colorNum: 'VC17' },
-    { index: 18, colorNum: 'VC18' },
-    { index: 19, colorNum: 'VC19' }
+  public measureReverseColorList: { index: number, colorNum: string }[] = [
+    {index: 8, colorNum: 'VC8'},
+    {index: 9, colorNum: 'VC9'},
+    {index: 10, colorNum: 'VC10'},
+    {index: 11, colorNum: 'VC11'},
+    {index: 12, colorNum: 'VC12'},
+    {index: 13, colorNum: 'VC13'},
+    {index: 14, colorNum: 'VC14'},
+    {index: 15, colorNum: 'VC15'},
+    {index: 16, colorNum: 'VC16'},
+    {index: 17, colorNum: 'VC17'},
+    {index: 18, colorNum: 'VC18'},
+    {index: 19, colorNum: 'VC19'}
   ];
 
   // map chart - heatmap color list
-  public mapHeatmapColorList: Object[] = [
-    { index: 1, colorNum: 'HC1' },
-    { index: 2, colorNum: 'HC2' },
-    { index: 3, colorNum: 'HC3' },
-    { index: 4, colorNum: 'HC4' },
-    { index: 5, colorNum: 'HC5' },
-    { index: 6, colorNum: 'HC6' },
-    { index: 7, colorNum: 'HC7' }
+  public mapHeatmapColorList: { index: number, colorNum: string }[] = [
+    {index: 1, colorNum: 'HC1'},
+    {index: 2, colorNum: 'HC2'},
+    {index: 3, colorNum: 'HC3'},
+    {index: 4, colorNum: 'HC4'},
+    {index: 5, colorNum: 'HC5'},
+    {index: 6, colorNum: 'HC6'},
+    {index: 7, colorNum: 'HC7'}
   ];
 
   public isTemplateColorInverted: boolean = undefined;
@@ -103,9 +103,9 @@ export class ColorTemplateComponent extends AbstractComponent {
 
   /**
    *
-   * @param {Object} colorObj
+   * @param {object} colorObj
    */
-  public changeColor(colorObj: Object) {
+  public changeColor(colorObj: object) {
     const color = _.cloneDeep(colorObj);
     if ($('input#invertColor').is(':checked')) {
       color['colorNum'] = 'R' + color['colorNum'];
@@ -117,13 +117,9 @@ export class ColorTemplateComponent extends AbstractComponent {
   public invertColor() {
     event.stopPropagation();
 
-    if ($('input#invertColor').is(':checked')) {
-      this.isTemplateColorInverted = true;
-    } else {
-      this.isTemplateColorInverted = false;
-    }
+    this.isTemplateColorInverted = $('input#invertColor').is(':checked');
 
-    let colorList: Object[] = [];
+    let colorList: object[] = [];
 
     // measure color list 합치기
     colorList = colorList.concat(this.measureColorList);

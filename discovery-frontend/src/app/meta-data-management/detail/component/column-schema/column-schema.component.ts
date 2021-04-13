@@ -22,7 +22,7 @@ import {
   OnInit,
   Output,
   QueryList,
-  Renderer,
+  Renderer2,
   ViewChildren
 } from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
@@ -175,7 +175,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   constructor(
     protected element: ElementRef,
     protected injector: Injector,
-    public renderer: Renderer,
+    public renderer: Renderer2,
     public metaDataModelService: MetadataModelService,
     public constantService: ConstantService,
     private _columnDictionaryService: ColumnDictionaryService,
@@ -840,7 +840,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
           this._hideCurrentTime(result);
           this.columnList = _.orderBy(result.filter((metadataColumn: MetadataColumn) => MetadataColumn.isCurrentDatetime(metadataColumn) === false), this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
           this._saveColumnDataOriginal();
-          resolve();
+          resolve(null);
         })
         .catch(error => reject(error))
     });
@@ -992,7 +992,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
         // 데이터소스 타입 메타데이터이고 && 컬럼의 role이 timestamp라면 ? 컬럼 딕셔너리를 추가했을때
         // 타입과 포멧이 변경되면 안됨. stay as timestamp
-        console.info('selected type ==>', this._selectedColumn);
+        console.log('selected type ==>', this._selectedColumn);
         if (!(this._selectedColumn.role === Type.Role.TIMESTAMP && this.isMetadataSourceTypeIsEngine())) {
           // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
           this._selectedColumn.type = result.logicalType || null;

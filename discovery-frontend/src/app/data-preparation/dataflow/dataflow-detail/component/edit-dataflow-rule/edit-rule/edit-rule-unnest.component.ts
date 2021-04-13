@@ -89,7 +89,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       return undefined;
     }
 
-    if (this.selVal==="" && this.firstRow) {
+    if (this.selVal=== '' && this.firstRow) {
       var theColumn = this.firstRow[this.selectedFields[0].name];
       var jsonVal = JSON.parse(theColumn);
       var keys = Object.keys(jsonVal);
@@ -110,7 +110,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
     // surround idx with single quotation
     let clonedSelVal:string;
     let check = StringUtil.checkSingleQuote(this.selVal, { isPairQuote: true });
-    if (check[0] === false && check[1] !== "" ) {
+    if (check[0] === false && check[1] !==  '' ) {
       Alert.warning(this.translateService.instant('Check element value'));
       return undefined;
     } else {

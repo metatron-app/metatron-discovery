@@ -15,7 +15,7 @@
 import * as _ from 'lodash';
 import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, Output} from '@angular/core';
 import {GridOption, Option} from './grid.option';
-import {header, SlickGridHeader} from './grid.header';
+import {SlickGridHeader} from './grid.header';
 import {saveAs} from 'file-saver';
 import {isNumeric} from 'rxjs/util/isNumeric';
 import * as XLSX from 'xlsx';
@@ -69,7 +69,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   private isGridCreated: boolean;
   private isError: boolean;
   private GRID_DEFAULT_OPTION: Option;
-  private DATA_VIEW_DEFAULT_OPTION: Object = {
+  private DATA_VIEW_DEFAULT_OPTION: object = {
     groupItemMetadataProvider: null,
     inlineFilters: false
   };
@@ -166,17 +166,15 @@ export class GridComponent implements AfterViewInit, OnDestroy {
 
     const rows: any[] = [];
 
-    const header: any[] = [];
-    this.fields
-      .forEach((headerName, index) => {
+    const header: string[] = this.fields
+      .map((headerName, _index) => {
         // if (index === 0 && this.option.dualSelectionActivate) {
         //   header.push(' ');
         // } else {
         //   header.push(headerName);
         // }
-        header.push('"' + headerName + '"');
+        return '"' + headerName + '"';
       });
-
     rows.push(header.join(','));
 
     this.getRows()
@@ -202,15 +200,14 @@ export class GridComponent implements AfterViewInit, OnDestroy {
    */
   public excelDownload(fileName: string = ''): void {
 
-    const header: any[] = [];
-    this.fields
-      .forEach((headerName, index) => {
+    const header: string[] = this.fields
+      .map((headerName, _index) => {
         // if (index === 0 && this.option.dualSelectionActivate) {
         //   header.push(' ');
         // } else {
         //   header.push(headerName);
         // }
-        header.push(headerName);
+        return headerName;
       });
 
     const rows: any[] = [];
@@ -296,7 +293,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
     // 그리드에 보여지고 있는 로우의 숫자
     const gridRowLength = fnScope.dataView.getLength();
     for (let index: number = 0; index < gridRowLength; index += 1) {
-      const row: Object = fnScope.dataView.getItem(index);
+      const row: object = fnScope.dataView.getItem(index);
       if (!('undefined' === typeof row)) {
         rRows.push(row);
       }
@@ -368,14 +365,13 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   public setCurrentSortColumns(isAsc: boolean, scope: any = null,): void {
 
     const fnScope: any = scope === null ? this : scope;
-    let arr = [];
+    const arr = [];
     const columnsList = fnScope.grid.getColumns();
-    for (let index: number = 0; index < columnsList.length; index++) {
-      let obj = {
+    for (let index: number = 0, nMax = columnsList.length; index < nMax; index++) {
+      arr.push({
         columnId: columnsList[index]['id'],
         sortAsc: isAsc
-      };
-      arr.push(obj);
+      });
     }
     fnScope.grid.setSortColumns(arr, isAsc);
 
@@ -526,8 +522,8 @@ export class GridComponent implements AfterViewInit, OnDestroy {
           .Resizable(true)
           .Unselectable(true)
           .Sortable(this.option.enableSeqSort)
-          .Formatter((function (scope) {
-            return function (row, cell, value, columnDef, dataContext) {
+          .Formatter(( (scope) => {
+            return (row, cell, value, columnDef, _dataContext) => {
               if (scope.option.enableHeaderClick && columnDef.id === '_idProperty_') {
                 return '<div style=\'line-height:30px;\'>' + '&middot;' + '</div>';
               } else {
@@ -585,7 +581,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
       this.grid.setSelectedRows([]);
 
       // 검색 실행
-      this.executeFilter(searchText, GridComponent.isAllSearch(searchFields) ? this.fields : searchFields);
+      this.executeFilter(searchText, this.isAllSearch(searchFields) ? this.fields : searchFields);
 
       // dataView refresh
       this.dataView.refresh();
@@ -647,10 +643,9 @@ export class GridComponent implements AfterViewInit, OnDestroy {
       const gridRows: any[] = this.getGridRows();
       if (0 < gridRows.length) {
         // noinspection JSMismatchedCollectionQueryUpdate
-        const row: any[] = gridRows
-          .filter(row => String(row.id) === String(rowId));
+        const filteredRows: any[] = gridRows.filter(rowInfo => String(rowInfo.id) === String(rowId));
 
-        if (0 < row.length) {
+        if (0 < filteredRows.length) {
 
           //noinspection ExceptionCaughtLocallyJS
           throw new Error(`An already existing ID has been used. ID: ${rowId}`);
@@ -843,11 +838,11 @@ export class GridComponent implements AfterViewInit, OnDestroy {
       throw new Error('Invalid column information!!');
     }
 
-    let isSelect = false;
+    let isSelect: boolean;
     if ('string' === typeof isSelectOrToggle && 'TOGGLE' === isSelectOrToggle) {
       isSelect = (0 === this._selectColumnIds.filter(item => item === columnId).length);
     } else {
-      isSelect = <boolean>isSelectOrToggle;
+      isSelect = isSelectOrToggle as boolean;
     }
 
     // 선택 컬럼 목록 변경
@@ -863,7 +858,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
       item['select'] = (-1 < this._selectColumnIds.indexOf(item.id));
     });
 
-    let selectedColumnData = {
+    const selectedColumnData = {
       id: columnId,
       isSelect: isSelect,
       selectColumnIds: this._selectColumnIds,
@@ -893,9 +888,9 @@ export class GridComponent implements AfterViewInit, OnDestroy {
    */
   private createSearchFields(headers: header[]): void {
 
-    headers.forEach((header) => {
+    headers.forEach((headerInfo) => {
 
-      const fieldName: string = header['field'];
+      const fieldName: string = headerInfo['field'];
       if (!('undefined' === typeof fieldName)) {
         this.fields.push(fieldName);
       }
@@ -968,9 +963,9 @@ export class GridComponent implements AfterViewInit, OnDestroy {
     if (this.option.enableHeaderMenu) {
 
       // Header menu plugin
-      let headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
-      headerButtonsPlugin.onCommand.subscribe((function (scope) {
-          return function (e, args) {
+      const headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
+      headerButtonsPlugin.onCommand.subscribe(( (scope) => {
+          return (e, args) => {
             scope.onContextMenuClick.emit({
               columnName: args.button.command,
               index: args.button.index,
@@ -1000,8 +995,8 @@ export class GridComponent implements AfterViewInit, OnDestroy {
 
     if (this.option.rowSelectionActivate) {
       this.grid.onClick.subscribe(
-        (function (scope) {
-          return function (event, args) {
+        ( (scope) => {
+          return (event, args) => {
 
             const rowIndex: number = args.row;
 
@@ -1037,8 +1032,9 @@ export class GridComponent implements AfterViewInit, OnDestroy {
 
     this.grid.onSort
       .subscribe(
-        (function (scope) {
-          return function (event, args) {
+        // tslint:disable-next-line:only-arrow-functions
+        ( function(scope) {
+          return  function(event, args) {
             try {
 
               if (scope.isCellExternalCopyManagerActivate()) {
@@ -1078,16 +1074,16 @@ export class GridComponent implements AfterViewInit, OnDestroy {
 
               // 기본적으로 사용하는 정렬 함수
               const sort = () => scope.dataView.sort((row1, row2) => {
-                for (let index: number = 0; index < cols.length; index += 1) {
+                for (let index: number = 0, nMax = cols.length; index < nMax; index += 1) {
                   const field = cols[index].sortCol.field;
                   const sign = cols[index].sortAsc ? 1 : -1;
 
                   if (_.isNil(row1[field]) || row1[field] === '') {
-                    row1[field] = " ";
+                    row1[field] = ' ';
                   }
 
                   if (_.isNil(row2[field]) || row2[field] === '') {
-                    row2[field] = " ";
+                    row2[field] = ' ';
                   }
 
                   const value1 = isNumeric(row1[field]) ? Number(row1[field]) : row1[field];
@@ -1107,7 +1103,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
                 // 아이디 헤더 선택시
                 if (scope.isHeaderFieldIdProperty(args)) {
                   scope.dataView.sort((row1, row2) => {
-                    for (let index: number = 0; index < cols.length; index += 1) {
+                    for (let index: number = 0, nMax = cols.length; index < nMax; index += 1) {
                       const field = cols[index].sortCol.field;
                       const sign = cols[index].sortAsc ? 1 : -1;
                       const value1 = Number(row1[field]);
@@ -1153,8 +1149,8 @@ export class GridComponent implements AfterViewInit, OnDestroy {
 
     if (!this.isCellExternalCopyManagerActivate() || this.option.dualSelectionActivate) {
       this.grid.onClick.subscribe(
-        (function (scope) {
-          return function (event, args) {
+        ( (scope) => {
+          return (event, args) => {
 
             if (!scope.clickEnabled) {
               return;
@@ -1253,6 +1249,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------------------
 
     this.dataView.onRowCountChanged.subscribe(
+      // tslint:disable-next-line:only-arrow-functions
       (function (scope) {
         return function () {
 
@@ -1285,8 +1282,8 @@ export class GridComponent implements AfterViewInit, OnDestroy {
 
     if (this.option.enableHeaderClick) {
       this.grid.onHeaderClick.subscribe(
-        (function (scope) {
-          return function (event, args) {
+        ( (scope) => {
+          return (event, args) => {
 
             if (scope.columnResized) {
               scope.columnResized = false;
@@ -1323,8 +1320,8 @@ export class GridComponent implements AfterViewInit, OnDestroy {
 
     if (this.option.editable) {
       this.grid.onActiveCellChanged.subscribe(
-        (function (scope) {
-          return function (event, args) {
+        ( (scope) => {
+          return (event, args) => {
             setTimeout(() => {
               if (scope.grid && args.row && args.cell) {
                 $(scope.grid.getCellNode(args.row, args.cell)).find('input').focus();
@@ -1345,8 +1342,8 @@ export class GridComponent implements AfterViewInit, OnDestroy {
         $('.slick-viewport').css('top', this.option.headerRowHeight + 30 + 'px');
       }
       this.grid.onHeaderRowCellRendered.subscribe(
-        (function (scope) {
-          return function (event, args) {
+        ( (scope) => {
+          return (event, args) => {
             scope.onHeaderRowCellRendered.emit(args);
 
           };
@@ -1359,15 +1356,15 @@ export class GridComponent implements AfterViewInit, OnDestroy {
     //  - 헤더 아래 컬럼이 render 했을때
     // -----------------------------------------------------------------------------------------------------------------
     this.grid.onColumnsResized.subscribe(
-      (function (scope) {
-        return function (event, args) {
+      ( (scope) => {
+        return (_event, _args) => {
           for (let i = 0, totI = scope.grid.getColumns().length; i < totI; i++) {
-            let column = scope.grid.getColumns()[i];
+            const column = scope.grid.getColumns()[i];
             scope.columnResized = true;
-            //Check if column width has changed
-            if (column.width != column.previousWidth) {
+            // Check if column width has changed
+            if (column.width !== column.previousWidth) {
               scope.onColumnResize.emit({idx: i, name: column.id, width: column.width});
-              setTimeout(function () {
+              setTimeout( () => {
                 scope.columnResized = false;
               }, 300);
             }
@@ -1383,7 +1380,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
     // this.grid.onScroll.subscribe(
     //   (function(scope) {
     //     return function () {
-    //       console.info('arguments =-- > ', arguments);
+    //       console.log('arguments =-- > ', arguments);
     //     }
     //   })(this)
     // );
@@ -1417,7 +1414,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
    * @param {string[]} searchFields
    * @returns {boolean}
    */
-  private static isAllSearch(searchFields: string[]): boolean {
+  private isAllSearch(searchFields: string[]): boolean {
     return searchFields.length === 0;
   }
 
@@ -1488,7 +1485,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   private getRowByRowIndex(rowIndex: number, scope: any = null): any | number {
     const fnScope: any = scope === null ? this : scope;
     const fnRowIndex: number = typeof rowIndex !== 'number' ? Number(rowIndex) : rowIndex;
-    const row: Object = fnScope.dataView.getItemByIdx(fnRowIndex);
+    const row: object = fnScope.dataView.getItemByIdx(fnRowIndex);
     return typeof row === 'undefined' ? fnScope.ROW_EMPTY : row;
   }
 
@@ -1631,15 +1628,6 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   *
-   * @param e
-   * @returns {boolean}
-   */
-  private isIdPropertyAreaDrag(e): boolean {
-    return e.target.className.indexOf('dual_selection_idProperty') === -1;
-  }
-
-  /**
    * TimeStamp 생성
    * @returns {string}
    */
@@ -1662,12 +1650,11 @@ export class GridComponent implements AfterViewInit, OnDestroy {
    */
   private generateUUID(): string {
     let d = new Date().getTime();
-    let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      let r = (d + Math.random() * 16) % 16 | 0;
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (d + Math.random() * 16) % 16 | 0;
       d = Math.floor(d / 16);
-      return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
-    return uuid;
   }
 
   /**

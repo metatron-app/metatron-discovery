@@ -104,7 +104,7 @@ export class Series {
 
   dimensions?: string[];
 
-  encode?: Object;
+  encode?: object;
 
   // 시리즈를 구성하는 데이터
   data?: any[];

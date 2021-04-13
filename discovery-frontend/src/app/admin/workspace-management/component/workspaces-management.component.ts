@@ -15,7 +15,7 @@
 import { Component, ElementRef, Injector } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-workspaces-management',
@@ -59,30 +59,12 @@ export class WorkspacesManagementComponent extends AbstractComponent {
       if (-1 === _.findIndex(this.tabList, { id: params['tabId'] })) {
 
         // members페이지로 redirect
-        this.router.navigateByUrl('/admin/workspaces/shared');
+        this.router.navigateByUrl('/admin/workspaces/shared').then();
       }
 
       // 탭 아이디를 설정
       this.tabId = params['tabId'];
     });
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -99,7 +81,7 @@ export class WorkspacesManagementComponent extends AbstractComponent {
     this.tabId = tabId;
 
     // 페이지 이동
-    this.router.navigateByUrl('/admin/workspaces/' + tabId);
+    this.router.navigateByUrl('/admin/workspaces/' + tabId).then();
 
   }
 

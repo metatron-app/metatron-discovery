@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
 import {PeriodData} from '../../../../common/value/period.data.value';
 import {PeriodComponent} from '../../../../common/component/period/period.component';
 import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
 import {Alert} from '../../../../common/util/alert.util';
-import {isNullOrUndefined, isUndefined} from "util";
-import {ActivatedRoute} from "@angular/router";
-import * as _ from "lodash";
-import {Activity} from "../../../../domain/user/activity";
+import {isNullOrUndefined} from 'util';
+import {ActivatedRoute} from '@angular/router';
+import * as _ from 'lodash';
+import {Activity} from '../../../../domain/user/activity';
 
 declare let moment: any;
 const defaultSort = 'createdTime,desc';
@@ -30,7 +30,7 @@ const defaultSort = 'createdTime,desc';
   templateUrl: './user-management-access.component.html'
 })
 
-export class UserManagementAccessComponent extends AbstractUserManagementComponent {
+export class UserManagementAccessComponent extends AbstractUserManagementComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -52,10 +52,10 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
   public action: string = 'ARRIVE,LEAVE';
 
   // date
-  public selectedDate : PeriodData;
+  public selectedDate: PeriodData;
 
   // 검색어
-  public searchKeyword : string;
+  public searchKeyword: string;
 
   // 정렬
   public selectedContentSort: Order = new Order();
@@ -64,7 +64,7 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
-  public initialPeriodData:PeriodData;
+  public initialPeriodData: PeriodData;
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
@@ -77,7 +77,7 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
   constructor(protected elementRef: ElementRef,
               private activatedRoute: ActivatedRoute,
               protected injector: Injector,
-              ) {
+  ) {
 
     super(elementRef, injector);
   }
@@ -143,13 +143,6 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
     );
   }
 
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -205,7 +198,7 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
    * action change
    * @param action all, ARRIVE, LEAVE
    */
-  public changeAction(action? : string) {
+  public changeAction(action?: string) {
     if (action) {
       // 페이지 초기화
       this.action = action;
@@ -228,7 +221,6 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
   } // function - changePag
 
 
-
   /**
    * 검색하기
    * @param event 키보드 이벤트
@@ -236,7 +228,7 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
   public searchUser(event) {
 
     if (13 === event.keyCode || 27 === event.keyCode) {
-      if ( 27 === event.keyCode ) {
+      if (27 === event.keyCode) {
         this.searchKeyword = '';
       }
       this.reloadPage();
@@ -261,7 +253,7 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
    * 정렬 바꿈
    * @param key 어떤 컬럼을 정렬 할 지
    */
-  public sortList(key : string) {
+  public sortList(key: string) {
     // 초기화
     this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
     // 정렬 정보 저장
@@ -314,13 +306,13 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
    */
   private setParam(): any {
 
-    let result : Object;
+    let result: object;
 
     // 페이지, 사이즈 설정
-    result =  {
+    result = {
       size: this.page.size,
       page: this.page.page,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
 
     // 정렬
@@ -340,13 +332,14 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
       result['searchDateBy'] = this.selectedDate.dateType;
       result['type'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
-        result['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        result['from'] = moment(this.selectedDate.startDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
       }
-      result['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      result['to'] = moment(this.selectedDate.endDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
     }
 
     return result;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

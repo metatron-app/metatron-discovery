@@ -44,6 +44,6 @@ export class MeasurePositionFilter extends AdvancedFilter{
  * 조건(=, >, <, >=, <=) 및 제한(상위,하위) 형태 포함
  */
 export enum PositionType {
-  TOP = <any>'TOP',
-  BOTTOM = <any>'BOTTOM'
+  TOP = 'TOP',
+  BOTTOM = 'BOTTOM'
 }

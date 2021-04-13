@@ -19,24 +19,26 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit, Output,
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import {Dashboard} from '../../../domain/dashboard/dashboard';
-import {Field} from '../../../domain/datasource/datasource';
-import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {Field} from '@domain/datasource/datasource';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {Candidate} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {TimeListFilter} from '@domain/workbook/configurations/filter/time-list-filter';
+
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {Candidate} from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import {TimeListFilter} from '../../../domain/workbook/configurations/filter/time-list-filter';
 
 @Component({
   selector: 'app-time-list-filter',
   templateUrl: 'time-list-filter.component.html'
 })
-export class TimeListFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
+export class TimeListFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

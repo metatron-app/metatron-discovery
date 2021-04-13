@@ -12,18 +12,25 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
 import {AbstractComponent} from '../abstract.component';
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'component-select',
-  templateUrl: './select.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './select.component.html'
 })
-export class SelectComponent extends AbstractComponent implements OnInit {
+export class SelectComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -182,6 +189,7 @@ export class SelectComponent extends AbstractComponent implements OnInit {
   }
 
   // 컴포넌트 내부  host 클릭이벤트 처리
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
@@ -218,7 +226,7 @@ export class SelectComponent extends AbstractComponent implements OnInit {
       return iconClass;
     }
 
-    if (item.field.role.toString() == 'DIMENSION') {
+    if (item.field.role.toString() === 'DIMENSION') {
       switch (item.field.logicalType.toString()) {
         case 'STRING' :
           iconClass = 'ddp-icon-dimension-ab';

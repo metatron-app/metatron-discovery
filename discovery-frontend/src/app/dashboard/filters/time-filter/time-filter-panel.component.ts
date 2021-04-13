@@ -13,30 +13,34 @@
  */
 
 import * as _ from 'lodash';
-import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
-import {Field, FieldRole} from '../../../domain/datasource/datasource';
+import {isNullOrUndefined} from 'util';
+
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+
+import {PopupService} from '@common/service/popup.service';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {CommonConstant} from '@common/constant/common.constant';
+
+import {Field, FieldRole} from '@domain/datasource/datasource';
+import {ByTimeUnit, TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
+import {TimeRelativeFilter} from '@domain/workbook/configurations/filter/time-relative-filter';
+import {TimeListFilter} from '@domain/workbook/configurations/filter/time-list-filter';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+
+import {FilterUtil} from '../../util/filter.util';
 import {AbstractFilterPanelComponent} from '../abstract-filter-panel.component';
-import {ByTimeUnit, TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {TimeUnitSelectResult} from '../component/timeUnit-select.component';
 import {TimeListFilterComponent} from './time-list-filter.component';
 import {TimeRelativeFilterComponent} from './time-relative-filter.component';
 import {TimeRangeFilterComponent} from './time-range-filter.component';
-import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
-import {FilterUtil} from '../../util/filter.util';
-import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
-import {TimeRelativeFilter} from '../../../domain/workbook/configurations/filter/time-relative-filter';
-import {TimeListFilter} from '../../../domain/workbook/configurations/filter/time-list-filter';
-import {isNullOrUndefined} from "util";
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {PopupService} from '../../../common/service/popup.service';
-import {SubscribeArg} from '../../../common/domain/subscribe-arg';
-import {CommonConstant} from "../../../common/constant/common.constant";
-import {TimeUnitSelectResult} from "../component/timeUnit-select.component";
 
 @Component({
   selector: 'time-filter-panel',
   templateUrl: './time-filter-panel.component.html'
 })
-export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeFilter> implements OnInit {
+export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeFilter> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -84,6 +88,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     { name: 'Month by year', unit: 'MONTH', byUnit: 'YEAR' },
     { name: 'Year', unit: 'YEAR' }
   ];
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -139,7 +144,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
 
   /**
    * 필터 변경 이벤트 핸들러
@@ -161,13 +165,13 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     const filter: TimeFilter = _.cloneDeep(this.originalFilter);
     switch (filter.type) {
       case 'time_list' :
-        this._candidateComp.setData(<TimeListFilter>filter);
+        this._candidateComp.setData(filter as TimeListFilter);
         break;
       case 'time_relative' :
-        this._relativeComp.setData(<TimeRelativeFilter>filter);
+        this._relativeComp.setData(filter as TimeRelativeFilter);
         break;
       case 'time_range' :
-        this._rangeComp.setData(<TimeRangeFilter>filter);
+        this._rangeComp.setData(filter as TimeRangeFilter);
         break;
     }
     this.filter = filter;
@@ -362,13 +366,13 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     }
   }
 
-  public get isAlphnumericDesc() {
-    if( this.isListType ) {
-      return this.filter['sortTarget'] === 'ALPHNUMERIC' && this.filter['sortType'] === 'DESC';
-    } else {
-      return false;
-    }
-  }
+  // public get isAlphnumericDesc() {
+  //   if( this.isListType ) {
+  //     return this.filter['sortTarget'] === 'ALPHNUMERIC' && this.filter['sortType'] === 'DESC';
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   public sortList( target: string, type: string ) {
     if( this._listComp ) {
@@ -393,13 +397,13 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     if( !filter.discontinuous ) {
       switch( filter.type ) {
         case 'time_relative' :
-          this._tempRelativeFilter = _.cloneDeep(<TimeRelativeFilter>filter);
+          this._tempRelativeFilter = _.cloneDeep(filter as TimeRelativeFilter);
           break;
         case 'time_range' :
-          this._tempRangeFilter = _.cloneDeep(<TimeRangeFilter>filter);
+          this._tempRangeFilter = _.cloneDeep(filter as TimeRangeFilter);
           break;
         case 'time_list' :
-          this._tempListFilter = _.cloneDeep(<TimeListFilter>filter);
+          this._tempListFilter = _.cloneDeep(filter as TimeListFilter);
           break;
       }
     }

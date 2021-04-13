@@ -28,14 +28,10 @@ export class DateUtil {
   isNewTagCheck(time) {
     const createdTime = new Date(time);
     const current = new Date();
-    const btMs = current.getTime() - createdTime.getTime() ;
-    const btDay = btMs / (1000 * 60 * 60 * 24) ;
+    const btMs = current.getTime() - createdTime.getTime();
+    const btDay = btMs / (1000 * 60 * 60 * 24);
 
-    if (btDay > 0 && btDay < 1) {
-      return true;
-    }else {
-      return false;
-    }
+    return btDay > 0 && btDay < 1;
   }
 
 }

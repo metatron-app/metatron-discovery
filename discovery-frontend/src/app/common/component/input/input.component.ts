@@ -13,24 +13,25 @@
  */
 
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output, SimpleChange,
   SimpleChanges,
   ViewChild
-} from "@angular/core";
-import {isNullOrUndefined} from "util";
+} from '@angular/core';
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'component-input',
   templateUrl: './input.component.html'
 })
-export class InputComponent implements OnInit, OnDestroy {
+export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -75,7 +76,7 @@ export class InputComponent implements OnInit, OnDestroy {
 
   @Input() public optionalStyle: string = '';   // 추가적인 스타일 적용을 위한 스타일
 
-  @Input() public beforeChangeValue: Function;
+  @Input() public beforeChangeValue: (arg) => void;
 
   @Output('changeValue') public changeEvent: EventEmitter<number | string> = new EventEmitter();
 

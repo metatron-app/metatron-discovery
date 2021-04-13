@@ -12,18 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { SourceType, Status } from '@domain/datasource/datasource';
+import {PageResult} from '@domain/common/page';
+
 import { ResourcesViewComponent } from '../viewer/resources-view.component';
 import { WorkspaceService } from '../../../../../../../workspace/service/workspace.service';
-import { SourceType, Status } from '../../../../../../../domain/datasource/datasource';
-import {PageResult} from "../../../../../../../domain/common/page";
 
 @Component({
   selector: 'detail-workspaces-linked-resources',
   templateUrl: './detail-workspace-linked-resources.component.html'
 })
-export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent {
+export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -85,13 +86,6 @@ export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent {
     super.ngOnInit();
     // ui init
     this._initView();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -250,11 +244,11 @@ export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent {
     }));
     // 리스트 서비스 조회
     Promise.all(q)
-      .then((result) => {
+      .then(() => {
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });

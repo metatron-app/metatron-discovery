@@ -252,7 +252,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
           this.totalUser = data.page.totalElements;
           this.isDisplayBtnUserMore = ( data.page.totalPages - 1 > data.page.number );
         }
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         // 로딩 hide
@@ -281,7 +281,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
           this.totalGroup = data.page.totalElements;
           this.isDisplayBtnGroupMore = ( data.page.totalPages - 1  > data.page.number );
         }
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         // 로딩 hide

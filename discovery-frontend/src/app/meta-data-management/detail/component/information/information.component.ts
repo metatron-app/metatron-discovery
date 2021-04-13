@@ -166,7 +166,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
     this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [ tag.name ]).then(() => {
       this.getMetadataDetail();
     }).catch((err) => {
-      console.info('error -> ', err);
+      console.log('error -> ', err);
     });
   }
 
@@ -190,7 +190,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
         this.getMetadataDetail();
         this.tagFlag = false;
       }).catch((err) => {
-        console.info('error -> ', err);
+        console.log('error -> ', err);
         this.tagFlag = false;
       });
     }

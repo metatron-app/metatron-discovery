@@ -16,37 +16,34 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { BaseChart } from '../base-chart';
-import { BaseOption } from '../option/base-option';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {BaseChart} from '../base-chart';
+import {BaseOption} from '../option/base-option';
 import {
   AxisType,
-  BarMarkType, CHART_STRING_DELIMITER,
+  BarMarkType,
+  CHART_STRING_DELIMITER,
   ChartType,
-  DataZoomRangeType, EventType,
   Position,
   SeriesType,
   ShelveFieldType,
   ShelveType,
-  SymbolType,
-  UIChartDataLabelDisplayType
+  SymbolType
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {UIChartAxis, UIChartAxisLabelValue, UIOption} from '../option/ui-option';
-import { DataZoomType } from '../option/define/datazoom';
+import {UIBarChart, UIChartAxis, UIOption} from '../option/ui-option';
+import {DataZoomType} from '../option/define/datazoom';
 import {UIChartAxisGrid} from '../option/ui-option/ui-axis';
 import {Axis} from '../option/define/axis';
 import {AxisOptionConverter} from '../option/converter/axis-option-converter';
-import { LabelOptionConverter } from '../option/converter/label-option-converter';
-import { TooltipOptionConverter } from '../option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'bar-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
+export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -73,7 +70,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -112,8 +109,8 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   public isValid(pivot: Pivot): boolean {
     return ((this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP)) > 0)
       && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0)
-      && (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.CALCULATED) == 0);
+      && (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.CALCULATED) === 0);
   }
 
   /**
@@ -185,9 +182,9 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // }
 
       // series의 data값이 0인경우 => null로 치환 (중첩시 log scale 적용에러때문)
-      let dataList = [];
+      const dataList = [];
       for (let item of column.value) {
-        if (item == 0) {
+        if (item === 0) {
           item = null;
         }
         dataList.push(item);
@@ -198,12 +195,12 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
       return {
         type: SeriesType.BAR,
         name: column.name,
-        data: column.value.map( ( val, idx ) => {
+        data: column.value.map((val, idx) => {
           return {
-            name : column.seriesName[idx],
-            value : val,
-            selected : false,
-            itemStyle : OptionGenerator.ItemStyle.opacity1()
+            name: column.seriesName[idx],
+            value: val,
+            selected: false,
+            itemStyle: OptionGenerator.ItemStyle.opacity1()
           }
         }),
         uiData: column,
@@ -222,7 +219,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   protected additionalSeries(): BaseOption {
 
     // 병렬 / 중첩에 따른 수치값 라벨 위치 재조정
-    //this.chartOption = this.setValueLabelPosition();
+    // this.chartOption = this.setValueLabelPosition();
 
     return this.chartOption;
   }
@@ -236,7 +233,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.chart.on('datazoom', (param) => {
 
       this.chartOption.dataZoom.map((zoom, index) => {
-        if( _.eq(zoom.type, DataZoomType.SLIDER) ) {
+        if (_.eq(zoom.type, DataZoomType.SLIDER)) {
           this.uiOption.chartZooms[index].start = param.start;
           this.uiOption.chartZooms[index].end = param.end;
         }
@@ -248,32 +245,32 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
    * 바차트의 dataZoom
    */
   protected additionalDataZoom(): BaseOption {
-/*
-    // 저장정보 존재 여부에 따라 미니맵 범위 자동 지정
-    if (!_.isUndefined(this.uiOption.chartZooms)
-      && (!_.isUndefined(this.uiOption.size) && this.uiOption.limitCheck) || (this.uiOption.chartZooms && _.isUndefined(this.uiOption.chartZooms[0].start))) {
+    /*
+        // 저장정보 존재 여부에 따라 미니맵 범위 자동 지정
+        if (!_.isUndefined(this.uiOption.chartZooms)
+          && (!_.isUndefined(this.uiOption.size) && this.uiOption.limitCheck) || (this.uiOption.chartZooms && _.isUndefined(this.uiOption.chartZooms[0].start))) {
 
-      // Limit이 지정된 경우
-      if( !_.isUndefined(this.uiOption.size) && this.uiOption.limitCheck ) {
-        this.convertDataZoomRangeByType(
-          this.chartOption,
-          DataZoomRangeType.COUNT,
-          0,
-          this.uiOption.size
-        );
-      }
-      // limit이 지정되지않은 경우
-      else {
-        this.convertDataZoomAutoRange(
-          this.chartOption,
-          20,
-          500,
-          10,
-          this.existTimeField
-        );
-      }
-    }
-*/
+          // Limit이 지정된 경우
+          if( !_.isUndefined(this.uiOption.size) && this.uiOption.limitCheck ) {
+            this.convertDataZoomRangeByType(
+              this.chartOption,
+              DataZoomRangeType.COUNT,
+              0,
+              this.uiOption.size
+            );
+          }
+          // limit이 지정되지않은 경우
+          else {
+            this.convertDataZoomAutoRange(
+              this.chartOption,
+              20,
+              500,
+              10,
+              this.existTimeField
+            );
+          }
+        }
+    */
     // 저장정보 존재 여부에 따라 미니맵 범위 자동 지정
     if (!_.isUndefined(this.uiOption.chartZooms)
       && (!_.isUndefined(this.uiOption.size) && this.uiOption.limitCheck) || (this.uiOption.chartZooms && _.isUndefined(this.uiOption.chartZooms[0].start))) {
@@ -384,18 +381,18 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   protected setDataLabel(): UIOption {
 
     /**
-      * check multi series <=> single series
-      * @type {() => boolean}
-      */
+     * check multi series <=> single series
+     * @type {() => boolean}
+     */
     const checkChangeSeries = ((): boolean => {
 
       if (!this.prevPivot) return true;
 
       // prev series is multi(true) or single
-      const prevSeriesMulti: boolean = this.prevPivot.aggregations.length > 1 || this.prevPivot.rows.length >= 1 ? true : false;
+      const prevSeriesMulti: boolean = (this.prevPivot.aggregations.length > 1 || this.prevPivot.rows.length >= 1);
 
       // current series is multi(true) or single
-      const currentSeriesMulti: boolean = this.pivot.aggregations.length > 1 || this.pivot.rows.length >= 1 ? true : false;
+      const currentSeriesMulti: boolean = (this.pivot.aggregations.length > 1 || this.pivot.rows.length >= 1);
 
       // if it's changed
       if (prevSeriesMulti !== currentSeriesMulti) {
@@ -407,7 +404,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
       return false;
     });
 
-    this.uiOption = this.setAxisDataLabel(this.prevPivot,checkChangeSeries());
+    this.uiOption = this.setAxisDataLabel(this.prevPivot, checkChangeSeries());
 
     // set previous pivot value (compare previous pivot, current pivot)
     this.prevPivot = this.pivot;
@@ -456,31 +453,31 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, axisType);
+    const axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = this.chartOption[axisType];
+    const axis: Axis[] = this.chartOption[axisType];
 
     _.each(axis, (option: Axis, index) => {
 
       // Value축일 경우
-      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
-        && axisOption[index].grid ) {
+      if ((axisOption[index].label) && _.eq((axisOption[index].label).type, AxisType.VALUE)
+        && axisOption[index].grid) {
 
         let min = null;
         let max = null;
         let calculateMin = null;
-        if( this.isStacked() && this.originalData.categories && this.originalData.categories.length > 0 ) {
+        if (this.isStacked() && this.originalData.categories && this.originalData.categories.length > 0) {
           _.each(this.originalData.categories, (category) => {
             _.each(category.value, (value) => {
-              if( min == null || value < min ) {
+              if (min == null || value < min) {
                 min = value;
               }
-              if( max == null || value > max ) {
+              if (max == null || value > max) {
                 max = value;
               }
             });
@@ -490,8 +487,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
           //   ? calculateMin >= 0 ? calculateMin : min
           //   : min;
           max = max == null ? 0 : max;
-        }
-        else {
+        } else {
           calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
           min = this.originalData.info.minValue;
           // min = this.originalData.info.minValue > 0
@@ -506,13 +502,13 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-          baseline = <number>axisOption[index].baseline;
+        if (axisOption[index].baseline && axisOption[index].baseline !== 0) {
+          baseline = axisOption[index].baseline;
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
-        if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+        if (baseline === 0 && axisOption[index].grid.autoScaled) {
           // // 적용
           // option.min = min > 0
           //   ? Math.ceil(min - ((max - min) * 0.05))
@@ -522,8 +518,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
           delete option.min;
           delete option.max;
           option.scale = true;
-        }
-        else {
+        } else {
           delete option.scale;
         }
       }
@@ -533,19 +528,19 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     return this.chartOption;
   }
 
-  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
+  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAxis: boolean): void {
 
     // 축범위 자동설정일 경우
-    if( grid.autoScaled ) {
-      if( this.isStacked() && result.data.categories && result.data.categories.length > 0 ) {
+    if (grid.autoScaled) {
+      if (this.isStacked() && result.data.categories && result.data.categories.length > 0) {
         let min = null;
         let max = null;
         _.each(result.data.categories, (category) => {
           _.each(category.value, (value) => {
-            if( min == null || value < min ) {
+            if (min == null || value < min) {
               min = value;
             }
-            if( max == null || value > max ) {
+            if (max == null || value > max) {
               max = value;
             }
           });
@@ -554,8 +549,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
           ? Math.ceil(min - ((max - min) * 0.05))
           : min
         grid.max = max;
-      }
-      else {
+      } else {
         grid.min = result.data.info.minValue > 0
           ? Math.ceil(result.data.info.minValue - ((result.data.info.maxValue - result.data.info.minValue) * 0.05))
           : result.data.info.minValue
@@ -564,105 +558,97 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     // Min / Max값이 없다면 수행취소
-    if( ((_.isUndefined(grid.min) || grid.min == 0)
-      && (_.isUndefined(grid.max) || grid.max == 0)) ) {
+    if (((_.isUndefined(grid.min) || grid.min === 0)
+      && (_.isUndefined(grid.max) || grid.max === 0))) {
       return;
     }
 
     // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
-    result.data.columns.map((column, index) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
-      if( nameArr.length > 1 ) {
-        nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
+    const seriesList = [];
+    result.data.columns.map((column, _index) => {
+      const nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+      let name = '';
+      if (nameArr.length > 1) {
+        nameArr.map((temp, nameIdx) => {
+          if (nameIdx < nameArr.length - 1) {
+            if (nameIdx > 0) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
           }
         });
-      }
-      else {
+      } else {
         name = nameArr[0];
       }
 
       let isAlready = false;
-      seriesList.map((series, index) => {
-        if( series == name ) {
+      seriesList.map((series, _seriesIdx) => {
+        if (series === name) {
           isAlready = true;
           return false;
         }
       });
 
-      if( !isAlready ) {
+      if (!isAlready) {
         seriesList.push(name);
       }
     });
 
     // Min/Max 처리
-    if( !this.isStacked() || !result.data.categories || result.data.categories.length == 0 ) {
-      result.data.columns.map((column, index) => {
+    if (!this.isStacked() || !result.data.categories || result.data.categories.length === 0) {
+      result.data.columns.map((column, _index) => {
         column.value.map((value, index) => {
-          if( value < grid.min ) {
+          if (value < grid.min) {
             column.value[index] = grid.min;
-          }
-          else if( value > grid.max ) {
+          } else if (value > grid.max) {
             column.value[index] = grid.max;
           }
         });
       });
-    }
-    else {
+    } else {
 
-      _.each(result.data.categories, (category, categoryIndex) => {
-        let totalValue = [];
-        let seriesValue = [];
-        result.data.columns.map((column, index) => {
+      _.each(result.data.categories, (category, _categoryIndex) => {
+        const totalValue = [];
+        const seriesValue = [];
+        result.data.columns.map((column, _index) => {
 
-          if( column.name.indexOf(category.name) == -1 ) {
+          if (column.name.indexOf(category.name) === -1) {
             return true;
           }
 
-          column.value.map((value, index) => {
-            if( _.isUndefined(totalValue[index]) || isNaN(totalValue[index]) ) {
-              totalValue[index] = 0;
-              seriesValue[index] = 0;
+          column.value.map((value, valIdx) => {
+            if (_.isUndefined(totalValue[valIdx]) || isNaN(totalValue[valIdx])) {
+              totalValue[valIdx] = 0;
+              seriesValue[valIdx] = 0;
             }
 
-            if( totalValue[index] > grid.max ) {
-              column.value[index] = 0;
-            }
-            else if( totalValue[index] + value > grid.max ) {
-              if( seriesValue[index] <= 0 ) {
-                column.value[index] = grid.max;
+            if (totalValue[valIdx] > grid.max) {
+              column.value[valIdx] = 0;
+            } else if (totalValue[valIdx] + value > grid.max) {
+              if (seriesValue[valIdx] <= 0) {
+                column.value[valIdx] = grid.max;
+              } else {
+                column.value[valIdx] = grid.max - totalValue[valIdx];
               }
-              else {
-                column.value[index] = (<number>grid.max) - totalValue[index];
-              }
+            } else if (totalValue[valIdx] + value < grid.min) {
+              column.value[valIdx] = 0;
+            } else if (totalValue[valIdx] < grid.min && totalValue[valIdx] + value > grid.min) {
+              column.value[valIdx] = totalValue[valIdx] + value;
+            } else {
+              column.value[valIdx] = value;
             }
-            else if( totalValue[index] + value < grid.min ) {
-              column.value[index] = 0;
-            }
-            else if( totalValue[index] < grid.min && totalValue[index] + value > grid.min ) {
-              column.value[index] = totalValue[index] + value;
-            }
-            else {
-              column.value[index] = value;
-            }
-            seriesValue[index] += column.value[index];
-            totalValue[index] += value;
+            seriesValue[valIdx] += column.value[valIdx];
+            totalValue[valIdx] += value;
           });
         });
 
         // Min값보다 작다면
         _.each(totalValue, (value, valueIndex) => {
-          if( value < grid.min ) {
-            result.data.columns.map((column, index) => {
-              column.value.map((value, index) => {
-                if( index == valueIndex ) {
-                  column.value[index] = 0;
+          if (value < grid.min) {
+            result.data.columns.map((column, _colIdx) => {
+              column.value.map((_value, colValIdx) => {
+                if (index === valueIndex) {
+                  column.value[colValIdx] = 0;
                 }
               });
             });
@@ -708,7 +694,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     if (!this.uiOption['mark']) return shelve;
 
     // 행값이 없는경우 return
-    if (shelve.rows && shelve.rows.length == 0) return shelve;
+    if (shelve.rows && shelve.rows.length === 0) return shelve;
 
     // 중첩일때
     if (BarMarkType.STACKED === this.uiOption['mark']) {
@@ -716,7 +702,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // 교차선반에 있는 dimension을 행선반으로 이동
       for (let num = shelve.aggregations.length; num--;) {
 
-        let item = shelve.aggregations[num];
+        const item = shelve.aggregations[num];
 
         // dimension이면
         if (item.type === String(ShelveFieldType.DIMENSION)) {
@@ -736,7 +722,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // 교차선반에 있는 dimension을 행선반으로 이동
       for (let num = shelve.aggregations.length; num--;) {
 
-        let item = shelve.aggregations[num];
+        const item = shelve.aggregations[num];
 
         // dimension이면
         if (item.type === String(ShelveFieldType.DIMENSION)) {
@@ -764,18 +750,18 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     delete this.uiOption.stackedMaxvalue;
 
     // stack이거나 음수값이 있는경우 stack의 min / max value 설정하기
-    if ((series && this.uiOption['mark'] == BarMarkType.STACKED && series.length > 1) ||
-         this.data.info.minValue < 0) {
+    if ((series && this.uiOption['mark'] === BarMarkType.STACKED && series.length > 1) ||
+      this.data.info.minValue < 0) {
 
       this.uiOption.stackedMinValue = 0;
 
       for (let num = series[0].value.length; num--;) {
         let maxValue = 0;
         let minValue = 0;
-        let minArray = [];
+        const minArray = [];
 
         // series의 num에 해당하는 value값을 더하기
-        for(const item of series) {
+        for (const item of series) {
           if (item.value) {
             minArray.push(item.value[num]);
             maxValue += item.value[num];
@@ -784,7 +770,9 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         // 음수값이 있는경우 정수값을 더하지 않는다
         if (_.min(minArray) < 0) {
-          minValue = _.sum(_.remove(minArray, (data) => {return data < 0}));
+          minValue = _.sum(_.remove(minArray, (data) => {
+            return data < 0
+          }));
 
         } else {
           minValue = _.sum(minArray);
@@ -795,7 +783,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
           this.uiOption.stackedMinValue = this.uiOption.stackedMinValue > minValue ? minValue : this.uiOption.stackedMinValue;
         }
         // Maxvalue 설정
-        this.uiOption.stackedMaxvalue = _.isUndefined(this.uiOption.stackedMaxvalue) || this.uiOption.stackedMaxvalue < maxValue? maxValue : this.uiOption.stackedMaxvalue;
+        this.uiOption.stackedMaxvalue = _.isUndefined(this.uiOption.stackedMaxvalue) || this.uiOption.stackedMaxvalue < maxValue ? maxValue : this.uiOption.stackedMaxvalue;
       }
     }
 
@@ -835,7 +823,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let stacked: boolean = false;
 
     // 행선반에 dimension 값이 있는경우 찾기
-    console.info(this.originPivot);
+    console.log(this.originPivot);
     this.originPivot.rows.forEach((item) => {
 
       // dimension이면

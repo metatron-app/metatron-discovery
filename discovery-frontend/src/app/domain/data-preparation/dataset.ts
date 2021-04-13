@@ -83,25 +83,25 @@ export class Datasets {
 }
 
 export enum DsType {
-  IMPORTED = <any>'IMPORTED',
-  WRANGLED = <any>'WRANGLED',
-  FULLWRANGLED = <any>'FULLWRANGLED',
+  IMPORTED = 'IMPORTED',
+  WRANGLED = 'WRANGLED',
+  FULLWRANGLED = 'FULLWRANGLED',
 }
 
 export enum RsType {
-  TABLE = <any>'TABLE',
-  SQL = <any>'SQL',
+  TABLE = 'TABLE',
+  SQL = 'SQL',
 }
 
 export enum ImportType {
-  FILE = <any>'FILE',
-  DB = <any>'DB',
-  HIVE = <any>'HIVE'
+  FILE = 'FILE',
+  DB = 'DB',
+  HIVE = 'HIVE'
 }
 
 export enum FileType {
-  LOCAL = <any>'LOCAL',
-  HDFS = <any>'HDFS'
+  LOCAL = 'LOCAL',
+  HDFS = 'HDFS'
 }
 
 export class Field {

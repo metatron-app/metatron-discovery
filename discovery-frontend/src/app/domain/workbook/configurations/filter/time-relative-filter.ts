@@ -46,7 +46,7 @@ export class TimeRelativeFilter extends TimeFilter {
  * Relative 시점 형식
  */
 export enum TimeRelativeTense {
-  PREVIOUS = <any>'PREVIOUS',
-  CURRENT = <any>'CURRENT',
-  NEXT = <any>'NEXT'
+  PREVIOUS = 'PREVIOUS',
+  CURRENT = 'CURRENT',
+  NEXT = 'NEXT'
 }

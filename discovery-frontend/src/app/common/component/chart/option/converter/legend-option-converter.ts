@@ -17,6 +17,7 @@ import { UIOption } from '../ui-option';
 import { Orient } from '../define/common';
 import { DataZoomType } from '../define/datazoom';
 import * as _ from 'lodash';
+
 /**
  * 범례 패널 converter
  */

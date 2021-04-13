@@ -20,7 +20,7 @@ import {
   Injector,
   Output,
   QueryList,
-  Renderer,
+  Renderer2,
   ViewChildren
 } from '@angular/core';
 import {
@@ -124,7 +124,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
               private connectionService: DataconnectionService,
               private storageService: StorageService,
               public constant: ConstantService,
-              public renderer: Renderer,
+              public renderer: Renderer2,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);

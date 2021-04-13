@@ -23,12 +23,11 @@ import {NavigationExtras, Router} from '@angular/router';
 import 'rxjs/add/operator/timeout';
 import {CommonUtil} from '../util/common.util';
 import {Observable} from 'rxjs';
-import {map} from "rxjs/operators";
-import {catchError} from "rxjs/internal/operators";
-import {isNullOrUndefined} from "util";
-import {Alert} from "../util/alert.util";
-import {TranslateService} from "@ngx-translate/core";
-
+import {map} from 'rxjs/operators';
+import {catchError} from 'rxjs/internal/operators';
+import {isNullOrUndefined} from 'util';
+import {Alert} from '../util/alert.util';
+import {TranslateService} from '@ngx-translate/core';
 
 /*
 * AbstractService
@@ -43,13 +42,13 @@ export class AbstractService {
   protected API_URL: string = CommonConstant.API_CONSTANT.API_URL;
 
   // API URL Prefix
-  protected INTEGRATOR_URL: string = CommonConstant.API_CONSTANT.API_INTEGRATOR_URL;
+  // protected INTEGRATOR_URL: string = CommonConstant.API_CONSTANT.API_INTEGRATOR_URL;
 
   // OAUTH URL URL Prefix
   protected OAUTH_URL: string = CommonConstant.API_CONSTANT.OAUTH_URL;
 
   // API TIMEOUT 시간
-  private TIMEOUT: number = CommonConstant.API_CONSTANT.TIMEOUT;
+  // private TIMEOUT: number = CommonConstant.API_CONSTANT.TIMEOUT;
 
   // Cookie 서비스
   protected cookieService: CookieService;
@@ -88,7 +87,7 @@ export class AbstractService {
     // 호출
     return this.http.post(
       url, 'grant_type=password&scope=write&username=' + user.username + '&password=' + user.password,
-      { headers })
+      {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error));
   }
@@ -114,7 +113,7 @@ export class AbstractService {
     });
 
     // 호출
-    return this.http.post(url, null, { headers })
+    return this.http.post(url, null, {headers})
       .toPromise()
       .catch(error => scope.tokenRefreshFail(scope, error));
   }
@@ -137,7 +136,7 @@ export class AbstractService {
     // 호출
     return this.http.post(
       url, 'username=' + user.username,
-      { headers })
+      {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error));
   }
@@ -158,13 +157,13 @@ export class AbstractService {
     });
 
     if (timeout) { // with timeout
-      return this.http.get(url, { headers }).timeout(20000)
+      return this.http.get(url, {headers}).timeout(20000)
         .toPromise()
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
 
     } else {
       // 호출
-      return this.http.get(url, { headers })
+      return this.http.get(url, {headers})
         .toPromise()
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
     }
@@ -175,7 +174,6 @@ export class AbstractService {
    * get multipart/form-data
    * @param {string} url
    * @param timeout
-   * @returns {Promise<any>}
    */
   protected getFormData(url: string, timeout?): Promise<any> {
 
@@ -191,13 +189,13 @@ export class AbstractService {
     });
 
     if (timeout) { // with timeout
-      return this.http.get(url, { headers }).timeout(20000)
+      return this.http.get(url, {headers}).timeout(20000)
         .toPromise()
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
 
     } else {
       // 호출
-      return this.http.get(url, { headers })
+      return this.http.get(url, {headers})
         .toPromise()
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
     }
@@ -219,7 +217,7 @@ export class AbstractService {
     });
 
     // 호출
-    return this.http.get(url, { headers })
+    return this.http.get(url, {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
 
@@ -253,11 +251,11 @@ export class AbstractService {
 
     try {
       // 호출
-      return this.http.post(url, JSON.stringify(data), { headers })
+      return this.http.post(url, JSON.stringify(data), {headers})
         .toPromise()
         .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
     } catch (err) {
-      console.error( err );
+      console.error(err);
       return Promise.reject(err);
     }
 
@@ -279,34 +277,34 @@ export class AbstractService {
 
     try {
       // 호출
-      return this.http.post(url, data, { headers })
+      return this.http.post(url, data, {headers})
         .toPromise()
         .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
     } catch (err) {
-      console.error( err );
+      console.error(err);
       return Promise.reject(err);
     }
 
   }
 
   // Post 바이너리
-  protected postBinary2(url: string, data: any): void {
-    const scope: any = this;
-    // 헤더
-    const headers = new HttpHeaders({
-      Accept: 'application/octet-stream',
-      'Content-Type': 'application/json',
-      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
-    });
-    this.http.post(url, JSON.stringify(data), { headers }).subscribe(
-      (response) => {
-        // console.info('response', response);
-        // saveAs(new Blob([response['_body']], { type: 'application/csv' }), data.fileName + '.csv');
-
-      }
-    );
-  }
+  // protected postBinary2(url: string, data: any): void {
+  //   const scope: any = this;
+  //   // 헤더
+  //   const headers = new HttpHeaders({
+  //     Accept: 'application/octet-stream',
+  //     'Content-Type': 'application/json',
+  //     Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
+  //       + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+  //   });
+  //   this.http.post(url, JSON.stringify(data), {headers}).subscribe(
+  //     (response) => {
+  //       // console.log('response', response);
+  //       // saveAs(new Blob([response['_body']], { type: 'application/csv' }), data.fileName + '.csv');
+  //
+  //     }
+  //   );
+  // }
 
   // Post 방식
   protected postBinary(url: string, data: any): Promise<any> {
@@ -321,14 +319,14 @@ export class AbstractService {
     });
 
     // 호출
-    return this.http.post(url, data, { headers })
+    return this.http.post(url, data, {headers})
       .toPromise()
       .then(response => scope.resultDownHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
   }
 
   // subscribe post
-  protected postObservable(url: string, data: any): Observable<Object> {
+  protected postObservable(url: string, data: any): Observable<any> {
     // this
     const scope: any = this;
 
@@ -336,17 +334,17 @@ export class AbstractService {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
     // 호출
-    return this.http.post(url, data, { headers }).pipe(
+    return this.http.post(url, data, {headers}).pipe(
       map(
         (response) => {
-            return response;
+          return response;
         }
-      ),catchError(error => scope.errorHandler(scope, error, httpMethod.POST, data))
+      ), catchError(error => scope.errorHandler(scope, error, httpMethod.POST, data))
     );
   }
 
@@ -370,7 +368,7 @@ export class AbstractService {
     const body = contentType === 'text/uri-list' ? data : JSON.stringify(data);
 
     // 호출
-    return this.http.patch(url, body, { headers })
+    return this.http.patch(url, body, {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
   }
@@ -383,10 +381,10 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
 
     // 호출
-    return this.http.post(url, JSON.stringify(data), { headers })
+    return this.http.post(url, JSON.stringify(data), {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error));
   }
@@ -412,7 +410,7 @@ export class AbstractService {
     const params = type === 'application/json' ? JSON.stringify(data) : data;
 
     // 호출
-    return this.http.put(url, params, { headers })
+    return this.http.put(url, params, {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error, httpMethod.PUT, data));
 
@@ -425,10 +423,10 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
 
     // 호출
-    return this.http.put(url, JSON.stringify(data), { headers })
+    return this.http.put(url, JSON.stringify(data), {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error));
   }
@@ -448,7 +446,7 @@ export class AbstractService {
     });
 
     // 호출
-    return this.http.delete(url, { headers })
+    return this.http.delete(url, {headers})
       .toPromise()
       .catch(error => scope.errorHandler(scope, error, httpMethod.DELETE));
 
@@ -468,7 +466,7 @@ export class AbstractService {
 
   }
 
-  protected resultDownHandler(scope: any, response: Response): Promise<any> {
+  protected resultDownHandler(_scope: any, response: Response): Promise<any> {
     // TODO 결과에 따라서 오류 검증
     if (response.status >= 200 && response.status < 300) {
       return Promise.resolve(response['_body']);
@@ -484,7 +482,7 @@ export class AbstractService {
     let errorMessage: any;
     if (error.status && error.status !== 404) {
       try {
-        errorMessage = ( error && error['error'] ) ? error['error'] : 'Server error';
+        errorMessage = (error && error['error']) ? error['error'] : 'Server error';
       } catch (e) {
         errorMessage = 'Server error';
       }
@@ -517,24 +515,24 @@ export class AbstractService {
           // 기존 API를 다시 호출
           // const resolve = Promise.resolve;
           if (method === httpMethod.GET) {
-            return this.http.get(error.url, { headers }).toPromise()
+            return this.http.get(error.url, {headers}).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
-              .catch(error => scope.reRequestErrorHandle(scope, error));
+              .catch(getError => scope.reRequestErrorHandle(scope, getError));
           } else if (method === httpMethod.POST) {
-            return this.http.post(error.url, data, { headers }).toPromise()
+            return this.http.post(error.url, data, {headers}).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
-              .catch(error => scope.reRequestErrorHandle(scope, error));
+              .catch(postError => scope.reRequestErrorHandle(scope, postError));
           } else if (method === httpMethod.PUT) {
-            return this.http.put(error.url, data, { headers }).toPromise()
+            return this.http.put(error.url, data, {headers}).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
-              .catch(error => scope.reRequestErrorHandle(scope, error));
+              .catch(putError => scope.reRequestErrorHandle(scope, putError));
           } else if (method === httpMethod.DELETE) {
-            return this.http.delete(error.url, { headers }).toPromise()
+            return this.http.delete(error.url, {headers}).toPromise()
               .then(response => scope.reRequestResultHandle(scope, response))
-              .catch(error => scope.reRequestErrorHandle(scope, error));
+              .catch(delError => scope.reRequestErrorHandle(scope, delError));
           }
 
-        }).catch((error) => {
+        }).catch((_error) => {
           // 토큰 갱신시 에러가 발생하면
           this._logout(scope);
         });
@@ -555,7 +553,7 @@ export class AbstractService {
     // 재요청을 했는데도 권한 오류가 발생하면 로그인 화면으로
     if (error.status === 401) {
       // 로그인 화면으로
-      console.info('reRequestErrorHandle', scope, error);
+      console.log('reRequestErrorHandle', scope, error);
       this._logout(scope);
       return false;
     }
@@ -565,14 +563,14 @@ export class AbstractService {
   }
 
   // 재요청 결과 헨들러
-  protected reRequestResultHandle(scope: any, response: Response) {
+  protected reRequestResultHandle(_scope: any, response: Response) {
     return response;
   }
 
   // Token 갱신 실패
-  protected tokenRefreshFail(scope: any, error: any): void {
+  protected tokenRefreshFail(_scope: any, error: any): void {
     // 로그인 화면으로
-    //this.router.navigate(['/user/login']);
+    // this.router.navigate(['/user/login']);
     Alert.error(this.translateService.instant('msg.sso.ui.session.expired'));
     throw error;
   }
@@ -593,15 +591,15 @@ export class AbstractService {
       this.cookieService.delete(CookieConstant.KEY.MY_WORKSPACE, '/');
       this.cookieService.delete(CookieConstant.KEY.PERMISSION, '/');
 
-      if (scope && scope.router && scope.router.url != '/user/login') {
+      if (scope && scope.router && scope.router.url !== '/user/login') {
         const navigationExtras: NavigationExtras = {
           queryParams: {
             forwardURL: scope.router.url
           }
         };
-        this.router.navigate(['/user/login'], navigationExtras);
+        this.router.navigate(['/user/login'], navigationExtras).then();
       } else {
-        this.router.navigate(['/user/login']);
+        this.router.navigate(['/user/login']).then();
       }
     }
   } // function - _logout

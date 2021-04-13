@@ -71,7 +71,7 @@ export interface Toolbox {
 }
 
 /**
- *툴 박스 기능
+ * 툴 박스 기능
  */
 export interface ToolboxFeature {
 

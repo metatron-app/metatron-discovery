@@ -110,7 +110,7 @@ export class CreateNotebookComponent extends AbstractComponent implements OnInit
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public init(workspaceId: string, folderId?: string) {
-    console.info('init', workspaceId, folderId);
+    console.log('init', workspaceId, folderId);
     this.workspaceId = workspaceId;
     // this.workbook = new Workbook();
     this.notebook = new NoteBook();

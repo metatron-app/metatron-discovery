@@ -16,38 +16,41 @@
  * Created by Dolkkok on 2017. 8. 1..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {
   AxisType,
-  CHART_STRING_DELIMITER, ChartColorType, ChartPivotType, ChartSelectMode, ChartType, PointShape, Position,
+  CHART_STRING_DELIMITER,
+  ChartColorType,
+  ChartSelectMode,
+  ChartType,
+  PointShape,
+  Position,
   SeriesType,
   ShelveFieldType,
   ShelveType,
-  SymbolType, UIChartDataLabelDisplayType
+  SymbolType,
+  UIChartDataLabelDisplayType
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
+import {OptionGenerator} from '../option/util/option-generator';
 import * as _ from 'lodash';
-import optGen = OptionGenerator;
-import {
-  UIChartAxis, UIChartAxisLabelValue,
-  UIChartColorByDimension, UIOption
-} from '../option/ui-option';
-import { Pivot } from 'app/domain/workbook/configurations/pivot';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
-import { BaseOption } from '../option/base-option';
-import { UIScatterChart } from '../option/ui-option/ui-scatter-chart';
-import { FormatOptionConverter } from '../option/converter/format-option-converter';
-import { UIChartFormat } from '../option/ui-option/ui-format';
-import {UIChartAxisGrid} from "../option/ui-option/ui-axis";
-import {AxisOptionConverter} from "../option/converter/axis-option-converter";
-import {Axis} from "../option/define/axis";
+import {UIChartAxis, UIChartAxisLabelValue, UIChartColorByDimension, UIOption} from '../option/ui-option';
+import {Pivot} from 'app/domain/workbook/configurations/pivot';
+import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
+import {UIScatterChart} from '../option/ui-option/ui-scatter-chart';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {UIChartFormat} from '../option/ui-option/ui-format';
+import {UIChartAxisGrid} from '../option/ui-option/ui-axis';
+import {AxisOptionConverter} from '../option/converter/axis-option-converter';
+import {Axis} from '../option/define/axis';
 import {DataZoomType} from '../option/define/datazoom';
+import optGen = OptionGenerator;
 
 @Component({
   selector: 'scatter-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class ScatterChartComponent extends BaseChart implements OnInit, AfterViewInit {
+export class ScatterChartComponent extends BaseChart<UIScatterChart> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -106,12 +109,12 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
    * @param shelve
    */
   public isValid(shelve: Pivot): boolean {
-    return ((this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED)) == 1)
-      && ((this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED)) == 1)
+    return ((this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED)) === 1)
+      && ((this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED)) === 1)
       && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP)) > 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.TIMESTAMP) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) == 0);
+      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.TIMESTAMP) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) === 0);
   }
 
   /**
@@ -142,7 +145,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     this.chart.off('brushDragEnd');
     this.chart.on('brushDragEnd', (params) => {
 
-      let selectDataList = [];
+      const selectDataList = [];
 
       const selectedBrushData: any = params.brushSelectData[0].selected;
 
@@ -223,21 +226,20 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
         // 열/행의 선반에서의 필드 인덱스
         let fieldIdx: number;
         // 열/행/교차 여부
-        let pivotType: any;
-
+        // let pivotType: any;
 
         if (_.eq(this.uiOption.color.type, ChartColorType.DIMENSION)) {
-          const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
+          const targetField = (this.uiOption.color as UIChartColorByDimension).targetField;
           // 열/행/교차 여부 및 몇번째 필드인지 확인
-          _.forEach(this.fieldOriginInfo, (value, key) => {
+          _.forEach(this.fieldOriginInfo, (value, _key) => {
             if (_.indexOf(value, targetField) > -1) {
               fieldIdx = _.indexOf(value, targetField);
-              pivotType = _.eq(key, ChartPivotType.COLS) ? ChartPivotType.COLS : _.eq(key, ChartPivotType.ROWS) ? ChartPivotType.ROWS : ChartPivotType.AGGS;
+              // pivotType = _.eq(key, ChartPivotType.COLS) ? ChartPivotType.COLS : _.eq(key, ChartPivotType.ROWS) ? ChartPivotType.ROWS : ChartPivotType.AGGS;
             }
           });
         } else if (_.eq(this.uiOption.color.type, ChartColorType.SERIES)) {
           // color by measure 일때
-          pivotType = ChartPivotType.AGGS;
+          // pivotType = ChartPivotType.AGGS;
         }
 
         // series 를 돌면서 각 시리즈 데이터의 내용을 수정
@@ -247,7 +249,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
         series.map((obj) => {
           obj.data.map((valueData, idx) => {
             // 선택한 범례와 동일한지 비교할 데이터의 이름
-            let compareName = _.split(valueData.name, CHART_STRING_DELIMITER)[fieldIdx];
+            const compareName = _.split(valueData.name, CHART_STRING_DELIMITER)[fieldIdx];
 
             if (_.eq(compareName, selectedName)) {
               if (_.isObject(valueData)) {
@@ -306,9 +308,9 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       largeThreshold: 5000,
       data: [],
       symbolSize: 15,
-      symbol: String((<UIScatterChart>this.uiOption).pointShape),
+      symbol: String(this.uiOption.pointShape),
       itemStyle: optGen.ItemStyle.auto(),
-      label: optGen.LabelStyle.defaultLabelStyle(false, Position.TOP),
+      label: optGen.LabelStyle.defaultLabelStyle(false, Position.TOP)
     }];
 
     // 시리즈 데이터 설정
@@ -343,7 +345,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       // label 포맷
       series.label.normal.formatter = ((params): any => {
 
-        let option = this.chartOption.series[params.seriesIndex];
+        const option = this.chartOption.series[params.seriesIndex];
 
         let uiData = _.cloneDeep(option.uiData);
         // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
@@ -364,7 +366,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     // 축포맷이 아닌 기존 포맷으로 tooltip 설정
     this.chartOption.tooltip.formatter = ((params): any => {
 
-      let option = this.chartOption.series[params.seriesIndex];
+      const option = this.chartOption.series[params.seriesIndex];
 
       let uiData = _.cloneDeep(option.uiData);
       // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
@@ -404,9 +406,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
 
     const xAxis = this.fieldInfo.cols;
 
-    let xAxisName = this.uiOption.xAxis.customName ? this.uiOption.xAxis.customName : _.join(xAxis, CHART_STRING_DELIMITER);
-
-    this.chartOption.xAxis[0].name = xAxisName;
+    this.chartOption.xAxis[0].name = this.uiOption.xAxis.customName ? this.uiOption.xAxis.customName : _.join(xAxis, CHART_STRING_DELIMITER);
     // 여기는 기존 axisName으로 설정필요
     this.chartOption.xAxis[0].axisName = _.join(xAxis, CHART_STRING_DELIMITER);
 
@@ -422,9 +422,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
 
     const yAxis = this.fieldInfo.rows;
 
-    let yAxisName = this.uiOption.yAxis.customName ? this.uiOption.yAxis.customName : _.join(yAxis, CHART_STRING_DELIMITER);
-
-    this.chartOption.yAxis[0].name = yAxisName;
+    this.chartOption.yAxis[0].name = this.uiOption.yAxis.customName ? this.uiOption.yAxis.customName : _.join(yAxis, CHART_STRING_DELIMITER);
     // 여기는 기존 axisName으로 설정필요
     this.chartOption.yAxis[0].axisName = _.join(yAxis, CHART_STRING_DELIMITER);
 
@@ -438,11 +436,11 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
 
     // rows 축의 개수만큼 넣어줌
     _.each(this.data.columns, (data, index) => {
-      // console.info(data);
-      // console.info(this.originalData.columns[index]);
+      // console.log(data);
+      // console.log(this.originalData.columns[index]);
       data.seriesName = _.cloneDeep(data.name);
-      //data.xAxisValue = _.cloneDeep(data.value[0]);
-      //data.yAxisValue = _.cloneDeep(data.value[1]);
+      // data.xAxisValue = _.cloneDeep(data.value[0]);
+      // data.yAxisValue = _.cloneDeep(data.value[1]);
       data.xAxisValue = _.cloneDeep(this.originalData.columns[index].value[0]);
       data.yAxisValue = _.cloneDeep(this.originalData.columns[index].value[1]);
     });
@@ -450,17 +448,17 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     return this.data.columns;
   }
 
-  protected calculateBaseline(baseline: number, result: any, isYAsis: boolean): void {
+  protected calculateBaseline(baseline: number, result: any, isYAxis: boolean): void {
 
     // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
-    result.data.columns.map((column, index) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
+    const seriesList = [];
+    result.data.columns.map((column, _index) => {
+      const nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+      let name =  '';
       if( nameArr.length > 1 ) {
-        nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
+        nameArr.map((temp, nameIdx) => {
+          if( nameIdx < nameArr.length - 1 ) {
+            if( nameIdx > 0 ) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
@@ -472,8 +470,8 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       }
 
       let isAlready = false;
-      seriesList.map((series, index) => {
-        if( series == name ) {
+      seriesList.map((series, _seriesIdx) => {
+        if( series === name ) {
           isAlready = true;
           return false;
         }
@@ -485,45 +483,45 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     });
 
     // Value값을 마이너스 처리
-    if( !result.data.categories || result.data.categories.length == 0 ) {
-      result.data.columns.map((column, index) => {
-        column.value.map((value, index) => {
-          if( (isYAsis && index == 1) || (!isYAsis && index == 0) ) {
+    if( !result.data.categories || result.data.categories.length === 0 ) {
+      result.data.columns.map((column, _colIdx) => {
+        column.value.map((value, valIdx) => {
+          if( (isYAxis && valIdx === 1) || (!isYAxis && valIdx === 0) ) {
             if( value > 0 ) {
-              column.value[index] = value - baseline;
+              column.value[valIdx] = value - baseline;
             }
             else {
-              column.value[index] = (Math.abs(value) + Math.abs(baseline)) * -1;
+              column.value[valIdx] = (Math.abs(value) + Math.abs(baseline)) * -1;
             }
           }
         });
       });
     }
     else {
-      let categoryVal = [];
-      let categoryPer = [];
+      const categoryVal = [];
+      const categoryPer = [];
       for( let num = 0 ; num < result.data.categories.length ; num++ ) {
 
-        let category = result.data.categories[num];
+        const category = result.data.categories[num];
         for( let num2 = 0 ; num2 < category.value.length ; num2++ ) {
 
-          let value = category.value[num2];
-          let index = (num * category.value.length) + num2;
-          let baselineGap = Math.abs(value - baseline);
-          let baselinePer = baselineGap / Math.abs(value);
+          const value = category.value[num2];
+          const index = (num * category.value.length) + num2;
+          const baselineGap = Math.abs(value - baseline);
+          const baselinePer = baselineGap / Math.abs(value);
           categoryVal[index] = value;
           categoryPer[index] = baselinePer;
         }
       }
 
-      result.data.columns.map((column, index) => {
-        column.value.map((value, index) => {
-          if( (isYAsis && index == 1) || (!isYAsis && index == 0) ) {
-            if (categoryVal[index] < baseline) {
-              column.value[index] = (Math.abs(value) * categoryPer[index]) * -1;
+      result.data.columns.map((column, _colIdx) => {
+        column.value.map((value, valIdx) => {
+          if( (isYAxis && valIdx === 1) || (!isYAxis && valIdx === 0) ) {
+            if (categoryVal[valIdx] < baseline) {
+              column.value[valIdx] = (Math.abs(value) * categoryPer[valIdx]) * -1;
             }
             else {
-              column.value[index] = Math.abs(value) * categoryPer[index];
+              column.value[valIdx] = Math.abs(value) * categoryPer[valIdx];
             }
           }
         });
@@ -544,7 +542,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
         if( _.eq(zoom.type, DataZoomType.SLIDER)
             && !_.isUndefined(param)
             && !_.isUndefined(param.dataZoomId)
-            && param.dataZoomId.indexOf(index) != -1 ) {
+            && param.dataZoomId.indexOf(index) !== -1 ) {
           this.uiOption.chartZooms[index].start = param.start;
           this.uiOption.chartZooms[index].end = param.end;
         }
@@ -562,7 +560,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
    */
   private symbolFill(): BaseOption {
 
-    const opacity: number = (<UIScatterChart>this.uiOption).pointTransparency;
+    const opacity: number = this.uiOption.pointTransparency;
 
     if (!opacity) return this.chartOption;
 
@@ -581,13 +579,13 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
    */
   private symbolType(): BaseOption {
 
-    const type: PointShape = (<UIScatterChart>this.uiOption).pointShape;
+    const type: PointShape = this.uiOption.pointShape;
 
     if (!type) return this.chartOption;
 
     const series = this.chartOption.series;
     _.each(series, (obj) => {
-      obj.symbol = <any>type.toString().toLowerCase();
+      obj.symbol = type.toString().toLowerCase();
     })
 
     // visualMap, pieces가 있는경우 해당 type으로 심볼 변경
@@ -595,7 +593,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     if (visualMap && visualMap.pieces) {
 
       visualMap.pieces.forEach((item) => {
-        item.symbol = <any>type.toString().toLowerCase();
+        item.symbol = SymbolType[type.toString()];
       })
     }
 
@@ -627,25 +625,25 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       if ( uiData['xAxisValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.XAXIS_VALUE) ) {
 
         const axisFormat = FormatOptionConverter.getlabelAxisScaleFormatTooltip(uiOption, AxisType.X);
-        let value = FormatOptionConverter.getFormatValue(uiData['xAxisValue'], axisFormat ? axisFormat : uiOption.valueFormat);
+        const value = FormatOptionConverter.getFormatValue(uiData['xAxisValue'], axisFormat ? axisFormat : uiOption.valueFormat);
         result.push(value);
         isUiData = true;
       }
       if ( uiData['yAxisValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.YAXIS_VALUE) ) {
 
         const axisFormat = FormatOptionConverter.getlabelAxisScaleFormatTooltip(uiOption, AxisType.Y);
-        let value = FormatOptionConverter.getFormatValue(uiData['yAxisValue'], axisFormat ? axisFormat : uiOption.valueFormat);
+        const value = FormatOptionConverter.getFormatValue(uiData['yAxisValue'], axisFormat ? axisFormat : uiOption.valueFormat);
         result.push(value);
         isUiData = true;
       }
 
-      let label: string = "";
+      let label: string =  '';
 
       // UI 데이터기반 레이블 반환
       if( isUiData ) {
         for( let num: number = 0 ; num < result.length ; num++ ) {
           if( num > 0 ) {
-            label += "\n";
+            label += '\n';
           }
           if(series.label && series.label.normal && series.label.normal.rich) {
             label += '{align|'+ result[num] +'}';
@@ -669,7 +667,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
   /**
    * scatter tooltip 설정
    */
-  private getFormatScatterValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, series?: any, uiData?: any): string {
+  private getFormatScatterValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, _series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
     if( uiData ) {
@@ -688,14 +686,14 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
       if ( uiData['xAxisValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.XAXIS_VALUE) ) {
 
         const axisFormat = FormatOptionConverter.getlabelAxisScaleFormatTooltip(uiOption, AxisType.X);
-        let seriesValue = FormatOptionConverter.getTooltipValue(this.fieldInfo.cols[0], this.pivot.columns, axisFormat ? axisFormat : uiOption.valueFormat, uiData['xAxisValue']);
+        const seriesValue = FormatOptionConverter.getTooltipValue(this.fieldInfo.cols[0], this.pivot.columns, axisFormat ? axisFormat : uiOption.valueFormat, uiData['xAxisValue']);
 
         result.push(seriesValue);
       }
       if ( uiData['yAxisValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.YAXIS_VALUE) ) {
 
         const axisFormat = FormatOptionConverter.getlabelAxisScaleFormatTooltip(uiOption, AxisType.Y);
-        let seriesValue = FormatOptionConverter.getTooltipValue(this.fieldInfo.rows[0], this.pivot.rows, axisFormat ? axisFormat : uiOption.valueFormat, uiData['yAxisValue']);
+        const seriesValue = FormatOptionConverter.getTooltipValue(this.fieldInfo.rows[0], this.pivot.rows, axisFormat ? axisFormat : uiOption.valueFormat, uiData['yAxisValue']);
 
         result.push(seriesValue);
       }
@@ -707,7 +705,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
   }
 
 
-  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
+  protected calculateMinMax(_grid: UIChartAxisGrid, _result: any, _isYAxis: boolean): void {
 
     // 스캐터차트는 Override 함으로서 데이터 가공처리를 하지 않음
 
@@ -739,7 +737,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     // let seriesList = [];
     // result.data.columns.map((column, index) => {
     //   let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-    //   let name = "";
+    //   let name =  '';
     //   if( nameArr.length > 1 ) {
     //     nameArr.map((temp, index) => {
     //       if( index < nameArr.length - 1 ) {
@@ -853,28 +851,28 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, AxisType.Y);
+    const axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, AxisType.Y);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = this.chartOption[AxisType.Y];
+    const axis: Axis[] = this.chartOption[AxisType.Y];
 
     _.each(axis, (option: Axis, index) => {
 
       // Value축일 경우
-      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
+      if (axisOption[index].label && _.eq((axisOption[index].label as UIChartAxisLabelValue).type, AxisType.VALUE)
         && axisOption[index].grid) {
 
         // Min / Max값을 다시 구한다.
         let min = null;
         let max = null;
-        let calculateMin = null;
-        this.data.columns.map((column, index) => {
-          column.value.map((value, index) => {
-            if( index == 1 ) {
+        // let calculateMin;
+        this.data.columns.map((column, _colIdx) => {
+          column.value.map((value, valIdx) => {
+            if( valIdx === 1 ) {
               if (min == null || value < min) {
                 min = value;
               }
@@ -885,11 +883,11 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
           });
         });
 
-        calculateMin = Math.ceil(min - ((max - min) * 0.05));
+        // calculateMin = Math.ceil(min - ((max - min) * 0.05));
         // min = min > 0
         //   ? calculateMin >= 0 ? calculateMin : min
         //   : min;
-        max = max;
+        // max = max;
 
         // Min / Max 업데이트
         AxisOptionConverter.axisMinMax[AxisType.Y].min = min;
@@ -897,13 +895,13 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-          baseline = <number>axisOption[index].baseline;
+        if( axisOption[index].baseline && axisOption[index].baseline !== 0 ) {
+          baseline = axisOption[index].baseline as number;
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
-        if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+        if( baseline === 0 && axisOption[index].grid.autoScaled ) {
           // // 적용
           // option.min = min > 0
           //   ? Math.ceil(min - ((max - min) * 0.05))
@@ -938,28 +936,28 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, AxisType.X);
+    const axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, AxisType.X);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: Axis[] = this.chartOption[AxisType.X];
+    const axis: Axis[] = this.chartOption[AxisType.X];
 
     _.each(axis, (option: Axis, index) => {
 
       // Value축일 경우
-      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
+      if (axisOption[index].label && _.eq((axisOption[index].label as UIChartAxisLabelValue).type, AxisType.VALUE)
         && axisOption[index].grid) {
 
         // Min / Max값을 다시 구한다.
         let min = null;
         let max = null;
-        let calculateMin = null;
-        this.data.columns.map((column, index) => {
-          column.value.map((value, index) => {
-            if( index == 0 ) {
+        // let calculateMin;
+        this.data.columns.map((column, _colIdx) => {
+          column.value.map((value, valIdx) => {
+            if( valIdx === 0 ) {
               if (min == null || value < min) {
                 min = value;
               }
@@ -970,11 +968,11 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
           });
         });
 
-        calculateMin = Math.ceil(min - ((max - min) * 0.05));
+        // calculateMin = Math.ceil(min - ((max - min) * 0.05));
         // min = min > 0
         //   ? calculateMin >= 0 ? calculateMin : min
         //   : min;
-        max = max;
+        // max = max;
 
         // Min / Max 업데이트
         AxisOptionConverter.axisMinMax[AxisType.X].min = min;
@@ -982,13 +980,13 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-          baseline = <number>axisOption[index].baseline;
+        if( axisOption[index].baseline && axisOption[index].baseline !== 0 ) {
+          baseline = axisOption[index].baseline as number;
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
-        if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+        if( baseline === 0 && axisOption[index].grid.autoScaled ) {
           // // 적용
           // option.min = min > 0
           //   ? Math.ceil(min - ((max - min) * 0.05))

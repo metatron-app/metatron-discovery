@@ -218,7 +218,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // flag
     this.isShow = false;
     // 팝업종료시 하단 스크롤 show
-    $("body").css("overflow", "");
+    $("body").css("overflow",  '');
   }
 
 

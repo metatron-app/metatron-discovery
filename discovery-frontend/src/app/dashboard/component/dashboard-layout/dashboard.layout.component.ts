@@ -14,6 +14,7 @@
 
 import * as $ from 'jquery';
 import * as _ from 'lodash';
+import {isNullOrUndefined, isUndefined} from 'util';
 
 import {
   ApplicationRef,
@@ -27,9 +28,12 @@ import {
   ViewChild
 } from '@angular/core';
 
-import {Widget} from '../../../domain/dashboard/widget/widget';
-import {DashboardWidgetComponent} from './dashboard.widget.component';
-import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
+import {PopupService} from '@common/service/popup.service';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {CommonConstant} from '@common/constant/common.constant';
+import {ChartType} from '@common/component/chart/option/define/common';
+
+import {Widget} from '@domain/dashboard/widget/widget';
 import {
   BoardConfiguration,
   BoardDataSource,
@@ -39,7 +43,7 @@ import {
   JoinMapping,
   LayoutMode,
   LayoutWidgetInfo
-} from '../../../domain/dashboard/dashboard';
+} from '@domain/dashboard/dashboard';
 import {
   ConnectionType,
   Datasource,
@@ -48,31 +52,28 @@ import {
   FieldRole,
   FieldValueAlias,
   LogicalType
-} from '../../../domain/datasource/datasource';
-import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {FilterWidget, FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {PopupService} from '../../../common/service/popup.service';
-import {FilterUtil} from '../../util/filter.util';
+} from '@domain/datasource/datasource';
+import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {
   BoardGlobalOptions,
   BoardLayoutOptions,
   BoardLayoutType,
   BoardWidgetOptions,
   WidgetShowType
-} from 'app/domain/dashboard/dashboard.globalOptions';
-import {WidgetService} from '../../service/widget.service';
-import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
-import {isNullOrUndefined, isUndefined} from 'util';
+} from '@domain/dashboard/dashboard.globalOptions';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {IntervalFilter} from '@domain/workbook/configurations/filter/interval-filter';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {FilterUtil} from '../../util/filter.util';
 import {DashboardUtil} from '../../util/dashboard.util';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
-import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
-import {IntervalFilter} from '../../../domain/workbook/configurations/filter/interval-filter';
-import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {CommonConstant} from "../../../common/constant/common.constant";
-import {ChartType} from "../../../common/component/chart/option/define/common";
-import {AbstractDashboardComponent} from "../../abstract.dashboard.component";
+import {WidgetService} from '../../service/widget.service';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {AbstractDashboardComponent} from '../../abstract.dashboard.component';
+import {DashboardWidgetComponent} from './dashboard.widget.component';
+import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
 
 declare let GoldenLayout: any;
 
@@ -106,6 +107,8 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public dashboard: Dashboard;
+
+  public boardUtil = DashboardUtil;
 
   // 대시보드 로딩 표시 여부
   public isShowDashboardLoading: boolean = false;
@@ -282,7 +285,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * @private
    */
   private _setForceLayout() {
-    let board: Dashboard = this.dashboard;
+    const board: Dashboard = this.dashboard;
 
     // 레이아웃 크기 설정
     this._$layoutContainer
@@ -301,7 +304,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * @private
    */
   private _setDatasourceForDashboard(boardInfo: Dashboard): [Dashboard, Datasource] {
-    let masterDsInfo: Datasource = null;
+    const masterDsInfo: Datasource = null;
 
     const dashboardConf: BoardConfiguration = boardInfo.configuration;
     const boardDs: BoardDataSource = (dashboardConf && dashboardConf.dataSource) ? dashboardConf.dataSource : undefined;
@@ -309,10 +312,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     // 데이터 소스가 있으면
     if (boardInfo.hasOwnProperty('dataSources') && boardInfo.dataSources.length > 0 && boardDs) {
 
-      const nameAliasList: FieldNameAlias[] = boardInfo.aliases.filter(alias => alias['nameAlias']).map(item => <FieldNameAlias>item);
-      const valueAliasList: FieldValueAlias[] = boardInfo.aliases.filter(alias => alias['valueAlias']).map(item => <FieldValueAlias>item);
+      const nameAliasList: FieldNameAlias[] = boardInfo.aliases.filter(alias => alias['nameAlias']);
+      const valueAliasList: FieldValueAlias[] = boardInfo.aliases.filter(alias => alias['valueAlias']);
 
-      let summary: { reorderDsList: Datasource[], totalFields: Field[] } = {reorderDsList: [], totalFields: []};
+      let summary: { reorderDsList: Datasource[], totalFields: Field[] };
       if ('multi' === boardDs.type) {
         summary = boardDs.dataSources.reduce((acc, currVal) => {
           const singleSummary: { reorderDsList: Datasource[], totalFields: Field[] }
@@ -347,9 +350,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
                                nameAliasList: FieldNameAlias[], valueAliasList: FieldValueAlias[]): { reorderDsList: Datasource[], totalFields: Field[] } {
 
     let totalFields: Field[] = [];          // 전체 필드 목록
-    let reorderDsList: Datasource[] = [];   // 마스터 데이터소스 설정 및 데이터소스 정렬 - Master Datasource
+    const reorderDsList: Datasource[] = [];   // 마스터 데이터소스 설정 및 데이터소스 정렬 - Master Datasource
 
-    let masterDsInfo: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(boardInfo, dataSource);
+    const masterDsInfo: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(boardInfo, dataSource);
 
     if (isNullOrUndefined(masterDsInfo)) {
       return {reorderDsList: [], totalFields: []};
@@ -493,7 +496,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     if (boardInfo.widgets) {
       boardInfo.widgets.forEach((widget) => {
         if ('page' === widget.type) {
-          const pgeWidget: PageWidget = <PageWidget>widget;
+          const pgeWidget: PageWidget = widget;
           pgeWidget.mode = 'chart';
         }
         widget.dashBoard = boardInfo;
@@ -573,10 +576,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     filters.forEach((item: Filter, idx: number) => {
       if ('interval' === item.type) {
         // ----> convert IntervalFilter to TimeFilter
-        filters[idx] = FilterUtil.convertIntervalToTimeFilter(<IntervalFilter>item, boardInfo);
+        filters[idx] = FilterUtil.convertIntervalToTimeFilter(item, boardInfo);
       } else if (FilterUtil.isTimeFilter(item)) {
         // ----> convert TimeFilter ServerSpec to UISpec
-        const timeFilter: TimeFilter = <TimeFilter>item;
+        const timeFilter: TimeFilter = item;
         (timeFilter.timeUnit) || (timeFilter.timeUnit = TimeUnit.NONE);
         timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, item.dataSource, item.field);
       }
@@ -587,25 +590,25 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     // convert filter to TimeFilter in widget
     boardInfo.widgets.forEach(item => {
       if ('filter' === item.type) {
-        const conf = <FilterWidgetConfiguration>item.configuration;
+        const conf = item.configuration as FilterWidgetConfiguration;
         const filter: Filter = conf.filter;
         if (FilterUtil.isTimeFilter(filter)) {
-          const timeFilter: TimeFilter = <TimeFilter>filter;
+          const timeFilter: TimeFilter = filter as TimeFilter;
           (timeFilter.timeUnit) || (timeFilter.timeUnit = TimeUnit.NONE);
           timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, filter.dataSource, timeFilter.field);
         } else if ('interval' === filter.type) {
-          conf.filter = FilterUtil.convertIntervalToTimeFilter(<IntervalFilter>filter, boardInfo);
+          conf.filter = FilterUtil.convertIntervalToTimeFilter(filter as IntervalFilter, boardInfo);
         }
       } else if ('page' === item.type) {
-        const conf = <PageWidgetConfiguration>item.configuration;
+        const conf: PageWidgetConfiguration = item.configuration;
         if (conf.filters) {
           conf.filters.forEach((filter: Filter, idx: number) => {
             if (FilterUtil.isTimeFilter(filter)) {
-              const timeFilter: TimeFilter = <TimeFilter>filter;
+              const timeFilter: TimeFilter = filter as TimeFilter;
               (timeFilter.timeUnit) || (timeFilter.timeUnit = TimeUnit.NONE);
               timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, conf.dataSource.engineName, timeFilter.field);
             } else if ('interval' === filter.type) {
-              conf.filters[idx] = FilterUtil.convertIntervalToTimeFilter(<IntervalFilter>filter, boardInfo);
+              conf.filters[idx] = FilterUtil.convertIntervalToTimeFilter(filter as IntervalFilter, boardInfo);
             }
           });
         }
@@ -623,14 +626,14 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    */
   private _bootstrapWidgetComponent(container, componentState) {
 
-    let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
+    const widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
 
     if (widgetInfo) {
 
-      let $componentContainer = $('<div/>').css({width: '100%', height: '100%'});
+      const $componentContainer = $('<div/>').css({width: '100%', height: '100%'});
       container.getElement().prepend($componentContainer);
-      let widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
-      let widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
+      const widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
+      const widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
 
       widgetInfo.dashBoard = this.dashboard;
 
@@ -654,15 +657,15 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * @private
    */
   private _bootstrapWidgetHeaderComponent(stack, globalOpts: BoardGlobalOptions) {
-    let componentState: any = stack.config.content[0];
+    const componentState: any = stack.config.content[0];
     if (componentState) {
-      let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
+      const widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
 
       if (widgetInfo) {
         const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos(this.dashboard);
-        let widgetHeaderCompFactory
+        const widgetHeaderCompFactory
           = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetHeaderComponent);
-        let widgetHeaderComp = this.appRef.bootstrap(widgetHeaderCompFactory, stack.header.tabs[0].element.get(0));
+        const widgetHeaderComp = this.appRef.bootstrap(widgetHeaderCompFactory, stack.header.tabs[0].element.get(0));
         widgetHeaderComp.instance.widget = widgetInfo;
         widgetHeaderComp.instance.layoutMode = this._layoutMode;
         widgetHeaderComp.instance.isShowTitle = layoutWidgets.find(item => item.id === componentState.id).title;
@@ -683,18 +686,18 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
   protected appendWidgetInLayout(newWidgets: Widget[]) {
     if (newWidgets && 0 < newWidgets.length) {
       newWidgets.forEach(item => {
-        let newItemConfig = this._getLayoutComponentConfByWidget(item);
-        let rootItem: any = this._layoutObj.root;
+        const newItemConfig = this._getLayoutComponentConfByWidget(item);
+        const rootItem: any = this._layoutObj.root;
 
-        let rowItems: any[] = rootItem.getItemsByType('row');
-        let colItems: any[] = rootItem.getItemsByType('column');
-        let stackItems: any[] = rootItem.getItemsByType('stack');
+        const rowItems: any[] = rootItem.getItemsByType('row');
+        const colItems: any[] = rootItem.getItemsByType('column');
+        const stackItems: any[] = rootItem.getItemsByType('stack');
         if (0 < rowItems.length) {
           rowItems[0].addChild(newItemConfig);
         } else if (0 < colItems.length) {
           colItems[0].addChild(newItemConfig);
         } else if (0 < stackItems.length) {
-          let newRowItem = rootItem.layoutManager.createContentItem({type: 'row'}, rootItem);
+          const newRowItem = rootItem.layoutManager.createContentItem({type: 'row'}, rootItem);
           rootItem.replaceChild(stackItems[0], newRowItem);
           newRowItem.addChild(stackItems[0]);
           newRowItem.addChild(newItemConfig);
@@ -763,18 +766,18 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * 위젯을 새로불러온다.
    */
   public reloadWidget(widgetInfo: Widget) {
-    let widgetCompRef: ComponentRef<DashboardWidgetComponent> = this._getWidgetComponentRef(widgetInfo.id);
+    const widgetCompRef: ComponentRef<DashboardWidgetComponent> = this._getWidgetComponentRef(widgetInfo.id);
     if (widgetCompRef) {
       // 기존 위젯 제거
       widgetCompRef.destroy();
       this._widgetComps = this._widgetComps.filter(item => (widgetInfo.id !== item.instance.getWidgetId()));
 
       // 신규 위젯 인스턴스 추가
-      let $widgetContainer = this._getLayoutCompContainerByWidgetId(widgetInfo.id);
-      let $componentContainer = $('<div/>').css({width: '100%', height: '100%'});
+      const $widgetContainer = this._getLayoutCompContainerByWidgetId(widgetInfo.id);
+      const $componentContainer = $('<div/>').css({width: '100%', height: '100%'});
       $widgetContainer.container.getElement().append($componentContainer);
-      let widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
-      let widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
+      const widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
+      const widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
       widgetComp.instance.init(
         widgetInfo, DashboardUtil.getBoardWidgetOptions(this.dashboard),
         this._layoutMode, DashboardUtil.getLayoutWidgetInfoByWidgetId(this.dashboard, widgetInfo.id)
@@ -818,13 +821,13 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         }
         this._widgetComps = [];
         this._$layoutContainer = $(this.layoutContainer.nativeElement);
-        this._$layoutContainer.parent().css({'height': '', 'overflow': ''});    // remove height
+        this._$layoutContainer.parent().css({height: '', overflow: ''});    // remove height
 
         if (BoardLayoutType.FIT_TO_HEIGHT === globalOptsLayout.layoutType) {
           if (this._$layoutContainer.parent().height() > globalOptsLayout.layoutHeight) {
-            this._$layoutContainer.parent().css({'height': globalOptsLayout.layoutHeight});
+            this._$layoutContainer.parent().css({height: globalOptsLayout.layoutHeight});
           }
-          this._$layoutContainer.css({'height': globalOptsLayout.layoutHeight});
+          this._$layoutContainer.css({height: globalOptsLayout.layoutHeight});
         } else {
           this._$layoutContainer.parent().css('overflow', 'hidden');
           objLayout.dimensions.height = '100%';
@@ -872,7 +875,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
       } // end if - (!this._layoutObj)
 
       // 신규 위젯 정보 판별
-      let newWidgets
+      const newWidgets
         = layoutWidgets
         .filter(item => item.isInLayout && 0 === this._layoutObj.root.getItemsById(item.id).length)
         .map(item => DashboardUtil.getWidget(this.dashboard, item.ref));
@@ -901,7 +904,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
   protected initializeBoardFilters(dashboard: Dashboard): Dashboard {
 
     const boardConf: BoardConfiguration = dashboard.configuration;
-    let savedFilters: Filter[] = _.cloneDeep(boardConf.filters);
+    const savedFilters: Filter[] = _.cloneDeep(boardConf.filters);
 
     // 기본 필수/추천 필터 정보 설정 - Start
     let genFilters: Filter[] = [];
@@ -914,7 +917,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         // 추천필터 설정
         fields.forEach((field: Field) => {
           if (field.filtering) {
-            let rcmdFilter: Filter = undefined;
+            let rcmdFilter: Filter;
             if (field.logicalType === LogicalType.TIMESTAMP) {
               rcmdFilter = FilterUtil.getTimeRangeFilter(field, TimeUnit.NONE, 'recommended', dsInfo);
             } else {
@@ -925,7 +928,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
 
               // 대시보드 필터 설정 ( 기본 데이터와 저장된 정보와의 병합 ) - Start
               if (savedFilters && 0 < savedFilters.length) {
-                let savedIdx: number = savedFilters.findIndex((item: Filter) => {
+                const savedIdx: number = savedFilters.findIndex((item: Filter) => {
                   return item.field === field.name && item.dataSource === dsInfo.engineName;
                 });
                 if (-1 < savedIdx) {
@@ -1012,11 +1015,11 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             const prevFilters: Filter[] = dsFilters.filter(item => item.ui.filteringSeq < firstFilter.ui.filteringSeq);
             this.setRecommandedFilter(firstFilter, prevFilters, dsFilters, boardInfo).then(() => {
               console.log('초기화 완료');
-              res2();
+              res2(null);
             }).catch(() => rej2());
           } else {
             console.log('셋팅 되어 있음 or 값이 없음');
-            res2();
+            res2(null);
           }
         }));
         // }
@@ -1083,8 +1086,6 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - API
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public boardUtil = DashboardUtil;
-
   /**
    * Show Loading
    * Display Dashboard loading when in viewing mode
@@ -1116,7 +1117,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
    * 저장을 위해 스크린에 맞는 형태로 사이즈를 조절한다
    */
   public resizeToFitScreenForSave() {
-    this._$layoutContainer.parent().css({'height': '', 'overflow': 'hidden'});    // remove height
+    this._$layoutContainer.parent().css({height: '', overflow: 'hidden'});    // remove height
     this._$layoutContainer.width('100%').height('100%');
     this.updateLayoutSize();
   } // function - resizeToFitScreenForSave
@@ -1221,15 +1222,15 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     return new Promise<any>((resolve) => {
 
       // 대시보드에 데이터소스 설정
-      let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
+      const result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
       boardInfo = result[0];
 
       // Data migration
       {
         // convert map old spec or filter widget
         boardInfo.widgets.forEach(widget => {
-          if ('page' === widget.type && ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
-            const widgetConf: PageWidgetConfiguration = <PageWidgetConfiguration>widget.configuration;
+          if ('page' === widget.type && ChartType.MAP === (widget.configuration as PageWidgetConfiguration).chart.type) {
+            const widgetConf: PageWidgetConfiguration = widget.configuration;
             widgetConf.shelf.layers
               = widgetConf.shelf.layers.map((layer, idx: number) => {
               if (Array === layer.constructor) {
@@ -1248,10 +1249,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             });
             widgetConf.dataSource = boardInfo.configuration.dataSource; // 무조건!! 위 shelf migration 보다 나중에!! 실행되어야 한다.
           } else if ('filter' === widget.type) {
-            const widgetConf: FilterWidgetConfiguration = <FilterWidgetConfiguration>widget.configuration;
+            const widgetConf: FilterWidgetConfiguration = widget.configuration;
             if (!widgetConf.filter) {
               widgetConf.filter = {} as any;
-              Object.keys(widgetConf).forEach( key => {
+              Object.keys(widgetConf).forEach(key => {
                 widgetConf.filter[key] = widgetConf[key];
               });
             }
@@ -1259,7 +1260,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         });
 
         // remove duplicate filters
-        let filters: Filter[] = boardInfo.configuration.filters;
+        const filters: Filter[] = boardInfo.configuration.filters;
         if (filters) {
           boardInfo.configuration.filters
             = filters.reduce((acc: Filter[], curr: Filter) => {
@@ -1317,13 +1318,13 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
           // remove current_time timestamp filter - S
           boardInfo.configuration.filters
             = boardInfo.configuration.filters.filter((filter: Filter) => {
-            if (FilterUtil.isTimeFilter(filter) && (<TimeFilter>filter).clzField) {
-              const filterField: Field = (<TimeFilter>filter).clzField;
+            if (FilterUtil.isTimeFilter(filter) && filter.clzField) {
+              const filterField: Field = (filter as TimeFilter).clzField;
               if (FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name) {
                 const filterId: string = filter.dataSource + '_' + filter.field;
                 const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
                   if ('filter' === widget.type) {
-                    const filterInWidget: Filter = (<FilterWidgetConfiguration>widget.configuration).filter;
+                    const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
                     return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
                   }
                 });
@@ -1332,9 +1333,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
                   promises.push(new Promise((res) => {
                     this.widgetService.deleteWidget(item.id)
                       .then(() => {
-                        console.info('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter');
+                        console.log('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter');
                         boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
-                        res();
+                        res(null);
                       });
                   }));
                 });
@@ -1356,7 +1357,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             const filterId: string = filter.dataSource + '_' + filter.field;
             const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
               if ('filter' === widget.type) {
-                const filterInWidget: Filter = (<FilterWidgetConfiguration>widget.configuration).filter;
+                const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
                 return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
               }
             });
@@ -1365,9 +1366,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
               // 필터위젯 정보가 없는 필터의 경우 - 필터 위젯 정보 생성
               promises.push(new Promise((res) => {
                 this.widgetService.createWidget(new FilterWidget(filter, boardInfo), boardInfo.id)
-                  .then(result => {
-                    boardInfo.widgets.push(result);
-                    res();
+                  .then(createResult => {
+                    boardInfo.widgets.push(createResult);
+                    res(null);
                   });
               }));
             } else {
@@ -1378,7 +1379,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
                     this.widgetService.deleteWidget(item.id)
                       .then(() => {
                         boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
-                        res();
+                        res(null);
                       });
                   }));
                 }
@@ -1392,7 +1393,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             boardInfo.configuration.filterRelations = [];
             boardInfo.widgets.forEach(widget => {
               if ('filter' === widget.type) {
-                const widgetFilter = (<FilterWidget>widget).configuration.filter;
+                const widgetFilter = (widget as FilterWidget).configuration.filter;
                 if (boardInfo.configuration.filters.some(filterItem => {
                   if (widgetFilter.dataSource === filterItem.dataSource && widgetFilter.field === filterItem.field) {
                     return 'recommended' !== filterItem.ui.importanceType;

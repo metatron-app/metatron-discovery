@@ -15,7 +15,7 @@
 /**
  * Created by LDL on 2017. 7. 7..
  */
-import { Injectable, Pipe, PipeTransform } from '@angular/core';
+import {Injectable, Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'baseSort',
@@ -40,7 +40,7 @@ export class BaseSort implements PipeTransform {
     let result;
 
     if (orderType === 'desc') {
-      result =  items.sort((a, b) => {
+      result = items.sort((a, b) => {
         let first = a;
         let second = b;
         if (filterKey) {

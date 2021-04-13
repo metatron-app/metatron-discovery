@@ -12,9 +12,20 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
-import { PickerSettings } from '../../../domain/common/datepicker.settings';
+import { PickerSettings } from '@domain/common/datepicker.settings';
 
 declare let moment: any;
 declare let $: any;
@@ -23,7 +34,7 @@ declare let $: any;
   selector: 'component-date',
   templateUrl: './date.component.html'
 })
-export class DateComponent extends AbstractComponent implements OnInit {
+export class DateComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // TODO 워크벤치에서 사용할 용도로 데이터 컴포넌트를 구현해 놓음 우선 워크벤치에서 사용할 최소한의 기능만 구현.. 필요한 기능이 있을 경우 기존 코드에 영향없이 수정바랍니다~
 
@@ -90,7 +101,7 @@ export class DateComponent extends AbstractComponent implements OnInit {
     const pickerSettings: PickerSettings
       = new PickerSettings(
       'ddp-input-typebasic',
-      (fdate: string, date: Date) => {
+      (_fdate: string, date: Date) => {
         // has changed, return time
         this.onDateChange.emit(moment(date).format(this.timeFormat));
       },
@@ -123,12 +134,9 @@ export class DateComponent extends AbstractComponent implements OnInit {
     }
   }
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

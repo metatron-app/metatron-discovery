@@ -86,14 +86,14 @@ export class CountByBookType {
 }
 
 export enum PublicType {
-  PRIVATE = <any>'PRIVATE',
-  SHARED = <any>'SHARED'
+  PRIVATE = 'PRIVATE',
+  SHARED = 'SHARED'
 }
 
 export enum WorkspaceType {
-  DEFAULT = <any>'DEFAULT', // 워크북, 워크벤치, 노트북 지원
-  TYPE_1 = <any>'TYPE_1',   // 워크북, 워크벤치 사용 가능
-  TYPE_2 = <any>'TYPE_2'    // 워크북 지원
+  DEFAULT = 'DEFAULT', // 워크북, 워크벤치, 노트북 지원
+  TYPE_1 = 'TYPE_1',   // 워크북, 워크벤치 사용 가능
+  TYPE_2 = 'TYPE_2'    // 워크북 지원
 }
 
 /**

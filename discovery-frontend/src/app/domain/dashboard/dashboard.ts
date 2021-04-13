@@ -244,10 +244,10 @@ export class LayoutWidgetInfo {
  * 레이아웃 모드
  */
 export enum LayoutMode {
-  VIEW = <any>'VIEW',
-  VIEW_AUTH_MGMT = <any>'VIEW_AUTH_MGMT',
-  EDIT = <any>'EDIT',
-  STANDALONE = <any>'STANDALONE'
+  VIEW = 'VIEW',
+  VIEW_AUTH_MGMT = 'VIEW_AUTH_MGMT',
+  EDIT = 'EDIT',
+  STANDALONE = 'STANDALONE'
 }
 
 /**

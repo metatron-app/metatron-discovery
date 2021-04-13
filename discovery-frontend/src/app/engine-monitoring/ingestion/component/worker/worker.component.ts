@@ -204,9 +204,9 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
     return _.cloneDeep(this.workerTotalList).filter(item => {
       const matchSearchWord = !filterParam['containsText'] || item.worker.host.indexOf(filterParam['containsText']) > -1 || item.worker.ip.indexOf(filterParam['containsText']) > -1;
       const matchCompletedTime = (_.isNil(filterParam['completedTimeFrom'] && _.isNil(filterParam['completedTimeTo'])))
-        || (filterParam['completedTimeFrom'] == "" && filterParam['completedTimeTo'] == "")
-        || (filterParam['completedTimeFrom'] == "" && moment(item.lastCompletedTaskTime).isSameOrBefore(filterParam['completedTimeTo']))
-        || (filterParam['completedTimeTo'] == "" && moment(item.lastCompletedTaskTime).isSameOrAfter(filterParam['completedTimeFrom']))
+        || (filterParam['completedTimeFrom'] ==  '' && filterParam['completedTimeTo'] ==  '')
+        || (filterParam['completedTimeFrom'] ==  '' && moment(item.lastCompletedTaskTime).isSameOrBefore(filterParam['completedTimeTo']))
+        || (filterParam['completedTimeTo'] ==  '' && moment(item.lastCompletedTaskTime).isSameOrAfter(filterParam['completedTimeFrom']))
         || moment(item.lastCompletedTaskTime).isBetween(filterParam['completedTimeFrom'], filterParam['completedTimeTo']);
       return matchSearchWord && matchCompletedTime;
     })

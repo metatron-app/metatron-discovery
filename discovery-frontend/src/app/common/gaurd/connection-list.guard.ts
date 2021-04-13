@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from "@angular/router";
-import {StorageService} from "../../data-storage/service/storage.service";
-import {Observable} from "rxjs";
+import {Injectable} from '@angular/core';
+import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from '@angular/router';
+import {StorageService} from '../../data-storage/service/storage.service';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class ConnectionListGuard implements CanActivate {
@@ -23,7 +23,7 @@ export class ConnectionListGuard implements CanActivate {
   constructor(private storageService: StorageService) {
   }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+  canActivate(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     return this.storageService.setConnectionTypeList().then(() => true).catch(() => true);
   }
 

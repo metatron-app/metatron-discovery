@@ -97,7 +97,7 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
     this.modelApprovalService.getModelApprovalDetail(this.selectedModelId)
       .then((data) => {
         this.resultData = data['_embedded'];
-        console.info('result', this.resultData);
+        console.log('result', this.resultData);
         this.loadingHide();
       })
       .catch((error) => {
@@ -178,7 +178,7 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
 
   // 노트북 연결 팝업
   protected popupWindow() {
-    console.info('(this.resultData', this.resultData);
+    console.log('(this.resultData', this.resultData);
     if (!isUndefined(this.resultData['notebook']['link'])) {
       window.open(this.resultData['notebook']['link'],'_blank');
     }

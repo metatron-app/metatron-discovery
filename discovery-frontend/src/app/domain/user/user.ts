@@ -47,19 +47,19 @@ export class User extends AbstractHistoryEntity {
 }
 
 export enum Status {
-  REJECTED = <any>'REJECTED',
-  EXPIRED = <any>'EXPIRED',
-  LOCKED = <any>'LOCKED',
-  DELETED = <any>'DELETED',
-  REQUESTED = <any>'REQUESTED',
-  ACTIVATED = <any>'ACTIVATED',
-  INITIAL = <any>'INITIAL'
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED',
+  LOCKED = 'LOCKED',
+  DELETED = 'DELETED',
+  REQUESTED = 'REQUESTED',
+  ACTIVATED = 'ACTIVATED',
+  INITIAL = 'INITIAL'
 }
 
 /**
  * 추가 / 삭제 액션
  */
 export enum Action {
-  add = <any>'ADD',
-  remove = <any>'REMOVE'
+  add = 'ADD',
+  remove = 'REMOVE'
 }

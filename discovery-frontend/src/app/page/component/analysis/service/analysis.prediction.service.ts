@@ -96,7 +96,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
       })
       .catch((error) => {
         if (chart) chart.analysis = null;
-        console.info('error', error);
+        console.log('error', error);
         throw new Error('getAnalysis API error');
       });
   }
@@ -130,7 +130,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
       })
       .catch((error) => {
         if (chart) chart.analysis = null;
-        console.info('error', error);
+        console.log('error', error);
         throw new Error('getAnalysis API error');
       });
   }

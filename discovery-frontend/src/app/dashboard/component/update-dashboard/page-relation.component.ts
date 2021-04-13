@@ -12,17 +12,28 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
 import {
-  Component, ElementRef, Injector, OnDestroy, OnInit, Output, EventEmitter, Input, Renderer2, ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  Renderer2
 } from '@angular/core';
-import {FunctionValidator} from '../../../common/component/chart/option/define/common';
-import {Widget} from '../../../domain/dashboard/widget/widget';
-import {DashboardWidgetRelation} from "../../../domain/dashboard/dashboard";
-import {PageWidgetConfiguration} from "../../../domain/dashboard/widget/page-widget";
-import {FilterWidgetConfiguration} from "../../../domain/dashboard/widget/filter-widget";
-import {Field} from "../../../domain/datasource/datasource";
-import {DashboardUtil} from "../../util/dashboard.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {FunctionValidator} from '@common/component/chart/option/define/common';
+
+import {Widget} from '@domain/dashboard/widget/widget';
+import {Field} from '@domain/datasource/datasource';
+import {DashboardWidgetRelation} from '@domain/dashboard/dashboard';
+import {PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+
+import {DashboardUtil} from '../../util/dashboard.util';
 
 declare let $;
 
@@ -96,7 +107,7 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public get getNumberOfTree() {
-    let list = [];
+    const list = [];
     for (let i = 0; i < this.summary.value; i++) {
       list.push(i);
     }
@@ -134,7 +145,7 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
     }
 
     // make draggable tree sturcture
-    let data = this._getTreeData(initialData.nodes, initialData.widgets, this.hierarchyType);
+    const data = this._getTreeData(initialData.nodes, initialData.widgets, this.hierarchyType);
     this.safelyDetectChanges();
     setTimeout(() => {
       this._$tree = $('.ddp-wrap-order-setting');
@@ -145,26 +156,26 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
         onCanMove: (node) => {
           return (this.hierarchyType !== 'filter' || 'include' === node.type);
         },
-        onCanMoveTo: (moved_node, target_node, position) => {
+        onCanMoveTo: (movedNode, targetNode, position) => {
           $('.ddp-drag-enable').removeClass('ddp-drag-enable');
           $('.ddp-drag-disable').removeClass('ddp-drag-disable');
-          if ('inside' === position && target_node.type) {
-            if (moved_node.dataSource === target_node.dataSource &&
+          if ('inside' === position && targetNode.type) {
+            if (movedNode.dataSource === targetNode.dataSource &&
               (
-                this._chartFuncValidator.checkUseSelectionByTypeString(target_node.type) ||
-                (this.hierarchyType === 'filter' && 'include' === target_node.type)
+                this._chartFuncValidator.checkUseSelectionByTypeString(targetNode.type) ||
+                (this.hierarchyType === 'filter' && 'include' === targetNode.type)
               )
             ) {
               // set max depth
-              let max_depth: number = this.hierarchyType === 'filter' ? 8 : 2;
-              if (this._getNodeDepth(target_node) > max_depth) {
-                $(target_node.element).addClass('ddp-drag-disable');
+              const maxDepth: number = this.hierarchyType === 'filter' ? 8 : 2;
+              if (this._getNodeDepth(targetNode) > maxDepth) {
+                $(targetNode.element).addClass('ddp-drag-disable');
                 return false
               }
-              $(target_node.element).addClass('ddp-drag-enable');
+              $(targetNode.element).addClass('ddp-drag-enable');
               return true;
             } else {
-              $(target_node.element).addClass('ddp-drag-disable');
+              $(targetNode.element).addClass('ddp-drag-disable');
               return false;
             }
           } else {
@@ -271,25 +282,25 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
    */
   private _getTreeData(nodes: DashboardWidgetRelation[], widgets: Widget[], type: string) {
 
-    let nodeList: any = [];
+    const nodeList: any = [];
     nodes.some((item) => {
       const widgetInfo = widgets.find(widget => widget.id === item.ref);
 
-      if( !widgetInfo ) {
+      if (!widgetInfo) {
         return false;
       }
 
-      let nodeData: any = {
+      const nodeData: any = {
         id: item.ref,
         label: widgetInfo.name
       };
       if (type === 'filter') {
         const conf: FilterWidgetConfiguration = widgetInfo.configuration as FilterWidgetConfiguration;
         // find field
-        let field = DashboardUtil.getFieldByName(widgetInfo.dashBoard, conf.filter.dataSource, conf.filter.field );
+        const field = DashboardUtil.getFieldByName(widgetInfo.dashBoard, conf.filter.dataSource, conf.filter.field);
 
         // find css class
-        let cssClass = Field.getDimensionTypeIconClass(field);
+        const cssClass = Field.getDimensionTypeIconClass(field);
 
         // find if its dimension or measure
         let dimensionMeasure = field.role.toString().toLowerCase();
@@ -303,8 +314,8 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
         nodeData['dimensionMeasure'] = dimensionMeasure;
 
       } else {
-        const conf:PageWidgetConfiguration = widgetInfo.configuration as PageWidgetConfiguration;
-        nodeData.dataSource = ( 'multi' === conf.dataSource.type ) ? '' : conf.dataSource.name;
+        const conf: PageWidgetConfiguration = widgetInfo.configuration as PageWidgetConfiguration;
+        nodeData.dataSource = ('multi' === conf.dataSource.type) ? '' : conf.dataSource.name;
         nodeData.type = conf.chart.type;
       }
 
@@ -316,21 +327,21 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
     return nodeList;
   } // function - _getTreeData
 
-  /**
-   * 전체 노드 갯수를 반환함
-   * @param {DashboardWidgetRelation[]} nodes
-   * @return {number}
-   * @private
-   */
-  private _getCntNodes(nodes: DashboardWidgetRelation[]) {
-    let cntNodes: number = 0;
-    nodes.forEach(item => {
-      cntNodes++;
-      if (item.children && 0 < item.children.length) {
-        cntNodes += this._getCntNodes(item.children);
-      }
-    });
-    return cntNodes;
-  } // function - _getCntNodes
+  // /**
+  //  * 전체 노드 갯수를 반환함
+  //  * @param {DashboardWidgetRelation[]} nodes
+  //  * @return {number}
+  //  * @private
+  //  */
+  // private _getCntNodes(nodes: DashboardWidgetRelation[]) {
+  //   let cntNodes: number = 0;
+  //   nodes.forEach(item => {
+  //     cntNodes++;
+  //     if (item.children && 0 < item.children.length) {
+  //       cntNodes += this._getCntNodes(item.children);
+  //     }
+  //   });
+  //   return cntNodes;
+  // } // function - _getCntNodes
 
 }

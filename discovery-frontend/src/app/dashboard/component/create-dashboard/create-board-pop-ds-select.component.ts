@@ -13,11 +13,11 @@
  */
 
 import { Component, ElementRef, Injector, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import {ConnectionType, Datasource, Status} from '../../../domain/datasource/datasource';
-import { StringUtil } from '../../../common/util/string.util';
-import { PageResult } from '../../../domain/common/page';
-import { Alert } from '../../../common/util/alert.util';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { StringUtil } from '@common/util/string.util';
+import { Alert } from '@common/util/alert.util';
+import { PageResult } from '@domain/common/page';
+import {ConnectionType, Datasource, Status} from '@domain/datasource/datasource';
 import { WorkspaceService } from '../../../workspace/service/workspace.service';
 
 @Component({

@@ -13,10 +13,10 @@
  */
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { RouterModule, Routes } from '@angular/router';
-import { UserAdminGuard } from '../common/gaurd/userAdmin.guard';
-import { WorkspaceAdminGuard } from '../common/gaurd/workspaceAdmin.guard';
+import { UserAdminGuard } from '@common/gaurd/userAdmin.guard';
+import { WorkspaceAdminGuard } from '@common/gaurd/workspaceAdmin.guard';
 
 const adminRoutes: Routes = [
   { path: '', redirectTo: 'user' },

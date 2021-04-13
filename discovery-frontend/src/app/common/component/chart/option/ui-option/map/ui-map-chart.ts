@@ -61,7 +61,7 @@ export interface UIMapOption extends UIOption {
   upperCorner? : string;
 
   // spatial analysis
-  analysis : any;
+  analysis? : any;
 
   // zoom size
   zoomSize? : number;
