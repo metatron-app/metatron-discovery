@@ -13,8 +13,8 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { CommonUtil } from '../../../common/util/common.util';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { CommonUtil } from '@common/util/common.util';
 
 @Component({
   selector: 'popup-input-namedesc',

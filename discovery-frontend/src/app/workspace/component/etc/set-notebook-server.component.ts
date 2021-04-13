@@ -22,12 +22,12 @@ import {
   Output,
   Renderer2
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {NotebookServerService} from '../../../model-management/notebook-server/service/notebook-server.service';
-import {Page, PageResult} from '../../../domain/common/page';
-import {NotebookConnector} from '../../../domain/notebook/notebookConnector';
+import {Page, PageResult} from '@domain/common/page';
+import {NotebookConnector} from '@domain/notebook/notebookConnector';
 import {WorkspaceService} from '../../service/workspace.service';
-import {Alert} from '../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {NotebookService} from '../../../notebook/service/notebook.service';
 
 @Component({
@@ -140,7 +140,7 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
     promise.push(this.getNotebookServers('jupyter'));
     promise.push(this.getNotebookServers('zeppelin'));
 
-    Promise.all(promise);
+    Promise.all(promise).then();
   }
 
   public close() {
@@ -172,7 +172,7 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
 
     // 워크스페이스에서 사용할 노트북 서버 설정
     this.workspaceService.setNotebookServer(this.workspaceId, selectConnectorIds)
-      .then((result) => {
+      .then((_result) => {
         Alert.success(this.translateService.instant('msg.space.alert.reg.notebook.success'));
         // 로딩 hide
         this.loadingHide();
@@ -297,7 +297,7 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch((_error) => {
         // 로딩 hide
         this.loadingHide();
       });

@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import {ConnectionType, Datasource, Status} from '../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, Status} from '@domain/datasource/datasource';
 import { WorkspaceService } from '../../service/workspace.service';
-import { Page } from '../../../domain/common/page';
-import { Alert } from '../../../common/util/alert.util';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
+import { Page } from '@domain/common/page';
+import { Alert } from '@common/util/alert.util';
+import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
 
 @Component({
   selector: 'app-datasource-view',

@@ -22,13 +22,13 @@ import {
   Output,
   Renderer2
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceService} from '../../service/workspace.service';
-import {Alert} from '../../../common/util/alert.util';
-import {PermissionChecker, Workspace} from '../../../domain/workspace/workspace';
-import {Page} from '../../../domain/common/page';
-import {Modal} from "../../../common/domain/modal";
-import {CommonUtil} from "../../../common/util/common.util";
+import {Alert} from '@common/util/alert.util';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
+import {Page} from '@domain/common/page';
+import {Modal} from "@common/domain/modal";
+import {CommonUtil} from "@common/util/common.util";
 
 @Component({
   selector: 'app-shared-member',
@@ -181,7 +181,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
         this.loadingHide();
         // 수정 알림
         Alert.success(this.translateService.instant(alertSuccess));
-      }).catch((error) => {
+      }).catch((_error) => {
         // 로딩 hide
         this.loadingHide();
         // 수정 알림

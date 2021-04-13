@@ -16,17 +16,17 @@ import {
   Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output, Renderer2,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { UserService } from '../../../user/service/user.service';
-import { User } from '../../../domain/user/user';
-import { Role } from '../../../domain/user/role/role';
+import { User } from '@domain/user/user';
+import { Role } from '@domain/user/role/role';
 import { WorkspaceService } from '../../service/workspace.service';
-import { Alert } from '../../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 import * as _ from 'lodash';
-import { Page } from '../../../domain/common/page';
+import { Page } from '@domain/common/page';
 import { GroupsService } from '../../../admin/user-management/service/groups.service';
-import { Workspace } from '../../../domain/workspace/workspace';
-import { RoleSet } from '../../../domain/user/role/roleSet';
+import { Workspace } from '@domain/workspace/workspace';
+import { RoleSet } from '@domain/user/role/roleSet';
 import { PermissionService } from '../../../user/service/permission.service';
 
 @Component({

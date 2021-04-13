@@ -13,18 +13,18 @@
  */
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Workspace } from '../../../domain/workspace/workspace';
-import { RoleSet, RoleSetScope } from '../../../domain/user/role/roleSet';
+import { Workspace } from '@domain/workspace/workspace';
+import { RoleSet, RoleSetScope } from '@domain/user/role/roleSet';
 import { PermissionService } from '../../../user/service/permission.service';
-import { Role } from '../../../domain/user/role/role';
+import { Role } from '@domain/user/role/role';
 import { WorkspaceService } from '../../service/workspace.service';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
 import { PermissionSchemaSetComponent } from './permission-schema-set.component';
 import * as _ from 'lodash';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { SYSTEM_PERMISSION } from '../../../common/permission/permission';
+import { Alert } from '@common/util/alert.util';
+import { CommonUtil } from '@common/util/common.util';
+import { SYSTEM_PERMISSION } from '@common/permission/permission';
 
 @Component({
   selector: 'app-permission-schema-change',

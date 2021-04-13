@@ -13,41 +13,40 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {CreateWorkbookComponent} from '../workbook/component/create-workbook/create-workbook.component';
-import {CountByBookType, PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
+import {CountByBookType, PermissionChecker, PublicType, Workspace} from '@domain/workspace/workspace';
 import {WorkspaceService} from './service/workspace.service';
 import {ActivatedRoute} from '@angular/router';
-import {Book} from '../domain/workspace/book';
-import {UserProfile} from '../domain/user/user-profile';
+import {Book} from '@domain/workspace/book';
+import {UserProfile} from '@domain/user/user-profile';
 import {DatasourceComponent} from './component/etc/data-source.component';
 import {SharedMemberComponent} from './component/permission/shared-member.component';
 import {UpdateWorkspaceComponent} from './component/management/update-workspace.component';
 import {DeleteWorkspaceComponent} from './component/management/delete-workspace.component';
 import {WorkspaceListComponent} from './component/management/workspace-list.component';
-import {Modal} from '../common/domain/modal';
+import {Modal} from '@common/domain/modal';
 import {WorkbookService} from '../workbook/service/workbook.service';
-import {Alert} from '../common/util/alert.util';
-import {Folder, Hirearchies} from '../domain/workspace/folder';
-import {CommonUtil} from '../common/util/common.util';
-import {Workbook} from '../domain/workbook/workbook';
-import {CommonConstant} from '../common/constant/common.constant';
+import {Alert} from '@common/util/alert.util';
+import {Folder, Hirearchies} from '@domain/workspace/folder';
+import {CommonUtil} from '@common/util/common.util';
+import {Workbook} from '@domain/workbook/workbook';
+import {CommonConstant} from '@common/constant/common.constant';
 import {CreateNotebookComponent} from '../notebook/component/create-notebook/create-notebook.component';
 import {SharedMemberManageComponent} from './component/permission/shared-member-manage.component';
-import {SubscribeArg} from '../common/domain/subscribe-arg';
-import {PopupService} from '../common/service/popup.service';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {PopupService} from '@common/service/popup.service';
 import {SetNotebookServerComponent} from './component/etc/set-notebook-server.component';
 import {isNullOrUndefined} from 'util';
-import {CookieConstant} from '../common/constant/cookie.constant';
-import {DashboardService} from '../dashboard/service/dashboard.service';
-import {EventBroadcaster} from '../common/event/event.broadcaster';
-import {PageResult} from '../domain/common/page';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {PageResult} from '@domain/common/page';
 import {ChangeOwnerWorkspaceComponent} from './component/management/change-owner-workspace.component';
 import {WorkspacePermissionSchemaSetComponent} from './component/permission/workspace-permission-schema-set.component';
-import {ImplementorType, JdbcDialect} from '../domain/dataconnection/dataconnection';
+import {ImplementorType, JdbcDialect} from '@domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
 import {StorageService} from '../data-storage/service/storage.service';
-import {UsedCriteria} from '../common/value/used-criteria.data.value';
+import {UsedCriteria} from '@common/value/used-criteria.data.value';
 
 const DEFAULT_CONTENT_SORT_INDEX = 3;
 const DEFAULT_CONTENT_FILTER_INDEX = 0;
@@ -241,7 +240,6 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   constructor(private broadCaster: EventBroadcaster,
               private workspaceService: WorkspaceService,
               private workbookService: WorkbookService,
-              private dashboardService: DashboardService,
               private activatedRoute: ActivatedRoute,
               private popupService: PopupService,
               protected elementRef: ElementRef,
@@ -1445,7 +1443,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     const bookIds = books.map(item => item.id);
 
     // 호출 건당 5개의 id만 허용하기 때문에 갯수에 맞춰 재배열
-    const reqParams = bookIds.map((book, idx) => {
+    const reqParams = bookIds.map((_book, idx) => {
       return 0 === idx % chunkSize ? bookIds.slice(idx, idx + chunkSize).join(',') : null;
     }).filter((ids) => ids);
 

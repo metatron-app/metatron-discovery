@@ -23,18 +23,18 @@ import {
   Renderer2,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceService} from '../../service/workspace.service';
 import {CreateWorkspaceComponent} from './create-workspace.component';
-import {Page} from '../../../domain/common/page';
-import {PermissionChecker, Workspace} from '../../../domain/workspace/workspace';
-import {Alert} from '../../../common/util/alert.util';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../common/domain/modal';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
-import {SYSTEM_PERMISSION} from '../../../common/permission/permission';
-import {CommonUtil} from '../../../common/util/common.util';
+import {Page} from '@domain/common/page';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
+import {Alert} from '@common/util/alert.util';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-workspace-list',
@@ -165,7 +165,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
    * @param {string} id
    */
   public onWorkspaceCreateComplete(id: string) {
-    this.router.navigate(['/workspace', id]);
+    this.router.navigate(['/workspace', id]).then();
   }
 
   /**

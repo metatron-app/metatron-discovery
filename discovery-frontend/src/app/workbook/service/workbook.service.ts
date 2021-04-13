@@ -17,13 +17,13 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import { AbstractService } from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { Book } from '../../domain/workspace/book';
-import { Workbook, WorkbookDetailProjections } from '../../domain/workbook/workbook';
-import { CommonUtil } from '../../common/util/common.util';
-import { Page } from '../../domain/common/page';
-import { Comment } from '../../domain/comment/comment';
+import { Book } from '@domain/workspace/book';
+import { Workbook, WorkbookDetailProjections } from '@domain/workbook/workbook';
+import { CommonUtil } from '@common/util/common.util';
+import { Page } from '@domain/common/page';
+import { Comment } from '@domain/comment/comment';
 
 @Injectable()
 export class WorkbookService extends AbstractService {

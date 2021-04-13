@@ -21,15 +21,15 @@ import {
   OnDestroy,
   OnInit
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {RoleSet} from '../../../domain/user/role/roleSet';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {RoleSet} from '@domain/user/role/roleSet';
 import {Role} from 'app/domain/user/role/role';
 import {PermissionService} from '../../../user/service/permission.service';
 import * as _ from 'lodash';
 import {CommonUtil} from 'app/common/util/common.util';
 import {WORKSPACE_PERMISSION} from 'app/common/permission/permission';
 import {isNullOrUndefined} from "util";
-import {Alert} from "../../../common/util/alert.util";
+import {Alert} from "@common/util/alert.util";
 
 @Component({
   selector: 'app-permission-schema',
@@ -199,7 +199,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
    */
   public togglePerm(role: Role, permKey: string) {
     if (this.editMode) {
-      let isAdd: boolean = true;
+      let isAdd: boolean;
       if (role.permissionNames) {
         const permIdx: number = role.permissionNames.indexOf(permKey);
         if (-1 === permIdx) {
@@ -222,7 +222,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
 
   /**
    * defaultRole 체크 클릭 ( 수정모드일때만 동작 )
-   * @param {Role} selectedRole
+   * @param idx
    */
   public clickDefaultRole(idx: number) {
     if (this.editMode) {

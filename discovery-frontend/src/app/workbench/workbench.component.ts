@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   AfterViewInit,
   Component,
@@ -23,49 +23,37 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {GridComponent} from '../common/component/grid/grid.component';
-import {header, SlickGridHeader} from '../common/component/grid/grid.header';
-import {GridOption} from '../common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
 import {ActivatedRoute} from '@angular/router';
 import {WorkbenchService} from './service/workbench.service';
-import {QueryEditor, Workbench} from '../domain/workbench/workbench';
-import {Alert} from '../common/util/alert.util';
-import {DetailWorkbenchTable} from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
-import {CommonConstant} from '../common/constant/common.constant';
-import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
-import {Modal} from '../common/domain/modal';
-import {UserDetail} from '../domain/common/abstract-history-entity';
-import {StringUtil} from '../common/util/string.util';
-import {CookieConstant} from '../common/constant/cookie.constant';
+import {QueryEditor, Workbench} from '@domain/workbench/workbench';
+import {Alert} from '@common/util/alert.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {UserDetail} from '@domain/common/abstract-history-entity';
+import {StringUtil} from '@common/util/string.util';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {isNullOrUndefined, isUndefined} from 'util';
-import {LoadingComponent} from '../common/component/loading/loading.component';
+import {LoadingComponent} from '@common/component/loading/loading.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
-import {PageWidget} from '../domain/dashboard/widget/page-widget';
-import {BoardConfiguration, BoardDataSource, Dashboard} from '../domain/dashboard/dashboard';
-import {
-  ConnectionType,
-  Datasource,
-  Field,
-  IngestionRuleType
-} from '../domain/datasource/datasource';
-import {Workbook} from '../domain/workbook/workbook';
+import {PageWidget} from '@domain/dashboard/widget/page-widget';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '@domain/dashboard/dashboard';
+import {ConnectionType, Datasource, Field, IngestionRuleType} from '@domain/datasource/datasource';
+import {Workbook} from '@domain/workbook/workbook';
 import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
-import {CommonUtil} from '../common/util/common.util';
+import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
-import {SYSTEM_PERMISSION} from '../common/permission/permission';
-import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
 import {WorkspaceService} from '../workspace/service/workspace.service';
 import {CodemirrorComponent} from './component/editor-workbench/codemirror.component';
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
-import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 import {Message} from '@stomp/stompjs';
-import {
-  AuthenticationType,
-  Dataconnection,
-  InputMandatory,
-  InputSpec
-} from "../domain/dataconnection/dataconnection";
+import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from "@domain/dataconnection/dataconnection";
 
 declare let moment: any;
 declare let Split;
@@ -84,17 +72,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild('main')
   private gridComponent: GridComponent;
 
-  @ViewChild('gridWrapElement')
-  private gridWrapElement: ElementRef;
-
   @ViewChild(DeleteModalComponent)
   private deleteModalComponent: DeleteModalComponent;
 
   @ViewChild(CodemirrorComponent)
   private editor: CodemirrorComponent;
-
-  @ViewChild(DetailWorkbenchTable)
-  private detailWorkbenchTable: DetailWorkbenchTable;
 
   @ViewChild(LoadingComponent)
   private loadingBar: LoadingComponent;
@@ -125,17 +107,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild('editorResultListMax')
   private _editorResultListMax: ElementRef;
 
-  @ViewChild('questionLayout')
-  private _questionLayout: ElementRef;
-
-  @ViewChild('questionWrap')
-  private _questionWrap: ElementRef;
-
   @ViewChild(SaveAsHiveTableComponent)
   private saveAsHiveTableComponent: SaveAsHiveTableComponent;
-
-  @ViewChild(DetailWorkbenchDatabase)
-  private detailWorkbenchDatabase: DetailWorkbenchDatabase;
 
   private _executeSqlReconnectCnt: number = 0;
   private _checkQueryStatusReconnectCnt: number = 0;
@@ -759,7 +732,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
   }
 
-  public showResultTabTooltip(event: MouseEvent, idx: number) {
+  public showResultTabTooltip(event: MouseEvent, _idx: number) {
     event.stopPropagation();
 
     const resultTab = 'LI' === event.target['tagName'] ? $(event.target) : $(event.target).closest('li');
@@ -1572,8 +1545,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           tab.log = [];
 
           if (result === undefined) {
-            const queryResult: QueryResult = new QueryResult();
-            tab.result = queryResult;
+            tab.result = new QueryResult();
           } else {
             const queryResult: QueryResult = new QueryResult();
             queryResult.fields = metadata.queryResult.fields;
@@ -1905,7 +1877,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
     const data: any = currentTab.result;
-    const headers: header[] = [];
+    const headers: Header[] = [];
     if (!data || !data.fields) {
       $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
       currentTab.showLog = false;
@@ -1985,7 +1957,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       const $gridViewport = $('.slick-viewport');
       const $gridCanvas = $('.grid-canvas');
       this._gridScrollEvtSub
-        = this.gridComponent.grid.onScroll.subscribe((data1, data2) => {
+        = this.gridComponent.grid.onScroll.subscribe((_data1, data2) => {
         if (0 < data2.scrollTop) {
           this.hideResultButtons = (data2.scrollTop > ($gridCanvas.height() - $gridViewport.height() - 10));
           this.safelyDetectChanges();
@@ -2109,7 +2081,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       cookieWorkspace = JSON.parse(cookieWs);
     }
     if (null !== cookieWorkspace) {
-      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]);
+      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
     }
   }
 
@@ -2493,7 +2465,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       direction: 'horizontal',
       sizes: [20, 80],
       minSize: 230,
-      elementStyle: (dimension, size, gutterSize) => {
+      elementStyle: (_dimension, size, _gutterSize) => {
         // console.log( dimension, size, gutterSize );
         return {'width': `${size}%`};
       },

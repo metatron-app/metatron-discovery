@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { WorkbenchShareModule } from './workbench-share.module';
@@ -27,9 +27,9 @@ import { DataconnectionService } from '../dataconnection/service/dataconnection.
 import { WorkbenchEditorModule } from './workbench.editor.module';
 import {AnalysisPredictionService} from "../page/component/analysis/service/analysis.prediction.service";
 import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
-import { CodemirrorComponent } from '../workbench/component/editor-workbench/codemirror.component';
+import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
-import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
+import { CanDeactivateGuard } from '@common/gaurd/can.deactivate.guard';
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 

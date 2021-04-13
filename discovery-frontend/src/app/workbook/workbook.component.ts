@@ -25,32 +25,32 @@ import {
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import {ClipboardService} from 'ngx-clipboard';
-import {AbstractComponent} from '../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {ActivatedRoute} from '@angular/router';
-import {Workbook, WorkbookDetailProjections} from '../domain/workbook/workbook';
+import {Workbook, WorkbookDetailProjections} from '@domain/workbook/workbook';
 import {WorkbookService} from './service/workbook.service';
-import {PopupService} from '../common/service/popup.service';
-import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
-import {Modal} from '../common/domain/modal';
-import {Alert} from '../common/util/alert.util';
-import {UserProfile} from '../domain/user/user-profile';
-import {BoardDataSource, Dashboard, PresentationDashboard} from '../domain/dashboard/dashboard';
+import {PopupService} from '@common/service/popup.service';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {UserProfile} from '@domain/user/user-profile';
+import {BoardDataSource, Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
 import {DragDropConfig, DragDropService, DragDropSortableService, SortableContainer} from 'ng2-dnd';
 import {DashboardService} from '../dashboard/service/dashboard.service';
-import {Comment, Comments} from '../domain/comment/comment';
-import {CookieConstant} from '../common/constant/cookie.constant';
-import {MomentPipe} from '../common/pipe/moment.pipe';
-import {MomentDatePipe} from '../common/pipe/moment.date.pipe';
-import {StringUtil} from '../common/util/string.util';
-import {CommonUtil} from '../common/util/common.util';
+import {Comment, Comments} from '@domain/comment/comment';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {MomentPipe} from '@common/pipe/moment.pipe';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
 import {WorkspaceService} from '../workspace/service/workspace.service';
-import {PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
+import {PermissionChecker, PublicType, Workspace} from '@domain/workspace/workspace';
 import {DashboardComponent} from '../dashboard/dashboard.component';
 import {Page, PageResult} from 'app/domain/common/page';
 import {UpdateDashboardComponent} from '../dashboard/update-dashboard.component';
 import {PopupInputNameDescComponent} from './component/popup-input-workbook/popup-input-namedesc.component';
-import {EventBroadcaster} from '../common/event/event.broadcaster';
-import {Datasource} from '../domain/datasource/datasource';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Datasource} from '@domain/datasource/datasource';
 import {WidgetService} from "../dashboard/service/widget.service";
 import {DashboardUtil} from "../dashboard/util/dashboard.util";
 
@@ -98,9 +98,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 워크스페이스 권한 확인기
   private _permissionChecker: PermissionChecker;
 
-  // Dashboard util for getDashboardImage
-  private dashboardUtil: DashboardUtil = new DashboardUtil();
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -108,6 +105,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Dashboard util for getDashboardImage
+  public dashboardUtil: DashboardUtil = new DashboardUtil();
 
   // 대시보드 모드 : VIEW, UPDATE
   public mode: string;

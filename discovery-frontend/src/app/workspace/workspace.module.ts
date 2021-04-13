@@ -14,7 +14,7 @@
 
 import { NgModule } from '@angular/core';
 import { WorkspaceComponent } from './workspace.component';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { RouterModule, Routes } from '@angular/router';
 import { CreateWorkbookComponent } from '../workbook/component/create-workbook/create-workbook.component';
 import { WorkspaceService } from './service/workspace.service';
@@ -27,7 +27,7 @@ import { DatasourceService } from '../datasource/service/datasource.service';
 import { DatasourceShareModule } from '../datasource/datasource-share.module';
 import { WorkspaceShareModule } from './workspace-share.module';
 import { CreateNotebookComponent } from '../notebook/component/create-notebook/create-notebook.component';
-import { PopupService } from '../common/service/popup.service';
+import { PopupService } from '@common/service/popup.service';
 import { WorkbenchShareModule } from '../workbench/workbench-share.module';
 import { NotebookShareModule } from '../notebook/notebook-share.module';
 import { SetNotebookServerComponent } from './component/etc/set-notebook-server.component';

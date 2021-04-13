@@ -22,14 +22,14 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {PublicType, Workspace} from '../../../domain/workspace/workspace';
+import {PublicType, Workspace} from '@domain/workspace/workspace';
 import {CommonUtil} from 'app/common/util/common.util';
-import {Alert} from '../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {WorkspaceService} from '../../service/workspace.service';
 import {PermissionService} from '../../../user/service/permission.service';
-import {RoleSet, RoleSetScope} from '../../../domain/user/role/roleSet';
+import {RoleSet, RoleSetScope} from '@domain/user/role/roleSet';
 import {PermissionSchemaComponent} from '../permission/permission-schema.component';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
 import {PermissionSchemaSetComponent} from '../permission/permission-schema-set.component';
 
@@ -178,7 +178,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
           this.sharedWorkspaceList = [];
         }
 
-      }).catch((error) => {
+      }).catch((_error) => {
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         this.loadingHide();
       });

@@ -13,8 +13,8 @@
  */
 
 import { ElementRef, EventEmitter, Injector, Output, OnInit, OnDestroy, ViewChild, Component } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Workspace } from '../../../domain/workspace/workspace';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Workspace } from '@domain/workspace/workspace';
 import { RoleSet, RoleSetScope } from 'app/domain/user/role/roleSet';
 import { PermissionService } from '../../../user/service/permission.service';
 import { PermissionSchemaComponent } from './permission-schema.component';

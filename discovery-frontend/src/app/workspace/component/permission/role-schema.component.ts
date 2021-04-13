@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { Role } from '../../../domain/user/role/role';
+import { Role } from '@domain/user/role/role';
 import * as _ from 'lodash';
 
 @Component({

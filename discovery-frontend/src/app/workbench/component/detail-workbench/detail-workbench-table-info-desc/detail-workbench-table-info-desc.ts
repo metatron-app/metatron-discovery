@@ -18,7 +18,6 @@ import {
 } from '@angular/core';
 import { isUndefined } from 'util';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
 import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 import { WorkbenchService } from '../../../service/workbench.service';
