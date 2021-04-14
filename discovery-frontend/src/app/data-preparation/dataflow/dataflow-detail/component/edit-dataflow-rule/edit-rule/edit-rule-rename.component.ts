@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from 'util';
-import {RenameRule} from "../../../../../../domain/data-preparation/prep-rules";
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { Alert } from '@common/util/alert.util';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {RenameRule} from '@domain/data-preparation/prep-rules';
+import { EditRuleComponent } from './edit-rule.component';
 
 @Component({
   selector: 'edit-rule-rename',
@@ -85,7 +85,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return {{command: string, to: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, to: string, col: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, to: string, col: string, ruleString: string, uiRuleString: object } {
 
 
     // Check if at least one column is selected
@@ -112,7 +112,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       return undefined;
     }
 
-    let selectedFieldName:string = this.selectedFields[0].name;
+    const selectedFieldName:string = this.selectedFields[0].name;
 
     return {
       command: 'rename',
@@ -177,7 +177,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   protected parsingRuleString(data: {jsonRuleString : RenameRule}) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
+    const arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // NEW COLUMN NAME

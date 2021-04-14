@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -21,18 +23,16 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {PrDataflow} from '@domain/data-preparation/pr-dataflow';
 import {DataflowService} from './service/dataflow.service';
-import {PrDataflow} from '../../domain/data-preparation/pr-dataflow';
-import {Modal} from '../../common/domain/modal';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Alert} from '../../common/util/alert.util';
-import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
 import {CreateDataflowNameDescComponent} from './create-dataflow-name-desc.component';
-import {isNullOrUndefined} from "util";
-import {StringUtil} from "../../common/util/string.util";
-import {ActivatedRoute} from "@angular/router";
-import * as _ from 'lodash';
 
 @Component({
   selector: 'app-dataflow',
@@ -223,7 +223,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
       // Get dataflow list again
       this.reloadPage(false);
 
-    }).catch((error) => {
+    }).catch(() => {
       Alert.error(this.translateService.instant('msg.dp.alert.del.fail'));
       this.loadingHide();
     });
@@ -245,8 +245,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     this.dataflowService.getDataflowList(params).then((data) => {
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
-      let nullOrUndefined = isNullOrUndefined(data['_embedded']);
-      let preparationdatasets = data['_embedded'].preparationdatasets;
+      const nullOrUndefined = isNullOrUndefined(data['_embedded']);
+      const preparationdatasets = data['_embedded'].preparationdatasets;
 
       if (this.page.page > 0 &&
         (nullOrUndefined || (!nullOrUndefined && preparationdatasets && preparationdatasets.length === 0)))
@@ -308,7 +308,6 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
   }
 
-
   /**
    * 페이지 변경
    * @param data
@@ -321,6 +320,18 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
       this.reloadPage(false);
     }
   } // function - changePage
+
+  /**
+   * @param event Event
+   */
+  @HostListener('document:keydown.enter', ['$event'])
+  public onEnterKeydownHandler(event: KeyboardEvent) {
+    if(event.keyCode === 13  && this.deleteModalComponent.isShow) {
+      this.deleteModalComponent.done();
+    } else if (event.keyCode === 13 && this.createDataflowComponent.isShow) {
+      this.createDataflowComponent.createDataflow();
+    }
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -328,19 +339,6 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * @param event Event
-   */
-  @HostListener('document:keydown.enter', ['$event'])
-  private _onEnterKeydownHandler(event: KeyboardEvent) {
-    if(event.keyCode === 13  && this.deleteModalComponent.isShow) {
-      this.deleteModalComponent.done();
-    } else if (event.keyCode === 13 && this.createDataflowComponent.isShow) {
-      this.createDataflowComponent.createDataflow();
-    }
-  }
-
-
   /**
    * Returns parameter for dataflow list
    * @private

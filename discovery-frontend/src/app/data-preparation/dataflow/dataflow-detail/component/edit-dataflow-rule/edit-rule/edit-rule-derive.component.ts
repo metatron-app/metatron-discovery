@@ -12,19 +12,27 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
-} from '@angular/core';
-import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import {isNullOrUndefined, isUndefined} from "util";
-import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import * as _ from 'lodash';
-import {DeriveRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {isNullOrUndefined, isUndefined} from 'util';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {DeriveRule} from '@domain/data-preparation/prep-rules';
+import {RuleSuggestInputComponent} from './rule-suggest-input.component';
+import {EditRuleComponent} from './edit-rule.component';
 
 @Component({
-  selector : 'edit-rule-derive',
-  templateUrl : './edit-rule-derive.component.html'
+  selector: 'edit-rule-derive',
+  templateUrl: './edit-rule-derive.component.html'
 })
 export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -33,7 +41,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @ViewChild('derive_value_input')
-  private valueInput : RuleSuggestInputComponent;
+  private valueInput: RuleSuggestInputComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -42,10 +50,9 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public deriveVal:string;
-  public deriveAs:string;
-  public isTooltipShow:boolean = false;
-//  public forceCondition : string = '';
+  public deriveVal: string;
+  public deriveAs: string;
+  public isTooltipShow: boolean = false;
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -95,26 +102,26 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return
    */
-  public getRuleData(): { command: string, ruleString:string, uiRuleString: DeriveRule} {
-    
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: DeriveRule } {
+
     this.deriveVal = this.valueInput.getFormula();
-    let val = _.cloneDeep(this.deriveVal);
+    const val = _.cloneDeep(this.deriveVal);
 
     if (isUndefined(val) || '' === val || '\'\'' === val) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined
     }
-    
+
     if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
       return undefined
     }
 
-    let deriveAs : string  = '';
+    let deriveAs: string;
     if (this.deriveAs.indexOf(' ') === -1) {
       deriveAs = `'${this.deriveAs}'`;
     } else {
-      deriveAs = '`' +this.deriveAs + '`';
+      deriveAs = '`' + this.deriveAs + '`';
     }
 
     return {
@@ -127,18 +134,18 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
         isBuilder: true
       }
     }
-    
+
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-`   * Open advanced editor popup
+   * Open advanced editor popup
    */
   public openPopupFormulaInput() {
     this.deriveVal = this.valueInput.getFormula();
-    this.advancedEditorClickEvent.emit({command :'derive', val : 'deriveVal' });
+    this.advancedEditorClickEvent.emit({command: 'derive', val: 'deriveVal'});
   } // function - openPopupFormulaInput
 
   /**
@@ -158,7 +165,8 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - beforeShowComp
+  protected beforeShowComp() {
+  } // function - beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
@@ -175,7 +183,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * parse rule string
    * @param data ({jsonRuleString : DeriveRule})
    */
-  protected parsingRuleString(data: {jsonRuleString : DeriveRule}) {
+  protected parsingRuleString(data: { jsonRuleString: DeriveRule }) {
 
     this.deriveVal = data.jsonRuleString.expression;
     this.deriveAs = data.jsonRuleString.newCol;

@@ -12,22 +12,29 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
+import {isUndefined} from 'util';
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import {ReplaceRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {ReplaceRule} from '@domain/data-preparation/prep-rules';
+import {EditRuleComponent} from './edit-rule.component';
+import {RuleSuggestInputComponent} from './rule-suggest-input.component';
 
 @Component({
-  selector : 'edit-rule-replace',
-  templateUrl : './edit-rule-replace.component.html'
+  selector: 'edit-rule-replace',
+  templateUrl: './edit-rule-replace.component.html'
 })
 export class EditRuleReplaceComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -37,7 +44,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   private _patternValue: ElementRef;
 
   @ViewChild('replace_row_input')
-  private rowInput : RuleSuggestInputComponent;
+  private rowInput: RuleSuggestInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -51,16 +58,17 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   public advancedEditorClickEvent = new EventEmitter();
 
   // T/F
-  public isFocus:boolean = false;         // Input Focus t/f
-  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+  public isFocus: boolean = false;         // Input Focus t/f
+  public isTooltipShow: boolean = false;   // Tooltip Show/Hide
 
   // Rule
-  public pattern:string = '';
-  public newValue:string = '';
-  public ignore:string = '';
-  public condition:string = '';
-  public isGlobal:boolean = true;
-  public isIgnoreCase:boolean = false;
+  public pattern: string = '';
+  public newValue: string = '';
+  public ignore: string = '';
+  public condition: string = '';
+  public isGlobal: boolean = true;
+  public isIgnoreCase: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -106,7 +114,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
+    const patternResult: [boolean, string] = StringUtil.checkSingleQuote(clonedPattern, {isWrapQuote: !StringUtil.checkRegExp(clonedPattern)});
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
       return undefined;
@@ -116,7 +124,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     // new val
     let clonedNewValue = this.newValue;
     if (!isUndefined(clonedNewValue) && '' !== clonedNewValue) {
-      let withVal = StringUtil.checkSingleQuote(clonedNewValue, { isPairQuote: true, isWrapQuote: true });
+      const withVal = StringUtil.checkSingleQuote(clonedNewValue, {isPairQuote: true, isWrapQuote: true});
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('mgs.dp.alert.check.new.val'));
         return undefined;
@@ -127,11 +135,11 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       clonedNewValue = '\'\'';
     }
 
-    let ruleString = `replace col: ${this.getColumnNamesInArray(this.selectedFields,true).toString()} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;
+    let ruleString = `replace col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;
 
     // Ignore between characters
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
-      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
+      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), {isWrapQuote: true});
       if (checkIgnore[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
         return undefined;
@@ -142,9 +150,9 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
     // condition
     this.condition = this.rowInput.getFormula();
-    let clonedCondition = this.condition;
+    const clonedCondition = this.condition;
     if (!isUndefined(clonedCondition) && '' !== clonedCondition.trim() && '\'\'' !== clonedCondition.trim()) {
-      let check = StringUtil.checkSingleQuote(clonedCondition, { isPairQuote: true });
+      const check = StringUtil.checkSingleQuote(clonedCondition, {isPairQuote: true});
       if (check[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
         return undefined;
@@ -153,8 +161,8 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       }
     }
 
-    return{
-      command : 'replace',
+    return {
+      command: 'replace',
       ruleString: ruleString,
       uiRuleString: {
         name: 'replace',
@@ -178,7 +186,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -186,8 +194,8 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * show pattern info tooltip
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
     this.isFocus = isShow;
   } // function - showHidePatternLayer
 
@@ -196,7 +204,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    */
   public openPopupFormulaInput() {
     this.condition = this.rowInput.getFormula();
-    this.advancedEditorClickEvent.emit({command : 'replace', val : 'condition'});
+    this.advancedEditorClickEvent.emit({command: 'replace', val: 'condition'});
   } // function - openPopupFormulaInput
 
   /**
@@ -216,7 +224,8 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * Before component is shown
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * After component is shown
@@ -234,11 +243,11 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * Returns rule string
    * @param data ({ruleString : string, jsonRuleString : ReplaceRule})
    */
-  protected parsingRuleString(data: {jsonRuleString : ReplaceRule}) {
+  protected parsingRuleString(data: { jsonRuleString: ReplaceRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     this.newValue = data.jsonRuleString.newVal;
 

@@ -12,20 +12,19 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { PrDataflow, Dataflows } from '../../../domain/data-preparation/pr-dataflow';
-import { PrDataset, Datasets } from '../../../domain/data-preparation/pr-dataset';
-import { PrDataSnapshot } from '../../../domain/data-preparation/pr-snapshot';
-import { Page } from '../../../domain/common/page';
-import { CommonUtil } from '../../../common/util/common.util';
-import { StringUtil } from '../../../common/util/string.util';
-import { Loading } from '../../../common/util/loading.util';
-import { isNullOrUndefined, isUndefined } from 'util';
-import { PreparationAlert } from '../../util/preparation-alert.util';
-import { PopupService } from '../../../common/service/popup.service';
-import { TranslateService } from '@ngx-translate/core';
-import {SnapShotCreateDomain} from "../../component/create-snapshot-popup.component";
+import {isNullOrUndefined, isUndefined} from 'util';
+import {Injectable, Injector} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {Loading} from '@common/util/loading.util';
+import {Page} from '@domain/common/page';
+import {PopupService} from '@common/service/popup.service';
+import {AbstractService} from '@common/service/abstract.service';
+import {Dataflows, PrDataflow} from '@domain/data-preparation/pr-dataflow';
+import {Datasets, PrDataset} from '@domain/data-preparation/pr-dataset';
+import {PreparationAlert} from '../../util/preparation-alert.util';
+import {SnapShotCreateDomain} from '../../component/create-snapshot-popup.component';
 
 @Injectable()
 export class DataflowService extends AbstractService {
@@ -40,7 +39,7 @@ export class DataflowService extends AbstractService {
   }
 
   public getParamsForDataflowList() {
-    return this.dataflowListParams?this.dataflowListParams:{};
+    return this.dataflowListParams ? this.dataflowListParams : {};
   }
 
   public setParamsForDataflowList(params: any) {
@@ -78,7 +77,7 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터셋 목록 조회
-  public getDatasets(searchText: string, page: Page, projection?: string, dsType: string = '', importType: string = ''): Promise<Datasets> {
+  public getDatasets(searchText: string, page: Page, _projection?: string, dsType: string = '', _importType: string = ''): Promise<Datasets> {
 
     let url = this.API_URL + `preparationdatasets/search/`;
 
@@ -90,29 +89,25 @@ export class DataflowService extends AbstractService {
     }
 
     url += `&dsName=${encodeURIComponent(searchText)}`;
-    //url += `&projection=${projection}`;
     url += '&' + CommonUtil.objectToUrlString(page);
     return this.get(url);
   }
 
   // 데이터셋 상세 조회
-  //public getDataset(dsId: string): Promise<Dataset> {
   public getDataset(dsId: string): Promise<PrDataset> {
-    //const url = this.API_URL + 'preparationdatasets/' + dsId + '?projection=detail';
     const url = this.API_URL + 'preparationdatasets/' + dsId + '?preview=true';
     return this.get(url);
   }
 
   // 데이터 플로우 생성
-  //public createDataflow(dataflow: Dataflow) {
   public createDataflow(dataflow: PrDataflow) {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     return this.post(this.API_URL + 'preparationdataflows', dataflow)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -121,13 +116,13 @@ export class DataflowService extends AbstractService {
 
   // 데이터 플로우 삭제
   public deleteDataflow(dfId: string) {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     return this.delete(this.API_URL + 'preparationdataflows/' + dfId)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -135,15 +130,14 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 플로우 수정
-  //public updateDataflow(dataflow: any): Promise<Dataflow> {
   public updateDataflow(dataflow: any): Promise<PrDataflow> {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     return this.patch(this.API_URL + 'preparationdataflows/' + dataflow.dfId, dataflow)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -152,14 +146,14 @@ export class DataflowService extends AbstractService {
 
   // 데이터 플로우 룰생성
   public createWrangledDataset(datasetId: string, dataflowId: string): Promise<any> {
-    let popupService = this.popupService;
-    const params = { dfId: dataflowId };
+    const popupService = this.popupService;
+    const params = {dfId: dataflowId};
     return this.post(this.API_URL + `preparationdatasets/${datasetId}/transform`, params)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -167,7 +161,7 @@ export class DataflowService extends AbstractService {
   }
 
   // transform action GET or PUT
-  public transformAction(id: string, method: string, params : any ): Promise<any> {
+  public transformAction(id: string, method: string, params: any): Promise<any> {
     if (method === 'put') {
       return this.put(this.API_URL + `preparationdatasets/${id}/transform`, params)
 
@@ -190,7 +184,7 @@ export class DataflowService extends AbstractService {
 
 
   // Wrangled 데이터셋 조회 (조인과 유니온에서 사용)
-  public getDatasetWrangledData(datasetId: string, count?: number, pageNum?: number, ruleIdx?: number): Promise<any> {
+  public getDatasetWrangledData(datasetId: string, count?: number, pageNum?: number, _ruleIdx?: number): Promise<any> {
 
     // TODO : temp value
     count = 1000;
@@ -215,13 +209,13 @@ export class DataflowService extends AbstractService {
 
   // fileUri등 설정 정보
   public getConfiguration(datasetId: string): Promise<any> {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform/configuration`)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -230,13 +224,13 @@ export class DataflowService extends AbstractService {
 
   // 데이터 스냅샷 생성
   public createDataSnapshot(datasetId: string, datasnapshot: SnapShotCreateDomain): Promise<any> {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     return this.post(this.API_URL + `preparationdatasets/${datasetId}/transform/snapshot`, datasnapshot)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -245,14 +239,14 @@ export class DataflowService extends AbstractService {
 
   // 룰 적용
   public applyRules(datasetId: string, param: any): Promise<any> {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     param['count'] = 100;
     return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, param)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -265,7 +259,7 @@ export class DataflowService extends AbstractService {
     return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform?searchWord=` + encodeURIComponent(searchWord) + '&targetLines=' + count)
   */
   public getSearchCountDataSets(datasetId: string, ruleIdx?: number, pageNum?: number, count?: number) {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     let url = this.API_URL + `preparationdatasets/${datasetId}/transform`;
 
     const params: string[] = [];
@@ -284,7 +278,7 @@ export class DataflowService extends AbstractService {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -293,13 +287,13 @@ export class DataflowService extends AbstractService {
 
   // when editing, getting previous data
   public fetchPreviousData(datasetId: string, op: any): Promise<any> {
-    let popupService = this.popupService;
+    const popupService = this.popupService;
     return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, op)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
           PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
+          popupService.notiPopup({name: 'update-dataflow', data: null});
           return Promise.reject(null);
         }
         throw error;
@@ -316,17 +310,16 @@ export class DataflowService extends AbstractService {
    * @return {Promise<any>}
    */
   public cloneWrangledDataset(dsId: string): Promise<any> {
-    let params = {};
+    const params = {};
     return this.post(this.API_URL + `preparationdatasets/${dsId}/clone`, params);
   }
 
 
-
   public autoComplete(ruleString: string, ruleCommand: string, rulePart: string): Promise<any> {
-    let params = {
-      'ruleString': ruleString,
-      'ruleCommand': ruleCommand,
-      'rulePart': rulePart
+    const params = {
+      ruleString: ruleString,
+      ruleCommand: ruleCommand,
+      rulePart: rulePart
     };
     return this.post(this.API_URL + `preparationdatasets/autocomplete`, params);
   }
@@ -363,9 +356,9 @@ export class DataflowService extends AbstractService {
    * @param colNames
    * @return {Promise<any>}
    */
-  public getTimestampFormatSuggestions(datasetId : string, colNames : any ) : Promise<any> {
-    let url = this.API_URL + `preparationdatasets/${datasetId}/transform/timestampFormat`;
-    return this.post(url,colNames);
+  public getTimestampFormatSuggestions(datasetId: string, colNames: any): Promise<any> {
+    const url = this.API_URL + `preparationdatasets/${datasetId}/transform/timestampFormat`;
+    return this.post(url, colNames);
   }
 
 
@@ -374,7 +367,7 @@ export class DataflowService extends AbstractService {
    * @return {Promise<any>}
    */
   public getWorkList(params): Promise<any> {
-    let url = this.API_URL + 'preparationsnapshots/' + params.dsId + '/work_list';
+    const url = this.API_URL + 'preparationsnapshots/' + params.dsId + '/work_list';
     return this.get(url);
   }
 
@@ -384,13 +377,13 @@ export class DataflowService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getFunctionList(): Promise<any> {
-    let url = this.API_URL + `preparationdatasets/function_list`;
+    const url = this.API_URL + `preparationdatasets/function_list`;
     return this.get(url);
   }
 
 
-  public swapDataset(param : any): Promise<any> {
-    let url = this.API_URL + `preparationdataflows/${param.dfId}/swap_upstream`;
+  public swapDataset(param: any): Promise<any> {
+    const url = this.API_URL + `preparationdataflows/${param.dfId}/swap_upstream`;
     delete param.dfId;
     return this.post(url, param);
   }

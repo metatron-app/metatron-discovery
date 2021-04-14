@@ -12,20 +12,31 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import {PrDatasetFile, SheetInfo, FileFormat} from '../../../domain/data-preparation/pr-dataset';
-import { DatasetService } from '../service/dataset.service';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-
-import { isNull, isNullOrUndefined } from 'util';
 import * as pixelWidth from 'string-pixel-width';
-import {PreparationCommonUtil} from "../../util/preparation-common.util";
-import {CommonUtil} from "../../../common/util/common.util";
-import {Alert} from "../../../common/util/alert.util";
+import {isNull, isNullOrUndefined} from 'util';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {PopupService} from '@common/service/popup.service';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {FileFormat, PrDatasetFile, SheetInfo} from '@domain/data-preparation/pr-dataset';
+
+import {PreparationCommonUtil} from '../../util/preparation-common.util';
+import {DatasetService} from '../service/dataset.service';
 
 @Component({
   selector: 'app-create-dataset-selectsheet',
@@ -61,24 +72,25 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public settingFoldFlag: boolean = false;
 
   // grid hide
-  public clearGrid : boolean = false;
+  public clearGrid: boolean = false;
 
   public isNext: boolean = false;
 
-  public isDelimiterRequired : boolean = false;
-  public isColumnCountRequired : boolean = false;
+  public isDelimiterRequired: boolean = false;
+  public isColumnCountRequired: boolean = false;
 
-  public currDelimiter : string = '';
+  public currDelimiter: string = '';
   public currQuote: string = '';
-  public currSheetIndex : number = 0;
+  public currSheetIndex: number = 0;
   public currDSIndex: number = 0;
-  public currDetail : {fileFormat: FileFormat, detailName: string, columns: number} ;
+  public currDetail: { fileFormat: FileFormat, detailName: string, columns: number };
   public currColumnCount: number;
   public prevColumnCount: number;
 
-  public previewErrorMsg : string = '';
+  public previewErrorMsg: string = '';
 
   public fileFormat = FileFormat;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -115,7 +127,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.datasetFiles[index].selectedSheets = [];
         this.datasetFiles[index].selected = false;
 
-        if(index === 0) {
+        if (index === 0) {
           this.currDelimiter = (this.isCSV ? ',' : '');
           this.currQuote = (this.isCSV ? '\"' : '');
         }
@@ -139,11 +151,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.currQuote = this.isCSV ? this.datasetFiles[this.currDSIndex].quoteChar : '\"';
 
       // 컬럼 카운트 설정
-      this.currColumnCount = ( this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0 );
+      this.currColumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : 0);
       this.prevColumnCount = this.currColumnCount;
 
       // Error message 있으면 보여준다.
-      this.previewErrorMsg = (this.datasetFiles[this.currDSIndex].error? this.translateService.instant(this.datasetFiles[this.currDSIndex].error.message) : '');
+      this.previewErrorMsg = (this.datasetFiles[this.currDSIndex].error ? this.translateService.instant(this.datasetFiles[this.currDSIndex].error.message) : '');
 
       // 상세 정보 설정
       this._setDetailInformation(this.currDSIndex, this.currSheetIndex);
@@ -196,13 +208,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   public next() {
 
-    if (!this.isNext)  return;
+    if (!this.isNext) return;
 
-    this.datasetFiles.forEach((dsFile,idx)=>{
-      if(dsFile.sheetInfo && dsFile.fileFormat === FileFormat.EXCEL){
+    this.datasetFiles.forEach((dsFile, _idx) => {
+      if (dsFile.sheetInfo && dsFile.fileFormat === FileFormat.EXCEL) {
         dsFile.selectedSheets = [];
-        dsFile.sheetInfo.forEach((sheet)=>{
-          if( sheet.selected ) dsFile.selectedSheets.push(sheet.sheetName);
+        dsFile.sheetInfo.forEach((sheet) => {
+          if (sheet.selected) dsFile.selectedSheets.push(sheet.sheetName);
         });
       }
     });
@@ -220,7 +232,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * Advanced setting toggle
    * @returns {boolean}
    */
-  public settingFold(){
+  public settingFold() {
     this.settingFoldFlag = !this.settingFoldFlag;
     return this.settingFoldFlag;
   }
@@ -238,10 +250,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       return;
     }
 
-    if( this.datasetFiles[this.currDSIndex].delimiter !==  this.currDelimiter ){
-      this.datasetFiles[this.currDSIndex].delimiter =  this.currDelimiter;
+    if (this.datasetFiles[this.currDSIndex].delimiter !== this.currDelimiter) {
+      this.datasetFiles[this.currDSIndex].delimiter = this.currDelimiter;
       this.loadingShow();
-      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]), 'draw');
     }
   }
 
@@ -255,10 +267,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       return;
     }
 
-    if( this.datasetFiles[this.currDSIndex].quoteChar !==  this.currQuote ){
-      this.datasetFiles[this.currDSIndex].quoteChar =  this.currQuote;
+    if (this.datasetFiles[this.currDSIndex].quoteChar !== this.currQuote) {
+      this.datasetFiles[this.currDSIndex].quoteChar = this.currQuote;
       this.loadingShow();
-      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]),'draw');
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex]), 'draw');
     }
   }
 
@@ -266,24 +278,24 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   /**
    * When columnCount is changed(CSV, EXCEL)
    */
-  public changeColumnCount(){
+  public changeColumnCount() {
 
-    this.isColumnCountRequired = ( (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat != FileFormat.JSON);
+    this.isColumnCountRequired = ((isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount) && this.datasetFiles[this.currDSIndex].fileFormat !== FileFormat.JSON);
 
     if (isNullOrUndefined(this.currColumnCount) || 1 > this.currColumnCount || this.datasetFiles[this.currDSIndex].fileFormat === FileFormat.JSON) {
       return;
     }
 
-    if( this.currColumnCount>9999 ) {
+    if (this.currColumnCount > 9999) {
       Alert.error(`max count must be less than 10000`);
       this.currColumnCount = this.prevColumnCount;
       return;
     }
 
-    if( this.datasetFiles[this.currDSIndex].sheetInfo && this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount !=  this.currColumnCount ) {
+    if (this.datasetFiles[this.currDSIndex].sheetInfo && this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount !== this.currColumnCount) {
       this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount = this.currColumnCount;
       this.loadingShow();
-      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex], this.currColumnCount),'draw');
+      this._getGridInformation(this.currDSIndex, this._getParamForGrid(this.datasetFiles[this.currDSIndex], this.currColumnCount), 'draw');
     }
   }
 
@@ -293,7 +305,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @returns {{top: string}}
    */
   public getGridStyle() {
-    return {'top':'45px'};
+    return {top: '45px'};
   }
 
 
@@ -302,12 +314,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param event
    * @param DsIdx
    */
-  public checkGroup(event: Event, DsIdx: number){
-    //stop event bubbling
+  public checkGroup(event: Event, DsIdx: number) {
+    // stop event bubbling
     event.stopPropagation();
     event.preventDefault();
 
-    if(!this.datasetFiles[DsIdx].sheetInfo) return;
+    if (!this.datasetFiles[DsIdx].sheetInfo) return;
 
     this.datasetFiles[DsIdx].sheetInfo = this.datasetFiles[DsIdx].sheetInfo.map((obj) => {
       obj.selected = !this.datasetFiles[DsIdx].selected; //  obj.selected = true or false
@@ -325,19 +337,19 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param DsIdx
    * @param sheetIdx
    */
-  public checkSheet(event:Event, DsIdx: number, sheetIdx: number){
-    //stop event bubbling
+  public checkSheet(event: Event, DsIdx: number, sheetIdx: number) {
+    // stop event bubbling
     event.stopPropagation();
     event.preventDefault();
 
-    if(!this.datasetFiles[DsIdx].sheetInfo) return;
+    if (!this.datasetFiles[DsIdx].sheetInfo) return;
 
     this.datasetFiles[DsIdx].sheetInfo[sheetIdx].selected = !this.datasetFiles[DsIdx].sheetInfo[sheetIdx].selected;
     if (!this.datasetFiles[DsIdx].sheetInfo[sheetIdx].selected) this.datasetFiles[DsIdx].selected = false;
 
     let selectedCount: number = 0;
-    this.datasetFiles[DsIdx].sheetInfo.forEach((sheet)=>{
-      if(sheet.selected) selectedCount ++;
+    this.datasetFiles[DsIdx].sheetInfo.forEach((sheet) => {
+      if (sheet.selected) selectedCount++;
     });
     if (selectedCount === this.datasetFiles[DsIdx].sheetInfo.length) this.datasetFiles[DsIdx].selected = true;
 
@@ -351,17 +363,17 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param {Event} event
    * @param {number} dsIdx
    */
-  public selectFile(event: Event, dsIdx: number){
+  public selectFile(event: Event, dsIdx: number) {
     // stop event bubbling
     event.stopPropagation();
     event.preventDefault();
 
-    this.previewErrorMsg = (this.datasetFiles[dsIdx].error? this.translateService.instant(this.datasetFiles[dsIdx].error.message) : '');
+    this.previewErrorMsg = (this.datasetFiles[dsIdx].error ? this.translateService.instant(this.datasetFiles[dsIdx].error.message) : '');
 
     this.isDelimiterRequired = false;
     this.isColumnCountRequired = false;
 
-    if (this.datasetFiles[dsIdx].fileFormat != FileFormat.EXCEL){
+    if (this.datasetFiles[dsIdx].fileFormat !== FileFormat.EXCEL) {
       this._setFileFormat(this.datasetFiles[dsIdx].fileFormat);
 
       this.currDSIndex = dsIdx;
@@ -372,9 +384,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.currDelimiter = this.datasetFiles[dsIdx].delimiter;
       this.currQuote = this.datasetFiles[dsIdx].quoteChar;
 
-      this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0 );
+      this.currColumnCount = (this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[0].columnCount : 0);
 
-      if(!this.datasetFiles[dsIdx].sheetInfo){
+      if (!this.datasetFiles[dsIdx].sheetInfo) {
         this.clearGrid = true;
         return;
       }
@@ -400,7 +412,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param sheetName
    * @param sheetIdx
    */
-  public selectSheet(event: Event, dsIdx: number,sheetName: string, sheetIdx: number) {
+  public selectSheet(event: Event, dsIdx: number, sheetName: string, sheetIdx: number) {
     // stop event bubbling
     event.stopPropagation();
     event.preventDefault();
@@ -411,13 +423,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.currQuote = '\"';
 
     this.isColumnCountRequired = false;
-    this.currColumnCount = ( this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0 );
+    this.currColumnCount = (this.datasetFiles[dsIdx].sheetInfo ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].columnCount : 0);
 
     this.currDSIndex = dsIdx;
     this._setFileFormat(this.datasetFiles[dsIdx].fileFormat);
     this.currSheetIndex = sheetIdx;
 
-    if(!this.datasetFiles[dsIdx].sheetInfo){
+    if (!this.datasetFiles[dsIdx].sheetInfo) {
       this.clearGrid = true;
       return;
     }
@@ -444,7 +456,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   public keyDownEvent(event: any, type: string) {
     // 13 is enter key
-    if (event.keyCode === 13 ) {
+    if (event.keyCode === 13) {
 
       // Stop event bubbling
       event.stopPropagation();
@@ -473,9 +485,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         // Column count input
         if ('colCnt' === type) {
-          var value = event.target.value;
-          var maxLength = 4;
-          if(value && value.length<=maxLength) {
+          const value = event.target.value;
+          const maxLength = 4;
+          if (value && value.length <= maxLength) {
             this.prevColumnCount = value;
           }
           this.isColumnCountRequired = true;
@@ -493,7 +505,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
   }
 
-
+  /**
+   * Go to next stage with enter key
+   * @param event Event
+   */
+  @HostListener('document:keydown.enter', ['$event'])
+  public onEnterKeydownHandler(event: KeyboardEvent) {
+    if (event.keyCode === 13) {
+      this.next();
+    }
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -505,7 +526,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param keyCode
    */
   private _isKeyPressedWithChar(keyCode: number): boolean {
-    const exceptionList: number[] = [9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,219,220,93,144,145];
+    const exceptionList: number[] = [9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 91, 92, 219, 220, 93, 144, 145];
     return exceptionList.indexOf(keyCode) === -1
   }
 
@@ -515,7 +536,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param {FileFormat} fileFormat
    * @private
    */
-  private _setFileFormat(fileFormat : FileFormat){
+  private _setFileFormat(fileFormat: FileFormat) {
     this.isCSV = (fileFormat === FileFormat.CSV) || fileFormat === FileFormat.TXT;
     this.isJSON = (fileFormat === FileFormat.JSON);
     this.isEXCEL = (fileFormat === FileFormat.EXCEL);
@@ -527,9 +548,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @returns result {fileKey: string, delimiter: string}
    * @private
    */
-  private _getParamForGrid(datasetFile : PrDatasetFile, manualColumnCount?:number) {
+  private _getParamForGrid(datasetFile: PrDatasetFile, manualColumnCount?: number) {
     const result = {
-      storedUri : datasetFile.storedUri,
+      storedUri: datasetFile.storedUri,
     };
     if (datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.TXT) result['delimiter'] = datasetFile.delimiter;
     if (datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.TXT) result['quoteChar'] = datasetFile.quoteChar;
@@ -545,14 +566,14 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param {string} option
    * @private
    */
-  private _getGridInformation(idx: number, param : any, option: string ) {
+  private _getGridInformation(idx: number, param: any, option: string) {
     this.loadingShow();
 
     this.datasetService.getFileGridInfo(param).then((result) => {
 
       if (result.gridResponses) {
 
-        if( option && option === 'draw') this.clearGrid = false;
+        if (option && option === 'draw') this.clearGrid = false;
 
         this.datasetFiles[idx].error = null;
         this.previewErrorMsg = '';
@@ -563,7 +584,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         const sheet = this.datasetFiles[idx].sheetInfo[this.currSheetIndex];
 
         // Update grid
-        if( option && option === 'draw') this._updateGrid(sheet.data, sheet.fields);
+        if (option && option === 'draw') this._updateGrid(sheet.data, sheet.fields);
 
         if (result.sheetNames) {
 
@@ -574,10 +595,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       } else {
 
         // no result from server
-        if( option && option === 'draw') this.clearGrid = true;
+        if (option && option === 'draw') this.clearGrid = true;
 
         this.datasetFiles[idx].error = result;
-        this.previewErrorMsg = (this.datasetFiles[idx].error? this.translateService.instant(this.datasetFiles[idx].error.message) : '');
+        this.previewErrorMsg = (this.datasetFiles[idx].error ? this.translateService.instant(this.datasetFiles[idx].error.message) : '');
 
       }
 
@@ -594,7 +615,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       }
       this.datasetFiles[idx].error = error;
       this.selectFile(event, 0);
-      if( option && option === 'draw') this.clearGrid = true;
+      if (option && option === 'draw') this.clearGrid = true;
       this.loadingHide();
 
     });
@@ -609,7 +630,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   private _updateGrid(data: any, fields: Field[]) {
     if (data.length > 0 && fields.length > 0) {
       this.clearGrid = false;
-      const headers: header[] = this._getHeaders(fields);
+      const headers: Header[] = this._getHeaders(fields);
       const rows: any[] = PreparationCommonUtil.getRows(data);
       this._drawGrid(headers, rows);
     } else {
@@ -646,7 +667,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       (field: Field) => {
 
         /* 70 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 70;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 70;
 
         return new SlickGridHeader()
           .Id(field.name)
@@ -661,12 +682,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
           .Unselectable(true)
           .Sortable(true)
           .ColumnType(field.type)
-          .Formatter(( row, cell, value, columnDef ) => {
+          .Formatter((_row, _cell, value, _columnDef) => {
             if (field.type === 'STRING') {
               value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
               value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
               value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
-              let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
+              const tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0">&middot;</span>';
               value = (value) ? value.toString().replace(/\s/gi, tag) : value;
             }
             if (isNull(value)) {
@@ -694,25 +715,25 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       gridInfo.forEach((item, index) => {
         const gridData = this._getGridDataFromGridResponse(item);
 
-        let info : SheetInfo = {
-          selected : true,
-          data : gridData.data,
-          fields : gridData.fields,
-          totalRows : 0,
-          valid : true,
-          columnCount : gridData.fields.length
+        const info: SheetInfo = {
+          selected: true,
+          data: gridData.data,
+          fields: gridData.fields,
+          totalRows: 0,
+          valid: true,
+          columnCount: gridData.fields.length
         };
 
         if (sheetNames) info.sheetName = sheetNames[index];
 
         this.datasetFiles[idx].sheetInfo.push(info);
 
-        if ( this.currDSIndex === 0 ) this._setDetailInformation(0, 0);
+        if (this.currDSIndex === 0) this._setDetailInformation(0, 0);
 
       });
 
       // set current column count
-      if( idx === this.currDSIndex ) this.currColumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount: null);
+      if (idx === this.currDSIndex) this.currColumnCount = (this.datasetFiles[this.currDSIndex].sheetInfo ? this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].columnCount : null);
 
       this.datasetFiles[idx].selected = true;
       this.isNext = true;
@@ -727,9 +748,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @private
    */
   private _getGridDataFromGridResponse(gridResponse: any): GridData {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData: GridData = new GridData();
 
@@ -738,7 +759,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         name: colNames[idx],
         type: colTypes[idx].type,
         seq: idx,
-        uuid : CommonUtil.getUUID()
+        uuid: CommonUtil.getUUID()
       });
     }
 
@@ -758,16 +779,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * Detail Information of Selected Sheet
    * @private
    */
-  private _setDetailInformation(dsIdx:number, sheetIdx?:number){
+  private _setDetailInformation(dsIdx: number, sheetIdx?: number) {
 
     if (this.datasetFiles[dsIdx].fileFormat === FileFormat.EXCEL) {
       this.currDetail.detailName = this.datasetFiles[dsIdx].fileName;
-      if(this.datasetFiles[dsIdx].sheetInfo) this.currDetail.detailName += '-' + this.datasetFiles[dsIdx].sheetInfo[sheetIdx].sheetName;
+      if (this.datasetFiles[dsIdx].sheetInfo) this.currDetail.detailName += '-' + this.datasetFiles[dsIdx].sheetInfo[sheetIdx].sheetName;
     } else {
       this.currDetail.detailName = this.datasetFiles[dsIdx].fileName;
     }
     this.currDetail.fileFormat = this.datasetFiles[dsIdx].fileFormat;
-    this.currDetail.columns = ( (this.datasetFiles[dsIdx].sheetInfo)?this.datasetFiles[dsIdx].sheetInfo[sheetIdx].fields.length : null );
+    this.currDetail.columns = ((this.datasetFiles[dsIdx].sheetInfo) ? this.datasetFiles[dsIdx].sheetInfo[sheetIdx].fields.length : null);
   }
 
 
@@ -775,27 +796,15 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * Check Next Button
    */
   private _checkNextBtn() {
-    let selectedCount : number = 0;
-    this.datasetFiles.forEach((dsFile)=>{
-      if ( dsFile.sheetInfo ){
-        dsFile.sheetInfo.forEach((sheet)=>{
-          if(sheet.selected) selectedCount ++;
+    let selectedCount: number = 0;
+    this.datasetFiles.forEach((dsFile) => {
+      if (dsFile.sheetInfo) {
+        dsFile.sheetInfo.forEach((sheet) => {
+          if (sheet.selected) selectedCount++;
         })
       }
     });
     this.isNext = (selectedCount > 0);
-  }
-
-
-  /**
-   * Go to next stage with enter key
-   * @param event Event
-   */
-  @HostListener('document:keydown.enter', ['$event'])
-  private onEnterKeydownHandler(event: KeyboardEvent) {
-    if(event.keyCode === 13 ) {
-      this.next();
-    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -803,9 +812,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
+
 class Field {
-  name : string;
-  type : string;
+  name: string;
+  type: string;
   timestampStyle?: string;
 }
 

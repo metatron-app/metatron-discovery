@@ -1,8 +1,8 @@
-import {InputStream, CommonTokenStream } from 'antlr4';
+import {CommonTokenStream, InputStream} from 'antlr4';
 
-import { RuleLexer } from '../antlr4/RuleLexer';
-import { RuleParser } from '../antlr4/RuleParser';
-import { RuleErrorListener, RuleLexerErrorListener } from './RuleErrorListener';
+import {RuleLexer} from '../antlr4/RuleLexer';
+import {RuleParser} from '../antlr4/RuleParser';
+import {RuleErrorListener, RuleLexerErrorListener} from './RuleErrorListener';
 
 export interface TokenInfo {
   text: string;
@@ -56,50 +56,50 @@ export interface ParseInfo {
 }
 
 
-export class RuleChecker  {
+export class RuleChecker {
 
   constructor() {
   }
 
   parse(ruleString: string): ParseInfo {
-      //let ruleString = 'keep on: sum( abc , col: ddd  ';
+    // let ruleString = 'keep on: sum( abc , col: ddd  ';
 
-      let inputStream = new InputStream(ruleString);
-      // let lexer = new RuleLexer(inputStream); /* Only a void function can be called with the 'new' keyword.*/
-      let lexer = new RuleLexer(inputStream);
+    const inputStream = new InputStream(ruleString);
+    // let lexer = new RuleLexer(inputStream); /* Only a void function can be called with the 'new' keyword.*/
+    const lexer = new RuleLexer(inputStream);
 
-      lexer.removeErrorListeners();
-      const roleLexerErrorListener = new RuleLexerErrorListener();
-      lexer.addErrorListener(roleLexerErrorListener);
+    lexer.removeErrorListeners();
+    const roleLexerErrorListener = new RuleLexerErrorListener();
+    lexer.addErrorListener(roleLexerErrorListener);
 
-      let tokenStream = new CommonTokenStream(lexer);
-      // let parser = new RuleParser(tokenStream); /* Only a void function can be called with the 'new' keyword.*/
-      let parser = new RuleParser(tokenStream);
-      parser.buildParseTrees = false;
+    const tokenStream = new CommonTokenStream(lexer);
+    // let parser = new RuleParser(tokenStream); /* Only a void function can be called with the 'new' keyword.*/
+    const parser = new RuleParser(tokenStream);
+    parser.buildParseTrees = false;
 
-      // parser._errHandler = new RuleErrorStrategy() ;
-      parser.removeErrorListeners();
-      const roleErrorListener = new RuleErrorListener();
-      parser.addErrorListener(roleErrorListener);
+    // parser._errHandler = new RuleErrorStrategy() ;
+    parser.removeErrorListeners();
+    const roleErrorListener = new RuleErrorListener();
+    parser.addErrorListener(roleErrorListener);
 
-      let tree = parser.ruleset();
-      //let tree = parser.args();
+    // let tree = parser.ruleset();
+    // let tree = parser.args();
 
-      const fetchedEOF = parser.getTokenStream().fetchedEOF;
+    const fetchedEOF = parser.getTokenStream().fetchedEOF;
 
-      const tokens = parser.getTokenStream().tokens;
+    const tokens = parser.getTokenStream().tokens;
 
-      //let voca = parser.symbolicNames[6];
-      let parseInfo = this.getParseInfo( ruleString, tokens , roleErrorListener);
+    // let voca = parser.symbolicNames[6];
+    const parseInfo = this.getParseInfo(ruleString, tokens, roleErrorListener);
 
-      parseInfo.fetchedEOF = fetchedEOF;
+    parseInfo.fetchedEOF = fetchedEOF;
 
-      if( roleLexerErrorListener.isError() ) {
-          parseInfo.errorStartIndex = roleLexerErrorListener.getStartIndex();
-          parseInfo.lexerError = true;
-      }
+    if (roleLexerErrorListener.isError()) {
+      parseInfo.errorStartIndex = roleLexerErrorListener.getStartIndex();
+      parseInfo.lexerError = true;
+    }
 
-      return parseInfo;
+    return parseInfo;
   }
 
   /**
@@ -108,25 +108,25 @@ export class RuleChecker  {
    * @param tokens
    * @param el
    */
-  private getParseInfo( ruleStr: string, tokens , el: RuleErrorListener): ParseInfo {
+  private getParseInfo(ruleStr: string, tokens, el: RuleErrorListener): ParseInfo {
 
     const startIndex = el.getStartIndex();
     const offenceIndex = el.getOffenceIndex();
 
-    let tokenInfos = [];
+    const tokenInfos = [];
 
-    if( tokens && tokens.length > 0) {
+    if (tokens && tokens.length > 0) {
       const length = tokens.length;
-      for( let i = 0; i<length; i++) {
+      for (let i = 0; i < length; i++) {
         const t = tokens[i];
-        if( -1 === t.type ) {
+        if (-1 === t.type) {
           continue;
         }
 
         const isStart = startIndex === i;
         const isError = offenceIndex === i;
 
-        tokenInfos.push ({
+        tokenInfos.push({
           text: t.text,
           start: t.start,
           stop: t.stop,
@@ -141,7 +141,7 @@ export class RuleChecker  {
     return {
       ruleString: ruleStr,
       tokens: tokenInfos,
-      errorStartIndex: -1 ,
+      errorStartIndex: -1,
       startIndex: startIndex,
       offenceIndex: offenceIndex,
       expectedList: el.getExpectedList(),

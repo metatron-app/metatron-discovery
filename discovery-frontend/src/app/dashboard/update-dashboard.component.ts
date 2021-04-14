@@ -13,10 +13,14 @@
  */
 
 import * as _ from 'lodash';
+import * as $ from 'jquery';
+import {isNullOrUndefined, isObject} from 'util';
+
 import {
+  AfterViewInit,
   ApplicationRef,
-  ComponentFactoryResolver,
   Component,
+  ComponentFactoryResolver,
   ElementRef,
   EventEmitter,
   Injector,
@@ -26,53 +30,55 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {Workbook} from '../domain/workbook/workbook';
+import {ActivatedRoute} from '@angular/router';
+
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {PopupService} from '@common/service/popup.service';
+import {ImageService} from '@common/service/image.service';
+import {Modal} from '@common/domain/modal';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {ChartType} from '@common/component/chart/option/define/common';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+
+import {Workbook} from '@domain/workbook/workbook';
 import {
   BoardConfiguration,
   BoardDataSource,
-  Dashboard, DashboardWidgetRelation,
+  Dashboard,
+  DashboardWidgetRelation,
   LayoutMode
-} from '../domain/dashboard/dashboard';
-import {ConnectionType, Datasource, Field, FieldRole} from '../domain/datasource/datasource';
-import {TextWidget} from '../domain/dashboard/widget/text-widget';
-import {PageWidget, PageWidgetConfiguration} from 'app/domain/dashboard/widget/page-widget';
-import {Widget} from '../domain/dashboard/widget/widget';
-import {PopupService} from '../common/service/popup.service';
-import {SubscribeArg} from '../common/domain/subscribe-arg';
-import {Alert} from '../common/util/alert.util';
-import {DashboardService} from './service/dashboard.service';
-import {CustomField} from '../domain/workbook/configurations/field/custom-field';
-import {Filter} from '../domain/workbook/configurations/filter/filter';
-import {WidgetService} from './service/widget.service';
-import {ImageService} from '../common/service/image.service';
-import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
-import {Modal} from '../common/domain/modal';
-import {FilterWidget, FilterWidgetConfiguration} from '../domain/dashboard/widget/filter-widget';
+} from '@domain/dashboard/dashboard';
+import {TextWidget} from '@domain/dashboard/widget/text-widget';
+import {ConnectionType, Datasource, Field, FieldRole} from '@domain/datasource/datasource';
+import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Shelf, ShelfLayers} from '@domain/workbook/configurations/shelf/shelf';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {WidgetShowType} from '@domain/dashboard/dashboard.globalOptions';
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+
 import {DatasourceService} from '../datasource/service/datasource.service';
-import {isNullOrUndefined, isObject} from 'util';
-import {Pivot} from '../domain/workbook/configurations/pivot';
-import {CommonUtil} from '../common/util/common.util';
+import {PageComponent} from '../page/page.component';
+import {DashboardUtil} from './util/dashboard.util';
+import {FilterUtil} from './util/filter.util';
+import {WidgetService} from './service/widget.service';
+import {DashboardService} from './service/dashboard.service';
+import {ConfigureFiltersComponent} from './filters/configure-filters.component';
 import {PageRelationComponent} from './component/update-dashboard/page-relation.component';
-import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {TextWidgetPanelComponent} from './component/update-dashboard/text-widget-panel.component';
 import {DatasourcePanelComponent} from './component/update-dashboard/datasource-panel.component';
-import {PageComponent} from '../page/page.component';
-import {ActivatedRoute} from '@angular/router';
-import {ConfigureFiltersComponent} from './filters/configure-filters.component';
-import {DashboardUtil} from './util/dashboard.util';
-import {WidgetShowType} from '../domain/dashboard/dashboard.globalOptions';
-import {FilterUtil} from './util/filter.util';
-import {ChartType} from '../common/component/chart/option/define/common';
-import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map-chart';
-import {Shelf, ShelfLayers} from '../domain/workbook/configurations/shelf/shelf';
-import * as $ from "jquery";
-import {InclusionFilter} from "../domain/workbook/configurations/filter/inclusion-filter";
+import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
 
 @Component({
   selector: 'app-update-dashboard',
   templateUrl: './update-dashboard.component.html'
 })
-export class UpdateDashboardComponent extends DashboardLayoutComponent implements OnInit, OnDestroy {
+export class UpdateDashboardComponent extends DashboardLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | ViewChild Variables
@@ -133,13 +139,13 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
   public orgBoardInfo: Dashboard;
 
-  public openIndexFilterPanel:number = 0;
-
   public hierarchyType: string;
   public openPanelDefaultFilter: number = -1;             // 오픈 일반 필터 index
   public defaultFilterListInPanel: Filter[] = [];         // 패널 내 기본 필터 목록
   public openPanelGeneralFilter: number = 0;              // 오픈 일반 필터 index
   public generalFilterListInPanel: FilterWidget[] = [];   // 패널 내 일반 필터 목록
+
+  public filterUtil = FilterUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -247,8 +253,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.subscriptions.push(
       this.broadCaster.on<any>('TOGGLE_SYNC').subscribe((data) => {
         const widgetInfo = DashboardUtil.getWidget(this.dashboard, data.widgetId);
-        const widgetConf = ( widgetInfo.configuration as PageWidgetConfiguration );
-        widgetConf.sync = ( false === widgetConf.sync );
+        const widgetConf = (widgetInfo.configuration as PageWidgetConfiguration);
+        widgetConf.sync = (false === widgetConf.sync);
         DashboardUtil.updateWidget(this.dashboard, widgetInfo);
       })
     );
@@ -259,7 +265,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         this.showBoardLoading();
         const srcWidgetInfo = DashboardUtil.getWidget(this.dashboard, data.widgetId);
         // 복제 위젯 정보 설정 및 생성
-        let newWidgetInfo: PageWidget = <PageWidget>_.cloneDeep(srcWidgetInfo);
+        const newWidgetInfo: PageWidget = _.cloneDeep(srcWidgetInfo) as PageWidget;
         delete newWidgetInfo.id;
         newWidgetInfo.name = srcWidgetInfo.name + '_copy';
         const board: Dashboard = this.dashboard;
@@ -319,7 +325,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
       if ('modify-page-close' !== data.name) {
         let alertMsg: string = '';
-        const changeWidgetData: PageWidget = <PageWidget>data.data;
+        const changeWidgetData: PageWidget = data.data as PageWidget;
         if ('create-page-complete' === data.name) {
           // 위젯 생성
           this.createPageWidget(changeWidgetData, this.isAppendLayout);
@@ -350,7 +356,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     });
     // 일괄삭제를 위한 서비스 등록
     this.subscriptions.push(popupSubscribe);
-    $('body').css( 'overflow', 'hidden' );
+    $('body').css('overflow', 'hidden');
   } // function - ngOnInit
 
   public ngAfterViewInit() {
@@ -374,7 +380,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-    $('body').css( 'overflow', '' );
+    $('body').css('overflow', '');
   } // function - ngOnDestroy
 
   /**
@@ -382,30 +388,30 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {string} widgetId
    */
   public editWidgetEventHandler(widgetId: string) {
-    let widget: Widget = DashboardUtil.getWidget(this.dashboard, widgetId);
+    const widget: Widget = DashboardUtil.getWidget(this.dashboard, widgetId);
     switch (widget.type) {
       case 'page' :
         widget.dashBoard = this.dashboard;
         // (<PageWidgetConfiguration>widget.configuration).dataSource = DashboardUtil.getBoardDataSource(this.dashboard);
 
         const pageWidgetConf = widget.configuration as PageWidgetConfiguration;
-        if( pageWidgetConf.filters ) {
-          pageWidgetConf.filters.forEach( filter => {
-            if( !filter['clzField'] ) {
-              filter['clzField'] = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field );
+        if (pageWidgetConf.filters) {
+          pageWidgetConf.filters.forEach(filter => {
+            if (!filter['clzField']) {
+              filter['clzField'] = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field);
             }
           });
         }
 
-        this.selectedPageWidget = <PageWidget>widget;
+        this.selectedPageWidget = widget as PageWidget;
         this.isShowPage = true;
         break;
       case 'filter' :
-        const filterWidgetConf: FilterWidgetConfiguration = <FilterWidgetConfiguration>widget.configuration;
+        const filterWidgetConf: FilterWidgetConfiguration = widget.configuration as FilterWidgetConfiguration;
         this.openUpdateFilterPopup(filterWidgetConf.filter);
         break;
       case 'text' :
-        this.openTextWidgetEditor(<TextWidget>widget);
+        this.openTextWidgetEditor(widget as TextWidget);
         break;
     }
   } // function - editWidgetEventHandler
@@ -420,12 +426,12 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   /**
    * unload 전 실행
    */
-  public execBeforeUnload():boolean {
-    let orgInfo:Dashboard = _.cloneDeep(this.orgBoardInfo);
-    let currInfo:Dashboard = _.cloneDeep(this.dashboard);
+  public execBeforeUnload(): boolean {
+    let orgInfo: Dashboard = _.cloneDeep(this.orgBoardInfo);
+    let currInfo: Dashboard = _.cloneDeep(this.dashboard);
 
-    const removeKeys:string[] = ['createdBy', 'createdTime', 'dataSources', 'modifiedBy', 'modifiedTime', '_links', 'workBook' ];
-    removeKeys.forEach( key => {
+    const removeKeys: string[] = ['createdBy', 'createdTime', 'dataSources', 'modifiedBy', 'modifiedTime', '_links', 'workBook'];
+    removeKeys.forEach(key => {
       delete orgInfo[key];
       delete currInfo[key];
     });
@@ -439,10 +445,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       delete item['dashBoard'];
       return item;
     };
-    orgInfo.widgets = orgInfo.widgets.map( convertSpec );
-    currInfo.widgets = currInfo.widgets.map( convertSpec );
-    orgInfo = this.dashboardService.convertSpecToServer( orgInfo );
-    currInfo = this.dashboardService.convertSpecToServer( currInfo );
+    orgInfo.widgets = orgInfo.widgets.map(convertSpec);
+    currInfo.widgets = currInfo.widgets.map(convertSpec);
+    orgInfo = this.dashboardService.convertSpecToServer(orgInfo);
+    currInfo = this.dashboardService.convertSpecToServer(currInfo);
 
     this.useUnloadConfirm = (JSON.stringify(orgInfo) !== JSON.stringify(currInfo));
 
@@ -495,7 +501,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     if ('CREATE' === event.name) {
       this.showBoardLoading();
       this.widgetService.createWidget(event.widget, this.dashboard.id).then(result => {
-        let textWidget: TextWidget = _.merge(event.widget, result);
+        const textWidget: TextWidget = _.merge(event.widget, result);
         this.dashboard = this._addWidget(this.dashboard, textWidget, this.isAppendLayout);
         this.dashboard.updateId = CommonUtil.getUUID();
         this.renderLayout();
@@ -518,7 +524,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       CommonUtil.confirm(modal);
     } else {
       this.isAppendLayout = false;
-      let textWidget: TextWidget = event.widget as TextWidget;
+      const textWidget: TextWidget = event.widget as TextWidget;
       this.dashboard = DashboardUtil.updateWidget(this.dashboard, textWidget);
       this.reloadWidget(textWidget);
       this.renderLayout();
@@ -542,8 +548,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     const pageWidget: PageWidget = new PageWidget();
     const board: Dashboard = this.dashboard;
     pageWidget.dashBoard = board;
-    (<PageWidgetConfiguration>pageWidget.configuration).dataSource = DashboardUtil.getFirstBoardDataSource(board);
-    (<PageWidgetConfiguration>pageWidget.configuration).customFields = board.configuration.customFields;
+    (pageWidget.configuration as PageWidgetConfiguration).dataSource = DashboardUtil.getFirstBoardDataSource(board);
+    (pageWidget.configuration as PageWidgetConfiguration).customFields = board.configuration.customFields;
     return pageWidget;
   } // function - addChart
 
@@ -613,7 +619,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public moveOrNewDashboard(dashboardItem?: Dashboard) {
     this.execBeforeUnload();
-    if( this.useUnloadConfirm ) {
+    if (this.useUnloadConfirm) {
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.board.alert.title.change');
       modal.description = this.translateService.instant('msg.board.alert.desc.move');
@@ -690,7 +696,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           } else {
             promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
           }
-        } else if ( 'text' === result.type) {
+        } else if ('text' === result.type) {
           promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
         }
       }
@@ -709,7 +715,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     (0 < cntWidgetComps) && (this.resizeToFitScreenForSave());
 
     // 위젯 업데이트 후 작동
-    if( 0 < promises.length ) {
+    if (0 < promises.length) {
       CommonUtil.waterfallPromise(promises).then(() => {
 
         if (0 < cntWidgetComps) {
@@ -744,7 +750,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public openDismissConfirm() {
     this.execBeforeUnload();
-    if( this.useUnloadConfirm ) {
+    if (this.useUnloadConfirm) {
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.board.alert.title.change');
       modal.description = this.translateService.instant('msg.board.alert.desc.exit');
@@ -807,7 +813,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       if ('page' !== widget.type) {
         return true;
       } else {
-        const pageConf: PageWidgetConfiguration = <PageWidgetConfiguration>widget.configuration;
+        const pageConf: PageWidgetConfiguration = widget.configuration as PageWidgetConfiguration;
         if (dashboard.dataSources.some(ds => DashboardUtil.isSameDataSource(pageConf.dataSource, ds))) {
           return true;
         } else {
@@ -890,7 +896,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     if (widget) {
       let strType: string = widget.type;
       if ('page' === widget.type) {
-        strType = (<PageWidgetConfiguration>widget.configuration).chart.type.toString();
+        strType = (widget.configuration as PageWidgetConfiguration).chart.type.toString();
       }
       return strType;
     } else {
@@ -982,16 +988,16 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       // set shelf layers (map chart)
       let shelf: any = widget.configuration['shelf'];
       const layerNum: number = widget.configuration['chart'].layerNum;
-      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && ( shelf.layers[layerNum].length > 0 || shelf.layers[layerNum].fields.length > 0)) {
+      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && (shelf.layers[layerNum].length > 0 || shelf.layers[layerNum].fields.length > 0)) {
 
         // 기존 스펙이 남아있을경우 변환
-        if( _.isUndefined( shelf.layers[layerNum].fields ) ){
-          let tempShelf : Shelf = new Shelf();
-          for(let idx=0; idx<shelf.layers.length; idx++) {
-            let tempLayer : any = _.cloneDeep(shelf.layers[idx]);
-            if( _.isUndefined(tempShelf.layers[idx]) ){
-              let shelfLayers : ShelfLayers = new ShelfLayers();
-              tempShelf.layers.push( shelfLayers );
+        if (_.isUndefined(shelf.layers[layerNum].fields)) {
+          const tempShelf: Shelf = new Shelf();
+          for (let idx = 0; idx < shelf.layers.length; idx++) {
+            const tempLayer: any = _.cloneDeep(shelf.layers[idx]);
+            if (_.isUndefined(tempShelf.layers[idx])) {
+              const shelfLayers: ShelfLayers = new ShelfLayers();
+              tempShelf.layers.push(shelfLayers);
             }
             tempShelf.layers[idx].fields = tempLayer;
           }
@@ -1054,7 +1060,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Filter Widget Panel
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public filterUtil = FilterUtil;
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -1064,7 +1069,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @return {string}
    */
   public filterListTrackByFn(index, filterWidget: FilterWidget) {
-    const filter: Filter = (<FilterWidgetConfiguration>filterWidget.configuration).filter;
+    const filter: Filter = (filterWidget.configuration as FilterWidgetConfiguration).filter;
     return filter.dataSource + filter.type + filter.field;
   } // function - trackByFn
 
@@ -1098,7 +1103,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @return {Filter}
    */
   public getFilterForFilterWidget(item: FilterWidget): Filter {
-    return (<FilterWidgetConfiguration>item.configuration).filter;
+    return (item.configuration as FilterWidgetConfiguration).filter;
   } // function - getFilterForFilterWidget
 
   /**
@@ -1189,17 +1194,17 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       widgets.forEach((widget: Widget) => {
         //  차트인 의 컬럼이 사용중일경우
         if (widget.configuration && widget.configuration.hasOwnProperty('pivot') && widget.configuration['pivot'].hasOwnProperty('columns')) {
-          const idx = _.findIndex(widget.configuration['pivot']['columns'], {name: field.name});
-          if (idx > -1) useChartList.push(widget.name);
+          const colIdx = _.findIndex(widget.configuration['pivot']['columns'], {name: field.name});
+          if (colIdx > -1) useChartList.push(widget.name);
         }
         //
         if (widget.configuration && widget.configuration.hasOwnProperty('pivot') && widget.configuration['pivot'].hasOwnProperty('aggregations')) {
-          const idx = _.findIndex(widget.configuration['pivot']['aggregations'], {name: field.name});
-          if (idx > -1) useChartList.push(widget.name);
+          const aggrIdx = _.findIndex(widget.configuration['pivot']['aggregations'], {name: field.name});
+          if (aggrIdx > -1) useChartList.push(widget.name);
         }
         if (widget.configuration && widget.configuration.hasOwnProperty('pivot') && widget.configuration['pivot'].hasOwnProperty('rows')) {
-          const idx = _.findIndex(widget.configuration['pivot']['rows'], {name: field.name});
-          if (idx > -1) useChartList.push(widget.name);
+          const rowIdx = _.findIndex(widget.configuration['pivot']['rows'], {name: field.name});
+          if (rowIdx > -1) useChartList.push(widget.name);
         }
       });
     }
@@ -1269,7 +1274,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 변경된 필터가 어떤 필터의 상위 필터인 경우 하위 필터의 값을 초기화 해준다. - S
     {
-      const findRelationInfo = (targetId: string, items: DashboardWidgetRelation[], callback: Function) => {
+      const findRelationInfo = (targetId: string, items: DashboardWidgetRelation[], callback: (relItem: DashboardWidgetRelation) => boolean) => {
         return items.some((relItem: DashboardWidgetRelation) => {
           if (targetId === relItem.ref) {
             return callback(relItem);
@@ -1282,7 +1287,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           }
         });
       };
-      const recursiveRelation = (items: DashboardWidgetRelation[], execFunc: Function) => {
+      const recursiveRelation = (items: DashboardWidgetRelation[], execFunc: (rel: string) => void) => {
         return items.some((relItem: DashboardWidgetRelation) => {
           execFunc(relItem.ref);
           if (relItem.children) {
@@ -1304,7 +1309,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
               this.dashboard.configuration.filters.find(item => {
                 if (item.field === targetFilterConf.filter.field && item.dataSource === targetFilterConf.filter.dataSource) {
                   if ('include' === item.type) {
-                    (<InclusionFilter>item).valueList = [];
+                    (item as InclusionFilter).valueList = [];
                   }
                   return true;
                 }
@@ -1317,13 +1322,13 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 변경된 필터가 어떤 필터의 상위 필터인 경우 하위 필터의 값을 초기화 해준다. - E
 
     // 대시보드 필터 업데이트
-    const updateResult:[Dashboard, boolean] = DashboardUtil.updateBoardFilter(this.dashboard, filter, true);
+    const updateResult: [Dashboard, boolean] = DashboardUtil.updateBoardFilter(this.dashboard, filter, true);
     this.dashboard = updateResult[0];
 
     this._organizeAllFilters(true).then(() => {
       this._syncFilterWidget();
 
-      if( updateResult[1] ) {
+      if (updateResult[1]) {
         // append New Filter
         this.openPanelDefaultFilter = -1;
         this.openPanelGeneralFilter = DashboardUtil.getFilterWidgets(this.dashboard).length - 1;
@@ -1349,8 +1354,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Filter} filter
    */
   public configureFilter(filter: Filter) {
-    if( DashboardUtil.isNewFilter( this.dashboard, filter ) ) {
-      this.addFilter( filter, () => {
+    if (DashboardUtil.isNewFilter(this.dashboard, filter)) {
+      this.addFilter(filter, () => {
         this.updateFilter(filter, true);
       });
     } else {
@@ -1363,7 +1368,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Filter} filter
    * @param {Function} callback
    */
-  public addFilter(filter: Filter, callback?:Function) {
+  public addFilter(filter: Filter, callback?: () => void) {
     if (!filter.ui.widgetId) {
       this.showBoardLoading();
       const newFilterWidget: FilterWidget = new FilterWidget(filter, this.dashboard);
@@ -1376,7 +1381,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         filter['isNew'] = true;
         this.dashboard = DashboardUtil.addBoardFilter(this.dashboard, filter);
 
-        ( callback ) && ( callback() );
+        (callback) && (callback());
 
         this.safelyDetectChanges();
 
@@ -1528,7 +1533,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       widget.configuration['customFields'] = customFields;
       // 위젯 피봇 정보 수정
       // map chart - add shelf config
-      if (ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
+      if (ChartType.MAP === (widget.configuration as PageWidgetConfiguration).chart.type) {
         widget.configuration['shelf'] = this._syncCustomFieldInWidgetShelf(widget, customFields);
         widget.configuration['shelf'] = this._syncDatasourceAliasInWidgetPivot(widget, fields);
       } else {
@@ -1558,7 +1563,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     DashboardUtil.getPageWidgets(this.dashboard).forEach((widget: Widget) => {
       // 위젯 피봇 정보 수정
       // map chart - add shelf config
-      if (ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
+      if (ChartType.MAP === (widget.configuration as PageWidgetConfiguration).chart.type) {
         widget.configuration['shelf'] = this._syncDatasourceAliasInWidgetPivot(widget, [changeField]);
       } else {
         widget.configuration['pivot'] = this._syncDatasourceAliasInWidgetPivot(widget, [changeField]);
@@ -1586,7 +1591,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * 패널 내 일반 필터 목록
    */
   private _getGeneralFilterListInPanel() {
-    let filterList: FilterWidget[] = [];
+    let filterList: FilterWidget[];
     if (this.dashboard.configuration && this.dashboard.configuration.filterRelations) {
       const filterRel: DashboardWidgetRelation[] = this.dashboard.configuration.filterRelations;
 
@@ -1604,9 +1609,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       };
 
       filterList = recurrsiveRelation(filterRel, [], '').map(hierarchyItem => {
-        const filterWidget: FilterWidget = <FilterWidget>DashboardUtil.getWidget(this.dashboard, hierarchyItem.node);
+        const filterWidget: FilterWidget = DashboardUtil.getWidget(this.dashboard, hierarchyItem.node) as FilterWidget;
         if (filterWidget) {
-          filterWidget.parent = <FilterWidget>DashboardUtil.getWidget(this.dashboard, hierarchyItem.parent);
+          filterWidget.parent = DashboardUtil.getWidget(this.dashboard, hierarchyItem.parent) as FilterWidget;
         }
         return filterWidget;
       }).filter(item => !!item);
@@ -1624,17 +1629,17 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @private
    */
   private _syncDatasourceAliasInWidgetPivot(widget: Widget, fields: Field[]) {
-    let widgetConfig = (<PageWidgetConfiguration>widget.configuration);
+    const widgetConfig = widget.configuration as PageWidgetConfiguration;
 
     // map chart - add shelf config
-    let mapFl = (ChartType.MAP === widgetConfig.chart.type);
+    const mapFl = (ChartType.MAP === widgetConfig.chart.type);
 
     if (fields) {
       fields.filter(field => field.nameAlias).forEach((field: Field) => {
 
         // when it's map, set shelf alias
         if (mapFl) {
-          PageComponent.updateShelfAliasFromField(widgetConfig.shelf, field, (<UIMapOption>widgetConfig.chart).layerNum);
+          PageComponent.updateShelfAliasFromField(widgetConfig.shelf, field, (widgetConfig.chart as UIMapOption).layerNum);
         } else {
           PageComponent.updatePivotAliasFromField(widgetConfig.pivot, field);
         }
@@ -1709,8 +1714,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   private _syncCustomFieldInWidgetShelf(widget: Widget, customFields: CustomField[]): Shelf {
 
-    const layerNum = (<UIMapOption>(<PageWidgetConfiguration>widget.configuration).chart).layerNum;
-    const shelf: Shelf = (<PageWidgetConfiguration>widget.configuration).shelf;
+    const layerNum = ((widget.configuration as PageWidgetConfiguration).chart as UIMapOption).layerNum;
+    const shelf: Shelf = (widget.configuration as PageWidgetConfiguration).shelf;
     if (customFields) {
       customFields.forEach((field: CustomField) => {
         if (FieldRole.DIMENSION === field.role) {
@@ -1763,7 +1768,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 대시보드 설정
     {
-      let boardInfo = this.dashboard;
+      const boardInfo = this.dashboard;
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
       const mainDsList: Datasource[] = DashboardUtil.getMainDataSources(boardInfo);
 
@@ -1781,8 +1786,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
               const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(boardInfo, dsInfo);
               this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
                 boardDsInfo.metaDataSource = ds;
-                if( boardInfo.configuration.filters ) {
-                  boardInfo.configuration.filters = ds.temporary.filters.concat( boardInfo.configuration.filters);
+                if (boardInfo.configuration.filters) {
+                  boardInfo.configuration.filters = ds.temporary.filters.concat(boardInfo.configuration.filters);
                 } else {
                   boardInfo.configuration.filters = ds.temporary.filters;
                 }
@@ -1939,7 +1944,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // Compares the filter widget with the filter information and deletes it for widgets that do not have filter information.
     this.getWidgetComps().forEach((widgetComp) => {
       if (widgetComp.isFilterWidget) {
-        const filterWidget: FilterWidget = <FilterWidget>widgetComp.getWidget();
+        const filterWidget: FilterWidget = widgetComp.getWidget() as FilterWidget;
         const filter = boardFilters.find(item => DashboardUtil.isSameFilterAndWidget(this.dashboard, item, filterWidget));
 
         if (filter) {

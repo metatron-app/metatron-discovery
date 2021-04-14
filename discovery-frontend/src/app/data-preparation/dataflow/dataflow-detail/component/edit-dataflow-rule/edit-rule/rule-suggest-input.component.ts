@@ -13,37 +13,40 @@
  */
 
 import { isUndefined } from 'util';
+import {Subscription} from 'rxjs';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
-
-import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { EventBroadcaster } from "../../../../../../common/event/event.broadcaster";
+import {CommonUtil} from '@common/util/common.util';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {DataflowModelService} from '../../../../service/dataflow.model.service';
 import { RuleSuggest } from '../rule/suggest/rule.suggest';
 import { TokenInfo } from '../rule/suggest/rule.checker';
-import {CommonUtil} from "../../../../../../common/util/common.util";
-import {DataflowModelService} from "../../../../service/dataflow.model.service";
-import {Subscription} from "rxjs";
 
 @Component({
   selector: 'rule-suggest-input',
   templateUrl: './rule-suggest-input.component.html'
 })
-export class RuleSuggestInputComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class RuleSuggestInputComponent extends AbstractComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild('inputElem')
   private _inputElem: ElementRef;
+
+  @ViewChild('dataPrepddpInputSelectbox')
+  public dataPrepddpInputSelectbox: ElementRef;
 
   @Input()
   public index:number = 0;
@@ -131,8 +134,6 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
   // 생성자
   constructor(
     private broadCaster: EventBroadcaster,
@@ -232,9 +233,9 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     this.formula = formula;
   }
 
-  protected getMsg( key: string, defaultValue?: string): string {
+  protected getMsg( _key: string, defaultValue?: string): string {
 
-    let value = '' ;// this.translateService.instant(key);
+    let value = '' ;  // this.translateService.instant(key);
     if( !value && defaultValue ) {
       value = defaultValue;
     }
@@ -256,15 +257,15 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     const color = item.type === 'func' ? 'Olive' : 'DodgerBlue';
 
-    if( this.selectedIndex == idx ) {
+    if( this.selectedIndex === idx ) {
       // 아이템이 선택 되었을때
       return {
         'background-color':'#f6f6f7',
-        'color': color
+        color: color
       }
     } else {
       return {
-        'color': color
+        color: color
       }
     }
   }
@@ -286,7 +287,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     try{
       const keyCode = $event.keyCode;
 
-      if( keyCode === 38 || keyCode == 40) {
+      if( keyCode === 38 || keyCode === 40) {
         this.isArrowDown = true; /* 한글 입력이 완료되지 않고 아래 화살표를 누르면 화살표 업 이벤트가 실행 된다. */
 
         // suggetion 이 있을 경우 하살표 위 아래의 동작이 맨앞으로 가거나 맨 뒤로 가지 않도록한다.
@@ -303,7 +304,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
                 $event.target.setSelectionRange(this.formula.length,this.formula.length);
               });
             }
-          }  else if( keyCode == 40 ) {
+          }  else if( keyCode === 40 ) {
             $event.preventDefault();
           }
         }
@@ -390,9 +391,6 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   }
 
-  @ViewChild('dataPrepddpInputSelectbox')
-  public dataPrepddpInputSelectbox: ElementRef;
-
   private broadCastOpenCloseSelectBox() {
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow: true } );
 
@@ -407,10 +405,10 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
         const $inputSelectPopHeight =  $('.ddp-wrap-boxwrap .ddp-wrap-boxadd .ddp-input-selectbox .ddp-wrap-popup2')[this.index].getBoundingClientRect();
 
         $('.ddp-wrap-popup2').css({
-          'position':'fixed',
-          'left': $inputSelectLeft,
-          'top' : $inputSelectTop-$inputSelectPopHeight.height-3,
-          'bottom' : 'inherit',
+          position:'fixed',
+          left: $inputSelectLeft,
+          top : $inputSelectTop-$inputSelectPopHeight.height-3,
+          bottom : 'inherit',
           'min-width' : $inputSelectWidth
         })
       })
@@ -443,8 +441,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   /**
    * 제안 정보 설정
-   * @param ruleString
-   * @param poz
+   * @param funcType
+   * @param columnType
    */
   protected setSuggetionInfoByType( funcType?: string, columnType?:string) {
 
@@ -492,16 +490,16 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    */
   public onSelectAutoComplete(item) {
 
-    let input = this._inputElem.nativeElement;
+    const input = this._inputElem.nativeElement;
 
     if (isUndefined(input) || !item ) {
       return;
     }
 
-    let inputVal = input.value;
+    const inputVal = input.value;
 
     if(inputVal.trim().length < 1) {
-      //문쟈열 입력이 없으면
+      // 문쟈열 입력이 없으면
 
       input.blur();
 
@@ -523,8 +521,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       const baseString = this.getBaseRule();
       const baseLength = baseString.length;
 
-      let start = this.selectedTokenInfo.start - baseLength;
-      let end = this.selectedTokenInfo.stop - baseLength;
+      const start = this.selectedTokenInfo.start - baseLength;
+      const end = this.selectedTokenInfo.stop - baseLength;
 
       const preStr = inputVal.substring(0, start);
       const postStr = inputVal.substring(end+1);
@@ -586,7 +584,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       return true;
     }
 
-    if( keyCode === 38 || keyCode == 40) {
+    if( keyCode === 38 || keyCode === 40) {
 
       if( this.isArrowDown) {
         // 이전에 화살표 Down Event가 아니면
@@ -613,8 +611,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       return true;
     } else if (keyCode === 8) {
       // backspace
-      const input = $event.currentTarget;
-      if( this.isEmptyViewAll && input.value.trim().length < 1) {
+      const inputTarget = $event.currentTarget;
+      if( this.isEmptyViewAll && inputTarget.value.trim().length < 1) {
         // 아무 것도 입력 되지 않았을 경우
         this.setSuggetionInfoByType();
       } else {
@@ -685,9 +683,10 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   /**
    * 화살표 위아래 처리
    * @param keyCode
+   * @param $event
    */
   protected processUpDown(keyCode, $event?) {
-    if( keyCode === 38 || keyCode == 40) {
+    if( keyCode === 38 || keyCode === 40) {
       if( !this.suggestItems || this.suggestItems.length < 1 ) {
         return true;
       }
@@ -707,7 +706,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       }
 
       // 화살표 움직임시 스크롤바 조정
-      let sHeight = this.selectedIndex * this.itemHeight;
+      const sHeight = this.selectedIndex * this.itemHeight;
       this.$element.find('.ddp-wrap-popup2').scrollTop(sHeight);
 
       if( $event &&  $event.preventDefault ) {

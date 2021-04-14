@@ -12,27 +12,45 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter, Output } from '@angular/core';
-import { DatasetService } from '../service/dataset.service';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import { PreparationAlert } from '../../util/preparation-alert.util';
-import { PrDatasetJdbc, DsType, RsType, ImportType, Field, QueryInfo, TableInfo } from '../../../domain/data-preparation/pr-dataset';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { StringUtil } from '../../../common/util/string.util';
-import * as $ from "jquery";
-import { isNullOrUndefined } from "util";
+import * as $ from 'jquery';
 import * as _ from 'lodash';
+import {isNullOrUndefined} from 'util';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {PopupService} from '@common/service/popup.service';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {
+  DsType,
+  Field,
+  ImportType,
+  PrDatasetJdbc,
+  QueryInfo,
+  RsType,
+  TableInfo
+} from '@domain/data-preparation/pr-dataset';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {PreparationAlert} from '../../util/preparation-alert.util';
 
 @Component({
   selector: 'app-create-dataset-db-query',
   templateUrl: './create-dataset-db-query.component.html',
   providers: [DataconnectionService]
 })
-export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implements OnInit  {
+export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -48,11 +66,10 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  //public datasetJdbc: DatasetJdbc;
   public datasetJdbc: PrDatasetJdbc;
 
   public databaseList: any[] = [];
-  public isDatabaseListShow : boolean = false;
+  public isDatabaseListShow: boolean = false;
   public isQueryDatabaseListShow: boolean = false;
 
   public schemaList: any[] = [];
@@ -70,7 +87,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   public flag: boolean = false;
 
-  public clearGrid : boolean = false;
+  public clearGrid: boolean = false;
 
   public isTableEmpty: boolean = false;
 
@@ -135,13 +152,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     return schemaList;
 
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(private popupService: PopupService,
-              private datasetService: DatasetService,
               private connectionService: DataconnectionService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -226,7 +243,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   /**
    * Change selected database
-   * @param event
    * @param database
    */
   public selectDatabase(database) {
@@ -264,7 +280,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @param event
    * @param data
    */
-  public onChangeTable(event, data:any) {
+  public onChangeTable(event, data: any) {
     this.isSchemaListShow = false;
     event.stopPropagation();
 
@@ -273,19 +289,19 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     // Save table name -
     this.datasetJdbc.tableInfo.tableName = data.name;
 
-    let params = {
-      connection : this.datasetJdbc.dataconnection.connection,
-      database : this.datasetJdbc.tableInfo.databaseName,
-      query : this.datasetJdbc.tableInfo.tableName,
-      type : RsType.TABLE
+    const params = {
+      connection: this.datasetJdbc.dataconnection.connection,
+      database: this.datasetJdbc.tableInfo.databaseName,
+      query: this.datasetJdbc.tableInfo.tableName,
+      type: RsType.TABLE
     };
 
     this.connectionService.getTableDetailWitoutId(params, false).then((result) => {
 
       this.loadingHide();
-      if (result.fields.length > 0 ) {
+      if (result.fields.length > 0) {
 
-        const headers: header[] = this._getHeaders(result.fields);
+        const headers: Header[] = this._getHeaders(result.fields);
         const rows: any[] = this._getRows(result.data);
 
         // Save grid info -
@@ -304,8 +320,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
     this.initSelectedCommand(this.filteredSchemaList);
   } // function - onChangeTable
@@ -366,7 +382,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   public showSchemaList(event?) {
     event ? event.stopImmediatePropagation() : null;
     this.isDatabaseListShow = false;
-    this.schemaSearchText = ''; //검색어 초기화
+    this.schemaSearchText = ''; // 검색어 초기화
 
     setTimeout(() => {
       this.isSchemaListShow = true;
@@ -392,7 +408,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     // destroy grid
     this.gridComponent.destroy();
 
-    let data = null;
+    let data;
     if (this.datasetJdbc.rsType === RsType.TABLE) {
       data = this.datasetJdbc.tableInfo;
 
@@ -410,7 +426,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
-      this._drawGrid(data.headers,data.rows)
+      this._drawGrid(data.headers, data.rows)
     } else {
       this.clickable = false;
       this.clearGrid = true;
@@ -457,7 +473,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.showQueryStatus = true;
         this.isQuerySuccess = true;
 
-        const headers: header[] = this._getHeaders(result.fields);
+        const headers: Header[] = this._getHeaders(result.fields);
         const rows = this._getRows(result.data);
 
         // Save grid info -
@@ -466,11 +482,11 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.datasetJdbc.sqlInfo.valid = true;
 
         this.clearGrid = false;
-        this._drawGrid(headers,rows);
+        this._drawGrid(headers, rows);
         this.clickable = true;
 
       })
-      .catch((error) => {
+      .catch(() => {
 
         this.loadingHide();
         this.gridComponent.destroy(); // destroy grid
@@ -488,7 +504,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @param {string} param
    */
   public editorTextChange(param: string) {
-    if(this.clickable) {
+    if (this.clickable) {
       this.clickable = !this.clickable;
     }
 
@@ -513,30 +529,30 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   public navigateWithKeyboardShortList(event, currentList, method) {
 
     // set scroll height
-    let height = 25;
+    const height = 25;
 
     // open select box when arrow up/ arrow down is pressed
-    if(event.keyCode === 38 || event.keyCode === 40) {
-      switch(method) {
+    if (event.keyCode === 38 || event.keyCode === 40) {
+      switch (method) {
         case 'db' :
-          !this.isDatabaseListShow ? this.isDatabaseListShow = true: null;
+          !this.isDatabaseListShow ? this.isDatabaseListShow = true : null;
           break;
         case 'schema' :
-          !this.isSchemaListShow ? this.isSchemaListShow = true: null;
+          !this.isSchemaListShow ? this.isSchemaListShow = true : null;
           break;
         case 'query' :
-          !this.isQueryDatabaseListShow ? this.isQueryDatabaseListShow = true: null;
+          !this.isQueryDatabaseListShow ? this.isQueryDatabaseListShow = true : null;
           break;
       }
     }
 
     // when there is no element in the list
-    if(currentList.length === 0){
+    if (currentList.length === 0) {
       return;
     }
 
     // this.commandList 에 마지막 인덱스
-    let lastIndex = currentList.length-1;
+    const lastIndex = currentList.length - 1;
 
     // command List 에서 selected 된 index 를 찾는다
     const idx = currentList.findIndex((command) => {
@@ -548,13 +564,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     if (event.keyCode === 38) {
 
       // 선택된게 없다
-      if ( idx === -1) {
+      if (idx === -1) {
 
         // 리스트에 마지막 인덱스를 selected 로 바꾼다
         currentList[lastIndex].selected = true;
 
         // 스크롤을 마지막으로 보낸다
-        $('.ddp-selectdown').scrollTop(lastIndex*height);
+        $('.ddp-selectdown').scrollTop(lastIndex * height);
 
         // 리스트에서 가장 첫번쨰가 선택되어 있는데 arrow up 을 누르면 리스트에 마지막으로 보낸다
       } else if (idx === 0) {
@@ -564,23 +580,23 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
 
         // 스크롤을 마지막으로 보낸다
-        $('.ddp-selectdown').scrollTop(lastIndex*height);
+        $('.ddp-selectdown').scrollTop(lastIndex * height);
 
       } else {
         currentList[idx].selected = false;
-        currentList[idx-1].selected = true;
-        $('.ddp-selectdown').scrollTop((idx-1)*height);
+        currentList[idx - 1].selected = true;
+        $('.ddp-selectdown').scrollTop((idx - 1) * height);
       }
 
       // when Arrow down is pressed
     } else if (event.keyCode === 40) {
 
       // 리스트에 첫번째 인텍스를 selected 로 바꾼다
-      if ( idx === -1) {
+      if (idx === -1) {
         currentList[0].selected = true;
 
         // 리스트에서 가장 마지막이 선택되어 있는데 arrow down 을 누르면 다시 리스트 0번째로 이동한다
-      }  else if (idx === lastIndex) {
+      } else if (idx === lastIndex) {
 
         currentList[0].selected = true;
         currentList[lastIndex].selected = false;
@@ -588,8 +604,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
       } else {
         currentList[idx].selected = false;
-        currentList[idx+1].selected = true;
-        $('.ddp-selectdown').scrollTop((idx+1)*height);
+        currentList[idx + 1].selected = true;
+        $('.ddp-selectdown').scrollTop((idx + 1) * height);
 
       }
 
@@ -599,25 +615,25 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     if (event.keyCode === 13) {
 
       // selected 된 index 를 찾는다
-      const idx = currentList.findIndex((command) => {
+      const selectedIdx = currentList.findIndex((command) => {
         if (command.selected) {
           return command;
         }
       });
 
       // 선택된게 없는데 엔터를 눌렀을때
-      if (idx === -1) {
+      if (selectedIdx === -1) {
         return;
       } else {
-        switch(method) {
+        switch (method) {
           case 'db' :
-            this.selectDatabase(currentList[idx]);
+            this.selectDatabase(currentList[selectedIdx]);
             break;
           case 'schema' :
-            this.onChangeTable(event, currentList[idx]);
+            this.onChangeTable(event, currentList[selectedIdx]);
             break;
           case 'query' :
-            this.selectQueryDatabase(currentList[idx]);
+            this.selectQueryDatabase(currentList[selectedIdx]);
             break;
         }
       }
@@ -633,10 +649,10 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @param list
    * @param index
    */
-  public listHover(event,list,index) {
+  public listHover(event, list, index) {
 
     let tempList = [];
-    switch(list) {
+    switch (list) {
       case 'db':
         tempList = this.filteredDbList;
         break;
@@ -671,8 +687,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   @HostListener('document:keydown.enter', ['$event'])
   public onEnterKeydownHandler(event: KeyboardEvent) {
     // enter key only works when there is not popup or selectbox opened
-    if(event.keyCode === 13) {
-      if (!this.isSchemaListShow && !this.isSchemaListShow ) {
+    if (event.keyCode === 13) {
+      if (!this.isSchemaListShow && !this.isSchemaListShow) {
         this.next();
       }
     }
@@ -696,7 +712,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
       const connectionInfo = _.clone(this.datasetJdbc.dataconnection);
 
-      this.datasetJdbc.dataconnection = {connection : {
+      this.datasetJdbc.dataconnection = {
+        connection: {
           hostname: connectionInfo.hostname,
           implementor: connectionInfo.implementor,
           password: connectionInfo.password,
@@ -715,8 +732,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.datasetJdbc.dataconnection.connection.catalog = connectionInfo.catalog;
       }
 
-      if ( (this.datasetJdbc.dataconnection.connection.implementor === 'TIBERO' || this.datasetJdbc.dataconnection.connection.implementor === 'ORACLE')
-            && !connectionInfo.url) {
+      if ((this.datasetJdbc.dataconnection.connection.implementor === 'TIBERO' || this.datasetJdbc.dataconnection.connection.implementor === 'ORACLE')
+        && !connectionInfo.url) {
 
         this.datasetJdbc.dataconnection.connection.sid = connectionInfo.sid;
       }
@@ -733,7 +750,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
         if (data && data.databases) {
           data.databases.forEach((item, index) => {
-            this.databaseList.push({idx : index, name : item, selected : false})
+            this.databaseList.push({idx: index, name: item, selected: false})
           })
         }
 
@@ -741,7 +758,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         if (this.datasetJdbc.rsType === RsType.TABLE && this.datasetJdbc.tableInfo.headers && this.datasetJdbc.tableInfo.headers.length > 0) {
           this.clearGrid = false;
           this.getTables(this.datasetJdbc.tableInfo.databaseName);
-          this._drawGrid(this.datasetJdbc.tableInfo.headers,this.datasetJdbc.tableInfo.rows);
+          this._drawGrid(this.datasetJdbc.tableInfo.headers, this.datasetJdbc.tableInfo.rows);
 
           // QUERY AND GRID INFO
         } else if (this.datasetJdbc.rsType === RsType.QUERY && this.datasetJdbc.sqlInfo.databaseName && this.datasetJdbc.sqlInfo.queryStmt !== '') {
@@ -754,7 +771,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
           // GRID INFO O
           if (this.datasetJdbc.sqlInfo.headers.length > 0) {
             this.clearGrid = false;
-            this._drawGrid(this.datasetJdbc.sqlInfo.headers,this.datasetJdbc.sqlInfo.rows);
+            this._drawGrid(this.datasetJdbc.sqlInfo.headers, this.datasetJdbc.sqlInfo.rows);
           } else {
 
             // GRID INFO X
@@ -768,8 +785,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
       }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
 
 
@@ -779,12 +796,12 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * Get table list
    * @param {string} database
    */
-  private getTables(database:string) {
+  private getTables(database: string) {
     this.loadingShow();
 
     const param = {
-      connection : this.datasetJdbc.dataconnection.connection,
-      database : database
+      connection: this.datasetJdbc.dataconnection.connection,
+      database: database
     };
 
     this.connectionService.getTablesWitoutId(param).then((data) => {
@@ -793,7 +810,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       this.schemaList = [];
       if (data && data.tables.length > 0) {
         data.tables.forEach((item, index) => {
-          this.schemaList.push({idx : index, name : item, selected : false});
+          this.schemaList.push({idx: index, name: item, selected: false});
         });
         this.isTableEmpty = false;
 
@@ -801,7 +818,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.schemaList = [];
         this.datasetJdbc.tableInfo.tableName = undefined;
         this.isTableEmpty = true;
-        setTimeout(() => this.isSchemaListShow = true );
+        setTimeout(() => this.isSchemaListShow = true);
         if (this.gridComponent) {
           this.gridComponent.destroy();
         }
@@ -811,8 +828,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       this.schemaList = [];
       this.isTableEmpty = true;
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
 
   } // function - getTables
@@ -824,7 +841,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @param {any[]} rows
    * @private
    */
-  private _drawGrid(headers: header[], rows : any[]) {
+  private _drawGrid(headers: Header[], rows: any[]) {
     // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
     if (this.gridComponent) {
       setTimeout(() => {
@@ -834,7 +851,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
           .RowHeight(32)
           .NullCellStyleActivate(true)
           .build()
-        )},400);
+        )
+      }, 400);
       this.clickable = true;
     }
   }
@@ -846,7 +864,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @returns {any[]}
    * @private
    */
-  private _getRows(rows) : any[] {
+  private _getRows(rows): any[] {
     let result = rows;
     if (result.length > 0 && !result[0].hasOwnProperty('id')) {
       result = rows.map((row: any, idx: number) => {
@@ -864,7 +882,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @returns {header[]}
    * @private
    */
-  private _getHeaders(headers) : header[] {
+  private _getHeaders(headers): Header[] {
     return headers.map(
       (field: Field) => {
         return new SlickGridHeader()
@@ -917,7 +935,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @param {RsType} type
    * @private
    */
-  private _deleteGridInfo(type : RsType) {
+  private _deleteGridInfo(type: RsType) {
 
     if (type === RsType.QUERY) {
 

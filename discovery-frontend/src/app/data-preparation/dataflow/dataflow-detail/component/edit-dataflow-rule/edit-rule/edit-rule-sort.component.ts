@@ -13,10 +13,10 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
+import { Alert } from '@common/util/alert.util';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {SortRule} from '@domain/data-preparation/prep-rules';
 import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import {SortRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-sort',
@@ -87,7 +87,7 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
       return undefined
     }
 
-    let rule =  {
+    const rule =  {
       command: 'sort',
       ruleString: 'sort order: ' + this.getColumnNamesInArray(this.selectedFields, true).toString(),
       uiRuleString : {
@@ -155,7 +155,7 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
   protected parsingRuleString(data: {jsonRuleString : SortRule}) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
+    const arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // SORT BY

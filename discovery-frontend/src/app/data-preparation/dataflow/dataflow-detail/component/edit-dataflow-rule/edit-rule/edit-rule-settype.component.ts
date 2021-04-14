@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
+import {isNullOrUndefined} from 'util';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { DataflowService } from '../../../../service/dataflow.service';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { isNullOrUndefined } from 'util';
-import { PrepSelectBoxComponent } from "../../../../../util/prep-select-box.component";
-import { PrepSelectBoxCustomComponent } from '../../../../../util/prep-select-box-custom.component';
-import {SetTypeRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {SetTypeRule} from '@domain/data-preparation/prep-rules';
+import {DataflowService} from '../../../../service/dataflow.service';
+import {PrepSelectBoxComponent} from '../../../../../util/prep-select-box.component';
+import {PrepSelectBoxCustomComponent} from '../../../../../util/prep-select-box-custom.component';
+import {EditRuleComponent} from './edit-rule.component';
 
 @Component({
-  selector : 'edit-rule-settype',
-  templateUrl : './edit-rule-settype.component.html'
+  selector: 'edit-rule-settype',
+  templateUrl: './edit-rule-settype.component.html'
 })
 export class EditRuleSettypeComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -41,25 +41,25 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
-  public timestampFormats : any = [] ;
-  public dsId : string = '';
-  public colDescs : any ;
-  public isTimestamp : boolean = false;
-  public colTypes : any = [];
-  public hasEditTimestamp : boolean = false;
+  public timestampFormats: any = [];
+  public dsId: string = '';
+  public colDescs: any;
+  public isTimestamp: boolean = false;
+  public colTypes: any = [];
+  public hasEditTimestamp: boolean = false;
 
   // for status T/F
-  public isFocus:boolean = false;         // Input Focus t/f
-  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+  public isFocus: boolean = false;         // Input Focus t/f
+  public isTooltipShow: boolean = false;   // Tooltip Show/Hide
 
-  public selectedTimestamp : string = '';
-  public selectedType : string = '';
-  public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp', 'map', 'array'];
+  public selectedTimestamp: string = '';
+  public selectedType: string = '';
+  public typeList: string [] = ['long', 'double', 'string', 'boolean', 'timestamp', 'map', 'array'];
 
-  public defaultIndex : number = -1;
+  public defaultIndex: number = -1;
 
   @ViewChild(PrepSelectBoxComponent)
-  protected prepSelectBoxComponent : PrepSelectBoxComponent;
+  protected prepSelectBoxComponent: PrepSelectBoxComponent;
 
   @ViewChild(PrepSelectBoxCustomComponent)
   protected _custom: PrepSelectBoxCustomComponent;
@@ -80,9 +80,11 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   public ngOnInit() {
     super.ngOnInit();
   }
+
   public ngAfterViewInit() {
     super.ngAfterViewInit();
   }
+
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
@@ -100,7 +102,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.isTimestamp = true;
       this.getTimestampFormats();
     } else if ('string' === this.selectedType) {
-      if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
+      if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')) {
         this.isTimestamp = true;
         this.getTimestampFormats();
       } else {
@@ -124,13 +126,15 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Set selected timestamp index in select box
    * @param {string} selectedTimestamp
    */
-  public setSelectedTimestamp(selectedTimestamp : string) {
+  public setSelectedTimestamp(selectedTimestamp: string) {
     let tempnum: number = -1;
-    try{
-      if(selectedTimestamp !==null && selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(selectedTimestamp)) {
+    try {
+      if (selectedTimestamp !== null && selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(selectedTimestamp)) {
         tempnum = this._timestampValueArray().indexOf(selectedTimestamp);
       }
-    }catch (error){};
+    } catch (error) {
+    }
+
     this._custom.setSelectedItem(this.timestampFormats, selectedTimestamp, tempnum);
   }
 
@@ -139,35 +143,35 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Make timestamp list from formats from server
    * @param result
    */
-  public makeTimestampList(result:any) {
+  public makeTimestampList(result: any) {
 
-    let keyList = [];
+    const keyList = [];
     this.timestampFormats = [];
 
-    for (let key in result) {
+    // tslint:disable-next-line:forin
+    for (const key in result) {
       // if (result.hasOwnProperty(key)) {
       keyList.push(key);
       // }
     }
 
-    for (let i in result[keyList[0]]) {
+    for (const i in result[keyList[0]]) {
       if (result[keyList[0]].hasOwnProperty(i)) {
-        this.timestampFormats.push({ value: i, isHover: false, matchValue: result[keyList[0]][i] })
+        this.timestampFormats.push({value: i, isHover: false, matchValue: result[keyList[0]][i]})
       }
     }
   }
 
   /**
    * Gets timestamp formats from the server
-   * @param {string} selectedTimestamp
    */
   private getTimestampFormats() {
 
-    let cols = this.selectedFields.map((item) => {
+    const cols = this.selectedFields.map((item) => {
       return item.name
     });
 
-    this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames : cols} ).then((result) => {
+    this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames: cols}).then((result) => {
 
       if (!isNullOrUndefined(result)) {
         this.makeTimestampList(result);
@@ -181,18 +185,18 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
           if ('string' === this.selectedType.toLowerCase()) {
             // timestamp ->  string  (set current column timestamp type)
             if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
-              let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
+              const idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
               this.selectedTimestamp = this.colTypes[idx].timestampStyle;
             }
           } else if ('timestamp' === this.selectedType.toLowerCase()) {
             if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
               // timestamp ->  timestamp  (set current column timestamp type)
-              let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
+              const idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
               this.selectedTimestamp = this.colTypes[idx].timestampStyle;
             } else if ('string' === this.selectedFields[0].type.toLowerCase()) {
               // string -> timestamp (suggestion)
-              let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
-              let idx = this.timestampFormats.map((item) => {
+              const max = this.timestampFormats.reduce((acc, curr) => Math.max(acc, curr.matchValue), this.timestampFormats[0].matchValue);
+              const idx = this.timestampFormats.map((item) => {
                 return item.matchValue
               }).findIndex((data) => {
                 return data === max
@@ -212,7 +216,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Set rule string and returns it
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): {command: string, ruleString: string, uiRuleString: Object} {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: object } {
 
     // selected column
     if (0 === this.selectedFields.length) {
@@ -229,12 +233,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     let ruleString = 'settype col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString() + ` type: ${this.selectedType}`;
 
 
-    let copiedTimestamp: string = this.selectedTimestamp;
+    const copiedTimestamp: string = this.selectedTimestamp;
 
     // Timestamp
     if (this.isTimestamp && '' !== copiedTimestamp) {
       ruleString += ' format: ';
-      let check:any = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
+      const check: any = StringUtil.checkSingleQuote(this.selectedTimestamp, {isPairQuote: true, isWrapQuote: true});
       if (check[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
         return undefined;
@@ -245,14 +249,15 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     }
 
     return {
-      command : 'settype',
+      command: 'settype',
       ruleString: ruleString,
       uiRuleString: {
         name: 'settype',
-        col : this.getColumnNamesInArray(this.selectedFields),
+        col: this.getColumnNamesInArray(this.selectedFields),
         type: this.selectedType,
         format: copiedTimestamp,
-        isBuilder: true}
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData
@@ -264,7 +269,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Change fields
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
 
     // Selected columns
     this.selectedFields = data.selectedList;
@@ -282,8 +287,8 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     });
 
     if (hasTimestampType) { // 타임스탬프 타입이 하나라도 있다면 splice
-      var pos = this.typeList.indexOf('timestamp');
-      if (-1 !== pos ) {
+      const pos = this.typeList.indexOf('timestamp');
+      if (-1 !== pos) {
         this.typeList.splice(pos, 1);
         this.selectedType = '';
         this.prepSelectBoxComponent.selectedItem = null;
@@ -304,7 +309,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.isTimestamp = true;
       this.getTimestampFormats();
     } else if ('string' === this.selectedType.toLowerCase()) {
-      if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
+      if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')) {
         this.isTimestamp = true;
         this.getTimestampFormats();
       } else {
@@ -316,15 +321,15 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     // 선택된 컬럼이 STRING인 경우에만 MAP, ARRAY로 settype 가능하다
     if (!isAllString) {
-      var pos = this.typeList.indexOf('map');
+      let pos = this.typeList.indexOf('map');
       if (-1 !== pos) {
-        this.typeList.splice(this.typeList.length-1, 1);
+        this.typeList.splice(this.typeList.length - 1, 1);
         this.selectedType = '';
         this.prepSelectBoxComponent.selectedItem = null;
       }
       pos = this.typeList.indexOf('array');
       if (-1 !== pos) {
-        this.typeList.splice(this.typeList.length-1, 1);
+        this.typeList.splice(this.typeList.length - 1, 1);
         this.selectedType = '';
         this.prepSelectBoxComponent.selectedItem = null;
       }
@@ -344,8 +349,8 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Show/hide pattern tooltip
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
     this.isFocus = isShow;
   }
 
@@ -360,15 +365,15 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   protected beforeShowComp() {
 
     // 선택된 컬럼이 타임스탬프일 경우 New type 에서 타임스탬프를 뺸다
-    if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields,'timestamp')) {
-      let items = [];
+    if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')) {
+      const items = [];
       this.selectedFields.forEach((item) => {
         if (item.type.toLowerCase() === 'timestamp') {
           items.push(item);
         }
       });
       if (items.length === this.selectedFields.length) {
-        this.typeList.splice(this.typeList.length-1,1);
+        this.typeList.splice(this.typeList.length - 1, 1);
       }
     }
   }
@@ -381,7 +386,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     if (this.dsId && this.selectedType) { // 컨텍스트 메뉴 이용
       this.defaultIndex = this.typeList.indexOf(this.selectedType.toLowerCase());
       // Only get timestamp formats when it is timestamp type
-      if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp') || this.selectedType.toLowerCase() === 'timestamp' ){
+      if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp') || this.selectedType.toLowerCase() === 'timestamp') {
         this.isTimestamp = true;
         this.getTimestampFormats();
       } else {
@@ -395,20 +400,20 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * parse rule string (When editing)
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {jsonRuleString : SetTypeRule}) {
+  protected parsingRuleString(data: { jsonRuleString: SetTypeRule }) {
 
     if (typeof data.jsonRuleString.col === 'string') {
       data.jsonRuleString.col = [data.jsonRuleString.col];
     }
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => {
-      if(item.length>2 && item.startsWith('`') && item.endsWith('`')) {
-        item = item.substring(1,item.length-1);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => {
+      if (item.length > 2 && item.startsWith('`') && item.endsWith('`')) {
+        item = item.substring(1, item.length - 1);
       }
-      return this.fields.find( orgItem => orgItem.name === item );
-    } ).filter(field => !!field);
+      return this.fields.find(orgItem => orgItem.name === item);
+    }).filter(field => !!field);
 
     // TYPE
     this.selectedType = data.jsonRuleString.type.toLowerCase();
@@ -418,8 +423,8 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     // FORMAT
     if ('timestamp' === this.selectedType || 'string' === this.selectedType) {
-      if ('string' === this.selectedType ) { // 선택된 모든 컬럼이 스트링일 떄는 타임스탬프 패턴 지정을 보여줄 필요 없다
-        if (-1 === this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
+      if ('string' === this.selectedType) { // 선택된 모든 컬럼이 스트링일 떄는 타임스탬프 패턴 지정을 보여줄 필요 없다
+        if (-1 === this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')) {
           this.isTimestamp = false;
           return;
         }
@@ -437,7 +442,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * @return {number}
    * @private
    */
-  private _checkIfAtLeastOneColumnIsSelType(selectedFields : Field[], type : string) : number {
+  private _checkIfAtLeastOneColumnIsSelType(selectedFields: Field[], type: string): number {
     return selectedFields.findIndex((item) => {
       return item.type === type.toUpperCase();
     });

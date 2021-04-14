@@ -1,8 +1,8 @@
-import { ErrorListener } from 'antlr4/error/ErrorListener';
-import { BailErrorStrategy, InputMismatchException, ParseCancellationException } from 'antlr4/error'
+import {ErrorListener} from 'antlr4/error/ErrorListener';
+import {BailErrorStrategy} from 'antlr4/error'
 
-export class RuleLexerErrorListener extends ErrorListener  {
-    
+export class RuleLexerErrorListener extends ErrorListener {
+
   /** 에러 라인 번호   */
   private line = -1;
 
@@ -13,7 +13,7 @@ export class RuleLexerErrorListener extends ErrorListener  {
   private existError = false;
 
   constructor() {
-    super();   	     
+    super();
   }
 
   public getLine() {
@@ -28,22 +28,22 @@ export class RuleLexerErrorListener extends ErrorListener  {
     return this.existError;
   }
 
-  syntaxError (recognizer, offendingSymbol, line, column, msg, e) {
+  syntaxError(_recognizer, _offendingSymbol, line, column, _msg, _e) {
     this.existError = true;
 
     this.line = line;
 
     this.startIndex = column;
-  }; 
+  };
 }
 
-export class RuleErrorListener extends ErrorListener  {
-    
+export class RuleErrorListener extends ErrorListener {
+
   /** 전체 토큰 목록  */
   private tokens = [];
 
   /* 시작 토큰 인덱스 */
-  private startIndex:number = -1;
+  private startIndex: number = -1;
 
   /* 에러 발생 토큰 인덱스 */
   private offenceIndex: number = -1;
@@ -55,59 +55,58 @@ export class RuleErrorListener extends ErrorListener  {
   private existError = false;
 
   constructor() {
-      super();   	     
+    super();
   }
 
   public getTokens() {
-      return this.tokens;
+    return this.tokens;
   }
 
   public getStartIndex(): number {
-      return this.startIndex;
+    return this.startIndex;
   }
 
   public getOffenceIndex(): number {
-      return this.offenceIndex;
+    return this.offenceIndex;
   }
 
   public getExpectedList(): number[] {
-      return this.expectedList;
+    return this.expectedList;
   }
 
   public isError(): boolean {
-      return this.existError;
+    return this.existError;
   }
 
-  syntaxError (recognizer, offendingSymbol, line, column, msg, e) {
+  syntaxError(recognizer, _offendingSymbol, _line, _column, _msg, e) {
     this.existError = true;
 
     const parser = recognizer._ctx.parser;
     const tokens = parser.getTokenStream().tokens;
 
     // last token is always "fake" EOF token
-    if( tokens != null) {
+    if (tokens != null) {
       this.tokens = tokens;
-    } 
+    }
 
-    let intervals = recognizer.getExpectedTokens();
+    const intervals = recognizer.getExpectedTokens();
 
-    //let intervals = recognizer.getExpectedTokensWithinCurrentRule();
-    
+    // let intervals = recognizer.getExpectedTokensWithinCurrentRule();
 
-    if( e ){
-      if( e.offendingToken ){
+    if (e) {
+      if (e.offendingToken) {
         this.offenceIndex = e.offendingToken.tokenIndex;
       }
 
-      if( e.startToken ){
+      if (e.startToken) {
         this.startIndex = e.startToken.tokenIndex;
       }
     }
 
-    if( intervals ){
-      intervals.intervals.forEach( inter =>{
-        for( let i = inter.start; i <= inter.stop; i++){
-          if( this.expectedList.indexOf(i) === -1){
+    if (intervals) {
+      intervals.intervals.forEach(inter => {
+        for (let i = inter.start; i <= inter.stop; i++) {
+          if (this.expectedList.indexOf(i) === -1) {
             this.expectedList.push(i);
           }
         }
@@ -125,8 +124,8 @@ export class RuleErrorListener extends ErrorListener  {
     }
     */
   };
-    
-    
+
+
 }
 
 /*
@@ -138,30 +137,30 @@ export class RuleErrorListener extends ErrorListener  {
 */
 
 
-export class RuleErrorStrategy extends BailErrorStrategy  {
-	constructor() {
-      super();   	     
+export class RuleErrorStrategy extends BailErrorStrategy {
+  constructor() {
+    super();
   }
 
   public recover(recognizer, e) {
-      
-    var context = recognizer._ctx;
+
+    let context = recognizer._ctx;
     while (context !== null) {
       context.exception = e;
       context = context.parentCtx;
     }
-    
-    //throw new ParseCancellationException(e);
+
+    // throw new ParseCancellationException(e);
   }
 
-  public recoverInline(recognizer) {
-    //this.recover(recognizer, new InputMismatchException(recognizer));
-    //new InputMismatchException(recognizer);
+  public recoverInline(_recognizer) {
+    // this.recover(recognizer, new InputMismatchException(recognizer));
+    // new InputMismatchException(recognizer);
   }
 
-  public sync(recognizer) {
+  public sync(_recognizer) {
     // pass
   }
-    
+
 }
 

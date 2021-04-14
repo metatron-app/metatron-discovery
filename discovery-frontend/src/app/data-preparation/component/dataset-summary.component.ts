@@ -12,20 +12,32 @@
  * limitations under the License.
  */
 
+import * as pixelWidth from 'string-pixel-width';
+import {isNull, isNullOrUndefined, isUndefined} from 'util';
+
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { GridComponent } from '../../common/component/grid/grid.component';
-import { DatasetService } from '../dataset/service/dataset.service';
-import { PrDataset, Field } from '../../domain/data-preparation/pr-dataset';
-import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { isNull, isUndefined, isNullOrUndefined } from 'util';
-import { GridOption } from '../../common/component/grid/grid.option';
-import * as pixelWidth from 'string-pixel-width';
-declare let moment : any;
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Field, PrDataset} from '@domain/data-preparation/pr-dataset';
+
+import {DatasetService} from '../dataset/service/dataset.service';
+
+declare let moment: any;
 
 @Component({
   selector: 'app-dataset-summary',
@@ -38,7 +50,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private selectedDatasetId : string;
+  private selectedDatasetId: string;
 
   private _timeOut: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -55,21 +67,22 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   public closeEvent = new EventEmitter();
 
   @Input()
-  public datasetId : string;
+  public datasetId: string;
 
-  public dataset : PrDataset;
+  public dataset: PrDataset;
 
   public isRequested: boolean = false;
 
-  public interval ;
+  public interval;
 
-  public dsInformationList : DsInfo[];
+  public dsInformationList: DsInfo[];
 
   public clearGrid: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  constructor(private datasetService : DatasetService,
+  constructor(private datasetService: DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -89,7 +102,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
     super.ngOnDestroy();
   }
 
-  ngOnChanges(changes : SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges) {
 
     if (this.selectedDatasetId !== changes['datasetId'].currentValue) {
       this.selectedDatasetId = changes['datasetId'].currentValue;
@@ -163,7 +176,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   public get getRows() {
     let rows = '0 row(s)';
 
-    if(!isNullOrUndefined(this.dataset.totalLines) && Number.isInteger(this.dataset.totalLines)) {
+    if (!isNullOrUndefined(this.dataset.totalLines) && Number.isInteger(this.dataset.totalLines)) {
       if (this.dataset.totalLines === -1) {
         rows = '(counting)';
       } else {
@@ -172,7 +185,6 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
     }
     return rows;
   }
-
 
 
   /**
@@ -197,16 +209,19 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * @param decimalPoint 소수점 자릿
    */
   private _formatBytes(val, decimalPoint) {
-    if ( -1 === val ) return "0 Bytes";
-    let c=1024,d=decimalPoint||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(val)/Math.log(c));
-    return parseFloat((val/Math.pow(c,f)).toFixed(d))+" "+e[f]
+    if (-1 === val) return '0 Bytes';
+    const c = 1024;
+    const d = decimalPoint || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(val) / Math.log(c));
+    return parseFloat((val / Math.pow(c, f)).toFixed(d)) + ' ' + e[f]
   } // function - _formatBytes
 
 
   /**
    * 그리드 데이터 가공
    * @param data
-   * */
+   */
   private _setGridData(data: any) {
     this._updateGrid(this._getGridDataFromGridResponse(data));
   } // function - _setGridData
@@ -214,26 +229,29 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   /**
    * 데이터 미리보기
    * @param data
-   * */
+   */
   private _updateGrid(data: any) {
 
-    const $gridContainer = this.$element.find( '.ddp-box-preview' );
-    $gridContainer.css( { 'height' : $(window).height() - ( 300 + 26 * this.dsInformationList.length ), 'margin-bottom' : '-20px' } );
+    const $gridContainer = this.$element.find('.ddp-box-preview');
+    $gridContainer.css({
+      height: $(window).height() - (300 + 26 * this.dsInformationList.length),
+      'margin-bottom': '-20px'
+    });
 
     const maxDataLen: any = {};
-    let fields: Field[] = data.fields;
-    let rows: any[] = data.data.splice(0,50); // preview는 50 rows 까지만
+    const fields: Field[] = data.fields;
+    let rows: any[] = data.data.splice(0, 50); // preview는 50 rows 까지만
 
     // Row 생성 및 컬럼별 최대 길이 측정
     if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
       rows = rows.map((row: any, idx: number) => {
         // 컬럼 길이 측정
         fields.forEach((field: Field) => {
-          if(field.type === 'ARRAY' ||field.type === 'MAP') {
+          if (field.type === 'ARRAY' || field.type === 'MAP') {
             row[field.name] = JSON.stringify(row[field.name])
           }
-          const colWidth: number = pixelWidth(row[field.name], { size: 12 });
-          if (!maxDataLen[field.name] || ( maxDataLen[field.name] < colWidth )) {
+          const colWidth: number = pixelWidth(row[field.name], {size: 12});
+          if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
             maxDataLen[field.name] = colWidth;
           }
         });
@@ -244,10 +262,10 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
     }
 
     // 헤더정보 생성
-    const headers: header[] = fields.map((field: Field) => {
+    const headers: Header[] = fields.map((field: Field) => {
 
       /* 72 는 CSS 상의 padding 수치의 합산임 */
-      const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
+      const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 72;
 
       return new SlickGridHeader()
         .Id(field.name)
@@ -263,10 +281,10 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
         .Unselectable(true)
         .Sortable(false)
         .ColumnType(field.type)
-        .Formatter((function (scope) {
-          return function (row, cell, value) {
+        .Formatter(((_scope) => {
+          return (_row, _cell, value) => {
             if (isNull(value)) {
-              return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0px; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
+              return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
             } else {
               return value;
             }
@@ -294,16 +312,16 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * @return
    */
   private _getGridDataFromGridResponse(gridResponse: any) {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
       fields: []
     };
 
-    for(let idx = 0;idx < colCnt; idx++ ) {
+    for (let idx = 0; idx < colCnt; idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -313,8 +331,8 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for ( let idx = 0; idx < colCnt; idx++ ) {
-        obj[ colNames[idx] ] = row.objCols[idx];
+      for (let idx = 0; idx < colCnt; idx++) {
+        obj[colNames[idx]] = row.objCols[idx];
       }
       gridData.data.push(obj);
     });
@@ -338,21 +356,27 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * @param dataset
    * @private
    */
-  private _setDsInformationList(dataset? : PrDataset) {
+  private _setDsInformationList(dataset?: PrDataset) {
 
     this.dsInformationList = [];
 
     if (dataset) { // 서버에러나면 데이터셋 정보가 없을 수 있음
-      this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.created')
-        , value : moment.utc(dataset.createdTime).format('YYYY-MM-DD HH:mm')});
+      this.dsInformationList.push({
+        label: this.translateService.instant('msg.comm.detail.created')
+        , value: moment.utc(dataset.createdTime).format('YYYY-MM-DD HH:mm')
+      });
 
       if (dataset.dcType !== 'JDBC') {
-        this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.size')
-          , value : this._getTotalBytes(dataset.totalBytes)});
+        this.dsInformationList.push({
+          label: this.translateService.instant('msg.comm.detail.size')
+          , value: this._getTotalBytes(dataset.totalBytes)
+        });
       }
 
-      this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.rows')
-        , value : this.getRows });
+      this.dsInformationList.push({
+        label: this.translateService.instant('msg.comm.detail.rows')
+        , value: this.getRows
+      });
     }
 
   }
@@ -365,10 +389,10 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   private _getTotalBytes(bytes) {
 
     let size = -1;
-    if(!isNullOrUndefined(bytes) && Number.isInteger(bytes)) {
+    if (!isNullOrUndefined(bytes) && Number.isInteger(bytes)) {
       size = bytes;
     }
-    return this._formatBytes(size,1);
+    return this._formatBytes(size, 1);
   }
 
 }

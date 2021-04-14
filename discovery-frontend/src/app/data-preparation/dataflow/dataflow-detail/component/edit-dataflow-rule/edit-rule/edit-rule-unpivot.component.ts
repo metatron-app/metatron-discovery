@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
+import {isNullOrUndefined} from 'util';
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
+import { Alert } from '@common/util/alert.util';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {UnpivotRule} from '@domain/data-preparation/prep-rules';
 import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import {isNullOrUndefined} from "util";
-import {UnpivotRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-unpivot',
@@ -148,7 +148,7 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
   protected parsingRuleString(data: {jsonRuleString : UnpivotRule}) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
+    const arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     this.inputValue = data.jsonRuleString.groupEvery;
