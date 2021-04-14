@@ -24,7 +24,7 @@
          (keydown)="changeRule($event)">
   <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isAutoCompleteSuggestionListOpen" >
     <li *ngFor="let item of autoCompleteSuggestions;let idx=index" (click)="onSelectAutoComplete(item)">
-      <a [ngStyle]="idx==autoCompleteSuggestions_selectedIdx?{'background-color':'#f6f6f7','color':item.class}:{'color':item.class}" href="javascript:">
+      <a [ngStyle]="idx==autoCompleteSuggestionsSelectedIdx?{'background-color':'#f6f6f7','color':item.class}:{'color':item.class}" href="javascript:">
         {{item.value}}
       </a>
     </li>

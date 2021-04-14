@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Alert } from '../../common/util/alert.util';
-import { isUndefined } from 'util';
+import {isUndefined} from 'util';
+import {Alert} from '@common/util/alert.util';
 
 export class PreparationException {
   public code: string;
@@ -21,16 +21,16 @@ export class PreparationException {
   public message: string;
 
   public getErrMsg() {
-      var errMsg = null;
+    let errMsg = null;
 
-      if( errMsg==null && false===isUndefined(this.details) ) {
-        errMsg = this.details;
-      }
-      if( errMsg==null && false===isUndefined(this.message) ) {
-        errMsg = this.message;
-      }
+    if (false === isUndefined(this.details)) {
+      errMsg = this.details;
+    }
+    if (errMsg == null && false === isUndefined(this.message)) {
+      errMsg = this.message;
+    }
 
-      return errMsg;
+    return errMsg;
   }
 }
 
@@ -38,19 +38,19 @@ export class PreparationAlert {
 
   private static getMessage(error: any): string {
 
-    var message = null;
+    let message = null;
 
-    if( null === error ) {
+    if (null === error) {
       message = null;
-    } else if( 'string'===typeof error ) {
+    } else if ('string' === typeof error) {
       message = error;
-    } else if( 'object'===typeof error ) {
-      if( error.details ) {
+    } else if ('object' === typeof error) {
+      if (error.details) {
         message = error.details;
-      } else if( error.message ) {
+      } else if (error.message) {
         message = error.message;
       } else {
-        message = JSON.stringify( error );
+        message = JSON.stringify(error);
       }
     }
 
@@ -58,40 +58,44 @@ export class PreparationAlert {
   }
 
   public static info(error: any): void {
-    var message = this.getMessage(error);
-    if( null!==message ) {
+    const message = this.getMessage(error);
+    if (null !== message) {
       Alert.info(message);
     }
   }
 
   public static success(error: any): void {
-    var message = this.getMessage(error);
-    if( null!==message ) {
+    const message = this.getMessage(error);
+    if (null !== message) {
       Alert.success(message);
     }
   }
 
   public static warning(error: any): void {
-    var message = this.getMessage(error);
-    if( null!==message ) {
+    const message = this.getMessage(error);
+    if (null !== message) {
       Alert.warning(message);
     }
-    if( null!=error ) { console.warn(error); }
+    if (null != error) {
+      console.warn(error);
+    }
   }
 
   public static error(error: any): void {
-    var message = this.getMessage(error);
-    if( null!==message ) {
+    const message = this.getMessage(error);
+    if (null !== message) {
       Alert.error(message);
     }
-    if( null!=error ) { console.error(error); }
+    if (null != error) {
+      console.error(error);
+    }
   }
 
-  public static output(error:any, message?:any): void {
-    if( error.code && true===error.code.startsWith("PR") ) {
-      var category = error.code.charAt(2);
-      var details = error.details;
-      switch(category) {
+  public static output(error: any, message?: any): void {
+    if (error.code && true === error.code.startsWith('PR')) {
+      const category = error.code.charAt(2);
+      const details = error.details;
+      switch (category) {
         case '0':
           Alert.success(details ? details : message);
           break;
@@ -102,12 +106,20 @@ export class PreparationAlert {
         case '6':
         case '7':
         default:
-          if(!isUndefined(details)) { Alert.errorDetail(message, details); } else { Alert.error(message); }
+          if (!isUndefined(details)) {
+            Alert.errorDetail(message, details);
+          } else {
+            Alert.error(message);
+          }
           break;
       }
     } else {
       console.error(error);
-      if(!isUndefined(error.details)) { Alert.errorDetail(message, error.details); } else { Alert.error(message); }
+      if (!isUndefined(error.details)) {
+        Alert.errorDetail(message, error.details);
+      } else {
+        Alert.error(message);
+      }
     }
   }
 }

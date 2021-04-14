@@ -13,9 +13,8 @@
  */
 
 import { AfterViewInit, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-//import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
-import { Field, Rule } from '../../../../../../domain/data-preparation/pr-dataset';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Field, Rule } from '@domain/data-preparation/pr-dataset';
 import { isNullOrUndefined } from 'util';
 
 export abstract class EditRuleComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {

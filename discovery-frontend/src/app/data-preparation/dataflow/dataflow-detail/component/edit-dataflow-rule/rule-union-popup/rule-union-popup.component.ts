@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
-import { PrDataset, DsType } from '../../../../../../domain/data-preparation/pr-dataset';
-import { PopupService } from '../../../../../../common/service/popup.service';
-import { DataflowService } from '../../../../service/dataflow.service';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { PreparationAlert } from '../../../../../util/preparation-alert.util';
 import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {PopupService} from '@common/service/popup.service';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DsType, PrDataset} from '@domain/data-preparation/pr-dataset';
+import {DataflowService} from '../../../../service/dataflow.service';
+import {PreparationAlert} from '../../../../../util/preparation-alert.util';
 
 class Field {
   public name: string;
@@ -49,7 +49,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    | Public - Input Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input() // 기존 데이터 (마스터 데이터 - 오른쪽 컬럼 첫번째로 나와야 한다)
-  //public masterDataset: Dataset;
+  // public masterDataset: Dataset;
   public masterDataset: PrDataset;
 
   @Input() // 해당 데이터플로우 정보 필요
@@ -83,7 +83,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   // Union 결과 - 필드 배열
   public fieldMatrix: Field[][] = [];
 
-  //public editInfo: Dataset[] = [];
+  // public editInfo: Dataset[] = [];
   public editInfo: PrDataset[] = [];
 
   public isUpdate: boolean = false; // 수정 모드 여
@@ -118,8 +118,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       this.isUpdate = true;
 
       const jsonRuleString = JSON.parse(this.editRuleStr);
-      let dsIdList: string[] = jsonRuleString.dsId;
-      let dsNameList: string[] = jsonRuleString.dsName;
+      const dsIdList: string[] = jsonRuleString.dsId;
+      const dsNameList: string[] = jsonRuleString.dsName;
 
       const dsInfoList: PrDataset[] = dsIdList.map((dsId: string, index: number) => {
         const ds = new PrDataset();
@@ -171,14 +171,14 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       command: 'union',
       op: 'APPEND',
       ruleString: ruleStr[1],
-      ruleIdx : this.serverSyncIndex,
-      uiRuleString:ruleStr[2]
+      ruleIdx: this.serverSyncIndex,
+      uiRuleString: ruleStr[2]
     };
     if (this.editRuleStr) {
       // for edit
       rule.op = 'UPDATE';
     }
-    this.unionComplete.emit({ event: 'ruleUnionComplete', ruleInfo: rule });
+    this.unionComplete.emit({event: 'ruleUnionComplete', ruleInfo: rule});
   } // function - applyRule
 
   /**
@@ -204,7 +204,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   /**
    * dataset 하나 지우기
    */
-  //public deleteDataset(dsItem: Dataset) {
+  // public deleteDataset(dsItem: Dataset) {
   public deleteDataset(dsItem: PrDataset) {
     this.unionDatasets = this.unionDatasets.filter(ds => ds.dsId !== dsItem.dsId);
     this.datasets = [this.masterDataset].concat(this.unionDatasets);
@@ -217,13 +217,13 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    * @returns {boolean}
    */
   public isDisableFieldRow(fieldList: Field[]): boolean {
-    return ( fieldList.length
-      === fieldList.filter(item => item.unionType === 'INCORRECT').length );
+    return (fieldList.length
+      === fieldList.filter(item => item.unionType === 'INCORRECT').length);
   } // function - getClassFieldRow
 
   public getIconType(type: string) {
-    var className = 'ddp-icon-type-';
-    switch(type) {
+    let className = 'ddp-icon-type-';
+    switch (type) {
       case 'STRING':
       case 'USER_DEFINED':
       case 'TEXT':
@@ -268,7 +268,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   /**
    * 룰 문자열을 생성한다.
    */
-  private generateRuleString(): [boolean, string, Object] {
+  private generateRuleString(): [boolean, string, object] {
     if (0 === this.resultFields.length) {
       return [false, this.translateService.instant('msp.dp.alert.no.union.result'), null];
     }
@@ -276,15 +276,15 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       return [false, this.translateService.instant('msg.dp.alert.no.data.union'), null];
     }
 
-    let ruleStr: string = 'union masterCol: ' + this.getColumnNamesInArray(this.resultFields,'name', '`').toString()
+    let ruleStr: string = 'union masterCol: ' + this.getColumnNamesInArray(this.resultFields, 'name', '`').toString()
       + ' dataset2: ';
 
     // 유니온 가능한 dataset id 만 필요하기 때문에 ...
-    let list = this.unionDatasets.filter((item) => {
+    const list = this.unionDatasets.filter((item) => {
       return item.validCount === item.gridData.fields.length;
     });
 
-    ruleStr += this.getColumnNamesInArray(list, 'dsId', "'").toString();
+    ruleStr += this.getColumnNamesInArray(list, 'dsId', '\'').toString();
 
     const uiRuleString = {
       name: 'union',
@@ -315,14 +315,14 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
       this.loadingShow();
 
-      //Promise.all(promises).then((res: Dataset[]) => {
+      // Promise.all(promises).then((res: Dataset[]) => {
       Promise.all(promises).then((res: PrDataset[]) => {
         // 최대 필드수 및 ds별 필드 목록 측정
-        let colFields: Field[][] = [];       // maxCols
+        const colFields: Field[][] = [];       // maxCols
         this.maxCntFields = this.resultFields.length; // 최소 길이가 결과와는 동일해야 하므로..
         res.forEach(dsInfo => {
           colFields.push(dsInfo.gridData.fields);
-          this.maxCntFields = (this.maxCntFields > dsInfo.gridData.fields.length ) ? this.maxCntFields : dsInfo.gridData.fields.length;
+          this.maxCntFields = (this.maxCntFields > dsInfo.gridData.fields.length) ? this.maxCntFields : dsInfo.gridData.fields.length;
         });
 
         // 데이터 초기 설정
@@ -336,20 +336,20 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
             resultField = this.resultFields[rowIdx];
           } else {
             this.isValidUnionState = false;
-            resultField = { name: 'NONE', type: 'NONE' };
+            resultField = {name: 'NONE', type: 'NONE'};
           }
 
           // 각 데이터셋별 필드 일치 여부 판별
-          let rowFields: Field[] = [];
+          const rowFields: Field[] = [];
           colFields.forEach((dsFields: Field[], dsIdx: number) => {
             if (rowIdx >= dsFields.length) {
               this.isValidUnionState = false;
-              rowFields.push({ name: '(no column)', type: '', unionType: 'LACK' });
+              rowFields.push({name: '(no column)', type: '', unionType: 'LACK'});
             } else {
-              let dsFieldInRow: Field = dsFields[rowIdx];
+              const dsFieldInRow: Field = dsFields[rowIdx];
               if ('NONE' === resultField.type) {
                 rowFields.push({
-                  name: ( dsFieldInRow.name ) ? dsFieldInRow.name : '',
+                  name: (dsFieldInRow.name) ? dsFieldInRow.name : '',
                   type: '',
                   unionType: 'DROPPED'
                 });
@@ -374,16 +374,16 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   } // function - convertDataToUiType
 
   private getGridDataFromGridResponse(gridResponse: any) {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
       fields: []
     };
 
-    for(let idx=0;idx<colCnt;idx++) {
+    for (let idx = 0; idx < colCnt; idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -393,8 +393,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for(let idx=0;idx<colCnt;idx++) {
-        obj[ colNames[idx] ] = row.objCols[idx];
+      for (let idx = 0; idx < colCnt; idx++) {
+        obj[colNames[idx]] = row.objCols[idx];
       }
       gridData.data.push(obj);
     });
@@ -424,8 +424,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
           })
           .catch((error) => {
             this.loadingHide();
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            const prepError = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
           });
       } // end if - dsInfo not exist griddata
     });
@@ -439,7 +439,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    * @param label
    * @param wrapChar
    */
-  protected getColumnNamesInArray(fields: any, label:string, wrapChar?:string) :string[] {
+  protected getColumnNamesInArray(fields: any, label: string, wrapChar?: string): string[] {
     return fields.map((item) => {
       if (wrapChar) {
         return wrapChar + item[label] + wrapChar

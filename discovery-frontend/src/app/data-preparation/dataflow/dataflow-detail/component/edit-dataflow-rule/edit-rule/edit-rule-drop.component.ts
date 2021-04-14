@@ -13,10 +13,10 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
+import { Alert } from '@common/util/alert.util';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {DropRule} from '@domain/data-preparation/prep-rules';
 import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import {DropRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-drop',
@@ -132,7 +132,7 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   protected parsingRuleString(data: {jsonRuleString : DropRule}) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
+    const arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
   } // function - parsingRuleString

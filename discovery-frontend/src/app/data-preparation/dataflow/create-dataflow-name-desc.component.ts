@@ -13,13 +13,12 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-//import { Dataflow } from '../../domain/data-preparation/dataflow';
-import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
-import { CommonUtil } from '../../common/util/common.util';
-import { DataflowService } from './service/dataflow.service';
-import { Alert } from '../../common/util/alert.util';
+import { CommonUtil } from '@common/util/common.util';
+import { Alert } from '@common/util/alert.util';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { PrDataflow } from '@domain/data-preparation/pr-dataflow';
 import { PreparationAlert } from '../util/preparation-alert.util';
+import { DataflowService } from './service/dataflow.service';
 
 @Component({
   selector: 'app-create-dataflow-name-desc',
@@ -44,7 +43,6 @@ export class CreateDataflowNameDescComponent extends AbstractComponent implement
   public isShow = false;
 
   // 워크북
-  //public dataflow: Dataflow = new Dataflow();
   public dataflow: PrDataflow = new PrDataflow();
 
   // 유효성 관련 - 이름
@@ -134,8 +132,8 @@ export class CreateDataflowNameDescComponent extends AbstractComponent implement
       // 완료 후 생성 된 데이터플로우로 이동한다.
     }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
   }
 

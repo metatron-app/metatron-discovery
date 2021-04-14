@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import { isUndefined } from 'util';
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
 } from '@angular/core';
+import { Alert } from '@common/util/alert.util';
+import {KeepRule} from '@domain/data-preparation/prep-rules';
 import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { isUndefined } from "util";
-import * as _ from 'lodash';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import {KeepRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-keep',
@@ -91,7 +91,7 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   public getRuleData(): { command: string, ruleString:string, uiRuleString: KeepRule} {
 
     this.keepRow = this.rowInput.getFormula();
-    let val = _.cloneDeep(this.keepRow);
+    const val = _.cloneDeep(this.keepRow);
     if (isUndefined(val) || '' === val || '\'\'' === val) {
       Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
       return undefined

@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import {isNullOrUndefined} from 'util';
+import {Message} from '@stomp/stompjs';
 import {
   ApplicationRef,
   ChangeDetectionStrategy,
@@ -28,7 +30,15 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {Workbook} from '@domain/workbook/workbook';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {PopupService} from '@common/service/popup.service';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {ChartSelectInfo} from '@common/component/chart/base-chart';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+
 import {
   BoardDataSource,
   Dashboard,
@@ -36,27 +46,18 @@ import {
   LayoutMode,
   PresentationDashboard
 } from '@domain/dashboard/dashboard';
+import {Workbook} from '@domain/workbook/workbook';
 import {Widget} from '@domain/dashboard/widget/widget';
-import {ChartSelectInfo} from '@common/component/chart/base-chart';
-import {SelectionFilterComponent} from './component/selection-filter/selection-filter.component';
-import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
-import {Filter} from '@domain/workbook/configurations/filter/filter';
-import {PopupService} from '@common/service/popup.service';
-import {DatasourceService} from '../datasource/service/datasource.service';
-import {ConnectionType, Datasource, TempDsStatus, TemporaryDatasource} from 'app/domain/datasource/datasource';
-import {Modal} from '@common/domain/modal';
-import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
-import {CommonConstant} from '@common/constant/common.constant';
-import {CookieConstant} from '@common/constant/cookie.constant';
-import {Alert} from '@common/util/alert.util';
-import {EventBroadcaster} from '@common/event/event.broadcaster';
-import {isNullOrUndefined} from 'util';
-import {Message} from '@stomp/stompjs';
 import {FilterWidget} from '@domain/dashboard/widget/filter-widget';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {ConnectionType, Datasource, TempDsStatus, TemporaryDatasource} from '@domain/datasource/datasource';
 
+import {DatasourceService} from '../datasource/service/datasource.service';
 import {WidgetService} from './service/widget.service';
 import {DashboardUtil} from './util/dashboard.util';
+import {SelectionFilterComponent} from './component/selection-filter/selection-filter.component';
+import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -200,7 +201,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     const filterWidget: FilterWidget = DashboardUtil.getFilterWidgetByFilter(this.dashboard, filter);
     if (filterWidget) {
       this._getAllChildWidgetRelation(filterWidget.id, this.dashboard.configuration.filterRelations,
-        (target: DashboardWidgetRelation, children: string[]) => {
+        (_target: DashboardWidgetRelation, children: string[]) => {
           children.forEach(childId => {
             const childWidget: FilterWidget = DashboardUtil.getWidget(this.dashboard, childId) as FilterWidget;
             (childWidget.configuration.filter as InclusionFilter).valueList = [];
