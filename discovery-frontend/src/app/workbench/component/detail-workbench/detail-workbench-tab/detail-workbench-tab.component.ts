@@ -16,7 +16,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
   Output
 } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from  '@common/component/abstract.component';
 import { isUndefined } from 'util';
 
 @Component({
@@ -75,8 +75,8 @@ export class DetailWorkbenchTabComponent extends AbstractComponent implements On
 
   public ngOnChanges() {
     if (!isUndefined(this.position)) {
-      this.tabLayerY = this.position.x;
-      this.tabLayerX = this.position.y;
+      this.tabLayerY = this.position.x.toString();
+      this.tabLayerX = this.position.y.toString();
     }
   }
   // Destory

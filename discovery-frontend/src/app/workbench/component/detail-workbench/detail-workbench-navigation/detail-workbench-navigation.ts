@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { isUndefined } from 'util';
 import { WorkbenchService } from '../../../service/workbench.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { StringUtil } from '../../../../common/util/string.util';
-import { CommonConstant } from '../../../../common/constant/common.constant';
+import { Alert } from '@common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { CommonConstant } from '@common/constant/common.constant';
 
 @Component({
   selector: 'detail-workbench-navigation',

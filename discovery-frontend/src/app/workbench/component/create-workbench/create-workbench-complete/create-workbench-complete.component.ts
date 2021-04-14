@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { PopupService } from '../../../../common/service/popup.service';
-import { StringUtil } from '../../../../common/util/string.util';
-import { Alert } from '../../../../common/util/alert.util';
-import { CommonUtil } from '../../../../common/util/common.util';
-import { Workbench } from '../../../../domain/workbench/workbench';
+import { PopupService } from '@common/service/popup.service';
+import { StringUtil } from '@common/util/string.util';
+import { Alert } from '@common/util/alert.util';
+import { CommonUtil } from '@common/util/common.util';
+import { Workbench } from '@domain/workbench/workbench';
 import { WorkbenchService } from '../../../service/workbench.service';
 
 @Component({
@@ -164,7 +164,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
   }
 
   /**
-   * 커넥션이 default 타입인지 
+   * 커넥션이 default 타입인지
    * @returns {boolean}
    */
   public isDefaultType(): boolean {

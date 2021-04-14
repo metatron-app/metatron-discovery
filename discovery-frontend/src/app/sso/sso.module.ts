@@ -14,7 +14,7 @@
 
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { CookieService } from 'ng2-cookies';
 import { SsoComponent } from './sso.component';
 

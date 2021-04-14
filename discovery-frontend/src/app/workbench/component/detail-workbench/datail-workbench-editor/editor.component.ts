@@ -15,7 +15,7 @@
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output
 } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 
 declare const ace: any;
 
@@ -66,7 +66,6 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
   private textChange = new EventEmitter();
 
   @Input()
-  private style: any = {};
   private options: any = {};
   private readOnly: boolean = false;
   private autoUpdateContent: boolean = true;
@@ -159,14 +158,13 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
           clearTimeout(this.timeoutSaving);
         }
 
-        this.timeoutSaving = setTimeout(
-          function () {
-            this.text = newVal;
-            this.textChange.emit(newVal);
-            this.textChanged.emit(newVal);
-            this.timeoutSaving = null;
-          },
-          this.durationBeforeCallback);
+        this.timeoutSaving = setTimeout(()=>{
+          this.text = newVal;
+          this.textChange.emit(newVal);
+          this.textChanged.emit(newVal);
+          this.timeoutSaving = null;
+        },this.durationBeforeCallback);
+
       }
     } else if (typeof this.oldText === 'undefined') {
       this.textChanged.emit(newVal);

@@ -1,5 +1,5 @@
 import {NgModule} from "@angular/core";
-import {CommonModule} from "../../../../common/common.module";
+import {CommonModule} from "@common/common.module";
 import {CreateWorkbenchContainerComponent} from "./create-workbench-container.component";
 import {CreateWorkbenchModelService} from "./service/create-workbench-model.service";
 import {CreateWorkbenchSelectComponent} from "./create-workbench-select.component";

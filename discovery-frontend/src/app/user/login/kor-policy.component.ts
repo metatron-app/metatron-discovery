@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-kor-policy',
