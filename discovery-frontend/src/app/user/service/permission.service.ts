@@ -13,10 +13,10 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import { AbstractService } from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { CommonUtil } from '../../common/util/common.util';
-import { RoleSet, RoleSetScope } from '../../domain/user/role/roleSet';
+import { CommonUtil } from '@common/util/common.util';
+import { RoleSet, RoleSetScope } from '@domain/user/role/roleSet';
 
 @Injectable()
 export class PermissionService extends AbstractService {

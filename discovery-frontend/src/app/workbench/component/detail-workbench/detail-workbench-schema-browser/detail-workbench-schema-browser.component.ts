@@ -13,22 +13,22 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Page} from '../../../../domain/common/page';
+import {Page} from '@domain/common/page';
 import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {QueryEditor, Workbench} from '../../../../domain/workbench/workbench';
-import {GridComponent} from '../../../../common/component/grid/grid.component';
-import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../common/component/grid/grid.option';
-import {CommonConstant} from '../../../../common/constant/common.constant';
+import {Alert} from '@common/util/alert.util';
+import {QueryEditor, Workbench} from '@domain/workbench/workbench';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {CommonConstant} from '@common/constant/common.constant';
 import {WorkbenchService} from '../../../service/workbench.service';
 import {ActivatedRoute} from '@angular/router';
-import {Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
 import {MetadataService} from '../../../../meta-data-management/metadata/service/metadata.service';
 import {isNullOrUndefined, isUndefined} from 'util';
 import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
-import {StringUtil} from '../../../../common/util/string.util';
-import {CommonUtil} from "../../../../common/util/common.util";
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from "@common/util/common.util";
 import * as _ from 'lodash';
 
 @Component({
@@ -595,7 +595,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
   /**
    *
-   * @param {string} connectionId
+   * @param dataConnection
    * @param {string} databaseName
    * @param {Page} page
    * @param {string} tableName
@@ -975,7 +975,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     const data: any = this.schemaTableColumnList;
     const enableMetaData: boolean = _.some(this.schemaTableColumnList, column => column.name);
     // headers
-    const headers: header[] = [];
+    const headers: Header[] = [];
     // Physical name
     headers.push(this._createSlickGridHeader('physicalName', 'Column Name', 300));
     // Logical name
@@ -1016,7 +1016,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     const data: any = this.schemaTableList;
     const enableMetaData: boolean = _.some(this.schemaTableList, table => table.metadataName);
     // headers
-    const headers: header[] = [];
+    const headers: Header[] = [];
     // headers.push(this._createSlickGridHeader('name', 200));
     // headers.push(this._createSlickGridHeader('type', 120));
     // headers.push(this._createSlickGridHeader('comment', 260));
@@ -1070,7 +1070,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // data
     const data: any = this.schemaTableDataList;
     // headers
-    const headers: header[] = [];
+    const headers: Header[] = [];
     for (let index: number = 0; index < data.fields.length; index = index + 1) {
       const temp = data.fields[index].name;
       const columnCnt = temp.length;
@@ -1109,7 +1109,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @returns {header}
    * @private
    */
-  private _createSlickGridHeader(field: string, name: string, width: number, iconType?: string): header {
+  private _createSlickGridHeader(field: string, name: string, width: number, iconType?: string): Header {
     return iconType
       ? new SlickGridHeader()
         .Id(field)
@@ -1145,7 +1145,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {number} rowHeight
    * @private
    */
-  private _createGridComponent(gridComponent: GridComponent, headers: header[], rows: any[], rowHeight: number): void {
+  private _createGridComponent(gridComponent: GridComponent, headers: Header[], rows: any[], rowHeight: number): void {
     gridComponent.create(headers, rows, new GridOption()
       .SyncColumnCellResize(true)
       .MultiColumnSort(true)
@@ -1165,7 +1165,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {number} rowHeight
    * @private
    */
-  private _createTableGridComponent(gridComponent: GridComponent, headers: header[], rows: any[], rowHeight: number): void {
+  private _createTableGridComponent(gridComponent: GridComponent, headers: Header[], rows: any[], rowHeight: number): void {
     gridComponent.create(headers, rows, new GridOption()
       .SyncColumnCellResize(true)
       .MultiColumnSort(true)

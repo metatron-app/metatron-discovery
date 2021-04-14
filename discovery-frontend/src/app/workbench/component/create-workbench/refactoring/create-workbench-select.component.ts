@@ -1,13 +1,13 @@
-import {AbstractComponent} from "../../../../common/component/abstract.component";
+import {AbstractComponent} from "@common/component/abstract.component";
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {CreateWorkbenchModelService} from "./service/create-workbench-model.service";
 import {WorkspaceService} from "../../../../workspace/service/workspace.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {SortConstant} from "../../../../common/constant/sort.constant";
+import {StringUtil} from "@common/util/string.util";
+import {SortConstant} from "@common/constant/sort.constant";
 import {ConstantService} from "../../../../shared/datasource-metadata/service/constant.service";
 import {WorkbenchConstant} from "../../../workbench.constant";
 import {StorageService} from "../../../../data-storage/service/storage.service";
-import {ImplementorType} from "../../../../domain/dataconnection/dataconnection";
+import {ImplementorType} from "@domain/dataconnection/dataconnection";
 import * as _ from 'lodash';
 
 @Component({

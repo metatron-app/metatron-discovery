@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { StringUtil } from '../../../../common/util/string.util';
 import {isNullOrUndefined} from 'util';

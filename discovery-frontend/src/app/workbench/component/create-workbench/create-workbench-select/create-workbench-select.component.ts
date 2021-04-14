@@ -13,13 +13,12 @@
  */
 
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
-import { Workbench } from '../../../../domain/workbench/workbench';
-import { PageResult } from '../../../../domain/common/page';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { PopupService } from '@common/service/popup.service';
+import { Alert } from '@common/util/alert.util';
+import { Dataconnection } from '@domain/dataconnection/dataconnection';
+import { Workbench } from '@domain/workbench/workbench';
+import { PageResult } from '@domain/common/page';
 import { WorkspaceService } from '../../../../workspace/service/workspace.service';
 import {StorageService} from "../../../../data-storage/service/storage.service";
 
@@ -222,10 +221,8 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
    * @returns {boolean}
    */
   public get isMoreContents() {
-    if (this.pageResult.number < this.pageResult.totalPages - 1) {
-      return true;
-    }
-    return false;
+    return this.pageResult.number < this.pageResult.totalPages - 1;
+
   }
 
   /**

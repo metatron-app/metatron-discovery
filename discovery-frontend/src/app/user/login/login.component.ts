@@ -13,20 +13,20 @@
  */
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { User } from '../../domain/user/user';
+import { User } from '@domain/user/user';
 import { UserService } from '../service/user.service';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import { CookieConstant } from '@common/constant/cookie.constant';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { JoinComponent } from './component/join/join.component';
 import { JoinCompleteComponent } from './component/join-complete/join-complete.component';
 import { ResetPasswordComponent } from './component/reset-password/reset-password.component';
-import { Alert } from '../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 import { ActivatedRoute } from '@angular/router';
 import { WorkspaceService } from '../../workspace/service/workspace.service';
 import { PermissionService } from '../service/permission.service';
-import { ConfirmSmallComponent } from '../../common/component/modal/confirm-small/confirm-small.component';
-import { Modal } from '../../common/domain/modal';
-import { CommonUtil } from '../../common/util/common.util';
+import { ConfirmSmallComponent } from '@common/component/modal/confirm-small/confirm-small.component';
+import { Modal } from '@common/domain/modal';
+import { CommonUtil } from '@common/util/common.util';
 import { isNullOrUndefined } from 'util';
 import { InitialChangePasswordComponent } from "./component/initial-change-password/initial-change-password.component";
 

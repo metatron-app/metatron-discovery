@@ -54,7 +54,7 @@ export class UserService extends AbstractService {
       // 사용자 정보가 있는지 체크
       return this.http.get(url, { headers })
         .toPromise()
-        .then(response => Promise.resolve(true))
+        .then(_response => Promise.resolve(true))
         .catch(error => scope.isLoggedInErrorHandler(scope, error));
     } else {
       CommonUtil.moveToStartPage( this.router );
@@ -75,11 +75,11 @@ export class UserService extends AbstractService {
         this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, token.refresh_token, 0, "/");
         return true;
       }).catch(() => {
-        this.router.navigate(['/user/login']);
+        this.router.navigate(['/user/login']).then();
         return false;
       });
     }  else {
-      this.router.navigate(['/user/login']);
+      this.router.navigate(['/user/login']).then();
       return Promise.resolve(false);
     }
   }
@@ -153,7 +153,7 @@ export class UserService extends AbstractService {
     return this.patch(this.URL_USER + `/${username}`, params);
   }
 
-  public updateInitialUser(username: string, params: any): Promise<any> {
+  public updateInitialUser(_username: string, params: any): Promise<any> {
     return this.postWithoutToken(this.URL_USER + `/password`, params);
   }
 

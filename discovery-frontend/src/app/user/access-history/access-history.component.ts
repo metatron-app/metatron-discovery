@@ -20,11 +20,11 @@ import {
   OnInit,
   Renderer2
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {Page, PageResult} from '../../domain/common/page';
-import {Activity} from "../../domain/user/activity";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Page, PageResult} from '@domain/common/page';
+import {Activity} from "@domain/user/activity";
 import {ActivityService} from "../service/activity.service";
-import {CommonUtil} from "../../common/util/common.util";
+import {CommonUtil} from "@common/util/common.util";
 
 @Component({
   selector: 'app-access-history',
@@ -200,7 +200,7 @@ export class AccessHistoryComponent extends AbstractComponent implements OnInit,
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch((_error) => {
         // 로딩 hide
         this.loadingHide();
       });

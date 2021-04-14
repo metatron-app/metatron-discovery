@@ -16,11 +16,10 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
   Output
 } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { WorkbenchService } from '../../../service/workbench.service';
 import { isUndefined } from 'util';
-import { Alert } from '../../../../common/util/alert.util';
-import { StringUtil } from '../../../../common/util/string.util';
+import { Alert } from '@common/util/alert.util';
 
 @Component({
   selector: 'detail-workbench-history',
@@ -192,7 +191,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
   public deleteAll() {
     this.workbenchService.deleteQueryHistoryAll(this.editorId)
-      .then((result) => {
+      .then((_result) => {
         this.page.page = 0;
         this.getQueryHistories();
 

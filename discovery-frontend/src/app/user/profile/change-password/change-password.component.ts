@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { UserService } from '../../service/user.service';
 import { isUndefined } from 'util';
-import { StringUtil } from '../../../common/util/string.util';
-import { Alert } from '../../../common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { Alert } from '@common/util/alert.util';
 
 @Component({
   selector: 'app-change-password',
@@ -145,7 +145,7 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
           this.passwordMessage = this.translateService.instant('msg.comm.alert.profile.password.match.not');
         }
       })
-      .catch((error) => {
+      .catch((_error) => {
         this.resultPassword = false;
       });
   }
@@ -171,7 +171,7 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
       password: this.newPassword
     }
     this.userService.validatePassword(param)
-      .then((result) => {
+      .then((_result) => {
         this.resultNewPassword = true;
       }).catch((error) => {
       this.loadingHide();
@@ -302,7 +302,7 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
     this.loadingShow();
     const param = {password: this.newPassword, confirmPassword: this.rePassword};
     this.userService.updateUser(this._userId, param)
-      .then((result) => {
+      .then((_result) => {
         // 로딩 hide
         this.loadingHide();
         // success alert

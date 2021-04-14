@@ -22,11 +22,11 @@ import {
 } from '@angular/core';
 import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
 import {isUndefined} from 'util';
-import {Page} from '../../../../domain/common/page';
+import {Page} from '@domain/common/page';
 import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
 import {WorkbenchService} from '../../../service/workbench.service';
-import {StringUtil} from '../../../../common/util/string.util';
-import {CommonUtil} from "../../../../common/util/common.util";
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from "@common/util/common.util";
 
 @Component({
   selector: 'detail-workbench-database',
