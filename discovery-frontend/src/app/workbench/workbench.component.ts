@@ -43,7 +43,7 @@ import {PageWidget} from '@domain/dashboard/widget/page-widget';
 import {BoardConfiguration, BoardDataSource, Dashboard} from '@domain/dashboard/dashboard';
 import {ConnectionType, Datasource, Field, IngestionRuleType} from '@domain/datasource/datasource';
 import {Workbook} from '@domain/workbook/workbook';
-import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';

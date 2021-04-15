@@ -12,17 +12,18 @@
  * limitations under the License.
  */
 
-import { UserProfile } from './user-profile';
+import {UserProfile} from './user-profile';
+
 /**
  * Created by LDL on 2017. 6. 16..
  */
 
-export class DirectoryProfile extends UserProfile{
+export class DirectoryProfile extends UserProfile {
 
   // UserProfile + RoleProfile
   public id: string;
   public name: string;
   public type: string;
-  public permissions : string[];
+  public permissions: string[];
 
 }

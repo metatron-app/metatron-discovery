@@ -12,8 +12,7 @@
  * limitations under the License.
  */
 
-import { Dashboard } from '../dashboard';
-import { Filter } from '../../workbook/configurations/filter/filter';
+import {Dashboard} from '../dashboard';
 
 export abstract class Widget {
 

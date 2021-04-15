@@ -319,7 +319,7 @@ export class Field {
 
   public static getSlicedColumnName?(field: Field): string {
     if (field.name.length > 50) {
-      return field.name.slice(0,50);
+      return field.name.slice(0, 50);
     } else {
       return field.name;
     }
@@ -658,7 +658,7 @@ export class FieldNameAlias extends FieldAlias {
  * Datasource Field Value Alias
  */
 export class FieldValueAlias extends FieldAlias {
-  valueAlias: Object;
+  valueAlias: object;
 } // Class - FieldValueAlias
 
 /**
@@ -677,6 +677,7 @@ export class FieldFormat {
     // TODO 타임스탬프 개선시 제거
     this.unit = FieldFormatUnit.MILLISECOND;
   }
+
   // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
   unit?: FieldFormatUnit;  // ONLY USE UNIX
@@ -759,7 +760,7 @@ export class FieldFormat {
     return isNullOrUndefined(this.format);
   }
 
-  public changeType(format: string): void {
+  public changeType(_format: string): void {
     if (this.type === FieldFormatType.DATE_TIME) {
       this.removeDateTypeProperties();
       this.disableTimezone();

@@ -21,7 +21,7 @@ import { CommonModule } from '@common/common.module';
 import { DndModule } from 'ng2-dnd';
 import { DashboardService } from '../dashboard/service/dashboard.service';
 import { DataPreviewModule } from '@common/data.preview.module';
-import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
+import { DataconnectionService } from '@common/service/dataconnection.service';
 import { PopupInputNameDescComponent } from './component/popup-input-workbook/popup-input-namedesc.component';
 import { DashboardShareModule } from '../dashboard/dashboard-share.module';
 import { CanDeactivateGuard } from '@common/gaurd/can.deactivate.guard';

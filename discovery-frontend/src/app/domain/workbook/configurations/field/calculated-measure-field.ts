@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { CustomField } from './custom-field';
-import { AggregationType } from './measure-field';
+import {CustomField} from './custom-field';
+import {AggregationType} from './measure-field';
 
 export class CalculatedMeasureField extends CustomField {
   /**

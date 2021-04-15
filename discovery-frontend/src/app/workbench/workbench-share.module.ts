@@ -17,7 +17,7 @@ import { CreateWorkbenchSelectComponent } from './component/create-workbench/cre
 import { CreateWorkbenchCompleteComponent } from './component/create-workbench/create-workbench-complete/create-workbench-complete.component';
 import { CreateWorkbenchComponent } from './component/create-workbench/create-workbench.component';
 import { WorkbenchService } from './service/workbench.service';
-import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
+import { DataconnectionService } from '@common/service/dataconnection.service';
 import { CommonModule } from '@common/common.module';
 import { DetailWorkbenchDataconnectionInfo } from './component/detail-workbench/detail-workbench-dataconnection-info/detail-workbench-dataconnection-info';
 import { DetailWorkbenchDatabase } from './component/detail-workbench/detail-workbench-database/detail-workbench-database';

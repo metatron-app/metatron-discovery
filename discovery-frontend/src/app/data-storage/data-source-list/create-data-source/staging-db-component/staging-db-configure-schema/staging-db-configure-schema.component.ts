@@ -12,10 +12,18 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {DatasourceInfo, FieldFormatType} from '@domain/datasource/datasource';
 import {SchemaConfigureMainComponent} from '../../../../component/schema-configure/schema-configure-main.component';
 

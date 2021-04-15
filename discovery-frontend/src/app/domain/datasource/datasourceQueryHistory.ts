@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { ConnectionType } from './datasource';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {ConnectionType} from './datasource';
 
 export class DatasourceQueryHistory extends AbstractHistoryEntity {
   // id

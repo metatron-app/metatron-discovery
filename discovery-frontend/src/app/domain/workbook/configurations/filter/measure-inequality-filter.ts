@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { AdvancedFilter } from './advanced-filter';
-import { AggregationType } from '../field/measure-field';
+import {AdvancedFilter} from './advanced-filter';
+import {AggregationType} from '../field/measure-field';
 
-export class MeasureInequalityFilter extends AdvancedFilter{
+export class MeasureInequalityFilter extends AdvancedFilter {
   /**
    *  집계 타입
    */

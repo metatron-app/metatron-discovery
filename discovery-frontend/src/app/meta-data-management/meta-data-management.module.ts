@@ -44,7 +44,7 @@ import {SelectCatalogComponent} from './metadata/component/select-catalog.compon
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {DatasourceShareModule} from '../datasource/datasource-share.module';
 import {MetadataModelService} from './metadata/service/metadata.model.service';
-import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {CatalogService} from './catalog/service/catalog.service';
 import {ChooseColumnDictionaryComponent} from './component/choose-column-dictionary/choose-column-dictionary.component';
 import {CatalogComponent} from './catalog/catalog.component';

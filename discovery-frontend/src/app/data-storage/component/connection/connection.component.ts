@@ -24,7 +24,7 @@ import {
   JdbcDialect,
   Scope
 } from '@domain/dataconnection/dataconnection';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {ConnectionParam, DataConnectionCreateService} from '../../service/data-connection-create.service';
 import {StorageService} from '../../service/storage.service';
 

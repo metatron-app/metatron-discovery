@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { CustomField } from './custom-field';
-import { DimensionField } from './dimension-field';
+import {CustomField} from './custom-field';
+import {DimensionField} from './dimension-field';
 
 export class DimensionGroupField extends CustomField {
   public fields: DimensionField[];

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
@@ -26,17 +26,17 @@ import {
 } from '@angular/core';
 import {CommonUtil} from '@common/util/common.util';
 import {Alert} from '@common/util/alert.util';
-import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '@domain/datasource/datasource';
-import * as _ from 'lodash';
 import {StringUtil} from '@common/util/string.util';
-import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 import {Modal} from '@common/domain/modal';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {CommonConstant} from '@common/constant/common.constant';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '@domain/datasource/datasource';
+import {DataStorageConstant} from '../../../../constant/data-storage-constant';
 import {GranularityService} from '../../../../service/granularity.service';
 import {CreateSourceCompleteData} from '../../../../service/data-source-create.service';
-import {DataStorageConstant} from '../../../../constant/data-storage-constant';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 
 /**
  * Creating datasource with StagingDB - complete step
@@ -206,7 +206,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
             this.close();
           });
       })
-      .catch((error) => {
+      .catch(() => {
         // loading hide
         this.loadingHide();
         // modal
@@ -410,13 +410,13 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     const result = [];
     // partition fields
     const fields = this._getPartitionFields;
-    for (let i = 0; i < fields.length; i++) {
+    for (let i = 0, nMax = fields.length; i < nMax; i++) {
       // partition keys
       const partitionKeys = fields[i];
       // partition
       const partition = {};
       // loop
-      for (let j = 0; j < partitionKeys.length; j++) {
+      for (let j = 0, nMax2 = partitionKeys.length; j < nMax2; j++) {
         // #619 enable empty value
         // is value empty break for loop
         // if (StringUtil.isEmpty(partitionKeys[j].value)) {
@@ -456,7 +456,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     }
     // if not used current_time TIMESTAMP, set intervals
     if (this.getSchemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
-      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
+      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

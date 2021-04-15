@@ -27,8 +27,8 @@ import {
 } from '@angular/core';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {DatasourceInfo} from '@domain/datasource/datasource';
-import {IngestionSettingComponent} from '../../../component/ingestion-setting.component';
 import {DataStorageConstant} from '../../../../constant/data-storage-constant';
+import {IngestionSettingComponent} from '../../../component/ingestion-setting.component';
 
 /**
  * Creating datasource with Stream - ingestion step
@@ -82,7 +82,7 @@ export class StreamIngestionComponent extends AbstractPopupComponent implements 
       this._ingestionSettingComponent.init(
         this._sourceData,
         'REALTIME',
-        this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null :  this._sourceData.schemaData.selectedTimestampField,
+        this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null : this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );
       // remove changed flag

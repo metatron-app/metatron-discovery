@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
@@ -24,26 +24,18 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {
-  DatasourceInfo,
-  Field,
-  FieldFormatType,
-  IngestionRuleType
-} from '@domain/datasource/datasource';
 import {Alert} from '@common/util/alert.util';
-import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 import {CommonUtil} from '@common/util/common.util';
-import * as _ from 'lodash';
 import {StringUtil} from '@common/util/string.util';
-import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 import {Modal} from '@common/domain/modal';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {CommonConstant} from '@common/constant/common.constant';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '@domain/datasource/datasource';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 import {GranularityService} from '../../../../service/granularity.service';
-import {
-  CreateSourceCompleteData,
-  DataSourceCreateService
-} from '../../../../service/data-source-create.service';
+import {CreateSourceCompleteData} from '../../../../service/data-source-create.service';
 import {DataStorageConstant} from '../../../../constant/data-storage-constant';
 
 /**
@@ -76,7 +68,6 @@ export class StreamCompleteComponent extends AbstractPopupComponent implements O
 
   // Constructor
   constructor(private datasourceService: DatasourceService,
-              private _dataSourceCreateService: DataSourceCreateService,
               private _granularityService: GranularityService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -185,7 +176,7 @@ export class StreamCompleteComponent extends AbstractPopupComponent implements O
             this.close();
           });
       })
-      .catch((error) => {
+      .catch(() => {
         // loading hide
         this.loadingHide();
         // modal
@@ -198,7 +189,7 @@ export class StreamCompleteComponent extends AbstractPopupComponent implements O
         modal.description = this.translateService.instant('msg.storage.ui.source.create.fail.description');
         // show error modal
         this.confirmModal.init(modal);
-    });
+      });
   }
 
   /**
@@ -379,7 +370,7 @@ export class StreamCompleteComponent extends AbstractPopupComponent implements O
     }
     // if not used current_time TIMESTAMP, set intervals
     if (this.getSchemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
-      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
+      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

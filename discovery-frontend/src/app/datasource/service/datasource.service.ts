@@ -56,7 +56,6 @@ import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {RegExprFilter} from '@domain/workbook/configurations/filter/reg-expr-filter';
 import {SpatialFilter} from '@domain/workbook/configurations/filter/spatial-filter';
-import {TranslateService} from '@ngx-translate/core';
 import {Criteria} from '@domain/datasource/criteria';
 
 @Injectable()
@@ -66,14 +65,11 @@ export class DatasourceService extends AbstractService {
 
   private _timezoneSvc: TimezoneService;
 
-  private _translateSvc: TranslateService;
-
   private _searchHistory: { query: string, result: any }[] = [];
 
   constructor(protected injector: Injector) {
     super(injector);
     this._timezoneSvc = this.injector.get(TimezoneService);
-    this._translateSvc = this.injector.get(TranslateService);
   }
 
   /**
@@ -129,6 +125,7 @@ export class DatasourceService extends AbstractService {
   /**
    * 쿼리 전송
    * @param {SearchQueryRequest} query
+   * @param disableCache
    * @returns {Promise<any>}
    */
   public searchQuery(query: SearchQueryRequest, disableCache?: boolean): Promise<any> {
@@ -139,14 +136,14 @@ export class DatasourceService extends AbstractService {
     const stringifyQuery = JSON.stringify(query);
     const historyItem = this._searchHistory.find(history => history.query === stringifyQuery);
     if (!disableCache && historyItem) {
-      return new Promise((resolve, reject) => {
-        console.log( '>>>>> history data' );
+      return new Promise((resolve, _reject) => {
+        console.log('>>>>> history data');
         resolve(historyItem.result);
       });
     } else {
       return this.post(this.API_URL + 'datasources/query/search', query)
         .then(result => {
-          console.log( '>>>>> query data' );
+          console.log('>>>>> query data');
           this._searchHistory.push({query: stringifyQuery, result: result});
           return result;
         });
@@ -272,7 +269,7 @@ export class DatasourceService extends AbstractService {
           });
         }
 
-        if(searchWord) {
+        if (searchWord) {
           const wildcard: WildCardFilter = new WildCardFilter();
           wildcard.value = searchWord;
           wildcard.contains = ContainsType.BOTH;
@@ -387,17 +384,17 @@ export class DatasourceService extends AbstractService {
           field['alias'] = this._setFieldAlias(field, dataSourceFields);
 
           // Dimension 이면서 Timestamp 타입인 필드는 타입을 변경해준다.
-          if (field['type'].toUpperCase() == 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() == 'DIMENSION') {
+          if (field['type'].toUpperCase() === 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() === 'DIMENSION') {
             field['type'] = 'dimension';
           }
 
           // 그리드이면서 원본보기일 경우
-          if (_.eq(pageConf.chart.type, 'grid') && (pageConf.chart as UIGridChart).dataType == GridViewType.MASTER) {
+          if (_.eq(pageConf.chart.type, 'grid') && (pageConf.chart as UIGridChart).dataType === GridViewType.MASTER) {
             field['aggregationType'] = 'NONE';
           }
         }
 
-        if (allPivotFields.length == 0) {
+        if (allPivotFields.length === 0) {
           continue;
         }
         // timezone 처리 - S
@@ -470,12 +467,12 @@ export class DatasourceService extends AbstractService {
         field['alias'] = this._setFieldAlias(field, dataSourceFields);
 
         // Dimension 이면서 Timestamp 타입인 필드는 타입을 변경해준다.
-        if (field['type'].toUpperCase() == 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() == 'DIMENSION') {
+        if (field['type'].toUpperCase() === 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() === 'DIMENSION') {
           field['type'] = 'dimension';
         }
 
         // 그리드이면서 원본보기일 경우
-        if (_.eq(pageConf.chart.type, 'grid') && (pageConf.chart as UIGridChart).dataType == GridViewType.MASTER) {
+        if (_.eq(pageConf.chart.type, 'grid') && (pageConf.chart as UIGridChart).dataType === GridViewType.MASTER) {
           field['aggregationType'] = 'NONE';
         }
       }
@@ -582,7 +579,7 @@ export class DatasourceService extends AbstractService {
       const geoFieldArr: number[] = [];
 
       // check multiple geo type
-      for (let idx = 0; idx < query.shelf.layers.length; idx++) {
+      for (let idx = 0, nMax = query.shelf.layers.length; idx < nMax; idx++) {
         let geoFieldCnt: number = 0;
         for (const column of query.shelf.layers[idx].fields) {
           if (column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
@@ -623,7 +620,7 @@ export class DatasourceService extends AbstractService {
 
                 // clustering
                 const chart = (pageConf.chart as UIMapOption);
-                if (chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering']) {
+                if (chart.layers[idx].type === MapLayerType.CLUSTER && chart.layers[idx]['clustering']) {
                   // cluster 값 변경
                   let clusterPrecision: number = 6;
                   if (chart['layers'][idx]['changeCoverage']) {
@@ -645,21 +642,20 @@ export class DatasourceService extends AbstractService {
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   } as GeoHashFormat);
 
-                } else if (chart.layers[idx].type == MapLayerType.SYMBOL) {
+                } else if (chart.layers[idx].type === MapLayerType.SYMBOL) {
 
-                  const precision: number = 12;
                   query.shelf.layers[idx].view = ({
                     type: 'abbr',
                     method: 'h3',
                     relayType: 'FIRST',
                     // zoom 값을 12~14 사이 값으로 변환
-                    precision: precision
+                    precision: 12
                   } as GeoHashFormat);
 
                 }
 
                 if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
-                  && chart['lowerCorner'].indexOf('NaN') == -1 && chart['upperCorner'].indexOf('NaN') == -1) {
+                  && chart['lowerCorner'].indexOf('NaN') === -1 && chart['upperCorner'].indexOf('NaN') === -1) {
                   const spatialFilter = new SpatialFilter();
                   spatialFilter.dataSource = query.shelf.layers[idx].ref;
                   // spatialFilter.ref = query.shelf.layers[idx].ref;
@@ -747,7 +743,7 @@ export class DatasourceService extends AbstractService {
       };
       const uiOption = pageConf.chart as UIMapOption;
       uiOption.layers.forEach((layer) => {
-        if (layer.type == MapLayerType.SYMBOL || layer.type == MapLayerType.HEATMAP) {
+        if (layer.type === MapLayerType.SYMBOL || layer.type === MapLayerType.HEATMAP) {
           query.limits.limit = 20000;
         }
       });

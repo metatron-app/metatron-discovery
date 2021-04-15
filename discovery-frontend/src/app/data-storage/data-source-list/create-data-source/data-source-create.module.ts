@@ -18,7 +18,7 @@ import {DataSnapshotDetailComponent} from '../../../data-preparation/data-snapsh
 import {TimeComponent} from '../../component/time-compoent/time.component';
 import {CreateDataSourceComponent} from './create-data-source.component';
 import {SelectTypeComponent} from './select-type/select-type.component';
-import {DbSetDataConnection} from './db-create-component/db-set-data-connection/db-set-data-connection';
+import {DbSetDataConnectionComponent} from './db-create-component/db-set-data-connection/db-set-data-connection.component';
 import {DbSelectDataComponent} from './db-create-component/db-select-data/db-select-data.component';
 import {DbConfigureSchemaComponent} from './db-create-component/db-configure-schema/db-configure-schema.component';
 import {DbIngestionPermissionComponent} from './db-create-component/db-ingestion-permission/db-ingestion-permission.component';
@@ -48,7 +48,7 @@ import {GranularityService} from '../../service/granularity.service';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {TimezoneService} from '../../service/timezone.service';
 import {DataSnapshotService} from '../../../data-preparation/data-snapshot/service/data-snapshot.service';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {DataflowModelService} from '../../../data-preparation/dataflow/service/dataflow.model.service';
 import {DataStorageCommonModule} from '../../data-storage-common.module';
 import {DataStorageShareModule} from '../../data-storage-share.module';
@@ -70,7 +70,6 @@ import {StreamIngestionComponent} from './stream-create-component/stream-ingesti
 import {StreamPreviewComponent} from './stream-create-component/stream-preview/stream-preview.component';
 import {StreamSelectComponent} from './stream-create-component/stream-select/stream-select.component';
 import {StreamUploaderComponent} from './stream-create-component/stream-select/stream-uploader.component';
-
 
 @NgModule({
   imports: [
@@ -96,7 +95,7 @@ import {StreamUploaderComponent} from './stream-create-component/stream-select/s
     CreateDataSourceComponent,
     SelectTypeComponent,
     // data source - create_database
-    DbSetDataConnection,
+    DbSetDataConnectionComponent,
     DbSelectDataComponent,
     DbConfigureSchemaComponent,
     DbIngestionPermissionComponent,
@@ -146,7 +145,7 @@ import {StreamUploaderComponent} from './stream-create-component/stream-select/s
     CreateDataSourceComponent,
     SelectTypeComponent,
     // data source - create_database
-    DbSetDataConnection,
+    DbSetDataConnectionComponent,
     DbSelectDataComponent,
     DbConfigureSchemaComponent,
     DbIngestionPermissionComponent,

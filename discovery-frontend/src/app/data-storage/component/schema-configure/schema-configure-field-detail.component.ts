@@ -310,7 +310,6 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
 
   /**
    * Field Format unit change event
-   * @param {Field} field
    * @param unit
    */
   public onChangeFormatUnitInField(unit: any): void {
@@ -565,7 +564,6 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
 
   /**
    * ingestion rule validation
-   * @param {Field} field
    */
   public ingestionRuleValidation(): void {
     // if empty replace value

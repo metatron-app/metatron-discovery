@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import { RoleType } from './role';
+import {RoleType} from './role';
 
 export class RoleDirectory {
   public directoryId: string;
   public directoryName: string;
   public type: string;
-  public email : string;
+  public email: string;
   public createdTime: Date;
   public scope: RoleType;
-  public imageUrl : string;
+  public imageUrl: string;
 
 }

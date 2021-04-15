@@ -16,7 +16,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
   Output
 } from '@angular/core';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
+import { DataconnectionService } from '@common/service/dataconnection.service';
 import { isUndefined } from 'util';
 import { StringUtil } from '@common/util/string.util';
 import { WorkbenchService } from '../../../service/workbench.service';

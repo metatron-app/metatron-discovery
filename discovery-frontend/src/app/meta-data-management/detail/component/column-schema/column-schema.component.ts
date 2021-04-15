@@ -41,7 +41,7 @@ import {CommonUtil} from '@common/util/common.util';
 import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
 import {Type} from '../../../../shared/datasource-metadata/domain/type';
 import {Filter} from '../../../../shared/datasource-metadata/domain/filter';
-import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {QueryParam} from '@domain/dashboard/dashboard';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
 import {AuthenticationType, Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';

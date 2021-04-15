@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Input,
-  Output, ViewChild
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {DatasourceInfo, FieldFormatType} from '@domain/datasource/datasource';
 import {SchemaConfigureMainComponent} from '../../../component/schema-configure/schema-configure-main.component';
@@ -27,7 +24,7 @@ import {SchemaConfigureMainComponent} from '../../../component/schema-configure/
   selector: 'create-snapshot-source-configure',
   templateUrl: './create-snapshot-source-configure.component.html'
 })
-export class CreateSnapshotSourceConfigureComponent extends AbstractPopupComponent {
+export class CreateSnapshotSourceConfigureComponent extends AbstractPopupComponent implements OnInit {
 
   @ViewChild(SchemaConfigureMainComponent)
   private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;
@@ -48,7 +45,7 @@ export class CreateSnapshotSourceConfigureComponent extends AbstractPopupCompone
     super(element, injector);
   }
 
-  ngOnInit() {
+  public ngOnInit() {
     super.ngOnInit();
     if (this.sourceData.schemaData) {
       this._schemaConfigureMainComponent.initLoadedConfigureData(this.sourceData.schemaData);

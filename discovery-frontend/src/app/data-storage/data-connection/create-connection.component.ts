@@ -13,15 +13,14 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
-import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
 import {Alert} from '@common/util/alert.util';
-import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
 import {CommonUtil} from '@common/util/common.util';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {StringUtil} from '@common/util/string.util';
 import {AbstractComponent} from '@common/component/abstract.component';
-import {ConnectionComponent, ConnectionValid} from '../component/connection/connection.component';
-import * as _ from 'lodash';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {ConnectionComponent} from '../component/connection/connection.component';
+import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
 
 /**
  * Data connection create component
@@ -169,7 +168,7 @@ export class CreateConnectionComponent extends AbstractComponent {
     this.loadingShow();
     // create connection
     this.connectionService.createConnection(this._getCreateConnectionParams())
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(`'${this.connectionName.trim()}' ` + this.translateService.instant('msg.storage.alert.dconn.create.success'));
         // loading hide

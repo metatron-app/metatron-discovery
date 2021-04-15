@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import {AbstractService} from '@common/service/abstract.service';
-import {Injectable, Injector} from '@angular/core';
-import {Field, FieldFormat, FieldFormatType, LogicalType} from '@domain/datasource/datasource';
-import {TimezoneService} from './timezone.service';
-import {TranslateService} from '@ngx-translate/core';
 import {isNullOrUndefined} from 'util';
-import {Type} from '../../shared/datasource-metadata/domain/type';
-import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {Injectable, Injector} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
 import {StringUtil} from '@common/util/string.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {Field, FieldFormat, FieldFormatType, LogicalType} from '@domain/datasource/datasource';
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {Type} from '../../shared/datasource-metadata/domain/type';
+import {TimezoneService} from './timezone.service';
 
 @Injectable()
 export class FieldConfigService extends AbstractService {
@@ -104,7 +104,7 @@ export class FieldConfigService extends AbstractService {
         };
         // api result
         this.post(this.API_URL + 'datasources/validation/wkt', params)
-          .then((result: {valid: boolean, suggestType: LogicalType, message: string}) => {
+          .then((result: { valid: boolean, suggestType: LogicalType, message: string }) => {
             // is enable GEO type
             if (result.valid) {
               fieldFormat.isValidFormat = true;
@@ -143,11 +143,11 @@ export class FieldConfigService extends AbstractService {
         reject(fieldFormat);
         return;
       } else {  // if exist fieldFormat data list
-        const params: {samples: string[], format?: string} = {
-          samples: dateList.slice(0,19)
+        const params: { samples: string[], format?: string } = {
+          samples: dateList.slice(0, 19)
         };
         // if not init valid, set fieldFormat in params
-        if(!isInitValid) {
+        if (!isInitValid) {
           // if empty fieldFormat
           if (StringUtil.isEmpty(fieldFormat.format)) {
             // set time fieldFormat valid FALSE
@@ -162,7 +162,7 @@ export class FieldConfigService extends AbstractService {
           }
         }
         this.post(this.API_URL + 'datasources/validation/datetime', params)
-          .then((result: {valid?: boolean, pattern?: string}) =>{
+          .then((result: { valid?: boolean, pattern?: string }) => {
             // if valid or exist pattern
             if (result.valid || result.pattern) {
               // set time fieldFormat valid TRUE
@@ -186,9 +186,9 @@ export class FieldConfigService extends AbstractService {
             (result.valid) && (fieldFormat.isValidFormat = true);
             resolve(fieldFormat);
           })
-          .catch((error) => {
+          .catch(() => {
             // if init valid, set default time fieldFormat in fieldFormat
-            if (isInitValid)  {
+            if (isInitValid) {
               fieldFormat.formatInitialize();
             }
             // set time fieldFormat valid FALSE
@@ -216,6 +216,7 @@ export class FieldConfigService extends AbstractService {
       return Type.Logical.GEO_POLYGON;
     }
   }
+
   /**
    * Get geo coordinate
    * @param {Type.Logical} type

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
+import {NgModule} from '@angular/core';
 import {CommonModule} from '@common/common.module';
 import {StorageFilterSelectBoxComponent} from './data-source-list/component/storage-filter-select-box.component';
 
@@ -26,8 +26,7 @@ import {StorageFilterSelectBoxComponent} from './data-source-list/component/stor
   exports: [
     StorageFilterSelectBoxComponent
   ],
-  providers: [
-  ]
+  providers: []
 })
 export class DataStorageCommonModule {
 }

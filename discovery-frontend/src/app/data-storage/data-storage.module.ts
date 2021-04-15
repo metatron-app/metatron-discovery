@@ -27,7 +27,6 @@ import {SetWorkspacePublishedComponent} from './component/set-workspace-publishe
 import {MonitoringDataSourceComponent} from './data-source-list/detail-data-source/monitoring-data-source/monitoring-data-source.component';
 import {InformationDataSourceComponent} from './data-source-list/detail-data-source/information-dats-source/information-data-source.component';
 import {DetailDataSourceComponent} from './data-source-list/detail-data-source/detail-data-source.component';
-import {DndModule} from 'ng2-dnd';
 import {CanDeactivateGuard} from '@common/gaurd/can.deactivate.guard';
 import {DataGridDataSourceComponent} from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
 import {ColumnDetailDataSourceComponent} from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
@@ -46,16 +45,25 @@ import {DataStorageCriteriaModule} from './data-storage-criteria.module';
 import {SchedulingService} from './service/scheduling.service';
 
 const storageRoutes: Routes = [
-  { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
-  { path: 'datasource', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
-  { path: 'datasource/:sourceId', component: DetailDataSourceComponent, canActivate: [DatasourceManagementGuard] },
-  { path: 'data-connection', component: DataConnectionComponent, canActivate: [DatasourceManagementGuard] }
+  {
+    path: '',
+    component: DataSourceListComponent,
+    canActivate: [DatasourceManagementGuard],
+    canDeactivate: [CanDeactivateGuard]
+  },
+  {
+    path: 'datasource',
+    component: DataSourceListComponent,
+    canActivate: [DatasourceManagementGuard],
+    canDeactivate: [CanDeactivateGuard]
+  },
+  {path: 'datasource/:sourceId', component: DetailDataSourceComponent, canActivate: [DatasourceManagementGuard]},
+  {path: 'data-connection', component: DataConnectionComponent, canActivate: [DatasourceManagementGuard]}
 ];
 
 @NgModule({
   imports: [
     CommonModule,
-    DndModule,
     DataSourceCreateModule,
     DatasourceMetadataSharedModule,
     DataStorageCommonModule,

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { Group } from './group';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {Group} from './group';
 
 /**
  * Created by LDL on 2017. 6. 16..
@@ -36,7 +36,7 @@ export class User extends AbstractHistoryEntity {
   // 추가 / 삭제 액션 여부 (추가(add), 삭제(remove))
   public op: Action;
 
-  public roleNames:string[] = [];
+  public roleNames: string[] = [];
 
   /**
    * for UI

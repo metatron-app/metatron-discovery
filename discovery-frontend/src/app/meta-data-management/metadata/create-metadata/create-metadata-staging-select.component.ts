@@ -17,7 +17,7 @@ import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild}
 import {AbstractComponent} from '@common/component/abstract.component';
 import {MetadataConstant} from '../../metadata.constant';
 import {MetadataEntity} from '../metadata.entity';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import * as _ from 'lodash';
 import {isNullOrUndefined} from 'util';
 import {SchemaTableListComponent} from './component/schema-table-list.component';

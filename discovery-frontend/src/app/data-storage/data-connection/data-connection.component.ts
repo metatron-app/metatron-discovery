@@ -15,7 +15,7 @@
 import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';
-import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import {Modal} from '@common/domain/modal';
 import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
@@ -153,11 +153,11 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     this.loadingShow();
     // remove connection
     this.dataconnectionService.deleteConnection(modalData.data)
-      .then((result) => {
+      .then(() => {
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
 
         if (this.page.page > 0 && this.connectionList.length === 1) {
-          this.page.page -=1;
+          this.page.page -= 1;
         }
 
         // reload
@@ -222,9 +222,9 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
 
   /**
    * Changed filter
-   * @param searchParams
+   * @param _searchParams
    */
-  public onChangedFilter(searchParams): void {
+  public onChangedFilter(_searchParams): void {
     // reload page
     this.reloadPage(true);
   }
@@ -296,8 +296,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
         if (this.page.page > 0 &&
           isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].connections.length === 0))
-        {
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].connections.length === 0)) {
           this.page.page = result.page.number - 1;
           this._setConnectionList();
         }
@@ -314,14 +313,13 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
 
   /**
    * Get search query params
-   * @return {{size: number; page: number; sort: string}}
    * @private
    */
   private _getQueryParams() {
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime(),
+      pseudoParam: (new Date()).getTime(),
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();

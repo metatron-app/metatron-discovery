@@ -13,12 +13,11 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Component, ElementRef, Injector, Input, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
 import {SchemaConfigureFilterComponent} from './schema-configure-filter.component';
 import {SchemaConfigureFieldComponent} from './schema-configure-field.component';
 import {Filter} from '../../../shared/datasource-metadata/domain/filter';
-import {SchemaConfigureTimestampComponent} from './schema-configure-timestamp.component';
 import {DataStorageConstant} from '../../constant/data-storage-constant';
 import {Alert} from '@common/util/alert.util';
 import {ConnectionType, Field} from '@domain/datasource/datasource';
@@ -27,7 +26,7 @@ import {ConnectionType, Field} from '@domain/datasource/datasource';
   selector: 'schema-configure-main',
   templateUrl: 'schema-configure-main.component.html'
 })
-export class SchemaConfigureMainComponent extends AbstractComponent {
+export class SchemaConfigureMainComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   // filter
   public searchKeyword: string;
@@ -39,9 +38,6 @@ export class SchemaConfigureMainComponent extends AbstractComponent {
 
   @ViewChild(SchemaConfigureFieldComponent)
   private readonly _fieldComponent: SchemaConfigureFieldComponent;
-
-  @ViewChild(SchemaConfigureTimestampComponent)
-  private readonly _timestampComponent: SchemaConfigureTimestampComponent;
 
   @Input()
   public connType: ConnectionType;

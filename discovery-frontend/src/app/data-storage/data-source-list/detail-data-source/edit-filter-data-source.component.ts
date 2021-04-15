@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '@common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { Alert } from '@common/util/alert.util';
-import { FilteringOptions, FilteringOptionType } from '@domain/workbook/configurations/filter/filter';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {FilteringOptions, FilteringOptionType} from '@domain/workbook/configurations/filter/filter';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 
 /**
  * Edit recommend and essential filter in datasource
@@ -39,9 +39,9 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   public filteredColumnList: any[];
   // role type filter list
   public roleTypeFilterList: any[] = [
-    { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
-    { label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION' },
-    { label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE' },
+    {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
+    {label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION'},
+    {label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE'},
   ];
   // selected role type filter
   public selectedRoleTypeFilter: any;
@@ -49,19 +49,19 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   public isShowRoleTypeFilterList: boolean;
   // type filter list
   public typeFilterList: any[] = [
-    { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
-    { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
-    { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
-    { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
-    { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-    { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
-    { label: this.translateService.instant('msg.storage.ui.list.array'), value: 'ARRAY', measure: true  },
-    { label: this.translateService.instant('msg.storage.ui.list.hashed.map'), value: 'HASHED_MAP', measure: true  },
-    { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-    { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
-    { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
-    { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
-    { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
+    {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
+    {label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING'},
+    {label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN'},
+    {label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true},
+    {label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true},
+    {label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP'},
+    {label: this.translateService.instant('msg.storage.ui.list.array'), value: 'ARRAY', measure: true},
+    {label: this.translateService.instant('msg.storage.ui.list.hashed.map'), value: 'HASHED_MAP', measure: true},
+    {label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT'},
+    {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'},
+    {label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true},
+    {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true},
+    {label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true},
   ];
   // selected type filter
   public selectedTypeFilter: any;
@@ -159,7 +159,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
    * @param typeList
    * @returns {string}
    */
-  public getColumnTypeLabel(type:string, typeList: any): string {
+  public getColumnTypeLabel(type: string, typeList: any): string {
     return typeList[_.findIndex(typeList, item => item['value'] === type)].label;
   }
 
@@ -171,7 +171,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     this.loadingShow();
     // update column list
     this._dataSourceService.updateDatasourceFields(this._sourceId, this._getUpdateFieldParams())
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
         // loading hide
@@ -233,23 +233,23 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   public onClickSetColumnFiltering(column: any): void {
     // TODO 만약 TIMESTAMP로 지정된 컬럼도 filteringOptions 설정이 가능하도록 변경해달라고 하면 주석 해제할 것
     // if (column.role !== 'TIMESTAMP') {
-      // if enabled filtering in column
-      if (this.isEnableColumnFiltering(column)) {
-        const seq = column.filteringSeq;
-        // delete filtering
-        delete column.filtering;
-        delete column.filteringSeq;
-        delete column.filteringOptions;
-        // resort filtering in filtered column list
-        this._resortFilteringColumnList(seq);
-        // if enable filtered list show flag, update filtered column list
-        this.isShowOnlyFilterColumnList && this._updateFilteredColumnList();
-      } else {
-        // set filtering
-        column.filtering = true;
-        // set seq
-        column.filteringSeq = _.filter(this._columnList, item => item.filtering).length - 1;
-      }
+    // if enabled filtering in column
+    if (this.isEnableColumnFiltering(column)) {
+      const seq = column.filteringSeq;
+      // delete filtering
+      delete column.filtering;
+      delete column.filteringSeq;
+      delete column.filteringOptions;
+      // resort filtering in filtered column list
+      this._resortFilteringColumnList(seq);
+      // if enable filtered list show flag, update filtered column list
+      this.isShowOnlyFilterColumnList && this._updateFilteredColumnList();
+    } else {
+      // set filtering
+      column.filtering = true;
+      // set seq
+      column.filteringSeq = _.filter(this._columnList, item => item.filtering).length - 1;
+    }
     // }
   }
 
@@ -334,7 +334,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     const result = [];
     const filteringList = _.filter(this._columnList, column => column.filtering);
     // add
-    _.forEach(filteringList, (column) =>{
+    _.forEach(filteringList, (column) => {
       // get column exist in origin filtered column list
       const temp = _.find(this._originFilteringColumnList, originColumn => originColumn.id === column['id']);
       // If is not exist in the origin filtered list

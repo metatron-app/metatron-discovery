@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '@common/service/abstract.service';
-import {CommonUtil} from '@common/util/common.util';
-import {Page} from '@domain/common/page';
 import {isNullOrUndefined} from 'util';
 import {Observable} from 'rxjs/Observable';
+import {Injectable, Injector} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {Page} from '@domain/common/page';
 import {Criteria} from '@domain/datasource/criteria';
 
 @Injectable()
@@ -126,7 +126,7 @@ export class DataconnectionService extends AbstractService {
   /**
    * Get table list
    * @param dataconnection
-   * @param page
+   * @param param
    * @returns {Promise<any>}
    */
   public getTableListInConnectionQuery(dataconnection: any, param: any): Promise<any> {
@@ -138,7 +138,7 @@ export class DataconnectionService extends AbstractService {
     const connInfo: any = {};
     connInfo.implementor = dataconnection.implementor;
     // connection 정보가 USERINFO 일 경우 제외
-    if( connInfo.authenticationType != 'USERINFO' ) {
+    if( connInfo.authenticationType !== 'USERINFO' ) {
       connInfo.username = dataconnection.username;
       connInfo.password = dataconnection.password;
     }
@@ -287,7 +287,7 @@ export class DataconnectionService extends AbstractService {
 
   /**
    * Get schema list enabled cancel
-   * @param params
+   * @param param
    * @returns {Observable}
    */
   public getSchemaListWithCancel(param): Observable<any> {
@@ -305,7 +305,7 @@ export class DataconnectionService extends AbstractService {
 
   /**
    * Get table detail data enabled cancel
-   * @param params
+   * @param param
    * @param {boolean} extractColumnName
    * @returns {Observable}
    */
