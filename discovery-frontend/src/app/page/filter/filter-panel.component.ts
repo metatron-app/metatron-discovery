@@ -22,11 +22,11 @@ import {
   OnInit,
   Output, SimpleChange, SimpleChanges
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { Dashboard } from '../../domain/dashboard/dashboard';
-import { Field } from '../../domain/datasource/datasource';
-import { InclusionFilter } from '../../domain/workbook/configurations/filter/inclusion-filter';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Filter } from '@domain/workbook/configurations/filter/filter';
+import { Dashboard } from '@domain/dashboard/dashboard';
+import { Field } from '@domain/datasource/datasource';
+import { InclusionFilter } from '@domain/workbook/configurations/filter/inclusion-filter';
 import { DatasourceService } from '../../datasource/service/datasource.service';
 import { FilterUtil } from '../../dashboard/util/filter.util';
 
@@ -159,7 +159,7 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
    * @param {Filter} filter
    * @return {string}
    */
-  public trackByFn(index, filter: Filter) {
+  public trackByFn(_index, filter: Filter) {
     return filter.field;
   } // function - trackByFn
 

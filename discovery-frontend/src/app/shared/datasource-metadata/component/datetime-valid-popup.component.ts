@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
 import {TimezoneService} from '../../../data-storage/service/timezone.service';
-import {FieldFormat, FieldFormatType, FieldFormatUnit} from '../../../domain/datasource/datasource';
-import {StringUtil} from '../../../common/util/string.util';
+import {FieldFormat, FieldFormatType, FieldFormatUnit} from '@domain/datasource/datasource';
+import {StringUtil} from '@common/util/string.util';
 import {FieldConfigService} from '../../../data-storage/service/field-config.service';
 import {isNullOrUndefined} from 'util';
 
@@ -269,7 +269,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    */
   private _checkFormatValidation(isInitValid?: boolean): void {
     this.loadingShow();
-    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.fieldFormat, this._valueList, isInitValid).then((format: FieldFormat) => {
+    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.fieldFormat, this._valueList, isInitValid).then((_format: FieldFormat) => {
       this.loadingHide();
       // set default format
       this.defaultFormat = this.fieldFormat.format;

@@ -13,14 +13,14 @@
  */
 
 import {Injectable, Injector, OnInit} from '@angular/core';
-import {AbstractService} from '../../../../common/service/abstract.service';
+import {AbstractService} from '@common/service/abstract.service';
 import {Analysis} from '../../value/analysis';
-import {SearchQueryRequest} from '../../../../domain/datasource/data/search-query-request';
+import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
 import * as _ from 'lodash';
-import {PageWidget, PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
-import {UIOption} from '../../../../common/component/chart/option/ui-option';
-import {CommonUtil} from "../../../../common/util/common.util";
-import {Filter} from "../../../../domain/workbook/configurations/filter/filter";
+import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {CommonUtil} from "@common/util/common.util";
+import {Filter} from "@domain/workbook/configurations/filter/filter";
 
 @Injectable()
 export class AnalysisPredictionService extends AbstractService implements OnInit {
@@ -114,7 +114,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
   public changeAnalysisPredictionLine(widgetConfiguration: PageWidgetConfiguration,
                                       widget: PageWidget,
                                       chart: any,
-                                      resultData?: { data: any; config: SearchQueryRequest; uiOption: UIOption }): Promise<any> {
+                                      _resultData?: { data: any; config: SearchQueryRequest; uiOption: UIOption }): Promise<any> {
 
     return this.getAnalysis(this.createGetAnalysisParameter(widgetConfiguration, widget))
       .then((result) => {
@@ -146,7 +146,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
    * @param {PageWidget} widget
    * @param {LineChartComponent} chart
    * @param {{data: any; config: SearchQueryRequest; uiOption: UIOption}} resultData
-   * @param {BaseChart} baseChart
+   * @param filters
    */
   public getAnalysisPredictionLineFromDashBoard(widgetConfiguration: PageWidgetConfiguration,
                                                 widget: PageWidget,

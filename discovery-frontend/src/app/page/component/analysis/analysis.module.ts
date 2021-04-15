@@ -14,7 +14,7 @@
 
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { AnalysisComponent } from './analysis.component';
-import { CommonModule } from '../../../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { AnalysisPredictionModule } from './prediction/analysis-prediction.module';
 import { TrendLineModule } from './trend.line/trend.line.module';
 import { ColorPickerLayerComponent } from './color.picker/color.picker.layer.component';

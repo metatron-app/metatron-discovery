@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 
 @Component({
   selector: 'analysis-cluster',

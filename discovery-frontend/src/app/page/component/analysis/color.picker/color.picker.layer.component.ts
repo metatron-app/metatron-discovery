@@ -13,12 +13,11 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit,
-  Output
+  Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output
 } from '@angular/core';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 
 @Component({
   selector: 'color-picker-layer',
@@ -215,7 +214,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    * show
    * @param {string} colorHex
    * @param {Function} callBackFn
-   * @param parameter 색상 선택시 리턴되는 파라미터
+   * @param param
    */
   public show(colorHex: string = '', callBackFn: Function = () => {
   }, param?: any): void {
@@ -383,6 +382,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   /**
    * 색상 선택시
    * @param {string} color
+   * @param emitEventUseFl
    */
   public colorSelected(color: string, emitEventUseFl: boolean = true): void {
 

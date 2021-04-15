@@ -13,8 +13,8 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
-import {Pivot} from '../../../domain/workbook/configurations/pivot';
-import {Field, FieldPivot, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Field, FieldPivot, FieldRole, LogicalType} from '@domain/datasource/datasource';
 import {
   ChartType,
   EventType,
@@ -22,25 +22,25 @@ import {
   UIFormatCurrencyType,
   UIFormatNumericAliasType,
   UIFormatType
-} from '../../../common/component/chart/option/define/common';
+} from '@common/component/chart/option/define/common';
 
 import * as _ from 'lodash';
-import {UIMapOption} from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import {TimestampField} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {DimensionField} from '../../../domain/workbook/configurations/field/dimension-field';
-import {MeasureField} from '../../../domain/workbook/configurations/field/measure-field';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {TimestampField} from '@domain/workbook/configurations/field/timestamp-field';
+import {DimensionField} from '@domain/workbook/configurations/field/dimension-field';
+import {MeasureField} from '@domain/workbook/configurations/field/measure-field';
 import {PagePivotComponent} from '../page-pivot.component';
-import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {Field as AbstractField} from '../../../domain/workbook/configurations/field/field';
 import * as $ from "jquery";
-import {MapLayerType} from '../../../common/component/chart/option/define/map/map-common';
-import {UIOption} from '../../../common/component/chart/option/ui-option';
-import {Alert} from '../../../common/util/alert.util';
-import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
-import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
+import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {Alert} from '@common/util/alert.util';
+import {ChartUtil} from '@common/component/chart/option/util/chart-util';
+import {OptionGenerator} from "@common/component/chart/option/util/option-generator";
 import {isNullOrUndefined} from "util";
-import {CommonConstant} from "../../../common/constant/common.constant";
-import {TooltipOptionConverter} from "../../../common/component/chart/option/converter/tooltip-option-converter";
+import {CommonConstant} from "@common/constant/common.constant";
+import {TooltipOptionConverter} from "@common/component/chart/option/converter/tooltip-option-converter";
 
 @Component({
   selector: 'map-page-pivot',
@@ -358,6 +358,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * Datasource Field의 선반 위치정보 수정
    * @param targetField
    * @param targetContainer
+   * @param pivotField
    */
   public changeFieldPivot(targetField: Field, targetContainer: string, pivotField: AbstractField): void {
 
@@ -519,7 +520,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
     for (let idx = 0; idx < this.shelf.layers.length; idx++) {
       let item = this.shelf.layers[idx].fields;
       for (let idx2 = 0; idx2 < item.length; idx2++) {
-        item[idx2].field.pivot.splice(item[idx2].field.pivot.indexOf(index), 1);
+        //item[idx2].field.pivot.splice(item[idx2].field.pivot.indexOf(index),1);
+        item[idx2].field.pivot.splice(item[idx2].field.pivot.indexOf(index as unknown as FieldPivot), 1);
       }
     }
 
@@ -589,6 +591,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
   /**
    * set shelf guide
+   * @param index
    * @param {string} type
    * @returns {boolean}
    */
@@ -723,7 +726,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param {Field} targetField
    * @param {string} targetContainer
    */
-  public addField(targetField: Field, targetContainer: string, pivotField: AbstractField) {
+  public addField(targetField: Field, targetContainer: string, _pivotField: AbstractField) {
     let shelf;
 
     if (targetContainer === 'layer') {
@@ -762,7 +765,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param idx   필드 index
    * @param targetContainer 현재 선택된 선반
    */
-  protected deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
+  protected deleteDuplicatedField(field: any, idx: number, _targetContainer: string): boolean {
 
     // 열선반에서 해당 선반 중복시 제거
     if (this.checkDuplicatedField(this.shelf.layers[this.uiOption.layerNum].fields, field).length > 1) {

@@ -21,14 +21,14 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {GridComponent} from '../../common/component/grid/grid.component';
-import {GRID_EDIT_TYPE, header, SlickGridHeader} from '../../common/component/grid/grid.header';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GRID_EDIT_TYPE, Header, SlickGridHeader} from '@common/component/grid/grid.header';
 import {GridOption} from '../../common/component/grid/grid.option';
-import {Field, FieldValueAlias} from '../../domain/datasource/datasource';
+import {Field, FieldValueAlias} from '@domain/datasource/datasource';
 import {DatasourceAliasService} from '../../datasource/service/datasource-alias.service';
 import {DatasourceService} from '../../datasource/service/datasource.service';
-import {BoardDataSource} from '../../domain/dashboard/dashboard';
+import {BoardDataSource} from '@domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 
@@ -166,15 +166,15 @@ export class PopupValueAliasComponent extends AbstractComponent {
     this.loadingShow();
     if (this._isEdit) {
       this.aliasService.updateAliases(this._fieldValueAlias.id, this._fieldValueAlias).then(item => {
-        this.selectedField.valueAlias = <FieldValueAlias>item;
-        this.changeAliasEvent.emit(<FieldValueAlias>item);
+        this.selectedField.valueAlias = item as FieldValueAlias;
+        this.changeAliasEvent.emit(item as FieldValueAlias);
         this.showFl = false;
         this.loadingHide();
       });
     } else {
       this.aliasService.createAliases(this._fieldValueAlias).then(item => {
-        this.selectedField.valueAlias = <FieldValueAlias>item;
-        this.changeAliasEvent.emit(<FieldValueAlias>item);
+        this.selectedField.valueAlias = item as FieldValueAlias;
+        this.changeAliasEvent.emit(item as FieldValueAlias);
         this.showFl = false;
         this.loadingHide();
       });
@@ -230,7 +230,7 @@ export class PopupValueAliasComponent extends AbstractComponent {
     // header 설정
     const valueMsg = this.translateService.instant('msg.board.datasource.alias.for.value.header.value');
     const forValueMsg = this.translateService.instant('msg.board.datasource.alias.for.value.title');
-    const headers: header[] = [];
+    const headers: Header[] = [];
     headers.push(new SlickGridHeader()
       .Id('field')
       .Name(valueMsg)
