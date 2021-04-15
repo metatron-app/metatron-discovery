@@ -12,11 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, Injector,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit,} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
@@ -27,7 +23,7 @@ import {AbstractComponent} from '@common/component/abstract.component';
 export class LNBLogoComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   constructor(protected elementRef: ElementRef,
-              protected  injector: Injector) {
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 

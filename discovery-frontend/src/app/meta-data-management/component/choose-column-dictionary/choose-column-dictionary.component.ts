@@ -29,9 +29,6 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 현재 컬럼의 아이디
-  private _columnId: string;
-
   // mode
   private _mode: string;
 
@@ -98,9 +95,9 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
    * init
    * @param {string} mode
    * @param {ColumnDictionary} selectedColumnDictionary
-   * @param {string} columnId
+   * @param {string} _columnId
    */
-  public init(mode: string, selectedColumnDictionary: ColumnDictionary, columnId?: string): void {
+  public init(mode: string, selectedColumnDictionary: ColumnDictionary, _columnId?: string): void {
     // ui init
     this._initView();
     // show flag
@@ -114,8 +111,6 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
       // 수정모드일 경우 origin 선택한 column dictionary
       this._mode === 'UPDATE' && (this._originSelectedColumnDictionary = _.cloneDeep(selectedColumnDictionary));
     }
-    // columnId
-    columnId && (this._columnId = columnId);
     // 목록 조회
     this._getColumnDictionaryList();
   }

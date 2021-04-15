@@ -12,34 +12,26 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {StateService} from '../service/state.service';
-import {EngineService} from '../service/engine.service';
 import {Engine} from '@domain/engine-monitoring/engine';
 import {filter} from 'rxjs/operators';
 
 @Component({
   selector: '[ingestion]',
   templateUrl: './ingestion.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' },
   styles: ['ingestion-task .ddp-wrap-top-filtering .ddp-form-filtering:first-of-type .ddp-result-filtering {margin-left:0;}']
 })
 export class IngestionComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  @HostBinding('class')
+  public hostClass: string = 'ddp-wrap-contents-det';
+
   // noinspection JSUnusedLocalSymbols
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
-              private stateService: StateService,
-              private engineService: EngineService) {
+              private stateService: StateService) {
     super(elementRef, injector);
   }
 
@@ -54,8 +46,8 @@ export class IngestionComponent extends AbstractComponent implements OnInit, OnD
 
     this.subscriptions.push(
       this.stateService.changeTab$
-        .pipe(filter(({ current }) => current.isIngestion()))
-        .subscribe(({ next }) => this._changeTab(next))
+        .pipe(filter(({current}) => current.isIngestion()))
+        .subscribe(({next}) => this._changeTab(next))
     );
   }
 
@@ -80,10 +72,10 @@ export class IngestionComponent extends AbstractComponent implements OnInit, OnD
   }
 
   public changeIngestionTab(ingestionContentType: Engine.IngestionContentType) {
-    this.router.navigate([ `${Engine.Constant.ROUTE_PREFIX}ingestion/${ingestionContentType}` ]);
+    this.router.navigate([`${Engine.Constant.ROUTE_PREFIX}ingestion/${ingestionContentType}`]);
   }
 
   private _changeTab(contentType: Engine.ContentType) {
-    this.router.navigate([ `${Engine.Constant.ROUTE_PREFIX}${contentType}` ]);
+    this.router.navigate([`${Engine.Constant.ROUTE_PREFIX}${contentType}`]);
   }
 }

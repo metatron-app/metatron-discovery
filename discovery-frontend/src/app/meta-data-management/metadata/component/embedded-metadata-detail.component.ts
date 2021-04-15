@@ -13,7 +13,7 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Component, ElementRef, HostListener, Injector} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {MetadataService} from '../service/metadata.service';
 import {Metadata} from '@domain/meta-data-management/metadata';
 import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
@@ -23,7 +23,7 @@ import {ActivatedRoute} from '@angular/router';
   selector: 'app-embedded-metadata-detail',
   templateUrl: './embedded-metadata-detail.component.html',
 })
-export class EmbeddedMetadataDetailComponent extends AbstractComponent {
+export class EmbeddedMetadataDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

@@ -15,7 +15,8 @@
 import {
   Component,
   ElementRef,
-  EventEmitter, HostListener,
+  EventEmitter,
+  HostListener,
   Injector,
   Input,
   OnDestroy,
@@ -151,14 +152,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   @ViewChildren('dictionary')
   private readonly dictionary: ElementRef;
 
-  /**
-   * Logical Type Layer
-   */
-  @ViewChildren('logicalType')
-  private readonly _logicalType: ElementRef;
-  @ViewChildren('logicalTypeList')
-  private readonly _logicalTypeList: ElementRef;
-
   @ViewChildren(DatetimeValidPopupComponent)
   private readonly _datetimePopupComponentList: QueryList<DatetimeValidPopupComponent>;
 
@@ -166,11 +159,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private readonly _chooseCodeTableEvent = new EventEmitter();
   @Output('chooseDictionaryEvent')
   private readonly _chooseDictionaryEvent = new EventEmitter();
-
-  /**
-   * Field List Original
-   */
-  private _originColumnList: MetadataColumn[];
 
   /**
    * Current Selected Columns
@@ -798,9 +786,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return params;
   }
 
-  private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
-    dictionary && this.router.navigate(['management/metadata/column-dictionary', dictionary.id]);
-  }
+  // private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
+  //   dictionary && this.router.navigate(['management/metadata/column-dictionary', dictionary.id]);
+  // }
 
   // private _gotoCodeTableDetailView(codeTable: CodeTable) {
   //   this.router.navigate(['management/metadata/code-table', codeTable.id]);
@@ -851,7 +839,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
           });
           this._hideCurrentTime(result);
           this.columnList = _.orderBy(result.filter((metadataColumn: MetadataColumn) => MetadataColumn.isCurrentDatetime(metadataColumn) === false), this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
-          this._saveColumnDataOriginal();
           resolve(null);
         })
         .catch(error => reject(error))
@@ -860,13 +847,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   private _hideCurrentTime(result) {
     this.columnList = result.filter((metadataColumn: MetadataColumn) => MetadataColumn.isCurrentDatetime(metadataColumn) === false);
-  }
-
-  /**
-   * Saving column data original
-   */
-  private _saveColumnDataOriginal() {
-    this._originColumnList = _.cloneDeep(this.columnList);
   }
 
   /**
@@ -1112,20 +1092,20 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     }
 
     this.metadataColumnSchemaDescriptionInputs.toArray()[index].nativeElement.focus();
-    this.renderer.setElementClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected', true);
+    this.renderer.addClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   public blurMetadataColumnSchemaDescriptionInput(index: number) {
-    this.renderer.setElementClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected', false);
+    this.renderer.removeClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   public focusMetadataColumnSchemaNameInput(index: number) {
     this.metadataColumnSchemaNameInputs.toArray()[index].nativeElement.focus();
-    this.renderer.setElementClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected', true);
+    this.renderer.addClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   public blurMetadataColumnSchemaNameInput(index: number) {
-    this.renderer.setElementClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected', false);
+    this.renderer.removeClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   private _hideTypeListPopup() {

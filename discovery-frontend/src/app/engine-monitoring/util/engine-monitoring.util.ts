@@ -21,7 +21,7 @@ export class EngineMonitoringUtil {
 
   public static convertLocalTime(date: string, format?: string) {
     if (_.isNil(format)) {
-      format =  'YYYY-MM-DD HH:mm';
+      format = 'YYYY-MM-DD HH:mm';
     }
     return moment.utc(date).local().format(format)
   }
@@ -51,7 +51,7 @@ export class EngineMonitoringUtil {
     }
   }
 
-  public static getDurationLabel(duration:string) {
+  public static getDurationLabel(duration: string) {
     if ('1DAY' === duration) {
       return 'Last 1 day';
     } else if ('7DAYS' === duration) {

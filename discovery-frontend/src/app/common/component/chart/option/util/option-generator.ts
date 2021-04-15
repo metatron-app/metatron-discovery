@@ -1,3 +1,4 @@
+/* tslint:disable:no-shadowed-variable */
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,10 +59,10 @@ import {DataZoomType, InsideDataZoom, SliderDataZoom} from '../define/datazoom';
 import {Tooltip} from '../define/tooltip';
 import {Toolbox} from '../define/toolbox';
 import {Brush} from '../define/brush';
-import {Series} from '../define/series';
 import {BaseOption} from '../base-option';
 import {
   ColorRange,
+  CustomSymbol,
   UIChartAxis,
   UIChartColorByDimension,
   UIChartColorBySeries,
@@ -96,7 +97,6 @@ import {UICombineChart} from '../ui-option/ui-combine-chart';
 import {UIPieChart} from '../ui-option/ui-pie-chart';
 import {UIRadarChart} from '../ui-option/ui-radar-chart';
 
-import {CustomSymbol} from '../../../../../domain/workbook/configurations/format';
 import {UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue} from '../ui-option/ui-axis';
 import {MapBy, MapLayerType, MapLineStyle, MapType} from '../define/map/map-common';
 import {UIMapOption} from '../ui-option/map/ui-map-chart';
@@ -645,9 +645,9 @@ export namespace OptionGenerator {
   export namespace Series {
 
     // 차트 시리즈
-    const series = ((): Series[] => {
-      return [];
-    });
+    // const series = ((): Series[] => {
+    //   return [];
+    // });
 
   }
 
@@ -717,7 +717,6 @@ export namespace OptionGenerator {
      * @param {string} fill
      * @param {string} text
      * @param {string} font
-     * @returns {{fill: string; text: string; font: string}}
      */
     export function customGraphicStyle(fill: string, text: string, font: string): GraphicStyle {
       return graphicStyle(fill, text, font);
@@ -1917,7 +1916,7 @@ export namespace OptionGenerator {
           showValue: true,
           hAlign: UIPosition.CENTER,
           vAlign: UIPosition.CENTER,
-          displayTypes: [, , , UIChartDataLabelDisplayType.SERIES_NAME]
+          displayTypes: [undefined, undefined, undefined, UIChartDataLabelDisplayType.SERIES_NAME]
         }
       };
     }
@@ -1952,7 +1951,7 @@ export namespace OptionGenerator {
         type: ChartType.NETWORK,
         color: UI.Color.dimensionUIChartColor('SC1'),
         legend: UI.Legend.pagingLegend(true, 5),
-        dataLabel: UI.DataLabel.label(true, [, , , , , , , , , UIChartDataLabelDisplayType.NODE_NAME], DataLabelPosition.TOP),
+        dataLabel: UI.DataLabel.label(true, [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, UIChartDataLabelDisplayType.NODE_NAME], DataLabelPosition.TOP),
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1987,7 +1986,7 @@ export namespace OptionGenerator {
         type: ChartType.SANKEY,
         color: UI.Color.dimensionUIChartColor('SC1'),
         legend: UI.Legend.pagingLegend(true, 5),
-        dataLabel: UI.DataLabel.label(true, [, , , , , , , , , UIChartDataLabelDisplayType.NODE_NAME]),
+        dataLabel: UI.DataLabel.label(true, [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, UIChartDataLabelDisplayType.NODE_NAME]),
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }

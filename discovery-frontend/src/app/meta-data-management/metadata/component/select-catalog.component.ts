@@ -71,6 +71,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
 
   @ViewChild('newCatalogName')
   private newCatalogName: ElementRef;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -221,9 +222,9 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   public updateCatalog(catalog, index) {
     if (!isUndefined(this.catalogInput.nativeElement.value) && this.catalogInput.nativeElement.value.trim() !== '') {
 
-      const idx = this.catalogs.map((catalog, idx) => {
-        if (idx !== index) {
-          return catalog.name;
+      const idx = this.catalogs.map((catalogItem, catalogIdx) => {
+        if (catalogIdx !== index) {
+          return catalogItem.name;
         }
       }).indexOf(this.catalogInput.nativeElement.value);
       if (idx === -1) {

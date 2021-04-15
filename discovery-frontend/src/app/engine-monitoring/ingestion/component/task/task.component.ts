@@ -12,26 +12,18 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from '@common/component/abstract.component';
-import {Task, TaskStatus, TaskType} from '@domain/engine-monitoring/task';
-import {PageResult} from '@domain/common/page';
-import {EngineService} from '../../../service/engine.service';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {CriterionComponent} from '../../../../data-storage/component/criterion/criterion.component';
-import {Criteria} from '@domain/datasource/criteria';
 import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PageResult} from '@domain/common/page';
+import {Criteria} from '@domain/datasource/criteria';
+import {Task, TaskStatus, TaskType} from '@domain/engine-monitoring/task';
 import {TimezoneService} from '../../../../data-storage/service/timezone.service';
+import {CriterionComponent} from '../../../../data-storage/component/criterion/criterion.component';
 import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
+import {EngineService} from '../../../service/engine.service';
 
 declare let moment: any;
 
@@ -156,7 +148,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
 
   public sortTaskList(key: string): void {
     // set selected sort
-    if (this.selectedContentSort.key != key) {
+    if (this.selectedContentSort.key !== key) {
       this.selectedContentSort.key = key;
       this.selectedContentSort.sort = 'desc';
     } else {
@@ -194,9 +186,9 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
 
   /**
    * Changed filter
-   * @param searchParams
+   * @param _searchParams
    */
-  public onChangedFilter(searchParams): void {
+  public onChangedFilter(_searchParams): void {
     // reload page
     this.reloadPage(true);
   }
@@ -218,32 +210,32 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   private _filteringTaskList(): Task[] {
     const filterParam = this._getTaskParams();
     return _.cloneDeep(this.taskTotalList).filter(item => {
-      const matchStatus = !filterParam['taskStatus'] || filterParam['taskStatus'].length == 0 || filterParam['taskStatus'].some(status => item.status == status);
-      const matchType = !filterParam['taskType'] || filterParam['taskType'].length == 0 || filterParam['taskType'].some(type => this.getTypeTranslate(item.type) == type);
-      const matchSearchWord = !filterParam['containsText'] || item.task_id.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
+      const matchStatus = !filterParam['taskStatus'] || filterParam['taskStatus'].length === 0 || filterParam['taskStatus'].some(status => item.status === status);
+      const matchType = !filterParam['taskType'] || filterParam['taskType'].length === 0 || filterParam['taskType'].some(type => this.getTypeTranslate(item.type) === type);
+      const matchSearchWord = !filterParam['containsText'] || item.taskId.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
       const matchCreatedTime = (_.isNil(filterParam['createdTimeFrom'] && _.isNil(filterParam['createdTimeTo'])))
-        || (filterParam['createdTimeFrom'] ==  '' && filterParam['createdTimeTo'] ==  '')
-        || (filterParam['createdTimeFrom'] ==  '' && moment(item.created_time).isSameOrBefore(filterParam['createdTimeTo']))
-        || (filterParam['createdTimeTo'] ==  '' && moment(item.created_time).isSameOrAfter(filterParam['createdTimeFrom']))
-        || moment(item.created_time).isBetween(filterParam['createdTimeFrom'], filterParam['createdTimeTo']);
+        || (filterParam['createdTimeFrom'] === '' && filterParam['createdTimeTo'] === '')
+        || (filterParam['createdTimeFrom'] === '' && moment(item.createdTime).isSameOrBefore(filterParam['createdTimeTo']))
+        || (filterParam['createdTimeTo'] === '' && moment(item.createdTime).isSameOrAfter(filterParam['createdTimeFrom']))
+        || moment(item.createdTime).isBetween(filterParam['createdTimeFrom'], filterParam['createdTimeTo']);
       return matchStatus && matchType && matchSearchWord && matchCreatedTime;
     })
   }
 
   private _getTaskPagingList() {
     let list = this._filteringTaskList();
-    if (this.selectedContentSort.key != 'default') {
+    if (this.selectedContentSort.key !== 'default') {
       list = list.sort((a, b) => {
-        if(this.selectedContentSort.key === 'status') {
+        if (this.selectedContentSort.key === 'status') {
           return a.status < b.status ? -1 : a.status > b.status ? 1 : 0;
         } else if (this.selectedContentSort.key === 'time') {
-          return a.created_time < b.created_time ? -1 : a.created_time > b.created_time ? 1 : 0;
+          return a.createdTime < b.createdTime ? -1 : a.createdTime > b.createdTime ? 1 : 0;
         } else if (this.selectedContentSort.key === 'duration') {
           return a.duration < b.duration ? -1 : a.duration > b.duration ? 1 : 0;
         }
         return 0;
       });
-      if (this.selectedContentSort.sort == 'desc') {
+      if (this.selectedContentSort.sort === 'desc') {
         list = list.reverse();
       }
     }
@@ -253,12 +245,12 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
     this.pageResult.totalElements = list.length;
     this.pageResult.totalPages = Math.ceil(this.pageResult.totalElements / this.pageResult.size);
 
-    const endSize = (this.page.page+1)*this.pageResult.size < this.pageResult.totalElements ? (this.page.page+1)*this.pageResult.size : this.pageResult.totalElements;
+    const endSize = (this.page.page + 1) * this.pageResult.size < this.pageResult.totalElements ? (this.page.page + 1) * this.pageResult.size : this.pageResult.totalElements;
     this.taskList = list.slice(this.page.page * this.pageResult.size, endSize);
   }
 
   private _getTaskList() {
-    if (_.isNil(this.taskTotalList) || this.taskTotalList.length == 0) {
+    if (_.isNil(this.taskTotalList) || this.taskTotalList.length === 0) {
       this.engineService.getTaskList().then((data) => {
         this.taskTotalList = data;
         this._getTaskPagingList();
@@ -272,7 +264,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime(),
+      pseudoParam: (new Date()).getTime(),
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();

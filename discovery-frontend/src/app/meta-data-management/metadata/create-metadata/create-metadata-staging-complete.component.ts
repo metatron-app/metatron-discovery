@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {MetadataConstant} from '../../metadata.constant';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {MetadataEntity} from '../metadata.entity';
@@ -26,7 +26,7 @@ import {MetadataControlCompleteComponent} from './component/metadata-control-com
   selector: 'create-metadata-staging-complete',
   templateUrl: 'create-metadata-staging-complete.component.html'
 })
-export class CreateMetadataStagingCompleteComponent extends AbstractComponent {
+export class CreateMetadataStagingCompleteComponent extends AbstractComponent implements OnInit {
 
   @ViewChild(MetadataControlCompleteComponent)
   private readonly _metadataControlCompleteComponent: MetadataControlCompleteComponent;
@@ -127,7 +127,7 @@ export class CreateMetadataStagingCompleteComponent extends AbstractComponent {
         } else {
           // set name error
           result.forEach(name => {
-            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadata => metadata.name === name);
+            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadataItem => metadataItem.name === name);
             metadata.isErrorName = true;
             metadata.errorMessage = this.translateService.instant('msg.metadata.ui.create.name.error.duplicated');
           });

@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {saveAs} from 'file-saver';
 import {
   AfterViewInit,
   Component,
@@ -22,17 +24,14 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '@common/component/abstract.component';
-import {EngineService} from '../../../service/engine.service';
-import {ActivatedRoute} from '@angular/router';
-import {Task, TaskStatus, TaskType} from '@domain/engine-monitoring/task';
-import {Alert} from '@common/util/alert.util';
 import {Location} from '@angular/common';
-import * as _ from 'lodash';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Task, TaskStatus, TaskType} from '@domain/engine-monitoring/task';
 import {Engine} from '@domain/engine-monitoring/engine';
-import {saveAs} from 'file-saver';
+import {EngineService} from '../../../service/engine.service';
 import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
-import {CommonUtil} from '@common/util/common.util';
 
 declare let echarts: any;
 declare let moment: any;
@@ -41,7 +40,7 @@ declare let moment: any;
   selector: 'app-detail-task',
   templateUrl: './task-detail.component.html',
   styles: ['.ddp-ui-datadetail.type-detail .ddp-wrap-log .ddp-box-log {overflow: auto; white-space: pre-wrap;}',
-          '.ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-dl-option dd .ddp-box-status {visibility: hidden;}']
+    '.ddp-ui-datadetail.type-detail .ddp-box-log-option .ddp-dl-option dd .ddp-box-status {visibility: hidden;}']
 })
 export class TaskDetailComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -97,10 +96,10 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  protected onResize(_event) {
     if (!_.isNil(this._rowChart)) {
       this._rowChart.resize();
     }
@@ -145,7 +144,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     this.loadingShow();
     this.engineService.getTaskLogDownloadById(this._taskId).then((data) => {
       this.loadingHide();
-      saveAs(new Blob([data], { type: 'text/plain' }), this._taskId + '.log')
+      saveAs(new Blob([data], {type: 'text/plain'}), this._taskId + '.log')
     }).catch((error) => {
       this.commonExceptionHandler(error);
     });
@@ -173,12 +172,12 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
   }
 
   public logNewTab() {
-    const popUrl = '/api/monitoring/ingestion/task/'+this._taskId+'/log';
+    const popUrl = '/api/monitoring/ingestion/task/' + this._taskId + '/log';
     window.open(popUrl, '_blank');
   }
 
   public get isCompletedTask(): boolean {
-    return this.task.status != TaskStatus.SUCCESS && this.task.status != TaskStatus.FAILED;
+    return this.task.status !== TaskStatus.SUCCESS && this.task.status !== TaskStatus.FAILED;
   }
 
   public get isKafkaTask(): boolean {
@@ -211,11 +210,11 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
   private _getTaskRow(): void {
     const queryParam: any =
       {
-        monitoringTarget : {
+        monitoringTarget: {
           metric: Engine.MonitoringTarget.TASK_ROW,
           taskId: this._taskId
         },
-        fromDate: moment(this.task.created_time).utc().format('YYYY-MM-DDTHH:mm:ss'),
+        fromDate: moment(this.task.createdTime).utc().format('YYYY-MM-DDTHH:mm:ss'),
         toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
       };
 
@@ -228,7 +227,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
       if (!_.isNil(this._rowChart)) {
         this._rowChart.clear();
       }
-      $('input[name="row"]:checked').each(function(){
+      $('input[name="row"]:checked').each(function () {
         if ($(this).val() === 'Processed') {
           series.push({
             type: 'line',

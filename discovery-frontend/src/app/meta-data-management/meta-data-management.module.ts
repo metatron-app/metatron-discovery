@@ -28,7 +28,7 @@ import {CodeTableService} from './code-table/service/code-table.service';
 import {LineageComponent} from './lineage/lineage.component';
 import {DetailLineageComponent} from './lineage/detail-lineage/detail-lineage.component';
 import {LineageService} from './lineage/service/lineage.service';
-import {EditLineagePopup} from './lineage/component/edit-lineage-popup.component';
+import {EditLineagePopupComponent} from './lineage/component/edit-lineage-popup.component';
 import {CreateLineageComponent} from './lineage/component/create-lineage.component';
 import {CreateLineageUploadFileComponent} from './lineage/component/create-lineage-upload-file.component';
 import {CreateLineageConfirmGridComponent} from './lineage/component/create-lineage-confirm-grid.component';
@@ -104,7 +104,7 @@ import {LayoutModule} from '@layout/layout/layout.module';
     // 리니지
     LineageComponent,
     DetailLineageComponent,
-    EditLineagePopup,
+    EditLineagePopupComponent,
     CreateLineageComponent,
     CreateLineageUploadFileComponent,
     CreateLineageConfirmGridComponent,

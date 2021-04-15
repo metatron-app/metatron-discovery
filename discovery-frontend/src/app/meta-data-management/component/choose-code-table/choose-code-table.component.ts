@@ -22,7 +22,6 @@ import {ColumnDictionaryService} from '../../column-dictionary/service/column-di
 import * as _ from 'lodash';
 import {Alert} from '@common/util/alert.util';
 import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
-import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-choose-code-table',
@@ -84,7 +83,6 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   constructor(
     private _columnDictionaryService: ColumnDictionaryService,
     private _codeTableService: CodeTableService,
-    private _translateService: TranslateService,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -201,7 +199,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // event stop
     event.stopImmediatePropagation();
     // 코드 테이블 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTableId]);
+    this.router.navigate(['management/metadata/code-table', codeTableId]).then();
   }
 
   /**
@@ -350,7 +348,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 현재 컬럼사전에 선택한 코드 테이블 연결
-    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id).then((result) => {
+    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id).then(() => {
       // 로딩 hide
       this.loadingHide();
       // alert
@@ -369,7 +367,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     this.loadingShow();
     // 현재 컬럼사전에 선택한 코드 테이블 연결
     this._columnDictionaryService.unlinkCodeTableWithColumnDictionary(this._dictionaryId,
-      this._originSelectedCodeTable.id).then((result) => {
+      this._originSelectedCodeTable.id).then(() => {
       // 로딩 hide
       this.loadingHide();
       // alert

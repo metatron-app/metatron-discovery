@@ -15,12 +15,14 @@
 
 import {AbstractComponent} from '@common/component/abstract.component';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   HostListener,
   Injector,
   Input,
+  OnInit,
   Output,
 } from '@angular/core';
 import * as _ from 'lodash';
@@ -31,7 +33,7 @@ import {CommonUtil} from '@common/util/common.util';
   selector: 'schema-select-box',
   templateUrl: 'schema-select-box.component.html'
 })
-export class SchemaSelectBoxComponent extends AbstractComponent {
+export class SchemaSelectBoxComponent extends AbstractComponent implements OnInit, AfterViewInit {
 
   @Input() readonly isDisableSelect: boolean;
   @Input() readonly isEnableWindowResizeAutoClose: boolean;
@@ -67,13 +69,15 @@ export class SchemaSelectBoxComponent extends AbstractComponent {
 
   ngAfterViewInit() {
     if (this.isEnableAutoShowList && this.isEmptySelectedSchema()) {
-      setTimeout(() => { this.isShowList = true})
+      setTimeout(() => {
+        this.isShowList = true
+      })
     }
   }
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
   protected onResize(_event) {

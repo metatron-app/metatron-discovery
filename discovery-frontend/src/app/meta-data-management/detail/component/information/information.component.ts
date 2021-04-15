@@ -12,15 +12,23 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import * as _ from 'lodash';
 import {AbstractComponent} from '@common/component/abstract.component';
-import {InputComponent} from '@common/component/input/input.component';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
 import {Alert} from '@common/util/alert.util';
 import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
-import {MetadataSourceType} from '@domain/meta-data-management/metadata-source';
 import {StorageService} from '../../../../data-storage/service/storage.service';
 
 @Component({
@@ -35,9 +43,6 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
 
   @ViewChild('metadataDesc')
   private metadataDesc: ElementRef;
-
-  @ViewChildren(InputComponent)
-  private tagInput: InputComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -163,7 +168,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
    * @param tag
    */
   public deleteTag(tag) {
-    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [ tag.name ]).then(() => {
+    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [tag.name]).then(() => {
       this.getMetadataDetail();
     }).catch((err) => {
       console.log('error -> ', err);
@@ -184,7 +189,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
     }
     if (!this.tagFlag) {
       this.tagFlag = true;
-      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id, [ this.tagValue ]).then(() => {
+      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id, [this.tagValue]).then(() => {
         this.tagValue = '';
         this.isAddTag = false;
         this.getMetadataDetail();
@@ -244,7 +249,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
     // Set
     this.editingDesc ? this.desc = this.editingDesc.trim() : this.desc = '';
 
-    this.metadataService.updateMetadata(this.metadataModelService.getMetadata().id, { description: this.desc }).then((result) => {
+    this.metadataService.updateMetadata(this.metadataModelService.getMetadata().id, {description: this.desc}).then((result) => {
       this.loadingHide();
       if (result) {
         this.getMetadataDetail();
@@ -320,7 +325,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
     if (_.isNil(datasourceId)) {
       return;
     }
-    this.router.navigate([ `/management/storage/datasource/${datasourceId}` ]);
+    this.router.navigate([`/management/storage/datasource/${datasourceId}`]);
   }
 
   public isSourceTypeDatasource() {

@@ -102,7 +102,7 @@ const layoutRoutes: Routes = [
     AccessHistoryComponent
   ],
   exports: [
-   LNBComponent
+    LNBComponent
   ],
   providers: [
     CookieService,

@@ -21,14 +21,11 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output,
-  ViewChild
+  Output
 } from '@angular/core';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {PopupService} from '@common/service/popup.service';
 import {LineageService} from '../service/lineage.service';
-
-declare let plupload: any;
 
 @Component({
   selector: 'app-create-lineage-upload-file',
@@ -39,12 +36,6 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @ViewChild('pickfiles')
-  private pickfiles: ElementRef;
-
-  @ViewChild('drop_container')
-  private drop_container: ElementRef;
 
   public unsupportedFileView: boolean = false;
 
@@ -97,7 +88,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   /**
    * File Upload Cancel(Plupload)
    */
-  public cancelUpload(file) {
+  public cancelUpload(_file) {
   }
 
   /**
@@ -148,16 +139,16 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
 
       let headerRow = null;
       let header = null;
-      let rows = [];
-      let gridResponse = result.gridResponses[0];
+      const rows = [];
+      const gridResponse = result.gridResponses[0];
       gridResponse.rows.forEach((item) => {
         if (headerRow == null) {
           headerRow = item.objCols;
           header = item.objCols.filter((k) => k);
         } else {
-          let row = {};
+          const row = {};
           header.forEach((k) => {
-            let idx = headerRow.indexOf(k);
+            const idx = headerRow.indexOf(k);
             row[k] = item.objCols[idx];
           });
           rows.push(row);

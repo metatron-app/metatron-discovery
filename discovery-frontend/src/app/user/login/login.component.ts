@@ -12,23 +12,22 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { User } from '@domain/user/user';
-import { UserService } from '../service/user.service';
-import { CookieConstant } from '@common/constant/cookie.constant';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { JoinComponent } from './component/join/join.component';
-import { JoinCompleteComponent } from './component/join-complete/join-complete.component';
-import { ResetPasswordComponent } from './component/reset-password/reset-password.component';
-import { Alert } from '@common/util/alert.util';
-import { ActivatedRoute } from '@angular/router';
-import { WorkspaceService } from '../../workspace/service/workspace.service';
-import { PermissionService } from '../service/permission.service';
-import { ConfirmSmallComponent } from '@common/component/modal/confirm-small/confirm-small.component';
-import { Modal } from '@common/domain/modal';
-import { CommonUtil } from '@common/util/common.util';
-import { isNullOrUndefined } from 'util';
-import { InitialChangePasswordComponent } from './component/initial-change-password/initial-change-password.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {User} from '@domain/user/user';
+import {UserService} from '../service/user.service';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {JoinComponent} from './component/join/join.component';
+import {ResetPasswordComponent} from './component/reset-password/reset-password.component';
+import {Alert} from '@common/util/alert.util';
+import {ActivatedRoute} from '@angular/router';
+import {WorkspaceService} from '../../workspace/service/workspace.service';
+import {PermissionService} from '../service/permission.service';
+import {ConfirmSmallComponent} from '@common/component/modal/confirm-small/confirm-small.component';
+import {Modal} from '@common/domain/modal';
+import {CommonUtil} from '@common/util/common.util';
+import {isNullOrUndefined} from 'util';
+import {InitialChangePasswordComponent} from './component/initial-change-password/initial-change-password.component';
 
 declare let moment: any;
 
@@ -46,10 +45,6 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   // 사용자 신청 팝업 컴포넌트
   @ViewChild(JoinComponent)
   private joinComponent: JoinComponent;
-
-  // 가입 완료 팝업 컴포넌트
-  @ViewChild(JoinCompleteComponent)
-  private joinCompleteComponent: JoinCompleteComponent;
 
   // 비밀번호 변경 팝업 컴포넌트
   @ViewChild(ResetPasswordComponent)
@@ -95,14 +90,14 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
               private permissionService: PermissionService,
               private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
-              protected  injector: Injector) {
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
   ngOnInit() {
     super.ngOnInit();
 
-    localStorage.removeItem( 'USE_SAML_SSO' );
+    localStorage.removeItem('USE_SAML_SSO');
 
     this.activatedRoute.queryParams.subscribe((params) => {
       this.forwardURL = params['forwardURL'] || 'NONE';
@@ -147,17 +142,17 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   // 사용자 신청 완료
-  public joinComplete(data:{code:string,msg?:string}) {
+  public joinComplete(data: { code: string, msg?: string }) {
     // modal
     const modal = new Modal();
-    if( 'SUCCESS' === data.code ) {
+    if ('SUCCESS' === data.code) {
       // message
-      modal.name = this.translateService.instant( 'msg.login.join.title' );
-      modal.description = this.translateService.instant( 'msg.login.join.cmplt.description' );
-      modal.subDescription = this.translateService.instant( 'msg.login.join.cmplt.description2' );
+      modal.name = this.translateService.instant('msg.login.join.title');
+      modal.description = this.translateService.instant('msg.login.join.cmplt.description');
+      modal.subDescription = this.translateService.instant('msg.login.join.cmplt.description2');
     } else {
       modal.name = this.translateService.instant('login.join.fail');
-      ( '' !== data.msg ) && ( modal.description = data.msg );
+      ('' !== data.msg) && (modal.description = data.msg);
     }
     // confirm modal
     this.useCancelBtn = false;
@@ -188,7 +183,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loadingShow();
 
-    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+    (this.user.username) && (this.user.username = this.user.username.trim());
 
     this.userService.checkUserIp(this.user).then((host) => {
       if (host === true) {
@@ -196,7 +191,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
       } else {
         this.loadingHide();
         const modal = new Modal();
-        modal.name = this.translateService.instant( 'msg.login.access.title' );
+        modal.name = this.translateService.instant('msg.login.access.title');
         modal.description = this.translateService.instant('msg.sso.ui.confirm.userip', {value: host});
         modal.data = this.user;
         // confirm modal
@@ -220,7 +215,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loadingShow();
 
-    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+    (this.user.username) && (this.user.username = this.user.username.trim());
 
     this.loginFailMsg = '';
 
@@ -304,7 +299,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
    * @private
    */
   private _logout() {
-    if( CommonUtil.isSamlSSO() ) {
+    if (CommonUtil.isSamlSSO()) {
       location.href = '/saml/logout';
     } else {
       this.cookieService.delete(CookieConstant.KEY.LOGIN_TOKEN, '/');
@@ -317,13 +312,13 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     }
   } // function - _logout
 
-  private _showAccessLog(lastLoginTime: string, lastLoginIp:string, forwardUrl: string) {
+  private _showAccessLog(lastLoginTime: string, lastLoginIp: string, forwardUrl: string) {
     this.loadingHide();
     const modal = new Modal();
-    modal.name = this.translateService.instant( 'msg.login.access.title' );
-    modal.description = this.translateService.instant( 'msg.login.access.description' )
-                          + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
-    if(lastLoginIp != undefined){
+    modal.name = this.translateService.instant('msg.login.access.title');
+    modal.description = this.translateService.instant('msg.login.access.description')
+      + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
+    if (lastLoginIp !== undefined) {
       modal.description = modal.description + ' (' + lastLoginIp + ')';
     }
     modal.data = forwardUrl;

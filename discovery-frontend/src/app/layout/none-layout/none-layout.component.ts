@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-none-layout',
@@ -21,7 +21,8 @@ import { Component, OnInit } from '@angular/core';
 export class NoneLayoutComponent implements OnInit {
 
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
   }

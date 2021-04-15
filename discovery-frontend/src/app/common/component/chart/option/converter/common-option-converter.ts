@@ -56,8 +56,7 @@ export class CommonOptionConverter {
     const yAxis: Axis[] = chartOption.yAxis;
 
     // Y축 명칭 (x축쪽에서 y축 명칭을 가져오기전에 타게되므로 따로 설정해줌)
-    const yAxisName = uiOption.yAxis.customName ? uiOption.yAxis.customName : _.join(fieldInfo.aggs, CHART_STRING_DELIMITER);
-    chartOption.yAxis[0].name = yAxisName;
+    chartOption.yAxis[0].name = uiOption.yAxis.customName ? uiOption.yAxis.customName : _.join(fieldInfo.aggs, CHART_STRING_DELIMITER);
     chartOption.yAxis[0].axisName = _.join(fieldInfo.aggs, CHART_STRING_DELIMITER);
 
     // 세로모드일때
@@ -148,7 +147,7 @@ export class CommonOptionConverter {
    * y축 가로/세로에 따라 축명 위치변경
    * @param chartOption
    * @param uiOption
-   * @param axisType
+   * @param fieldInfo
    */
   public static convertYAxisRotateName(chartOption: BaseOption, uiOption: UIOption, fieldInfo: PivotTableInfo): BaseOption {
 
@@ -271,6 +270,7 @@ export class CommonOptionConverter {
    * 공통옵션의 시리즈 데이터 설정
    * @param chartOption
    * @param uiOption
+   * @param fieldInfo
    */
   public static convertCommonSeries(chartOption: BaseOption, uiOption: UIOption, fieldInfo: PivotTableInfo): BaseOption {
 

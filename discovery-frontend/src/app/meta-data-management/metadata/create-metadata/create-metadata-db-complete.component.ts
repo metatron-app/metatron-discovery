@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {MetadataConstant} from '../../metadata.constant';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {MetadataEntity} from '../metadata.entity';
@@ -27,7 +27,7 @@ import {MetadataControlCompleteComponent} from './component/metadata-control-com
   selector: 'create-metadata-db-complete',
   templateUrl: 'create-metadata-db-complete.component.html'
 })
-export class CreateMetadataDbCompleteComponent extends AbstractComponent {
+export class CreateMetadataDbCompleteComponent extends AbstractComponent implements OnInit {
 
   @ViewChild(MetadataControlCompleteComponent)
   private readonly _metadataControlCompleteComponent: MetadataControlCompleteComponent;
@@ -132,7 +132,7 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
    * @private
    */
   private _getInitSearchableInExploreData(): boolean {
-    return this.createData.connectionInfo.connectionDetail.published === false && this.createData.connectionInfo.connectionDetail.authenticationType === AuthenticationType.DIALOG ? false : true;
+    return !(this.createData.connectionInfo.connectionDetail.published === false && this.createData.connectionInfo.connectionDetail.authenticationType === AuthenticationType.DIALOG);
   }
 
   /**
@@ -176,7 +176,7 @@ export class CreateMetadataDbCompleteComponent extends AbstractComponent {
         } else {
           // set name error
           result.forEach(name => {
-            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadata => metadata.name === name);
+            const metadata = this._metadataControlCompleteComponent.metadataList.find(metadataItem => metadataItem.name === name);
             metadata.isErrorName = true;
             metadata.errorMessage = this.translateService.instant('msg.metadata.ui.create.name.error.duplicated');
           });

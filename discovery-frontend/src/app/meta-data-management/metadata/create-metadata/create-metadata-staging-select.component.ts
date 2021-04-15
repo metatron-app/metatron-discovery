@@ -13,7 +13,17 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {MetadataConstant} from '../../metadata.constant';
 import {MetadataEntity} from '../metadata.entity';
@@ -21,14 +31,14 @@ import {DataconnectionService} from '@common/service/dataconnection.service';
 import * as _ from 'lodash';
 import {isNullOrUndefined} from 'util';
 import {SchemaTableListComponent} from './component/schema-table-list.component';
-import SchemaInfo = MetadataEntity.SchemaInfo;
 import {SchemaTablePreviewComponent} from './component/schema-table-preview.component';
+import SchemaInfo = MetadataEntity.SchemaInfo;
 
 @Component({
   selector: 'create-metadata-staging-select',
   templateUrl: 'create-metadata-staging-select.component.html'
 })
-export class CreateMetadataStagingSelectComponent extends AbstractComponent {
+export class CreateMetadataStagingSelectComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild(SchemaTableListComponent)
   private readonly _tableListComponent: SchemaTableListComponent;
@@ -45,7 +55,7 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
   selectedSchema: string;
   tableList: string[];
   selectedTable: string;
-  selectedTableDetailData: {data, fields};
+  selectedTableDetailData: { data, fields };
 
   // loading part flag
   isLoading: boolean;
@@ -173,7 +183,11 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
     // init preview
     this._initialTablePreview();
     // get detail data
-    const sub = this.connectionService.getTableDetailDataForHiveWithCancel( {type: 'TABLE', database: this.selectedSchema, query: this.selectedTable}).subscribe(
+    const sub = this.connectionService.getTableDetailDataForHiveWithCancel({
+      type: 'TABLE',
+      database: this.selectedSchema,
+      query: this.selectedTable
+    }).subscribe(
       res => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
         res['data'] = this._getReplacedDataList(res['data']);

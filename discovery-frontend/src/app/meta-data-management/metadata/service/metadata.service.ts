@@ -96,7 +96,7 @@ export class MetadataService extends AbstractService {
     return this.get(url + `&projection=${projection}`);
   }
 
-  public getMetadataListByDataCreator(username: string,params: object, projection: string = 'forListView'): Promise<any> {
+  public getMetadataListByDataCreator(username: string, params: object, projection: string = 'forListView'): Promise<any> {
     // URL
     let url: string = this.URL_METADATA + `/datacreators/${username}/metadatas`;
 
@@ -106,6 +106,7 @@ export class MetadataService extends AbstractService {
 
     return this.get(url + `&projection=${projection}`);
   }
+
   /**
    * 메타데이터  삭제
    * @param {string} id
@@ -176,7 +177,7 @@ export class MetadataService extends AbstractService {
     return this.get(this.URL_METADATA + `/tags`);
   }
 
-  public getPopularityTags(params:{scope?:string, domainType?:string, nameContains?: string, size?:number }): Promise<any> {
+  public getPopularityTags(params: { scope?: string, domainType?: string, nameContains?: string, size?: number }): Promise<any> {
     let url: string = this.API_URL + `/tags/popularity`;
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
@@ -323,13 +324,13 @@ export class MetadataService extends AbstractService {
 
   /**
    * Get Recently Queries In Metadata Detail for DataBase
-   * @param {number} page
+   * @param {string} dataConnectionId
+   * @param {number} _page
    * @param {number} size
    * @param {string} sort
-   * @param {string} dataConnectionId
    * @returns {Promise<any>}
    */
-  public getRecentlyQueriesInMetadataDetailForDatabase(dataConnectionId: string, page: number, size: number, sort: string): Promise<any> {
+  public getRecentlyQueriesInMetadataDetailForDatabase(dataConnectionId: string, _page: number, size: number, sort: string): Promise<any> {
     return this.get(this.API_URL + `queryhistories?sort=${sort}&size=${size}&dataConnectionId=${dataConnectionId}`);
   }
 

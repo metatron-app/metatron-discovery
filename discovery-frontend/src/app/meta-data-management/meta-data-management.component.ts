@@ -13,7 +13,7 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Component, ElementRef, Injector} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
 import {MetadataService} from './metadata/service/metadata.service';
@@ -22,7 +22,7 @@ import {MetadataService} from './metadata/service/metadata.service';
   selector: 'app-meta-data-management',
   templateUrl: './meta-data-management.component.html',
 })
-export class MetaDataManagementComponent extends AbstractComponent {
+export class MetaDataManagementComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -127,7 +127,8 @@ export class MetaDataManagementComponent extends AbstractComponent {
       .then((result) => {
         this.showLineageTab = result;
       })
-      .catch(_error => {});
+      .catch(_error => {
+      });
   }
 
 }

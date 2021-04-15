@@ -13,14 +13,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input, OnChanges,
-  Output, SimpleChanges
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 
 import * as _ from 'lodash';

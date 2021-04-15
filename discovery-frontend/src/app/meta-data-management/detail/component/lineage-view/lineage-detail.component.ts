@@ -12,20 +12,27 @@
 * limitations under the License.
 */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, AfterViewInit, Output, ViewChild, ViewChildren} from '@angular/core';
-import * as _ from 'lodash';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
-import {InputComponent} from '@common/component/input/input.component';
 import {LineageViewService} from '../../service/lineage-view.service';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
-import {Alert} from '@common/util/alert.util';
 import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
 import {GridComponent} from '@common/component/grid/grid.component';
 import {GridOption} from '@common/component/grid/grid.option';
-import {header, SlickGridHeader} from '@common/component/grid/grid.header';
-
-declare let echarts;
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
 
 declare let Split;
 
@@ -33,15 +40,12 @@ declare let Split;
   selector: 'app-metadata-detail-lineagedetail',
   templateUrl: './lineage-detail.component.html'
 })
-export class LineageDetailComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
+export class LineageDetailComponent extends AbstractComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private _split:any;
-
-  @ViewChild('closeButton')
-  private closeButton: ElementRef;
+  private _split: any;
 
   @ViewChild('previewGrid')
   private gridComponent: GridComponent;
@@ -54,7 +58,7 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public emptyGrid : boolean = false;
+  public emptyGrid: boolean = false;
 
   public mainMetadataId: string = null;
 
@@ -100,12 +104,14 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public ngAfterViewInit() {
-    setTimeout( () => {
-      this._split = Split(['.sys-lineage-left-panel', '.sys-lineage-right-panel'], { sizes: [80, 20], minSize: [300,300], onDragEnd : (() => {
+    setTimeout(() => {
+      this._split = Split(['.sys-lineage-left-panel', '.sys-lineage-right-panel'], {
+        sizes: [80, 20], minSize: [300, 300], onDragEnd: (() => {
           this.resizeEventHandler.emit('resize');
-        }) });
+        })
+      });
       this.resizeEventHandler.emit('resize');
-    }, 500 );
+    }, 500);
   } // function -  ngAfterViewInit
 
   // Destory
@@ -120,7 +126,7 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public ngOnChanges(changedInput: any) {
-    if( changedInput.selectedNode ) {
+    if (changedInput.selectedNode) {
       this.getMetadata(changedInput.selectedNode.currentValue.metadataId);
     }
   }
@@ -130,7 +136,7 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   get sourceType(): string {
-    if( this.selectedNodeMetadata ) {
+    if (this.selectedNodeMetadata) {
       switch (this.selectedNodeMetadata.sourceType) {
         case SourceType.ENGINE:
           return this.translateService.instant('msg.comm.th.ds');
@@ -150,17 +156,19 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
       this.selectedNodeMetadata = result;
     });
 
-    const limit : number = 32;
+    const limit: number = 32;
     this.metadataService.getMetadataSampleData(metadataId, limit).then((result) => {
-      this.updateGrid( result.data );
+      this.updateGrid(result.data);
     });
   }
 
   private updateGrid(data: any) {
-    if(this.gridComponent===undefined || this.gridComponent===null) { return; }
+    if (this.gridComponent === undefined || this.gridComponent === null) {
+      return;
+    }
 
     // 헤더정보 생성
-    const headers: header[] = data.columnDescriptions.map((column: any) => {
+    const headers: Header[] = data.columnDescriptions.map((column: any) => {
       return new SlickGridHeader()
         .Id(column.name)
         .Name('<span style="padding-left:20px;"><em class="' + column.type + '"></em>' + column.name + '</span>')
@@ -171,8 +179,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
         .Resizable(true)
         .Unselectable(true)
         .Sortable(false)
-        .Formatter((function (scope) {
-          return function (row, cell, value) {
+        .Formatter(((_scope) => {
+          return (_row, _cell, value) => {
             return value;
           };
         })(this))
@@ -180,8 +188,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
     });
 
     const rows: any[] = data.rows.map((values: any, index: number) => {
-      const row : any = {};
-      values.values.map((val:any,idx:number) => {
+      const row: any = {};
+      values.values.map((val: any, idx: number) => {
         row[data.columnNames[idx]] = val;
       });
       row.id = index;
@@ -197,11 +205,11 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public gotoLineage() {
-    if( this.selectedNode!==null ) {
+    if (this.selectedNode !== null) {
       const metadataId = this.selectedNode.metadataId;
 
       this.router.routeReuseStrategy.shouldReuseRoute = () => false;
-      this.router.navigate(['management/metadata/metadata', metadataId, {tab: 'lineageView'} ]);
+      this.router.navigate(['management/metadata/metadata', metadataId, {tab: 'lineageView'}]);
     }
   }
 
