@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import { Book } from '../workspace/book';
-import { UserProfile } from '../user/user-profile';
-import { Dashboard } from '../dashboard/dashboard';
+import {Book} from '../workspace/book';
+import {UserProfile} from '../user/user-profile';
+import {Dashboard} from '../dashboard/dashboard';
 
 export class Workbook extends Book {
   public configuration: any;
   public pages: any[];
   public dataSources: any[];
-  public workBookType: string;
+  // public workBookType: string;
 }
 
 export class WorkbookDefaultProjections extends Workbook {

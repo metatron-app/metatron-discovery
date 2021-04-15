@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { Filter } from './filter';
+import {Filter} from './filter';
 
-export class SpatialFilter extends Filter{
+export class SpatialFilter extends Filter {
 
-  public lowerCorner : string;
-  public upperCorner : string;
+  public lowerCorner: string;
+  public upperCorner: string;
 
   constructor() {
     super();

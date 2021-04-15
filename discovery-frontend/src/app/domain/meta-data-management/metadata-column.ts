@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {Type} from '../../shared/datasource-metadata/domain/type';
 import {FieldFormat, FieldFormatType} from '../datasource/datasource';
 import {ColumnDictionary} from './column-dictionary';
 import {CodeTable} from './code-table';
 import {MetadataSource} from './metadata-source';
-import {Type} from '../../shared/datasource-metadata/domain/type';
-import * as _ from 'lodash';
 
 export class MetadataColumn {
   // id

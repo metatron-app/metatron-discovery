@@ -25,7 +25,7 @@ import {
   Output, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
+import { DataconnectionService } from '@common/service/dataconnection.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { Page } from '@domain/common/page';
 import { StringUtil } from '@common/util/string.util';

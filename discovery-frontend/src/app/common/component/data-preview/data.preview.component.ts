@@ -46,7 +46,7 @@ import {Alert} from '../../util/alert.util';
 import {Stats} from '@domain/datasource/stats';
 import {Covariance} from '@domain/datasource/covariance';
 import * as _ from 'lodash';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '../../service/dataconnection.service';
 import {CommonUtil} from '../../util/common.util';
 import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '@domain/meta-data-management/metadata-column';

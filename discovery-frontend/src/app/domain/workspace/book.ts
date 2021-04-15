@@ -22,7 +22,7 @@ import {ImplementorType} from '../dataconnection/dataconnection';
  * Created by LDL on 2017. 6. 16..
  */
 
-export class Book extends AbstractHistoryEntity{
+export class Book extends AbstractHistoryEntity {
   public id: string;
   public type: string;
   public name: string;
@@ -31,7 +31,7 @@ export class Book extends AbstractHistoryEntity{
   public tag: string;
   public workspace: any;
   public folderId: string;
-  public contents : Contents;
+  public contents: Contents;
 
   public kernelType: string;
   public dsName: string;

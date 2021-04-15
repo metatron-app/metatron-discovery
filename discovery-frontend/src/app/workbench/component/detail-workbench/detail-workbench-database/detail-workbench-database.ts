@@ -20,7 +20,7 @@ import {
   Input,
   Output, SimpleChange, SimpleChanges, ViewChild
 } from '@angular/core';
-import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {isUndefined} from 'util';
 import {Page} from '@domain/common/page';
 import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';

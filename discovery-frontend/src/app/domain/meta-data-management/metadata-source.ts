@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import * as _ from 'lodash';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 import {Datasource} from '../datasource/datasource';
 import {Dataconnection} from '../dataconnection/dataconnection';
-import * as _ from 'lodash';
 
 export class MetadataSource extends AbstractHistoryEntity {
   // id
   public id: string;
   // metadata source type
-  public type : MetadataSourceType;
+  public type: MetadataSourceType;
   // metadata source id
   public sourceId: string;
   // metadata source name

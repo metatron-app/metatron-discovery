@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Group } from './group';
-import { UserProfile } from './user-profile';
+import {Group} from './group';
+import {UserProfile} from './user-profile';
 
 export class GroupMember {
   public id: number;

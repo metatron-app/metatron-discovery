@@ -12,74 +12,75 @@
 * limitations under the License.
 */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-export class PrDataSnapshot extends AbstractHistoryEntity{
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
-public ssId: string;
-public ssName: string;
-public storageType: StorageType;
-public dbName: string;
-public tblName: string;
-public status: Status;
-public launchTime: Date;
-public finishTime : Date;
-public mismatchedLines: number;
-public missingLines: number;
-public totalLines: number;
-public totalBytes: number;
+export class PrDataSnapshot extends AbstractHistoryEntity {
 
-public elapsedTime: ElapsedTime = new ElapsedTime();
-public storedUri : string;
+  public ssId: string;
+  public ssName: string;
+  public storageType: StorageType;
+  public dbName: string;
+  public tblName: string;
+  public status: Status;
+  public launchTime: Date;
+  public finishTime: Date;
+  public mismatchedLines: number;
+  public missingLines: number;
+  public totalLines: number;
+  public totalBytes: number;
 
-public sourceInfo: LineageInfo;
-public connectionInfo: ConnectionInfo;
-public ruleStringInfo: any;
+  public elapsedTime: ElapsedTime = new ElapsedTime();
+  public storedUri: string;
+
+  public sourceInfo: LineageInfo;
+  public connectionInfo: ConnectionInfo;
+  public ruleStringInfo: any;
 
 // 생성시 필요한 필드
-public ssType: SsType;
-public hiveFileFormat: HiveFileFormat;
-public hiveFileCompression: HiveFileCompression;
-public appendMode: AppendMode;
-public engine: Engine;
-public partitionColNames: string[];
+  public ssType: SsType;
+  public hiveFileFormat: HiveFileFormat;
+  public hiveFileCompression: HiveFileCompression;
+  public appendMode: AppendMode;
+  public engine: Engine;
+  public partitionColNames: string[];
 
 // UI 에서 사용
-public gridData: any;
-public ruleCntDone : number;
-public ruleCntTotal : number;
+  public gridData: any;
+  public ruleCntDone: number;
+  public ruleCntTotal: number;
 
-public custom: any;
-public isCancel : boolean = false;
+  public custom: any;
+  public isCancel: boolean = false;
 
-public displayStatus: string;
-public dsName: string;
-public dfName: string;
+  public displayStatus: string;
+  public dsName: string;
+  public dfName: string;
 
-public dsCreatedTime: Date;
-public dsModifiedTime: Date;
+  public dsCreatedTime: Date;
+  public dsModifiedTime: Date;
 }
 
 export class OriginDsInfo {
-public dsName: string;
-public qryStmt: string;
-public storedUri: string;
-public createdTime: string;
+  public dsName: string;
+  public qryStmt: string;
+  public storedUri: string;
+  public createdTime: string;
 }
 
 export class LineageInfo {
-    public dfId: string;
-    public dfName: string;
+  public dfId: string;
+  public dfName: string;
 
-    public dsId: string;
-    public dsName: string;
-    public origDsName: string;
-    public origDsStoredUri: string;
-    public origDsQueryStmt: string;
-    public origDsCreatedTime: string;
+  public dsId: string;
+  public dsName: string;
+  public origDsName: string;
+  public origDsStoredUri: string;
+  public origDsQueryStmt: string;
+  public origDsCreatedTime: string;
 }
 
 export class ConnectionInfo {
-    public dcId: string;
+  public dcId: string;
 }
 
 export class ElapsedTime {

@@ -12,8 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { QueryEditor } from './queryEditor';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
 export class QueryHistory extends AbstractHistoryEntity {
   // identifer

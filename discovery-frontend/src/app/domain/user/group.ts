@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
 export class Group extends AbstractHistoryEntity {
   // group id
@@ -28,9 +28,9 @@ export class Group extends AbstractHistoryEntity {
   // group member list
   public members: any[];
   // 읽기 전용 - API Only
-  public readOnly:boolean;
+  public readOnly: boolean;
   // 권한 이름 목록
-  public roleNames:string[] = [];
+  public roleNames: string[] = [];
 
   public contexts: string;
 }

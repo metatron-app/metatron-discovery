@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { Dataconnection } from './dataconnection';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {Dataconnection} from './dataconnection';
 
 export class ConnectionRequest extends AbstractHistoryEntity {
   public connection: Dataconnection;

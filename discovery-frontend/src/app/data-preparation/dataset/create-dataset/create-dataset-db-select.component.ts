@@ -19,7 +19,7 @@ import {AbstractPopupComponent} from '@common/component/abstract-popup.component
 import {PageResult} from '@domain/common/page';
 import {Dataconnection} from '@domain/dataconnection/dataconnection';
 import {DsType, ImportType, PrDatasetJdbc, QueryInfo, TableInfo,} from '@domain/data-preparation/pr-dataset';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {ConnectionComponent, ConnectionValid} from '../../../data-storage/component/connection/connection.component';
 
 @Component({

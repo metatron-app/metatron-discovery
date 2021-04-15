@@ -15,23 +15,23 @@
 /**
  * "Search" 쿼리용 Request 객체
  */
-import { Filter } from '../../workbook/configurations/filter/filter';
-import { Shelf } from '../../workbook/configurations/shelf/shelf';
-import { Pivot } from '../../workbook/configurations/pivot';
-import { Field } from '../../workbook/configurations/field/field';
-import { UserDefinedField } from '../../workbook/configurations/field/user-defined-field';
-import { Limit } from '../../workbook/configurations/limit';
-import { Analysis } from '../../../page/component/value/analysis';
-import { BoardDataSource } from '../../dashboard/dashboard';
 import * as _ from 'lodash';
+import {Filter} from '../../workbook/configurations/filter/filter';
+import {Shelf} from '../../workbook/configurations/shelf/shelf';
+import {Pivot} from '../../workbook/configurations/pivot';
+import {Field} from '../../workbook/configurations/field/field';
+import {UserDefinedField} from '../../workbook/configurations/field/user-defined-field';
+import {Limit} from '../../workbook/configurations/limit';
+import {Analysis} from '../../../page/component/value/analysis';
+import {BoardDataSource} from '../../dashboard/dashboard';
 
 export class SearchQueryRequest {
 
   /**
    * 질의할 DataSource 정보
    */
-  // dataSource: BoardDataSource;
-  // 일반 차트 : BoardDataSource, 맵 차트 : MapDataSource
+    // dataSource: BoardDataSource;
+    // 일반 차트 : BoardDataSource, 맵 차트 : MapDataSource
   dataSource: any;
 
   /**
@@ -113,9 +113,9 @@ export class SearchQueryRequest {
 
   aliases: SearchQueryAlias[];
 
-  public getDownloadFilters(): Filter[]  {
-    let downloadFilters : Filter[];
-    if(this.filters) {
+  public getDownloadFilters(): Filter[] {
+    let downloadFilters: Filter[];
+    if (this.filters) {
       downloadFilters = _.cloneDeep(this.filters);
     } else {
       downloadFilters = [];
@@ -133,6 +133,6 @@ export class SearchQueryAlias {
 }
 
 export class MapDataSource {
-  type        : string;
-  dataSources : BoardDataSource[]
+  type: string;
+  dataSources: BoardDataSource[]
 }

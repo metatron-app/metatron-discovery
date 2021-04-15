@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Filter } from './filter';
-import { AdvancedFilter } from './advanced-filter';
-import { DIRECTION } from '../sort';
+import {Filter} from './filter';
+import {AdvancedFilter} from './advanced-filter';
+import {DIRECTION} from '../sort';
 
 export class InclusionFilter extends Filter {
 
@@ -34,10 +34,10 @@ export class InclusionFilter extends Filter {
   public preFilters: AdvancedFilter[];
 
   // Sort condition (Optional, for UI)
-  public sort:InclusionItemSort;
+  public sort: InclusionItemSort;
 
   // Only show selected item (Optional, for UI)
-  public showSelectedItem:boolean;
+  public showSelectedItem: boolean;
 
   constructor(field: string, valueList: string[] = []) {
     super();
@@ -55,10 +55,10 @@ export class InclusionFilter extends Filter {
 }
 
 export class InclusionItemSort {
-  public by:InclusionSortBy;
-  public direction:DIRECTION;
+  public by: InclusionSortBy;
+  public direction: DIRECTION;
 
-  constructor( by:InclusionSortBy, direction:DIRECTION ) {
+  constructor(by: InclusionSortBy, direction: DIRECTION) {
     this.by = by;
     this.direction = direction;
   }

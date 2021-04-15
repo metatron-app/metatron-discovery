@@ -36,7 +36,7 @@ import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.com
 import {Field} from '@domain/data-preparation/pr-dataset';
 import {HiveFileCompression, Engine, SsType, UriFileFormat, AppendMode, HiveFileFormat} from '@domain/data-preparation/pr-snapshot';
 
-import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {StorageService} from '../../data-storage/service/storage.service';
 import {DatasetService} from '../dataset/service/dataset.service';
 import {DataflowService} from '../dataflow/service/dataflow.service';

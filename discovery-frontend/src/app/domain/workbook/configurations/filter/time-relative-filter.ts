@@ -17,7 +17,7 @@ import {TimeFilter} from './time-filter';
 import {Field} from '@domain/datasource/datasource';
 import {TimeUnit} from '../field/timestamp-field';
 
-declare let moment : any;
+declare let moment: any;
 
 export class TimeRelativeFilter extends TimeFilter {
 

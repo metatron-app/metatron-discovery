@@ -17,7 +17,7 @@ import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild}
 import {MetadataConstant} from '../../metadata.constant';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {ConnectionComponent, ConnectionValid} from '../../../data-storage/component/connection/connection.component';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {PageResult} from '@domain/common/page';
 import {Dataconnection} from '@domain/dataconnection/dataconnection';
 import * as _ from 'lodash';

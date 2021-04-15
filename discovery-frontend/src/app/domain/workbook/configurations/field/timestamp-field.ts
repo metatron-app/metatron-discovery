@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Field } from './field';
+import {Field} from './field';
 
 export class TimestampField extends Field {
 

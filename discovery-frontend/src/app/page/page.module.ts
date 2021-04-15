@@ -24,7 +24,7 @@ import {ChartModule} from '@common/chart.module';
 import {DashboardShareModule} from '../dashboard/dashboard-share.module';
 import {DataPreviewModule} from '@common/data.preview.module';
 import {AnalysisModule} from './component/analysis/analysis.module';
-import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {StorageService} from '../data-storage/service/storage.service';
 
 const pageRoutes: Routes = [

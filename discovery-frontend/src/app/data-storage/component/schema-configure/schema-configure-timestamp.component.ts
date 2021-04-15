@@ -1,15 +1,15 @@
-import {AbstractComponent} from '@common/component/abstract.component';
-import {DataStorageConstant} from '../../constant/data-storage-constant';
-import {EventBroadcaster} from '@common/event/event.broadcaster';
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from '@angular/core';
-import {Field} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/datasource/datasource';
+import {DataStorageConstant} from '../../constant/data-storage-constant';
 
 @Component({
   selector: 'schema-configure-timestamp',
   templateUrl: 'schema-configure-timestamp.component.html'
 })
-export class SchemaConfigureTimestampComponent extends AbstractComponent {
+export class SchemaConfigureTimestampComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   public readonly timestampTypeList = [
     {label: this.translateService.instant('msg.storage.th.current-time'), value: DataStorageConstant.Datasource.TimestampType.CURRENT},
@@ -72,10 +72,10 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  onResize(event) {
+  onResize(_event) {
     // #1925
     if (this.isShowTimestampFieldList) {
       this.isShowTimestampFieldList = false;

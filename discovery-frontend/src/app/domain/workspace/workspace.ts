@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
+import {CommonUtil} from '@common/util/common.util';
+import {WORKSPACE_PERMISSION} from '@common/permission/permission';
 import {UserProfile} from '../user/user-profile';
-import {Book} from './book';
 import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 import {NotebookConnector} from '../notebook/notebookConnector';
-import {WORKSPACE_PERMISSION} from '@common/permission/permission';
 import {RoleSet} from '../user/role/roleSet';
 import {WorkspaceMember} from './workspace-member';
-import {CommonUtil} from '@common/util/common.util';
+import {Book} from './book';
 
 export class Workspace extends AbstractHistoryEntity {
   public id: string;

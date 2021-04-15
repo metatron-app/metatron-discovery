@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Filter } from './filter';
-import { ByTimeUnit, GranularityType, TimeUnit } from '../field/timestamp-field';
+import {Filter} from './filter';
+import {ByTimeUnit, GranularityType, TimeUnit} from '../field/timestamp-field';
 
 export class IntervalFilter extends Filter {
   /**

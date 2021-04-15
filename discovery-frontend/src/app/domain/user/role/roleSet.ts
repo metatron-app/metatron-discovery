@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../../common/abstract-history-entity';
-import { Workspace } from '../../workspace/workspace';
-import { Role } from './role';
-import { WORKSPACE_PERMISSION } from '@common/permission/permission';
+import {AbstractHistoryEntity} from '../../common/abstract-history-entity';
+import {Workspace} from '../../workspace/workspace';
+import {Role} from './role';
+import {WORKSPACE_PERMISSION} from '@common/permission/permission';
 
 export class RoleSet extends AbstractHistoryEntity {
 
@@ -26,6 +26,7 @@ export class RoleSet extends AbstractHistoryEntity {
     this.readOnly = false;
     this.roles.push(RoleSet.getDefaultRole());
   }
+
   public id: string;
   public name: string;
   public description: string;
@@ -37,7 +38,7 @@ export class RoleSet extends AbstractHistoryEntity {
   public readOnly: boolean;
 
   // for UI
-  public removeRoleNames:string[] = [];
+  public removeRoleNames: string[] = [];
 
   /**
    * RoleSet 의 기본롤 정보 ( 매니저 ) 를 생성함
@@ -50,7 +51,9 @@ export class RoleSet extends AbstractHistoryEntity {
     managerRole.defaultRole = true;
     managerRole.permissionNames = [];
     for (const key in WORKSPACE_PERMISSION) {
-      managerRole.permissionNames.push(WORKSPACE_PERMISSION[key]);
+      if (key) {
+        managerRole.permissionNames.push(WORKSPACE_PERMISSION[key]);
+      }
     }
     return managerRole;
   } // function - getDefaultRole
@@ -68,7 +71,7 @@ export class RoleSet extends AbstractHistoryEntity {
       scope: roleSet.scope,
       roles: roleSet.roles.map((item: Role) => {
         // 이름 변경된 Role에 대한 Mapper 설정
-        ( item['orgName'] && item['orgName'] !== item.name ) && ( mapper[item['orgName']] = item.name );
+        (item['orgName'] && item['orgName'] !== item.name) && (mapper[item['orgName']] = item.name);
         return {
           name: item.name,
           defaultRole: item.defaultRole,
@@ -77,12 +80,12 @@ export class RoleSet extends AbstractHistoryEntity {
       })
     };
     // 삭제된 Role에 대한 Mapper 설정
-    if( 0 < roleSet.removeRoleNames.length ) {
-      const defaultRole:Role = roleSet.roles.find( item => item.defaultRole );
-      roleSet.removeRoleNames.forEach( item => mapper[item] = defaultRole.name );
+    if (0 < roleSet.removeRoleNames.length) {
+      const defaultRole: Role = roleSet.roles.find(item => item.defaultRole);
+      roleSet.removeRoleNames.forEach(item => mapper[item] = defaultRole.name);
     }
     // 맵퍼 파라메터 추가 판단
-    ( 0 < Object.keys( mapper ).length ) && ( param['mapper'] = mapper );
+    (0 < Object.keys(mapper).length) && (param['mapper'] = mapper);
     return param;
   } // function - convertRoleSetToParam
 

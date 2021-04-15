@@ -18,10 +18,10 @@ import {Dataconnection} from '../dataconnection/dataconnection';
 /**
  * Created by LDL on 2017. 7. 10..
  */
-export class Workbench extends Book{
+export class Workbench extends Book {
   public configuration: any;
-  public pages : any[];
-  public dataSources : any[];
+  public pages: any[];
+  public dataSources: any[];
 
   public globalVar: any;
   public queryEditors: any[];
@@ -36,7 +36,7 @@ export class Workbench extends Book{
   public selectDataconnection: Dataconnection;
 }
 
-export class QueryEditor  {
+export class QueryEditor {
   public name: string;
   public order: number;
   public numRows: number;

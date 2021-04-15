@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Page} from '@domain/common/page';
-import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {Alert} from '@common/util/alert.util';
 import {QueryEditor, Workbench} from '@domain/workbench/workbench';
 import {GridComponent} from '@common/component/grid/grid.component';

@@ -18,6 +18,8 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnDestroy,
+  OnInit,
   Output,
   ViewChild
 } from '@angular/core';
@@ -25,12 +27,11 @@ import {AbstractPopupComponent} from '@common/component/abstract-popup.component
 import {DatasourceInfo, FieldFormatType} from '@domain/datasource/datasource';
 import {SchemaConfigureMainComponent} from '../../../../component/schema-configure/schema-configure-main.component';
 
-
 @Component({
   selector: 'file-configure-schema',
   templateUrl: './file-configure-schema.component.html'
 })
-export class FileConfigureSchemaComponent extends AbstractPopupComponent {
+export class FileConfigureSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   @ViewChild(SchemaConfigureMainComponent)
   private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;

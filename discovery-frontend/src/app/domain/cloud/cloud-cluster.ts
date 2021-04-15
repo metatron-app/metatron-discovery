@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
-export class CloudCluster extends AbstractHistoryEntity{
+export class CloudCluster extends AbstractHistoryEntity {
   // Identifer
   public id: string;
   // Cluster Type

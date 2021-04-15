@@ -63,6 +63,7 @@ export namespace Engine {
 
   export namespace Result {
 
+    // tslint:disable-next-line:no-shadowed-variable
     export class Monitoring {
       _embedded: {
         monitorings: Engine.Monitoring[];

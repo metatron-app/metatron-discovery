@@ -38,8 +38,7 @@ import {CriterionTimeRadioboxListComponent} from './component/criterion/criterio
     CriterionCheckboxListComponent,
     CriterionTimeRadioboxListComponent
   ],
-  providers: [
-  ]
+  providers: []
 })
 export class DataStorageCriteriaModule {
 }

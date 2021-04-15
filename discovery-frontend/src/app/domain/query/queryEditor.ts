@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { Workbench } from '../workbench/workbench';
-import { QueryHistory } from './queryHistory';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {Workbench} from '../workbench/workbench';
+import {QueryHistory} from './queryHistory';
 
 export class QueryEditor extends AbstractHistoryEntity {
   public id: string;

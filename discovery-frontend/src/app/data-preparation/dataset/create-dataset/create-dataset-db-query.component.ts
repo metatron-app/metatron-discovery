@@ -42,7 +42,7 @@ import {
   RsType,
   TableInfo
 } from '@domain/data-preparation/pr-dataset';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {PreparationAlert} from '../../util/preparation-alert.util';
 
 @Component({
