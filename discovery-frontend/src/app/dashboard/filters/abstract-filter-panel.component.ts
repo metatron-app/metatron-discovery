@@ -13,10 +13,11 @@
  */
 
 import {
+  AfterViewInit,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -31,7 +32,8 @@ import {FilterUtil} from '../util/filter.util';
 import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
 import {AbstractDashboardComponent} from '../abstract.dashboard.component';
 
-export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent implements OnInit, OnDestroy {
+export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -219,9 +221,9 @@ export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDash
 
   /**
    * 필터 초기화
-   * @param {Filter} filter
+   * @param {Filter} _filter
    */
-  public resetFilter(filter: Filter) {
+  public resetFilter(_filter: Filter) {
     throw new Error('SubClass should implements changeLock method');
   } // function resetFilter
 
