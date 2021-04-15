@@ -1,4 +1,4 @@
-import {Component, ComponentFactoryResolver, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {MetadataService} from '../service/metadata.service';
 import {ActivatedRoute} from '@angular/router';
@@ -60,7 +60,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
     protected element: ElementRef,
-    private resolver: ComponentFactoryResolver,
     protected metadataService: MetadataService,
     protected activatedRoute: ActivatedRoute,
     private metadataModelService: MetadataModelService,
@@ -96,7 +95,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
      *  if sourceType is datasource(ENGINE), set css class according to status
      *  if sourceType is not datasource(ENGINE) hide <tr></tr>
      */
-    if (this.metadata.sourceType === this.sourceType.ENGINE && this.metadata.source.source != undefined) {
+    if (this.metadata.sourceType === this.sourceType.ENGINE && this.metadata.source.source !== undefined) {
       this.statusClass = 'ddp-data-status ' + 'ddp-' + ((this.metadata.source.source) as Datasource).status.toString().toLowerCase();
     }
 
@@ -109,9 +108,9 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
         break;
       case SourceType.JDBC:
         if (this.metadata.source.source !== undefined) {
-          if (this.metadata.source.source.implementor == 'MYSQL') {
+          if (this.metadata.source.source.implementor === 'MYSQL') {
             this.dataType = 'Database(' + 'MySQL' + ')';
-          } else if (this.metadata.source.source.implementor == 'HIVE') {
+          } else if (this.metadata.source.source.implementor === 'HIVE') {
             this.dataType = 'Database(' + 'Hive' + ')';
           } else {
             this.dataType = 'Database';
@@ -140,7 +139,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public onCancelEditDescription(): void {
     const $descInput = $(this._descInput.nativeElement);
-    $descInput.val( this.descriptionChangeText );
+    $descInput.val(this.descriptionChangeText);
     this.isEditDescription = false;
   }
 
@@ -199,7 +198,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     });
   }
 
-  public getTagName(tagName:string): string {
+  public getTagName(tagName: string): string {
     // if empty search keyword
     if (StringUtil.isEmpty(tagName)) {
       return tagName;
@@ -245,11 +244,11 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
         this._getMetadataDetail();
         this._getMetadataTags();
         this.tagFlag = false;
-        $( '.ddp-tag-default input' ).trigger('blur');
+        $('.ddp-tag-default input').trigger('blur');
       }).catch((err) => {
         console.log('error -> ', err);
         this.tagFlag = false;
-        $( '.ddp-tag-default input' ).trigger('blur');
+        $('.ddp-tag-default input').trigger('blur');
       });
     }
   }
@@ -274,7 +273,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.safelyDetectChanges();
   }
 
-  public getCatalogHierarchyName(hierarchyName:string): string {
+  public getCatalogHierarchyName(hierarchyName: string): string {
     // if empty search keyword
     if (StringUtil.isEmpty(hierarchyName)) {
       return hierarchyName;
@@ -356,7 +355,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     });
   }
 
-  private _getCatalogParams(): Object {
+  private _getCatalogParams(): object {
     const params = {size: 1000000, page: 0};
     if (!isUndefined(this.catalogSearchText) && this.catalogSearchText.trim() !== '') {
       params['nameContains'] = this.catalogSearchText.trim();

@@ -21,7 +21,6 @@ import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
 import {StringUtil} from '@common/util/string.util';
 import {MetadataSource, MetadataSourceType} from '@domain/meta-data-management/metadata-source';
 
-
 @Component({
   selector: 'metadata-control-complete-component',
   templateUrl: 'metadata-control-complete.component.html'

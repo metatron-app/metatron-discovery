@@ -12,15 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NavigationEnd, NavigationExtras} from '@angular/router';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
@@ -54,7 +46,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
               private workspaceService: WorkspaceService,
               private commonService: CommonService,
               protected elementRef: ElementRef,
-              protected  injector: Injector) {
+              protected injector: Injector) {
     super(elementRef, injector);
 
     this.router.events.subscribe((val) => {
@@ -160,7 +152,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public isShow = false;
 
   // 개인 워크스페이스
-  public privateWorkspace: Workspace = new Workspace;
+  public privateWorkspace: Workspace = new Workspace();
 
   // 공유 워크스페이스 리스트
   public sharedWorkspace: Workspace[] = [];
@@ -177,8 +169,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     // 데이터 탐색
     exploreData: {
       fold: true,
-      data: {fold : true},
-      favorite: { fold : true }
+      data: {fold: true},
+      favorite: {fold: true}
     },
     // 매니지먼트
     management: {
@@ -188,7 +180,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       dataPreparation: {fold: true},
       dataMonitoring: {fold: true},
       modelManager: {fold: true},
-      engineMonitoring: { fold: true }
+      engineMonitoring: {fold: true}
     },
     // 어드민
     administration: {
@@ -250,7 +242,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
     // 선택 필터 설정
     this.subscriptions.push(
-      this.broadCaster.on<any>('CM_CLOSE_LNB').subscribe(data => {
+      this.broadCaster.on<any>('CM_CLOSE_LNB').subscribe(() => {
         this._closeLNB();
       })
     );
@@ -261,15 +253,15 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
         const exts: Extension[] = items;
         exts.forEach(ext => {
 
-          if( 'Explore Data' === ext.name ) {
+          if ('Explore Data' === ext.name) {
             this.permission.exploreData = true;
-          } else if('Lineage' === ext.name) {
+          } else if ('Lineage' === ext.name) {
             this.permission.lineage = true;
-          } else if('Engine Monitoring' === ext.name) {
+          } else if ('Engine Monitoring' === ext.name) {
             // this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
             this.permission.managementEngineMonitoring = this.extensionPermission(ext);
           } else {
-            if (ext.parent != 'ROOT') {
+            if (ext.parent !== 'ROOT') {
               (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
               this.lnbManager[ext.parent][ext.name] = {fold: true};
             }
@@ -348,7 +340,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * Explore Data 하위 메뉴 클릭 이벤트 리스너
    * @param menuName
    */
-  public exploreDataMenuClickListener(menuName:string) {
+  public exploreDataMenuClickListener(menuName: string) {
     this.lnbManager.exploreData.data.fold = true;
     this.lnbManager.exploreData.favorite.fold = true;
     switch (menuName) {
@@ -426,8 +418,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   } // function - adminMenuClickListener
 
-  public rootExtensionMenuClickListener(parent:string, menuName?:string) {
-    if (menuName == undefined && this.getExtensions(parent).length > 0) {
+  public rootExtensionMenuClickListener(parent: string, menuName?: string) {
+    if (menuName === undefined && this.getExtensions(parent).length > 0) {
       menuName = this.getExtensions(parent)[0].name;
     }
     this.getExtensions(parent).forEach(item => {
@@ -483,13 +475,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
-        afterConfirm: function () {
+        afterConfirm: () => {
         }
       };
       this._confirmModalComp.init(modal);
     } else {
       const workspaceId: string = (workspace) ? workspace.id : 'my';
-      let navigateInfo: string[] = [];
+      let navigateInfo: string[];
       if (workspaceId) {
         navigateInfo = ['/workspace', workspaceId];
       } else {
@@ -652,7 +644,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   }
 
   public moveExtensionFromSubMenu(ext: Extension, parent: Extension) {
-    if(ext.openTarget != undefined && ext.route != undefined){
+    if (ext.openTarget !== undefined && ext.route !== undefined) {
       switch (ext.openTarget) {
         case 'frame' :
           this.move('external/' + parent.parent + '_' + parent.name + '_' + ext.name);
@@ -670,13 +662,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public extensionPermission(ext: Extension): boolean {
     if (ext.permissions && ext.permissions.length > 0) {
       const cookiePermission: string = CommonUtil.getCurrentPermissionString();
-      return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
+      return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1);
     } else {
       return true;
     }
   }
 
-  public getExtensions(parent:string): Extension[] {
+  public getExtensions(parent: string): Extension[] {
     const extensions = CommonService.extensions.filter(item => parent === item.parent);
     if (parent === 'ROOT') {
       return extensions.filter(rootExtension => CommonService.extensions.filter(item => rootExtension.name === item.parent).length > 0);
@@ -685,8 +677,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   }
 
-  public isExtensionSelected(parent:string, name:string): boolean {
-    return this.lnbManager[parent][name] != undefined && this.lnbManager[parent][name]['fold'] == false;
+  public isExtensionSelected(parent: string, name: string): boolean {
+    return this.lnbManager[parent][name] !== undefined && this.lnbManager[parent][name]['fold'] === false;
   }
 
   /**
@@ -724,14 +716,14 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
     if (StringUtil.isEmpty(workspace)) {
       // 개인 워크스페이스 조회
-      this.workspaceService.getMyWorkspace().then((workspace) => {
+      this.workspaceService.getMyWorkspace().then((wsInfo) => {
         // 개인 워크스페이스 초기화
         this.privateWorkspace = null;
 
-        if (workspace) {
-          this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(workspace), 0, '/');
+        if (wsInfo) {
+          this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(wsInfo), 0, '/');
           // 데이터 저장
-          this.privateWorkspace = workspace;
+          this.privateWorkspace = wsInfo;
 
           // 공유 워크스페이스 조회 호출
           this._getSharedWorkspace();
@@ -799,7 +791,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
 
   public popupManual() {
-    const browserLang:string = this.translateService.getBrowserLang();
+    const browserLang: string = this.translateService.getBrowserLang();
     if (browserLang.match(/ko/)) {
       window.open('https://metatron-app.github.io/metatron-doc-discovery/', '_blank');
     } else {

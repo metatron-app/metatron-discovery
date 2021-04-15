@@ -669,7 +669,7 @@ export class FormatOptionConverter {
    */
   public static getTooltipValue(aliasValue: string, aggregations: Field[], format: UIChartFormat, value: number, seriesName?: string): string {
 
-    let seriesValue = '';
+    let seriesValue: string;
 
     let aggValue = _.find(aggregations, {alias : aliasValue});
     // 해당 value값으로 찾을 수 없는경우 seriesName으로 찾기

@@ -12,15 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as _ from 'lodash';
 import {ActivatedRoute} from '@angular/router';
 import {AbstractComponent} from '@common/component/abstract.component';
@@ -41,11 +33,13 @@ import {DeleteModalComponent} from '@common/component/modal/delete/delete.compon
 @Component({
   selector: '[datasource]',
   templateUrl: './datasource.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' },
   styles: ['.ddp-wrap-top-filtering .ddp-filter-search.type-dataname .ddp-form-filter-search {width: 100%;}'
-          ,'.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {width: 280px;}']
+    , '.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {width: 280px;}']
 })
 export class DatasourceComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-wrap-contents-det';
 
   // noinspection JSUnusedLocalSymbols
   constructor(protected elementRef: ElementRef,
@@ -74,8 +68,8 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
 
     this.subscriptions.push(
       this.stateService.changeTab$
-        .pipe(filter(({ current }) => current.isDatasource()))
-        .subscribe(({ next }) => this._changeTab(next))
+        .pipe(filter(({current}) => current.isDatasource()))
+        .subscribe(({next}) => this._changeTab(next))
     );
 
     // loading show
@@ -166,9 +160,9 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
 
   /**
    * Changed filter
-   * @param searchParams
+   * @param _searchParams
    */
-  public onChangedFilter(searchParams): void {
+  public onChangedFilter(_searchParams): void {
     // reload page
     this.reloadPage(true);
   }
@@ -199,7 +193,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
       modal.btnName = this.translateService.instant('msg.comm.btn.del');
     }
     modal.data = {
-      datasource : datasource.datasource,
+      datasource: datasource.datasource,
       type: type
     };
     this.deleteModalComponent.init(modal);
@@ -257,7 +251,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     const filterParam = this._getDatasourceParams();
     return _.cloneDeep(this.datasourceTotalList).filter(item => {
       const matchSearchWord = !filterParam['containsText'] || item.datasource.indexOf(filterParam['containsText']) > -1;
-      const matchAvailability = !filterParam['availability'] || filterParam['availability'].length == 0 || filterParam['availability'].some(availability => this.getDatasourceStatus(item) === availability);
+      const matchAvailability = !filterParam['availability'] || filterParam['availability'].length === 0 || filterParam['availability'].some(availability => this.getDatasourceStatus(item) === availability);
       return matchSearchWord && matchAvailability;
     })
   }
@@ -270,12 +264,12 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     this.pageResult.totalElements = list.length;
     this.pageResult.totalPages = Math.ceil(this.pageResult.totalElements / this.pageResult.size);
 
-    const endSize = (this.page.page+1)*this.pageResult.size < this.pageResult.totalElements ? (this.page.page+1)*this.pageResult.size : this.pageResult.totalElements;
+    const endSize = (this.page.page + 1) * this.pageResult.size < this.pageResult.totalElements ? (this.page.page + 1) * this.pageResult.size : this.pageResult.totalElements;
     this.datasourceList = list.slice(this.page.page * this.pageResult.size, endSize);
   }
 
   private _getDatasourceList() {
-    if (_.isNil(this.datasourceTotalList) || this.datasourceTotalList.length == 0) {
+    if (_.isNil(this.datasourceTotalList) || this.datasourceTotalList.length === 0) {
       this.loadingShow();
       this.engineService.getDatasource().then((data) => {
         const datasourceAllList = data.datasourceList;
@@ -293,7 +287,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
         const datasourceListIncludeDisabled = data.datasourceListIncludeDisabled;
         const disabled: string[] = datasourceListIncludeDisabled.filter((d: string) => datasourceList.find(item => item.datasource === d) == null);
         datasourceList.forEach(d =>
-          data.datasourceLoadStatus[d.datasource] != undefined ? d['status'] = data.datasourceLoadStatus[d.datasource] : d['status'] = -1
+          data.datasourceLoadStatus[d.datasource] !== undefined ? d['status'] = data.datasourceLoadStatus[d.datasource] : d['status'] = -1
         );
         this.datasourceTotalList = datasourceList.concat(disabled.map(d => ({
           datasource: d,
@@ -311,7 +305,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime(),
+      pseudoParam: (new Date()).getTime(),
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();
     // set criterion
@@ -338,7 +332,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   }
 
   private _changeTab(contentType: Engine.ContentType) {
-    this.router.navigate([ `${Engine.Constant.ROUTE_PREFIX}${contentType}` ]);
+    this.router.navigate([`${Engine.Constant.ROUTE_PREFIX}${contentType}`]);
   }
 
   private _enableDatasource(datasource) {

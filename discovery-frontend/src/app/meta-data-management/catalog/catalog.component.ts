@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '@common/component/abstract.component';
-import {CatalogService} from './service/catalog.service';
-import {Alert} from '@common/util/alert.util';
-import {isUndefined} from 'util';
-import {Modal} from '@common/domain/modal';
-import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import * as _ from 'lodash';
+import {isUndefined} from 'util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {CatalogService} from './service/catalog.service';
 
 @Component({
   selector: 'app-catalog',
@@ -70,6 +70,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   public isCatalogPaging: boolean = false;
 
   public inProcess: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -178,9 +179,9 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   public updateCatalog(catalog, index) {
     if (!isUndefined(this.catalogInput.nativeElement.value) && this.catalogInput.nativeElement.value.trim() !== '') {
 
-      const idx = this.catalogs.map((catalog, idx) => {
-        if (idx !== index) {
-          return catalog.name;
+      const idx = this.catalogs.map((catalogItem, catalogIdx) => {
+        if (catalogIdx !== index) {
+          return catalogItem.name;
         }
       }).indexOf(this.catalogInput.nativeElement.value);
       if (idx === -1) {
@@ -431,7 +432,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    * @returns object
    * @private
    */
-  private _getMetadataParams(): Object {
+  private _getMetadataParams(): object {
 
     return {
       size: this.pageResult.size,
@@ -440,7 +441,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     };
   }
 
-  private _getCatalogParams(): Object {
+  private _getCatalogParams(): object {
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,

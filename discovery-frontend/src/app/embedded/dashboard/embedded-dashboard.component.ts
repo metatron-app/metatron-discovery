@@ -12,23 +12,32 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Dashboard } from '@domain/dashboard/dashboard';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { ActivatedRoute } from '@angular/router';
-import { CookieConstant } from '@common/constant/cookie.constant';
-import { DashboardService } from '../../dashboard/service/dashboard.service';
+import * as $ from 'jquery';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
 import {FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
 import {FilterUtil} from '../../dashboard/util/filter.util';
-import * as $ from 'jquery';
-import { DashboardComponent } from '../../dashboard/dashboard.component';
+import {DashboardService} from '../../dashboard/service/dashboard.service';
+import {DashboardComponent} from '../../dashboard/dashboard.component';
 
 @Component({
   selector: 'app-embedded-dashboard',
   templateUrl: './embedded-dashboard.component.html'
 })
-export class EmbeddedDashboardComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class EmbeddedDashboardComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -38,7 +47,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   @ViewChild(DashboardComponent)
   private _boardComp: DashboardComponent;
 
-  private _boardId:string;
+  private _boardId: string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -140,7 +149,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       $('body').removeClass('body-hidden');
       this._boardComp.hideBoardLoading();
     } else if ('RELOAD_BOARD' === event.name) {
-      this.getDashboardDetail( this._boardId );
+      this.getDashboardDetail(this._boardId);
     }
   } // function - onDashboardEvent
 
@@ -156,20 +165,19 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
     this.activatedRoute.queryParams.subscribe(params => {
       Object.keys(params).forEach(key => {
         dashboard.configuration.filters.forEach((eachFilter: Filter) => {
-          if (eachFilter.field == key) {
+          if (eachFilter.field === key) {
             FilterUtil.setParameterFilterValue(eachFilter, key, params[key]);
           }
         });
         dashboard.widgets.forEach((widget) => {
-          if (widget.type === 'filter' && widget.name == key) {
-            const widgetConf: FilterWidgetConfiguration  = widget.configuration as FilterWidgetConfiguration;
+          if (widget.type === 'filter' && widget.name === key) {
+            const widgetConf: FilterWidgetConfiguration = widget.configuration as FilterWidgetConfiguration;
             FilterUtil.setParameterFilterValue(widgetConf.filter, key, params[key]);
           }
         })
       })
     });
   }
-
 
 
 }

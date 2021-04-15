@@ -12,15 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {StateService} from '../service/state.service';
 import {EngineService} from '../service/engine.service';
@@ -41,10 +33,12 @@ declare let $: any;
 @Component({
   selector: '[query]',
   templateUrl: './query.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' },
   styles: ['.ddp-wrap-top-filtering .ddp-filter-search .ddp-form-filter-search {width: 280px;}']
 })
 export class QueryComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-wrap-contents-det';
 
   // noinspection JSUnusedLocalSymbols
   constructor(protected elementRef: ElementRef,
@@ -75,8 +69,8 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.subscriptions.push(
       this.stateService.changeTab$
-        .pipe(filter(({ current }) => current.isQuery()))
-        .subscribe(({ next }) => this._changeTab(next))
+        .pipe(filter(({current}) => current.isQuery()))
+        .subscribe(({next}) => this._changeTab(next))
     );
 
     // get criterion list
@@ -171,9 +165,9 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
 
   /**
    * Changed filter
-   * @param searchParams
+   * @param _searchParams
    */
-  public onChangedFilter(searchParams): void {
+  public onChangedFilter(_searchParams): void {
     // reload page
     this.reloadPage(true);
   }
@@ -190,7 +184,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
 
   public sortQueryList(key: string): void {
     // set selected sort
-    if (this.selectedContentSort.key != key) {
+    if (this.selectedContentSort.key !== key) {
       this.selectedContentSort.key = key;
       this.selectedContentSort.sort = 'desc';
     } else {
@@ -214,7 +208,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
   public onClickQuery(query): void {
     this.queryDetail = query;
     this.showDetail = true;
-    if (query.queryId != '') {
+    if (query.queryId !== '') {
       this._getQueryDetail(query.queryId);
     }
   }
@@ -224,7 +218,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     this.queryDetail = undefined;
   }
 
-  public getStatusClass(querySuccess: String): string {
+  public getStatusClass(querySuccess: string): string {
     if ('true' === querySuccess) {
       return 'ddp-success';
     } else if ('false' === querySuccess) {
@@ -239,7 +233,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   private _changeTab(contentType: Engine.ContentType) {
-    this.router.navigate([ `${Engine.Constant.ROUTE_PREFIX}${contentType}` ]);
+    this.router.navigate([`${Engine.Constant.ROUTE_PREFIX}${contentType}`]);
   }
 
   private _filteringQueryList(): any[] {
@@ -261,7 +255,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     this.pageResult.totalElements = list.length;
     this.pageResult.totalPages = Math.ceil(this.pageResult.totalElements / this.pageResult.size);
 
-    const endSize = (this.page.page+1)*this.pageResult.size < this.pageResult.totalElements ? (this.page.page+1)*this.pageResult.size : this.pageResult.totalElements;
+    const endSize = (this.page.page + 1) * this.pageResult.size < this.pageResult.totalElements ? (this.page.page + 1) * this.pageResult.size : this.pageResult.totalElements;
     this.queryList = list.slice(this.page.page * this.pageResult.size, endSize);
   }
 
@@ -282,7 +276,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime(),
+      pseudoParam: (new Date()).getTime(),
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();
@@ -314,7 +308,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
         if (!_.isNil(data[0].querytime)) {
           this.queryDetail['querytime'] = data[0].querytime;
         }
-        setTimeout(function() {
+        setTimeout(() => {
           try {
             $('#queryInformation').html('<pre>' + JSON.stringify(JSON.parse(data[0].query), undefined, 4) + '</pre>');
           } catch (e) {

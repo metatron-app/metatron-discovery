@@ -13,7 +13,17 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {MetadataConstant} from '../../metadata.constant';
 import {MetadataEntity} from '../metadata.entity';
@@ -22,14 +32,14 @@ import {ConnectionParam} from '../../../data-storage/service/data-connection-cre
 import * as _ from 'lodash';
 import {isNullOrUndefined} from 'util';
 import {SchemaTableListComponent} from './component/schema-table-list.component';
-import SchemaInfo = MetadataEntity.SchemaInfo;
 import {SchemaTablePreviewComponent} from './component/schema-table-preview.component';
+import SchemaInfo = MetadataEntity.SchemaInfo;
 
 @Component({
   selector: 'create-metadata-db-select',
   templateUrl: 'create-metadata-db-select.component.html'
 })
-export class CreateMetadataDbSelectComponent extends AbstractComponent {
+export class CreateMetadataDbSelectComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild(SchemaTableListComponent)
   private readonly _tableListComponent: SchemaTableListComponent;
@@ -46,7 +56,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
   selectedSchema: string;
   tableList: string[];
   selectedTable: string;
-  selectedTableDetailData: {data, fields};
+  selectedTableDetailData: { data, fields };
 
   // loading part flag
   isLoading: boolean;
@@ -242,9 +252,8 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
    * @return {{connection: ConnectionParam}}
    * @private
    */
-  private _getConnectionParams(): {connection: ConnectionParam, type: string} {
-    const result = {connection: _.cloneDeep(this.createData.connectionInfo.connection), type: 'TABLE'};
-    return result;
+  private _getConnectionParams(): { connection: ConnectionParam, type: string } {
+    return {connection: _.cloneDeep(this.createData.connectionInfo.connection), type: 'TABLE'};
   }
 
   /**
@@ -253,7 +262,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
    * @private
    */
   private _getConnectionParamsAddedDatabase() {
-    const result: {connection, database?} = this._getConnectionParams();
+    const result: { connection, database? } = this._getConnectionParams();
     result.database = this.selectedSchema;
     result.connection.id = this.createData.connectionInfo.selectedConnectionPreset.id;
     return result;
@@ -265,7 +274,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
    * @private
    */
   private _getConnectionParamsAddedTable() {
-    const result: {connection, database?, query?} = this._getConnectionParamsAddedDatabase();
+    const result: { connection, database?, query? } = this._getConnectionParamsAddedDatabase();
     result.query = this.selectedTable;
     return result;
   }

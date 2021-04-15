@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector,ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
 import {GridComponent} from '@common/component/grid/grid.component';
 import {GridOption} from '@common/component/grid/grid.option';
 import {Field} from '@domain/datasource/datasource';
@@ -37,7 +37,7 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
   // constructor
   constructor(protected element: ElementRef,
               protected injector: Injector) {
-      super(element, injector);
+    super(element, injector);
   }
 
   /**
@@ -71,20 +71,9 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
         const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
 
-        return new SlickGridHeader().Id(field.name).
-        Name(
+        return new SlickGridHeader().Id(field.name).Name(
           '<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) +
-          '"></em>' + field.name + '</span>').
-        Field(field.name).
-        Behavior('select').
-        Selectable(false).
-        CssClass('cell-selection').
-        Width(headerWidth).
-        CannotTriggerInsert(true).
-        Resizable(true).
-        Unselectable(true).
-        Sortable(true).
-        build();
+          '"></em>' + field.name + '</span>').Field(field.name).Behavior('select').Selectable(false).CssClass('cell-selection').Width(headerWidth).CannotTriggerInsert(true).Resizable(true).Unselectable(true).Sortable(true).build();
       },
     );
   }

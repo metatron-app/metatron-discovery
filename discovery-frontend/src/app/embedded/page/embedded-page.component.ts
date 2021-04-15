@@ -58,7 +58,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @ViewChild('chart')
-  private chart: BaseChart;
+  private chart: BaseChart<UIOption>;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables

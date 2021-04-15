@@ -114,7 +114,7 @@ export class ColumnDictionaryService extends AbstractService {
   /**
    * 컬럼 사전과 코드테이블 연결
    * @param {string} dictionaryId
-   * @param {string} codeTable
+   * @param {string} codeTableId
    * @returns {Promise<any>}
    */
   public linkCodeTableWithColumnDictionary(dictionaryId: string, codeTableId: string): Promise<any> {

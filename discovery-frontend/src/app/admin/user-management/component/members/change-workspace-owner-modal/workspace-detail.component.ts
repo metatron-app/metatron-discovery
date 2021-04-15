@@ -27,7 +27,7 @@ export class WorkspaceDetailComponent extends AbstractComponent {
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @HostBinding('class')
-  private hostClass: string = 'ddp-ui-top ddp-clear';
+  public hostClass: string = 'ddp-ui-top ddp-clear';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables

@@ -15,7 +15,7 @@ export class StateService {
   }
 
   public changeTab(current: Engine.Content, next: Engine.ContentType) {
-    this.changeTabSubject.next({ current, next });
+    this.changeTabSubject.next({current, next});
   }
 
 }

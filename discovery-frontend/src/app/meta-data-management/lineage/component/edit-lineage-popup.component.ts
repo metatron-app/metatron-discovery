@@ -12,28 +12,11 @@
 * limitations under the License.
 */
 
-import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
-
-declare let moment : any;
-import * as _ from 'lodash';
-import {isUndefined} from 'util';
 import {isNullOrUndefined} from 'util';
-import {Alert} from '@common/util/alert.util';
 
-import {
-Component,
-ElementRef,
-EventEmitter,
-HostListener,
-Injector, Input,
-OnDestroy,
-OnInit,
-Output,
-ViewChild
-} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {PopupService} from '@common/service/popup.service';
-import {Modal} from '@common/domain/modal';
 import {LineageService} from '../service/lineage.service';
 import {LineageEdge} from '@domain/meta-data-management/lineage';
 
@@ -41,19 +24,17 @@ import {LineageEdge} from '@domain/meta-data-management/lineage';
   selector: 'edit-lineage-popup',
   templateUrl: './edit-lineage-popup.component.html',
 })
-export class EditLineagePopup extends AbstractPopupComponent implements OnInit,OnDestroy {
+export class EditLineagePopupComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private _searchParams: { [key: string]: string };
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public isShow : boolean = false;
+  public isShow: boolean = false;
 
   public lineageList: LineageEdge[];
 
@@ -62,7 +43,7 @@ export class EditLineagePopup extends AbstractPopupComponent implements OnInit,O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  constructor( protected popupService: PopupService,
+  constructor(protected popupService: PopupService,
               private _lineageService: LineageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -81,15 +62,27 @@ export class EditLineagePopup extends AbstractPopupComponent implements OnInit,O
     super.ngOnDestroy();
   }
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * Close popup with esc button
+   * @param event Event
+   * @private
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  public onKeydownHandler(event: KeyboardEvent) {
+    if (this.isShow && event.keyCode === 27) {
+      this.close();
+    }
+  }
+
   /**
    * Initial
    * @param {null} data
    */
-  public init(data : {name: string}) {
+  public init(data: { name: string }) {
     data.name;
     this._initView();
     this.isShow = true;
@@ -109,18 +102,6 @@ export class EditLineagePopup extends AbstractPopupComponent implements OnInit,O
   public close() {
     super.close();
     this.isShow = false;
-  }
-
-  /**
-   * Close popup with esc button
-   * @param event Event
-   * @private
-   */
-  @HostListener('document:keydown.escape', ['$event'])
-  private _onKeydownHandler(event: KeyboardEvent) {
-    if (this.isShow && event.keyCode === 27 ) {
-      this.close();
-    }
   }
 
   public isEmptyList(): boolean {
@@ -144,13 +125,10 @@ export class EditLineagePopup extends AbstractPopupComponent implements OnInit,O
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
         isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0))
-      {
+        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getLineageList();
       }
-
-      this._searchParams = params;
 
       this.pageResult = result.page;
 

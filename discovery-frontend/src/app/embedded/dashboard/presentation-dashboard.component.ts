@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {DashboardService} from 'app/dashboard/service/dashboard.service';
-import {WorkbookService} from '../../workbook/service/workbook.service';
 import {ActivatedRoute} from '@angular/router';
-import {BoardConfiguration, Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
-import {WorkbookDetailProjections} from 'app/domain/workbook/workbook';
 import {PopupService} from '@common/service/popup.service';
-import {BoardLayoutType} from '@domain/dashboard/dashboard.globalOptions';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {CookieConstant} from '@common/constant/cookie.constant';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {WorkbookDetailProjections} from '@domain/workbook/workbook';
+import {BoardLayoutType} from '@domain/dashboard/dashboard.globalOptions';
+import {BoardConfiguration, Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
+import {DashboardService} from '../../dashboard/service/dashboard.service';
+import {WorkbookService} from '../../workbook/service/workbook.service';
 import {DashboardComponent} from '../../dashboard/dashboard.component';
 
 @Component({
@@ -123,7 +123,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
         (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
         (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
 
-        ( this._boardComp ) && ( this._boardComp.hideError() );
+        (this._boardComp) && (this._boardComp.hideError());
 
         const workbookId: string = params['workbookId'];
         const dashboardId: string = params['dashboardId'];
@@ -323,9 +323,9 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
         this.selectedDashboard = item;
       }, 200);
     } else {
-      this._dashboardService.getDashboard(this.dashboards[idx].id).then((item: PresentationDashboard) => {
-        this.dashboards[idx] = item;
-        this.selectedDashboard = item;
+      this._dashboardService.getDashboard(this.dashboards[idx].id).then((boardItem: PresentationDashboard) => {
+        this.dashboards[idx] = boardItem;
+        this.selectedDashboard = boardItem;
       }).catch(() => {
         this._boardComp.showError();
       });

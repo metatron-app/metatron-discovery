@@ -13,7 +13,14 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
@@ -217,7 +224,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // flag
     this.isShow = false;
     // 팝업종료시 하단 스크롤 show
-    $('body').css('overflow',  '');
+    $('body').css('overflow', '');
   }
 
 
@@ -500,7 +507,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
    * @param {string} userId
    * @private
    */
-  private _getProfile(userId:string): void {
+  private _getProfile(userId: string): void {
     // 로딩 show
     this.loadingShow();
     this.userService.getUserDetail(userId)
@@ -630,7 +637,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
       modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
-        afterConfirm: function () {
+        afterConfirm: () => {
         }
       };
       this._confirmModalComp.init(modal);

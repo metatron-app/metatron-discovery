@@ -14,8 +14,6 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
-import * as _ from 'lodash';
-import {StringUtil} from '@common/util/string.util';
 import {ExploreDataConstant} from '../../constant/explore-data-constant';
 
 @Component({

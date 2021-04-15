@@ -12,16 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnInit, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
-import { PopupService } from '@common/service/popup.service';
-import { ModelApprovalService } from '../service/model-approval.service';
-import { NotebookModel } from '@domain/model-management/notebookModel';
-import { isUndefined } from 'util';
-import { Alert } from '@common/util/alert.util';
-import { DeleteModalComponent } from '@common/component/modal/delete/delete.component';
-import { Modal } from '@common/domain/modal';
-
+import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {ModelApprovalService} from '../service/model-approval.service';
+import {NotebookModel} from '@domain/model-management/notebookModel';
+import {isUndefined} from 'util';
+import {Alert} from '@common/util/alert.util';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
 
 @Component({
   selector: 'app-model-approval-detail',
@@ -54,8 +53,7 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
   // 결과 창 확인 여부
   public resultLayer: boolean = false;
 
-  protected resultLayerData: any = {};
-
+  public resultLayerData: any = {};
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -177,15 +175,15 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
   }
 
   // 노트북 연결 팝업
-  protected popupWindow() {
+  public popupWindow() {
     console.log('(this.resultData', this.resultData);
     if (!isUndefined(this.resultData['notebook']['link'])) {
-      window.open(this.resultData['notebook']['link'],'_blank');
+      window.open(this.resultData['notebook']['link'], '_blank');
     }
   }
 
   // run Test 처리.
-  protected runTest() {
+  public runTest() {
     if (!isUndefined(this.resultData['notebook']['id'])) {
       this.modelApprovalService.runTest(this.resultData['notebook']['id']).then(() => {
         Alert.success('테스트가 성공적으로 이루어 졌습니다.');

@@ -47,7 +47,7 @@ export class ConnectionSelectBoxComponent extends AbstractComponent {
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
   protected onResize(_event) {

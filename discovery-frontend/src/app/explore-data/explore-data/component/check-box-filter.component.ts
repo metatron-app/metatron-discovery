@@ -1,13 +1,13 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
-import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'component-check-filter',
   templateUrl: 'check-box-filter.component.html'
 })
-export class CheckBoxFilterComponent extends AbstractComponent {
+export class CheckBoxFilterComponent extends AbstractComponent implements OnInit {
   @Input() readonly filterName: string;
   @Input() readonly filterList;
   @Input() readonly selectedFilters = [];

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'explore-workspace-uses',
@@ -7,9 +7,10 @@ import { Component, OnInit } from '@angular/core';
 export class WorkspaceUsesComponent implements OnInit {
 
   isShow: boolean = false;
-  workspaces : any;
+  workspaces: any;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
 

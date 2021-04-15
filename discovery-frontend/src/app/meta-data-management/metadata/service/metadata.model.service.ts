@@ -24,9 +24,6 @@ export class MetadataModelService extends AbstractService {
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Dictionary url
-  private URL_METADATA = this.API_URL + 'metadatas';
-
   // 생성시 사용되는 데이터 오브젝트
   private _selectedMetadata: Metadata;
 

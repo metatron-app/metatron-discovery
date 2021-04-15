@@ -48,7 +48,7 @@ const _routes = [
   {
     path: Engine.ContentType.OVERVIEW,
     component: EngineMonitoringComponent,
-    data: { type: Engine.ContentType.OVERVIEW },
+    data: {type: Engine.ContentType.OVERVIEW},
     canActivate: [DatasourceManagementGuard]
   },
   {
@@ -74,9 +74,13 @@ const _routes = [
     data: {type: Engine.ContentType.INGESTION, group: Engine.IngestionContentType.REMOTE_WORKER},
     canActivate: [DatasourceManagementGuard]
   },
-  { path: 'ingestion/task/:taskId', component: TaskDetailComponent, canActivate: [DatasourceManagementGuard]},
-  { path: 'ingestion/supervisor/:supervisorId', component: SupervisorDetailComponent, canActivate: [DatasourceManagementGuard]},
-  { path: 'ingestion/worker/:host', component: WorkerDetailComponent, canActivate: [DatasourceManagementGuard]},
+  {path: 'ingestion/task/:taskId', component: TaskDetailComponent, canActivate: [DatasourceManagementGuard]},
+  {
+    path: 'ingestion/supervisor/:supervisorId',
+    component: SupervisorDetailComponent,
+    canActivate: [DatasourceManagementGuard]
+  },
+  {path: 'ingestion/worker/:host', component: WorkerDetailComponent, canActivate: [DatasourceManagementGuard]},
   {
     path: Engine.ContentType.QUERY,
     component: EngineMonitoringComponent,
@@ -89,7 +93,7 @@ const _routes = [
     data: {type: Engine.ContentType.DATASOURCE},
     canActivate: [DatasourceManagementGuard]
   },
-  { path: 'datasource/:datasource', component: DatasourceDetailComponent, canActivate: [DatasourceManagementGuard]},
+  {path: 'datasource/:datasource', component: DatasourceDetailComponent, canActivate: [DatasourceManagementGuard]},
 ];
 
 @NgModule({

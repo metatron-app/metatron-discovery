@@ -41,7 +41,6 @@ import {ExploreDataModelService} from './explore-data/service/explore-data-model
 import {ExploreDataLnbComponent} from './explore-data/explore-data-lnb.component';
 import {ConstantService} from '../shared/datasource-metadata/service/constant.service';
 import {CheckBoxFilterComponent} from './explore-data/component/check-box-filter.component';
-import {MetadataTypeBoxTagComponent} from './explore-data/component/metadata-type-box-tag.component';
 import {PopularityLayerComponent} from './explore-data/component/popularity-layer.component';
 import {MetadataModelService} from '../meta-data-management/metadata/service/metadata.model.service';
 import {ExploreDataInformationComponent} from './explore-data/component/explore-data-information.component';
@@ -53,7 +52,7 @@ import {ExploreCatalogLayerComponent} from './explore-data/component/explore-cat
 import {CreateWorkbookModule} from '../workbook/component/create-workbook/refactoring/create-workbook.module';
 import {MetadataUsedWorkspaceComponent} from './explore-data/component/metadata-used-workspace.component';
 import {ExploreDataUtilService} from './explore-data/service/explore-data-util.service';
-import {UpdatedTimeRadioFilter} from './explore-data/component/updated-time-radio-filter.component';
+import {UpdatedTimeRadioFilterComponent} from './explore-data/component/updated-time-radio-filter.component';
 import {DataStorageCriteriaModule} from '../data-storage/data-storage-criteria.module';
 import {MetadataDataCreatorDataListComponent} from './explore-data/popup/metadata-data-creator-data-list.component';
 import {DataCreatorDetailComponent} from './favorite/data-creator-detail.component';
@@ -80,7 +79,7 @@ import {DataCreatorDetailComponent} from './favorite/data-creator-detail.compone
     LogicalNameLayerComponent,
     MetadataSvgComponent,
     CheckBoxFilterComponent,
-    UpdatedTimeRadioFilter,
+    UpdatedTimeRadioFilterComponent,
     ExploreBannerComponent,
     ExploreCardComponent,
     CatalogFolderComponent,

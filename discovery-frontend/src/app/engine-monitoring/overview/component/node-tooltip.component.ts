@@ -43,10 +43,10 @@ export class NodeTooltipComponent extends AbstractComponent implements OnInit, O
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  public onResize(event) {
+  public onResize(_event) {
     this.isShow = false;
   }
 

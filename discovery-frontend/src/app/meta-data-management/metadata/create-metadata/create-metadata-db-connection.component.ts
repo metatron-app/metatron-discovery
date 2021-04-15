@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {MetadataConstant} from '../../metadata.constant';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {ConnectionComponent, ConnectionValid} from '../../../data-storage/component/connection/connection.component';
@@ -22,14 +22,14 @@ import {PageResult} from '@domain/common/page';
 import {Dataconnection} from '@domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
 import {MetadataEntity} from '../metadata.entity';
-import ConnectionInfo = MetadataEntity.ConnectionInfo;
 import {StringUtil} from '@common/util/string.util';
+import ConnectionInfo = MetadataEntity.ConnectionInfo;
 
 @Component({
   selector: 'create-metadata-db-connection',
   templateUrl: 'create-metadata-db-connection.component.html'
 })
-export class CreateMetadataDbConnectionComponent extends AbstractComponent {
+export class CreateMetadataDbConnectionComponent extends AbstractComponent implements OnInit {
 
   @ViewChild(ConnectionComponent)
   private _connectionComponent: ConnectionComponent;

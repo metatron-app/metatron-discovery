@@ -15,7 +15,7 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, HostBinding,
   Injector,
   Input,
   OnDestroy,
@@ -28,10 +28,12 @@ import {Engine} from '@domain/engine-monitoring/engine';
 
 @Component({
   selector: '[overview-radio]',
-  templateUrl: './radio.component.html',
-  host: { '[class.ddp-wrap-edit3]': 'true' }
+  templateUrl: './radio.component.html'
 })
 export class RadioComponent extends AbstractComponent implements OnInit, OnDestroy {
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-wrap-edit3';
 
   public readonly UUID = CommonUtil.getUUID();
   public readonly RADIO_BUTTON_NAME_PREFIX = 'overview-radio-button';
