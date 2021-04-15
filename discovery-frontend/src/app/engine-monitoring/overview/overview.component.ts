@@ -21,18 +21,18 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {EngineService} from '../service/engine.service';
-import {Engine} from '../../domain/engine-monitoring/engine';
+import {Engine} from '@domain/engine-monitoring/engine';
 import * as _ from 'lodash';
 import {ActivatedRoute} from '@angular/router';
 import {StateService} from '../service/state.service';
 import {filter} from 'rxjs/operators';
-import {NodeInformationComponent} from "./component/node-information.component";
-import {GraphComponent} from "./component/graph.component";
-import {NodeTooltipComponent} from "./component/node-tooltip.component";
-import {KpiPopupComponent} from "./component/kpi-popup.component";
-import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
+import {NodeInformationComponent} from './component/node-information.component';
+import {GraphComponent} from './component/graph.component';
+import {NodeTooltipComponent} from './component/node-tooltip.component';
+import {KpiPopupComponent} from './component/kpi-popup.component';
+import {EngineMonitoringUtil} from '../util/engine-monitoring.util';
 
 @Component({
   selector: '[overview]',
@@ -264,8 +264,8 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   public showNodeInformationTooltip(monitoring: Engine.Monitoring, event: MouseEvent) {
     const target = $(event.target);
-    let targetLeft: number = target.position().left + 18;
-    let targetTop: number = target.position().top + 26;
+    const targetLeft: number = target.position().left + 18;
+    const targetTop: number = target.position().top + 26;
     this._nodeTooltipComponent.setEngineMonitoring(monitoring, targetLeft, targetTop);
   }
 

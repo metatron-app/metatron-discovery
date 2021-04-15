@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {TimeUnit, ByTimeUnit} from "./field/timestamp-field";
+import {TimeUnit, ByTimeUnit} from './field/timestamp-field';
 import { CustomSymbol, UIChartFormatItem } from '../../../common/component/chart/option/ui-option/ui-format';
 import { UIFormatSymbolPosition } from '../../../common/component/chart/option/define/common';
 export class Format {

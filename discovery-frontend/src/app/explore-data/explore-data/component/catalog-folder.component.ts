@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Catalog} from "../../../domain/catalog/catalog";
-import {CatalogService} from "../../../meta-data-management/catalog/service/catalog.service";
-import {StringUtil} from "../../../common/util/string.util";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Catalog} from '@domain/catalog/catalog';
+import {CatalogService} from '../../../meta-data-management/catalog/service/catalog.service';
+import {StringUtil} from '@common/util/string.util';
 import * as _ from 'lodash';
 
 @Component({

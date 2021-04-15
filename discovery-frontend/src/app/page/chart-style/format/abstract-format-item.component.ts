@@ -22,20 +22,20 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {SelectComponent} from "../../../common/component/select/select.component";
-import {Format} from "../../../domain/workbook/configurations/format";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {SelectComponent} from '@common/component/select/select.component';
+import {Format} from '@domain/workbook/configurations/format';
 import {
   ChartType,
   GridViewType,
   UIFormatNumericAliasType,
   UIFormatSymbolPosition
-} from '../../../common/component/chart/option/define/common';
-import {FormatOptionConverter} from '../../../common/component/chart/option/converter/format-option-converter';
-import {CustomSymbol} from "../../../common/component/chart/option/ui-option/ui-format";
-import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
-import {UIOption} from "../../../common/component/chart/option/ui-option";
-import {UIGridChart} from "../../../common/component/chart/option/ui-option/ui-grid-chart";
+} from '@common/component/chart/option/define/common';
+import {FormatOptionConverter} from '@common/component/chart/option/converter/format-option-converter';
+import {CustomSymbol} from '@common/component/chart/option/ui-option/ui-format';
+import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
 import UI = OptionGenerator.UI;
 
 export abstract class AbstractFormatItemComponent extends AbstractComponent implements OnInit, OnDestroy {
@@ -179,7 +179,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
 
     // 타입 목록에서 찾아서 주입
     for( let num: number = 0 ; num < this.typeList.length ; num++ ) {
-      if( this.typeList[num]["value"] == type ) {
+      if( this.typeList[num]['value'] == type ) {
         this.typeListComp.setDefaultIndex = num;
         this.selectedType = this.typeList[num];
         this.changeDetect.detectChanges();
@@ -199,7 +199,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
 
     // 심볼 목록에서 찾아서 주입
     for( let num: number = 0 ; num < signList.length ; num++ ) {
-      if( signList[num]["value"] == sign ) {
+      if( signList[num]['value'] == sign ) {
         this.signListComp.setDefaultIndex = num;
         this.selectedSign = signList[num];
         break;
@@ -218,7 +218,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
 
     // 심볼 목록에서 찾아서 주입
     for( let num: number = 0 ; num < aliasList.length ; num++ ) {
-      if( aliasList[num]["value"] == numericAlias ) {
+      if( aliasList[num]['value'] == numericAlias ) {
         this.numericAliasListComp.setDefaultIndex = num;
         this.selectedNumericAlias = aliasList[num];
         break;

@@ -1,7 +1,7 @@
-import {Component, ElementRef, Renderer2, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../../../common/component/abstract.component";
-import {CommonConstant} from "../../../../../common/constant/common.constant";
-import {CookieConstant} from "../../../../../common/constant/cookie.constant";
+import {Component, ElementRef, Renderer2, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import * as _ from 'lodash';
 
 
@@ -40,7 +40,7 @@ export class UploaderComponent extends AbstractComponent {
     this.safelyDetectChanges();
 
     this.renderer.listen(this._pickFiles.nativeElement, 'change', (event) => {
-      let files = event.target.files;
+      const files = event.target.files;
       this.addFiles(files);
     });
     this.renderer.listen(this._dropContainer.nativeElement, 'dragover', (event) => {
@@ -48,7 +48,7 @@ export class UploaderComponent extends AbstractComponent {
     });
     this.renderer.listen(this._dropContainer.nativeElement, 'drop', (event) => {
       this.disableEvent(event);
-      let files = event.dataTransfer.files;
+      const files = event.dataTransfer.files;
       this.addFiles(files);
     });
 
@@ -61,7 +61,7 @@ export class UploaderComponent extends AbstractComponent {
     if(!files || 0===files.length) {
       return;
     }
-    let file = files[0]; // one file is allowed only
+    const file = files[0]; // one file is allowed only
 
     // upload started
     this.uploadStarted.emit();
@@ -72,7 +72,7 @@ export class UploaderComponent extends AbstractComponent {
   }
 
   public uploadFile(file) {
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append('file', file, file.name);
 
     this.uploadedFile = file;
@@ -83,11 +83,11 @@ export class UploaderComponent extends AbstractComponent {
     this.safelyDetectChanges();
 
     this.xhr = new XMLHttpRequest();
-    this.xhr.open("POST", CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload');
+    this.xhr.open('POST', CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload');
     this.xhr.setRequestHeader('Accept', 'application/json, text/plain, */*');
     this.xhr.setRequestHeader('Authorization', this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) );
 
-    let that = this;
+    const that = this;
     this.xhr.onprogress = function(e) {
       file.percent = ((e.loaded / file.size) * 100).toFixed(2);
       that.uploadedFile.percent = file.percent;
@@ -107,7 +107,7 @@ export class UploaderComponent extends AbstractComponent {
     };
     this.xhr.onload = function(e) {
       that.uploadedFile.response = this.response;
-      var jsonResponse = JSON.parse(this.response);
+      const jsonResponse = JSON.parse(this.response);
 
       if( this.status===200 ) {
         file.percent = 100.00;
@@ -154,9 +154,9 @@ export class UploaderComponent extends AbstractComponent {
    * @return {string}
    */
   public getFileSize(size: number, split: number): string {
-    if(0 === size) return "0 Bytes";
-    let c=1024,d=split||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(size)/Math.log(c));
-    return parseFloat((size/Math.pow(c,f)).toFixed(d))+" "+e[f];
+    if(0 === size) return '0 Bytes';
+    const c=1024,d=split||2,e=['Bytes','KB','MB','GB','TB','PB','EB','ZB','YB'],f=Math.floor(Math.log(size)/Math.log(c));
+    return parseFloat((size/Math.pow(c,f)).toFixed(d))+' '+e[f];
   }
 
   /**

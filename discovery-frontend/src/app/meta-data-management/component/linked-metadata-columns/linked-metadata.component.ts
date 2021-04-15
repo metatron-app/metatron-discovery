@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {LinkedMetaDataColumn} from '@domain/meta-data-management/metadata-column';
 
 @Component({
   selector: 'app-linked-metadata',

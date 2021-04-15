@@ -13,20 +13,20 @@
 */
 
 import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Injector, Input, Output, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {PopupService} from '../../../common/service/popup.service';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {isUndefined} from 'util';
-import {GridComponent} from '../../../common/component/grid/grid.component';
-import {GridOption} from '../../../common/component/grid/grid.option';
-import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {Modal} from '../../../common/domain/modal';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
 import * as _ from 'lodash';
-import {Alert} from "../../../common/util/alert.util";
+import {Alert} from '@common/util/alert.util';
 import {LineageService} from '../service/lineage.service';
-import {LineageEdge} from '../../../domain/meta-data-management/lineage';
+import {LineageEdge} from '@domain/meta-data-management/lineage';
 
 @Component({
   selector: 'app-create-lineage-confirm-grid',
@@ -102,8 +102,8 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   }
 
   public complete() {
-    let params = this.lineageData.rows;
-    for(let edge of params) {
+    const params = this.lineageData.rows;
+    for(const edge of params) {
       if(!edge.frMetaId && !edge.frMetaName) {
         Alert.error('frMetaId or frMetaName is required');
         return;
@@ -170,10 +170,10 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
         .build();
     });
 
-    let rows: any[] = data.rows.map((values: any, index: number) => {
-      let row : any = {};
+    const rows: any[] = data.rows.map((values: any, index: number) => {
+      const row : any = {};
       row.id = index;
-      for(var key in values) {
+      for(const key in values) {
         row[key] = values[key];
       }
       return row;

@@ -20,8 +20,8 @@ import {
   Injector,
   Input, OnChanges,
   Output, SimpleChanges
-} from "@angular/core";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 import * as _ from 'lodash';
 

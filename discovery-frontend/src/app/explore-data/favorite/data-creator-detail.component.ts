@@ -22,24 +22,24 @@ import {
   OnInit,
   Output, ViewChild, ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {ExploreDataUtilService, SortOption} from "../explore-data/service/explore-data-util.service";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {StringUtil} from "../../common/util/string.util";
-import {CommonUtil} from "../../common/util/common.util";
-import {CreateWorkbenchContainerComponent} from "../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CreateWorkbookComponent} from "../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {CookieConstant} from "../../common/constant/cookie.constant";
-import {Alert} from "../../common/util/alert.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {ExploreDataUtilService, SortOption} from '../explore-data/service/explore-data-util.service';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {CreateWorkbenchContainerComponent} from '../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
+import {CreateWorkbookComponent} from '../../workbook/component/create-workbook/refactoring/create-workbook.component';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
-import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
-import {MetadataContainerComponent} from "../explore-data/popup/metadata-container.component";
-import {Modal} from "../../common/domain/modal";
-import {ActivatedRoute} from "@angular/router";
-import {DataCreator} from "../../domain/meta-data-management/data-creator";
-import {Location} from "@angular/common";
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {MetadataContainerComponent} from '../explore-data/popup/metadata-container.component';
+import {Modal} from '@common/domain/modal';
+import {ActivatedRoute} from '@angular/router';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-favorite-creator-detail',
@@ -173,7 +173,7 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
   } // function - reloadPage
 
   getMetadataListParams() {
-    let params = {
+    const params = {
       size: this.page.size,
       page: this.page.page,
       creatorContains: this.username,

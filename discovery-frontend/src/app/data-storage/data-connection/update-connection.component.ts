@@ -14,15 +14,15 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
 import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
-import {CommonUtil} from '../../common/util/common.util';
-import {StringUtil} from '../../common/util/string.util';
-import {AuthenticationType, Dataconnection} from '../../domain/dataconnection/dataconnection';
-import {ConnectionComponent} from "../component/connection/connection.component";
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Alert} from "../../common/util/alert.util";
-import {Modal} from "../../common/domain/modal";
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {AuthenticationType, Dataconnection} from '@domain/dataconnection/dataconnection';
+import {ConnectionComponent} from '../component/connection/connection.component';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
 import * as _ from 'lodash';
 
 @Component({

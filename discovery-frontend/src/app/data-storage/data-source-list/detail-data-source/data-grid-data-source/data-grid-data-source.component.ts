@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
-import {GridComponent} from '../../../../common/component/grid/grid.component';
+import {GridComponent} from '@common/component/grid/grid.component';
 import {
   ConnectionType,
   Datasource,
@@ -23,25 +23,25 @@ import {
   FieldFormatType,
   FieldRole,
   LogicalType
-} from '../../../../domain/datasource/datasource';
-import {QueryParam} from '../../../../domain/dashboard/dashboard';
+} from '@domain/datasource/datasource';
+import {QueryParam} from '@domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
-import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../common/component/grid/grid.option';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
 import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
-import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {Metadata} from '@domain/meta-data-management/metadata';
 import {isNullOrUndefined} from 'util';
 import {
   AuthenticationType,
   Dataconnection,
   ImplementorType,
   JdbcDialect
-} from '../../../../domain/dataconnection/dataconnection';
-import {TimezoneService} from "../../../service/timezone.service";
-import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {StorageService} from "../../../service/storage.service";
+} from '@domain/dataconnection/dataconnection';
+import {TimezoneService} from '../../../service/timezone.service';
+import {DataSourceCreateService, TypeFilterObject} from '../../../service/data-source-create.service';
+import {StringUtil} from '@common/util/string.util';
+import {StorageService} from '../../../service/storage.service';
 
 @Component({
   selector: 'data-grid-datasource',
@@ -49,7 +49,7 @@ import {StorageService} from "../../../service/storage.service";
 })
 export class DataGridDataSourceComponent extends AbstractPopupComponent implements OnInit {
 
-  @ViewChild("main")
+  @ViewChild('main')
   private _gridComponent: GridComponent;
 
   // grid data
@@ -137,7 +137,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @param args
    */
   public extendGridHeader(args: any): void {
-    $(`<div class="slick-data">${_.find(this.fields, {'name': args.column.id}).logicalName || ''}</div>`).appendTo(args.node);
+    $(`<div class="slick-data">${_.find(this.fields, {name: args.column.id}).logicalName || ''}</div>`).appendTo(args.node);
   }
 
   /**

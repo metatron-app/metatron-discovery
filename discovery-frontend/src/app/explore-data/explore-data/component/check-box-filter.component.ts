@@ -1,7 +1,7 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
-import {Subject} from "rxjs";
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'component-check-filter',
@@ -55,7 +55,7 @@ export class CheckBoxFilterComponent extends AbstractComponent {
   onChangeShowFilterList(): void {
     event.stopPropagation();
     event.stopImmediatePropagation();
-    let filterFlags = {};
+    const filterFlags = {};
 
     // make flag false except source type flag
     Object.keys(FilterTypes).forEach((key) => {

@@ -1,5 +1,5 @@
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
 
 @Component({
   selector: 'component-sorting',

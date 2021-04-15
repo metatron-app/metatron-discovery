@@ -58,8 +58,8 @@ import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {Alert} from '@common/util/alert.util';
 import {StringUtil} from '@common/util/string.util';
 import {DIRECTION} from '@domain/workbook/configurations/sort';
-import {fromEvent} from "rxjs";
-import {debounceTime, map} from "rxjs/operators";
+import {fromEvent} from 'rxjs';
+import {debounceTime, map} from 'rxjs/operators';
 
 @Component({
   selector: 'page-pivot',
@@ -173,7 +173,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // 필터 필드목록
     this.filterFiledList = [];
     if (widgetConfig && widgetConfig.filters) {
-      for (let filter of widgetConfig.filters) {
+      for (const filter of widgetConfig.filters) {
         this.filterFiledList.push(filter['field']);
       }
     }
@@ -447,7 +447,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public removeField(event: any, fieldPivot: FieldPivot, shelf, idx: number) {
 
     // 선반에서 필드제거
-    let field: AbstractField = shelf.splice(idx, 1)[0];
+    const field: AbstractField = shelf.splice(idx, 1)[0];
 
     // if (shelf[idx]) {
     // let aggregationType = shelf[idx].aggregationType;
@@ -466,7 +466,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     // 해당 선반을 타겟으로 잡기
     if (event) {
-      let target = $(event.currentTarget.parentElement.parentElement.parentElement.parentElement);
+      const target = $(event.currentTarget.parentElement.parentElement.parentElement.parentElement);
 
       // 선반 total width 설정, 애니메이션 여부 설정
       this.onShelveAnimation(target);
@@ -516,7 +516,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 타입필드로 설정
         const timeField = new TimestampField();
-        //timeField.alias = timeField.granularity.toString().toUpperCase() + `(${targetField.name})`;
+        // timeField.alias = timeField.granularity.toString().toUpperCase() + `(${targetField.name})`;
         field = timeField;
       } else if (targetField.role === FieldRole.DIMENSION) {
         field = new DimensionField();
@@ -528,7 +528,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       field.name = targetField.name;
       field.subType = targetField.type;
       field.subRole = targetField.role;
-      //field.pivot = pivot;
+      // field.pivot = pivot;
       field.expr = targetField.expr;
       field.field = targetField;
 
@@ -783,7 +783,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.columns) {
+        for (const field of this.pivot.columns) {
           if (_.eq(field.type, ShelveFieldType.MEASURE) || _.eq(field.type, ShelveFieldType.CALCULATED)) {
             count++;
           }
@@ -796,7 +796,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.columns) {
+        for (const field of this.pivot.columns) {
           if (_.eq(field.type, ShelveFieldType.TIMESTAMP)) {
             count++;
           }
@@ -810,7 +810,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.columns) {
+        for (const field of this.pivot.columns) {
           if (_.eq(field.type, ShelveFieldType.DIMENSION) || _.eq(field.type, ShelveFieldType.TIMESTAMP)) {
             count++;
           }
@@ -832,7 +832,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.rows) {
+        for (const field of this.pivot.rows) {
           if (_.eq(field.type, ShelveFieldType.MEASURE) || _.eq(field.type, ShelveFieldType.CALCULATED)) {
             count++;
           }
@@ -846,7 +846,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.rows) {
+        for (const field of this.pivot.rows) {
           if (_.eq(field.type, ShelveFieldType.DIMENSION) || _.eq(field.type, ShelveFieldType.TIMESTAMP)) {
             count++;
           }
@@ -875,13 +875,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         // check count
         let dCount: number = 0;
         let mCount: number = 0;
-        for (let field of this.pivot.aggregations) {
+        for (const field of this.pivot.aggregations) {
           if (_.eq(field.type, ShelveFieldType.DIMENSION)) {
             dCount++;
           }
         }
 
-        for (let field of this.pivot.aggregations) {
+        for (const field of this.pivot.aggregations) {
           if (_.eq(field.type, ShelveFieldType.MEASURE) || _.eq(field.type, ShelveFieldType.CALCULATED)) {
             mCount++;
           }
@@ -899,7 +899,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.aggregations) {
+        for (const field of this.pivot.aggregations) {
           if (_.eq(field.type, ShelveFieldType.MEASURE) || _.eq(field.type, ShelveFieldType.CALCULATED)) {
             count++;
           }
@@ -911,7 +911,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.aggregations) {
+        for (const field of this.pivot.aggregations) {
           if (_.eq(field.type, ShelveFieldType.TIMESTAMP)) {
             count++;
           }
@@ -923,7 +923,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         // 개수체크
         let count: number = 0;
-        for (let field of this.pivot.aggregations) {
+        for (const field of this.pivot.aggregations) {
           if (_.eq(field.type, ShelveFieldType.MEASURE) || _.eq(field.type, ShelveFieldType.CALCULATED)) {
             count++;
           }
@@ -1087,7 +1087,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    */
   public subscribeFromPivotContext(data: any) {
 
-    let type = data['type'];
+    const type = data['type'];
 
     switch (type) {
       case 'toggleFilter':
@@ -1109,7 +1109,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         this.showPopup.emit(data.value);
         break;
       case 'onSetGranularity':
-        let value = data.value;
+        const value = data.value;
         this.onSetGranularity(value.discontinuous, value.unit, value.byUnit);
         break;
       case 'outside':
@@ -1263,7 +1263,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // 애니메이션 동작설정 true
     this.animationPause = false;
 
-    let scope = this;
+    const scope = this;
 
     // 선반에 animation 설정
     $(event.currentTarget.parentElement).find('.ddp-wrap-default').animate({marginLeft: 0}, {
@@ -1284,14 +1284,14 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // 애니메이션 동작설정 true
     this.animationPause = false;
 
-    let scope = this;
+    const scope = this;
 
     const $currentShelve = $(event.currentTarget.parentElement);
 
-    let totalWidth = this.getShelveTotalWidth($currentShelve);
+    const totalWidth = this.getShelveTotalWidth($currentShelve);
 
     // animation width 설정
-    let moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
+    const moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
 
     // 선반에 animation 설정
     $(event.currentTarget.parentElement).find('.ddp-wrap-default').animate({marginLeft: -moveWidth - 80}, {
@@ -1311,7 +1311,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public onChangeSecondaryAxis(_$event: Event): void {
 
     // 보조축
-    let secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
+    const secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
     secondaryAxis.name = this.editingField.alias;
     this.uiOption.secondaryAxis = secondaryAxis;
 
@@ -1351,13 +1351,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       this.changeDetect.detectChanges();
     }
 
-    let scope = this;
+    const scope = this;
 
     // 선반의 길이에따라 animation 설정
     element.each(function () {
 
       // animation total width 설정
-      let totalWidth = scope.getShelveTotalWidth($(this));
+      const totalWidth = scope.getShelveTotalWidth($(this));
 
       // total width 설정 (드래그시 아래로 떨어지는걸 방지하기위해서 drag item width인 150을 더해주기)
       $(this).css('width', totalWidth + 150);
@@ -1439,7 +1439,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // type이 measure일떄
     if ('measure' == this.editingField.type) {
 
-      let aggregationTypeList = [];
+      const aggregationTypeList = [];
 
       // 선반에서 같은 필드값을 찾기
       for (const item of shelves) {
@@ -1460,7 +1460,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       // type이 timestamp일때
     } else if ('timestamp' == this.editingField.type) {
 
-      let granularityList = [];
+      const granularityList = [];
 
       // 선반에서 같은 필드값을 찾기
       for (const item of shelves) {
@@ -1518,12 +1518,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     this.editingField = field;
 
     // 모든선반에서 같은 field aggregation Type 설정
-    let shelves = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
+    const shelves = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
 
     // type이 measure일떄
     if ('measure' == this.editingField.type) {
 
-      let aggregationTypeList = [];
+      const aggregationTypeList = [];
 
       // 선반에서 같은 필드값을 찾기
       for (const item of shelves) {
@@ -1544,7 +1544,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       // type이 timestamp일때
     } else if ('timestamp' == this.editingField.type) {
 
-      let granularityList = [];
+      const granularityList = [];
 
       // 선반에서 같은 필드값을 찾기
       for (const item of shelves) {
@@ -2532,13 +2532,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const element = this.$element.find('.ddp-wrap-default');
 
-    let scope = this;
+    const scope = this;
 
     // 선반의 길이에따라 animation 설정
     element.each(function () {
 
       // animation total width 설정
-      let totalWidth = scope.getShelveTotalWidth($(this));
+      const totalWidth = scope.getShelveTotalWidth($(this));
 
       // total width 설정 (드래그시 아래로 떨어지는걸 방지하기위해서 drag item width인 150을 더해주기)
       $(this).css('width', totalWidth + 150);
@@ -2618,7 +2618,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   private moveShelfItemByIndex(fieldTypeList: String[], deleteIndex: number, columnIndexList?: number[], rowIndexList?: number[], columnUnlimitedIndex?: number, rowUnlimitedIndex?: number) {
 
     // 선반 타입에 따른 선반 리스트 리턴
-    let getFieldList = (item): void => {
+    const getFieldList = (item): void => {
       if (FieldPivot.COLUMNS == item.currentPivot) {
         _.remove(this.pivot.columns, item);
       } else if (FieldPivot.ROWS == item.currentPivot) {
@@ -2630,7 +2630,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     if (typeof deleteIndex !== null) {
       // 측정값이 deleteIndex개이상인 경우 측정값 deleteIndex -1 개까지만 남겨놓고 제거
-      let list = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns)).filter((item) => -1 !== fieldTypeList.indexOf(item.type));
+      const list = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns)).filter((item) => -1 !== fieldTypeList.indexOf(item.type));
       list.forEach((item, index) => {
 
         // deleteIndex개부터 제거
@@ -2647,7 +2647,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     if (columnIndexList && rowIndexList) {
       // deleteIndex개수까지 정제된 리스트
-      let editedList = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns)).filter((item) => -1 !== fieldTypeList.indexOf(item.type));
+      const editedList = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns)).filter((item) => -1 !== fieldTypeList.indexOf(item.type));
       // 측정값: 열(첫번쨰), 행(두번째))
       editedList.forEach((item, index) => {
 
@@ -2718,10 +2718,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     };
 
     // 해당 필드가 가능한 최소 Granularity Scope
-    let minGranularityScore: number = getGranularityScore(String(granularity));
+    const minGranularityScore: number = getGranularityScore(String(granularity));
 
     // 체크할 Granularity가 최소 Granularity Scope보다 같거나 높아야만 true
-    let granularityScore: number = getGranularityScore(unit);
+    const granularityScore: number = getGranularityScore(unit);
 
     return granularityScore >= minGranularityScore;
   }

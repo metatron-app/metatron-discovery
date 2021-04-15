@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {
   Component,
   ElementRef,
@@ -24,19 +24,19 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {CommonUtil} from '../../../../../common/util/common.util';
-import {Alert} from '../../../../../common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Alert} from '@common/util/alert.util';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '../../../../../domain/datasource/datasource';
+import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
-import {StringUtil} from '../../../../../common/util/string.util';
-import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../../../common/domain/modal';
-import {CookieConstant} from '../../../../../common/constant/cookie.constant';
-import {CommonConstant} from "../../../../../common/constant/common.constant";
-import {GranularityService} from "../../../../service/granularity.service";
-import {CreateSourceCompleteData} from "../../../../service/data-source-create.service";
-import {DataStorageConstant} from "../../../../constant/data-storage-constant";
+import {StringUtil} from '@common/util/string.util';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
+import {GranularityService} from '../../../../service/granularity.service';
+import {CreateSourceCompleteData} from '../../../../service/data-source-create.service';
+import {DataStorageConstant} from '../../../../constant/data-storage-constant';
 
 /**
  * Creating datasource with StagingDB - complete step
@@ -355,7 +355,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     // timestamp enable
     const isCreateTimestamp = this.getSchemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
     // fields param
-    let fields = _.cloneDeep(this.getSchemaData.fieldList);
+    const fields = _.cloneDeep(this.getSchemaData.fieldList);
     // seq number
     let seq = 0;
     // field setting

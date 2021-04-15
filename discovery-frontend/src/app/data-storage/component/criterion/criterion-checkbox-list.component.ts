@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { StringUtil } from '../../../common/util/string.util';
 import * as _ from 'lodash';
-import { ConnectionType, DataSourceType, SourceType, Status } from '../../../domain/datasource/datasource';
-import {Criteria} from "../../../domain/datasource/criteria";
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {ConnectionType, DataSourceType, SourceType, Status} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'criterion-checkbox-component',
   templateUrl: 'criterion-checkbox-list.component.html'
 })
-export class CriterionCheckboxListComponent extends AbstractComponent {
+export class CriterionCheckboxListComponent extends AbstractComponent implements OnInit, AfterViewInit {
 
   // selected item list
   private _selectedItemList: any = {};
@@ -125,13 +125,13 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
       case Criteria.ListCriterionKey.CONNECTION_TYPE:
         return this._getConnectionTypeTranslate(filter.filterName);
       default:
-        return this.isRequireTranslate(filter.filterName) ? this.translateService.instant(filter.filterName): filter.filterName;
+        return this.isRequireTranslate(filter.filterName) ? this.translateService.instant(filter.filterName) : filter.filterName;
     }
   }
 
   /**
    * Item check event
-   * @param item
+   * @param filter
    */
   public onCheckItem(filter: Criteria.ListFilter): void {
     // if checked item
@@ -174,7 +174,7 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
    */
   private _setFilteredList(): void {
     // filtered criterion list
-    this.criterionList.forEach((list, index, array) => {
+    this.criterionList.forEach((list, _index, _array) => {
       // set list filters
       list.filters = list.filters.filter(item => -1 !== (this.isRequireTranslate(item.filterName) ? this.translateService.instant(item.filterName) : item.filterName).toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase()));
     });
@@ -195,7 +195,7 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
       case DataSourceType.VOLATILITY.toString():
         return this.translateService.instant('msg.storage.ui.source.type.volatility');
       default:
-        return this.isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+        return this.isRequireTranslate(filterName) ? this.translateService.instant(filterName) : filterName;
     }
   }
 
@@ -212,7 +212,7 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
       case ConnectionType.LINK.toString():
         return this.translateService.instant('msg.storage.ui.list.linked.data');
       default:
-        return this.isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+        return this.isRequireTranslate(filterName) ? this.translateService.instant(filterName) : filterName;
     }
   }
 
@@ -266,7 +266,7 @@ export class CriterionCheckboxListComponent extends AbstractComponent {
       case SourceType.STAGEDB.toString():
         return this.translateService.instant('msg.storage.li.stagedb');
       default:
-        return this.isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+        return this.isRequireTranslate(filterName) ? this.translateService.instant(filterName) : filterName;
     }
   }
 }

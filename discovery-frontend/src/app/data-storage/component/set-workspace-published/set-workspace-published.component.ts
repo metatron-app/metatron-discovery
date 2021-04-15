@@ -13,12 +13,12 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { WorkspaceService } from '../../../workspace/service/workspace.service';
-import { Page, PageResult } from '../../../domain/common/page';
+import { Page, PageResult } from '@domain/common/page';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 
 @Component({
   selector: 'app-set-workspace-published',

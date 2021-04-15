@@ -23,13 +23,13 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, Field, FieldRole} from '../../../../../domain/datasource/datasource';
-import {Alert} from '../../../../../common/util/alert.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo, Field, FieldRole} from '@domain/datasource/datasource';
+import {Alert} from '@common/util/alert.util';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../../common/component/grid/grid.option';
-import {GridComponent} from '../../../../../common/component/grid/grid.component';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
 import {isNullOrUndefined} from 'util';
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
@@ -38,15 +38,15 @@ import {
   FileDetail,
   FileResult,
   Sheet
-} from "../../../../service/data-source-create.service";
-import {Modal} from "../../../../../common/domain/modal";
-import {ConfirmModalComponent} from "../../../../../common/component/modal/confirm/confirm.component";
+} from '../../../../service/data-source-create.service';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 import {
   Granularity,
   GranularityObject,
   GranularityService
-} from "../../../../service/granularity.service";
-import {StringUtil} from "../../../../../common/util/string.util";
+} from '../../../../service/granularity.service';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'file-preview',
@@ -582,7 +582,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
           .Formatter((row, cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {
@@ -766,8 +766,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     if(this.sourceData.datasourceId) {
       this.ingestionStatus = 'overwrite';
 
-      let biggerFieldList = this.selectedFileDetailData.fields;
-      let smallFieldList = this.sourceData.datasource.fields;
+      const biggerFieldList = this.selectedFileDetailData.fields;
+      const smallFieldList = this.sourceData.datasource.fields;
 
       if(biggerFieldList.length < smallFieldList.length) {
         return;
@@ -777,9 +777,9 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
 
       let fieldCount: number = 0;
       let seq: number = smallFieldList.length -1;
-      for (let biggerField of biggerFieldList) {
+      for (const biggerField of biggerFieldList) {
         let matched : boolean = false;
-        for (let smallField of smallFieldList) {
+        for (const smallField of smallFieldList) {
             if(smallField.name === biggerField.name) {
               fieldCount++;
               matched = true;
@@ -803,7 +803,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
 
       const timestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
       if (!_.isNil(timestampField)) {
-        for(let data of this.selectedFileDetailData.data) {
+        for(const data of this.selectedFileDetailData.data) {
           this.dataList.push(data[timestampField.name]);
         }
       }

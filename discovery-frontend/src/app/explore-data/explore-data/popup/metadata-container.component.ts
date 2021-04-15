@@ -9,19 +9,19 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import {Metadata} from "../../../domain/meta-data-management/metadata";
-import {CommonUtil} from "../../../common/util/common.util";
-import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {CommonUtil} from '@common/util/common.util';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
 import * as _ from 'lodash';
-import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CookieConstant} from "../../../common/constant/cookie.constant";
-import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {Modal} from "../../../common/domain/modal";
-import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
-import {Alert} from "../../../common/util/alert.util";
-import {DataCreator} from "../../../domain/meta-data-management/data-creator";
+import {CreateWorkbenchContainerComponent} from '../../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CreateWorkbookComponent} from '../../../workbook/component/create-workbook/refactoring/create-workbook.component';
+import {Modal} from '@common/domain/modal';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Alert} from '@common/util/alert.util';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
 
 @Component({
   selector: 'explore-metadata-container',
@@ -137,7 +137,7 @@ export class MetadataContainerComponent extends AbstractComponent {
    * Returns True is current user is manager
    */
   public isManagerAuth() {
-    let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+    const cookiePermission: string = CommonUtil.getCurrentPermissionString();
     return (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString())) || (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_METADATA.toString()));
   }
 

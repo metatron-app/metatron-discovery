@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {EventBroadcaster} from '../common/event/event.broadcaster';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {NgModule} from '@angular/core';
 import {MetaDataManagementComponent} from './meta-data-management.component';
 import {RouterModule} from '@angular/router';
-import {CommonModule} from '../common/common.module';
+import {CommonModule} from '@common/common.module';
 import {ColumnDictionaryComponent} from './column-dictionary/column-dictionary.component';
 import {DetailColumnDictionaryComponent} from './column-dictionary/detail-column-dictionary/detail-column-dictionary.component';
 import {CreateColumnDictionaryComponent} from './column-dictionary/create-column-dictionary/create-column-dictionary.component';
@@ -48,15 +48,15 @@ import {DataconnectionService} from '../dataconnection/service/dataconnection.se
 import {CatalogService} from './catalog/service/catalog.service';
 import {ChooseColumnDictionaryComponent} from './component/choose-column-dictionary/choose-column-dictionary.component';
 import {CatalogComponent} from './catalog/catalog.component';
-import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
+import {MetadataManagementGuard} from '@common/gaurd/metadata-management.guard';
 import {DetailModule} from './detail/detail.module';
 import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
-import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.module";
-import {SortingComponent} from "./component/sorting.component";
-import {MetadataDetailInformationComponent} from "./metadata/component/metadata-detail-information.component";
-import {MetadataDetailTopComponent} from "./metadata/component/metadata-detail-top.component";
-import {LayoutModule} from "../layout/layout/layout.module";
-import {PopupCodeTableComponent} from "./code-table/popup/popup-code-table.component";
+import {CreateMetadataModule} from './metadata/create-metadata/create-metadata.module';
+import {SortingComponent} from './component/sorting.component';
+import {MetadataDetailInformationComponent} from './metadata/component/metadata-detail-information.component';
+import {MetadataDetailTopComponent} from './metadata/component/metadata-detail-top.component';
+import {LayoutModule} from '@layout/layout/layout.module';
+import {PopupCodeTableComponent} from './code-table/popup/popup-code-table.component';
 
 @NgModule({
   imports: [
@@ -102,7 +102,7 @@ import {PopupCodeTableComponent} from "./code-table/popup/popup-code-table.compo
     ChooseCodeTableComponent,
     // 컬럼 사전 선택 텀포넌트
     ChooseColumnDictionaryComponent,
-    //리니지
+    // 리니지
     LineageComponent,
     DetailLineageComponent,
     EditLineagePopup,

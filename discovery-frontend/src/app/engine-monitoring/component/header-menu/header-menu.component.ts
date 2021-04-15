@@ -21,8 +21,8 @@ import {
   OnDestroy,
   OnInit
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Engine} from '../../../domain/engine-monitoring/engine';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
 import {StateService} from '../../service/state.service';
 
 @Component({

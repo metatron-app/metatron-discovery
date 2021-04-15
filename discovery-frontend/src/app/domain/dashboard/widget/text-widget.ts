@@ -13,7 +13,7 @@
  */
 
 import { Widget, WidgetConfiguration } from './widget';
-import { CommonUtil } from '../../../common/util/common.util';
+import { CommonUtil } from '@common/util/common.util';
 
 export class TextWidget extends Widget {
 

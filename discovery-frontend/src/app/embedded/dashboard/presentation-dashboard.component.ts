@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {DashboardService} from 'app/dashboard/service/dashboard.service';
 import {WorkbookService} from '../../workbook/service/workbook.service';
 import {ActivatedRoute} from '@angular/router';
-import {BoardConfiguration, Dashboard, PresentationDashboard} from '../../domain/dashboard/dashboard';
+import {BoardConfiguration, Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
 import {WorkbookDetailProjections} from 'app/domain/workbook/workbook';
-import {PopupService} from '../../common/service/popup.service';
-import {BoardLayoutType} from '../../domain/dashboard/dashboard.globalOptions';
-import {EventBroadcaster} from '../../common/event/event.broadcaster';
-import {CookieConstant} from '../../common/constant/cookie.constant';
+import {PopupService} from '@common/service/popup.service';
+import {BoardLayoutType} from '@domain/dashboard/dashboard.globalOptions';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {DashboardComponent} from '../../dashboard/dashboard.component';
 
 @Component({
@@ -104,7 +104,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
       })
     );
 
-    let list: Dashboard[] = this._popupService.ptDashboards;
+    const list: Dashboard[] = this._popupService.ptDashboards;
     if (list) {
       // 워크북화면에서 링크로 온 경우
       const initialResult: any[] = this.initializeData(list, this._popupService.ptStartDashboard);
@@ -125,13 +125,13 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
 
         ( this._boardComp ) && ( this._boardComp.hideError() );
 
-        let workbookId: string = params['workbookId'];
-        let dashboardId: string = params['dashboardId'];
+        const workbookId: string = params['workbookId'];
+        const dashboardId: string = params['dashboardId'];
         this._getWorkbook(workbookId, {key: 'seq', type: 'asc'}).then(dashboards => {
           if (dashboards && 0 < dashboards.length) {
             this._dashboardService.getDashboard(dashboardId ? dashboardId : dashboards[0].id)
               .then((item: Dashboard) => {
-                const initialResult: any[] = this.initializeData(dashboards, <PresentationDashboard>item);
+                const initialResult: any[] = this.initializeData(dashboards, item as PresentationDashboard);
                 this.dashboards = initialResult[0];
                 this.selectedDashboard = initialResult[1];
                 this.selectedIdx = initialResult[2];
@@ -261,7 +261,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
         dashboardConfInArray.options.layout.layoutType = BoardLayoutType.FIT_TO_HEIGHT;
         let height: number = 900;
         if (-1 === (dashboardConfInArray.layout.dimensions.confHeight + '').indexOf('%')) {
-          height = <number>dashboardConfInArray.layout.dimensions.confHeight;
+          height = (dashboardConfInArray.layout.dimensions.confHeight as number);
         }
         dashboardConfInArray.layout.dimensions.height = height;
       } else {

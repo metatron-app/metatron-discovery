@@ -13,14 +13,14 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
-import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {StorageService} from "../../../service/storage.service";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {StorageService} from '../../../service/storage.service';
 import {
   ConnectionType,
   DatasourceInfo,
   DataSourceType,
   SourceType
-} from "../../../../domain/datasource/datasource";
+} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'select-type',

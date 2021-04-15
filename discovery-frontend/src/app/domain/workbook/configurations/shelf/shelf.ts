@@ -28,7 +28,7 @@ export class Shelf {
 
   constructor() {
     this.type = ShelfType.GEO;
-    let shelfLayers : ShelfLayers = new ShelfLayers();
+    const shelfLayers : ShelfLayers = new ShelfLayers();
     this.layers = [];
     this.layers.push(shelfLayers);
   }

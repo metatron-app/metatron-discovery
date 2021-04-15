@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import {AbstractService} from "../../common/service/abstract.service";
-import {Injectable, Injector} from "@angular/core";
-import {Field, FieldFormat, FieldFormatType, LogicalType} from "../../domain/datasource/datasource";
-import {TimezoneService} from "./timezone.service";
-import {TranslateService} from "@ngx-translate/core";
-import {isNullOrUndefined} from "util";
+import {AbstractService} from '@common/service/abstract.service';
+import {Injectable, Injector} from '@angular/core';
+import {Field, FieldFormat, FieldFormatType, LogicalType} from '@domain/datasource/datasource';
+import {TimezoneService} from './timezone.service';
+import {TranslateService} from '@ngx-translate/core';
+import {isNullOrUndefined} from 'util';
 import {Type} from '../../shared/datasource-metadata/domain/type';
-import {MetadataColumn} from "../../domain/meta-data-management/metadata-column";
-import {StringUtil} from "../../common/util/string.util";
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {StringUtil} from '@common/util/string.util';
 
 @Injectable()
 export class FieldConfigService extends AbstractService {

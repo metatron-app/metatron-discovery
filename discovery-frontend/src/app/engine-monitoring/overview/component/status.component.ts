@@ -22,12 +22,12 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Engine} from '../../../domain/engine-monitoring/engine';
-import * as _ from "lodash";
-import {CommonUtil} from "../../../common/util/common.util";
-import {LocalStorageConstant} from "../../../common/constant/local-storage.constant";
-import {EngineMonitoringData} from "../../../common/value/engine-monitoring.data.value";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
+import * as _ from 'lodash';
+import {CommonUtil} from '@common/util/common.util';
+import {LocalStorageConstant} from '@common/constant/local-storage.constant';
+import {EngineMonitoringData} from '@common/value/engine-monitoring.data.value';
 
 declare let moment: any;
 

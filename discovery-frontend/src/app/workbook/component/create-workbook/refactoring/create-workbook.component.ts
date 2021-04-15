@@ -1,12 +1,12 @@
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {AbstractComponent} from "@common/component/abstract.component";
-import {StringUtil} from "@common/util/string.util";
-import * as _ from "lodash";
-import {CommonUtil} from "@common/util/common.util";
-import {Book} from "@domain/workspace/book";
-import {Alert} from "@common/util/alert.util";
-import {WorkbookService} from "../../../service/workbook.service";
-import {ExploreConstant} from "../../../../explore-data/constant/explore.constant";
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {StringUtil} from '@common/util/string.util';
+import * as _ from 'lodash';
+import {CommonUtil} from '@common/util/common.util';
+import {Book} from '@domain/workspace/book';
+import {Alert} from '@common/util/alert.util';
+import {WorkbookService} from '../../../service/workbook.service';
+import {ExploreConstant} from '../../../../explore-data/constant/explore.constant';
 
 @Component({
   selector: 'component-create-workbook',

@@ -17,15 +17,15 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import { AbstractService } from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { Workspace, Workspaces } from '../../domain/workspace/workspace';
-import { BookTree } from '../../domain/workspace/book';
-import { CommonUtil } from '../../common/util/common.util';
-import { Page } from '../../domain/common/page';
-import { SYSTEM_PERMISSION } from '../../common/permission/permission';
+import { Workspace, Workspaces } from '@domain/workspace/workspace';
+import { BookTree } from '@domain/workspace/book';
+import { CommonUtil } from '@common/util/common.util';
+import { Page } from '@domain/common/page';
+import { SYSTEM_PERMISSION } from '@common/permission/permission';
 import { PermissionService } from '../../user/service/permission.service';
-import { RoleSet } from '../../domain/user/role/roleSet';
+import { RoleSet } from '@domain/user/role/roleSet';
 
 @Injectable()
 export class WorkspaceService extends AbstractService {

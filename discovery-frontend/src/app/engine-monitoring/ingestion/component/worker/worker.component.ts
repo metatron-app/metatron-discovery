@@ -22,15 +22,15 @@ import {
   ViewChild
 } from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {PageResult} from "../../../../domain/common/page";
-import {EngineService} from "../../../service/engine.service";
-import {CriterionComponent} from "../../../../data-storage/component/criterion/criterion.component";
-import {Criteria} from "../../../../domain/datasource/criteria";
-import {ActivatedRoute} from "@angular/router";
-import {StringUtil} from "../../../../common/util/string.util";
-import {TimezoneService} from "../../../../data-storage/service/timezone.service";
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PageResult} from '@domain/common/page';
+import {EngineService} from '../../../service/engine.service';
+import {CriterionComponent} from '../../../../data-storage/component/criterion/criterion.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {ActivatedRoute} from '@angular/router';
+import {StringUtil} from '@common/util/string.util';
+import {TimezoneService} from '../../../../data-storage/service/timezone.service';
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
 
 declare let moment: any;
 

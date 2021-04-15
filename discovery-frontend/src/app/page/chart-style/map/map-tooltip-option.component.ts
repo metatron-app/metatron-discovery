@@ -13,14 +13,14 @@
  */
 
 import {Component, ElementRef, Injector, Input} from '@angular/core';
-import {UIChartDataLabelDisplayType} from '../../../common/component/chart/option/define/common';
+import {UIChartDataLabelDisplayType} from '@common/component/chart/option/define/common';
 import * as _ from 'lodash';
-import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
-import {Field} from '../../../domain/workbook/configurations/field/field';
+import {ChartUtil} from '@common/component/chart/option/util/chart-util';
+import {Field} from '@domain/workbook/configurations/field/field';
 import {TooltipOptionComponent} from '../tooltip-option.component';
-import {UIMapOption} from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
-import {TooltipOptionConverter} from '../../../common/component/chart/option/converter/tooltip-option-converter';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
+import {TooltipOptionConverter} from '@common/component/chart/option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'map-tooltip-option',
@@ -65,7 +65,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     // 공간연산 사용 여부
     if (!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] === true) {
       // layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum].fields);
-      let tempFields = shelf.layers[this.uiOption.layerNum].fields;
+      const tempFields = shelf.layers[this.uiOption.layerNum].fields;
       for (let fieldIndex = 0; tempFields.length > fieldIndex; fieldIndex++) {
         // 공간연산에 사용된 aggregationType으로 tooltip 설정
         if (tempFields[fieldIndex].name == this.uiOption.analysis.operation.aggregation.column) {
@@ -96,7 +96,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     }
 
     // return shelf list except geo dimension
-    let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
+    const uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
     // tooltip option panel이 첫번째로 열렸는지 여부
     if (_.isUndefined(this.uiOption.toolTip['isFirstOpenTooltipOption'])
@@ -112,7 +112,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     // 선반에는 있지만 displayColumns에 없으면 => unselected list에 설정
     _.each(uniqList, (field) => {
 
-      let alias = ChartUtil.getAlias(field);
+      const alias = ChartUtil.getAlias(field);
 
       // selected list
       if (-1 !== this.uiOption.toolTip.displayColumns.indexOf(alias)) {
@@ -132,14 +132,14 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
    */
   private setColumns(columns: string[]): Field[] {
 
-    let fields: Field[] = [];
+    const fields: Field[] = [];
 
     let field: Field;
     columns.forEach((alias) => {
 
-      field = <any>_.find(this.selectedLayerItems, (field) => {
+      field = (_.find(this.selectedLayerItems, (field) => {
         return _.eq(alias, ChartUtil.getAggregationAlias(field));
-      });
+      }) as any);
 
       if (field) fields.push(field);
     });
@@ -271,7 +271,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     event.stopPropagation();
 
-    let alias = ChartUtil.getAggregationAlias(item);
+    const alias = ChartUtil.getAggregationAlias(item);
     const index = _.findIndex(this.selectedLayerItems, (field) => {
       return _.eq(alias, ChartUtil.getAggregationAlias(field));
     });

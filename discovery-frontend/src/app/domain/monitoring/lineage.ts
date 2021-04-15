@@ -24,7 +24,7 @@ export class LineageHistory extends AbstractHistoryEntity {
  public histories: History[];
  public from : string;
  public to : string;
- //ui에서 사용
+ // ui에서 사용
  public selectedShapeId : string;
  public selectedShapeName : string;
  public selectedShapeType : string;
@@ -43,7 +43,7 @@ export class SearchLineage extends AbstractHistoryEntity {
 }
 
 export class SearchTableLineage extends AbstractHistoryEntity {
- //public cluster : string;
+ // public cluster : string;
  public fieldName : string;
  public fieldType : string;
  public comment : string;
@@ -143,7 +143,7 @@ export class LineageEntity extends LineageShape {
     public detailed : LineageTableInformation[] = [];
     public storage : LineageTableInformation[] = [];
     public predicates: string[] = [];
-    //ui에서 사용
+    // ui에서 사용
     public graph: any;
     public xPos : number;
     public yPos : number;

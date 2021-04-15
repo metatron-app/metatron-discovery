@@ -15,9 +15,9 @@
 import { Component, ElementRef, Injector, Input } from '@angular/core';
 import { BaseOptionComponent } from '../base-option.component';
 import * as _ from 'lodash';
-import { MapType } from '../../../common/component/chart/option/define/map/map-common';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import {CommonConstant} from "../../../common/constant/common.constant";
+import { MapType } from '@common/component/chart/option/define/map/map-common';
+import { UIMapOption } from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {CommonConstant} from '@common/constant/common.constant';
 
 @Component({
   selector: 'map-common-option',
@@ -69,9 +69,9 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    */
   public setLicense() {
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       licenseNotation: this.uiOption.licenseNotation
-    });
+    }) as UIMapOption);
 
     this.update();
   }
@@ -82,9 +82,9 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    */
   public setMapStyle(data: Object) {
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       style: data['value']
-    });
+    }) as UIMapOption);
 
     this.update();
   }
@@ -95,9 +95,9 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    */
   public setMapService(data: Object) {
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       map: data['value']
-    });
+    }) as UIMapOption);
 
     this.update();
   }

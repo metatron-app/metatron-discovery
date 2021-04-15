@@ -12,19 +12,17 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
+import {CodeTable} from '@domain/meta-data-management/code-table';
 import {CreateCodeTableComponent} from '../../code-table/create-code-table/create-code-table.component';
 import {CodeTableService} from '../../code-table/service/code-table.service';
 import {isUndefined} from 'util';
 import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
 import * as _ from 'lodash';
-import {Alert} from '../../../common/util/alert.util';
-import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
-import {TranslateService} from "@ngx-translate/core";
-import {Modal} from "../../../common/domain/modal";
-import {CommonUtil} from "../../../common/util/common.util";
+import {Alert} from '@common/util/alert.util';
+import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-choose-code-table',

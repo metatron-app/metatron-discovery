@@ -16,10 +16,10 @@ import {UserProfile} from '../user/user-profile';
 import {Book} from './book';
 import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 import {NotebookConnector} from '../notebook/notebookConnector';
-import {WORKSPACE_PERMISSION} from '../../common/permission/permission';
+import {WORKSPACE_PERMISSION} from '@common/permission/permission';
 import {RoleSet} from '../user/role/roleSet';
 import {WorkspaceMember} from './workspace-member';
-import {CommonUtil} from '../../common/util/common.util';
+import {CommonUtil} from '@common/util/common.util';
 
 export class Workspace extends AbstractHistoryEntity {
   public id: string;

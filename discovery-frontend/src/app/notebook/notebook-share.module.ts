@@ -20,7 +20,7 @@ import { CreateNotebookChartComponent } from './component/create-notebook/create
 import { CreateNotebookSelectComponent } from './component/create-notebook/create-notebook-select/create-notebook-select.component';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { DatasourceShareModule } from '../datasource/datasource-share.module';
 import { NotebookService } from './service/notebook.service';
 import { DashboardService } from '../dashboard/service/dashboard.service';

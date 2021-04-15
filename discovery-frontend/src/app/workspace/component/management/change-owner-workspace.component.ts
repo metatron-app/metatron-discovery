@@ -19,7 +19,7 @@ import { Page, PageResult } from 'app/domain/common/page';
 import { WorkspaceService } from '../../service/workspace.service';
 import { AbstractComponent } from '@common/component/abstract.component';
 import { WorkspaceMemberProjection } from '@domain/workspace/workspace-member';
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'app-change-workspace-owner',

@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, Injector } from '@angular/core';
-import {BaseOptionComponent} from "./base-option.component";
+import {BaseOptionComponent} from './base-option.component';
 @Component({
   selector: 'legend-option',
   templateUrl: './legend-option.component.html'

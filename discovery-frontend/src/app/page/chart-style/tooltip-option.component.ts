@@ -13,13 +13,13 @@
  */
 
 import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { ChartType, UIChartDataLabelDisplayType } from '../../common/component/chart/option/define/common';
-import { UIOption } from '../../common/component/chart/option/ui-option';
+import { ChartType, UIChartDataLabelDisplayType } from '@common/component/chart/option/define/common';
+import { UIOption } from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
-import { UIChartFormat } from '../../common/component/chart/option/ui-option/ui-format';
+import { FormatOptionConverter } from '@common/component/chart/option/converter/format-option-converter';
+import { UIChartFormat } from '@common/component/chart/option/ui-option/ui-format';
 import { LabelBaseOptionComponent } from './labelbase-option.component';
-import { TooltipOptionConverter } from '../../common/component/chart/option/converter/tooltip-option-converter';
+import { TooltipOptionConverter } from '@common/component/chart/option/converter/tooltip-option-converter';
 @Component({
   selector: 'tooltip-option',
   templateUrl: './tooltip-option.component.html'
@@ -129,7 +129,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
   public apply(): void {
 
     // 옵션 적용
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { toolTip: this.uiOption.toolTip });
+    this.uiOption = (_.extend({}, this.uiOption, { toolTip: this.uiOption.toolTip }) as UIOption);
     this.update();
   }
 

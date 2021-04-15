@@ -18,18 +18,18 @@ import {
   ChartAxisGridType,
   UIFormatCurrencyType,
   UIFormatType
-} from '../../common/component/chart/option/define/common';
+} from '@common/component/chart/option/define/common';
 import * as _ from 'lodash';
 import { FormatOptionComponent } from './format-option.component';
-import { UIChartAxis, UIChartAxisLabelValue } from '../../common/component/chart/option/ui-option/ui-axis';
-import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
-import { Format } from '../../domain/workbook/configurations/format';
-import { UIOption } from '../../common/component/chart/option/ui-option';
+import { UIChartAxis, UIChartAxisLabelValue } from '@common/component/chart/option/ui-option/ui-axis';
+import { OptionGenerator } from '@common/component/chart/option/util/option-generator';
+import { Format } from '@domain/workbook/configurations/format';
+import { UIOption } from '@common/component/chart/option/ui-option';
 import { isUndefined } from 'util';
 import UI = OptionGenerator.UI;
-import {AxisOptionConverter} from "../../common/component/chart/option/converter/axis-option-converter";
-import {Alert} from "../../common/util/alert.util";
-import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
+import {AxisOptionConverter} from '@common/component/chart/option/converter/axis-option-converter';
+import {Alert} from '@common/util/alert.util';
+import { FormatOptionConverter } from '@common/component/chart/option/converter/format-option-converter';
 
 @Component({
   selector: 'axis-value-option',
@@ -73,10 +73,10 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   @Input('axis')
   public set setAxis(axis: UIChartAxis) {
     this.axis = axis;
-    axis.baseline = !isUndefined(axis.baseline) && !isNaN(<number>axis.baseline) ? axis.baseline : undefined;
+    axis.baseline = !isUndefined(axis.baseline) && !isNaN(axis.baseline as number) ? axis.baseline : undefined;
     this.axisTemp = _.cloneDeep(axis);
     if( this.axisTemp.grid ) {
-      let isZero: boolean = this.axisTemp.grid.min == 0 && this.axisTemp.grid.max == 0;
+      const isZero: boolean = this.axisTemp.grid.min == 0 && this.axisTemp.grid.max == 0;
       this.axisTemp.grid.min = isZero || this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.min;
       this.axisTemp.grid.max = isZero || this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.max;
     }
@@ -145,21 +145,21 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   public showLabel() {
 
     // 레이블 설정이 안된경우
-    if (!(<UIChartAxisLabelValue>this.axis.label).format) {
+    if (!(this.axis.label as UIChartAxisLabelValue).format) {
 
       // 기본 포맷 사용 false
-      (<UIChartAxisLabelValue>this.axis.label).useDefault = false;
+      (this.axis.label as UIChartAxisLabelValue).useDefault = false;
 
-      (<UIChartAxisLabelValue>this.axis.label).format = UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true);
+      (this.axis.label as UIChartAxisLabelValue).format = UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true);
 
       // 레이블 설정이 되어있는경우
     } else {
 
       // 기본 포맷 사용 true
-      (<UIChartAxisLabelValue>this.axis.label).useDefault = true;
+      (this.axis.label as UIChartAxisLabelValue).useDefault = true;
 
       // 포멧값 제거
-      delete (<UIChartAxisLabelValue>this.axis.label).format;
+      delete (this.axis.label as UIChartAxisLabelValue).format;
     }
 
     // 변경된 축값 emit
@@ -173,7 +173,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   public onChange(target: Object): void {
 
     // 축 라벨의 포맷값 설정
-    (<UIChartAxisLabelValue>this.axis.label).format = target as Format;
+    (this.axis.label as UIChartAxisLabelValue).format = target as Format;
 
     // 변경된 축값 emit
     this.changeValueAxis.emit(this.axis);
@@ -272,7 +272,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
    */
   public changeMin(): void {
 
-    let value = this.axisTemp.grid.min;
+    const value = this.axisTemp.grid.min;
     if( _.isNull(value) ) {
       return;
     }
@@ -293,12 +293,12 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       return;
     }
 
-    let min: number = Number(this.axisTemp.grid.min);
+    const min: number = Number(this.axisTemp.grid.min);
     let max = Number(this.axis.grid.max);
 
     // max 값이 0일 경우 (설정안했을경우)
     if( max == 0 ){
-      let dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
+      const dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
       max = Number(dataMax.toFixed(2));
       this.axis.grid.max = max;
     }
@@ -333,7 +333,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
    */
   public changeMax(): void {
 
-    let value = this.axisTemp.grid.max;
+    const value = this.axisTemp.grid.max;
     if( _.isNull(value) ) {
       return;
     }
@@ -356,12 +356,12 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       return;
     }
 
-    let min: number = Number(this.axis.grid.min);
+    const min: number = Number(this.axis.grid.min);
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
 
     // max 값이 0일 경우 (설정안했을경우)
     if( isDefaultValue ){
-      let dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
+      const dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
       max = Number(dataMax.toFixed(2));
       this.axis.grid.max = max;
     }
@@ -431,10 +431,10 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     if( this.axisTemp.grid && !this.axisTemp.grid.autoScaled ) {
 
       // 사용자가 입력한 min / max
-      let inputMin = FormatOptionConverter.getNumberValue(this.axisTemp.grid.min);
+      const inputMin = FormatOptionConverter.getNumberValue(this.axisTemp.grid.min);
 
       // 서버데이터 min / max
-      let dataMin = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].min;
+      const dataMin = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].min;
 
       if( !isNaN(inputMin) && inputMin < dataMin ) {
         return true;
@@ -453,10 +453,10 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     if( this.axisTemp.grid && !this.axisTemp.grid.autoScaled ) {
 
       // 사용자가 입력한 min / max
-      let inputMax = FormatOptionConverter.getNumberValue(this.axisTemp.grid.max);
+      const inputMax = FormatOptionConverter.getNumberValue(this.axisTemp.grid.max);
 
       // 서버데이터 min / max
-      let dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
+      const dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
 
       if( !isNaN(inputMax) && inputMax > dataMax ) {
         return true;

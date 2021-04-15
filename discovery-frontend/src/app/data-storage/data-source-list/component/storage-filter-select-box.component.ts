@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {CommonUtil} from "../../../common/util/common.util";
-import {StringUtil} from "../../../common/util/string.util";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'storage-filter-select-box',
@@ -113,10 +113,10 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
       // if open list and is enable floating option
       if (this.isListShow && this.isEnableFloating) {
         $(this.LIST_ELEMENT.nativeElement).css({
-          'position' : 'fixed',
-          'top': $(event.currentTarget).offset().top + 35,
-          'left' : $(event.currentTarget).offset().left,
-          'width' : $(event.currentTarget).outerWidth()
+          position : 'fixed',
+          top: $(event.currentTarget).offset().top + 35,
+          left : $(event.currentTarget).offset().left,
+          width : $(event.currentTarget).outerWidth()
         });
       }
     }

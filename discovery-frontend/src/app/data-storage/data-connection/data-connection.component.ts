@@ -13,22 +13,22 @@
  */
 
 import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {Dataconnection, ImplementorType} from '../../domain/dataconnection/dataconnection';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';
 import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
-import {StringUtil} from '../../common/util/string.util';
-import {CreateConnectionComponent} from "./create-connection.component";
-import {UpdateConnectionComponent} from "./update-connection.component";
-import {CriterionComponent} from "../component/criterion/criterion.component";
-import {Criteria} from "../../domain/datasource/criteria";
-import {ActivatedRoute} from "@angular/router";
-import {Alert} from "../../common/util/alert.util";
-import {isNullOrUndefined} from "util";
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {StringUtil} from '@common/util/string.util';
+import {CreateConnectionComponent} from './create-connection.component';
+import {UpdateConnectionComponent} from './update-connection.component';
+import {CriterionComponent} from '../component/criterion/criterion.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {isNullOrUndefined} from 'util';
 import * as _ from 'lodash';
-import {StorageService} from "../service/storage.service";
+import {StorageService} from '../service/storage.service';
 
 @Component({
   selector: 'app-data-connection',

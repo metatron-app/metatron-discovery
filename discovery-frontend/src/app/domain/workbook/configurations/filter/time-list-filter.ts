@@ -14,7 +14,7 @@
 
 import * as _ from 'lodash';
 import { TimeFilter } from './time-filter';
-import { Field } from '../../../datasource/datasource';
+import { Field } from '@domain/datasource/datasource';
 
 export class TimeListFilter extends TimeFilter {
 

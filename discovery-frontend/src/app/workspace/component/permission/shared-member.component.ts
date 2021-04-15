@@ -27,8 +27,8 @@ import {WorkspaceService} from '../../service/workspace.service';
 import {Alert} from '@common/util/alert.util';
 import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
 import {Page} from '@domain/common/page';
-import {Modal} from "@common/domain/modal";
-import {CommonUtil} from "@common/util/common.util";
+import {Modal} from '@common/domain/modal';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-shared-member',
@@ -175,7 +175,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
       this.loadingShow();
       this.workspaceService.updateWorkspace(
         this.workspace.id,
-        (<any>{ published: this.workspace.published })
+        ({ published: this.workspace.published } as any)
       ).then(() => {
         // 로딩 hide
         this.loadingHide();

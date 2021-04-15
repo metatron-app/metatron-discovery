@@ -16,9 +16,9 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input,
   Output, ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {DatasourceInfo, FieldFormatType} from "../../../../domain/datasource/datasource";
-import {SchemaConfigureMainComponent} from "../../../component/schema-configure/schema-configure-main.component";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo, FieldFormatType} from '@domain/datasource/datasource';
+import {SchemaConfigureMainComponent} from '../../../component/schema-configure/schema-configure-main.component';
 
 /**
  * Creating datasource with Snapshot - configure step

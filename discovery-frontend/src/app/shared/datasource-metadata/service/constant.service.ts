@@ -3,7 +3,7 @@ import {TranslateService} from '@ngx-translate/core';
 import * as _ from 'lodash';
 import {Type} from '../domain/type';
 import {Filter} from '../domain/filter';
-import {DataStorageConstant} from "../../../data-storage/constant/data-storage-constant";
+import {DataStorageConstant} from '../../../data-storage/constant/data-storage-constant';
 
 /**
  * Service to be shared by the datasource and metadata

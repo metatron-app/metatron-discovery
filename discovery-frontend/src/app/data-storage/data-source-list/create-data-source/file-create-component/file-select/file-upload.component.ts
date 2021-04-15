@@ -22,10 +22,10 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
-import {FileResult, Sheet,} from "../../../../service/data-source-create.service";
+import {FileResult, Sheet,} from '../../../../service/data-source-create.service';
 
 @Component({
   selector: 'file-upload',

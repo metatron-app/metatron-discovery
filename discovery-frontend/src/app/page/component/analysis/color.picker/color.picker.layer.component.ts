@@ -52,11 +52,6 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   private selectedColor: object = {};
 
   /**
-   * Call back function 닫기 이벤트 발생시 같이 보내준다
-   */
-  private callBackFn: Function = () => {};
-
-  /**
    * 색상 선택시 리턴되는 값
    */
   private param: any;
@@ -137,6 +132,11 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   public colorGroup = [];
 
   /**
+   * Call back function 닫기 이벤트 발생시 같이 보내준다
+   */
+  private callBackFn: Function = () => {};
+
+  /**
    *
    * @param $event
    */
@@ -156,7 +156,6 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    */
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 
@@ -240,7 +239,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    * hide
    */
   public hide(): void {
-    this.close.emit({ 'data': _.cloneDeep(this.selectedColor), 'fn': this.callBackFn, 'param' : this.param});
+    this.close.emit({ data: _.cloneDeep(this.selectedColor), fn: this.callBackFn, param : this.param});
     this.setIsShow(false);
   }
 
@@ -496,7 +495,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    * 선택 이벤트 방출
    */
   private onSelected(): void {
-    this.selected.emit({ 'data': _.cloneDeep(this.selectedColor), 'fn': this.callBackFn , 'param': this.param});
+    this.selected.emit({ data: _.cloneDeep(this.selectedColor), fn: this.callBackFn , param: this.param});
     this.setIsShow(false);
   }
 
@@ -519,7 +518,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   private setSelectedColor(className: string, color: string): void {
 
     if (!_.isEmpty(className) && !_.isEmpty(color)) {
-      this.selectedColor = { 'className': className, 'colorHex': color };
+      this.selectedColor = { className: className, colorHex: color };
     }
   }
 

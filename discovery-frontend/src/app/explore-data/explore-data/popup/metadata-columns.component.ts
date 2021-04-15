@@ -1,13 +1,13 @@
 import {Component, ElementRef, Injector, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {MetadataColumn} from "../../../domain/meta-data-management/metadata-column";
-import {CodeTableService} from "../../../meta-data-management/code-table/service/code-table.service";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {Metadata} from "../../../domain/meta-data-management/metadata";
-import {Type} from "../../../shared/datasource-metadata/domain/type";
-import {FieldFormat} from "../../../domain/datasource/datasource";
-import {ExploreDataUtilService, SortOption} from "../service/explore-data-util.service";
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {CodeTableService} from '../../../meta-data-management/code-table/service/code-table.service';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {Type} from '../../../shared/datasource-metadata/domain/type';
+import {FieldFormat} from '@domain/datasource/datasource';
+import {ExploreDataUtilService, SortOption} from '../service/explore-data-util.service';
 
 @Component({
   selector: 'explore-metadata-columns',

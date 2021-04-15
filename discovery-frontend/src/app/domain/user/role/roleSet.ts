@@ -15,9 +15,17 @@
 import { AbstractHistoryEntity } from '../../common/abstract-history-entity';
 import { Workspace } from '../../workspace/workspace';
 import { Role } from './role';
-import { WORKSPACE_PERMISSION } from '../../../common/permission/permission';
+import { WORKSPACE_PERMISSION } from '@common/permission/permission';
 
 export class RoleSet extends AbstractHistoryEntity {
+
+  constructor() {
+    super();
+    this.scope = RoleSetScope.PRIVATE;
+    this.predefined = false;
+    this.readOnly = false;
+    this.roles.push(RoleSet.getDefaultRole());
+  }
   public id: string;
   public name: string;
   public description: string;
@@ -31,14 +39,6 @@ export class RoleSet extends AbstractHistoryEntity {
   // for UI
   public removeRoleNames:string[] = [];
 
-  constructor() {
-    super();
-    this.scope = RoleSetScope.PRIVATE;
-    this.predefined = false;
-    this.readOnly = false;
-    this.roles.push(RoleSet.getDefaultRole());
-  }
-
   /**
    * RoleSet 의 기본롤 정보 ( 매니저 ) 를 생성함
    * @return {Role}
@@ -49,30 +49,11 @@ export class RoleSet extends AbstractHistoryEntity {
     managerRole['editName'] = 'Manager';
     managerRole.defaultRole = true;
     managerRole.permissionNames = [];
-    for (let key in WORKSPACE_PERMISSION) {
+    for (const key in WORKSPACE_PERMISSION) {
       managerRole.permissionNames.push(WORKSPACE_PERMISSION[key]);
     }
     return managerRole;
   } // function - getDefaultRole
-
-  /**
-   * 현재 RoleSet 에 대한 RequestParam을 얻는다.
-   * @return {any}
-   */
-  public getRequestParam(): any {
-    return {
-      name: this.name,
-      description: this.description,
-      scope: this.scope,
-      roles: this.roles.map((item: Role) => {
-        return {
-          name: item.name,
-          defaultRole: item.defaultRole,
-          permissionNames: item.permissionNames
-        };
-      })
-    };
-  } // function - getRequestParam
 
   /**
    * RoleSet을 Param으로 변환한다.
@@ -104,6 +85,25 @@ export class RoleSet extends AbstractHistoryEntity {
     ( 0 < Object.keys( mapper ).length ) && ( param['mapper'] = mapper );
     return param;
   } // function - convertRoleSetToParam
+
+  /**
+   * 현재 RoleSet 에 대한 RequestParam을 얻는다.
+   * @return {any}
+   */
+  public getRequestParam(): any {
+    return {
+      name: this.name,
+      description: this.description,
+      scope: this.scope,
+      roles: this.roles.map((item: Role) => {
+        return {
+          name: item.name,
+          defaultRole: item.defaultRole,
+          permissionNames: item.permissionNames
+        };
+      })
+    };
+  } // function - getRequestParam
 }
 
 export enum RoleSetScope {

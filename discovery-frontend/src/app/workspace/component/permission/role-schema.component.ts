@@ -40,7 +40,7 @@ export class RoleSchemaComponent extends AbstractComponent implements OnInit, On
   set setRole( role:Role) {
     if( role && role.permissions && 0 < role.permissions.length ) {
       role.permissionNames = role.permissions.map(item => {
-        return <string>(item.name ? item.name : item);
+        return (item.name ? item.name : item) as string;
       });
     }
     this.role = _.cloneDeep( role );

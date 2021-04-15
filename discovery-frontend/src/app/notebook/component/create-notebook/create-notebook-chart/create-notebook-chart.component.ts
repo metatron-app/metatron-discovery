@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { Component, ElementRef, Injector, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { Alert } from '../../../../common/util/alert.util';
-import { PopupService } from '../../../../common/service/popup.service';
-import { BookTree } from '../../../../domain/workspace/book';
+import { NoteBook } from '@domain/notebook/notebook';
+import { Alert } from '@common/util/alert.util';
+import { PopupService } from '@common/service/popup.service';
+import { BookTree } from '@domain/workspace/book';
 import { WorkspaceService } from '../../../../workspace/service/workspace.service';
 import { DashboardService } from '../../../../dashboard/service/dashboard.service';
-import { Widget } from '../../../../domain/dashboard/widget/widget';
+import { Widget } from '@domain/dashboard/widget/widget';
 import { NotebookService } from '../../../service/notebook.service';
-import { Datasource } from '../../../../domain/datasource/datasource';
+import { Datasource } from '@domain/datasource/datasource';
 import { isUndefined } from 'util';
 
 @Component({

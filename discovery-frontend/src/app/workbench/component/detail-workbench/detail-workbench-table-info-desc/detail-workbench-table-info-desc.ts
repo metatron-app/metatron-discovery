@@ -176,7 +176,7 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   private _getMetaData(): void {
 
     // table array 생성
-    let tableNameArr: string[] = [];
+    const tableNameArr: string[] = [];
     tableNameArr.push( this.params['selectedTable'] );
 
     this._metaDataService.getMetadataByConnection(this.params['dataconnection'].id, this.params['dataconnection'].database, tableNameArr)
@@ -195,9 +195,9 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
         // result Data 생성
         for (const key in this.tables) {
 
-          let tempData = {
-            'label' : '',
-            'data' : tempArr
+          const tempData = {
+            label : '',
+            data : tempArr
           };
 
           if( this.tables[key]['itemKey'].startsWith('#') ){

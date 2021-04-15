@@ -14,11 +14,11 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
 import {YAxisOptionComponent} from './yaxis-option.component';
-import {AxisLabelType} from '../../common/component/chart/option/define/common';
-import {Alert} from '../../common/util/alert.util';
+import {AxisLabelType} from '@common/component/chart/option/define/common';
+import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
-import {UIOption} from '../../common/component/chart/option/ui-option';
-import {UIChartAxis} from '../../common/component/chart/option/ui-option/ui-axis';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {UIChartAxis} from '@common/component/chart/option/ui-option/ui-axis';
 
 @Component({
   selector: 'secondary-axis-option',
@@ -105,7 +105,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
       this.uiOption.secondaryAxis.customName = value.trim();
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
     this.update();
     this.changeAxisNameEvent.emit();
   }
@@ -123,7 +123,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
     if( _.eq(this.uiOption.secondaryAxis.mode, axisLabelType) ) {
       this.uiOption.secondaryAxis.showName = show;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
 
     this.update();
   }
@@ -141,7 +141,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
     if( _.eq(this.uiOption.secondaryAxis.mode, axisLabelType) ) {
       this.uiOption.secondaryAxis.showLabel = show;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
 
     this.update();
   }
@@ -151,7 +151,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
    */
   public changeSecondaryAxisValue(axis: UIChartAxis): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: axis });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: axis }) as UIOption);
 
     this.update();
   }
@@ -162,7 +162,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
    */
   public changeSecondaryAxisBaseline(axis: UIChartAxis): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: axis });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: axis }) as UIOption);
 
     this.update({});
   }
@@ -185,7 +185,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
       this.uiOption.secondaryAxis.showName = true;
       this.uiOption.secondaryAxis.showLabel = true;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
     this.update();
   }
 

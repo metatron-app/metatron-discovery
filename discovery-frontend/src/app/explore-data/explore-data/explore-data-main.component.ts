@@ -13,14 +13,14 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {EventBroadcaster} from "../../common/event/event.broadcaster";
-import {DataCreator} from "../../domain/meta-data-management/data-creator";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
 
 @Component({
   selector: 'explore-data-main',

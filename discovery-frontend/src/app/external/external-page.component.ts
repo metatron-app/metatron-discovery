@@ -16,11 +16,11 @@ import {
   ChangeDetectionStrategy, Component, ElementRef, Injector, OnDestroy,
   OnInit, ViewChild
 } from '@angular/core';
-import {AbstractComponent} from "../common/component/abstract.component";
-import {ActivatedRoute} from "@angular/router";
-import {CookieConstant} from "../common/constant/cookie.constant";
-import {CommonService} from "../common/service/common.service";
-import {Extension} from "../common/domain/extension";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ActivatedRoute} from '@angular/router';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonService} from '@common/service/common.service';
+import {Extension} from '@common/domain/extension';
 
 @Component({
   selector: 'app-external-page',
@@ -141,13 +141,13 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
     const refreshToken = this.cookieService.get(CookieConstant.KEY.REFRESH_LOGIN_TOKEN);
     const type = this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE);
     const userId = this.cookieService.get(CookieConstant.KEY.LOGIN_USER_ID);
-    let existForm = document.getElementsByName(formName)[0];
+    const existForm = document.getElementsByName(formName)[0];
     if (existForm) {
       existForm.remove();
     }
     const url:string = targetUrl.replace( '${token}', token ).replace( '${refreshToken}', refreshToken ).replace( '${type}', type ).replace( '${userId}', userId );
 
-    let form = document.createElement('form');
+    const form = document.createElement('form');
     form.setAttribute('name', formName);
     form.setAttribute('method', 'post');
     form.setAttribute('action', url );

@@ -21,17 +21,17 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
-import {Location} from "@angular/common";
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {EngineService} from "../service/engine.service";
-import {CommonUtil} from "../../common/util/common.util";
-import * as _ from "lodash";
-import {DeleteModalComponent} from "../../common/component/modal/delete/delete.component";
-import {Alert} from "../../common/util/alert.util";
-import {Modal} from "../../common/domain/modal";
-import {DatasourceRuleComponent} from "./datasource-rule.component";
-import {DatasourceColumnComponent} from "./datasource-column.component";
+import {ActivatedRoute} from '@angular/router';
+import {Location} from '@angular/common';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../service/engine.service';
+import {CommonUtil} from '@common/util/common.util';
+import * as _ from 'lodash';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {DatasourceRuleComponent} from './datasource-rule.component';
+import {DatasourceColumnComponent} from './datasource-column.component';
 
 declare let echarts: any;
 declare let moment: any;
@@ -158,7 +158,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   public getRetentionDuration(rule) {
     if (rule.type.indexOf('Period') > -1) {
-      return rule.period + ' (' + moment.duration(rule.period).locale("en").humanize() + ')' ;
+      return rule.period + ' (' + moment.duration(rule.period).locale('en').humanize() + ')' ;
     } else if (rule.type.indexOf('Interval') > -1) {
       return rule.interval + ' (' + this.getDurationLabel(rule.interval.split('/')[0], rule.interval.split('/')[1]) + ')';
     } else {
@@ -175,7 +175,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
   }
 
   public getDurationLabel(startDate, endDate) {
-    return moment.duration(moment(startDate).diff(moment(endDate))).locale("en").humanize();
+    return moment.duration(moment(startDate).diff(moment(endDate))).locale('en').humanize();
   }
 
   public disableDatasource(): void {

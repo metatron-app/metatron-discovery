@@ -22,12 +22,12 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {EngineService} from "../../service/engine.service";
-import {Engine} from "../../../domain/engine-monitoring/engine";
-import {CommonUtil} from "../../../common/util/common.util";
-import * as _ from "lodash";
-import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {EngineService} from '../../service/engine.service';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {CommonUtil} from '@common/util/common.util';
+import * as _ from 'lodash';
+import {EngineMonitoringUtil} from '../../util/engine-monitoring.util';
 
 declare let echarts: any;
 
@@ -124,7 +124,7 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
       {
         monitoringTarget : {
           metric: Engine.MonitoringTarget.GC_COUNT,
-          host: this.monitoring.hostname+":"+this.monitoring.port
+          host: this.monitoring.hostname+':'+this.monitoring.port
         }
       };
 
@@ -199,7 +199,7 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
       {
         monitoringTarget : {
           metric: Engine.MonitoringTarget.MEM,
-          host: this.monitoring.hostname+":"+this.monitoring.port
+          host: this.monitoring.hostname+':'+this.monitoring.port
         }
       };
 

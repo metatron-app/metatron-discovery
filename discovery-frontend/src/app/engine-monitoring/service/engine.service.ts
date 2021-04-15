@@ -1,10 +1,10 @@
 import {Injectable, Injector} from '@angular/core';
 import {EngineServiceModule} from './engine-service.module';
-import {AbstractService} from '../../common/service/abstract.service';
-import {Engine} from '../../domain/engine-monitoring/engine';
+import {AbstractService} from '@common/service/abstract.service';
+import {Engine} from '@domain/engine-monitoring/engine';
 import * as _ from 'lodash';
-import {PageResult} from '../../domain/common/page';
-import {Criteria} from "../../domain/datasource/criteria";
+import {PageResult} from '@domain/common/page';
+import {Criteria} from '@domain/datasource/criteria';
 
 @Injectable({
   providedIn: EngineServiceModule

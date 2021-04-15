@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   AfterViewInit,
   Component,
@@ -25,11 +25,11 @@ import {
   Output
 } from '@angular/core';
 import {CodeTableService} from '../service/code-table.service';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
-import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
-import {Modal} from "../../../common/domain/modal";
-import {CommonUtil} from "../../../common/util/common.util";
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
+import {Modal} from '@common/domain/modal';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'popup-code-table',

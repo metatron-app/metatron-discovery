@@ -13,19 +13,19 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { LogicalType } from '../../domain/datasource/datasource';
+import { LogicalType } from '@domain/datasource/datasource';
 import {
   UIOption
-} from '../../common/component/chart/option/ui-option';
+} from '@common/component/chart/option/ui-option';
 import {
   AxisLabelType, ChartAxisLabelType, ChartType, LabelConvertType,
   SeriesConvertType, UIOrient
-} from '../../common/component/chart/option/define/common';
-import { Alert } from '../../common/util/alert.util';
+} from '@common/component/chart/option/define/common';
+import { Alert } from '@common/util/alert.util';
 import * as _ from 'lodash';
-import {BaseOptionComponent} from "./base-option.component";
-import {UIChartAxis} from "../../common/component/chart/option/ui-option/ui-axis";
-import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
+import {BaseOptionComponent} from './base-option.component';
+import {UIChartAxis} from '@common/component/chart/option/ui-option/ui-axis';
+import { OptionGenerator } from '@common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
 
 @Component({
@@ -160,7 +160,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
       this.uiOption.xAxis.customName = value.trim();
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
     this.update();
     this.changeAxisNameEvent.emit();
   }
@@ -178,7 +178,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
     if( _.eq(this.uiOption.xAxis.mode, axisLabelType) ) {
       this.uiOption.xAxis.showName = show;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
 
     this.update();
   }
@@ -196,7 +196,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
     if( _.eq(this.uiOption.xAxis.mode, axisLabelType) ) {
       this.uiOption.xAxis.showLabel = show;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
 
     this.update();
   }
@@ -220,7 +220,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
       this.uiOption.xAxis.label.type = ChartAxisLabelType.CATEGORY;
       this.uiOption.xAxis.label['rotation'] = rotate;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
 
     this.update();
   }
@@ -232,7 +232,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
 
     // axisConfig show / hide 설정
     this.uiOption.xAxis.axisOption.showFl = !this.uiOption.xAxis.axisOption.showFl;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
     this.update();
   }
 
@@ -289,7 +289,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
     }
 
     axisConfig.changeType = type;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
     this.update();
   }
 
@@ -320,7 +320,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
    */
   public changeXAxisValue(axis: UIChartAxis): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: axis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: axis }) as UIOption);
 
     this.update();
   }
@@ -331,7 +331,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
    */
   public changeBaseline(axis: UIChartAxis): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { xAxis: axis });
+    this.uiOption = (_.extend({}, this.uiOption, { xAxis: axis }) as UIOption);
 
     this.update({});
   }

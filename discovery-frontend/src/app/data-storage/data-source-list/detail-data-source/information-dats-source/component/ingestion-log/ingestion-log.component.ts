@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
 import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
-import {DataStorageConstant} from "../../../../../constant/data-storage-constant";
+import {DataStorageConstant} from '../../../../../constant/data-storage-constant';
 
 @Component({
   selector: 'ingestion-log-details',

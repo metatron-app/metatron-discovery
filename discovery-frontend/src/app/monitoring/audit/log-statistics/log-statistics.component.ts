@@ -25,15 +25,15 @@ import {
   Renderer2,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {AuditService} from '../service/audit.service';
 import * as _ from 'lodash';
-import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
-import {Alert} from '../../../common/util/alert.util';
-import {PageResult} from '../../../domain/common/page';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {Alert} from '@common/util/alert.util';
+import {PageResult} from '@domain/common/page';
 import {isUndefined} from 'util';
-import {CommonUtil} from '../../../common/util/common.util';
-import {PeriodData} from '../../../common/value/period.data.value';
+import {CommonUtil} from '@common/util/common.util';
+import {PeriodData} from '@common/value/period.data.value';
 
 declare let moment: any;
 
@@ -427,7 +427,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    */
   public getSortOrder(combinedSort) {
 
-    let sort = combinedSort.split(',');
+    const sort = combinedSort.split(',');
 
     this.selectedContentSort.key = sort[0];
     this.selectedContentSort.sort = sort[1];
@@ -563,8 +563,8 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   public getMoreContents(event) {
 
     if (event.values.name === 'resource') {
-      let key = event.values.sort.split(',')[0];
-      let sort = event.values.sort.split(',')[1];
+      const key = event.values.sort.split(',')[0];
+      const sort = event.values.sort.split(',')[1];
       event.values.name = key;
       event.values.sort = sort;
     }

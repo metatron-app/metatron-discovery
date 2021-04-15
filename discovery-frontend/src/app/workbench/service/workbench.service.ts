@@ -17,7 +17,7 @@ import {AbstractService} from '@common/service/abstract.service';
 import {QueryEditor, Workbench} from '@domain/workbench/workbench';
 import {CommonUtil} from '@common/util/common.util';
 import {Page} from '@domain/common/page';
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
 
 @Injectable()
 export class WorkbenchService extends AbstractService {
@@ -207,7 +207,7 @@ export class WorkbenchService extends AbstractService {
   public getSchemaInfoTableData(table:string, connection:any) {
     const params:any = {};
 
-    let connInfo: any = {};
+    const connInfo: any = {};
     connInfo.implementor = connection.implementor;
     connInfo.hostname = connection.hostname;
     connInfo.port = connection.port;

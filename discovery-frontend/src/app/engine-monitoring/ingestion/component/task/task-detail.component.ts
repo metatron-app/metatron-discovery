@@ -22,17 +22,17 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {EngineService} from "../../../service/engine.service";
-import {ActivatedRoute} from "@angular/router";
-import {Task, TaskStatus, TaskType} from "../../../../domain/engine-monitoring/task";
-import {Alert} from "../../../../common/util/alert.util";
-import {Location} from "@angular/common";
-import * as _ from "lodash";
-import {Engine} from "../../../../domain/engine-monitoring/engine";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../../../service/engine.service';
+import {ActivatedRoute} from '@angular/router';
+import {Task, TaskStatus, TaskType} from '@domain/engine-monitoring/task';
+import {Alert} from '@common/util/alert.util';
+import {Location} from '@angular/common';
+import * as _ from 'lodash';
+import {Engine} from '@domain/engine-monitoring/engine';
 import {saveAs} from 'file-saver';
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
-import {CommonUtil} from "../../../../common/util/common.util";
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
+import {CommonUtil} from '@common/util/common.util';
 
 declare let echarts: any;
 declare let moment: any;

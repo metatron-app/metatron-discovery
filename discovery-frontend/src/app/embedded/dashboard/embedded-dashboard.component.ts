@@ -13,15 +13,15 @@
  */
 
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Dashboard } from '../../domain/dashboard/dashboard';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import { Dashboard } from '@domain/dashboard/dashboard';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { ActivatedRoute } from '@angular/router';
-import { CookieConstant } from '../../common/constant/cookie.constant';
+import { CookieConstant } from '@common/constant/cookie.constant';
 import { DashboardService } from '../../dashboard/service/dashboard.service';
-import {Filter} from "../../domain/workbook/configurations/filter/filter";
-import {FilterWidgetConfiguration} from "../../domain/dashboard/widget/filter-widget";
-import {FilterUtil} from "../../dashboard/util/filter.util";
-import * as $ from "jquery";
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {FilterUtil} from '../../dashboard/util/filter.util';
+import * as $ from 'jquery';
 import { DashboardComponent } from '../../dashboard/dashboard.component';
 
 @Component({
@@ -162,7 +162,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
         });
         dashboard.widgets.forEach((widget) => {
           if (widget.type === 'filter' && widget.name == key) {
-            const widgetConf: FilterWidgetConfiguration  = <FilterWidgetConfiguration>widget.configuration;
+            const widgetConf: FilterWidgetConfiguration  = widget.configuration as FilterWidgetConfiguration;
             FilterUtil.setParameterFilterValue(widgetConf.filter, key, params[key]);
           }
         })

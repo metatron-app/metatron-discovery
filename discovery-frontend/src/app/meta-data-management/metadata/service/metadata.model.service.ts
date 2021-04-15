@@ -13,9 +13,9 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {Metadata} from '../../../domain/meta-data-management/metadata';
-import {Subject} from "rxjs";
+import {AbstractService} from '@common/service/abstract.service';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {Subject} from 'rxjs';
 
 @Injectable()
 export class MetadataModelService extends AbstractService {

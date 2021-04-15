@@ -14,9 +14,9 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Alert } from '../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { CommonUtil } from '../../../../../common/util/common.util';
+import { Alert } from '@common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { CommonUtil } from '@common/util/common.util';
 
 @Component({
   selector: 'app-create-user-management-groups',

@@ -37,6 +37,17 @@ import { FilterUtil } from '../../dashboard/util/filter.util';
 export class PageFilterPanel extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private datasourceService: DatasourceService,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
+    super(elementRef, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -74,15 +85,11 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
   public changeGlobalToChartEvent: EventEmitter<Filter> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
+   | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
-  constructor(private datasourceService: DatasourceService,
-              protected elementRef: ElementRef,
-              protected injector: Injector) {
-    super(elementRef, injector);
-  }
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
+  public filterUtil = FilterUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
@@ -123,13 +130,6 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
-  public filterUtil = FilterUtil;
 
   /**
    * 필터 목록을 강제로 설정하기 위해 사용

@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {MetadataConstant} from "../../metadata.constant";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {MetadataEntity} from "../metadata.entity";
-import {MetadataService} from "../service/metadata.service";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {MetadataConstant} from '../../metadata.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataEntity} from '../metadata.entity';
+import {MetadataService} from '../service/metadata.service';
 import * as _ from 'lodash';
-import {AuthenticationType} from "../../../domain/dataconnection/dataconnection";
-import {Alert} from "../../../common/util/alert.util";
-import {MetadataControlCompleteComponent} from "./component/metadata-control-complete.component";
+import {AuthenticationType} from '@domain/dataconnection/dataconnection';
+import {Alert} from '@common/util/alert.util';
+import {MetadataControlCompleteComponent} from './component/metadata-control-complete.component';
 
 @Component({
   selector: 'create-metadata-db-complete',

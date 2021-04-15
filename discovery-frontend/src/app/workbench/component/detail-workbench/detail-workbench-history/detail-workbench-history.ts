@@ -158,12 +158,12 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
             // ms 변환 상위 2단계 까지만 표현
             for (let idx = 0; idx < this.histories.length; idx++) {
-              let queryTime : number = this.histories[idx]['queryTimeTaken'];
+              const queryTime : number = this.histories[idx]['queryTimeTaken'];
 
-              let milliseconds = Math.floor((queryTime % 1000) / 100);
-              let seconds = Math.floor((queryTime / 1000) % 60);
-              let minutes = Math.floor((queryTime / (1000 * 60)) % 60);
-              let hours = Math.floor((queryTime / (1000 * 60 * 60)) % 24);
+              const milliseconds = Math.floor((queryTime % 1000) / 100);
+              const seconds = Math.floor((queryTime / 1000) % 60);
+              const minutes = Math.floor((queryTime / (1000 * 60)) % 60);
+              const hours = Math.floor((queryTime / (1000 * 60 * 60)) % 24);
               if( hours >= 1 ) {
                 this.histories[idx]['queryTimeTakenFormatted'] = hours + 'h ' + minutes + 'm';
               } else if( minutes >= 1 && hours < 1 ) {

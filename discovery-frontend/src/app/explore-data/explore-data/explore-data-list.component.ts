@@ -13,24 +13,24 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {CommonConstant} from "../../common/constant/common.constant";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {StorageService} from "../../data-storage/service/storage.service";
-import {ConstantService} from "../../shared/datasource-metadata/service/constant.service";
-import {CommonUtil} from "../../common/util/common.util";
-import {Catalog} from "../../domain/catalog/catalog";
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {ExploreDataUtilService, SortOption} from "./service/explore-data-util.service";
-import {isNullOrUndefined} from "util";
-import {ActivatedRoute} from "@angular/router";
-import {Criteria} from "../../domain/datasource/criteria";
-import {PeriodData} from "../../common/value/period.data.value";
+import {AbstractComponent} from '@common/component/abstract.component';
+import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {CommonConstant} from '@common/constant/common.constant';
+import {ExploreDataModelService} from './service/explore-data-model.service';
+import {StorageService} from '../../data-storage/service/storage.service';
+import {ConstantService} from '../../shared/datasource-metadata/service/constant.service';
+import {CommonUtil} from '@common/util/common.util';
+import {Catalog} from '@domain/catalog/catalog';
+import {CatalogService} from '../../meta-data-management/catalog/service/catalog.service';
+import {ExploreDataUtilService, SortOption} from './service/explore-data-util.service';
+import {isNullOrUndefined} from 'util';
+import {ActivatedRoute} from '@angular/router';
+import {Criteria} from '@domain/datasource/criteria';
+import {PeriodData} from '@common/value/period.data.value';
 import ListCriterionKey = Criteria.ListCriterionKey;
 import ListCriterionType = Criteria.ListCriterionType;
 import ListCriterion = Criteria.ListCriterion;
@@ -125,13 +125,13 @@ export class ExploreDataListComponent extends AbstractComponent {
     const criterionForUpdatedFilter: Criteria.ListCriterion = {
       criterionKey: ListCriterionKey.CREATED_TIME,
       criterionType: ListCriterionType.RANGE_DATETIME,
-      criterionName: "msg.storage.ui.criterion.created-time",
+      criterionName: 'msg.storage.ui.criterion.created-time',
       filters: [
         {
           criterionKey: ListCriterionKey.CREATED_TIME,
-          filterKey: "updatedTimeFrom",
-          filterName: "msg.storage.ui.criterion.created-time",
-          filterSubKey: "updatedTimeTo",
+          filterKey: 'updatedTimeFrom',
+          filterName: 'msg.storage.ui.criterion.created-time',
+          filterSubKey: 'updatedTimeTo',
           filterSubValue:  '',
           filterValue:  ''
         }
@@ -143,33 +143,33 @@ export class ExploreDataListComponent extends AbstractComponent {
     const criterionForDataTypeFilter: Criteria.ListCriterion = {
       criterionKey: ListCriterionKey.SOURCE_TYPE,
       criterionType: ListCriterionType.CHECKBOX,
-      criterionName: "msg.storage.ui.criterion.created-time",
+      criterionName: 'msg.storage.ui.criterion.created-time',
       filters: [
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
-          filterKey: "sourceType",
+          filterKey: 'sourceType',
           filterName: SourceType.ENGINE.toString(),
-          filterValue: "ENGINE"
+          filterValue: 'ENGINE'
         },
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
-          filterKey: "sourceType",
+          filterKey: 'sourceType',
           filterName: SourceType.JDBC.toString(),
-          filterValue: "JDBC"
+          filterValue: 'JDBC'
         },
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
-          filterKey: "sourceType",
+          filterKey: 'sourceType',
           filterName: SourceType.STAGEDB.toString(),
-          filterValue: "STAGEDB"
+          filterValue: 'STAGEDB'
         },
       ],
       subCriteria: [
         {
           filters: [
-            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "JDBC", filterValue: "JDBC"},
-            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "ENGINE", filterValue: "ENGINE"},
-            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "STAGEDB", filterValue: "STAGEDB"}
+            {criterionKey: 'SOURCE_TYPE', filterKey: 'sourceType', filterName: 'JDBC', filterValue: 'JDBC'},
+            {criterionKey: 'SOURCE_TYPE', filterKey: 'sourceType', filterName: 'ENGINE', filterValue: 'ENGINE'},
+            {criterionKey: 'SOURCE_TYPE', filterKey: 'sourceType', filterName: 'STAGEDB', filterValue: 'STAGEDB'}
           ]
         } as ListCriterion,
       ]
@@ -423,11 +423,11 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     if (this.selectedSourceTypeFilter.length > 0) {
       this.sourceTypeSelectedItemsLabel = this.selectedSourceTypeFilter.map((filter) => {
-        if (filter === "ENGINE") {
+        if (filter === 'ENGINE') {
           return 'msg.storage.li.engine';
-        } else if (filter === "JDBC") {
+        } else if (filter === 'JDBC') {
           return 'msg.storage.li.db';
-        } else if (filter === "STAGEDB") {
+        } else if (filter === 'STAGEDB') {
           return 'msg.storage.li.stagedb';
         }
       });

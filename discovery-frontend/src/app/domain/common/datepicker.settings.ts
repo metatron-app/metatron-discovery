@@ -1,4 +1,3 @@
-
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +21,10 @@ export class PickerSettings {
   public dateFormat: string;
   public timeFormat: string;
   public timepicker: boolean = false;
-  public onSelect: Function;
-  public onHide: Function;
+  public onSelect: (fdate: string, date: Date) => void;
+  public onHide: (inst, completed: boolean) => void;
 
-  constructor(clz: string, onSelectDate: Function, onHide: Function) {
+  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (inst, completed: boolean) => void) {
     this.class = clz;
     this.onSelect = onSelectDate;
     this.onHide = onHide;

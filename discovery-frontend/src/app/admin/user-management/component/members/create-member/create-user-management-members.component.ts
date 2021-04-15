@@ -15,9 +15,9 @@
 import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
 import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import {isUndefined} from 'util';
-import {StringUtil} from '../../../../../common/util/string.util';
-import {Alert} from '../../../../../common/util/alert.util';
-import {CommonUtil} from '../../../../../common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-create-user-management-members',

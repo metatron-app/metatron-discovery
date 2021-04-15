@@ -12,23 +12,23 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {Modal} from '../../../common/domain/modal';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
 import {ActivatedRoute} from '@angular/router';
 import {ColumnDictionaryService} from '../service/column-dictionary.service';
-import {Alert} from '../../../common/util/alert.util';
-import {CommonUtil} from '../../../common/util/common.util';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 import {ChooseCodeTableComponent} from '../../component/choose-code-table/choose-code-table.component';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
-import {FieldFormatType, LogicalType} from '../../../domain/datasource/datasource';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {FieldFormatType, LogicalType} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
 import {LinkedMetadataComponent} from '../../component/linked-metadata-columns/linked-metadata.component';
-import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {LinkedMetaDataColumn} from '@domain/meta-data-management/metadata-column';
 import {Location} from '@angular/common';
-import {StringUtil} from "../../../common/util/string.util";
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-detail-column-dictionary',

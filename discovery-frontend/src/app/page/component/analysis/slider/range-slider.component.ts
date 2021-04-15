@@ -18,8 +18,8 @@ import {
 } from '@angular/core';
 import { RangeSliderResult } from '../../value/range-slider-result';
 import { AbstractComponent } from  '@common/component/abstract.component';
-import { Subject, Subscription, of } from "rxjs";
-import { debounceTime, distinctUntilChanged, switchMap } from "rxjs/operators";
+import { Subject, Subscription, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 declare let $;
 

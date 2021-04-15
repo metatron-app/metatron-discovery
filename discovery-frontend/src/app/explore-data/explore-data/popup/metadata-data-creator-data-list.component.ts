@@ -22,20 +22,20 @@ import {
   OnInit,
   Output, ViewChild, ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Metadata, SourceType} from "../../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../../constant/explore-data-constant";
-import * as _ from "lodash";
-import {Alert} from "../../../common/util/alert.util";
-import {StringUtil} from "../../../common/util/string.util";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {ExploreDataUtilService, SortOption} from "../service/explore-data-util.service";
-import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
-import {Modal} from "../../../common/domain/modal";
-import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {CookieConstant} from "../../../common/constant/cookie.constant";
-import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CommonUtil} from "../../../common/util/common.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {ExploreDataConstant} from '../../constant/explore-data-constant';
+import * as _ from 'lodash';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {ExploreDataUtilService, SortOption} from '../service/explore-data-util.service';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Modal} from '@common/domain/modal';
+import {CreateWorkbookComponent} from '../../../workbook/component/create-workbook/refactoring/create-workbook.component';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CreateWorkbenchContainerComponent} from '../../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-explore-data-creator-data-list-popup',
@@ -124,7 +124,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   getMetadataListParams() {
-    let params = {
+    const params = {
       size: this.page.size,
       page: this.page.page,
       creatorContains: this.creator

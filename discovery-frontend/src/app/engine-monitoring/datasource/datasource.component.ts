@@ -22,21 +22,21 @@ import {
   ViewChild
 } from '@angular/core';
 import * as _ from 'lodash';
-import {ActivatedRoute} from "@angular/router";
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {EngineService} from "../service/engine.service";
-import {PageResult} from "../../domain/common/page";
-import {StringUtil} from "../../common/util/string.util";
-import {Criteria} from "../../domain/datasource/criteria";
-import {CriterionComponent} from "../../data-storage/component/criterion/criterion.component";
-import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
-import {CommonUtil} from "../../common/util/common.util";
-import {filter} from "rxjs/operators";
-import {StateService} from "../service/state.service";
-import {Engine} from "../../domain/engine-monitoring/engine";
-import {Alert} from "../../common/util/alert.util";
-import {Modal} from "../../common/domain/modal";
-import {DeleteModalComponent} from "../../common/component/modal/delete/delete.component";
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../service/engine.service';
+import {PageResult} from '@domain/common/page';
+import {StringUtil} from '@common/util/string.util';
+import {Criteria} from '@domain/datasource/criteria';
+import {CriterionComponent} from '../../data-storage/component/criterion/criterion.component';
+import {EngineMonitoringUtil} from '../util/engine-monitoring.util';
+import {CommonUtil} from '@common/util/common.util';
+import {filter} from 'rxjs/operators';
+import {StateService} from '../service/state.service';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 
 @Component({
   selector: '[datasource]',
@@ -263,7 +263,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   }
 
   private _getDatasourcePagingList() {
-    let list = this._filteringDatasourceList();
+    const list = this._filteringDatasourceList();
     this.pageResult = new PageResult();
     this.pageResult.size = this.page.size;
     this.pageResult.number = this.page.page;
@@ -279,7 +279,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
       this.loadingShow();
       this.engineService.getDatasource().then((data) => {
         const datasourceAllList = data.datasourceList;
-        let datasourceList = datasourceAllList.sort((a, b) => {
+        const datasourceList = datasourceAllList.sort((a, b) => {
           let comparison = 0;
 
           if (a.datasource < b.datasource) {

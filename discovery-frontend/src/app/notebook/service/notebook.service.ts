@@ -17,13 +17,13 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import { AbstractService } from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { NoteBook } from '../../domain/notebook/notebook';
-import { Page } from '../../domain/common/page';
-import { CommonUtil } from '../../common/util/common.util';
-import { NotebookModel } from '../../domain/model-management/notebookModel';
-import { CookieConstant } from '../../common/constant/cookie.constant';
+import { NoteBook } from '@domain/notebook/notebook';
+import { Page } from '@domain/common/page';
+import { CommonUtil } from '@common/util/common.util';
+import { NotebookModel } from '@domain/model-management/notebookModel';
+import { CookieConstant } from '@common/constant/cookie.constant';
 
 @Injectable()
 export class NotebookService extends AbstractService {

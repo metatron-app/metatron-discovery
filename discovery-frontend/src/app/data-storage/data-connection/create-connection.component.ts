@@ -14,13 +14,13 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
 import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
-import {Alert} from '../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
-import {CommonUtil} from '../../common/util/common.util';
-import {CookieConstant} from '../../common/constant/cookie.constant';
-import {StringUtil} from '../../common/util/string.util';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {ConnectionComponent, ConnectionValid} from "../component/connection/connection.component";
+import {CommonUtil} from '@common/util/common.util';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConnectionComponent, ConnectionValid} from '../component/connection/connection.component';
 import * as _ from 'lodash';
 
 /**
@@ -188,7 +188,7 @@ export class CreateConnectionComponent extends AbstractComponent {
    * @private
    */
   public _getCreateConnectionParams() {
-    let result = this._connectionComponent.getConnectionParams(true);
+    const result = this._connectionComponent.getConnectionParams(true);
     result['type'] = 'JDBC';
     result['name'] = this.connectionName.trim();
     result['published'] = this.published;

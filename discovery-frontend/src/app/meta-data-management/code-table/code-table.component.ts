@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Modal} from '../../common/domain/modal';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import {CodeTableService} from './service/code-table.service';
-import {CodeTable} from '../../domain/meta-data-management/code-table';
-import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
-import {Alert} from '../../common/util/alert.util';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {PeriodComponent, PeriodType} from '@common/component/period/period.component';
+import {Alert} from '@common/util/alert.util';
 import {CreateCodeTableComponent} from './create-code-table/create-code-table.component';
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
+import {ActivatedRoute} from '@angular/router';
+import {isNullOrUndefined} from 'util';
 import * as _ from 'lodash';
-import {PeriodData} from "../../common/value/period.data.value";
-import {Subscription} from "rxjs";
-import {Criteria} from "../../domain/datasource/criteria";
+import {PeriodData} from '@common/value/period.data.value';
+import {Subscription} from 'rxjs';
+import {Criteria} from '@domain/datasource/criteria';
 import DateTimeType = Criteria.DateTimeType;
 
 declare let moment: any;

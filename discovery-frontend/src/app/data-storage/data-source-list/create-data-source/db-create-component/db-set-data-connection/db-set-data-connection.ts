@@ -16,17 +16,17 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
   Output, ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import {
   ConnectionType, DatasourceInfo
-} from '../../../../../domain/datasource/datasource';
+} from '@domain/datasource/datasource';
 import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
 import * as _ from 'lodash';
-import { PageResult } from '../../../../../domain/common/page';
-import { StringUtil } from '../../../../../common/util/string.util';
-import {ConnectionComponent, ConnectionValid} from "../../../../component/connection/connection.component";
-import {CommonUtil} from "../../../../../common/util/common.util";
-import {Dataconnection} from "../../../../../domain/dataconnection/dataconnection";
+import { PageResult } from '@domain/common/page';
+import { StringUtil } from '@common/util/string.util';
+import {ConnectionComponent, ConnectionValid} from '../../../../component/connection/connection.component';
+import {CommonUtil} from '@common/util/common.util';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
 
 /**
  * Creating datasource with Database - connection step

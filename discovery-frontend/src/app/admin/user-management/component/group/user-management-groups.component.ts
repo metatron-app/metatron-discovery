@@ -13,15 +13,15 @@
  */
 
 import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
-import { PeriodData } from '../../../../common/value/period.data.value';
-import { PeriodComponent } from '../../../../common/component/period/period.component';
-import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
+import { PeriodData } from '@common/value/period.data.value';
+import { PeriodComponent } from '@common/component/period/period.component';
+import { ConfirmModalComponent } from '@common/component/modal/confirm/confirm.component';
 import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
 import { CreateUserManagementGroupsComponent } from './create-group/create-user-management-groups.component';
-import { Modal } from '../../../../common/domain/modal';
-import { Alert } from '../../../../common/util/alert.util';
-import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
-import { Group } from '../../../../domain/user/group';
+import { Modal } from '@common/domain/modal';
+import { Alert } from '@common/util/alert.util';
+import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
+import { Group } from '@domain/user/group';
 import { ActivatedRoute } from '@angular/router';
 import { isNullOrUndefined } from 'util';
 

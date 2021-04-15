@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractService} from '../../common/service/abstract.service';
+import {AbstractService} from '@common/service/abstract.service';
 import {Injectable, Injector} from '@angular/core';
 
 @Injectable()

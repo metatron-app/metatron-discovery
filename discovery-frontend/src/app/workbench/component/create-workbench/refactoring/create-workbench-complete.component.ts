@@ -1,14 +1,14 @@
-import {AbstractComponent} from "@common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {CreateWorkbenchModelService} from "./service/create-workbench-model.service";
-import * as _ from "lodash";
-import {StringUtil} from "@common/util/string.util";
-import {CommonUtil} from "@common/util/common.util";
-import {WorkbenchService} from "../../../service/workbench.service";
-import {Alert} from "@common/util/alert.util";
-import {WorkbenchConstant} from "../../../workbench.constant";
-import {StorageService} from "../../../../data-storage/service/storage.service";
-import {ExploreConstant} from "../../../../explore-data/constant/explore.constant";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {CreateWorkbenchModelService} from './service/create-workbench-model.service';
+import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {WorkbenchService} from '../../../service/workbench.service';
+import {Alert} from '@common/util/alert.util';
+import {WorkbenchConstant} from '../../../workbench.constant';
+import {StorageService} from '../../../../data-storage/service/storage.service';
+import {ExploreConstant} from '../../../../explore-data/constant/explore.constant';
 
 
 @Component({

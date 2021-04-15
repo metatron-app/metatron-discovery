@@ -1,8 +1,8 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {SourceType} from "../../../domain/meta-data-management/metadata";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {DataCreator} from "../../../domain/meta-data-management/data-creator";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {SourceType} from '@domain/meta-data-management/metadata';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
 
 @Component({
   selector: 'component-explore-data-user-card',
@@ -35,7 +35,7 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
       return;
     }
     const popUrl = `workbench/${this.topUser.workbench.id}`;
-    //open in new tab
+    // open in new tab
     window.open(popUrl, '_blank');
   }
 
@@ -46,7 +46,7 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
       return;
     }
     const popUrl = `workbook/${this.topUser.workbook.id}/${this.topUser.dashboard.id}`;
-    //open in new tab
+    // open in new tab
     window.open(popUrl, '_blank');
   }
 

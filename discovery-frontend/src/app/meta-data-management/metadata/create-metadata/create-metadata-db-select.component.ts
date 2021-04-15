@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {MetadataConstant} from "../../metadata.constant";
-import {MetadataEntity} from "../metadata.entity";
-import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import {ConnectionParam} from "../../../data-storage/service/data-connection-create.service";
-import * as _ from "lodash";
-import {isNullOrUndefined} from "util";
-import {SchemaTableListComponent} from "./component/schema-table-list.component";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataConstant} from '../../metadata.constant';
+import {MetadataEntity} from '../metadata.entity';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {ConnectionParam} from '../../../data-storage/service/data-connection-create.service';
+import * as _ from 'lodash';
+import {isNullOrUndefined} from 'util';
+import {SchemaTableListComponent} from './component/schema-table-list.component';
 import SchemaInfo = MetadataEntity.SchemaInfo;
-import {SchemaTablePreviewComponent} from "./component/schema-table-preview.component";
+import {SchemaTablePreviewComponent} from './component/schema-table-preview.component';
 
 @Component({
   selector: 'create-metadata-db-select',
@@ -69,7 +69,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    for (let $subscriptions of this.subscriptions) {
+    for (const $subscriptions of this.subscriptions) {
       $subscriptions.unsubscribe();
     }
   }

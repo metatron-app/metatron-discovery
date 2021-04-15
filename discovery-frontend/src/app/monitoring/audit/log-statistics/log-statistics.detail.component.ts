@@ -24,14 +24,14 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as $ from 'jquery';
-import {PageResult} from '../../../domain/common/page';
-import {CommonUtil} from '../../../common/util/common.util';
+import {PageResult} from '@domain/common/page';
+import {CommonUtil} from '@common/util/common.util';
 import {AuditService} from '../service/audit.service';
 import {ClipboardService} from 'ngx-clipboard';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-log-statistics-detail',
@@ -39,6 +39,17 @@ import * as _ from "lodash";
   providers: [MomentDatePipe]
 })
 export class LogStatisticsDetailComponent extends AbstractComponent implements OnInit, OnDestroy, OnChanges {
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private _clipboardService: ClipboardService,
+              protected auditService : AuditService,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -81,17 +92,11 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
   public isQueryDetailShow : boolean = false;
 
   public currentNumber : number;
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
-  constructor(private _clipboardService: ClipboardService,
-              protected auditService : AuditService,
-              protected element: ElementRef,
-              protected injector: Injector) {
-    super(element, injector);
-  }
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public CommonUtil = CommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Methods
@@ -120,9 +125,9 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
    */
   public ngAfterViewInit() {
     for (let i = 0 ; i < this.statisticsData.fields.length ; i++ ) {
-      let col = document.createElement('col');
+      const col = document.createElement('col');
       col.width = this.statisticsData.fields[i].width;
-      $('.tableColgroup').append("<col width=" + col.width + ">");
+      $('.tableColgroup').append('<col width=' + col.width + '>');
     }
     this.changeDetect.detectChanges();
   } // function - ngAfterViewInit
@@ -134,11 +139,6 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
   public ngOnDestroy() {
     super.ngOnDestroy();
   } // function - ngOnDestroy
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public CommonUtil = CommonUtil;
 
 
   /**

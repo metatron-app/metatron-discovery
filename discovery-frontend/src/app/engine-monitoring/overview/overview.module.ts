@@ -22,13 +22,13 @@ import {RadioComponent} from './component/radio.component';
 import {TableFilterPipe} from './pipe/table-filter.pipe';
 import {TableSortPipe} from './pipe/table-sort.pipe';
 import {EngineService} from '../service/engine.service';
-import {CommonModule} from '../../common/common.module';
-import {GraphComponent} from "./component/graph.component";
-import {DatasourceService} from "../../datasource/service/datasource.service";
-import {TimezoneService} from "../../data-storage/service/timezone.service";
-import {NodeInformationComponent} from "./component/node-information.component";
-import {NodeTooltipComponent} from "./component/node-tooltip.component";
-import {KpiPopupComponent} from "./component/kpi-popup.component";
+import {CommonModule} from '@common/common.module';
+import {GraphComponent} from './component/graph.component';
+import {DatasourceService} from '../../datasource/service/datasource.service';
+import {TimezoneService} from '../../data-storage/service/timezone.service';
+import {NodeInformationComponent} from './component/node-information.component';
+import {NodeTooltipComponent} from './component/node-tooltip.component';
+import {KpiPopupComponent} from './component/kpi-popup.component';
 
 @NgModule({
   imports: [

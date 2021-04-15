@@ -38,7 +38,7 @@ import {FormatOptionConverter} from '../option/converter/format-option-converter
 import {UIChartFormat} from '../option/ui-option/ui-format';
 import {AxisOptionConverter} from '../option/converter/axis-option-converter';
 import optGen = OptionGenerator;
-import {UIOption} from "@common/component/chart/option/ui-option";
+import {UIOption} from '@common/component/chart/option/ui-option';
 
 declare let echarts: any;
 

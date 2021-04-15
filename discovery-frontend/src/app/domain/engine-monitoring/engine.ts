@@ -96,14 +96,14 @@ export namespace Engine {
     constructor(private value: ContentType) {
     }
 
-    public toString() {
-      return this.value;
-    }
-
     private static readonly overview = new Content(ContentType.OVERVIEW);
     private static readonly ingestion = new Content(ContentType.INGESTION);
     private static readonly query = new Content(ContentType.QUERY);
     private static readonly datasource = new Content(ContentType.DATASOURCE);
+
+    public toString() {
+      return this.value;
+    }
 
     public isOverview() {
       return this.value === Content.overview.toString();

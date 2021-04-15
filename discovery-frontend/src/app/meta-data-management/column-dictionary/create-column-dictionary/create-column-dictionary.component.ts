@@ -14,12 +14,12 @@
 
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {ColumnDictionaryService} from '../service/column-dictionary.service';
-import {Alert} from '../../../common/util/alert.util';
-import {CommonUtil} from '../../../common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
 import {ChooseCodeTableComponent} from '../../component/choose-code-table/choose-code-table.component';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
-import {FieldFormat, FieldFormatType} from '../../../domain/datasource/datasource';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {FieldFormat, FieldFormatType} from '@domain/datasource/datasource';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-create-column-dictionary',

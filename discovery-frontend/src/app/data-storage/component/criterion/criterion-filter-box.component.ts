@@ -13,35 +13,43 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {StringUtil} from '../../../common/util/string.util';
-import {ConnectionType, DataSourceType, SourceType, Status} from '../../../domain/datasource/datasource';
-import * as _ from "lodash";
-import {Criteria} from "../../../domain/datasource/criteria";
+import * as _ from 'lodash';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {ConnectionType, DataSourceType, SourceType, Status} from '@domain/datasource/datasource';
+import ListCriterionKey = Criteria.ListCriterionKey;
 
 @Component({
   selector: 'criterion-filter-box',
-  templateUrl: 'criterion-filter-box.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: 'criterion-filter-box.component.html'
 })
-export class CriterionFilterBoxComponent extends AbstractComponent {
+export class CriterionFilterBoxComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   // search params
   @Input()
   public readonly searchParams;
 
   // selected item list
-  private _selectedItemList : any = {};
+  private _selectedItemList: any = {};
 
   // selected item default label
   private readonly _defaultSelectedItemLabel: string = this.translateService.instant('msg.storage.ui.criterion.all');
 
   // criterion api (required: true)
   @Input()
-  public readonly criterionApiFunc: Function;
+  public readonly criterionApiFunc: (key: ListCriterionKey) => Promise<any>;
   // criterion (required: true)
   @Input('criterion')
   public readonly criterion: Criteria.ListCriterion;
@@ -103,10 +111,10 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     const param = {};
     Object.keys(this.searchParams).forEach((key) => {
       if (key.indexOf(this.criterion.criterionKey) !== -1) {
-        param[key.slice(key.indexOf(Criteria.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
+        param[key.slice(key.indexOf(Criteria.QUERY_DELIMITER) + 1)] = this.searchParams[key];
         // if
         if (this.isRangeDateTimeType() || this.isDateTimeType()) {
-          this.defaultSelectedItemList[key.slice(key.indexOf(Criteria.QUERY_DELIMITER)+ 1)] = this.searchParams[key];
+          this.defaultSelectedItemList[key.slice(key.indexOf(Criteria.QUERY_DELIMITER) + 1)] = this.searchParams[key];
         }
       }
     });
@@ -163,10 +171,11 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    * Select box outside click event
    * @param event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     // except date picker
-    if ( !this.elementRef.nativeElement.contains(event.target) && 0 === $(event.target).closest('[class^=datepicker]').length ) {
+    if (!this.elementRef.nativeElement.contains(event.target) && 0 === $(event.target).closest('[class^=datepicker]').length) {
       // close list
       this.isShowList = false;
     }
@@ -178,10 +187,10 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    */
   public onClickShowList(event: MouseEvent) {
     if ($(event.target).hasClass('ddp-result-filtering')
-        || $(event.target).hasClass('ddp-txt-label')
-        || $(event.target).hasClass('ddp-ui-result')
-        || $(event.target).hasClass('ddp-box-result')
-        || $(event.target).hasClass('ddp-txt-result')) {
+      || $(event.target).hasClass('ddp-txt-label')
+      || $(event.target).hasClass('ddp-ui-result')
+      || $(event.target).hasClass('ddp-box-result')
+      || $(event.target).hasClass('ddp-txt-result')) {
       // if list not show
       if (!this.isShowList) {
         // set criterion list
@@ -200,6 +209,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   /**
    * Change selected item
    * @param selectedItemList
+   * @param isOutputEvent
    */
   public onChangedSelectItem(selectedItemList: any, isOutputEvent: boolean = true): void {
     // set selected item list
@@ -348,7 +358,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       case Criteria.ListCriterionKey.CONNECTION_TYPE:
         return this._getConnectionTypeTranslate(filter.filterName);
       default:
-        return this._isRequireTranslate(filter.filterName) ? this.translateService.instant(filter.filterName): filter.filterName;
+        return this._isRequireTranslate(filter.filterName) ? this.translateService.instant(filter.filterName) : filter.filterName;
     }
   }
 
@@ -367,7 +377,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       case DataSourceType.VOLATILITY.toString():
         return this.translateService.instant('msg.storage.ui.source.type.volatility');
       default:
-        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName) : filterName;
     }
   }
 
@@ -384,7 +394,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       case ConnectionType.LINK.toString():
         return this.translateService.instant('msg.storage.ui.list.linked.data');
       default:
-        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName) : filterName;
     }
   }
 
@@ -434,7 +444,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       case SourceType.HDFS.toString():
         return filterName;
       default:
-        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName) : filterName;
     }
   }
 }

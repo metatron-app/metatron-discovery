@@ -14,7 +14,7 @@
 
 import { ByTimeUnit, TimeUnit } from '../field/timestamp-field';
 import { Filter } from './filter';
-import { Field } from '../../../datasource/datasource';
+import { Field } from '@domain/datasource/datasource';
 
 export class TimeFilter extends Filter {
   public discontinuous?:boolean;

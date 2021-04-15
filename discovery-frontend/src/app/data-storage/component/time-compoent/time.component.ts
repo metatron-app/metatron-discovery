@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, OnInit, Output, ViewChild, Input } from '@angular/core';
 
 declare let moment: any;

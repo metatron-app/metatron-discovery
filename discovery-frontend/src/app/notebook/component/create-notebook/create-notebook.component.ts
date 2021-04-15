@@ -13,10 +13,10 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { SubscribeArg } from '../../../common/domain/subscribe-arg';
-import { PopupService } from '../../../common/service/popup.service';
-import { NoteBook } from '../../../domain/notebook/notebook';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { SubscribeArg } from '@common/domain/subscribe-arg';
+import { PopupService } from '@common/service/popup.service';
+import { NoteBook } from '@domain/notebook/notebook';
 
 @Component({
   selector: 'app-create-notebook',

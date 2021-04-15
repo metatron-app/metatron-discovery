@@ -4,14 +4,14 @@ import {
   OnInit, Output,
   ViewChild, ViewContainerRef,
 } from '@angular/core';
-import {RecentQueriesComponent} from "./recent-queries.component";
-import {Metadata} from "../../../domain/meta-data-management/metadata";
-import {Alert} from "../../../common/util/alert.util";
-import {ClipboardService} from "ngx-clipboard";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {DataCreator} from "../../../domain/meta-data-management/data-creator";
+import {RecentQueriesComponent} from './recent-queries.component';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {Alert} from '@common/util/alert.util';
+import {ClipboardService} from 'ngx-clipboard';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
 
 @Component({
   selector: 'explore-metadata-overview',
@@ -89,7 +89,7 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
     }
 
     const popUrl = `workbook/${recentlyUsedDashboard.workbook.id}/${recentlyUsedDashboard.id}`;
-    //open in new tab
+    // open in new tab
     window.open(popUrl, '_blank');
   }
 

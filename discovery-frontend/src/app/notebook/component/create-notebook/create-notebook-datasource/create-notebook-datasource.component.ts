@@ -13,13 +13,13 @@
  */
 
 import { Component, ElementRef, Injector, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { Alert } from '../../../../common/util/alert.util';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { PopupService } from '@common/service/popup.service';
+import { NoteBook } from '@domain/notebook/notebook';
+import { Alert } from '@common/util/alert.util';
 import { NotebookService } from '../../../service/notebook.service';
-import { Page } from '../../../../domain/common/page';
-import { ConnectionType, Datasource } from '../../../../domain/datasource/datasource';
+import { Page } from '@domain/common/page';
+import { ConnectionType, Datasource } from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-notebook-datasource',

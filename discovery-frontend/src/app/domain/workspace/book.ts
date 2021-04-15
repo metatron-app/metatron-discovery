@@ -31,7 +31,7 @@ export class Book extends AbstractHistoryEntity{
   public tag: string;
   public workspace: any;
   public folderId: string;
-  public contents : contents;
+  public contents : Contents;
 
   public kernelType: string;
   public dsName: string;
@@ -41,7 +41,7 @@ export class Book extends AbstractHistoryEntity{
   public edit: boolean;
 }
 
-export class contents {
+export class Contents {
   public dataSource: number;
   public dashboard: number;
   public connType: ImplementorType;

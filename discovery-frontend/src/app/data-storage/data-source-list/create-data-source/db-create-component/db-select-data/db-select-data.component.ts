@@ -12,22 +12,22 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractPopupComponent} from "../../../../../common/component/abstract-popup.component";
-import {DatasourceInfo, Field} from "../../../../../domain/datasource/datasource";
-import {GridComponent} from "../../../../../common/component/grid/grid.component";
-import {EditorComponent} from "../../../../../workbench/component/detail-workbench/datail-workbench-editor/editor.component";
-import {QueryDataResult} from "../../../../service/data-source-create.service";
-import {DataconnectionService} from "../../../../../dataconnection/service/dataconnection.service";
-import {ConnectionParam, DataConnectionCreateService} from "../../../../service/data-connection-create.service";
-import {StringUtil} from "../../../../../common/util/string.util";
-import {ImplementorType} from "../../../../../domain/dataconnection/dataconnection";
-import {header, SlickGridHeader} from "../../../../../common/component/grid/grid.header";
-import {GridOption} from "../../../../../common/component/grid/grid.option";
-import {Alert} from "../../../../../common/util/alert.util";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo, Field} from '@domain/datasource/datasource';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {EditorComponent} from '../../../../../workbench/component/detail-workbench/datail-workbench-editor/editor.component';
+import {QueryDataResult} from '../../../../service/data-source-create.service';
+import {DataconnectionService} from '../../../../../dataconnection/service/dataconnection.service';
+import {ConnectionParam, DataConnectionCreateService} from '../../../../service/data-connection-create.service';
+import {StringUtil} from '@common/util/string.util';
+import {ImplementorType} from '@domain/dataconnection/dataconnection';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Alert} from '@common/util/alert.util';
 import * as pixelWidth from 'string-pixel-width';
-import * as _ from "lodash";
-import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
+import {isNullOrUndefined} from 'util';
 
 
 @Component({
@@ -120,7 +120,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
       // exist data, draw grid
       data && data.fields && this._updateGrid(data.fields, data.data);
     }
-    //if not exist database list, set database list
+    // if not exist database list, set database list
     this.databaseList.length === 0 && this._setDatabaseList();
   }
 
@@ -365,7 +365,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
           .Formatter((row, cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {

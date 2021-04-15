@@ -13,9 +13,9 @@
  */
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import {Alert} from "../../../common/util/alert.util";
+import { AbstractComponent } from '@common/component/abstract.component';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'app-layout',

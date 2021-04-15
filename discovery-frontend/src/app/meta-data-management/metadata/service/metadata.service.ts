@@ -13,8 +13,8 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -156,7 +156,7 @@ export class MetadataService extends AbstractService {
   }
 
   public linkMetadataWithCatalog(metadataId, catalogId): Promise<any> {
-    let catId = this.API_URL + 'catalogs/' + catalogId;
+    const catId = this.API_URL + 'catalogs/' + catalogId;
     return this.patch(this.URL_METADATA + `/${metadataId}/catalogs`, catId, 'text/uri-list');
   }
 
@@ -216,9 +216,9 @@ export class MetadataService extends AbstractService {
   public getMetadataByConnection(
     connId: string, schemaName: string, tableName: object, projection: string = 'forItemView'): Promise<any> {
     // param data 생성
-    let param = {
-      'schema': schemaName,
-      'table': tableName,
+    const param = {
+      schema: schemaName,
+      table: tableName,
     };
     return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param);
   }

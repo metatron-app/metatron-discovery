@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   Component,
   ElementRef,
@@ -27,14 +27,14 @@ import {
   Field,
   FieldFormat,
   FieldFormatType,
-} from '../../../domain/datasource/datasource';
+} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {StringUtil} from '../../../common/util/string.util';
+import {StringUtil} from '@common/util/string.util';
 import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {CommonUtil} from '@common/util/common.util';
 import {GranularityObject, GranularityService} from '../../service/granularity.service';
-import {DataStorageConstant} from "../../constant/data-storage-constant";
+import {DataStorageConstant} from '../../constant/data-storage-constant';
 
 declare let moment: any;
 /**
@@ -236,7 +236,7 @@ export class IngestionSettingComponent extends AbstractComponent {
     // ui init
     this._initView();
     // if exist ingestionData
-    if (this._sourceData.hasOwnProperty("ingestionData")) {
+    if (this._sourceData.hasOwnProperty('ingestionData')) {
       this._loadIngestionData(this._sourceData.ingestionData);
       // if changed timestamp field
       if (isChangedTimestampField) {
@@ -647,7 +647,7 @@ export class IngestionSettingComponent extends AbstractComponent {
 
   public get includGeoType() : boolean {
     if (Array.isArray(this._sourceData.schemaData.fieldList)) {
-      let fieldList:Array<Field> = this._sourceData.schemaData.fieldList;
+      const fieldList:Array<Field> = this._sourceData.schemaData.fieldList;
       return fieldList.filter(field => Field.isGeoType(field)).length > 0;
     }
     return false;

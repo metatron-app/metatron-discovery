@@ -22,29 +22,91 @@ import {
   ViewChild
 } from '@angular/core';
 import {NavigationEnd, NavigationExtras} from '@angular/router';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
-import {Workspace} from '../../../../domain/workspace/workspace';
+import {Workspace} from '@domain/workspace/workspace';
 import {CreateWorkspaceComponent} from '../../../../workspace/component/management/create-workspace.component';
 import {WorkspaceListComponent} from '../../../../workspace/component/management/workspace-list.component';
-import {Book} from '../../../../domain/workspace/book';
-import {CookieConstant} from '../../../../common/constant/cookie.constant';
-import {EventBroadcaster} from '../../../../common/event/event.broadcaster';
-import {SYSTEM_PERMISSION} from '../../../../common/permission/permission';
-import {CommonUtil} from '../../../../common/util/common.util';
-import {Modal} from '../../../../common/domain/modal';
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
-import {BuildInfo} from "../../../../../environments/build.env";
-import {CommonService} from "../../../../common/service/common.service";
-import {Extension} from "../../../../common/domain/extension";
-import {Engine} from '../../../../domain/engine-monitoring/engine';
-import {StringUtil} from "../../../../common/util/string.util";
+import {Book} from '@domain/workspace/book';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {CommonUtil} from '@common/util/common.util';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {BuildInfo} from '@environments/build.env';
+import {CommonService} from '@common/service/common.service';
+import {Extension} from '@common/domain/extension';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-lnb',
   templateUrl: './lnb.component.html',
 })
 export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  constructor(private broadCaster: EventBroadcaster,
+              private workspaceService: WorkspaceService,
+              private commonService: CommonService,
+              protected elementRef: ElementRef,
+              protected  injector: Injector) {
+    super(elementRef, injector);
+
+    this.router.events.subscribe((val) => {
+      if (val instanceof NavigationEnd) {
+        // 네비계이션 종료
+        switch (val.urlAfterRedirects) {
+          case '/workspace' :
+            this.depth1Menu1ClickListener('WORKSPACE');
+            break;
+          case '/management/metadata/metadata':
+          case '/management/metadata/column-dictionary':
+          case '/management/metadata/code-table':
+          case '/management/metadata/catalog':
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            this.mgmtMenuClickListener('METADATA');
+            break;
+          case '/management/storage/datasource' :
+          case '/management/storage/data-connection' :
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            break;
+          case '/management/datapreparation/dataflow' :
+          case '/management/datapreparation/dataset' :
+          case '/management/datapreparation/datasnapshot' :
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            this.mgmtMenuClickListener('DATAPREPARATION');
+            break;
+          case '/management/model/notebook' :
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            this.mgmtMenuClickListener('MODELMANAGER');
+            break;
+          case '/management/monitoring/statistics':
+          case '/management/monitoring/audit' :
+          case '/management/monitoring/lineage' :
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            this.mgmtMenuClickListener('DATAMONITORING');
+            break;
+          case '/management/engine-monitoring/overview' :
+          case '/management/engine-monitoring/ingestion' :
+          case '/management/engine-monitoring/query' :
+          case '/management/engine-monitoring/datasource' :
+            this.depth1Menu1ClickListener('MANAGEMENT');
+            this.mgmtMenuClickListener('ENGINE_MONITORING');
+            break;
+          case '/admin/user/members' :
+          case '/admin/user/groups' :
+          case '/admin/workspaces/shared':
+            this.depth1Menu1ClickListener('ADMINISTRATION');
+            break;
+        }
+      }
+    });
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -157,66 +219,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   private _confirmModalComp: ConfirmModalComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
+   | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  constructor(private broadCaster: EventBroadcaster,
-              private workspaceService: WorkspaceService,
-              private commonService: CommonService,
-              protected elementRef: ElementRef,
-              protected  injector: Injector) {
-    super(elementRef, injector);
-
-    this.router.events.subscribe((val) => {
-      if (val instanceof NavigationEnd) {
-        // 네비계이션 종료
-        switch (val.urlAfterRedirects) {
-          case '/workspace' :
-            this.depth1Menu1ClickListener('WORKSPACE');
-            break;
-          case '/management/metadata/metadata':
-          case '/management/metadata/column-dictionary':
-          case '/management/metadata/code-table':
-          case '/management/metadata/catalog':
-            this.depth1Menu1ClickListener('MANAGEMENT');
-            this.mgmtMenuClickListener('METADATA');
-            break;
-          case '/management/storage/datasource' :
-          case '/management/storage/data-connection' :
-            this.depth1Menu1ClickListener('MANAGEMENT');
-            break;
-          case '/management/datapreparation/dataflow' :
-          case '/management/datapreparation/dataset' :
-          case '/management/datapreparation/datasnapshot' :
-            this.depth1Menu1ClickListener('MANAGEMENT');
-            this.mgmtMenuClickListener('DATAPREPARATION');
-            break;
-          case '/management/model/notebook' :
-            this.depth1Menu1ClickListener('MANAGEMENT');
-            this.mgmtMenuClickListener('MODELMANAGER');
-            break;
-          case '/management/monitoring/statistics':
-          case '/management/monitoring/audit' :
-          case '/management/monitoring/lineage' :
-            this.depth1Menu1ClickListener('MANAGEMENT');
-            this.mgmtMenuClickListener('DATAMONITORING');
-            break;
-          case '/management/engine-monitoring/overview' :
-          case '/management/engine-monitoring/ingestion' :
-          case '/management/engine-monitoring/query' :
-          case '/management/engine-monitoring/datasource' :
-            this.depth1Menu1ClickListener('MANAGEMENT');
-            this.mgmtMenuClickListener('ENGINE_MONITORING');
-            break;
-          case '/admin/user/members' :
-          case '/admin/user/groups' :
-          case '/admin/workspaces/shared':
-            this.depth1Menu1ClickListener('ADMINISTRATION');
-            break;
-        }
-      }
-    });
-  }
+  ObjectKeys = Object.keys;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
@@ -224,7 +229,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   ngOnInit() {
     super.ngOnInit();
-    let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+    const cookiePermission: string = CommonUtil.getCurrentPermissionString();
     if (cookiePermission && '' !== cookiePermission) {
       this.permission.myWorkspace = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_PRIVATE_WORKSPACE.toString()));
       this.permission.workspace = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.VIEW_WORKSPACE.toString()));
@@ -261,7 +266,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
           } else if('Lineage' === ext.name) {
             this.permission.lineage = true;
           } else if('Engine Monitoring' === ext.name) {
-            //this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+            // this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
             this.permission.managementEngineMonitoring = this.extensionPermission(ext);
           } else {
             if (ext.parent != 'ROOT') {
@@ -277,11 +282,6 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   ngOnDestroy() {
     super.ngOnDestroy();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  ObjectKeys = Object.keys;
 
   /**
    * Document Click Handler ( input class 제거 )
@@ -530,7 +530,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     event.stopPropagation();
     event.preventDefault();
     const objParent = naviItem['parent'];
-    let cookieData = {
+    const cookieData = {
       viewType: this.cookieInfo.viewType ? this.cookieInfo.viewType : 'CARD',
       workspaceId: this._selectedWorkspace.id,
       folderId: ('folder' === objParent.type) ? objParent.id : null,
@@ -669,7 +669,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   public extensionPermission(ext: Extension): boolean {
     if (ext.permissions && ext.permissions.length > 0) {
-      let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+      const cookiePermission: string = CommonUtil.getCurrentPermissionString();
       return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
     } else {
       return true;
@@ -801,9 +801,9 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public popupManual() {
     const browserLang:string = this.translateService.getBrowserLang();
     if (browserLang.match(/ko/)) {
-      window.open("https://metatron-app.github.io/metatron-doc-discovery/", "_blank");
+      window.open('https://metatron-app.github.io/metatron-doc-discovery/', '_blank');
     } else {
-      window.open("https://metatron-app.github.io/metatron-doc-discovery/en", "_blank");
+      window.open('https://metatron-app.github.io/metatron-doc-discovery/en', '_blank');
     }
   }
 }

@@ -13,19 +13,19 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {ConfirmSmallComponent} from "../../../../common/component/modal/confirm-small/confirm-small.component";
-import {User} from "../../../../domain/user/user";
-import {UserService} from "../../../service/user.service";
-import {PermissionService} from "../../../service/permission.service";
-import {ActivatedRoute} from "@angular/router";
-import {CookieConstant} from "../../../../common/constant/cookie.constant";
-import {Alert} from "../../../../common/util/alert.util";
-import {Modal} from "../../../../common/domain/modal";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConfirmSmallComponent} from '@common/component/modal/confirm-small/confirm-small.component';
+import {User} from '@domain/user/user';
+import {UserService} from '../../../service/user.service';
+import {PermissionService} from '../../../service/permission.service';
+import {ActivatedRoute} from '@angular/router';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
 import {isNullOrUndefined} from 'util';
-import * as $ from "jquery";
+import * as $ from 'jquery';
 import * as _ from 'lodash';
-import {InitialChangePasswordComponent} from "../initial-change-password/initial-change-password.component";
+import {InitialChangePasswordComponent} from '../initial-change-password/initial-change-password.component';
 
 declare let moment: any;
 
@@ -96,7 +96,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.userService.getClientDetail(this.clientId).then(result => {
       this.oauthClientInformation = result;
-      $("#favicon").attr("href", this.oauthClientInformation.faviconPath + '?v=3');
+      $('#favicon').attr('href', this.oauthClientInformation.faviconPath + '?v=3');
       if (!_.isNil(this.oauthClientInformation.clientName)) {
         document.title = this.oauthClientInformation.clientName;
       }

@@ -20,7 +20,7 @@ import { Filter } from '../workbook/configurations/filter/filter';
 import { BoardGlobalOptions } from './dashboard.globalOptions';
 import { CustomField } from '../workbook/configurations/field/custom-field';
 import { CommonUtil } from '../../common/util/common.util';
-import {Sort} from "../workbook/configurations/sort";
+import {Sort} from '../workbook/configurations/sort';
 
 /**
  * 대시보드 구조체

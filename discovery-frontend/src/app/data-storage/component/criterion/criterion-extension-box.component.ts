@@ -14,16 +14,13 @@
  */
 
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {Criteria} from "../../../domain/datasource/criteria";
-import {AbstractComponent} from "../../../common/component/abstract.component";
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Criteria} from '@domain/datasource/criteria';
 
 @Component({
   selector: 'criterion-extension-box',
-  templateUrl: 'criterion-extension-box.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: 'criterion-extension-box.component.html'
 })
 export class CriterionExtensionBoxComponent extends AbstractComponent {
   // 여기서는 extension criterion의 이벤트 전파만 담당
@@ -47,21 +44,21 @@ export class CriterionExtensionBoxComponent extends AbstractComponent {
     super(element, injector);
   }
 
-
-  public isCheckedCriterion(criterion: Criteria.ListCriterion): boolean {
-    return this.usedCriterionList.findIndex(usedCriterion => usedCriterion.criterionKey === criterion.criterionKey) !== -1;
-  }
-
   /**
    * Select box outside click event
    * @param event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
       // close list
       this.isShowList = false;
     }
+  }
+
+  public isCheckedCriterion(criterion: Criteria.ListCriterion): boolean {
+    return this.usedCriterionList.findIndex(usedCriterion => usedCriterion.criterionKey === criterion.criterionKey) !== -1;
   }
 
   public onChangeCheckedCriterion(criterion: Criteria.ListCriterion): void {

@@ -14,21 +14,21 @@
 
 import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
 import {isUndefined} from 'util';
-import {Alert} from '../common/util/alert.util';
-import {Modal} from '../common/domain/modal';
-import {PopupService} from '../common/service/popup.service';
-import {NotebookModel} from '../domain/model-management/notebookModel';
-import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {PopupService} from '@common/service/popup.service';
+import {NotebookModel} from '@domain/model-management/notebookModel';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import {ActivatedRoute} from '@angular/router';
-import {AbstractComponent} from '../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {NotebookService} from './service/notebook.service';
 import {Subscription} from 'rxjs/Subscription';
-import {SubscribeArg} from '../common/domain/subscribe-arg';
-import {NoteBook} from '../domain/notebook/notebook';
-import {UserDetail} from '../domain/common/abstract-history-entity';
-import {CookieConstant} from '../common/constant/cookie.constant';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {NoteBook} from '@domain/notebook/notebook';
+import {UserDetail} from '@domain/common/abstract-history-entity';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {WorkspaceService} from '../workspace/service/workspace.service';
-import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
 
 @Component({
   selector: 'app-notebook',

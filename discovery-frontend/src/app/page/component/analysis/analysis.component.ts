@@ -33,9 +33,9 @@ import * as _ from 'lodash';
 import {UIOption} from '@common/component/chart/option/ui-option';
 import {EventType} from '@common/component/chart/option/define/common';
 import {AnalysisPredictionService} from './service/analysis.prediction.service';
-import {fromEvent} from "rxjs";
-import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
-import {Shelf} from "@domain/workbook/configurations/shelf/shelf";
+import {fromEvent} from 'rxjs';
+import {MapSpatialComponent} from './map-spatial/map-spatial.component';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'analysis-component',

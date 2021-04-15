@@ -21,10 +21,10 @@ import {
   OnDestroy,
   OnInit
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {StateService} from '../service/state.service';
 import {EngineService} from '../service/engine.service';
-import {Engine} from '../../domain/engine-monitoring/engine';
+import {Engine} from '@domain/engine-monitoring/engine';
 import {filter} from 'rxjs/operators';
 
 @Component({

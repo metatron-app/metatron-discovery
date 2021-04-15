@@ -15,12 +15,12 @@
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {PermissionService} from '../../../../user/service/permission.service';
 import {ActivatedRoute} from '@angular/router';
-import {Role, RoleType} from '../../../../domain/user/role/role';
+import {Role, RoleType} from '@domain/user/role/role';
 import {UpdateUserManagementMembersComponent} from '../members/update-member/update-user-management-members.component';
-import {RoleDirectory} from '../../../../domain/user/role/roleDirectory';
+import {RoleDirectory} from '@domain/user/role/roleDirectory';
 import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
 import {SetMemberGroupContainerComponent} from './set-member-group-container.component';
-import {CommonUtil} from '../../../../common/util/common.util';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-detail-user-management-permission',

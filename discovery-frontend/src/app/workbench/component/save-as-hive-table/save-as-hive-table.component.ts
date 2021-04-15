@@ -13,10 +13,10 @@
  */
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
-import {WorkbenchService} from "../../service/workbench.service";
-import {StringUtil} from "@common/util/string.util";
-import {CommonUtil} from "app/common/util/common.util";
-import {Alert} from "@common/util/alert.util";
+import {WorkbenchService} from '../../service/workbench.service';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from 'app/common/util/common.util';
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'app-save-as-hive-table',

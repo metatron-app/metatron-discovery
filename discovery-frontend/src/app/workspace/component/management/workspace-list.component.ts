@@ -223,7 +223,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 공유 워크스페이스 생성 이벤트
   public createWorkspace() {
-    //this.createWorkspaceComp.sharedWorkspaceList = this.sharedWorkspace;
+    // this.createWorkspaceComp.sharedWorkspaceList = this.sharedWorkspace;
     this.createWorkspaceComp.init();
   }
 

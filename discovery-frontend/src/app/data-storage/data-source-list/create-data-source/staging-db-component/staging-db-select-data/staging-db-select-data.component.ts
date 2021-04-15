@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import {
   ChangeDetectorRef,
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo, Field } from '../../../../../domain/datasource/datasource';
-import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../../common/component/grid/grid.option';
-import { GridComponent } from '../../../../../common/component/grid/grid.component';
+import { DatasourceInfo, Field } from '@domain/datasource/datasource';
+import { header, SlickGridHeader } from '@common/component/grid/grid.header';
+import { GridOption } from '@common/component/grid/grid.option';
+import { GridComponent } from '@common/component/grid/grid.component';
 import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'staging-db-select',
@@ -358,7 +358,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
           .Formatter((row, cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {
@@ -513,7 +513,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
   private setDefaultFileFormat(selectedTableDetail) {
     selectedTableDetail['fileFormat'] = {
       type: 'csv',
-      delimeter: ","
+      delimeter: ','
     };
   }
 

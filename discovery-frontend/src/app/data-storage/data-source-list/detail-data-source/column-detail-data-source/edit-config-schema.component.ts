@@ -31,28 +31,28 @@ import {
   FieldFormatType,
   FieldRole,
   LogicalType
-} from '../../../../domain/datasource/datasource';
+} from '@domain/datasource/datasource';
 
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {StringUtil} from "../../../../common/util/string.util";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
-import {AuthenticationType, Dataconnection, ImplementorType} from "../../../../domain/dataconnection/dataconnection";
-import {QueryParam} from "../../../../domain/dashboard/dashboard";
-import {DataconnectionService} from "../../../../dataconnection/service/dataconnection.service";
-import {FieldConfigService} from "../../../service/field-config.service";
-import {ConstantService} from "../../../../shared/datasource-metadata/service/constant.service";
-import {Filter} from "../../../../shared/datasource-metadata/domain/filter";
-import {Type} from "../../../../shared/datasource-metadata/domain/type";
-import {isNullOrUndefined} from "util";
-import {StorageService} from "../../../service/storage.service";
-import {DatetimeValidPopupComponent} from "../../../../shared/datasource-metadata/component/datetime-valid-popup.component";
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DataSourceCreateService, TypeFilterObject} from '../../../service/data-source-create.service';
+import {AuthenticationType, Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';
+import {QueryParam} from '@domain/dashboard/dashboard';
+import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {FieldConfigService} from '../../../service/field-config.service';
+import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
+import {Filter} from '../../../../shared/datasource-metadata/domain/filter';
+import {Type} from '../../../../shared/datasource-metadata/domain/type';
+import {isNullOrUndefined} from 'util';
+import {StorageService} from '../../../service/storage.service';
+import {DatetimeValidPopupComponent} from '../../../../shared/datasource-metadata/component/datetime-valid-popup.component';
 import Role = Type.Role;
-import {CommonUtil} from "../../../../common/util/common.util";
-import {MetadataColumn} from "../../../../domain/meta-data-management/metadata-column";
-import {clone} from "@turf/turf";
+import {CommonUtil} from '@common/util/common.util';
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {clone} from '@turf/turf';
 
 @Component({
   selector: 'edit-config-schema',
@@ -60,9 +60,21 @@ import {clone} from "@turf/turf";
 })
 export class EditConfigSchemaComponent extends AbstractComponent {
 
-  @HostListener('click', ['$event'])
-  public clickListener() {
-    this._hideTypeListPopup();
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private datasourceService: DatasourceService,
+              private datasourceCreateService: DataSourceCreateService,
+              private fieldConfigService: FieldConfigService,
+              private connectionService: DataconnectionService,
+              private storageService: StorageService,
+              public constant: ConstantService,
+              public renderer: Renderer2,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
   }
 
   @ViewChildren(DatetimeValidPopupComponent)
@@ -113,21 +125,22 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   @Output()
   public readonly updatedSchema: EventEmitter<any> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
-  constructor(private datasourceService: DatasourceService,
-              private datasourceCreateService: DataSourceCreateService,
-              private fieldConfigService: FieldConfigService,
-              private connectionService: DataconnectionService,
-              private storageService: StorageService,
-              public constant: ConstantService,
-              public renderer: Renderer2,
-              protected element: ElementRef,
-              protected injector: Injector) {
-    super(element, injector);
+  @ViewChildren('descriptionInputs')
+  private descriptionInputs: QueryList<ElementRef>;
+
+  @ViewChildren('descriptionTds')
+  private descriptionTds: QueryList<ElementRef>;
+
+  @ViewChildren('nameInputs')
+  private nameInputs: QueryList<ElementRef>;
+
+  @ViewChildren('nameTds')
+  private nameTds: QueryList<ElementRef>;
+
+  @HostListener('click', ['$event'])
+  public clickListener() {
+    this._hideTypeListPopup();
   }
 
   /**
@@ -550,13 +563,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     }
   }
 
-
-  @ViewChildren('descriptionInputs')
-  private descriptionInputs: QueryList<ElementRef>;
-
-  @ViewChildren('descriptionTds')
-  private descriptionTds: QueryList<ElementRef>;
-
   public focusDescriptionInput(index: number) {
     event.stopPropagation();
     this._hideTypeListPopup();
@@ -567,12 +573,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   public blurDescriptionInput(index: number) {
     this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
   }
-
-  @ViewChildren('nameInputs')
-  private nameInputs: QueryList<ElementRef>;
-
-  @ViewChildren('nameTds')
-  private nameTds: QueryList<ElementRef>;
 
   public focusNameInput(index: number) {
     event.stopPropagation();

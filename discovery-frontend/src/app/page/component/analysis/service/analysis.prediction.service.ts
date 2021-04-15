@@ -19,20 +19,19 @@ import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
 import * as _ from 'lodash';
 import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {UIOption} from '@common/component/chart/option/ui-option';
-import {CommonUtil} from "@common/util/common.util";
-import {Filter} from "@domain/workbook/configurations/filter/filter";
+import {CommonUtil} from '@common/util/common.util';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
 
 @Injectable()
 export class AnalysisPredictionService extends AbstractService implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
+  | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 예측선을 사용하면 생기는 예측선 타입 목록
-  private predictionLineType: string[] = ['Lower Data', 'Observations Data', 'Upper Data'];
-  private predictionLineTypePrefix: string = ` - `;
-  private predictionLineTypeSuffix: string = ` Prediction Line`;
+  constructor(protected injector: Injector) {
+    super(injector);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -45,12 +44,13 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
   public static predictionLineTypeAdditional: string = `Additional Lower Data`;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
+  | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  constructor(protected injector: Injector) {
-    super(injector);
-  }
+  // 예측선을 사용하면 생기는 예측선 타입 목록
+  private predictionLineType: string[] = ['Lower Data', 'Observations Data', 'Upper Data'];
+  private predictionLineTypePrefix: string = ` - `;
+  private predictionLineTypeSuffix: string = ` Prediction Line`;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
@@ -211,7 +211,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     param.dataSource = _.cloneDeep(widgetConf.dataSource);
     param.dataSource.name = (param.dataSource.engineName && param.dataSource.name != param.dataSource.engineName)?param.dataSource.engineName:param.dataSource.name;
     param.limits = _.cloneDeep(widgetConf.limit);
-    param.resultFormat = {'type': 'chart', 'mode': 'line', 'columnDelimeter': '―'};
+    param.resultFormat = {type: 'chart', mode: 'line', columnDelimeter: '―'};
     param.pivot = _.cloneDeep(widgetConf.pivot);
     param.userFields = _.cloneDeep(
       CommonUtil.objectToArray(widgetConf.customFields)

@@ -13,14 +13,14 @@
  */
 
 import {Component, ElementRef, Injector, Input, OnInit} from '@angular/core';
-import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {PopupService} from '../../../../common/service/popup.service';
-import {NoteBook} from '../../../../domain/notebook/notebook';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {NoteBook} from '@domain/notebook/notebook';
 import {NotebookService} from '../../../service/notebook.service';
-import {Alert} from '../../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {isUndefined} from 'util';
-import {CommonConstant} from '../../../../common/constant/common.constant';
-import * as $ from "jquery";
+import {CommonConstant} from '@common/constant/common.constant';
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-create-notebook-name',
@@ -166,7 +166,7 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
     this.name = this.name ? this.name.trim() : ''; // trim 처리
     if (this.name === '') {
       this.showError = true;
-      $(".ddp-type-contents").animate({ scrollTop: $('.ddp-type-contents').height() }, 1000);
+      $('.ddp-type-contents').animate({ scrollTop: $('.ddp-type-contents').height() }, 1000);
       return;
     }
     if (isUndefined(this.selectedServerType)) {
@@ -200,7 +200,7 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
       param.dsType = this.notebook.datasource.dsType;
       param.dsId = this.notebook.datasource.id;
       if(this.notebook.datasource.dsType === 'DASHBOARD' || this.notebook.datasource.dsType === 'CHART') {
-        param.dsName = this.notebook.path + " > " + this.notebook.datasource.name;
+        param.dsName = this.notebook.path + ' > ' + this.notebook.datasource.name;
       } else {
         param.dsName = this.notebook.datasource.name;
       }

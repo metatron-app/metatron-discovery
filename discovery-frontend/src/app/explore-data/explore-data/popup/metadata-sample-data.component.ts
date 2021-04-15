@@ -1,17 +1,17 @@
 import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {TimezoneService} from "../../../data-storage/service/timezone.service";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {MetadataModelService} from "../../../meta-data-management/metadata/service/metadata.model.service";
-import {GridComponent} from "../../../common/component/grid/grid.component";
-import * as _ from "lodash";
-import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
-import {GridOption} from "../../../common/component/grid/grid.option";
-import {Datasource, Field, FieldFormatType, LogicalType} from "../../../domain/datasource/datasource";
-import {Type} from "../../../shared/datasource-metadata/domain/type";
-import {MetadataSource} from "../../../domain/meta-data-management/metadata-source";
-import {Metadata} from "../../../domain/meta-data-management/metadata";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {TimezoneService} from '../../../data-storage/service/timezone.service';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {MetadataModelService} from '../../../meta-data-management/metadata/service/metadata.model.service';
+import {GridComponent} from '@common/component/grid/grid.component';
+import * as _ from 'lodash';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Datasource, Field, FieldFormatType, LogicalType} from '@domain/datasource/datasource';
+import {Type} from '../../../shared/datasource-metadata/domain/type';
+import {MetadataSource} from '@domain/meta-data-management/metadata-source';
+import {Metadata} from '@domain/meta-data-management/metadata';
 
 @Component({
   selector: 'explore-metadata-sample-data',
@@ -63,7 +63,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
    */
   extendGridHeader(args: any): void {
     // #2172 name -> physicalName, logicalName -> name
-    $(`<div class="slick-data">${_.find(this.fieldList, {'physicalName': args.column.id})['name'] || ''}</div>`).appendTo(args.node);
+    $(`<div class="slick-data">${_.find(this.fieldList, {physicalName: args.column.id})['name'] || ''}</div>`).appendTo(args.node);
   }
 
   private _isCreatedField(field): boolean {

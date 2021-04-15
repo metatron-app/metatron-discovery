@@ -1,7 +1,7 @@
-import {AbstractPopupComponent} from "@common/component/abstract-popup.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {WorkbenchConstant} from "../../../workbench.constant";
-import {CreateWorkbenchModelService} from "./service/create-workbench-model.service";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {WorkbenchConstant} from '../../../workbench.constant';
+import {CreateWorkbenchModelService} from './service/create-workbench-model.service';
 
 @Component({
   selector: 'component-create-workbench',

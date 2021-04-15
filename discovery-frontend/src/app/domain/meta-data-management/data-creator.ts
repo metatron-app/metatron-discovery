@@ -13,7 +13,7 @@
  */
 
 
-import {Metadata} from "./metadata";
+import {Metadata} from './metadata';
 
 export class DataCreator {
 

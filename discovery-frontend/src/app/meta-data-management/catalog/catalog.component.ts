@@ -13,12 +13,12 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {CatalogService} from './service/catalog.service';
-import {Alert} from '../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {isUndefined} from 'util';
-import {Modal} from '../../common/domain/modal';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import * as _ from 'lodash';
 
 @Component({
@@ -178,7 +178,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   public updateCatalog(catalog, index) {
     if (!isUndefined(this.catalogInput.nativeElement.value) && this.catalogInput.nativeElement.value.trim() !== '') {
 
-      let idx = this.catalogs.map((catalog, idx) => {
+      const idx = this.catalogs.map((catalog, idx) => {
         if (idx !== index) {
           return catalog.name;
         }
@@ -221,12 +221,12 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
 
       if (this.catalogPath.length > 1) {
 
-        let ids = [];
+        const ids = [];
         this.catalogPath.forEach((item) => {
           ids.push(item.id);
         });
 
-        let currentRootId = ids.indexOf(this.currentRoot.id);
+        const currentRootId = ids.indexOf(this.currentRoot.id);
 
         this.currentRoot = this.catalogPath[currentRootId - 1];
         this.catalogPath.splice(currentRootId, 1);
@@ -298,7 +298,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    */
   public deleteCatalog() {
     this.loadingShow();
-    let deletedName = this.selectedCatalog.name;
+    const deletedName = this.selectedCatalog.name;
     this.catalogService.deleteCatalog(this.selectedCatalog.id).then(() => {
       Alert.success(`‘${deletedName}' is deleted.`);
       this.loadingHide();
@@ -334,7 +334,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   public createCatalogDone() {
     if (!isUndefined(this.newCatalogName.nativeElement.value) && this.newCatalogName.nativeElement.value.trim() !== '') {
 
-      let params = {name: this.newCatalogName.nativeElement.value};
+      const params = {name: this.newCatalogName.nativeElement.value};
       this.currentRoot.id !== 'ROOT' ? params['parentId'] = this.currentRoot.id : null;
       if (this.inProcess === false) {
         this.inProcess = true;
@@ -441,7 +441,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   }
 
   private _getCatalogParams(): Object {
-    let params = {
+    const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,

@@ -25,8 +25,8 @@ import {
 
 import * as _ from 'lodash';
 import {EventBroadcaster} from './common/event/event.broadcaster';
-import {UserSetting} from "./common/value/user.setting.value";
-import {CommonUtil} from "./common/util/common.util";
+import {UserSetting} from './common/value/user.setting.value';
+import {CommonUtil} from './common/util/common.util';
 
 @Component({
   selector: 'app-root',
@@ -67,12 +67,12 @@ export class AppComponent implements AfterContentChecked {
       if (!_.isNil(userLang)) {
         lang = userLang;
       }
-      if (lang === "zh" || lang === "zh-CN") {
-        this.translateService.use("zh")
-      } else if (lang === "ko") {
-        this.translateService.use("ko")
+      if (lang === 'zh' || lang === 'zh-CN') {
+        this.translateService.use('zh')
+      } else if (lang === 'ko') {
+        this.translateService.use('ko')
       } else {
-        this.translateService.use("en")
+        this.translateService.use('en')
       }
       this.translateService.setDefaultLang('en');
     }

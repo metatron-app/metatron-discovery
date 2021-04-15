@@ -13,7 +13,7 @@
  */
 
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractFormatItemComponent} from "../chart-style/format/abstract-format-item.component";
+import {AbstractFormatItemComponent} from '../chart-style/format/abstract-format-item.component';
 
 @Component({
   selector: '[page-pivot-format]',

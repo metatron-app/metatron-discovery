@@ -14,13 +14,13 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {InputComponent} from '../../../../common/component/input/input.component';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {InputComponent} from '@common/component/input/input.component';
 import {LineageViewService} from '../../service/lineage-view.service';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {Alert} from '@common/util/alert.util';
+import {Metadata} from '@domain/meta-data-management/metadata';
 
 declare let echarts;
 
@@ -152,19 +152,19 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
    * Get lineage map
    */
   public getLineageMap() {
-    let nodeCount = this.nodeCount;
-    let alignment = this.alignment;
-    let metadataId = this.metaDataModelService.getMetadata().id;
+    const nodeCount = this.nodeCount;
+    const alignment = this.alignment;
+    const metadataId = this.metaDataModelService.getMetadata().id;
     this.lineageViewService.getLineageMapForMetadata(metadataId,nodeCount,alignment).then((result) => {
       this.lineageNodes = [];
       this.lineageEdges = [];
 
       if (result) {
         let indexX = 0;
-        for(var nodeList of result.nodeGrid) {
+        for(const nodeList of result.nodeGrid) {
           let indexY = 0;
-          for(var node of nodeList) {
-            var _node = _.cloneDeep(node);
+          for(const node of nodeList) {
+            const _node = _.cloneDeep(node);
             _node.metadataId = node.metaId;
             _node.positionX = indexX;
             _node.positionY = indexY;
@@ -175,8 +175,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           indexX++;
         }
 
-        for(var edge of result.needEdges) {
-          var _edge = _.cloneDeep(edge);
+        for(const edge of result.needEdges) {
+          const _edge = _.cloneDeep(edge);
           _edge.source = edge.frMetaId;
           _edge.target = edge.toMetaId;
 
@@ -194,8 +194,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
 
   public closeColumnView() {
     if( this.selectedNode !== null ) {
-      var index = this.selectedNode.index;
-      var category = this.selectedNode.category;
+      const index = this.selectedNode.index;
+      const category = this.selectedNode.category;
 
       const option = this.chart.getOption();
       option.series[SeriesIndex.LINEAGE_DIAGRAM].data[index].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
@@ -217,10 +217,10 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
   }
 
   public selectNode(selectIndex) {
-    let oldSelectedNodeIdx = this.selectedNode!==null?this.selectedNode.index:null;
+    const oldSelectedNodeIdx = this.selectedNode!==null?this.selectedNode.index:null;
     let newSelectedNodeIdx = null;
 
-    let seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
+    const seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
 
     const option = this.chart.getOption();
     if(selectIndex!==null) {
@@ -232,13 +232,13 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     }
 
     if( oldSelectedNodeIdx !== null ) {
-      var category = option.series[seriesIdx].data[oldSelectedNodeIdx].category;
+      const category = option.series[seriesIdx].data[oldSelectedNodeIdx].category;
       option.series[seriesIdx].data[oldSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['DEFAULT'];
 
       this.selectedNode = null;
     }
     if( newSelectedNodeIdx !== null ) {
-      var category = option.series[seriesIdx].data[newSelectedNodeIdx].category;
+      const category = option.series[seriesIdx].data[newSelectedNodeIdx].category;
       option.series[seriesIdx].data[newSelectedNodeIdx].symbol = this.symbolInfo[NodeType[category]]['SELECTED'];
 
       this.selectedNode = option.series[seriesIdx].data[newSelectedNodeIdx];
@@ -263,7 +263,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.chartNodes = [];
     this.chartLinks = [];
 
-    let seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
+    const seriesIdx = SeriesIndex.LINEAGE_DIAGRAM;
 
     this.chart.off('click');
     this.chart.on('click', (params) => {
@@ -280,7 +280,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.lineageDepth = 0;
     this.lineageHeight = 0;
     this.chartNodes = this.lineageNodes.map((_node,idx) => {
-      let node = _.cloneDeep(_node);
+      const node = _.cloneDeep(_node);
 
       node.index = idx;
       node.name = node.metadataId;
@@ -307,7 +307,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.chartOptions.yAxis.max = this.lineageHeight;
 
     this.chartLinks = this.lineageEdges.map(_edge => {
-      let edge = _.cloneDeep(_edge);
+      const edge = _.cloneDeep(_edge);
       /*
       let source : string = edge.source;
       let target : string = edge.target;
@@ -326,7 +326,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     this.chart.setOption(this.chartOptions);
     this.chartAreaResize(true);
 
-    let $chart = this;
+    const $chart = this;
 
     if(thisIndex) {
       this.selectNode(thisIndex);
@@ -443,7 +443,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
           categories: [
             {
               name: NodeType[NodeType.MainNode],
-              //symbol: 'roundRect',
+              // symbol: 'roundRect',
               symbol: this.symbolInfo[NodeType[NodeType.MainNode]]['DEFAULT'],
               symbolSize: [50,50],
               symbolOffset: [0,0],
@@ -479,7 +479,7 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
             },
             {
               name: NodeType[NodeType.NormalNode],
-              //symbol: 'rect',
+              // symbol: 'rect',
               symbol: this.symbolInfo[NodeType[NodeType.NormalNode]]['DEFAULT'],
               symbolSize: [50,50],
               symbolOffset: [0, 0],
@@ -513,13 +513,13 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
               if( params.dataType==='node' ) {
                 return params.data.metaName;
               } else if( params.dataType==='edge' ) {
-                var sourceName = params.data.frMetaName;
-                var targetName = params.data.toMetaName;
-                var sourceColName = params.data.frColName;
+                let sourceName = params.data.frMetaName;
+                let targetName = params.data.toMetaName;
+                const sourceColName = params.data.frColName;
                 if(sourceColName && 0<sourceColName.length) {
                   sourceName = sourceName +'('+ sourceColName +')';
                 }
-                var targetColName = params.data.toColName;
+                const targetColName = params.data.toColName;
                 if(targetColName && 0<targetColName.length) {
                   targetName = targetName +'('+ targetColName +')';
                 }
@@ -559,8 +559,8 @@ export class LineageViewComponent extends AbstractComponent implements OnInit, O
     const hScrollbarWith: number = 30;
     const vScrollbarWith: number = 30;
 
-    //let minWidthSize: number = $('.sys-lineage-left-panel').width();
-    let minWidthSize: number = $('.ddp-lineage-view').width() - hScrollbarWith;
+    // let minWidthSize: number = $('.sys-lineage-left-panel').width();
+    const minWidthSize: number = $('.ddp-lineage-view').width() - hScrollbarWith;
     let minHeightSize: number = $('.ddp-lineage-view').height() - vScrollbarWith;
 
     if( hNodeUnit < this.lineageHeight ) {

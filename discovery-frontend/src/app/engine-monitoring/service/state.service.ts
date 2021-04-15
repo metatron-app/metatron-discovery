@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {EngineServiceModule} from './engine-service.module';
 import {Subject} from 'rxjs';
-import {Engine} from '../../domain/engine-monitoring/engine';
+import {Engine} from '@domain/engine-monitoring/engine';
 
 @Injectable({
   providedIn: EngineServiceModule

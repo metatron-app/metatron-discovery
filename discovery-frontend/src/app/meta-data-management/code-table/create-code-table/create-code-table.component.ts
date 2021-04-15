@@ -14,11 +14,11 @@
 
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
 import {CodeTableService} from '../service/code-table.service';
-import {Alert} from '../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
-import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
-import {CommonUtil} from '../../../common/util/common.util';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-create-code-table',

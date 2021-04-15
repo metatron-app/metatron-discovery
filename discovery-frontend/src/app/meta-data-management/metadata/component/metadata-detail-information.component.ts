@@ -1,16 +1,16 @@
-import {Component, ComponentFactoryResolver, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {MetadataService} from "../service/metadata.service";
-import {ActivatedRoute} from "@angular/router";
-import {MetadataModelService} from "../service/metadata.model.service";
-import {Metadata, SourceType} from "../../../domain/meta-data-management/metadata";
-import {Alert} from "../../../common/util/alert.util";
-import {CommonUtil} from "../../../common/util/common.util";
-import {Datasource} from "../../../domain/datasource/datasource";
-import {CatalogService} from "../../catalog/service/catalog.service";
-import {isUndefined} from "util";
-import {StringUtil} from "../../../common/util/string.util";
-import {Modal} from "../../../common/domain/modal";
+import {Component, ComponentFactoryResolver, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataService} from '../service/metadata.service';
+import {ActivatedRoute} from '@angular/router';
+import {MetadataModelService} from '../service/metadata.model.service';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Datasource} from '@domain/datasource/datasource';
+import {CatalogService} from '../../catalog/service/catalog.service';
+import {isUndefined} from 'util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
 
 @Component(
   {
@@ -109,9 +109,9 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
         break;
       case SourceType.JDBC:
         if (this.metadata.source.source !== undefined) {
-          if (this.metadata.source.source.implementor == "MYSQL") {
+          if (this.metadata.source.source.implementor == 'MYSQL') {
             this.dataType = 'Database(' + 'MySQL' + ')';
-          } else if (this.metadata.source.source.implementor == "HIVE") {
+          } else if (this.metadata.source.source.implementor == 'HIVE') {
             this.dataType = 'Database(' + 'Hive' + ')';
           } else {
             this.dataType = 'Database';
@@ -209,7 +209,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   }
 
   get filteredTagsList() {
-    let list = [];
+    const list = [];
     if (this.tagsList.length > 0 && '' !== this.tagValue) {
       this.tagsList.forEach((tag) => {
         if (tag.name.indexOf(this.tagValue) !== -1) {
@@ -230,7 +230,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public addTag() {
     this.showTags = false;
-    let idx = this.metadataModelService.getMetadata().tags.map((item) => {
+    const idx = this.metadataModelService.getMetadata().tags.map((item) => {
       return item.name;
     }).indexOf(this.tagValue);
 

@@ -28,7 +28,7 @@ import {MetadataService} from '../../../../meta-data-management/metadata/service
 import {isNullOrUndefined, isUndefined} from 'util';
 import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
 import {StringUtil} from '@common/util/string.util';
-import {CommonUtil} from "@common/util/common.util";
+import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 
 @Component({
@@ -463,10 +463,10 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.safelyDetectChanges();
 
     const target = $(event.target);
-    let infoLeft: number = target.offset().left;
-    let infoTop: number = target.offset().top;
+    const infoLeft: number = target.offset().left;
+    const infoTop: number = target.offset().top;
     const element = document.getElementById(`connectionInfo`);
-    $(element).css({'left': infoLeft - 30, 'top': infoTop + 17});
+    $(element).css({left: infoLeft - 30, top: infoTop + 17});
 
   } // function - dataConnectionInfoShow
 
@@ -708,7 +708,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         //
         this.schemaTableMetadataList = [];
 
-        let resultData = [];
+        const resultData = [];
         for (const key in result) {
           const param = {
             itemKey: key,
@@ -724,9 +724,9 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         // result Data
         for (const key in resultData) {
 
-          let tempData = {
-            'label': '',
-            'data': tempArr
+          const tempData = {
+            label: '',
+            data: tempArr
           };
 
           if (resultData[key]['itemKey'].startsWith('#')) {
@@ -922,7 +922,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
           this.schemaTableList = this.schemaTableList.map((item) => {
             return _.merge(item, _.find(result.map((column) => {
               return {table: column.table, metadataName: column.name}
-            }), {'table': item}));
+            }), {table: item}));
           });
         }
         //
@@ -941,7 +941,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getTableMetaDataDetail(tableName: string): void {
 
     // table array
-    let tableNameArr: string[] = [];
+    const tableNameArr: string[] = [];
     if (tableName != '') {
       tableNameArr.push(tableName);
     }
@@ -951,7 +951,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         // result   merge
         if (result.length > 0) {
           this.schemaTableColumnList = this.schemaTableColumnList.map((item) => {
-            return _.merge(item, _.find(result[0].columns, {'physicalName': item.columnName}));
+            return _.merge(item, _.find(result[0].columns, {physicalName: item.columnName}));
           });
         }
         //

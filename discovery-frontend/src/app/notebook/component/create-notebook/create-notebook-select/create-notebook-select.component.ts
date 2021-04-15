@@ -13,10 +13,10 @@
  */
 
 import { Component, ElementRef, Injector, Input, OnInit } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { Datasource } from '../../../../domain/datasource/datasource';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { PopupService } from '@common/service/popup.service';
+import { NoteBook } from '@domain/notebook/notebook';
+import { Datasource } from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-notebook-select',

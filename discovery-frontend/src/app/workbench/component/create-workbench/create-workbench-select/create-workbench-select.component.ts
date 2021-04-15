@@ -20,7 +20,7 @@ import { Dataconnection } from '@domain/dataconnection/dataconnection';
 import { Workbench } from '@domain/workbench/workbench';
 import { PageResult } from '@domain/common/page';
 import { WorkspaceService } from '../../../../workspace/service/workspace.service';
-import {StorageService} from "../../../../data-storage/service/storage.service";
+import {StorageService} from '../../../../data-storage/service/storage.service';
 
 @Component({
   selector: 'app-create-workbench-select',

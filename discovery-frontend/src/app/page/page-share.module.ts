@@ -51,8 +51,8 @@ import {MapTooltipOptionComponent} from './chart-style/map/map-tooltip-option.co
 import {MapCommonOptionComponent} from './chart-style/map/map-common-option.component';
 import {PivotContextComponent} from './page-pivot/pivot-context.component';
 import {SecondaryAxisOptionComponent} from './chart-style/secondary-axis-option.component';
-import {CalculatedOptionSliderComponent} from "./chart-style/calc-option-slider.component";
-import {PagePivotFormatComponent} from "./page-pivot/page-pivot-format.component";
+import {CalculatedOptionSliderComponent} from './chart-style/calc-option-slider.component';
+import {PagePivotFormatComponent} from './page-pivot/page-pivot-format.component';
 
 @NgModule({
   imports: [

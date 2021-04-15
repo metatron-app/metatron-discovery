@@ -51,8 +51,8 @@ import {UpdateDashboardComponent} from '../dashboard/update-dashboard.component'
 import {PopupInputNameDescComponent} from './component/popup-input-workbook/popup-input-namedesc.component';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {Datasource} from '@domain/datasource/datasource';
-import {WidgetService} from "../dashboard/service/widget.service";
-import {DashboardUtil} from "../dashboard/util/dashboard.util";
+import {WidgetService} from '../dashboard/service/widget.service';
+import {DashboardUtil} from '../dashboard/util/dashboard.util';
 
 declare let $;
 
@@ -400,7 +400,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public gotoWorkspace() {
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
-    let cookieWorkspace = (cookieWs) ? JSON.parse(cookieWs) : null;
+    const cookieWorkspace = (cookieWs) ? JSON.parse(cookieWs) : null;
     if (null !== cookieWorkspace && null !== cookieWorkspace['workspaceId']) {
       this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
     } else {
@@ -573,7 +573,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       ($target.hasClass('ddp-icon-more')) || ($target = $target.find('.ddp-icon-more'));
       const lnbmoreLeft: number = $target.offset().left;
       const lnbmoreTop: number = $target.offset().top;
-      this.$element.find('.ddp-popup-lnbmore').css({'left': lnbmoreLeft - 180, 'top': lnbmoreTop + 25});
+      this.$element.find('.ddp-popup-lnbmore').css({left: lnbmoreLeft - 180, top: lnbmoreTop + 25});
     }
   } // function - toggleWorkbookDetailMenu
 
@@ -1141,7 +1141,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public gotoPresentationView() {
     // 데이터 설정
     this.popupService.ptDashboards = _.cloneDeep(this.dashboards);
-    let boardInfo: PresentationDashboard = <PresentationDashboard>_.cloneDeep(this.selectedDashboard);
+    const boardInfo: PresentationDashboard = _.cloneDeep(this.selectedDashboard) as PresentationDashboard;
     boardInfo.selectionFilters = this._boardComp ? this._boardComp.getSelectedFilters() : [];
     this.popupService.ptStartDashboard = boardInfo;
     // 페이지 호출

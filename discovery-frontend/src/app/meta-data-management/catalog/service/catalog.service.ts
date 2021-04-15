@@ -13,9 +13,9 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {CommonUtil} from '../../../common/util/common.util';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {Catalog} from "../../../domain/catalog/catalog";
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {Catalog} from '@domain/catalog/catalog';
 
 @Injectable()
 export class CatalogService extends AbstractService {

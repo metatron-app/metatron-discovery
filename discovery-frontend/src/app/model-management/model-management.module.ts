@@ -13,7 +13,7 @@
  */
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { RouterModule, Routes } from '@angular/router';
 import { NotebookServerComponent } from './notebook-server/notebook-server.component';
 import { ModelApprovalComponent } from './model-approval/model-approval.component';

@@ -23,13 +23,13 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
-import {Alert} from '../../../../../common/util/alert.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo, Field} from '@domain/datasource/datasource';
+import {Alert} from '@common/util/alert.util';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../../common/component/grid/grid.option';
-import {GridComponent} from '../../../../../common/component/grid/grid.component';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
 import {isNullOrUndefined} from 'util';
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
@@ -37,8 +37,8 @@ import {
   DataSourceCreateService,
   FileDetail,
   FileResult
-} from "../../../../service/data-source-create.service";
-import {ConfirmModalComponent} from "../../../../../common/component/modal/confirm/confirm.component";
+} from '../../../../service/data-source-create.service';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 
 @Component({
   selector: 'stream-preview',
@@ -341,7 +341,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
           .Formatter((row, cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {

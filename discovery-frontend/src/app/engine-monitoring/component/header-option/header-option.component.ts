@@ -21,7 +21,7 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {DruidClusterInformationComponent} from '../druid-cluster-information/druid-cluster-information.component';
 
 @Component({
