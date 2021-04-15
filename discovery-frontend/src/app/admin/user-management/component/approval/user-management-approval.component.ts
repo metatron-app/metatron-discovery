@@ -339,7 +339,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
 
     this.loadingShow();
 
-    this.membersService.approveUser(this.selectedUser).then((result) => {
+    this.membersService.approveUser(this.selectedUser).then(() => {
       this.isApproveModalOpen = false;
       this.loadingHide();
       this.reloadPage();

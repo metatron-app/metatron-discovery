@@ -81,7 +81,7 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
       this.loadingShow();
       // 사용자에게 확인 이메일 전달
       this.groupsService.createGroup(this._getCreateGroupParams())
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.groups.alert.name.create', {value: this.groupName.trim()}));
           // 로딩 hide
