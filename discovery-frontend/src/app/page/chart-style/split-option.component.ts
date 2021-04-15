@@ -13,7 +13,6 @@
  */
 
 import { Component, ElementRef, Injector } from '@angular/core';
-import * as _ from 'lodash';
 import {BaseOptionComponent} from './base-option.component';
 
 @Component({

@@ -25,8 +25,7 @@ import {
   ChartColorList,
   ColorRangeType,
   EventType,
-  ShelveFieldType,
-  SymbolType
+  ShelveFieldType
 } from '@common/component/chart/option/define/common';
 import {UISymbolLayer} from '@common/component/chart/option/ui-option/map/ui-symbol-layer';
 import {MapOutline} from '@common/component/chart/option/ui-option/map/ui-outline';
@@ -39,7 +38,7 @@ import {ColorTemplateComponent} from '@common/component/color-picker/color-templ
 import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {isNullOrUndefined} from 'util';
-import {AggregationType, MeasureField} from '@domain/workbook/configurations/field/measure-field';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 import {ChartUtil} from '@common/component/chart/option/util/chart-util';
 import {UILayers} from '@common/component/chart/option/ui-option/map/ui-layers';
 import {GeoField} from '@domain/workbook/configurations/field/geo-field';
@@ -179,6 +178,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * symbol layer - change layer type
    * @param {MapLayerType} layerType
+   * @param layerIndex
    */
   public changeSymbolLayerType(layerType: MapLayerType, layerIndex: number) {
 
@@ -366,6 +366,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * symbol layer - change symbol type
    * @param {SymbolType} symbolType
+   * @param layerIndex
    */
   public changeSymbolType(symbolType: MapSymbolType, layerIndex: number) {
 
@@ -381,7 +382,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param slider
    * @param {number} index
    */
-  public changeTransparency(obj: any, slider: any, index: number) {
+  public changeTransparency(_obj: any, slider: any, index: number) {
 
     const layer = this.uiOption.layers[index];
     if (MapLayerType.HEATMAP === layer.type) {
@@ -482,7 +483,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     this.applyLayers({type: EventType.MAP_CHANGE_OPTION});
   }
 
-  public changeClustering(obj: any, $event: any, index: number) {
+  public changeClustering(_obj: any, $event: any, index: number) {
     this.uiOption.layers[index]['coverage'] = $event.from;
     (this.uiOption as UIMapOption).layers[index]['changeCoverage'] = true;
     this.applyLayers({type: EventType.MAP_CHANGE_OPTION});
@@ -503,7 +504,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * change point size
    */
-  public changePointSize(obj: any, $event: any, index: number, isSingle: boolean) {
+  public changePointSize(_obj: any, $event: any, index: number, isSingle: boolean) {
     (this.uiOption as UIMapOption).layers[index]['isChangePointRadius'] = true;
     this.uiOption['isChangeStyle'] = true;
 
@@ -552,6 +553,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param {Object[]} list
    * @param {string} key
    * @param value
+   * @param type
+   * @param optionalKey
+   * @param optionalValue
    * @returns {number}
    */
   public findIndex(list: Object[], key: string, value: any, type: string, optionalKey?: string, optionalValue?: any) {
@@ -600,9 +604,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * return same type field list
    * @param list
    * @param fieldTypeValue
+   * @param isDefaultValue
    * @returns {T[]}
    */
-  public findFieldList(list: Object[], fieldTypeValue : string, isDefaultValue? : boolean) {
+  public findFieldList(list: object[], fieldTypeValue : string, isDefaultValue? : boolean) {
     const fieldType : string = 'type';
 
     if( isDefaultValue ){
@@ -617,6 +622,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * all layers - set color by
    * @param {Object} data
+   * @param layerIndex
    */
   public changeColorBy(data: Field, layerIndex : number) {
 
@@ -700,6 +706,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * all layers - change color column (color by dimension, measure)
    * @param {Object} data
+   * @param layerIndex
    */
   public changeColorColumn(data: Field, layerIndex : number) {
 
@@ -741,6 +748,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * line layer - stroke by
    * @param {Object} data
+   * @param layerIndex
    */
   public changeStrokeBy(data: Field, layerIndex : number) {
 
@@ -782,6 +790,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * line layer - stroke column
    * @param {Object} data
+   * @param layerIndex
    */
   public changeStrokeColumn(data: Field, layerIndex : number) {
 
@@ -793,7 +802,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
   /**
    * line layer - stroke maxValue
-   * @param {number} maxValue
+   * @param event
+   * @param layerIndex
    */
   public changeThickMaxValue(event: any, layerIndex : number) {
 
@@ -813,6 +823,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * symbol layer - change size by
    * @param {Object} data
+   * @param layerIndex
    */
   public changeSizeBy(data: Field, layerIndex : number) {
 
@@ -857,6 +868,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * symbol layer - change size column
    * @param {Object} data
+   * @param layerIndex
    */
   public changeSizeColumn(data: Field, layerIndex : number) {
 
@@ -868,6 +880,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * color by none - change color
    * @param {string} colorCode
+   * @param layerIndex
    */
   public changeByNoneColor(colorCode: string, layerIndex : number) {
 
@@ -896,7 +909,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param slider
    * @param {number} index
    */
-  public changeBlur(obj: any, slider: any, index: number) {
+  public changeBlur(_obj: any, slider: any, index: number) {
     (this.uiOption.layers[index] as UIHeatmapLayer).blur = slider.from;
     this.applyLayers();
   }
@@ -916,8 +929,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * heatmap layer - change radius
    * @param obj
    * @param slider
+   * @param index
    */
-  public changeRadius(obj: any, slider: any, index: number) {
+  public changeRadius(_obj: any, slider: any, index: number) {
     const heatMapLayer = (this.uiOption.layers[index] as UIHeatmapLayer);
     heatMapLayer.heatMapRadius = slider.from;
     heatMapLayer.radius = heatMapLayer.heatMapRadius;
@@ -941,8 +955,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * hexagon layer - change radius
    * @param obj
    * @param slider
+   * @param layerIndex
    */
-  public changeHexagonRadius(obj: any, slider: any, layerIndex: number) {
+  public changeHexagonRadius(_obj: any, slider: any, layerIndex: number) {
     const tileLayer = (this.uiOption.layers[layerIndex] as UITileLayer);
     tileLayer.tileRadius = slider.from;
     tileLayer.radius = tileLayer.tileRadius;
@@ -953,6 +968,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * hexgon layer - change radius text
    * @param event
+   * @param layerIndex
    */
   public changeHexagonRadiusText(event: any, layerIndex: number) {
 
@@ -977,8 +993,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * tile(hexagon) layer - change coverage
    * @param obj
    * @param slider
+   * @param index
    */
-  public changeCoverage(obj: any, slider: any, index: number) {
+  public changeCoverage(_obj: any, slider: any, index: number) {
     (this.uiOption.layers[index] as UITileLayer).coverage = slider.from;
     // this.uiOption.layers[index]['coverage'] = slider.from;
     this.applyLayers();
@@ -997,6 +1014,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * change color
    * @param data
+   * @param layerIndex
    */
   public changeColor(data: any, layerIndex : number) {
     const layerType = this.uiOption.layers[layerIndex].type;
@@ -1060,9 +1078,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * find same color index in color list (heatmap, dimension)
    * @param {Object[]} colorList
+   * @param layerIndex
    * @returns {any}
    */
-  public findColorIndex(colorList: Object[], layerIndex : number) {
+  public findColorIndex(colorList: object[], layerIndex : number) {
     if (this.colorTemplate) {
       const obj = _.find(colorList, {colorNum : this.uiOption.layers[layerIndex].color.schema});
       if (obj) {
@@ -1128,7 +1147,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * symbol layer - change radius range (by none)
    */
-  public changeNoneRadiusRange(obj: any, slider: any, layerIndex : number) {
+  public changeNoneRadiusRange(_obj: any, slider: any, layerIndex : number) {
 
     (this.uiOption.layers[layerIndex] as UISymbolLayer).size.radiusRange[0] = slider.from;
 
@@ -1156,7 +1175,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * symbol layer - change radius range (by measure)
    */
-  public changeMeasureRadiusRange(obj: any, slider: any, layerIndex : number) {
+  public changeMeasureRadiusRange(_obj: any, slider: any, layerIndex : number) {
 
     (this.uiOption.layers[layerIndex] as UISymbolLayer).size.radiusRange[0] = slider.from;
 
@@ -1219,6 +1238,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * change range min input
    * @param range
    * @param {number} index
+   * @param layerIndex
    */
   public changeRangeMinInput(range: any, index: number, layerIndex : number): void {
 
@@ -1434,7 +1454,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * remove selected color range
    */
-  public removeColorRange(range: ColorRange, index: number, layerIndex: number) {
+  public removeColorRange(_range: ColorRange, index: number, layerIndex: number) {
 
     // 색상 범위리스트
     const rangeList = this.uiOption.layers[layerIndex].color.ranges;
@@ -1594,7 +1614,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
       const layers = _.cloneDeep(shelf.layers[index].fields);
 
-      const getShelveReturnField = ((shelve: any, typeList?: ShelveFieldType[]): AbstractField[] => {
+      const getShelveReturnField = ((shelve: any, _typeList?: ShelveFieldType[]): AbstractField[] => {
         const resultList: any[] = [];
         resultList.push({name:this.translateService.instant('msg.page.layer.map.stroke.none'), alias:this.translateService.instant('msg.page.layer.map.stroke.none'), value:MapBy.NONE});
 
@@ -1818,6 +1838,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   /**
    * find preference by shelf
    * @param {UILayers[]} layers
+   * @param layerIndex
    * @returns {Object}
    */
   private checkFieldPreference(layers: GeoField[], layerIndex : number): Object {
@@ -2029,11 +2050,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         minValue = _.cloneDeep(data[dataIndex].valueRange[alias].minValue);
         maxValue = _.cloneDeep(data[dataIndex].valueRange[alias].maxValue);
       }
-      this.uiOption.layers[layerIndex]['size'].minValue = minValue;
-      this.uiOption.layers[layerIndex]['size'].maxValue = maxValue;
+      this.uiOption.layers[layerIndex]['size'].min = minValue;
+      this.uiOption.layers[layerIndex]['size'].max = maxValue;
     } else {
-      delete this.uiOption.layers[layerIndex]['size'].minValue;
-      delete this.uiOption.layers[layerIndex]['size'].maxValue;
+      delete this.uiOption.layers[layerIndex]['size'].min;
+      delete this.uiOption.layers[layerIndex]['size'].max;
     }
   }
 

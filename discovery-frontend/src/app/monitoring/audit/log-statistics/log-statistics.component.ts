@@ -187,7 +187,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    */
   public auditDetailOpen(id: string) {
     this._savePrevRouterUrl();
-    this.router.navigateByUrl('/management/monitoring/audit/' + id);
+    this.router.navigateByUrl('/management/monitoring/audit/' + id).then();
   }
 
   /**
@@ -665,7 +665,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
         }
 
 
-      }).catch((error) => {
+      }).catch((_error) => {
         this.loadingHide();
       });
     } else {
@@ -794,7 +794,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    * @param event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  protected onResize(_event) {
     clearTimeout(this.timer);
     // 그리드스터에서 애니매이션이 있어서 딜레이가 필요...
     this.timer = setTimeout(

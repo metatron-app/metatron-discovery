@@ -53,7 +53,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   private numericAliasListComp: SelectComponent;
 
   // 타입 목록
-  private _orgTypeList: Object[] = [
+  private _orgTypeList: object[] = [
     {name: this.translateService.instant('msg.page.li.num'), value: 'number'},
     {name: this.translateService.instant('msg.page.li.currency'), value: 'currency'},
     {name: this.translateService.instant('msg.page.li.percent'), value: 'percent'},
@@ -78,7 +78,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public format: Format;
 
   // 타입 목록
-  public typeList: Object[] = [
+  public typeList: object[] = [
     {name: this.translateService.instant('msg.page.li.num'), value: 'number'},
     {name: this.translateService.instant('msg.page.li.currency'), value: 'currency'},
     {name: this.translateService.instant('msg.page.li.percent'), value: 'percent'},
@@ -86,10 +86,10 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   ];
 
   // 선택된 공통 타입
-  public selectedType: Object = this.typeList[0];
+  public selectedType: object = this.typeList[0];
 
   // 기호: 통화일때
-  public currencySignList: Object[] = [
+  public currencySignList: object[] = [
     {name: '₩ (KRW)', value: 'KRW'},
     {name: '$ (USD)', value: 'USD'},
     {name: '£ (GBP)', value: 'GBP'},
@@ -99,7 +99,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   ];
 
   // 선택된 기호
-  public selectedSign: Object = this.currencySignList[0];
+  public selectedSign: object = this.currencySignList[0];
 
   // 소수 자리수
   public decimal: number = 2;
@@ -111,7 +111,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public useThousandsSep: boolean = false;
 
   // 수치표기 약어목록
-  public numericAliasList: Object[] = [
+  public numericAliasList: object[] = [
     {name: this.translateService.instant('msg.page.format.numeric.alias.none'), value: String(UIFormatNumericAliasType.NONE)},
     {name: this.translateService.instant('msg.page.format.numeric.alias.auto'), value: String(UIFormatNumericAliasType.AUTO)},
     {name: this.translateService.instant('msg.page.format.numeric.alias.kilo'), value: String(UIFormatNumericAliasType.KILO)},
@@ -120,10 +120,10 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   ];
 
   // 선택된 수치표기 약어
-  public selectedNumericAlias: Object = this.numericAliasList[0];
+  public selectedNumericAlias: object = this.numericAliasList[0];
 
   // 포멧 위치 리스트
-  public positionList: Object[] = [
+  public positionList: object[] = [
     {name: this.translateService.instant('msg.page.format.custom.symbol.position.front'), value: UIFormatSymbolPosition.BEFORE},
     {name: this.translateService.instant('msg.page.format.custom.symbol.position.back'), value: UIFormatSymbolPosition.AFTER}
   ];
@@ -195,7 +195,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     // 값이 유효하지 않으면 패스~
     if( !sign || !this.signListComp ) { return; }
 
-    const signList: Object[] = this.currencySignList;
+    const signList: object[] = this.currencySignList;
 
     // 심볼 목록에서 찾아서 주입
     for( let num: number = 0 ; num < signList.length ; num++ ) {
@@ -214,7 +214,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     // 값이 유효하지 않으면 패스~
     if( !numericAlias || !this.numericAliasListComp ) { return; }
 
-    const aliasList: Object[] = this.numericAliasList;
+    const aliasList: object[] = this.numericAliasList;
 
     // 심볼 목록에서 찾아서 주입
     for( let num: number = 0 ; num < aliasList.length ; num++ ) {
@@ -245,7 +245,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    * 타입 변경 핸들러
    * @param type
    */
-  public onTypeChange(type: Object): void {
+  public onTypeChange(type: object): void {
 
     // 타입변경
     this.selectedType = type;
@@ -258,7 +258,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    * 심볼 변경 핸들러
    * @param sign
    */
-  public onSignChange(sign: Object): void {
+  public onSignChange(sign: object): void {
 
     // 심볼변경
     this.selectedSign = sign;
@@ -326,7 +326,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    * 수치표시 약어설정 변경 핸들러
    * @param numericAlias
    */
-  public onNumericAliasChange(numericAlias: Object): void {
+  public onNumericAliasChange(numericAlias: object): void {
 
     // 심볼변경
     this.selectedNumericAlias = numericAlias;

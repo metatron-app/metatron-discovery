@@ -77,7 +77,6 @@ import {BarColor, UIWaterfallChart} from '@common/component/chart/option/ui-opti
 import {isNullOrUndefined} from 'util';
 import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
 import {ChartUtil} from '@common/component/chart/option/util/chart-util';
-import {UIChartTooltip} from '@common/component/chart/option/ui-option/ui-tooltip';
 
 @Component({
   selector: 'common-option',
@@ -1081,7 +1080,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    *
    * @param show
    */
-  public kpiShowLabel(idx: number, show: boolean): void {
+  public kpiShowLabel(_idx: number, show: boolean): void {
     const option: UILabelChart = this.uiOption as UILabelChart;
     option.showLabel = show;
     this.uiOption = (_.extend({}, this.uiOption, {showLabel: option.showLabel}) as UIOption);

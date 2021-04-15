@@ -162,7 +162,7 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
     this.loadingShow();
     if (this.mode === 'create') {
       this.notebookService.createNotebookServer(this.notebook)
-        .then((data) => {
+        .then((_data) => {
           this.loadingHide();
           Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
           this.isShow = false;
@@ -179,7 +179,7 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
         });
     } else if (this.mode === 'update') {
       this.notebookService.updateNotebookServer(this.notebook)
-        .then((data) => {
+        .then((_data) => {
           this.loadingHide();
           Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
           this.isShow = false;

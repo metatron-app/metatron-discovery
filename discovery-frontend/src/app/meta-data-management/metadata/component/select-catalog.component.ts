@@ -436,7 +436,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
    * @returns object
    * @private
    */
-  private _getMetadataParams(): Object {
+  private _getMetadataParams(): object {
 
     return {
       size: 15,

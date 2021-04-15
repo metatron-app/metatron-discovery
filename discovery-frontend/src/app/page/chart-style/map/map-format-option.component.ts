@@ -13,9 +13,8 @@
  */
 
 import { FormatOptionComponent } from '../format-option.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
 import { Shelf } from '@domain/workbook/configurations/shelf/shelf';
-import { Pivot } from '@domain/workbook/configurations/pivot';
 import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
 import * as _ from 'lodash';
 import { UIMapOption } from '@common/component/chart/option/ui-option/map/ui-map-chart';
@@ -98,7 +97,7 @@ export class MapFormatOptionComponent extends FormatOptionComponent {
    * change format
    * @param {Object} target
    */
-  public onChange(target: Object): void {
+  public onChange(target: object): void {
 
     // 포맷
     this.format = target as Format;

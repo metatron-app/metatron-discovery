@@ -14,9 +14,8 @@
 
 import { ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
 import { BaseOptionComponent } from './base-option.component';
-import { BarMarkType, ChartType } from '@common/component/chart/option/define/common';
+import { ChartType } from '@common/component/chart/option/define/common';
 import { Pivot } from '@domain/workbook/configurations/pivot';
-import { UIBarChart } from '@common/component/chart/option/ui-option/ui-bar-chart';
 
 
 export class LabelBaseOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {

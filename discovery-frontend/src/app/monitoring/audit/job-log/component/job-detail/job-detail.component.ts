@@ -13,7 +13,7 @@
  */
 
 import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { AuditService } from '../../../service/audit.service';
 import { Audit } from '@domain/audit/audit';
 import { LogComponent } from '@common/component/modal/log/log.component';

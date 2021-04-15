@@ -18,8 +18,7 @@ import {
   UIOption
 } from '@common/component/chart/option/ui-option';
 import {
-  AxisLabelType, ChartAxisLabelType, ChartType, LabelConvertType,
-  SeriesConvertType, UIOrient
+  AxisLabelType, ChartAxisLabelType, ChartType, UIOrient
 } from '@common/component/chart/option/define/common';
 import { Alert } from '@common/util/alert.util';
 import * as _ from 'lodash';
@@ -129,9 +128,8 @@ export class XAxisOptionComponent extends BaseOptionComponent {
   /**
    * 축 이름
    *
-   * @param axisType
-   * @param index
-   * @param event
+   * @param axisLabelType
+   * @param name
    */
   public axisName(axisLabelType: any, name: string): void {
 
@@ -168,10 +166,8 @@ export class XAxisOptionComponent extends BaseOptionComponent {
   /**
    * 축 타이틀 표시여부
    *
-   * @param axisType
-   * @param index
+   * @param axisLabelType
    * @param show
-   * @param event
    */
   public showAxisName(axisLabelType: any, show: boolean): void {
 
@@ -186,10 +182,8 @@ export class XAxisOptionComponent extends BaseOptionComponent {
   /**
    * 축 라벨 표시여부
    *
-   * @param axisType
-   * @param index
+   * @param axisLabelType
    * @param show
-   * @param event
    */
   public showAxisLabel(axisLabelType: any, show: boolean): void {
 
@@ -204,8 +198,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
   /**
    * 축 라벨 회전
    *
-   * @param axisType
-   * @param index
+   * @param axisLabelType
    * @param rotate
    */
   public rotateAxisLabel(axisLabelType: AxisLabelType, rotate: number): void {

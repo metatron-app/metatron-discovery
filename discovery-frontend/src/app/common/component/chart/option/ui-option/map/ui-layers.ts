@@ -137,7 +137,8 @@ interface SymbolColor {
 interface LayerSize {
   by: string;
   column: string;
-  max: number
+  min: number;
+  max: number;
 }
 
 /**

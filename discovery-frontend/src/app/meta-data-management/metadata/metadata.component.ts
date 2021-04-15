@@ -328,7 +328,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
         this.getMetadataList();
       }
 
-    }).catch((error) => {
+    }).catch((_error) => {
       this.loadingHide();
 
     });
@@ -359,7 +359,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.catalogService.getTreeCatalogs(catalog.id).then((result) => {
       this.loadingHide();
       catalog.children = result;
-    }).catch((error) => {
+    }).catch((_error) => {
       this.loadingHide();
     });
   }
@@ -392,14 +392,14 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * 삭제 확인
    */
   public deleteMetadata() {
-    this.metadataService.deleteMetaData(this.selectedMetadata.id).then((result) => {
+    this.metadataService.deleteMetaData(this.selectedMetadata.id).then((_result) => {
       Alert.success(
         this.translateService.instant('msg.metadata.alert.md-deleted', {value: this.selectedMetadata.name}));
       if (this.page.page > 0 && this.metadatas.length === 1) {
         this.page.page = this.page.page - 1;
       }
       this.reloadPage(false);
-    }).catch((error) => {
+    }).catch((_error) => {
       Alert.fail(this.translateService.instant('msg.metadata.alert.md-delete.fail'));
     });
 
@@ -517,7 +517,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     if (_.isNil(metadataId)) {
       this.reloadPage(true);
     } else {  // if exist metadataId, go to detail page
-      this.router.navigate(['management/metadata/metadata', metadataId]);
+      this.router.navigate(['management/metadata/metadata', metadataId]).then();
     }
   }
 

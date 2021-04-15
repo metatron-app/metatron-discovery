@@ -374,7 +374,7 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
   public auditDetailOpen(data) {
     if(data.hasOwnProperty('id')) {
       this.auditService.previousRouter = '/management/monitoring/statistics';
-      this.router.navigateByUrl('/management/monitoring/audit/' + data.id);
+      this.router.navigateByUrl('/management/monitoring/audit/' + data.id).then();
     }
   }
 

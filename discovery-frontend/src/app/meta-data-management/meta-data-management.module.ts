@@ -56,7 +56,6 @@ import {SortingComponent} from './component/sorting.component';
 import {MetadataDetailInformationComponent} from './metadata/component/metadata-detail-information.component';
 import {MetadataDetailTopComponent} from './metadata/component/metadata-detail-top.component';
 import {LayoutModule} from '@layout/layout/layout.module';
-import {PopupCodeTableComponent} from './code-table/popup/popup-code-table.component';
 
 @NgModule({
   imports: [

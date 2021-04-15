@@ -12,9 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
+import { Component, ElementRef, Injector} from '@angular/core';
 import {YAxisOptionComponent} from './yaxis-option.component';
-import {AxisLabelType} from '@common/component/chart/option/define/common';
 import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
 import {UIOption} from '@common/component/chart/option/ui-option';
@@ -81,7 +80,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
    * @param index
    * @param event
    */
-  public axisName(axisLabelType: any, idx: number, name: string): void {
+  public axisName(axisLabelType: any, _idx: number, name: string): void {
 
     // enter시 currentTarget.value값으로 설정, click시 row / column에 따라 nameUiOption axis name값으로 설정
     const value = name ? name : this.nameUiOption.secondaryAxis.customName;
@@ -113,10 +112,8 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
   /**
    * 축 타이틀 표시여부
    *
-   * @param axisType
-   * @param index
+   * @param axisLabelType
    * @param show
-   * @param event
    */
   public showAxisName(axisLabelType: any, show: boolean): void {
 
@@ -131,10 +128,8 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
   /**
    * 축 라벨 표시여부
    *
-   * @param axisType
-   * @param index
+   * @param axisLabelType
    * @param show
-   * @param event
    */
   public showAxisLabel(axisLabelType: any, show: boolean): void {
 

@@ -80,7 +80,7 @@ export class CreateNotebookModelComponent extends AbstractPopupComponent impleme
     super.ngOnInit();
   }
 
-  public ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges(_changes: SimpleChanges) {
 
   }
 
@@ -121,7 +121,7 @@ export class CreateNotebookModelComponent extends AbstractPopupComponent impleme
         that.saveComplete.emit(data);
         this.close();
       })
-      .catch((error) => {
+      .catch((_error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.nbook.alert.update.fail'));
       });

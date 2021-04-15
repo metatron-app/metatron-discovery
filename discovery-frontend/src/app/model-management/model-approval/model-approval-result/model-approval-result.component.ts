@@ -68,7 +68,7 @@ export class ModelApprovalResultComponent extends AbstractPopupComponent impleme
             that.loadingHide();
             that.showReuslt(result, '');
           })
-          .catch((error) => {
+          .catch((_error) => {
             Alert.error('데이터 조회가 실패했습니다.');
             that.loadingHide();
           });
@@ -76,7 +76,7 @@ export class ModelApprovalResultComponent extends AbstractPopupComponent impleme
     }
   }
 
-  protected showReuslt(result: string, type: string) {
+  protected showReuslt(result: string, _type: string) {
     const iframe: any = $('#modelApprovalContent');
     const iframeContent = iframe[0].contentWindow.document;
     iframeContent.body.innerHTML = result;

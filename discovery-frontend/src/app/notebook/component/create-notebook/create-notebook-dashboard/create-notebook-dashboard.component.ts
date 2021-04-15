@@ -164,7 +164,7 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch((_error) => {
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         // 로딩 hide
         this.loadingHide();
@@ -183,7 +183,7 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
         // this.node.push(this.bookTree);
         this.node.push(workbooks);
       })
-      .catch((error) => {
+      .catch((_error) => {
         Alert.error(this.translateService.instant('msg.nbook.alert.workbook.retrieve.fail'));
         // 로딩 hide
         this.loadingHide();

@@ -13,11 +13,10 @@
  */
 
 import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { ChartType, UIChartDataLabelDisplayType } from '@common/component/chart/option/define/common';
+import { UIChartDataLabelDisplayType } from '@common/component/chart/option/define/common';
 import { UIOption } from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
 import { FormatOptionConverter } from '@common/component/chart/option/converter/format-option-converter';
-import { UIChartFormat } from '@common/component/chart/option/ui-option/ui-format';
 import { LabelBaseOptionComponent } from './labelbase-option.component';
 import { TooltipOptionConverter } from '@common/component/chart/option/converter/tooltip-option-converter';
 @Component({

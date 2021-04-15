@@ -23,8 +23,6 @@ import {
   UIOrient,
   UIPosition
 } from '@common/component/chart/option/define/common';
-import { UIChartFormat } from '@common/component/chart/option/ui-option/ui-format';
-import { FormatOptionConverter } from '@common/component/chart/option/converter/format-option-converter';
 import { Pivot } from '@domain/workbook/configurations/pivot';
 import { LabelBaseOptionComponent } from './labelbase-option.component';
 import { LabelOptionConverter } from '@common/component/chart/option/converter/label-option-converter';
