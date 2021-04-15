@@ -26,7 +26,7 @@ import { UIMapOption } from '@common/component/chart/option/ui-option/map/ui-map
 export class MapLegendOptionComponent extends BaseOptionComponent {
 
   // legend position list
-  public legendPositionList: Object[] = [
+  public legendPositionList: object[] = [
     {name: this.translateService.instant('msg.page.ui.legend.legend.position.right.bottom'), value: UIPosition.RIGHT_BOTTOM},
     {name: this.translateService.instant('msg.page.ui.legend.legend.position.right.top'), value: UIPosition.RIGHT_TOP},
     {name: this.translateService.instant('msg.page.ui.legend.legend.position.left.bottom'), value: UIPosition.LEFT_BOTTOM},

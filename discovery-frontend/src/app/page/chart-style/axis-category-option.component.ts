@@ -37,7 +37,7 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 배경색상 투명도 리스트
-  public transparencyList: Object[] = [
+  public transparencyList: object[] = [
     {name: 'None', value: 0},
     {name: '70%', value: 0.7},
     {name: '50%', value: 0.5},
@@ -270,7 +270,7 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
    * 배경 투명도 변경시
    * @param {Object} data
    */
-  public changeTransprency(data: Object): void {
+  public changeTransprency(data: object): void {
 
     // 투명도 설정
     this.axis.background.transparency = data['value'];

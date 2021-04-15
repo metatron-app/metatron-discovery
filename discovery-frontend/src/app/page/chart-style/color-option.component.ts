@@ -511,7 +511,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 라인차트일때 교차의 dimension여부에 따라 color by dimension show hide 설정
    * @param chartType
    */
-  public lineChartCheck(chartType: string): boolean {
+  public lineChartCheck(_chartType: string): boolean {
 
     // // 라인차트이면서 showFl값이 false이면
     // if (String(ChartType.LINE) === chartType && !(<UIChartColorByDimension>this.uiOption.color).showFl) {
@@ -758,7 +758,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /**
    * 선택된 컬러범위를 제거
    */
-  public removeColorRange(range: ColorRange, index: number) {
+  public removeColorRange(_range: ColorRange, index: number) {
 
     // 색상 범위리스트
     const rangeList = (this.uiOption.color as UIChartColorByValue).ranges;
@@ -1359,7 +1359,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * @param color
    * @returns {string[]}
    */
-  private setUserCodes(color: Object): Object {
+  private setUserCodes(color: object): object {
 
     // color by series가 아닐거나 mapping값이 없을때 return
     if ((!_.eq(ChartColorType.SERIES, this.uiOption.color.type) && !_.eq(ChartType.GAUGE, this.uiOption.type)) || (_.eq(ChartType.GAUGE, this.uiOption.type) && !_.eq(ChartColorType.DIMENSION, this.uiOption.color.type))  || !(this.uiOption.color as UIChartColorBySeries).mapping) return;
@@ -1444,7 +1444,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
       const resultList: string[] = [];
-      _.forEach(shelve, (value, key) => {
+      _.forEach(shelve, (_value, key) => {
         shelve[key].map((item) => {
           if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
             resultList.push(item.name);

@@ -134,12 +134,12 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
     const sub = this.connectionService.getSchemaListWithCancel(this._getConnectionParams()).subscribe(
       res => {
         this.schemaList = res['databases'];
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
       err => {
         this.commonExceptionHandler(err);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
     );
@@ -157,12 +157,12 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
       res => {
         // set table list
         this.tableList = res['tables'];
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
       err => {
         this.commonExceptionHandler(err);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
     );
@@ -187,12 +187,12 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent {
         // set detail data
         this.selectedTableDetailData = res;
         this._tablePreviewComponent.changeTableData(this.selectedTable, this.selectedTableDetailData);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
       err => {
         this.commonExceptionHandler(err);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
     );

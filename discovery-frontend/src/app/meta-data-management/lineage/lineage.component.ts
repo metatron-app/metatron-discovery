@@ -235,6 +235,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   /**
    * 리니지 삭제 클릭 이벤트
+   * @param event
    * @param {LineageEdge} lineageEdge
    */
   public onClickDeleteLineage(event, lineageEdge: LineageEdge ): void {

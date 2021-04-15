@@ -198,7 +198,7 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
     this.onChange(this.format);
   }
 
-  public onChange(target: Object): void {
+  public onChange(target: object): void {
 
     // 포맷
     this.format = target as Format;

@@ -65,7 +65,7 @@ export class ResultNotebookApiComponent extends AbstractPopupComponent implement
           this.showReuslt(result);
 
         })
-        .catch((error) => {
+        .catch((_error) => {
           this.loadingHide();
           this.showReuslt(this.translateService.instant('msg.nbook.ui.api.no.rslt'));
         });

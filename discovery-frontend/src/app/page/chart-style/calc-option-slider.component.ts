@@ -53,7 +53,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
   @Output() public onChanged = new EventEmitter();
 
   // 연산자 리스트
-  public operatorList: Object[] = [
+  public operatorList: object[] = [
     {name: this.translateService.instant('msg.page.calc.label.operator.sum'), value: Operator.SUM},
     {name: this.translateService.instant('msg.page.calc.label.operator.average'), value: Operator.AVERAGE},
     {name: this.translateService.instant('msg.page.calc.label.operator.max'), value: Operator.MAX},
@@ -63,7 +63,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
   public operatorDefaultIdx: number = 0;
 
   // 가로 align리스트
-  public hAlignList: Object[] = [
+  public hAlignList: object[] = [
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.default'), value: TextAlign.DEFAULT},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.left'), value: TextAlign.LEFT},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.center'), value: TextAlign.CENTER},
@@ -116,7 +116,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
   /**
    * 연산자 변경시
    */
-  public changeOperator(data: Object): void {
+  public changeOperator(data: object): void {
     this.totalValueStyle.aggregationType = data['value'];
     this.onChanged.emit(this.totalValueStyle);
   }
@@ -125,7 +125,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
    * 가로 align 변경시
    * @param data
    */
-  public changeHAlign(data: Object): void {
+  public changeHAlign(data: object): void {
     this.totalValueStyle.hAlign = data['value'];
     this.onChanged.emit(this.totalValueStyle);
   }

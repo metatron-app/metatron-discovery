@@ -307,7 +307,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
       .then((result) => {
         this.showLineageTab = result;
       })
-      .catch(error => {});
+      .catch(_error => {});
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -72,7 +72,7 @@ export class MetaDataManagementComponent extends AbstractComponent {
 
         // metadata 리스트 페이지로 redirect
         // TODO 추후 metadata-list로 변경
-        this.router.navigateByUrl('/management/metadata/code-table');
+        this.router.navigateByUrl('/management/metadata/code-table').then();
       }
 
       // 탭 아이디를 설정
@@ -110,7 +110,7 @@ export class MetaDataManagementComponent extends AbstractComponent {
     // 선택된 탭 아이디 설정
     this.tabId = tabId;
     // 페이지 이동
-    this.router.navigateByUrl('/management/metadata/' + tabId);
+    this.router.navigateByUrl('/management/metadata/' + tabId).then();
 
   }
 
@@ -127,7 +127,7 @@ export class MetaDataManagementComponent extends AbstractComponent {
       .then((result) => {
         this.showLineageTab = result;
       })
-      .catch(error => {});
+      .catch(_error => {});
   }
 
 }

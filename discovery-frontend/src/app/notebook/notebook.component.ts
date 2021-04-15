@@ -172,7 +172,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
 
   // 닫기
   public close() {
-    this.router.navigate(['/workspace']);
+    this.router.navigate(['/workspace']).then();
   }
 
   // 에러페이지 표현
@@ -249,7 +249,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
         // Alert.success(this.translateService.instant('msg.nbook.alert.update.success'));
         return;
       })
-      .catch((error) => {
+      .catch((_error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.nbook.alert.update.fail'));
         return;
@@ -332,7 +332,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
       cookieWorkspace = JSON.parse(cookieWs);
     }
     if (null !== cookieWorkspace) {
-      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]);
+      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
     }
   }
 

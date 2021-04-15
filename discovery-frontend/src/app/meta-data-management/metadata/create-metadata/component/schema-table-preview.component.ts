@@ -17,7 +17,7 @@ import {Component, ElementRef, Injector,ViewChild} from '@angular/core';
 import {GridComponent} from '@common/component/grid/grid.component';
 import {GridOption} from '@common/component/grid/grid.option';
 import {Field} from '@domain/datasource/datasource';
-import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
 import {AbstractComponent} from '@common/component/abstract.component';
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
@@ -65,7 +65,7 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
    * @return {header[]}
    * @private
    */
-  private _getHeaders(fields: Field[]): header[] {
+  private _getHeaders(fields: Field[]): Header[] {
     return fields.map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
@@ -112,7 +112,7 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
    * @param rows
    * @private
    */
-  private _drawGrid(headers: header[], rows) {
+  private _drawGrid(headers: Header[], rows) {
     this.hideGrid = false;
     this.changeDetect.detectChanges();
     // 그리드 옵션은 선택
@@ -133,7 +133,7 @@ export class SchemaTablePreviewComponent extends AbstractComponent {
    */
   private _updateGrid(fields: Field[], data) {
     // headers
-    const headers: header[] = this._getHeaders(fields);
+    const headers: Header[] = this._getHeaders(fields);
     // rows
     const rows: any[] = this._getRows(data);
     // grid 그리기

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {Component, ElementRef, Injector} from '@angular/core';
 import {MetadataEntity} from '../../metadata.entity';
 import * as _ from 'lodash';
 import {AbstractComponent} from '@common/component/abstract.component';

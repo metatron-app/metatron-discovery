@@ -55,7 +55,7 @@ export class ModelApprovalService extends AbstractService {
    * @param {Object} options
    * @returns {Promise<any>}
    */
-  public getModelDetail(id: string, page: Page, projection: string = 'forDetailView', options?: Object): Promise<any> {
+  public getModelDetail(id: string, page: Page, projection: string = 'forDetailView', options?: object): Promise<any> {
     const url = this.API_URL + `nbmodels/` + id + `&projection=${projection}`;
     return this.get(url);
   }

@@ -68,19 +68,19 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
   public pivotTemp: Pivot;
 
   // 표시 대상
-  public targetList: Object[] = [
+  public targetList: object[] = [
     {name: this.translateService.instant('msg.comm.ui.list.all'), value: ''}
   ];
   public target: Object = this.targetList[0];
 
   // 지표 유형
-  public indicatorList: Object[] = [
+  public indicatorList: object[] = [
     {name: this.translateService.instant('msg.page.common.kpi.indocator.standard.to'), value: 'STANDARD'}
     ,{name: this.translateService.instant('msg.page.common.kpi.indocator.period'), value: 'PERIOD'}
   ];
 
   // 비교기간
-  public periodList: Object[] = [
+  public periodList: object[] = [
     {name: this.translateService.instant('msg.page.common.kpi.indocator.period.year'), value: 'YEAR'},
     // {name: this.translateService.instant('msg.page.common.kpi.indocator.period.quarter'), value: 'QUARTER'},
     {name: this.translateService.instant('msg.page.common.kpi.indocator.month'), value: 'MONTH'},
@@ -453,9 +453,9 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
 
   /**
    * 표시대상 변경
-   * @param iconType
+   * @param target
    */
-  public changeTarget(target: Object): void {
+  public changeTarget(target: object): void {
 
     this.target = target;
     this.changeDetect.detectChanges();
@@ -502,7 +502,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
 
   /**
    * 지표유형 변경
-   * @param type
+   * @param indicatorType
    */
   public changeIndicatorType(indicatorType: LabelSecondaryIndicatorType): void {
 
@@ -541,7 +541,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
           }
         });
       }
-      _.each(this.periodList, (period, index) => {
+      _.each(this.periodList, (period, _index) => {
         if( _.eq(period['value'], value) ) {
           // this.periodListComp.setDefaultIndex = value;
           this.periodListComp.selected(period);
@@ -565,7 +565,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
 
   /**
    * 표시방식 선택여부
-   * @param iconType
+   * @param markTypeStr
    */
   public getMarkSelected(markTypeStr: string): boolean {
 
@@ -594,7 +594,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
 
   /**
    * 표시방식 변경
-   * @param type
+   * @param markTypeStr
    */
   public changeMarkType(markTypeStr: string): void {
 
@@ -686,7 +686,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
 
   /**
    * 비교기간 타입 변경
-   * @param type
+   * @param periodType
    */
   public changePeriodType(periodType: LabelSecondaryIndicatorPeriod): void {
 
@@ -724,7 +724,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       return;
     }
     else {
-      _.each(option.secondaryIndicators, (series, index) => {
+      _.each(option.secondaryIndicators, (series, _index) => {
         if( this.target['value'] == series.seriesName ) {
           this.isPeriod = _.eq(series.indicatorType, LabelSecondaryIndicatorType.PERIOD);
           return;

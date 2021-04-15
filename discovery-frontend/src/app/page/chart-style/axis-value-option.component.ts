@@ -53,10 +53,10 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   public AxisOptionConverter: any = AxisOptionConverter;
 
   // 선굵기 리스트
-  public lineThickList: Object[] = [];
+  public lineThickList: object[] = [];
 
   // 선유형 리스트
-  public lineTypeList: Object[] = [];
+  public lineTypeList: object[] = [];
 
   public axisTemp: UIChartAxis;
 
@@ -170,7 +170,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
    * format item 변경시
    * @param target
    */
-  public onChange(target: Object): void {
+  public onChange(target: object): void {
 
     // 축 라벨의 포맷값 설정
     (this.axis.label as UIChartAxisLabelValue).format = target as Format;

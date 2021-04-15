@@ -120,7 +120,7 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
   public setApproval(param: string) {
     this.loadingShow();
     this.modelApprovalService.updateModel(this.resultData['notebook']['id'], param)
-      .then((data) => {
+      .then((_data) => {
         this.loadingHide();
         if (param === 'APPROVAL') {
           Alert.success('승인 처리 되었습니다.');
@@ -170,7 +170,7 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
       Alert.success('삭제되었습니다.');
       this.loadingHide();
       this.close();
-    }).catch((error) => {
+    }).catch((_error) => {
       Alert.error('삭제에 실패했습니다.');
       this.loadingHide();
     });
@@ -191,7 +191,7 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
         Alert.success('테스트가 성공적으로 이루어 졌습니다.');
         this.loadingHide();
         this.getRunTestHistory();
-      }).catch((error) => {
+      }).catch((_error) => {
         Alert.error('테스트가 실패했습니다.');
         this.loadingHide();
       });
@@ -216,7 +216,7 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
   }
 
   // 결과 화면 창 닫기
-  public approvalResultClose(param) {
+  public approvalResultClose(_param) {
     this.resultLayer = false;
   }
 

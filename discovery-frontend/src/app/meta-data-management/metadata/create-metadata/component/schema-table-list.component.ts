@@ -72,7 +72,7 @@ export class SchemaTableListComponent extends AbstractComponent implements OnCha
     return this.selectedTable === table;
   }
 
-  onChangeSelectedTable(table: string, event?: MouseEvent): void {
+  onChangeSelectedTable(table: string, _event?: MouseEvent): void {
     if (_.isNil(this.selectedTable) || this.selectedTable !== table) {
       // changed selected table
       this.changedSelectedTable.emit(table);

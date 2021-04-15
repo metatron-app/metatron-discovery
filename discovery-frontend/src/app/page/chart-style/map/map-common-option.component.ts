@@ -80,7 +80,7 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    * set map style
    * @param data
    */
-  public setMapStyle(data: Object) {
+  public setMapStyle(data: object) {
 
     this.uiOption = (_.extend({}, this.uiOption, {
       style: data['value']
@@ -93,7 +93,7 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    * set map service
    * @param data
    */
-  public setMapService(data: Object) {
+  public setMapService(data: object) {
 
     this.uiOption = (_.extend({}, this.uiOption, {
       map: data['value']

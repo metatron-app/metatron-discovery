@@ -228,7 +228,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    */
   public auditDetailOpen(id: string) {
     // 페이지 이동
-    this.router.navigateByUrl('/management/monitoring/audit/' + id);
+    this.router.navigateByUrl('/management/monitoring/audit/' + id).then();
   }
 
 
@@ -281,7 +281,6 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    * @param {string} key
    */
   public sort(key: string) {
-
     // 초기화
     this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
 

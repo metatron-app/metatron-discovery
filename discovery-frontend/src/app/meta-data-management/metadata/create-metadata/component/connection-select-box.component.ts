@@ -50,7 +50,7 @@ export class ConnectionSelectBoxComponent extends AbstractComponent {
    * @param event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  protected onResize(_event) {
     // #1925
     if (this.isEnableWindowResizeAutoClose && this.isShowList) {
       this.isShowList = false;
