@@ -29,14 +29,14 @@ import {
   ViewChild
 } from '@angular/core';
 import {RangeSliderComponent} from '../slider/range-slider.component';
-import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {
   ChartColorList,
   GraphicType,
   ShelveFieldType,
   ShelveType
-} from '../../../../common/component/chart/option/define/common';
-import {PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
+} from '@common/component/chart/option/define/common';
+import {PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {
   Analysis,
   analysis,
@@ -47,14 +47,16 @@ import {
 } from '../../value/analysis';
 import {ColorPickerLayerComponent} from '../color.picker/color.picker.layer.component';
 import * as $ from 'jquery';
-import {SelectComponent} from '../../../../common/component/select/select.component';
+import {SelectComponent} from '@common/component/select/select.component';
 import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Alert} from '../../../../common/util/alert.util';
-import {UIOption} from '../../../../common/component/chart/option/ui-option';
-import {Field} from '../../../../domain/workbook/configurations/field/field';
-import {UIChartColorBySeries} from '../../../../common/component/chart/option/ui-option/ui-color';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {Field} from '@domain/workbook/configurations/field/field';
+import {UIChartColorBySeries} from '@common/component/chart/option/ui-option/ui-color';
+import {OptionGenerator} from "@common/component/chart/option/util/option-generator";
+import UI = OptionGenerator.UI;
 
 @Component({
   selector: 'analysis-prediction',
@@ -753,7 +755,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   /**
    * 고급분석 예측선 데이터 싱크
    */
-  public synchronize(uiOption: UIOption, param?: Object, resultData?: any): void {
+  public synchronize(uiOption: UIOption, param?: object, resultData?: any): void {
 
     // isPredictionLineDisabled값 설정
     if (param) param['isPredictionLineDisabled'] = this.setPredictionLineDisabled(param);
@@ -817,7 +819,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       const widgetConfigurationPivotAggregations = [];
       this.widgetConfiguration.pivot.aggregations
-        .forEach((agg, index) => {
+        .forEach((agg, _index) => {
 
           // alias 설정
           let alias: string;
@@ -903,10 +905,10 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       let schema = this.uiOption.color['schema'];
       let codes: any = _.cloneDeep(ChartColorList[schema]);
       // userCodes가 있는경우 codes대신 userCodes로 설정
-      if ((<UIChartColorBySeries>color).mapping) {
-        Object.keys((<UIChartColorBySeries>color).mapping).forEach((key, index) => {
+      if ((color as UIChartColorBySeries).mapping) {
+        Object.keys((color as UIChartColorBySeries).mapping).forEach((key, index) => {
 
-          codes[index] = (<UIChartColorBySeries>color).mapping[key];
+          codes[index] = (color as UIChartColorBySeries).mapping[key];
         });
       }
 
@@ -1602,12 +1604,12 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    * @param param
    * @returns {Object}
    */
-  private setPredictionLineDisabled(param: Object): Object {
+  private setPredictionLineDisabled(param: object): boolean {
 
     const pivot: Pivot = param['pivot'];
     const columns: Field[] = pivot['columns'];
 
-    let disabled: Object;
+    let disabled: boolean;
     if (columns && columns.length > 0) {
 
       const field = columns[0];

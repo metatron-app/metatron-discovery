@@ -25,17 +25,17 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
+import {PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {AnalysisPredictionComponent} from './prediction/analysis-prediction.component';
 import {TrendLineComponent} from './trend.line/trend.line.component';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
-import {UIOption} from '../../../common/component/chart/option/ui-option';
-import {EventType} from '../../../common/component/chart/option/define/common';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {EventType} from '@common/component/chart/option/define/common';
 import {AnalysisPredictionService} from './service/analysis.prediction.service';
 import {fromEvent} from "rxjs";
 import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
-import {Shelf} from "../../../domain/workbook/configurations/shelf/shelf";
+import {Shelf} from "@domain/workbook/configurations/shelf/shelf";
 
 @Component({
   selector: 'analysis-component',
@@ -62,8 +62,8 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   /**
    * 추세선
    */
-  @ViewChild(TrendLineComponent)
-  private trendLineComponent: TrendLineComponent;
+  /*@ViewChild(TrendLineComponent)
+  private trendLineComponent: TrendLineComponent;*/
 
   @ViewChild('MapSpatialComponent')
   private mapSpatialComponent: MapSpatialComponent;

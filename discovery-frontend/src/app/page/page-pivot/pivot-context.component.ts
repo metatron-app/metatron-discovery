@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   Component,
   ElementRef,
@@ -21,26 +21,25 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output,
-  ViewChild
+  Output
 } from '@angular/core';
 import {Field, Field as AbstractField} from '../../domain/workbook/configurations/field/field';
-import {Alert} from '../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
-import {StringUtil} from '../../common/util/string.util';
-import {DIRECTION} from '../../domain/workbook/configurations/sort';
-import {ChartType, EventType, SeriesType} from '../../common/component/chart/option/define/common';
-import {AggregationType} from '../../domain/workbook/configurations/field/measure-field';
-import {UIChartAxis} from '../../common/component/chart/option/ui-option/ui-axis';
-import {Modal} from '../../common/domain/modal';
+import {StringUtil} from '@common/util/string.util';
+import {DIRECTION} from '@domain/workbook/configurations/sort';
+import {ChartType, EventType, SeriesType} from '@common/component/chart/option/define/common';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
+import {UIChartAxis} from '@common/component/chart/option/ui-option/ui-axis';
+import {Modal} from '@common/domain/modal';
 import {UIChartColorByValue, UIOption} from '../../common/component/chart/option/ui-option';
-import {ByTimeUnit, GranularityType, TimeUnit} from '../../domain/workbook/configurations/field/timestamp-field';
-import {Pivot} from '../../domain/workbook/configurations/pivot';
-import {PageWidget} from '../../domain/dashboard/widget/page-widget';
-import {Shelf} from '../../domain/workbook/configurations/shelf/shelf';
-import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
-import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
-import {Format} from "../../domain/workbook/configurations/format";
+import {ByTimeUnit, GranularityType, TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {PageWidget} from '@domain/dashboard/widget/page-widget';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
+import {Format} from "@domain/workbook/configurations/format";
 
 @Component({
   selector: 'pivot-context',
@@ -382,7 +381,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   /**
    * 보조축 On / Off 핸들러
    */
-  public onChangeSecondaryAxis($event: Event): void {
+  public onChangeSecondaryAxis(_$event: Event): void {
 
     // 보조축
     let secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
@@ -413,7 +412,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
 
     // 사용자 색상이 설정된경우 granularity를 변경시
-    if (this.uiOption.color && (<UIChartColorByValue>this.uiOption.color).ranges && (<UIChartColorByValue>this.uiOption.color).ranges.length > 0 &&
+    if (this.uiOption.color && (this.uiOption.color as UIChartColorByValue).ranges && (this.uiOption.color as UIChartColorByValue).ranges.length > 0 &&
       (this.editingField.format.discontinuous !== discontinuous || this.editingField.format.unit !== TimeUnit[unit])) {
 
       const modal = new Modal();
@@ -486,7 +485,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    *
    * @param event - 마우스 이벤트
    */
-  public clickOutside(event: MouseEvent) {
+  public clickOutside(_event: MouseEvent) {
     this.editingField = null;
     this.fix2DepthContext = false;
     this.fixMeasureFormatContext = false;
@@ -518,7 +517,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
       // map chart => point, heatmap
       if (ChartType.MAP === this.uiOption.type) {
 
-        let mapUIOption = (<UIMapOption>this.uiOption);
+        let mapUIOption = (this.uiOption as UIMapOption);
         let layerType = mapUIOption.layers[mapUIOption.layerNum].type;
 
         // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
@@ -542,7 +541,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * @param granularity
    * @param byUnit
    */
-  private useGranularity(discontinuous: boolean, unit: string, granularity: GranularityType, byUnit?: string): boolean {
+  private useGranularity(_discontinuous: boolean, unit: string, granularity: GranularityType, byUnit?: string): boolean {
 
     // granularity 가중치 반환 (SECOND => YEAR로 갈수록 점수가 높아짐)
     const getGranularityScore = (granularity: string): number => {
@@ -633,7 +632,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   private returnPivotShelf(): Field[] {
     let list: any[];
     if (ChartType.MAP === this.uiOption.type) {
-      list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
+      list = this.shelf.layers[(this.uiOption as UIMapOption).layerNum].fields;
     } else {
       list = _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations);
     }

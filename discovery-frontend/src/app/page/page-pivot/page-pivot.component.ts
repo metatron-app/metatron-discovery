@@ -23,23 +23,23 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {Pivot} from '../../domain/workbook/configurations/pivot';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {Field as AbstractField} from '../../domain/workbook/configurations/field/field';
-import {Field, FieldPivot, FieldRole, LogicalType} from '../../domain/datasource/datasource';
-import {DimensionField} from '../../domain/workbook/configurations/field/dimension-field';
-import {AggregationType, MeasureField} from '../../domain/workbook/configurations/field/measure-field';
+import {Field, FieldPivot, FieldRole, LogicalType} from '@domain/datasource/datasource';
+import {DimensionField} from '@domain/workbook/configurations/field/dimension-field';
+import {AggregationType, MeasureField} from '@domain/workbook/configurations/field/measure-field';
 import {
   ByTimeUnit,
   GranularityType,
   TimestampField,
   TimeUnit
-} from '../../domain/workbook/configurations/field/timestamp-field';
+} from '@domain/workbook/configurations/field/timestamp-field';
 import * as $ from 'jquery';
 
 import * as _ from 'lodash';
 import {ClickOutsideDirective} from 'ng-click-outside';
-import {PageWidget, PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
+import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {
   BarMarkType,
   ChartType,
@@ -49,15 +49,15 @@ import {
   UIFormatCurrencyType,
   UIFormatNumericAliasType,
   UIFormatType
-} from '../../common/component/chart/option/define/common';
-import {Format} from '../../domain/workbook/configurations/format';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
+} from '@common/component/chart/option/define/common';
+import {Format} from '@domain/workbook/configurations/format';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {UIChartAxis, UIChartColorByValue, UIOption} from '../../common/component/chart/option/ui-option';
-import {Modal} from '../../common/domain/modal';
-import {Shelf} from '../../domain/workbook/configurations/shelf/shelf';
-import {Alert} from '../../common/util/alert.util';
-import {StringUtil} from '../../common/util/string.util';
-import {DIRECTION} from '../../domain/workbook/configurations/sort';
+import {Modal} from '@common/domain/modal';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {DIRECTION} from '@domain/workbook/configurations/sort';
 import {fromEvent} from "rxjs";
 import {debounceTime, map} from "rxjs/operators";
 
@@ -264,7 +264,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         debounceTime(500)
       );
 
-    const windowResizeSubscribe = resizeEvent$.subscribe((data) => {
+    const windowResizeSubscribe = resizeEvent$.subscribe((_data) => {
       this.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
       console.log('resize pivot! - TODO scrollCheck');
     });
@@ -938,6 +938,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 타입(행, 열, 교차)에 따른 가이드 문구 반환
    * @param type
+   * @param isText
    */
   public getGuideText(type: string, isText: boolean = true): string {
 
@@ -1307,7 +1308,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 보조축 On / Off 핸들러
    */
-  public onChangeSecondaryAxis($event: Event): void {
+  public onChangeSecondaryAxis(_$event: Event): void {
 
     // 보조축
     let secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
@@ -1696,7 +1697,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 사용자 색상이 설정된경우 granularity를 변경시
-    if (this.uiOption.color && (<UIChartColorByValue>this.uiOption.color).ranges && (<UIChartColorByValue>this.uiOption.color).ranges.length > 0 &&
+    if (this.uiOption.color && (this.uiOption.color as UIChartColorByValue).ranges && (this.uiOption.color as UIChartColorByValue).ranges.length > 0 &&
       (this.editingField.format.discontinuous !== discontinuous || this.editingField.format.unit !== TimeUnit[unit])) {
 
       const modal = new Modal();
@@ -1760,7 +1761,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       if (field.type === 'calculated') {
         console.log('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
       }
-      const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
+      // const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
       // field.alias = `${aggType}(${field.name})`;
     }
 
@@ -2094,7 +2095,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
       // 교차에 dimension이 있는경우
       this.pivot.aggregations.forEach((item) => {
-        aggDimensionExist = String(ShelveFieldType.DIMENSION) === item.type ? true : false;
+        aggDimensionExist = String(ShelveFieldType.DIMENSION) === item.type;
       })
 
       // 교차에 dimension이 있는경우에만 dimension 위치 변경
@@ -2123,7 +2124,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
       // 교차에 dimension이 있는경우
       this.pivot.rows.forEach((item) => {
-        rowDimensionExist = String(ShelveFieldType.DIMENSION) === item.type ? true : false;
+        rowDimensionExist = String(ShelveFieldType.DIMENSION) === item.type;
       })
 
       // 행에 dimension이 있는경우에만 dimension 위치 변경
@@ -2681,7 +2682,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param unit
    * @param byUnit
    */
-  private useGranularity(discontinuous: boolean, unit: string, granularity: GranularityType, byUnit?: string): boolean {
+  private useGranularity(_discontinuous: boolean, unit: string, granularity: GranularityType, _byUnit?: string): boolean {
 
     // granularity 가중치 반환 (SECOND => YEAR로 갈수록 점수가 높아짐)
     const getGranularityScore = (granularity: string): number => {

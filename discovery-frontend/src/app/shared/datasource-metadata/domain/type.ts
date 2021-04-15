@@ -1,5 +1,3 @@
-import {SourceType} from "../../../domain/meta-data-management/metadata";
-
 /**
  * Objects to be shared by the datasource and metadata
  */

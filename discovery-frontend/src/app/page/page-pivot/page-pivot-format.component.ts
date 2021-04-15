@@ -41,7 +41,7 @@ export class PagePivotFormatComponent extends AbstractFormatItemComponent implem
    * @param event
    */
   @HostListener('window:resize', ['$event'])
-  public onResize(event) {
+  public onResize(_event) {
     this._setPositionTypeSettingLayer();
   }
 

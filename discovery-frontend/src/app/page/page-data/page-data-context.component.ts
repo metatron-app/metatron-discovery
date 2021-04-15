@@ -16,13 +16,13 @@
  * Created by juheeko on 20/10/2017.
  */
 import { Component, ElementRef, EventEmitter, HostListener, Injector, Output, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Field, FieldNameAlias, FieldRole, FieldValueAlias, LogicalType } from '../../domain/datasource/datasource';
-import { StringUtil } from '../../common/util/string.util';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Field, FieldNameAlias, FieldRole, FieldValueAlias, LogicalType } from '@domain/datasource/datasource';
+import { StringUtil } from '@common/util/string.util';
 import { PopupValueAliasComponent } from '../page-pivot/popup-value-alias.component';
-import { Alert } from '../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 import { DatasourceAliasService } from '../../datasource/service/datasource-alias.service';
-import { BoardDataSource } from '../../domain/dashboard/dashboard';
+import { BoardDataSource } from '@domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import { isNullOrUndefined, isString } from 'util';
 import {Type} from '../../shared/datasource-metadata/domain/type';
@@ -385,11 +385,11 @@ export class PageDataContextComponent extends AbstractComponent {
         this.aliasService.deleteAliases(param.id).then(() => this._setResponse());
       } else {
         // 수정
-        this.aliasService.updateAliases(param.id, param).then(item => this._setResponse(<FieldNameAlias>item));
+        this.aliasService.updateAliases(param.id, param).then(item => this._setResponse(item as FieldNameAlias));
       }
     } else {
       // 생성
-      this.aliasService.createAliases(param).then(item => this._setResponse(<FieldNameAlias>item));
+      this.aliasService.createAliases(param).then(item => this._setResponse(item as FieldNameAlias));
     }
 
   } // function - _changeAlias

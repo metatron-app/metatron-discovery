@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { AnalysisPredictionComponent } from './analysis-prediction.component';
 import { RangeSliderModule } from '../slider/range-slider.module';
-import { CommonModule } from '../../../../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { ColorPickerLayerModule } from '../color.picker/color.picker.layer.module';
 import { ColorPickerLayerComponent } from '../color.picker/color.picker.layer.component';
 import { RangeSliderComponent } from '../slider/range-slider.component';

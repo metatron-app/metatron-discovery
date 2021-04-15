@@ -24,9 +24,9 @@ import {
   Output,
   SimpleChanges
 } from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Shelf} from "../../../../domain/workbook/configurations/shelf/shelf";
-import {UIMapOption} from "../../../../common/component/chart/option/ui-option/map/ui-map-chart";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Shelf} from "@domain/workbook/configurations/shelf/shelf";
+import {UIMapOption} from "@common/component/chart/option/ui-option/map/ui-map-chart";
 import {LogicalType} from "../../../../domain/datasource/datasource";
 import {Alert} from "../../../../common/util/alert.util";
 import {ShelveFieldType} from "../../../../common/component/chart/option/define/common";
@@ -207,7 +207,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         // 기존 데이터 체크
         if( !_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] ){
           let operation = this.uiOption.analysis.operation;
-          this.isBufferOn = (operation.buffer == 0 ? false : true);
+          this.isBufferOn = (operation.buffer != 0);
           if (this.isBufferOn) {
             this.isBufferOn = true;
             // buffer unit 설정
@@ -443,7 +443,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   /**
    * intersects & distanceWithin validation
    */
-  private spatialAnalysisAdditionalValidation(bufferData: string, spatialDataValue: string): boolean {
+  private spatialAnalysisAdditionalValidation(_bufferData: string, _spatialDataValue: string): boolean {
 
     // input box number만 가능
     if (_.isUndefined(this.unitInput) || this.unitInput.trim() === '' || isNaN(Number(this.unitInput.trim()))) {

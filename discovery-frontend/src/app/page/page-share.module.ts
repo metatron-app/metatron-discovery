@@ -13,19 +13,19 @@
  */
 
 import {NgModule} from '@angular/core';
-import {CommonModule} from '../common/common.module';
+import {CommonModule} from '@common/common.module';
 import {PagePivotComponent} from './page-pivot/page-pivot.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
-import {ChartModule} from '../common/chart.module';
+import {ChartModule} from '@common/chart.module';
 import {WidgetService} from '../dashboard/service/widget.service';
-import {ImageService} from '../common/service/image.service';
+import {ImageService} from '@common/service/image.service';
 import {DashboardShareModule} from '../dashboard/dashboard-share.module';
 import {PageFilterPanel} from './filter/filter-panel.component';
 import {DashboardService} from '../dashboard/service/dashboard.service';
 import {DragulaModule} from '../../lib/ng2-dragula';
 import {PageDataContextComponent} from './page-data/page-data-context.component';
 import {FormatItemComponent} from './chart-style/format/format-item.component';
-import {DataPreviewModule} from '../common/data.preview.module';
+import {DataPreviewModule} from '@common/data.preview.module';
 import {AnalysisModule} from './component/analysis/analysis.module';
 import {PopupValueAliasComponent} from './page-pivot/popup-value-alias.component';
 import {PageComponent} from './page.component';

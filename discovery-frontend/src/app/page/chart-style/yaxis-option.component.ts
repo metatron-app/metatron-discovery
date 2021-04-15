@@ -15,22 +15,20 @@
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
 import {
   UIOption
-} from '../../common/component/chart/option/ui-option';
-import { LogicalType } from '../../domain/datasource/datasource';
+} from '@common/component/chart/option/ui-option';
+import { LogicalType } from '@domain/datasource/datasource';
 import {
-  AxisLabelType, ChartAxisLabelType, ChartType, LabelConvertType, SeriesConvertType,
-  UIFormatCurrencyType, UIFormatSymbolPosition, UIFormatType, UIOrient
-} from '../../common/component/chart/option/define/common';
-import { Alert } from '../../common/util/alert.util';
+  AxisLabelType, ChartAxisLabelType, ChartType,
+  UIFormatCurrencyType, UIFormatType, UIOrient
+} from '@common/component/chart/option/define/common';
+import { Alert } from '@common/util/alert.util';
 import * as _ from 'lodash';
 import { FormatOptionComponent } from './format-option.component';
-import { UIChartAxis, UIChartAxisLabelValue } from '../../common/component/chart/option/ui-option/ui-axis';
-import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
-import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
+import { UIChartAxis, UIChartAxisLabelValue } from '@common/component/chart/option/ui-option/ui-axis';
+import { OptionGenerator } from '@common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
-import { Format } from '../../domain/workbook/configurations/format';
-import { UIChartFormat } from '../../common/component/chart/option/ui-option/ui-format';
-import { BaseOptionComponent } from './base-option.component';
+import { Format } from '@domain/workbook/configurations/format';
+
 
 @Component({
   selector: 'yaxis-option',
@@ -145,7 +143,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
    * @param index
    * @param event
    */
-  public axisName(axisLabelType: any, idx: number, name: string): void {
+  public axisName(axisLabelType: any, _idx: number, name: string): void {
 
     // axis title이 hide이면 설정 x
     if (!this.uiOption.xAxis.showName) return;
@@ -172,7 +170,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
       this.uiOption.yAxis.customName = value.trim();
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption;
     this.update();
     this.changeAxisNameEvent.emit();
   }
@@ -190,7 +188,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
     if( _.eq(this.uiOption.yAxis.mode, axisLabelType) ) {
       this.uiOption.yAxis.showName = show;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption;
 
     this.update();
   }
@@ -208,7 +206,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
     if( _.eq(this.uiOption.yAxis.mode, axisLabelType) ) {
       this.uiOption.yAxis.showLabel = show;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption;
 
     this.update();
   }
@@ -228,7 +226,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
       this.uiOption.yAxis.label = this.uiOption.yAxis.label ? this.uiOption.yAxis.label : {};
       this.uiOption.yAxis.label['rotation'] = rotate;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption;
 
     this.update();
   }
@@ -239,7 +237,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
   public showAxisConfig() {
 
     this.uiOption.yAxis.axisOption.showFl = !this.uiOption.yAxis.axisOption.showFl;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption;
     this.update();
   }
 
@@ -296,7 +294,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
     }
 
     axisConfig.changeType = type;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption;
     this.update();
   }
 
@@ -328,25 +326,25 @@ export class YAxisOptionComponent extends FormatOptionComponent {
   public showLabel() {
 
     // 레이블 설정이 안된경우
-    if (!(<UIChartAxisLabelValue>this.uiOption.yAxis.label).format) {
+    if (!(this.uiOption.yAxis.label as UIChartAxisLabelValue).format) {
 
       // 기본 포맷 사용 false
-      (<UIChartAxisLabelValue>this.uiOption.yAxis.label).useDefault = false;
+      (this.uiOption.yAxis.label as UIChartAxisLabelValue).useDefault = false;
 
-      (<UIChartAxisLabelValue>this.uiOption.yAxis.label).format = UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true);
+      (this.uiOption.yAxis.label as UIChartAxisLabelValue).format = UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true);
 
     // 레이블 설정이 되어있는경우
     } else {
 
       // 기본 포맷 사용 true
-      (<UIChartAxisLabelValue>this.uiOption.yAxis.label).useDefault = true;
+      (this.uiOption.yAxis.label as UIChartAxisLabelValue).useDefault = true;
 
       // 포멧값 제거
-      delete (<UIChartAxisLabelValue>this.uiOption.yAxis.label).format;
+      delete (this.uiOption.yAxis.label as UIChartAxisLabelValue).format;
     }
 
     // y축에 설정
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption ;
 
     // 이벤트 발생
     this.update();
@@ -356,13 +354,13 @@ export class YAxisOptionComponent extends FormatOptionComponent {
    * format item 변경시
    * @param target
    */
-  public onChange(target: Object): void {
+  public onChange(target: object): void {
 
     // 축 라벨의 포맷값 설정
-    (<UIChartAxisLabelValue>this.uiOption.yAxis.label).format = target as Format;
+    (this.uiOption.yAxis.label as UIChartAxisLabelValue).format = target as Format;
 
     // y축에 설정
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: this.uiOption.yAxis }) as UIOption;
 
     // 이벤트 발생
     this.update();
@@ -373,7 +371,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
    */
   public changeYAxisValue(axis: UIChartAxis): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: axis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: axis }) as UIOption;
 
     this.update();
   }
@@ -384,7 +382,7 @@ export class YAxisOptionComponent extends FormatOptionComponent {
    */
   public changeBaseline(axis: UIChartAxis): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { yAxis: axis });
+    this.uiOption = _.extend({}, this.uiOption, { yAxis: axis }) as UIOption;
 
     this.update({});
   }

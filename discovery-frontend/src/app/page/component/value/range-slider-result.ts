@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import { ElementRef } from '@angular/core';
 /**
  *  고급분석 - 예측선에서 사용하는 슬라이더 컴포넌트 VO
  */

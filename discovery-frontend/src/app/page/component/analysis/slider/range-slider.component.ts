@@ -17,7 +17,7 @@ import {
   ElementRef, OnChanges, SimpleChanges, Input, EventEmitter, Output, Component, Injector
 } from '@angular/core';
 import { RangeSliderResult } from '../../value/range-slider-result';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from  '@common/component/abstract.component';
 import { Subject, Subscription, of } from "rxjs";
 import { debounceTime, distinctUntilChanged, switchMap } from "rxjs/operators";
 
@@ -243,7 +243,7 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
       .pipe(
         debounceTime(200),
         distinctUntilChanged(),
-        switchMap((value) => of<number>(value))
+        switchMap((value) => of(value as number))
       )
       .subscribe(() => {
         this.onChange.emit(this.buildCallback());
@@ -349,7 +349,7 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
 
     this.initialized = true;
 
-    (<any>$(this.inputElem))
+    ($(this.inputElem) as any)
       .ionRangeSlider({
 
         min: scope.min,
