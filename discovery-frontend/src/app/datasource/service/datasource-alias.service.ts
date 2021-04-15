@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { AbstractService } from '../../common/service/abstract.service';
+import { AbstractService } from '@common/service/abstract.service';
 import { Injectable, Injector } from '@angular/core';
-import { FieldNameAlias, FieldValueAlias } from '../../domain/datasource/datasource';
+import { FieldNameAlias, FieldValueAlias } from '@domain/datasource/datasource';
 
 @Injectable()
 export class DatasourceAliasService extends AbstractService {

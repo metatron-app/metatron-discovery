@@ -31,7 +31,7 @@ export class User extends AbstractHistoryEntity {
   public imageUrl: string;
 
 
-  //TODO Role -> Group 으로 변경해야되는지 확인 필요
+  // TODO Role -> Group 으로 변경해야되는지 확인 필요
   public groups: Group[];
   // 추가 / 삭제 액션 여부 (추가(add), 삭제(remove))
   public op: Action;

@@ -25,10 +25,10 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo} from '@domain/datasource/datasource';
 import {IngestionSettingComponent} from '../../../component/ingestion-setting.component';
-import {DataStorageConstant} from "../../../../constant/data-storage-constant";
+import {DataStorageConstant} from '../../../../constant/data-storage-constant';
 
 /**
  * Creating datasource with File - ingestion step

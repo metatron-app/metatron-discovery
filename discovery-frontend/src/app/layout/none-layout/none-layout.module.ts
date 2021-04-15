@@ -16,7 +16,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { NoneLayoutComponent } from './none-layout.component';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
 
 const layoutRoutes: Routes = [
   { path: '', component: NoneLayoutComponent, children: [

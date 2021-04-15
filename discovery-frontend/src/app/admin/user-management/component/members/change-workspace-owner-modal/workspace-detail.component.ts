@@ -13,9 +13,9 @@
  */
 
 import {Component, ElementRef, HostBinding, Injector, Input} from '@angular/core';
-import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
-import {PublicType, WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
+import {PublicType, WorkspaceAdmin} from '@domain/workspace/workspace';
 
 @Component({
   selector: '[workspace-detail]',

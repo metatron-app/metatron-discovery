@@ -25,13 +25,13 @@ import { PageShareModule } from '../page/page-share.module';
 import { StompService } from '@stomp/ng2-stompjs';
 import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
 import { WorkbenchEditorModule } from './workbench.editor.module';
-import {AnalysisPredictionService} from "../page/component/analysis/service/analysis.prediction.service";
+import {AnalysisPredictionService} from '../page/component/analysis/service/analysis.prediction.service';
 import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
 import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { CanDeactivateGuard } from '@common/gaurd/can.deactivate.guard';
-import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
-import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
+import {SaveAsHiveTableComponent} from './component/save-as-hive-table/save-as-hive-table.component';
+import {DataSourceCreateModule} from '../data-storage/data-source-list/create-data-source/data-source-create.module';
 
 // 라우트
 const workbenchRoutes: Routes = [

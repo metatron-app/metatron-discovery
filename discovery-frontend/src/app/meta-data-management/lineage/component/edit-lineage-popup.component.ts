@@ -12,13 +12,13 @@
 * limitations under the License.
 */
 
-import {ConfirmModalComponent} from "../../../common/component/modal/confirm/confirm.component";
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 
 declare let moment : any;
 import * as _ from 'lodash';
 import {isUndefined} from 'util';
-import {isNullOrUndefined} from "util";
-import {Alert} from '../../../common/util/alert.util';
+import {isNullOrUndefined} from 'util';
+import {Alert} from '@common/util/alert.util';
 
 import {
 Component,
@@ -31,11 +31,11 @@ OnInit,
 Output,
 ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {PopupService} from '../../../common/service/popup.service';
-import {Modal} from "../../../common/domain/modal";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {Modal} from '@common/domain/modal';
 import {LineageService} from '../service/lineage.service';
-import {LineageEdge} from '../../../domain/meta-data-management/lineage';
+import {LineageEdge} from '@domain/meta-data-management/lineage';
 
 @Component({
   selector: 'edit-lineage-popup',

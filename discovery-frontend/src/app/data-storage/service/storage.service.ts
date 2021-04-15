@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {AbstractService} from '../../common/service/abstract.service';
+import {AbstractService} from '@common/service/abstract.service';
 import {Injectable, Injector} from '@angular/core';
-import {ImplementorType, InputMandatory, JdbcDialect} from "../../domain/dataconnection/dataconnection";
+import {ImplementorType, InputMandatory, JdbcDialect} from '@domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
 
 @Injectable()

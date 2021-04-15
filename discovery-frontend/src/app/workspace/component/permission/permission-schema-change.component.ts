@@ -169,7 +169,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
           if (wsCustomResult) {
             // 기존 Private RoleSet이 존재할 경우
             this.permissionService.getRolesetDetail(wsCustomResult.id).then(itemResult => {
-              let customRoleSet: RoleSet = itemResult;
+              const customRoleSet: RoleSet = itemResult;
               customRoleSet.scope = RoleSetScope.PRIVATE;
               this.selectedRoleSetDetail = customRoleSet;
               this.isPermSchemaEditMode = true;
@@ -208,7 +208,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
   public afterUpdatePermissionRoles(roleSet: RoleSet) {
     this.permissionService.getRolesetDetail(roleSet.id).then(result => {
       if (result) {
-        let customRoleSet: RoleSet = result;
+        const customRoleSet: RoleSet = result;
         customRoleSet.scope = RoleSetScope.PRIVATE;
         this.selectedRoleSetDetail = customRoleSet;
         this.isPermSchemaEditMode = true;
@@ -267,12 +267,12 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
     try {
       this.loadingShow();
       // Role 변환 Mapper 설정
-      let changeRoleMapper = {};
+      const changeRoleMapper = {};
       this.currentRoleSet.roles.forEach((item: Role) => {
         if (item['newRole']) {
           changeRoleMapper[item.name] = item['newRole']['name'];
         } else {
-          throw '모든 Role은 변경할 Role을 지정해주어야 합니다.';
+          throw new Error('모든 Role은 변경할 Role을 지정해주어야 합니다.');
         }
       });
       // RoleSet 변경 호출

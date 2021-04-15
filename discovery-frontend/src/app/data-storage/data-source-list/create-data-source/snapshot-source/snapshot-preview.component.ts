@@ -1,4 +1,4 @@
-import {AbstractComponent} from "../../../../common/component/abstract.component";
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   Component,
   ElementRef,
@@ -9,14 +9,14 @@ import {
   Output,
   SimpleChanges,
   ViewChild
-} from "@angular/core";
-import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
-import {DataSnapshotDetailComponent} from "../../../../data-preparation/data-snapshot/data-snapshot-detail.component";
-import {DatasourceInfo, FieldRole} from "../../../../domain/datasource/datasource";
-import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {CreateSnapShotData,} from "../../../service/data-source-create.service";
-import {isUndefined} from "util";
-import {PreparationCommonUtil} from "../../../../data-preparation/util/preparation-common.util";
+} from '@angular/core';
+import {DataSnapshotService} from '../../../../data-preparation/data-snapshot/service/data-snapshot.service';
+import {DataSnapshotDetailComponent} from '../../../../data-preparation/data-snapshot/data-snapshot-detail.component';
+import {DatasourceInfo, FieldRole} from '@domain/datasource/datasource';
+import {PrDataSnapshot, SsType} from '@domain/data-preparation/pr-snapshot';
+import {CreateSnapShotData,} from '../../../service/data-source-create.service';
+import {isUndefined} from 'util';
+import {PreparationCommonUtil} from '../../../../data-preparation/util/preparation-common.util';
 
 @Component({
   selector: 'snapshot-preview',

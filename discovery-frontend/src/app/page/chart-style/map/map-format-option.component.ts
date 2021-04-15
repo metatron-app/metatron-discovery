@@ -14,12 +14,12 @@
 
 import { FormatOptionComponent } from '../format-option.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
+import { Shelf } from '@domain/workbook/configurations/shelf/shelf';
+import { Pivot } from '@domain/workbook/configurations/pivot';
 import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
 import * as _ from 'lodash';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { Format } from '../../../domain/workbook/configurations/format';
+import { UIMapOption } from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import { Format } from '@domain/workbook/configurations/format';
 
 @Component({
   selector: 'map-format-option',
@@ -43,21 +43,21 @@ export class MapFormatOptionComponent extends FormatOptionComponent {
     }
 
     // shelf 정보에서 매저만 골라낸다
-    const fieldList: AbstractField[] = _.cloneDeep(this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields);
+    const fieldList: AbstractField[] = _.cloneDeep(this.shelf.layers[(this.uiOption as UIMapOption).layerNum].fields);
     for( let num: number = fieldList.length - 1 ; num >= 0 ; num-- ) {
-      if( "measure" != fieldList[num].type.toLowerCase() ) {
+      if( 'measure' != fieldList[num].type.toLowerCase() ) {
         fieldList.splice(num, 1);
       }
     }
 
     // 이전 필드목록의 포맷타입을 승계한다.
-    for( let afterField of fieldList ) {
+    for( const afterField of fieldList ) {
       // 공간연산 실행시 custom field가 있기 때문에 validation 추가함
       if(afterField.name == 'count' && !_.isUndefined(afterField['isCustomField']) && afterField['isCustomField'] == true) {
         continue;
       }
       let isBeforeFormat: boolean = false;
-      for( let beforeField of this.fieldList ) {
+      for( const beforeField of this.fieldList ) {
         if( afterField.name == beforeField.name && afterField.aggregationType == beforeField.aggregationType ) {
           afterField.format == beforeField.format;
           isBeforeFormat = true;
@@ -104,7 +104,7 @@ export class MapFormatOptionComponent extends FormatOptionComponent {
     this.format = target as Format;
 
     // 모든 매저의 포맷변경
-    this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields.forEach((field) => {
+    this.shelf.layers[(this.uiOption as UIMapOption).layerNum].fields.forEach((field) => {
       if( field.type == 'measure' ) {
         field.format = this.format;
       }

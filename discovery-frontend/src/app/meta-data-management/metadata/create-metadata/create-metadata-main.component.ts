@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {MetadataConstant} from "../../metadata.constant";
-import {StorageService} from "../../../data-storage/service/storage.service";
-import {MetadataEntity} from "../metadata.entity";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {MetadataConstant} from '../../metadata.constant';
+import {StorageService} from '../../../data-storage/service/storage.service';
+import {MetadataEntity} from '../metadata.entity';
 import * as _ from 'lodash';
 
 @Component({

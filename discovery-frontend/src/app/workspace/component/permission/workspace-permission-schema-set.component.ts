@@ -119,7 +119,7 @@ export class WorkspacePermissionSchemaSetComponent extends AbstractComponent imp
           // 롤셋 - 워크스페이스 연결
           this.workspaceService.updateWorkspace(
             this.workspace.id,
-            <any>{ roleSets: ['/api/rolesets/' + result.id] }
+            { roleSets: ['/api/rolesets/' + result.id] } as any
           ).then(() => {
             // 룰셋 상세 조회
             this.permissionService.getRolesetDetail(result.id)

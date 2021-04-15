@@ -13,15 +13,15 @@
  */
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PopupService } from '../../common/service/popup.service';
-import { SubscribeArg } from '../../common/domain/subscribe-arg';
+import { PopupService } from '@common/service/popup.service';
+import { SubscribeArg } from '@common/domain/subscribe-arg';
 import { ModelApprovalService } from './service/model-approval.service';
-import { Alert } from '../../common/util/alert.util';
-import { NotebookModel } from '../../domain/model-management/notebookModel';
-import { Modal } from '../../common/domain/modal';
+import { Alert } from '@common/util/alert.util';
+import { NotebookModel } from '@domain/model-management/notebookModel';
+import { Modal } from '@common/domain/modal';
 import { DeleteModalComponent } from 'app/common/component/modal/delete/delete.component';
-import { StringUtil } from '../../common/util/string.util';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import { StringUtil } from '@common/util/string.util';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { isUndefined } from 'util';
 
 @Component({

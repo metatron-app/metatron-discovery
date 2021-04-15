@@ -13,12 +13,11 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
 import {isUndefined} from 'util';
 import * as _ from 'lodash';
-import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'app-choose-column-dictionary',
@@ -149,7 +148,7 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
   public onClickDone(): void {
     // 생성모드일 경우 선택한 컬럼 사전 전달
     // 수정모드일 경우 TODO
-      this._mode === 'CREATE' ? this._emitColumnDictionary() : this._updateColumnDictionary();
+    this._mode === 'CREATE' ? this._emitColumnDictionary() : this._updateColumnDictionary();
   }
 
   /**

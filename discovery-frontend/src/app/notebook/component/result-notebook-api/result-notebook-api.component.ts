@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { NotebookService } from '../../service/notebook.service';
 import { isUndefined } from 'util';
 

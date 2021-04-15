@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
+import {DatasourceInfo, Field} from '@domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { GridComponent } from '../../../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../../common/component/grid/grid.option';
+import { GridComponent } from '@common/component/grid/grid.component';
+import { header, SlickGridHeader } from '@common/component/grid/grid.header';
+import { GridOption } from '@common/component/grid/grid.option';
 import * as pixelWidth from 'string-pixel-width';
-import { Alert } from '../../../../../common/util/alert.util';
-import { CookieConstant } from '../../../../../common/constant/cookie.constant';
+import { Alert } from '@common/util/alert.util';
+import { CookieConstant } from '@common/constant/cookie.constant';
 
 @Component({
   selector: 'druid-select',
@@ -39,7 +39,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
   // 생성될 데이터소스 정보
   private sourceData: DatasourceInfo;
 
-  @ViewChild("grid")
+  @ViewChild('grid')
   private _gridComponent: GridComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -457,7 +457,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
           .Formatter((row, cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {

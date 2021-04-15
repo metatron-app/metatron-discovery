@@ -1,15 +1,15 @@
-import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {DatasourceInfo} from "../../../../domain/datasource/datasource";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {DatasourceInfo} from '@domain/datasource/datasource';
 import {
   CreateSnapShotData,
   DataSourceCreateService,
   TypeFilterObject
-} from "../../../service/data-source-create.service";
+} from '../../../service/data-source-create.service';
 import * as _ from 'lodash';
-import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
-import {CommonConstant} from "../../../../common/constant/common.constant";
-import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
+import {DataSnapshotService} from '../../../../data-preparation/data-snapshot/service/data-snapshot.service';
+import {CommonConstant} from '@common/constant/common.constant';
+import {PrDataSnapshot, SsType} from '@domain/data-preparation/pr-snapshot';
 
 @Component({
   selector: 'create-snapshot-source-select',

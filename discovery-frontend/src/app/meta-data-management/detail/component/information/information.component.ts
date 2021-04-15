@@ -14,14 +14,14 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {InputComponent} from '../../../../common/component/input/input.component';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {InputComponent} from '@common/component/input/input.component';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {Metadata, SourceType} from '../../../../domain/meta-data-management/metadata';
-import {MetadataSourceType} from "../../../../domain/meta-data-management/metadata-source";
-import {StorageService} from "../../../../data-storage/service/storage.service";
+import {Alert} from '@common/util/alert.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {MetadataSourceType} from '@domain/meta-data-management/metadata-source';
+import {StorageService} from '../../../../data-storage/service/storage.service';
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -104,7 +104,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   get filteredTagsList() {
-    let list = [];
+    const list = [];
     if (this.tagsList.length > 0 && '' !== this.tagValue) {
       this.tagsList.forEach((tag) => {
         if (tag.name.indexOf(this.tagValue) !== -1) {
@@ -175,7 +175,7 @@ export class InformationComponent extends AbstractComponent implements OnInit, O
    */
   public addTag() {
 
-    let idx = this.metadataModelService.getMetadata().tags.map((item) => {
+    const idx = this.metadataModelService.getMetadata().tags.map((item) => {
       return item.name;
     }).indexOf(this.tagValue);
 

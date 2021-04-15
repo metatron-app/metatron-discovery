@@ -13,7 +13,7 @@
  */
 
 import {Component, ElementRef, Injector, OnChanges, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   ConnectionType,
   Datasource,
@@ -22,22 +22,22 @@ import {
   FieldRole,
   SourceType,
   Status
-} from '../../../domain/datasource/datasource';
+} from '@domain/datasource/datasource';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {Alert} from '../../../common/util/alert.util';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {Log, Modal} from '../../../common/domain/modal';
-import {CommonUtil} from '../../../common/util/common.util';
-import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
+import {Alert} from '@common/util/alert.util';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Log, Modal} from '@common/domain/modal';
+import {CommonUtil} from '@common/util/common.util';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
 import {ActivatedRoute} from '@angular/router';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {LogComponent} from '../../../common/component/modal/log/log.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {LogComponent} from '@common/component/modal/log/log.component';
 import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
-import {Metadata} from '../../../domain/meta-data-management/metadata';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {CommonConstant} from '../../../common/constant/common.constant';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
 import {Message} from '@stomp/stompjs';
-import {CreateSourceCompleteData} from "../../service/data-source-create.service";
+import {CreateSourceCompleteData} from '../../service/data-source-create.service';
 
 @Component({
   selector: 'app-detail-datasource',

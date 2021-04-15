@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector, Input, ViewChild} from "@angular/core";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {SchemaConfigureFilterComponent} from "./schema-configure-filter.component";
-import {SchemaConfigureFieldComponent} from "./schema-configure-field.component";
-import {Filter} from "../../../shared/datasource-metadata/domain/filter";
-import {SchemaConfigureTimestampComponent} from "./schema-configure-timestamp.component";
-import {DataStorageConstant} from "../../constant/data-storage-constant";
-import {Alert} from "../../../common/util/alert.util";
-import {ConnectionType, Field} from "../../../domain/datasource/datasource";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, Input, ViewChild} from '@angular/core';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {SchemaConfigureFilterComponent} from './schema-configure-filter.component';
+import {SchemaConfigureFieldComponent} from './schema-configure-field.component';
+import {Filter} from '../../../shared/datasource-metadata/domain/filter';
+import {SchemaConfigureTimestampComponent} from './schema-configure-timestamp.component';
+import {DataStorageConstant} from '../../constant/data-storage-constant';
+import {Alert} from '@common/util/alert.util';
+import {ConnectionType, Field} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'schema-configure-main',

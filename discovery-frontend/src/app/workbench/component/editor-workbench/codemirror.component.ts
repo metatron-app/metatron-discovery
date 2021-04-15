@@ -166,7 +166,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       && beforeText.trim().substr(beforeText.trim().length - 1) != ';'
       && afterText.search(';') != -1 ){
 
-      let tempTextArr = afterText.split(';');
+      const tempTextArr = afterText.split(';');
 
       // 이전 내용 붙이기
       beforeText += (tempTextArr[0] + ';' );
@@ -221,8 +221,8 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
     const ch: number = this.instance.doc.getCursor().ch;
 
     const lines: any[] = this.getLines();
-    let beforeText: string = this.instance.doc.getRange({line: 0, ch: 0}, {line: line, ch: ch});
-    let afterText: string = this.instance.doc.getRange({line: line, ch: ch}, {line: lines.length, ch: 0});
+    const beforeText: string = this.instance.doc.getRange({line: 0, ch: 0}, {line: line, ch: ch});
+    const afterText: string = this.instance.doc.getRange({line: line, ch: ch}, {line: lines.length, ch: 0});
 
     if (beforeText == '') {
       if (text.indexOf('\n') > -1) {
@@ -256,11 +256,11 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
   }
 
   private getSelectedRange() {
-    return { from: this.instance.getCursor("start"), to: this.instance.getCursor("end") };
+    return { from: this.instance.getCursor('start'), to: this.instance.getCursor('end') };
   }
 
   public resize(height:number) : void {
-    this.instance.setSize("100%", height - 2);
+    this.instance.setSize('100%', height - 2);
   }
 
   public getSelection() : string {
@@ -276,7 +276,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
   }
 
   public getFocusSelection(): string {
-    //const lines = this.editor.session.getDocument().$lines;
+    // const lines = this.editor.session.getDocument().$lines;
     // const lines = this.instance.doc.children[0].lines;
     const lines:any[] = this.getLines();
     const crow = this.instance.doc.getCursor().line
@@ -350,65 +350,65 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
 
   private split_sql(str, tab) {
 
-    return str.replace(/\s{1,}/g," ")
+    return str.replace(/\s{1,}/g,' ')
 
-      .replace(/ AND /ig,"~::~"+tab+tab+"AND ")
-      .replace(/ BETWEEN /ig,"~::~"+tab+"BETWEEN ")
-      .replace(/ CASE /ig,"~::~"+"CASE ")
-      .replace(/ ELSE /ig,"~::~"+"ELSE ")
-      .replace(/ END /ig,"~::~"+"END ")
-      .replace(/ FROM /ig,"~::~FROM ")
-      .replace(/ GROUP\s{1,}BY/ig,"~::~GROUP BY ")
-      .replace(/ HAVING /ig,"~::~HAVING ")
-      //.replace(/ SET /ig," SET~::~")
-      .replace(/ IN /ig," IN ")
+      .replace(/ AND /ig,'~::~'+tab+tab+'AND ')
+      .replace(/ BETWEEN /ig,'~::~'+tab+'BETWEEN ')
+      .replace(/ CASE /ig,'~::~'+'CASE ')
+      .replace(/ ELSE /ig,'~::~'+'ELSE ')
+      .replace(/ END /ig,'~::~'+'END ')
+      .replace(/ FROM /ig,'~::~FROM ')
+      .replace(/ GROUP\s{1,}BY/ig,'~::~GROUP BY ')
+      .replace(/ HAVING /ig,'~::~HAVING ')
+      // .replace(/ SET /ig," SET~::~")
+      .replace(/ IN /ig,' IN ')
 
-      .replace(/ JOIN /ig,"~::~JOIN ")
-      .replace(/ CROSS~::~{1,}JOIN /ig,"~::~CROSS JOIN ")
-      .replace(/ INNER~::~{1,}JOIN /ig,"~::~INNER JOIN ")
-      .replace(/ LEFT~::~{1,}JOIN /ig,"~::~LEFT JOIN ")
-      .replace(/ RIGHT~::~{1,}JOIN /ig,"~::~RIGHT JOIN ")
+      .replace(/ JOIN /ig,'~::~JOIN ')
+      .replace(/ CROSS~::~{1,}JOIN /ig,'~::~CROSS JOIN ')
+      .replace(/ INNER~::~{1,}JOIN /ig,'~::~INNER JOIN ')
+      .replace(/ LEFT~::~{1,}JOIN /ig,'~::~LEFT JOIN ')
+      .replace(/ RIGHT~::~{1,}JOIN /ig,'~::~RIGHT JOIN ')
 
-      .replace(/ ON /ig,"~::~"+tab+"ON ")
-      .replace(/ OR /ig,"~::~"+tab+tab+"OR ")
-      .replace(/ ORDER\s{1,}BY/ig,"~::~ORDER BY ")
-      .replace(/ OVER /ig,"~::~"+tab+"OVER ")
+      .replace(/ ON /ig,'~::~'+tab+'ON ')
+      .replace(/ OR /ig,'~::~'+tab+tab+'OR ')
+      .replace(/ ORDER\s{1,}BY/ig,'~::~ORDER BY ')
+      .replace(/ OVER /ig,'~::~'+tab+'OVER ')
 
-      .replace(/\(\s{0,}SELECT /ig,"~::~(SELECT ")
-      .replace(/\)\s{0,}SELECT /ig,")~::~SELECT ")
+      .replace(/\(\s{0,}SELECT /ig,'~::~(SELECT ')
+      .replace(/\)\s{0,}SELECT /ig,')~::~SELECT ')
 
-      .replace(/ THEN /ig," ~::~"+"THEN ")
-      .replace(/ UNION /ig,"~::~UNION~::~")
-      .replace(/ USING /ig,"~::~USING ")
-      .replace(/ WHEN /ig,"~::~"+"WHEN ")
-      .replace(/ WHERE /ig,"~::~WHERE ")
-      .replace(/ WITH /ig,"~::~WITH ")
+      .replace(/ THEN /ig,' ~::~'+'THEN ')
+      .replace(/ UNION /ig,'~::~UNION~::~')
+      .replace(/ USING /ig,'~::~USING ')
+      .replace(/ WHEN /ig,'~::~'+'WHEN ')
+      .replace(/ WHERE /ig,'~::~WHERE ')
+      .replace(/ WITH /ig,'~::~WITH ')
 
-      //.replace(/\,\s{0,}\(/ig,",~::~( ")
-      //.replace(/\,/ig,",~::~"+tab+tab+ '')
+      // .replace(/\,\s{0,}\(/ig,",~::~( ")
+      // .replace(/\,/ig,",~::~"+tab+tab+ '')
 
-      .replace(/ ALL /ig," ALL ")
-      .replace(/ AS /ig," AS ")
-      .replace(/ ASC /ig," ASC ")
-      .replace(/ DESC /ig," DESC ")
-      .replace(/ DISTINCT /ig," DISTINCT ")
-      .replace(/ EXISTS /ig," EXISTS ")
-      .replace(/ NOT /ig," NOT ")
-      .replace(/ NULL /ig," NULL ")
-      .replace(/ LIKE /ig," LIKE ")
-      .replace(/\s{0,}SELECT /ig,"SELECT ")
-      .replace(/\s{0,}UPDATE /ig,"UPDATE ")
-      .replace(/ SET /ig," SET ")
+      .replace(/ ALL /ig,' ALL ')
+      .replace(/ AS /ig,' AS ')
+      .replace(/ ASC /ig,' ASC ')
+      .replace(/ DESC /ig,' DESC ')
+      .replace(/ DISTINCT /ig,' DISTINCT ')
+      .replace(/ EXISTS /ig,' EXISTS ')
+      .replace(/ NOT /ig,' NOT ')
+      .replace(/ NULL /ig,' NULL ')
+      .replace(/ LIKE /ig,' LIKE ')
+      .replace(/\s{0,}SELECT /ig,'SELECT ')
+      .replace(/\s{0,}UPDATE /ig,'UPDATE ')
+      .replace(/ SET /ig,' SET ')
 
-      .replace(/\;/ig, "\;~::~")
+      .replace(/\;/ig, '\;~::~')
 
-      .replace(/~::~{1,}/g,"~::~")
+      .replace(/~::~{1,}/g,'~::~')
       .split('~::~');
   }
 
   private createShiftArr(step) {
 
-    var space = '    ';
+    let space = '    ';
 
     if ( isNaN(parseInt(step)) ) {  // argument is string
       space = step;
@@ -429,7 +429,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       }
     }
 
-    var shift = ['\n']; // array of shifts
+    const shift = ['\n']; // array of shifts
     for(let ix=0;ix<100;ix++){
       shift.push(shift[ix]+space);
     }
@@ -438,13 +438,13 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
 
   public formatter(text,step) {
     const that = this;
-    var ar_by_quote = text.replace(/\s{1,}/g," ")
-        .replace(/\'/ig,"~::~\'")
+    let ar_by_quote = text.replace(/\s{1,}/g,' ')
+        .replace(/\'/ig,'~::~\'')
         .split('~::~'),
       len = ar_by_quote.length,
       ar = [],
       deep = 0,
-      tab = step,//+this.step,
+      tab = step,// +this.step,
       inComment = true,
       inQuote = false,
       parenthesisLevel = 0,
@@ -466,11 +466,11 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       parenthesisLevel = that.isSubquery(ar[ix], parenthesisLevel);
 
       if( /\s{0,}\s{0,}SELECT\s{0,}/.exec(ar[ix]))  {
-        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+ '')
+        ar[ix] = ar[ix].replace(/\,/g,',\n'+tab+tab+ '')
       }
 
       if( /\s{0,}\s{0,}SET\s{0,}/.exec(ar[ix]))  {
-        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+ '')
+        ar[ix] = ar[ix].replace(/\,/g,',\n'+tab+tab+ '')
       }
 
       if( /\s{0,}\(\s{0,}SELECT\s{0,}/.exec(ar[ix]))  {
@@ -489,10 +489,10 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
           deep--;
         }
       }
-      var junk = 0;
+      const junk = 0;
     }
 
-    str = str.replace(/^\n{1,}/,'').replace(/\n{1,}/g,"\n");
+    str = str.replace(/^\n{1,}/,'').replace(/\n{1,}/g,'\n');
     return str;
   }
 
@@ -501,7 +501,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
   }
 
   public setModeOptions(param) {
-    this.instance.setOption("mode", param);
+    this.instance.setOption('mode', param);
     this.instance.refresh();
   }
 

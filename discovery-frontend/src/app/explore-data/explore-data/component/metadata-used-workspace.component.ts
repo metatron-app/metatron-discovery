@@ -1,5 +1,5 @@
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'component-metadata-used-workspace',

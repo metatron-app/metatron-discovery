@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { UserService } from '../../../service/user.service';
 
 @Component({

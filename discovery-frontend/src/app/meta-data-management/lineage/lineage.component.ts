@@ -12,23 +12,23 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs/Subscription';
-import {SubscribeArg} from '../../common/domain/subscribe-arg';
-import {Modal} from '../../common/domain/modal';
-import {PopupService} from '../../common/service/popup.service';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {Modal} from '@common/domain/modal';
+import {PopupService} from '@common/service/popup.service';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import {LineageService} from './service/lineage.service';
-import {LineageEdge} from '../../domain/meta-data-management/lineage';
+import {LineageEdge} from '@domain/meta-data-management/lineage';
 import {EditLineagePopup} from './component/edit-lineage-popup.component';
 import {CreateLineageComponent} from './component/create-lineage.component';
-import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
-import {Alert} from '../../common/util/alert.util';
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
+import {PeriodComponent, PeriodType} from '@common/component/period/period.component';
+import {Alert} from '@common/util/alert.util';
+import {ActivatedRoute} from '@angular/router';
+import {isNullOrUndefined} from 'util';
 import * as _ from 'lodash';
-import {PeriodData} from "../../common/value/period.data.value";
+import {PeriodData} from '@common/value/period.data.value';
 
 declare let moment: any;
 

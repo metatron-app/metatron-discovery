@@ -14,15 +14,15 @@
 
 import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
 import {ActivatedRoute} from '@angular/router';
-import {Modal} from '../../../../../common/domain/modal';
-import {Alert} from '../../../../../common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
 import {UpdateUserManagementGroupsComponent} from '../update-group/update-user-management-groups.component';
 import {isUndefined} from 'util';
-import {CommonUtil} from '../../../../../common/util/common.util';
-import {Group} from '../../../../../domain/user/group';
-import {GroupMember} from '../../../../../domain/user/group-member';
+import {CommonUtil} from '@common/util/common.util';
+import {Group} from '@domain/user/group';
+import {GroupMember} from '@domain/user/group-member';
 import {Location} from '@angular/common';
 
 @Component({

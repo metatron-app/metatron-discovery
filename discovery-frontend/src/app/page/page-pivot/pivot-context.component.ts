@@ -39,7 +39,7 @@ import {PageWidget} from '@domain/dashboard/widget/page-widget';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
 import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
-import {Format} from "@domain/workbook/configurations/format";
+import {Format} from '@domain/workbook/configurations/format';
 
 @Component({
   selector: 'pivot-context',
@@ -170,7 +170,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
 
     // return pivot or shelf by chart type
-    let list = this.returnPivotShelf();
+    const list = this.returnPivotShelf();
 
     // 중복체크
     let duppIndex: number = _.findIndex(list, (item) => {
@@ -255,7 +255,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     this.editingField.direction = DIRECTION[direction];
 
     // return pivot or shelf by chart type
-    let list = this.returnPivotShelf();
+    const list = this.returnPivotShelf();
 
     // 기존의 마지막 Sort를 제거한다.
     list.forEach((item) => {
@@ -384,7 +384,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   public onChangeSecondaryAxis(_$event: Event): void {
 
     // 보조축
-    let secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
+    const secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
     secondaryAxis.name = this.editingField.alias;
     this.uiOption.secondaryAxis = secondaryAxis;
 
@@ -517,8 +517,8 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
       // map chart => point, heatmap
       if (ChartType.MAP === this.uiOption.type) {
 
-        let mapUIOption = (this.uiOption as UIMapOption);
-        let layerType = mapUIOption.layers[mapUIOption.layerNum].type;
+        const mapUIOption = (this.uiOption as UIMapOption);
+        const layerType = mapUIOption.layers[mapUIOption.layerNum].type;
 
         // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
         if (MapLayerType.TILE === layerType) {
@@ -577,10 +577,10 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     };
 
     // 해당 필드가 가능한 최소 Granularity Scope
-    let minGranularityScore: number = getGranularityScore(String(granularity));
+    const minGranularityScore: number = getGranularityScore(String(granularity));
 
     // 체크할 Granularity가 최소 Granularity Scope보다 같거나 높아야만 true
-    let granularityScore: number = getGranularityScore(unit);
+    const granularityScore: number = getGranularityScore(unit);
 
     return granularityScore >= minGranularityScore;
   }

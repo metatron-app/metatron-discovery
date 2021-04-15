@@ -14,10 +14,10 @@
 
 import { Component, ElementRef, Injector } from '@angular/core';
 import { BaseOptionComponent } from '../base-option.component';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
+import { UIOption } from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import { UIPosition } from '../../../common/component/chart/option/define/common';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { UIPosition } from '@common/component/chart/option/define/common';
+import { UIMapOption } from '@common/component/chart/option/ui-option/map/ui-map-chart';
 
 @Component({
   selector: 'map-legend-option',
@@ -47,7 +47,7 @@ export class MapLegendOptionComponent extends BaseOptionComponent {
 
     this.uiOption.legend.pos = legend['value'];
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { legend : this.uiOption.legend });
+    this.uiOption = (_.extend({}, this.uiOption, { legend : this.uiOption.legend }) as UIOption);
 
     this.update();
   }
@@ -59,7 +59,7 @@ export class MapLegendOptionComponent extends BaseOptionComponent {
 
     this.uiOption.legend.showName = !this.uiOption.legend.showName;
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, { legend : this.uiOption.legend });
+    this.uiOption = (_.extend({}, this.uiOption, { legend : this.uiOption.legend }) as UIMapOption);
 
     this.update();
   }

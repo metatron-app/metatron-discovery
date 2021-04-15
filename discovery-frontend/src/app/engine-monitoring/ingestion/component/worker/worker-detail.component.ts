@@ -13,10 +13,10 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {EngineService} from "../../../service/engine.service";
-import {ActivatedRoute} from "@angular/router";
-import {Location} from "@angular/common";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../../../service/engine.service';
+import {ActivatedRoute} from '@angular/router';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-detail-worker',

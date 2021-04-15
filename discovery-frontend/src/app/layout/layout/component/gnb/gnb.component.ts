@@ -13,16 +13,16 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {CookieConstant} from '../../../../common/constant/cookie.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {UserService} from '../../../../user/service/user.service';
-import {User} from '../../../../domain/user/user';
+import {User} from '@domain/user/user';
 import {ProfileComponent} from '../../../../user/profile/profile.component';
-import {CommonUtil} from '../../../../common/util/common.util';
-import {LocalStorageConstant} from "../../../../common/constant/local-storage.constant";
-import {Language, Theme, UserSetting} from "../../../../common/value/user.setting.value";
-import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
-import {AccessHistoryComponent} from "../../../../user/access-history/access-history.component";
+import {CommonUtil} from '@common/util/common.util';
+import {LocalStorageConstant} from '@common/constant/local-storage.constant';
+import {Language, Theme, UserSetting} from '@common/value/user.setting.value';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AccessHistoryComponent} from '../../../../user/access-history/access-history.component';
 
 @Component({
   selector: 'app-gnb',

@@ -15,7 +15,7 @@
 import {
   Component, ElementRef, Injector, OnDestroy, OnInit
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 
 @Component({
   selector: 'query-detail',

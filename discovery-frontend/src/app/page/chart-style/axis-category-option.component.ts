@@ -13,10 +13,10 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { AxisLabelType, ChartAxisLabelType } from '../../common/component/chart/option/define/common';
+import { AxisLabelType, ChartAxisLabelType } from '@common/component/chart/option/define/common';
 import * as _ from 'lodash';
 import { BaseOptionComponent } from './base-option.component';
-import { UIChartAxis } from '../../common/component/chart/option/ui-option/ui-axis';
+import { UIChartAxis } from '@common/component/chart/option/ui-option/ui-axis';
 
 @Component({
   selector: 'axis-category-option',

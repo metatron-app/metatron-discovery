@@ -51,9 +51,9 @@ import {SYSTEM_PERMISSION} from '@common/permission/permission';
 import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
 import {WorkspaceService} from '../workspace/service/workspace.service';
 import {CodemirrorComponent} from './component/editor-workbench/codemirror.component';
-import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
+import {SaveAsHiveTableComponent} from './component/save-as-hive-table/save-as-hive-table.component';
 import {Message} from '@stomp/stompjs';
-import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from "@domain/dataconnection/dataconnection";
+import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from '@domain/dataconnection/dataconnection';
 
 declare let moment: any;
 declare let Split;
@@ -231,7 +231,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       'Ctrl-Space': 'autocomplete',
       'Ctrl-/': 'toggleComment',
       'Shift-Tab': 'indentLess',
-      'Tab': 'indentMore',
+      Tab: 'indentMore',
       'Shift-Ctrl-Space': 'autocomplete',
       'Cmd-Alt-Space': 'autocomplete'
     },
@@ -239,7 +239,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       tables: {}
     }
   };
-  //H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
+  // H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
   public mimeType: string = 'HIVE';
 
   public isChangeAuthUser: boolean = false;
@@ -305,7 +305,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.workbenchId = params['id'];
     });
 
-    (navigator.userAgent.replace(/ /g, '').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true);
+    (navigator.userAgent.replace(/ /g, '').toUpperCase().indexOf('MAC') == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true);
   }
 
   public ngAfterViewInit() {
@@ -490,7 +490,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     WorkbenchService.webSocketLoginPw = param.pw;
     this.readQuery(this.workbenchTemp.queryEditors);
 
-    //TODO The connection has not been established error
+    // TODO The connection has not been established error
     try {
       this.webSocketCheck(() => {
       });
@@ -645,7 +645,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.gridSearchClear();
 
-    let removeIdx: number = currentEditorResultTabs.findIndex(item => item.id === tabId);
+    const removeIdx: number = currentEditorResultTabs.findIndex(item => item.id === tabId);
 
     this._removeResultTab(tabId);
 
@@ -658,7 +658,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (currentEditorResultTabs.length > 0) {
       let targetIdx: number = removeIdx - 1;
       (0 > targetIdx) && (targetIdx = 0);
-      let showTabInfo: ResultTab = currentEditorResultTabs[targetIdx];
+      const showTabInfo: ResultTab = currentEditorResultTabs[targetIdx];
       this.changeResultTabHandler(showTabInfo.id);
     }
   }
@@ -740,8 +740,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (resultTab.offset().left > $(window).outerWidth() / 2) {
       this._tooltipTimer = setTimeout(() => {
         resultTab.find('.ddp-box-tabs-popup').show().css({
-          'right': '-10px',
-          'left': 'inherit'
+          right: '-10px',
+          left: 'inherit'
         });
       }, 1500);
     } else {
@@ -848,10 +848,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.safelyDetectChanges();
 
     const target = $(event.target);
-    let infoLeft: number = target.offset().left;
-    let infoTop: number = target.offset().top;
+    const infoLeft: number = target.offset().left;
+    const infoTop: number = target.offset().top;
     const element = document.getElementById(`dataConnectionInfo`);
-    $(element).css({'left': infoLeft - 30, 'top': infoTop + 17});
+    $(element).css({left: infoLeft - 30, top: infoTop + 17});
 
   }
 
@@ -995,7 +995,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.workbenchService.updateQueryEditor(queryEditor)
             .then(() => {
 
-              let queryStrArr: string[]
+              const queryStrArr: string[]
                 = runningQuery.replace(/--.*/gmi, '').replace(/#.*/gmi, '').split(';').filter(item => !/^\s*$/.test(item));
 
               if (0 === queryStrArr.length) {
@@ -1027,7 +1027,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.isExecutingQuery = false;
         this.loadingBar.hide();
 
-        if (error.code && error.code === "WB0002") {
+        if (error.code && error.code === 'WB0002') {
           this.stomp.initAndConnect();
         }
 
@@ -1056,7 +1056,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.runningResultTabId = resultTab.id;
     this.hideResultButtons = false;
 
-    //disable cancel in 5 sec
+    // disable cancel in 5 sec
     this.setCancelButtonTimer(5);
 
     this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor, additionalParams)
@@ -1118,7 +1118,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.isExecutingQuery = false;
         this.loadingBar.hide();
 
-        if (error.code && error.code === "WB0002") {
+        if (error.code && error.code === 'WB0002') {
           this.stomp.initAndConnect();
         }
 
@@ -1138,9 +1138,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.loadingBar.show();
     this.safelyDetectChanges();
 
-    let editorId = targetTab.editorId;
-    let csvFilePath = targetTab.result.csvFilePath;
-    let fieldList = targetTab.result.fields;
+    const editorId = targetTab.editorId;
+    const csvFilePath = targetTab.result.csvFilePath;
+    const fieldList = targetTab.result.fields;
 
     if (direction == 'PREV') {
       targetTab.pageNum--;
@@ -1353,7 +1353,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.intervalDownload = setInterval(() => that.checkQueryStatus(), 1000);
 
       $('#' + $('#downloadCsvForm').attr('target')).off('load').on('load', function () {
-        Alert.error(JSON.parse($(this).contents().find("body").text()).details);
+        Alert.error(JSON.parse($(this).contents().find('body').text()).details);
       });
     } catch (e) {
       console.log('다운로드 에러' + e);
@@ -1385,7 +1385,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public setNumberFormat(num: number, float: number = 0): string {
     let value: string = String(Math.round(num * (Math.pow(10, float))) / Math.pow(10, float));
-    let arrSplitFloatPoint = value.split('.');
+    const arrSplitFloatPoint = value.split('.');
     let floatValue = '';
     if (1 < arrSplitFloatPoint.length) {
       floatValue = arrSplitFloatPoint[1];
@@ -1764,9 +1764,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
           const $logContainer = $('#workbenchLogText');
           if (this._isEqualRunningVisibleTab() && '' !== $logContainer.text()) {
-            let textAreaHeight = $logContainer.height();
-            let lineBreakLength = $logContainer.find('br').length;
-            let offsetTop = textAreaHeight * (Math.ceil(lineBreakLength / 8));
+            const textAreaHeight = $logContainer.height();
+            const lineBreakLength = $logContainer.find('br').length;
+            const offsetTop = textAreaHeight * (Math.ceil(lineBreakLength / 8));
             $logContainer.scrollTop(offsetTop);
           }
         }
@@ -2096,7 +2096,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
 
-    let text: string = this.editor.formatter(textSelected, ' ');
+    const text: string = this.editor.formatter(textSelected, ' ');
     this.editor.replace(text);
 
     this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
@@ -2256,7 +2256,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       description: ''
     };
 
-    let column = currentResultTab.result.fields;
+    const column = currentResultTab.result.fields;
     let seq = 0;
     column.forEach((item) => {
       item['seq'] = seq;
@@ -2328,7 +2328,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       workbook.name = '';
       dashboard.workBook = workbook;
 
-      let fields = tempDsInfo.fields.filter(item => '__ctime' !== item.name);
+      const fields = tempDsInfo.fields.filter(item => '__ctime' !== item.name);
 
       fields.forEach(item => item.dataSource = boardDataSource.engineName);
       dashboard.configuration.fields = fields;
@@ -2404,7 +2404,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public setSchemaBrowser(): void {
 
-    let connInfo: any = this.workbench;
+    const connInfo: any = this.workbench;
 
     const selectedSecurityType = [
       {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
@@ -2427,14 +2427,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   public setTableDataEvent($event) {
-    let tableTemp: any = {};
+    const tableTemp: any = {};
     $event.forEach(item => {
       tableTemp[item.name] = []
     });
 
     this.editor.setOptions(tableTemp);
 
-    //H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
+    // H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
     if (this.mimeType == 'HIVE' || this.mimeType == 'PRESTO' || this.mimeType == 'GENERAL') {
       this.editor.setModeOptions('text/x-hive');
     } else if ( this.mimeType == 'POSTGRESQL' ) {
@@ -2467,7 +2467,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       minSize: 230,
       elementStyle: (_dimension, size, _gutterSize) => {
         // console.log( dimension, size, gutterSize );
-        return {'width': `${size}%`};
+        return {width: `${size}%`};
       },
       onDrag: () => {
         resizeTimer = setTimeout(() => {

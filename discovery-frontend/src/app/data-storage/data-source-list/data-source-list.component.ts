@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {DatasourceService} from '../../datasource/service/datasource.service';
-import {Datasource, SourceType, Status} from '../../domain/datasource/datasource';
-import {Alert} from '../../common/util/alert.util';
-import {Modal} from '../../common/domain/modal';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
-import {StringUtil} from '../../common/util/string.util';
-import {ActivatedRoute} from "@angular/router";
-import {CriterionComponent} from "../component/criterion/criterion.component";
-import {Criteria} from "../../domain/datasource/criteria";
-import {isNullOrUndefined} from "util";
+import {Datasource, SourceType, Status} from '@domain/datasource/datasource';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {StringUtil} from '@common/util/string.util';
+import {ActivatedRoute} from '@angular/router';
+import {CriterionComponent} from '../component/criterion/criterion.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'app-data-source',

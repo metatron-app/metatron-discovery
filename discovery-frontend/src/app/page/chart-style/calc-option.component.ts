@@ -12,14 +12,11 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import {BaseOptionComponent} from "./base-option.component";
-import { TotalValueStyle, UIGridChart } from '../../common/component/chart/option/ui-option/ui-grid-chart';
-import { UIOption } from '../../common/component/chart/option/ui-option';
-import {
-  FontSize, GridViewType, Operator, TextAlign, UIFontStyle,
-  UIPosition
-} from '../../common/component/chart/option/define/common';
+import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {BaseOptionComponent} from './base-option.component';
+import {TotalValueStyle, UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {FontSize, GridViewType, Operator, UIPosition} from '@common/component/chart/option/define/common';
 import * as _ from 'lodash';
 
 @Component({
@@ -40,9 +37,9 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public operatorDefaultIdx:number = 0;
+  public operatorDefaultIdx: number = 0;
 
-  public hAlignDefaultIdx:number = 0;
+  public hAlignDefaultIdx: number = 0;
 
   // 차트정보
   @Input('uiOption')
@@ -51,8 +48,8 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
 
     // 원본데이터인경우 연산행 제거
-    if (GridViewType.MASTER == (<UIGridChart>this.uiOption).dataType && this.uiOption['totalValueStyle']) {
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, { totalValueStyle: null });
+    if (GridViewType.MASTER == (this.uiOption as UIGridChart).dataType && this.uiOption['totalValueStyle']) {
+      this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: null}) as UIOption);
       this.update();
     }
   }
@@ -95,7 +92,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    */
   public showCalculatedRow(): void {
 
-    const uiOption = (<UIGridChart>this.uiOption);
+    const uiOption = (this.uiOption as UIGridChart);
 
     // annotation 최초설정시
     if (!uiOption.totalValueStyle) {
@@ -110,24 +107,24 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
       uiOption.totalValueStyle.vAlign = UIPosition.MIDDLE;
       uiOption.totalValueStyle.aggregationType = Operator.SUM;
 
-    // annotation이 있을때
+      // annotation이 있을때
     } else {
 
       uiOption.totalValueStyle = null;
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { totalValueStyle: uiOption.totalValueStyle });
+    this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: uiOption.totalValueStyle}) as UIOption);
 
     this.update();
   }
 
   public onChangedCalculatedRowSlider(style: TotalValueStyle) {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { totalValueStyle: style });
+    this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: style}) as UIOption);
     this.update();
   }
 
   public showCalculatedColumn(): void {
-    const uiOption = (<UIGridChart>this.uiOption);
+    const uiOption = (this.uiOption as UIGridChart);
 
     // annotation 최초설정시
     if (!uiOption.showCalculatedColumnStyle) {
@@ -144,13 +141,13 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
       uiOption.showCalculatedColumnStyle = null;
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { showCalculatedColumnStyle: uiOption.showCalculatedColumnStyle });
+    this.uiOption = (_.extend({}, this.uiOption, {showCalculatedColumnStyle: uiOption.showCalculatedColumnStyle}) as UIOption);
 
     this.update();
   }
 
   public onChangedCalculatedColumnSlider(style: TotalValueStyle) {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { showCalculatedColumnStyle: style });
+    this.uiOption = (_.extend({}, this.uiOption, {showCalculatedColumnStyle: style}) as UIOption);
     this.update();
   }
 
@@ -163,7 +160,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   private apply(totalValueStyle: TotalValueStyle): void {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { totalValueStyle: totalValueStyle });
+    this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: totalValueStyle}) as UIOption);
     this.update();
   }
 }

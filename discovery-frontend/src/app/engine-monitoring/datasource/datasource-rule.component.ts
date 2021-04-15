@@ -20,10 +20,10 @@ import {
   OnDestroy,
   OnInit, Output
 } from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {EngineService} from "../service/engine.service";
-import * as _ from "lodash";
-import {Alert} from "../../common/util/alert.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../service/engine.service';
+import * as _ from 'lodash';
+import {Alert} from '@common/util/alert.util';
 
 declare let moment: any;
 
@@ -133,13 +133,13 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
     if (rule.type.indexOf('Period') > -1) {
       rule['period'] = text;
       if (rule['period'] === moment.duration(rule['period']).toISOString()) {
-        rule.durationString = moment.duration(rule['period']).locale("en").humanize();
+        rule.durationString = moment.duration(rule['period']).locale('en').humanize();
       }
     } else if (rule.type.indexOf('Interval') > -1) {
       rule['interval'] = text;
       if (text.split('/').length == 2) {
         if (moment.duration(moment(text.split('/')[1]).diff(text.split('/')[0])).asMilliseconds() > 0) {
-          rule.durationString = moment.duration(moment(text.split('/')[1]).diff(text.split('/')[0])).locale("en").humanize();
+          rule.durationString = moment.duration(moment(text.split('/')[1]).diff(text.split('/')[0])).locale('en').humanize();
         }
       }
     }

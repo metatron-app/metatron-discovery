@@ -1,9 +1,9 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Criteria} from "../../../domain/datasource/criteria";
-import {PeriodData} from "../../../common/value/period.data.value";
-import {PickerSettings} from "../../../domain/common/datepicker.settings";
-import {Subject} from "rxjs";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {PeriodData} from '@common/value/period.data.value';
+import {PickerSettings} from '@domain/common/datepicker.settings';
+import {Subject} from 'rxjs';
 
 declare let moment: any;
 declare let $: any;
@@ -80,7 +80,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    let filterFlags = {};
+    const filterFlags = {};
 
     Object.keys(FilterTypes).forEach((key) => {
       if (key === FilterTypes.UPDATED_TIME) {

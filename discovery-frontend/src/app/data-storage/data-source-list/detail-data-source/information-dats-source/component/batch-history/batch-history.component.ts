@@ -14,11 +14,11 @@
  */
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
-import { IngestionHistory, IngestionStatus } from '../../../../../../domain/datasource/datasource';
-import { MomentDatePipe } from '../../../../../../common/pipe/moment.date.pipe';
-import { CommonUtil } from '../../../../../../common/util/common.util';
+import { IngestionHistory, IngestionStatus } from '@domain/datasource/datasource';
+import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
+import { CommonUtil } from '@common/util/common.util';
 
 @Component({
   selector: 'batch-history',

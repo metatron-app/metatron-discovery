@@ -22,13 +22,13 @@ import {
   CreateSourceCompleteData,
   CreateSourceConfigureData,
   KafkaData
-} from "../../data-storage/service/data-source-create.service";
-import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
-import {isNullOrUndefined} from "util";
-import {TimezoneService} from "../../data-storage/service/timezone.service";
-import {AggregationType} from "../workbook/configurations/field/measure-field";
-import {Type} from "../../shared/datasource-metadata/domain/type";
-import {StringUtil} from "../../common/util/string.util";
+} from '../../data-storage/service/data-source-create.service';
+import {PrDataSnapshot} from '../data-preparation/pr-snapshot';
+import {isNullOrUndefined} from 'util';
+import {TimezoneService} from '../../data-storage/service/timezone.service';
+import {AggregationType} from '../workbook/configurations/field/measure-field';
+import {Type} from '../../shared/datasource-metadata/domain/type';
+import {StringUtil} from '../../common/util/string.util';
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -222,23 +222,6 @@ export class Field {
   // for Datasource detail
   op?: 'replace';
 
-  removeUIproperties?() {
-    delete this.isShowTypeList;
-    delete this.isValidType;
-    delete this.useFilter;
-    delete this.useChartFilter;
-    delete this.useChart;
-  }
-
-  removeIngestionRule?() {
-    delete this.ingestionRule;
-  }
-
-  // TODO 추후 Type.Logical으로 변경시 제거 필요
-  setLogicalType?(type) {
-    this.logicalType = type;
-  }
-
   public static removeNameValidProperty(field: Field) {
     delete field.isInvalidName;
     delete field.invalidNameMessage;
@@ -380,7 +363,7 @@ export class Field {
    * @return {string}
    */
   public static getDimensionTypeIconClass(field: Field): string {
-    //debugger
+    // debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
@@ -415,7 +398,7 @@ export class Field {
    * @return {string}
    */
   public static getMeasureTypeIconClass(field: Field): string {
-    //debugger
+    // debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType) {
       return 'ddp-icon-measure-ab';
@@ -441,6 +424,23 @@ export class Field {
       return 'ddp-icon-map-view ddp-icon-measure-polygon';
     }
   } // function - getMeasureTypeIconClass
+
+  removeUIproperties?() {
+    delete this.isShowTypeList;
+    delete this.isValidType;
+    delete this.useFilter;
+    delete this.useChartFilter;
+    delete this.useChart;
+  }
+
+  removeIngestionRule?() {
+    delete this.ingestionRule;
+  }
+
+  // TODO 추후 Type.Logical으로 변경시 제거 필요
+  setLogicalType?(type) {
+    this.logicalType = type;
+  }
 }
 
 // 데이터소스 생성시 사용하는 정보
@@ -671,6 +671,12 @@ export enum TempDsStatus {
 }
 
 export class FieldFormat {
+
+  constructor() {
+    this.type = FieldFormatType.DATE_TIME;
+    // TODO 타임스탬프 개선시 제거
+    this.unit = FieldFormatUnit.MILLISECOND;
+  }
   // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
   unit?: FieldFormatUnit;  // ONLY USE UNIX
@@ -684,6 +690,31 @@ export class FieldFormat {
   isValidFormat?: boolean;
   formatValidMessage?: string;
   isShowTimestampValidPopup?: boolean;
+
+  public static of(fieldFormat: FieldFormat) {
+    const resultFieldFormat = new FieldFormat();
+    resultFieldFormat.type = fieldFormat.type;
+    // if not undefined properties
+    if (!isNullOrUndefined(fieldFormat.unit)) {
+      resultFieldFormat.unit = fieldFormat.unit;
+    }
+    if (!isNullOrUndefined(fieldFormat.timeZone)) {
+      resultFieldFormat.timeZone = fieldFormat.timeZone;
+    }
+    if (!isNullOrUndefined(fieldFormat.format)) {
+      resultFieldFormat.format = fieldFormat.format;
+    }
+    if (!isNullOrUndefined(fieldFormat.locale)) {
+      resultFieldFormat.locale = fieldFormat.locale;
+    }
+    if (!isNullOrUndefined(fieldFormat.originalSrsName)) {
+      resultFieldFormat.originalSrsName = fieldFormat.originalSrsName;
+    }
+    if (!isNullOrUndefined(fieldFormat.isValidFormat)) {
+      resultFieldFormat.isValidFormat = fieldFormat.isValidFormat;
+    }
+    return resultFieldFormat;
+  }
 
   formatInitialize() {
     this.format = 'yyyy-MM-dd';
@@ -726,37 +757,6 @@ export class FieldFormat {
 
   isEmptyFormat() {
     return isNullOrUndefined(this.format);
-  }
-
-  constructor() {
-    this.type = FieldFormatType.DATE_TIME;
-    // TODO 타임스탬프 개선시 제거
-    this.unit = FieldFormatUnit.MILLISECOND;
-  }
-
-  public static of(fieldFormat: FieldFormat) {
-    let resultFieldFormat = new FieldFormat();
-    resultFieldFormat.type = fieldFormat.type;
-    // if not undefined properties
-    if (!isNullOrUndefined(fieldFormat.unit)) {
-      resultFieldFormat.unit = fieldFormat.unit;
-    }
-    if (!isNullOrUndefined(fieldFormat.timeZone)) {
-      resultFieldFormat.timeZone = fieldFormat.timeZone;
-    }
-    if (!isNullOrUndefined(fieldFormat.format)) {
-      resultFieldFormat.format = fieldFormat.format;
-    }
-    if (!isNullOrUndefined(fieldFormat.locale)) {
-      resultFieldFormat.locale = fieldFormat.locale;
-    }
-    if (!isNullOrUndefined(fieldFormat.originalSrsName)) {
-      resultFieldFormat.originalSrsName = fieldFormat.originalSrsName;
-    }
-    if (!isNullOrUndefined(fieldFormat.isValidFormat)) {
-      resultFieldFormat.isValidFormat = fieldFormat.isValidFormat;
-    }
-    return resultFieldFormat;
   }
 
   public changeType(format: string): void {

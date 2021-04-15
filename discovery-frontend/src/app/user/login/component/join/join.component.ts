@@ -16,13 +16,13 @@ import {
   Component, EventEmitter, OnInit, Output,
   ElementRef, Injector, OnDestroy, ViewChild, Renderer2
 } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { UserService } from '../../../service/user.service';
-import { User } from '../../../../domain/user/user';
-import { StringUtil } from '../../../../common/util/string.util';
+import { User } from '@domain/user/user';
+import { StringUtil } from '@common/util/string.util';
 import { FileUploader } from 'ng2-file-upload';
-import { CommonConstant } from '../../../../common/constant/common.constant';
-import { Alert } from '../../../../common/util/alert.util';
+import { CommonConstant } from '@common/constant/common.constant';
+import { Alert } from '@common/util/alert.util';
 import { isUndefined } from 'util';
 
 @Component({

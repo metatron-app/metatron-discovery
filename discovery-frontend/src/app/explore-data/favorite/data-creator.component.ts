@@ -19,13 +19,13 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {ActivatedRoute} from "@angular/router";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {DataCreator} from "../../domain/meta-data-management/data-creator";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {ActivatedRoute} from '@angular/router';
+import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
 
 @Component({
   selector: 'app-favorite-creator',

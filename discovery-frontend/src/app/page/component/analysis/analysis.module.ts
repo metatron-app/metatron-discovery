@@ -20,7 +20,7 @@ import { TrendLineModule } from './trend.line/trend.line.module';
 import { ColorPickerLayerComponent } from './color.picker/color.picker.layer.component';
 import { RangeSliderComponent } from './slider/range-slider.component';
 import { AnalysisClusterComponent } from './cluster/analysis-cluster.component';
-import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
+import {MapSpatialComponent} from './map-spatial/map-spatial.component';
 
 @NgModule({
   imports: [

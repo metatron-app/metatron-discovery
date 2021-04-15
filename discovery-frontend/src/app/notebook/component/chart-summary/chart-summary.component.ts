@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
 import { NotebookService } from '../../service/notebook.service';
-import { Alert } from '../../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 import { isUndefined } from 'util';
 
 @Component({

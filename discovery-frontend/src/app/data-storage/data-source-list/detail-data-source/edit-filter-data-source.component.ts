@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { Alert } from '../../../common/util/alert.util';
-import { FilteringOptions, FilteringOptionType } from '../../../domain/workbook/configurations/filter/filter';
+import { Alert } from '@common/util/alert.util';
+import { FilteringOptions, FilteringOptionType } from '@domain/workbook/configurations/filter/filter';
 
 /**
  * Edit recommend and essential filter in datasource

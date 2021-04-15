@@ -13,12 +13,12 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
-import {CommonUtil} from '../../common/util/common.util';
-import {Page} from '../../domain/common/page';
-import {isNullOrUndefined} from "util";
-import {Observable} from "rxjs/Observable";
-import {Criteria} from "../../domain/datasource/criteria";
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
+import {Page} from '@domain/common/page';
+import {isNullOrUndefined} from 'util';
+import {Observable} from 'rxjs/Observable';
+import {Criteria} from '@domain/datasource/criteria';
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -80,7 +80,7 @@ export class DataconnectionService extends AbstractService {
   public getDatabases(connectionId: string, page?:Page, searchName?:string): Promise<any> {
     let url:string = this.API_URL + `connections/${connectionId}/databases`;
     if (page || searchName) {
-      let param:any = {};
+      const param:any = {};
 
       if( page ) {
         param.sort = page.sort;
@@ -135,7 +135,7 @@ export class DataconnectionService extends AbstractService {
       url += '?' + CommonUtil.objectToUrlString(param);
     }
     const params:any = {};
-    let connInfo: any = {};
+    const connInfo: any = {};
     connInfo.implementor = dataconnection.implementor;
     // connection 정보가 USERINFO 일 경우 제외
     if( connInfo.authenticationType != 'USERINFO' ) {
@@ -173,7 +173,7 @@ export class DataconnectionService extends AbstractService {
   public getTables(connectionId: string, databaseName: string, page?:Page): Promise<any> {
     let url:string = this.API_URL + `connections/${connectionId}/databases/${databaseName}/tables`;
     if (page) {
-      let param:any = {};
+      const param:any = {};
 
       if( page ) {
         param.sort = page.sort;
@@ -354,7 +354,7 @@ export class DataconnectionService extends AbstractService {
    * @returns {Promise<any>}
    */
   public isStrictModeForStagingDB(): Promise<any> {
-    //return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+    // return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
     return this.get(this.URL_CONNECTIONS + '/query/hive/partitions/enable');
   }
 

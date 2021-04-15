@@ -14,16 +14,16 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, AfterViewInit, Output, ViewChild, ViewChildren} from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {InputComponent} from '../../../../common/component/input/input.component';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {InputComponent} from '@common/component/input/input.component';
 import {LineageViewService} from '../../service/lineage-view.service';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {Metadata, SourceType} from '../../../../domain/meta-data-management/metadata';
-import {GridComponent} from '../../../../common/component/grid/grid.component';
-import {GridOption} from '../../../../common/component/grid/grid.option';
-import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
+import {Alert} from '@common/util/alert.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
 
 declare let echarts;
 
@@ -179,8 +179,8 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
         .build();
     });
 
-    let rows: any[] = data.rows.map((values: any, index: number) => {
-      let row : any = {};
+    const rows: any[] = data.rows.map((values: any, index: number) => {
+      const row : any = {};
       values.values.map((val:any,idx:number) => {
         row[data.columnNames[idx]] = val;
       });
@@ -198,7 +198,7 @@ export class LineageDetailComponent extends AbstractComponent implements OnInit,
 
   public gotoLineage() {
     if( this.selectedNode!==null ) {
-      let metadataId = this.selectedNode.metadataId;
+      const metadataId = this.selectedNode.metadataId;
 
       this.router.routeReuseStrategy.shouldReuseRoute = () => false;
       this.router.navigate(['management/metadata/metadata', metadataId, {tab: 'lineageView'} ]);

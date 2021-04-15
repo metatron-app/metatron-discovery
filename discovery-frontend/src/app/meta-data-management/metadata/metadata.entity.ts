@@ -14,9 +14,9 @@
  */
 
 import * as _ from 'lodash';
-import {PageResult} from "../../domain/common/page";
-import {ConnectionParam} from "../../data-storage/service/data-connection-create.service";
-import {Dataconnection} from "../../domain/dataconnection/dataconnection";
+import {PageResult} from '@domain/common/page';
+import {ConnectionParam} from '../../data-storage/service/data-connection-create.service';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
 
 export namespace MetadataEntity {
   export class CreateData {
@@ -68,7 +68,7 @@ export namespace MetadataEntity {
       }
     }
   }
-  
+
   export class ConnectionInfo {
     connectionPresetList;
     selectedConnectionPreset;
@@ -102,7 +102,7 @@ export namespace MetadataEntity {
       this.checkedTableList = checkedTableList;
     }
   }
-  
+
   export class CompleteInfo {
     metadataList: MetadataInComplete[];
     isSearchableInExploreData: boolean;

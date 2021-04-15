@@ -13,8 +13,8 @@
  */
 
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Engine} from "../../../domain/engine-monitoring/engine";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
 
 @Component({
   selector: 'node-tooltip',

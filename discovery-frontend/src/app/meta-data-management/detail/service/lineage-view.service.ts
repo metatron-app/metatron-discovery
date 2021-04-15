@@ -13,8 +13,8 @@
 */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 
 @Injectable()

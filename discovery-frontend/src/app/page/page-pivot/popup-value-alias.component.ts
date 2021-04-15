@@ -219,8 +219,8 @@ export class PopupValueAliasComponent extends AbstractComponent {
 
     // 필드 정보 grid 형식의 데이터로 변환
     const data = [];
-    for (let key in aliasData.valueAlias) {
-      let value = {};
+    for (const key in aliasData.valueAlias) {
+      const value = {};
       value['field'] = key;
       value['alias'] = aliasData.valueAlias[key];
       data.push(value);

@@ -23,13 +23,13 @@ import {
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
-import {ConnectionType, Datasource, Field} from '../../domain/datasource/datasource';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {ConnectionType, Datasource, Field} from '@domain/datasource/datasource';
 import {DashboardUtil} from '../util/dashboard.util';
 import {FilterUtil} from '../util/filter.util';
-import {FilterWidget, FilterWidgetConfiguration} from "../../domain/dashboard/widget/filter-widget";
-import {AbstractDashboardComponent} from "../abstract.dashboard.component";
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {AbstractDashboardComponent} from '../abstract.dashboard.component';
 
 export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

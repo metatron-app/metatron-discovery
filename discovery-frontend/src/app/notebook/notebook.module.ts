@@ -14,7 +14,7 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 
 import { NotebookService } from './service/notebook.service';
 import { DatasourceShareModule } from '../datasource/datasource-share.module';

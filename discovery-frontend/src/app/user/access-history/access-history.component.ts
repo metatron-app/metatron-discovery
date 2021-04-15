@@ -22,9 +22,9 @@ import {
 } from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Page, PageResult} from '@domain/common/page';
-import {Activity} from "@domain/user/activity";
-import {ActivityService} from "../service/activity.service";
-import {CommonUtil} from "@common/util/common.util";
+import {Activity} from '@domain/user/activity';
+import {ActivityService} from '../service/activity.service';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-access-history',

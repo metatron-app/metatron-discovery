@@ -13,15 +13,9 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {BaseOptionComponent} from "./base-option.component";
-import { TotalValueStyle, UIGridChart } from '../../common/component/chart/option/ui-option/ui-grid-chart';
-import { UIOption } from '../../common/component/chart/option/ui-option';
-import {
-  FontSize, GridViewType, Operator, TextAlign, UIFontStyle,
-  UIPosition
-} from '../../common/component/chart/option/define/common';
-import * as _ from 'lodash';
-import {AbstractComponent} from "../../common/component/abstract.component";
+import {TotalValueStyle} from '@common/component/chart/option/ui-option/ui-grid-chart';
+import {FontSize, Operator, TextAlign, UIFontStyle, UIPosition} from '@common/component/chart/option/define/common';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'calc-option-slider',
@@ -49,10 +43,10 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
     // Set
     this.totalValueStyle = totalValueStyle;
 
-    if(totalValueStyle) {
-      this.operatorDefaultIdx = this.operatorList.findIndex( item => item['value'] === totalValueStyle.aggregationType );
-      this.hAlignDefaultIdx = this.hAlignList.findIndex( item => item['value'] === totalValueStyle.hAlign );
-      ( -1 === this.hAlignDefaultIdx ) && ( this.hAlignDefaultIdx = 0 );
+    if (totalValueStyle) {
+      this.operatorDefaultIdx = this.operatorList.findIndex(item => item['value'] === totalValueStyle.aggregationType);
+      this.hAlignDefaultIdx = this.hAlignList.findIndex(item => item['value'] === totalValueStyle.hAlign);
+      (-1 === this.hAlignDefaultIdx) && (this.hAlignDefaultIdx = 0);
     }
   }
 
@@ -66,7 +60,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
     {name: this.translateService.instant('msg.page.calc.label.operator.min'), value: Operator.MIN},
     {name: this.translateService.instant('msg.page.calc.label.operator.count'), value: Operator.COUNT},
   ];
-  public operatorDefaultIdx:number = 0;
+  public operatorDefaultIdx: number = 0;
 
   // 가로 align리스트
   public hAlignList: Object[] = [
@@ -75,7 +69,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.center'), value: TextAlign.CENTER},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.right'), value: TextAlign.RIGHT}
   ];
-  public hAlignDefaultIdx:number = 0;
+  public hAlignDefaultIdx: number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -185,7 +179,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
   }
 
   public isFontStyle(fontStyle: string): boolean {
-    if(this.totalValueStyle && this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]) != -1) {
+    if (this.totalValueStyle && this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]) != -1) {
       return true;
     } else {
       return false;

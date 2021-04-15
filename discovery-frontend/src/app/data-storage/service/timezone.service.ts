@@ -15,13 +15,23 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StringUtil } from "../../common/util/string.util";
-import {FieldFormat} from "../../domain/datasource/datasource";
+import { StringUtil } from '../../common/util/string.util';
+import {FieldFormat} from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
 declare let moment: any;
 
 @Injectable()
 export class TimezoneService {
+
+  constructor(protected injector: Injector) {
+    this._translateService = injector.get(TranslateService);
+    // init
+    this._initTimeZoneList();
+    this._initBrowserTimezone();
+  }
+
+  // if not used TIMEZONE, set this key in timeZone property
+  public static readonly  DISABLE_TIMEZONE_KEY = 'DISABLE_ZONE';
 
   private _translateService: TranslateService;
 
@@ -30,16 +40,6 @@ export class TimezoneService {
   private _browserTimezone: TimeZoneObject;
 
   public readonly browserLocale: string = moment.locale();
-
-  // if not used TIMEZONE, set this key in timeZone property
-  public static readonly  DISABLE_TIMEZONE_KEY = 'DISABLE_ZONE';
-
-  constructor(protected injector: Injector) {
-    this._translateService = injector.get(TranslateService);
-    // init
-    this._initTimeZoneList();
-    this._initBrowserTimezone();
-  }
 
   /**
    * Get time zone list

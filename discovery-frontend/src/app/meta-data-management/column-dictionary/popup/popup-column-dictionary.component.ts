@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   AfterViewInit,
   Component,
@@ -25,12 +25,12 @@ import {
   Output
 } from '@angular/core';
 import {ColumnDictionaryService} from '../service/column-dictionary.service';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
-import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
-import {StringUtil} from "../../../common/util/string.util";
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
+import {LinkedMetaDataColumn} from '@domain/meta-data-management/metadata-column';
+import {StringUtil} from '@common/util/string.util';
 import * as _ from 'lodash';
-import {Modal} from "../../../common/domain/modal";
-import {CommonUtil} from "../../../common/util/common.util";
+import {Modal} from '@common/domain/modal';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'popup-column-dictionary',

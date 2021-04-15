@@ -13,16 +13,16 @@
  */
 
 import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { AddNotebookServerComponent } from './add-notebook-server/add-notebook-server.component';
 import { NotebookServerService } from './service/notebook-server.service';
-import { Alert } from '../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from 'util';
-import { Modal } from '../../common/domain/modal';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { NoteBook } from '../../domain/notebook/notebook';
+import { Modal } from '@common/domain/modal';
+import { DeleteModalComponent } from '@common/component/modal/delete/delete.component';
+import { NoteBook } from '@domain/notebook/notebook';
 import * as _ from 'lodash';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-notebook-server',

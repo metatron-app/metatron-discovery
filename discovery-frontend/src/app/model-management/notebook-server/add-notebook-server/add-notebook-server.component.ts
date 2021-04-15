@@ -13,12 +13,12 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, OnInit, Output} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {NoteBook} from '../../../domain/notebook/notebook';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {NoteBook} from '@domain/notebook/notebook';
 import {isUndefined} from 'util';
-import {Alert} from '../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {NotebookServerService} from '../service/notebook-server.service';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-add-notebook-server',

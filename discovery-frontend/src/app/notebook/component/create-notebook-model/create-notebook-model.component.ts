@@ -13,10 +13,10 @@
  */
 
 import { Component, ElementRef, Injector, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import { NotebookModel } from '../../../domain/model-management/notebookModel';
-import { Alert } from '../../../common/util/alert.util';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { PopupService } from '@common/service/popup.service';
+import { NotebookModel } from '@domain/model-management/notebookModel';
+import { Alert } from '@common/util/alert.util';
 import { NotebookService } from '../../service/notebook.service';
 
 @Component({

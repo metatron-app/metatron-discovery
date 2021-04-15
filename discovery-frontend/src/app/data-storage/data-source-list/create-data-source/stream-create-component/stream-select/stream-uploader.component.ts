@@ -6,11 +6,11 @@ import {
   Input,
   Output,
   ViewChild
-} from "@angular/core";
-import {AbstractComponent} from "../../../../../common/component/abstract.component";
-import {CommonConstant} from "../../../../../common/constant/common.constant";
-import {CookieConstant} from "../../../../../common/constant/cookie.constant";
-import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {Pluploader} from '@common/component/pluploader/pluploader';
 import * as _ from 'lodash';
 import ErrorCode = Pluploader.ErrorCode;
 
@@ -70,9 +70,9 @@ export class StreamUploaderComponent extends AbstractComponent {
    * @return {string}
    */
   public getFileSize(size: number, split: number): string {
-    if(0 === size) return "0 Bytes";
-    let c=1024,d=split||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(size)/Math.log(c));
-    return parseFloat((size/Math.pow(c,f)).toFixed(d))+" "+e[f];
+    if(0 === size) return '0 Bytes';
+    const c=1024,d=split||2,e=['Bytes','KB','MB','GB','TB','PB','EB','ZB','YB'],f=Math.floor(Math.log(size)/Math.log(c));
+    return parseFloat((size/Math.pow(c,f)).toFixed(d))+' '+e[f];
   }
 
   /**
@@ -171,13 +171,13 @@ export class StreamUploaderComponent extends AbstractComponent {
       .DropElement(dropElement)
       .Url(CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload?stream')
       .Headers({
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+        Accept: 'application/json, text/plain, */*',
+        Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
       })
       .MultiSelection(false)
       .Filters(new Pluploader.Builder.FileFiltersBuilder()
         .MimeTypes([
-          {title: "files", extensions: "csv,json"}
+          {title: 'files', extensions: 'csv,json'}
         ])
         .MaxFileSize(0)
         .builder()

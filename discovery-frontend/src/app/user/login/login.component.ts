@@ -28,7 +28,7 @@ import { ConfirmSmallComponent } from '@common/component/modal/confirm-small/con
 import { Modal } from '@common/domain/modal';
 import { CommonUtil } from '@common/util/common.util';
 import { isNullOrUndefined } from 'util';
-import { InitialChangePasswordComponent } from "./component/initial-change-password/initial-change-password.component";
+import { InitialChangePasswordComponent } from './component/initial-change-password/initial-change-password.component';
 
 declare let moment: any;
 
@@ -163,7 +163,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
     this.useCancelBtn = false;
     this._confirmModal.init(modal);
 
-    //this.joinCompleteComponent.init();
+    // this.joinCompleteComponent.init();
   }
 
   public confirmComplete(data) {

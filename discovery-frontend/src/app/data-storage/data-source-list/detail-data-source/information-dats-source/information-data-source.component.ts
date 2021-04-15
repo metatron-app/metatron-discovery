@@ -25,34 +25,34 @@ import {
   SimpleChanges,
   ViewChild, ViewContainerRef
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {
   ConnectionType,
   Datasource,
   Field,
   SourceType,
   Status
-} from '../../../../domain/datasource/datasource';
+} from '@domain/datasource/datasource';
 import {SetWorkspacePublishedComponent} from '../../../component/set-workspace-published/set-workspace-published.component';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
 import {QueryDetailComponent} from './component/query-detail/query-detail.component';
 import {BatchHistoryComponent} from './component/batch-history/batch-history.component';
-import {MomentDatePipe} from '../../../../common/pipe/moment.date.pipe';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
 import * as _ from 'lodash';
-import {GranularityType} from '../../../../domain/workbook/configurations/field/timestamp-field';
-import {StringUtil} from '../../../../common/util/string.util';
-import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
-import {Modal} from "../../../../common/domain/modal";
-import {Alert} from "../../../../common/util/alert.util";
+import {GranularityType} from '@domain/workbook/configurations/field/timestamp-field';
+import {StringUtil} from '@common/util/string.util';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
 import {IngestionLogComponent} from './component/ingestion-log/ingestion-log.component';
-import {CommonUtil} from '../../../../common/util/common.util';
-import {Metadata} from "../../../../domain/meta-data-management/metadata";
-import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {DataStorageConstant} from "../../../constant/data-storage-constant";
+import {CommonUtil} from '@common/util/common.util';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {SsType} from '@domain/data-preparation/pr-snapshot';
+import {DataStorageConstant} from '../../../constant/data-storage-constant';
 import * as moment from 'moment';
-import {Segments} from "../../../../domain/datasource/stats";
-import {SchedulingService} from "../../../service/scheduling.service";
-import {ConfirmRefModalComponent} from "../../../../common/component/modal/confirm/confirm-ref.component";
+import {Segments} from '@domain/datasource/stats';
+import {SchedulingService} from '../../../service/scheduling.service';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
 
 declare let echarts: any;
 

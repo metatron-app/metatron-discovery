@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {isUndefined, isNullOrUndefined} from 'util';
 import {MetadataService} from './service/metadata.service';
-import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {Alert} from '../../common/util/alert.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
 import {CatalogService} from '../catalog/service/catalog.service';
 import * as _ from 'lodash';
 import {StorageService} from '../../data-storage/service/storage.service';
-import {ActivatedRoute} from "@angular/router";
-import {CreateMetadataMainComponent} from "./create-metadata/create-metadata-main.component";
-import {Subscription} from "rxjs";
-import {StringUtil} from "../../common/util/string.util";
+import {ActivatedRoute} from '@angular/router';
+import {CreateMetadataMainComponent} from './create-metadata/create-metadata-main.component';
+import {Subscription} from 'rxjs';
+import {StringUtil} from '@common/util/string.util';
 
 declare let $;
 

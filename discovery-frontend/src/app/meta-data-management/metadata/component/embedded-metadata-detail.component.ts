@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, HostListener, Injector} from '@angular/core';
 import {MetadataService} from '../service/metadata.service';
-import {Metadata} from '../../../domain/meta-data-management/metadata';
-import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({

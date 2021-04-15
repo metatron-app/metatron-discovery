@@ -14,12 +14,12 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
-import {Action, User} from '../../../../../domain/user/user';
-import {Alert} from '../../../../../common/util/alert.util';
+import {Action, User} from '@domain/user/user';
+import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
 import {isUndefined} from 'util';
-import {Group} from '../../../../../domain/user/group';
-import {GroupMember} from '../../../../../domain/user/group-member';
+import {Group} from '@domain/user/group';
+import {GroupMember} from '@domain/user/group-member';
 
 @Component({
   selector: 'app-update-user-management-groups',

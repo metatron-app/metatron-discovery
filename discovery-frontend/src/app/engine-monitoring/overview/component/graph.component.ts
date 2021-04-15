@@ -21,12 +21,12 @@ import {
   OnInit, Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {EngineService} from "../../service/engine.service";
-import {Engine} from "../../../domain/engine-monitoring/engine";
+import {EngineService} from '../../service/engine.service';
+import {Engine} from '@domain/engine-monitoring/engine';
 import * as _ from 'lodash';
-import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
+import {EngineMonitoringUtil} from '../../util/engine-monitoring.util';
 
 declare let echarts: any;
 declare let moment: any;
@@ -140,7 +140,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._engineSvc.getMemory(queryParam).then((data) => {
       this.memoryEmpty = undefined;
       const seriesData = data.map( item => {
-        ( 'useMem' === item.name ) && ( this.heapMemory = (typeof item.percentage === "number") ? item.percentage.toFixed(0) + '%' : '0%');
+        ( 'useMem' === item.name ) && ( this.heapMemory = (typeof item.percentage === 'number') ? item.percentage.toFixed(0) + '%' : '0%');
         item['itemStyle'] = {
           normal:{ color: 'useMem' === item.name ? '#f0f4ff' : '#314673' }
         }
@@ -161,7 +161,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
             fontFamily: 'SpoqaHanSans'
           }
         },
-        'series': [
+        series: [
           {
             type: 'pie',
             name: 'AVG(value)',

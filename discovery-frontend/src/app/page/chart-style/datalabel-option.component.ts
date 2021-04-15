@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { UIOption } from '../../common/component/chart/option/ui-option';
+import { UIOption } from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
 import {
   BarMarkType,
@@ -22,12 +22,12 @@ import {
   UIChartDataLabelDisplayType,
   UIOrient,
   UIPosition
-} from '../../common/component/chart/option/define/common';
-import { UIChartFormat } from '../../common/component/chart/option/ui-option/ui-format';
-import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
-import { Pivot } from '../../domain/workbook/configurations/pivot';
+} from '@common/component/chart/option/define/common';
+import { UIChartFormat } from '@common/component/chart/option/ui-option/ui-format';
+import { FormatOptionConverter } from '@common/component/chart/option/converter/format-option-converter';
+import { Pivot } from '@domain/workbook/configurations/pivot';
 import { LabelBaseOptionComponent } from './labelbase-option.component';
-import { LabelOptionConverter } from '../../common/component/chart/option/converter/label-option-converter';
+import { LabelOptionConverter } from '@common/component/chart/option/converter/label-option-converter';
 
 @Component({
   selector: 'datalabel-option',
@@ -133,7 +133,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
     // pos값이 없을때 초기설정
     if (!uiOption.dataLabel.pos) {
-      let positionList = this.getPositionList(uiOption);
+      const positionList = this.getPositionList(uiOption);
       if (positionList && positionList.length > 0) uiOption.dataLabel.pos = positionList[positionList.length - 1]['value'];
     }
 
@@ -166,7 +166,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
     // 바차트의 중첩일때 dataLabel.pos값을 변경
     if (ChartType.BAR == this.uiOption.type && BarMarkType.STACKED == this.uiOption['mark']) {
-      let positionList = this.getPositionList(this.uiOption);
+      const positionList = this.getPositionList(this.uiOption);
       if (positionList && positionList.length > 0) this.uiOption.dataLabel.pos = positionList[positionList.length - 1]['value'];
     }
   }
@@ -316,7 +316,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     let index: number = 0;
 
     // 목록
-    let positionList: Object[] = this.getPositionList(this.uiOption);
+    const positionList: Object[] = this.getPositionList(this.uiOption);
 
     // 인덱스 찾음
     _.each(positionList, (item, idx) => {
@@ -365,8 +365,8 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   public changeBackgroundColor(): void {
 
     if( !this.uiOption.dataLabel.textBackgroundColor ) {
-      //this.uiOption.dataLabel.textBackgroundColor = "transparent";
-      this.uiOption.dataLabel.textBackgroundColor = "#000000";
+      // this.uiOption.dataLabel.textBackgroundColor = "transparent";
+      this.uiOption.dataLabel.textBackgroundColor = '#000000';
     }
     else {
       delete this.uiOption.dataLabel.textBackgroundColor;
@@ -381,8 +381,8 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   public changeTextOutlineColor(): void {
 
     if( !this.uiOption.dataLabel.textOutlineColor ) {
-      //this.uiOption.dataLabel.textOutlineColor = "transparent";
-      this.uiOption.dataLabel.textOutlineColor = "#000000";
+      // this.uiOption.dataLabel.textOutlineColor = "transparent";
+      this.uiOption.dataLabel.textOutlineColor = '#000000';
     }
     else {
       delete this.uiOption.dataLabel.textOutlineColor;
@@ -419,7 +419,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   public apply(): void {
 
     // 옵션 적용
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel });
+    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
     this.update();
   }
 
@@ -435,7 +435,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     // when set outside label, delete text align
     delete dataLabel.textAlign;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel });
+    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
     this.update();
   }
 
@@ -455,11 +455,11 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     // text color가 없는경우 => 기본값 설정
     } else {
       // 빈값 설정
-      //this.uiOption.dataLabel.textColor = ' ';
+      // this.uiOption.dataLabel.textColor = ' ';
       this.uiOption.dataLabel.textColor = '#FFFFFF';
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel });
+    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
     this.update();
   }
 
@@ -470,7 +470,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
     this.uiOption.dataLabel.hAlign = hAlign;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel });
+    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
     this.update();
   }
 
@@ -481,7 +481,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
     this.uiOption.dataLabel.vAlign = vAlign;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel });
+    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
     this.update();
   }
 
@@ -500,7 +500,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
    */
   private setDisplayTypes(chartType: ChartType): UIChartDataLabelDisplayType[] {
 
-    let displayTypes = [];
+    const displayTypes = [];
 
     switch (chartType) {
 

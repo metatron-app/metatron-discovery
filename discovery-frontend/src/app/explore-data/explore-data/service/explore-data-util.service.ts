@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable} from '@angular/core';
 
 @Injectable()
 export class ExploreDataUtilService {
@@ -9,7 +9,7 @@ export class ExploreDataUtilService {
    * @param selectedKey
    * @param dataType
    */
-  public toggleSortOption(list: any[], sortOptions: Object, selectedKey: string, dataType: string = "string") {
+  public toggleSortOption(list: any[], sortOptions: Object, selectedKey: string, dataType: string = 'string') {
     // Initialize every column's option except selected column
     Object.keys(sortOptions).forEach(key => {
       if (key !== selectedKey) {
@@ -35,10 +35,10 @@ export class ExploreDataUtilService {
    * @param dataType : string | date | number | ... -> sorting method is different according to data type
    */
 
-  public sortList(list: any[], sortOptions: Object, selectedKey: string, dataType: string = "string") {
+  public sortList(list: any[], sortOptions: Object, selectedKey: string, dataType: string = 'string') {
     // Check if columns array has more than one element
     if (list.length > 1) {
-      if (dataType === "string") {
+      if (dataType === 'string') {
         if (sortOptions[selectedKey].option === 'asc'){
           list.sort((a, b) => {
             return a[selectedKey] < b[selectedKey] ? -1 : a[selectedKey] > b[selectedKey] ? 1 : 0;
@@ -48,7 +48,7 @@ export class ExploreDataUtilService {
             return a[selectedKey] > b[selectedKey] ? -1 : a[selectedKey] < b[selectedKey] ? 1 : 0;
           });
         }
-      } else if (dataType === "number") {
+      } else if (dataType === 'number') {
         if (sortOptions[selectedKey].option === 'asc') {
           list.sort((a, b) => {
             return a[selectedKey] - b[selectedKey];
@@ -58,7 +58,7 @@ export class ExploreDataUtilService {
             return b[selectedKey] - a[selectedKey];
           })
         }
-      } else if (dataType === "date") {
+      } else if (dataType === 'date') {
         if (sortOptions[selectedKey].option === 'asc'){
           list.sort((a, b) => {
             return a[selectedKey] < b[selectedKey] ? -1 : a[selectedKey] > b[selectedKey] ? 1 : 0;

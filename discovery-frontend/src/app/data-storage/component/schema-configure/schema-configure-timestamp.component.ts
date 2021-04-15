@@ -1,8 +1,8 @@
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {DataStorageConstant} from "../../constant/data-storage-constant";
-import {EventBroadcaster} from "../../../common/event/event.broadcaster";
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from "@angular/core";
-import {Field} from "../../../domain/datasource/datasource";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DataStorageConstant} from '../../constant/data-storage-constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from '@angular/core';
+import {Field} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
 
 @Component({
@@ -65,7 +65,7 @@ export class SchemaConfigureTimestampComponent extends AbstractComponent {
   ngOnDestroy() {
     super.ngOnDestroy();
     // remove subscription
-    for (let subscription$ of this.subscriptions) {
+    for (const subscription$ of this.subscriptions) {
       subscription$.unsubscribe();
     }
   }

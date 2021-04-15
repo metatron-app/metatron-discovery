@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
-import {MetadataService} from "./metadata/service/metadata.service";
+import {MetadataService} from './metadata/service/metadata.service';
 
 @Component({
   selector: 'app-meta-data-management',

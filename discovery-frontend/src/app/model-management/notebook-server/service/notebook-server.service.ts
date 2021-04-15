@@ -13,10 +13,10 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {Page} from '../../../domain/common/page';
-import {CommonUtil} from '../../../common/util/common.util';
-import {NoteBook} from '../../../domain/notebook/notebook';
+import {AbstractService} from '@common/service/abstract.service';
+import {Page} from '@domain/common/page';
+import {CommonUtil} from '@common/util/common.util';
+import {NoteBook} from '@domain/notebook/notebook';
 
 @Injectable()
 export class NotebookServerService extends AbstractService {

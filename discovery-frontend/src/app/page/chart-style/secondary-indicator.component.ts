@@ -13,28 +13,28 @@
  */
 
 import {Component, ElementRef, Injector, Input, ViewChild} from '@angular/core';
-import {BaseOptionComponent} from "./base-option.component";
-import { UIOption } from '../../common/component/chart/option/ui-option';
+import {BaseOptionComponent} from './base-option.component';
+import { UIOption } from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import {Pivot} from "../../domain/workbook/configurations/pivot";
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {
   UILabelChart, UILabelSecondaryIndicator,
   UILabelIcon, UILabelAnnotation, UILabelChartSeries
-} from "../../common/component/chart/option/ui-option/ui-label-chart";
+} from '@common/component/chart/option/ui-option/ui-label-chart';
 import {
   ChartType,
   LabelSecondaryIndicatorType,
   LabelSecondaryIndicatorMarkType,
   LabelSecondaryIndicatorPeriod,
   ShelveFieldType,
-} from '../../common/component/chart/option/define/common';
-import {SelectComponent} from "../../common/component/select/select.component";
-import {Filter} from "../../domain/workbook/configurations/filter/filter";
-import {IntervalFilter} from "../../domain/workbook/configurations/filter/interval-filter";
-import {Alert} from "../../common/util/alert.util";
-import {PageWidget, PageWidgetConfiguration} from "../../domain/dashboard/widget/page-widget";
-import {GranularityType, TimestampField} from "../../domain/workbook/configurations/field/timestamp-field";
-import {Field, FieldRole, LogicalType} from "../../domain/datasource/datasource";
+} from '@common/component/chart/option/define/common';
+import {SelectComponent} from '@common/component/select/select.component';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {IntervalFilter} from '@domain/workbook/configurations/filter/interval-filter';
+import {Alert} from '@common/util/alert.util';
+import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {GranularityType, TimestampField} from '@domain/workbook/configurations/field/timestamp-field';
+import {Field, FieldRole, LogicalType} from '@domain/datasource/datasource';
 import { Field as AbstractField } from '../../domain/workbook/configurations/field/field';
 @Component({
   selector: 'secondary-indicator-option',
@@ -82,7 +82,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
   // 비교기간
   public periodList: Object[] = [
     {name: this.translateService.instant('msg.page.common.kpi.indocator.period.year'), value: 'YEAR'},
-    //{name: this.translateService.instant('msg.page.common.kpi.indocator.period.quarter'), value: 'QUARTER'},
+    // {name: this.translateService.instant('msg.page.common.kpi.indocator.period.quarter'), value: 'QUARTER'},
     {name: this.translateService.instant('msg.page.common.kpi.indocator.month'), value: 'MONTH'},
     {name: this.translateService.instant('msg.page.common.kpi.indocator.day'), value: 'DAY'},
     {name: this.translateService.instant('msg.page.common.kpi.indocator.hour'), value: 'HOUR'}
@@ -132,16 +132,16 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     this.pivot = pivot;
 
     // KPI 차트 옵션추가
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     if( this.uiOption.type == ChartType.LABEL && option.series ) {
 
       const isTargetAll: boolean = this.isTargetAll();
       this.targetList = [];
       this.targetList.push({name: this.translateService.instant('msg.comm.ui.list.all'), value: ''});
-      let series: UILabelChartSeries[] = [];
-      let icons: UILabelIcon[] = [];
-      let annotations: UILabelAnnotation[] = [];
-      let secondaryIndicators: UILabelSecondaryIndicator[] = [];
+      const series: UILabelChartSeries[] = [];
+      const icons: UILabelIcon[] = [];
+      const annotations: UILabelAnnotation[] = [];
+      const secondaryIndicators: UILabelSecondaryIndicator[] = [];
 
       const setFieldName = ((item, shelveFieldType?: ShelveFieldType): string => {
         // shelveFieldType이 있는경우 해당타입일때만 데이터 리턴
@@ -169,16 +169,16 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         //////////////////////////////////////////
         const field: any = this.pivot.aggregations[num];
         let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
-        let displayName: any = aggs[num];
+        const displayName: any = aggs[num];
         if( field.aggregationType && field.aggregationType !=  '' ) {
-          alias = field.aggregationType +"("+ alias +")";
+          alias = field.aggregationType +'('+ alias +')';
         }
 
         /////////////////////
         // Pivot이 추가되었을때 처리
         /////////////////////
 
-        //if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
+        // if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
         if( option.series.length <= num ) {
           if (num > 0) {
             option.series[num] = {
@@ -302,7 +302,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       }
       else {
         this.targetListComp.selected(this.targetList[0]);
-        //this.changeTarget(this.target);
+        // this.changeTarget(this.target);
       }
     }
   }
@@ -345,17 +345,17 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    * @returns {boolean}
    */
   public isTargetAll(): boolean {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     let indicatorType: string =  '';
     let rangeUnit: string =  '';
     let targetValue: number = undefined;
     let mark: string =  '';
     let isAll: boolean = true;
     _.each(option.secondaryIndicators, (series) => {
-      const labelSeries: UILabelSecondaryIndicator = (<UILabelSecondaryIndicator>series);
+      const labelSeries: UILabelSecondaryIndicator = (series as UILabelSecondaryIndicator);
       if( !_.isUndefined(labelSeries.show) ) {
 
-        let seriesIndicatorType: string = String(labelSeries.indicatorType);
+        const seriesIndicatorType: string = String(labelSeries.indicatorType);
         if( indicatorType ==  '' ) {
           indicatorType = seriesIndicatorType;
         }
@@ -363,7 +363,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
           isAll = false;
         }
 
-        let seriesRangeUnit: string = String(labelSeries.rangeUnit);
+        const seriesRangeUnit: string = String(labelSeries.rangeUnit);
         if( _.isUndefined(rangeUnit) || rangeUnit ==  '' ) {
           rangeUnit = seriesRangeUnit;
         }
@@ -374,7 +374,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
           isAll = false;
         }
 
-        let seriesTargetValue: number = labelSeries.targetValue;
+        const seriesTargetValue: number = labelSeries.targetValue;
         if( _.isUndefined(targetValue) || targetValue == 0 ) {
           targetValue = seriesTargetValue;
         }
@@ -385,7 +385,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
           isAll = false;
         }
 
-        let seriesMark: string = String(labelSeries.mark);
+        const seriesMark: string = String(labelSeries.mark);
         if( mark ==  '' ) {
           mark = seriesMark;
         }
@@ -402,8 +402,8 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public changeTargetUse(): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
-    let show: boolean = !option.secondaryIndicators[0].show;
+    const option: UILabelChart = this.uiOption as UILabelChart;
+    const show: boolean = !option.secondaryIndicators[0].show;
     _.each(option.secondaryIndicators, (series) => {
       series.show = show;
       if( show ) {
@@ -422,10 +422,10 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     // 표시대상 변경
     if( show ) {
       this.targetListComp.selected(this.targetList[0]);
-      //this.changeTarget(this.targetList[0]);
+      // this.changeTarget(this.targetList[0]);
     }
     else {
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators });
+      this.uiOption = (_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators }) as UIOption);
       this.update();
     }
   }
@@ -436,12 +436,12 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
   public getIndicatorTypeIndex(): number {
 
     // Set Indicator Type
-    let labelOption: UILabelChart = <UILabelChart>this.uiOption;
+    const labelOption: UILabelChart = this.uiOption as UILabelChart;
     if( _.isUndefined(labelOption.secondaryIndicators) || labelOption.secondaryIndicators.length == 0 ) {
       return 0;
     }
     else {
-      let secondaryIndicators: UILabelSecondaryIndicator = labelOption.secondaryIndicators[0];
+      const secondaryIndicators: UILabelSecondaryIndicator = labelOption.secondaryIndicators[0];
       if( _.eq(secondaryIndicators.indicatorType, LabelSecondaryIndicatorType.PERIOD) ) {
         return 1;
       }
@@ -460,7 +460,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     this.target = target;
     this.changeDetect.detectChanges();
     if( this.target['value'] == '') {
-      const option: UILabelChart = <UILabelChart>this.uiOption;
+      const option: UILabelChart = this.uiOption as UILabelChart;
       // 지표 유형
       // this.changeIndicatorType(option.secondaryIndicators[0].indicatorType);
       this.indicatorListComp.selected(
@@ -480,7 +480,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       this.changeEmphasized(_.isUndefined(option.secondaryIndicators[0].emphasized) ? false : option.secondaryIndicators[0].emphasized);
     }
     else {
-      const option: UILabelChart = <UILabelChart>this.uiOption;
+      const option: UILabelChart = this.uiOption as UILabelChart;
       _.each(option.secondaryIndicators, (series) => {
         if( this.target['value'] == series.seriesName ) {
           // 지표 유형
@@ -506,10 +506,10 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public changeIndicatorType(indicatorType: LabelSecondaryIndicatorType): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.secondaryIndicators, (series) => {
       if( this.target['value'] == '' || this.target['value'] == series.seriesName ) {
-        //series.show = true;
+        // series.show = true;
         series.indicatorType = indicatorType;
       }
     });
@@ -543,13 +543,13 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       }
       _.each(this.periodList, (period, index) => {
         if( _.eq(period['value'], value) ) {
-          //this.periodListComp.setDefaultIndex = value;
+          // this.periodListComp.setDefaultIndex = value;
           this.periodListComp.selected(period);
         }
       });
     }
     else {
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators });
+      this.uiOption = (_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators }) as UIOption);
       this.update();
     }
   }
@@ -569,8 +569,8 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public getMarkSelected(markTypeStr: string): boolean {
 
-    let markType: LabelSecondaryIndicatorMarkType = LabelSecondaryIndicatorMarkType[markTypeStr];
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const markType: LabelSecondaryIndicatorMarkType = LabelSecondaryIndicatorMarkType[markTypeStr];
+    const option: UILabelChart = this.uiOption as UILabelChart;
     if( this.target['value'] == '' ) {
       if( markType == option.secondaryIndicators[0].mark
           || (markType == LabelSecondaryIndicatorMarkType.INCREMENTAL && !option.secondaryIndicators[0].mark) ) {
@@ -579,7 +579,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       return false;
     }
     else {
-      const labelSeries: UILabelSecondaryIndicator[] = (<UILabelSecondaryIndicator[]>option.secondaryIndicators);
+      const labelSeries: UILabelSecondaryIndicator[] = (option.secondaryIndicators as UILabelSecondaryIndicator[]);
       for( let num = 0 ; num < labelSeries.length ; num++ ) {
         if( labelSeries[num].seriesName == this.target['value'] ) {
           if( markType == labelSeries[num].mark
@@ -598,14 +598,14 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public changeMarkType(markTypeStr: string): void {
 
-    let markType: LabelSecondaryIndicatorMarkType = LabelSecondaryIndicatorMarkType[markTypeStr];
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const markType: LabelSecondaryIndicatorMarkType = LabelSecondaryIndicatorMarkType[markTypeStr];
+    const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.secondaryIndicators, (series) => {
       if( this.target['value'] == '' || this.target['value'] == series.seriesName ) {
         series.mark = markType;
       }
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators }) as UIOption);
     this.update();
   }
 
@@ -614,7 +614,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public getEmphasizedSelected(): boolean {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     if( _.isUndefined(option.secondaryIndicators[0]) ) {
       return false;
     }
@@ -623,7 +623,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       return option.secondaryIndicators[0].emphasized;
     }
     else {
-      const labelSeries: UILabelSecondaryIndicator[] = (<UILabelSecondaryIndicator[]>option.secondaryIndicators);
+      const labelSeries: UILabelSecondaryIndicator[] = (option.secondaryIndicators as UILabelSecondaryIndicator[]);
       for( let num = 0 ; num < labelSeries.length ; num++ ) {
         if( labelSeries[num].seriesName == this.target['value'] ) {
           return labelSeries[num].emphasized;
@@ -637,8 +637,8 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public changeEmphasized(forceEmphasized?: boolean): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
-    let emphasized = _.isUndefined(forceEmphasized) ? !option.secondaryIndicators[0].emphasized : forceEmphasized;
+    const option: UILabelChart = this.uiOption as UILabelChart;
+    const emphasized = _.isUndefined(forceEmphasized) ? !option.secondaryIndicators[0].emphasized : forceEmphasized;
     _.each(option.secondaryIndicators, (series) => {
       if( this.target['value'] == '' ) {
         series.emphasized = emphasized;
@@ -647,7 +647,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         series.emphasized = !series.emphasized;
       }
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators }) as UIOption);
     this.update();
   }
 
@@ -661,13 +661,13 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       return;
     }
     this.standardValue = _.isUndefined(this.standardValueTemp) ? undefined : Number(this.standardValueTemp);
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.secondaryIndicators, (series) => {
       if( this.target['value'] == '' || this.target['value'] == series.seriesName ) {
         series.targetValue = this.standardValue;
       }
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators }) as UIOption);
     this.update();
   }
 
@@ -677,7 +677,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public isShow(): boolean {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     if( _.isUndefined(option.secondaryIndicators) || option.secondaryIndicators.length == 0 ) {
       return false;
     }
@@ -696,13 +696,13 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     //   return;
     // }
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.secondaryIndicators, (series) => {
       if( this.target['value'] == '' || this.target['value'] == series.seriesName ) {
         series.rangeUnit = periodType;
       }
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators });
+    this.uiOption = (_.extend({}, this.uiOption, { secondaryIndicators: option.secondaryIndicators }) as UIOption);
     this.update();
   }
 
@@ -712,7 +712,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
    */
   public setIsPeriod(): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     if( _.isUndefined(option.secondaryIndicators) || option.secondaryIndicators.length == 0 ) {
       this.isPeriod = false;
       return;
@@ -748,7 +748,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     }
 
     let filters: Filter[] = [];
-    let paramFilters: Filter[] = (<PageWidgetConfiguration>this.widget.configuration).filters;
+    const paramFilters: Filter[] = (this.widget.configuration as PageWidgetConfiguration).filters;
     if (this.widget.dashBoard.configuration.hasOwnProperty('filters')) {
       filters = this.widget.dashBoard.configuration['filters'].concat(paramFilters);
     }
@@ -762,13 +762,13 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       return false;
     }
 
-    var intervals = (<IntervalFilter[]>filters)[0].intervals;
+    const intervals = (filters as IntervalFilter[])[0].intervals;
     if(intervals.length == 0) {
-      Alert.info("비교 가능한 데이터가 존재하지 않습니다.");
+      Alert.info('비교 가능한 데이터가 존재하지 않습니다.');
       return false;
     }
     else if(intervals.length > 1) {
-      Alert.info("기간필터가 1개일 경우에만 가능합니다.");
+      Alert.info('기간필터가 1개일 경우에만 가능합니다.');
       return false;
     }
     return true;
@@ -820,10 +820,10 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     timeField.alias = fields[idx].alias;
     timeField.granularity = fields[idx].granularity;
     timeField.format = {
-      type: "time_format",
-      format: "yyyy-MM-dd HH:mm:ss",
-      timeZone: "UTC",
-      locale: "en"
+      type: 'time_format',
+      format: 'yyyy-MM-dd HH:mm:ss',
+      timeZone: 'UTC',
+      locale: 'en'
     };
     this.timeField = timeField;
 
@@ -831,7 +831,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     // granularity 세팅
     //////////////////////////////
 
-    let granularityScore: number = this.getGranularityScore(String(this.timeField.granularity));
+    const granularityScore: number = this.getGranularityScore(String(this.timeField.granularity));
     this.periodList = [];
     if( granularityScore <= 8 ) {
       this.periodList.push({name: this.translateService.instant('msg.page.common.kpi.indocator.period.year'), value: 'YEAR'});

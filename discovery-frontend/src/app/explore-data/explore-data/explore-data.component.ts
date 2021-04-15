@@ -23,21 +23,21 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
 import * as _ from 'lodash';
-import {MetadataContainerComponent} from "./popup/metadata-container.component";
-import {DatasourceService} from "../../datasource/service/datasource.service";
-import {ExploreDataListComponent} from "./explore-data-list.component";
-import {EventBroadcaster} from "../../common/event/event.broadcaster";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {Subscription} from "rxjs";
-import {ExploreDataSearchComponent} from "./explore-data-search.component";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {ExploreDataMainComponent} from "./explore-data-main.component";
-import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
-import {Modal} from "../../common/domain/modal";
+import {MetadataContainerComponent} from './popup/metadata-container.component';
+import {DatasourceService} from '../../datasource/service/datasource.service';
+import {ExploreDataListComponent} from './explore-data-list.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {Subscription} from 'rxjs';
+import {ExploreDataSearchComponent} from './explore-data-search.component';
+import {ExploreDataModelService} from './service/explore-data-model.service';
+import {ExploreDataMainComponent} from './explore-data-main.component';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Modal} from '@common/domain/modal';
 
 @Component({
   selector: 'app-exploredata-view',

@@ -14,8 +14,8 @@
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ClipboardService } from 'ngx-clipboard';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Log } from '../../../../common/domain/modal';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { Log } from '@common/domain/modal';
 import { EditorComponent } from '../../../../workbench/component/detail-workbench/datail-workbench-editor/editor.component';
 
 @Component({

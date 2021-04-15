@@ -183,7 +183,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 팝업 show
     this.isShow = true;
     // 팝업시 하단 스크롤 hide
-    $("body").css("overflow", "hidden");
+    $('body').css('overflow', 'hidden');
     // 유저 profile 정보 조회
     this._getProfile(user.id);
   }
@@ -217,7 +217,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // flag
     this.isShow = false;
     // 팝업종료시 하단 스크롤 show
-    $("body").css("overflow",  '');
+    $('body').css('overflow',  '');
   }
 
 

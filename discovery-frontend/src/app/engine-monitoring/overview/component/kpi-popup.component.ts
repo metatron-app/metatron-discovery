@@ -22,13 +22,13 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {EngineService} from "../../service/engine.service";
-import {Engine} from "../../../domain/engine-monitoring/engine";
-import * as _ from "lodash";
-import {CommonUtil} from "../../../common/util/common.util";
-import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
-import {TimezoneService} from "../../../data-storage/service/timezone.service";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {EngineService} from '../../service/engine.service';
+import {Engine} from '@domain/engine-monitoring/engine';
+import * as _ from 'lodash';
+import {CommonUtil} from '@common/util/common.util';
+import {EngineMonitoringUtil} from '../../util/engine-monitoring.util';
+import {TimezoneService} from '../../../data-storage/service/timezone.service';
 
 declare let echarts: any;
 declare let moment: any;

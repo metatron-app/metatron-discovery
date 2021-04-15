@@ -16,16 +16,16 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { Datasource } from '../../../../domain/datasource/datasource';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { Datasource } from '@domain/datasource/datasource';
 import { DatasourceService } from '../../../../datasource/service/datasource.service';
-import { DatasourceQueryHistory } from '../../../../domain/datasource/datasourceQueryHistory';
-import { Alert } from '../../../../common/util/alert.util';
+import { DatasourceQueryHistory } from '@domain/datasource/datasourceQueryHistory';
+import { Alert } from '@common/util/alert.util';
 import * as _ from 'lodash';
-import { Log } from '../../../../common/domain/modal';
-import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
-import { CommonUtil } from '../../../../common/util/common.util';
-import {PeriodData} from "../../../../common/value/period.data.value";
+import { Log } from '@common/domain/modal';
+import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
+import { CommonUtil } from '@common/util/common.util';
+import {PeriodData} from '@common/value/period.data.value';
 
 declare let echarts;
 declare let moment;
@@ -36,6 +36,17 @@ declare let moment;
   providers: [MomentDatePipe]
 })
 export class MonitoringDataSourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private datasourceService: DatasourceService,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -93,16 +104,11 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
   @Output()
   public logEvent: EventEmitter<any> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
-  constructor(private datasourceService: DatasourceService,
-              protected element: ElementRef,
-              protected injector: Injector) {
-    super(element, injector);
-  }
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
@@ -126,12 +132,6 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     // Destory
     super.ngOnDestroy();
   }
-
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * 더 조회할 리스트가 있는지 여부
@@ -384,7 +384,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     // pie chart option
     this.pieOption = {
       tooltip: {
-        formatter: "{c} ({d}%)"
+        formatter: '{c} ({d}%)'
       },
       series: {
         type: 'pie',

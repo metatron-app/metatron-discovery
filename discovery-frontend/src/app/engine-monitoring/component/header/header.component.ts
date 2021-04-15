@@ -22,8 +22,8 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {Engine} from '../../../domain/engine-monitoring/engine';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {HeaderOptionComponent} from '../header-option/header-option.component';
 
 @Component({

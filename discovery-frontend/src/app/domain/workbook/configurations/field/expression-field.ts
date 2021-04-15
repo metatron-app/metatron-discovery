@@ -13,7 +13,7 @@
  */
 
 import { UserDefinedField } from './user-defined-field';
-import { FieldRole } from '../../../datasource/datasource';
+import { FieldRole } from '@domain/datasource/datasource';
 
 export class ExpressionField extends UserDefinedField{
 

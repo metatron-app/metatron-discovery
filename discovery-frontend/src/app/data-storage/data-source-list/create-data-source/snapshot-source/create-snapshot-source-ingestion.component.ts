@@ -1,4 +1,4 @@
-import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {
   Component,
   ElementRef,
@@ -9,11 +9,11 @@ import {
   Output,
   SimpleChanges,
   ViewChild
-} from "@angular/core";
-import {DatasourceInfo} from "../../../../domain/datasource/datasource";
-import {IngestionSettingComponent} from "../../component/ingestion-setting.component";
-import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {DataStorageConstant} from "../../../constant/data-storage-constant";
+} from '@angular/core';
+import {DatasourceInfo} from '@domain/datasource/datasource';
+import {IngestionSettingComponent} from '../../component/ingestion-setting.component';
+import {SsType} from '@domain/data-preparation/pr-snapshot';
+import {DataStorageConstant} from '../../../constant/data-storage-constant';
 
 @Component({
   selector: 'create-snapshot-ingestion-select',

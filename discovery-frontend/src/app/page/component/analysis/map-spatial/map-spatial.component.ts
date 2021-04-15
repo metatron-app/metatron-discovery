@@ -25,14 +25,14 @@ import {
   SimpleChanges
 } from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Shelf} from "@domain/workbook/configurations/shelf/shelf";
-import {UIMapOption} from "@common/component/chart/option/ui-option/map/ui-map-chart";
-import {LogicalType} from "../../../../domain/datasource/datasource";
-import {Alert} from "../../../../common/util/alert.util";
-import {ShelveFieldType} from "../../../../common/component/chart/option/define/common";
-import {Field as AbstractField, Field} from "../../../../domain/workbook/configurations/field/field";
-import {ChartUtil} from "../../../../common/component/chart/option/util/chart-util";
-import {isNullOrUndefined} from "util";
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {LogicalType} from '../../../../domain/datasource/datasource';
+import {Alert} from '../../../../common/util/alert.util';
+import {ShelveFieldType} from '../../../../common/component/chart/option/define/common';
+import {Field as AbstractField, Field} from '../../../../domain/workbook/configurations/field/field';
+import {ChartUtil} from '../../../../common/component/chart/option/util/chart-util';
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'map-spatial',
@@ -53,9 +53,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   @Input('shelf')
   public shelf: Shelf;
 
-  public baseList: any = {'layers': []};
+  public baseList: any = {layers: []};
   public baseIndex: number = 0;
-  public compareList: any = {'layers': []};
+  public compareList: any = {layers: []};
   public compareIndex: number = 0;
 
   public calSpatialList: any = [
@@ -144,7 +144,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       && this.baseList.layers.length > 0) {
       return;
     } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) ) {
-      this.uiOption = (<UIMapOption>changes['uiOption'].currentValue);
+      this.uiOption = (changes['uiOption'].currentValue as UIMapOption);
       this.mapSpatialChanges(this.uiOption, this.shelf);
     }
   }
@@ -160,7 +160,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public mapSpatialChanges(uiOption, shelf) {
-    this.uiOption = <UIMapOption>uiOption;
+    this.uiOption = (uiOption as UIMapOption);
     this.shelf = shelf;
     this.baseList.layers = [];
     this.compareList.layers = [];
@@ -206,7 +206,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
         // 기존 데이터 체크
         if( !_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] ){
-          let operation = this.uiOption.analysis.operation;
+          const operation = this.uiOption.analysis.operation;
           this.isBufferOn = (operation.buffer != 0);
           if (this.isBufferOn) {
             this.isBufferOn = true;
@@ -229,7 +229,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
           }
           this.isChoroplethOn = operation.choropleth;
           if( this.isChoroplethOn ){
-            let measureList = this.fieldList.measureList;
+            const measureList = this.fieldList.measureList;
             for (let index = 0; index < measureList.length; index++) {
               if (_.isUndefined(operation.aggregation.type)) {
                 this.colorByIndex = 0;
@@ -351,18 +351,18 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       return;
     }
 
-    let spatialDataValue: string = this.calSpatialList[this.calSpatialIndex].value;
-    let baseData: string = this.baseList.layers[this.baseIndex];
-    let compareData: string = this.compareList.layers[this.compareIndex];
+    const spatialDataValue: string = this.calSpatialList[this.calSpatialIndex].value;
+    const baseData: string = this.baseList.layers[this.baseIndex];
+    const compareData: string = this.compareList.layers[this.compareIndex];
 
-    let bufferData: string = this.bufferList[this.bufferIndex].value;
-    let unitData: string = this.unitList[this.unitIndex].value;
+    const bufferData: string = this.bufferList[this.bufferIndex].value;
+    const unitData: string = this.unitList[this.unitIndex].value;
 
     // Validation
     if (this.spatialAnalysisCommonValidation(baseData, compareData) == false) {
       return;
     }
-    let mapUIOption = (<UIMapOption>this.uiOption);
+    let mapUIOption = (this.uiOption as UIMapOption);
     switch (spatialDataValue) {
       case 'dwithin':
         // Validation
@@ -398,7 +398,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     }
 
 
-    let value = {
+    const value = {
       action: 'analysis',
       uiOption: mapUIOption
     };
@@ -481,7 +481,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       unitInputData = unitInputData * 1000;
     }
 
-    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    const tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -519,7 +519,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       bufferDataValue = bufferDataValue * 1000;
     }
 
-    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    const tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -540,7 +540,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     };
 
     // compare layer index 를 찾기 위함 (layer 가 두개일 경우만 가능)
-    let findCompareIndex = this.baseIndex == 0 ? 1 : 0;
+    const findCompareIndex = this.baseIndex == 0 ? 1 : 0;
     // buffer 설정
     mapUIOption.analysis['operation']['bufferUnit'] = this.bufferList[this.bufferIndex].value;
     if (bufferDataValue > 0 && this.isBufferOn == true) {
@@ -568,7 +568,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private symmetricalSetData(baseData: string, compareData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
 
-    let tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    const tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -589,7 +589,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private setMeasureList() {
 
-    let shelf = this.shelf;
+    const shelf = this.shelf;
 
     this.fieldList = {
       measureList: [{name: 'Count', alias: 'count'}],
@@ -605,7 +605,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         continue;
       }
 
-      let layers = _.cloneDeep(shelf.layers[index].fields);
+      const layers = _.cloneDeep(shelf.layers[index].fields);
 
       const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
         const resultList: any[] = [];
@@ -624,8 +624,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
       dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
       tempObj = {
-        'measureList': measureList,
-        'dimensionList': dimensionList
+        measureList: measureList,
+        dimensionList: dimensionList
       };
       if (measureList.length > 0) {
         this.fieldList = tempObj;

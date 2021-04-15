@@ -267,7 +267,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
    * @param selectedItem
    */
   public setSharedTarget(selectedItem) {
-    let list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
+    const list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
     const memberIds = list.map((m) => m.member.username || m.member.id);
     const targetId = selectedItem.username || selectedItem.id;
     const selectedIdx = memberIds.indexOf(targetId);
@@ -307,7 +307,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
    */
   public checkIsSharedTarget(selectedItem): boolean {
     if (selectedItem) {
-      let list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
+      const list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
       const memberIds = list.map((m) => m.member.username || m.member.id);
       const targetId = selectedItem.username || selectedItem.id;
       const selectedIdx = memberIds.indexOf(targetId);
@@ -463,10 +463,10 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
    * @private
    */
   private _getAddMembers() {
-    let params = [];
+    const params = [];
 
-    let orgMembers: any[] = this._orgWsUsers.concat(this._orgWsGroups);
-    let updateMembers: any[] = this.workspaceUsers.concat(this.workspaceGroups);
+    const orgMembers: any[] = this._orgWsUsers.concat(this._orgWsGroups);
+    const updateMembers: any[] = this.workspaceUsers.concat(this.workspaceGroups);
 
     // 현재 워크스페이스 멤버
     const originMemberIds = orgMembers.map((item) => item.member.username || item.member.id);

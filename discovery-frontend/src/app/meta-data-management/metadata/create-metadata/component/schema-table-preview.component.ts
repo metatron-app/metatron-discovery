@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector,ViewChild} from "@angular/core";
-import {GridComponent} from "../../../../common/component/grid/grid.component";
-import {GridOption} from "../../../../common/component/grid/grid.option";
-import {Field} from "../../../../domain/datasource/datasource";
-import {header, SlickGridHeader} from "../../../../common/component/grid/grid.header";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
+import {Component, ElementRef, Injector,ViewChild} from '@angular/core';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Field} from '@domain/datasource/datasource';
+import {header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
 

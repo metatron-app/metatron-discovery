@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import {Component, Input} from "@angular/core";
-import {ExploreDataConstant} from "../../constant/explore-data-constant";
+import {Component, Input} from '@angular/core';
+import {ExploreDataConstant} from '../../constant/explore-data-constant';
 
 @Component({
   selector: 'component-metadata-svg',

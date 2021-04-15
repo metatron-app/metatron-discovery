@@ -1,7 +1,7 @@
-import {Injectable, Injector} from "@angular/core";
+import {Injectable, Injector} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {StringUtil} from "../../common/util/string.util";
-import {GranularityType} from "../../domain/workbook/configurations/field/timestamp-field";
+import {StringUtil} from '../../common/util/string.util';
+import {GranularityType} from '../../domain/workbook/configurations/field/timestamp-field';
 import {
   ConnectionType,
   DatasourceInfo,
@@ -12,14 +12,14 @@ import {
   IngestionRuleType,
   LogicalType,
   SourceType
-} from "../../domain/datasource/datasource";
-import {PageResult} from "../../domain/common/page";
-import {GranularityObject, GranularityService} from "./granularity.service";
-import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
-import * as _ from "lodash";
-import {CommonConstant} from "../../common/constant/common.constant";
-import {ConnectionParam} from "./data-connection-create.service";
-import {DataStorageConstant} from "../constant/data-storage-constant";
+} from '../../domain/datasource/datasource';
+import {PageResult} from '../../domain/common/page';
+import {GranularityObject, GranularityService} from './granularity.service';
+import {HiveFileFormat, PrDataSnapshot, SsType} from '../../domain/data-preparation/pr-snapshot';
+import * as _ from 'lodash';
+import {CommonConstant} from '../../common/constant/common.constant';
+import {ConnectionParam} from './data-connection-create.service';
+import {DataStorageConstant} from '../constant/data-storage-constant';
 
 @Injectable()
 export class DataSourceCreateService {
@@ -372,7 +372,7 @@ export class DataSourceCreateService {
     // timestamp enable
     const isCreateTimestamp = schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
     // fields param
-    let fields = _.cloneDeep(schemaData.fieldList);
+    const fields = _.cloneDeep(schemaData.fieldList);
     // seq number
     let seq = 0;
     // field 설정
@@ -552,8 +552,8 @@ export interface CreateSourceIngestionParams {
   period?: {frequency: string, time?: number, weekDays?: string[], value?: number};
   maxLimit?: number;
   range?: number;
-  scope?: any;  //TODO
-  connection?: any;  //TODO
+  scope?: any;  // TODO
+  connection?: any;  // TODO
   connectionUsername?: string;
   connectionPassword?: string;
   // file

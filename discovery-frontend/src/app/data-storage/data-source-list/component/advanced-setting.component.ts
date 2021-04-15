@@ -16,9 +16,9 @@
 /**
  * Advanced setting component
  */
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { StringUtil } from '../../../common/util/string.util';
+import { StringUtil } from '@common/util/string.util';
 
 @Component({
   selector: 'advanced-setting',

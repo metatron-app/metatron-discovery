@@ -20,10 +20,10 @@ import {
   OnDestroy,
   OnInit, Output
 } from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {EngineService} from "../service/engine.service";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../service/engine.service';
+import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-column-datasource',

@@ -1,14 +1,14 @@
-import {Component, ElementRef, Injector, OnDestroy, OnInit} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {MetadataService} from "../service/metadata.service";
-import {ActivatedRoute} from "@angular/router";
-import {Location} from "@angular/common";
-import {Metadata, SourceType} from "../../../domain/meta-data-management/metadata";
-import {MetadataModelService} from "../service/metadata.model.service";
-import {CommonUtil} from "../../../common/util/common.util";
-import {Alert} from "../../../common/util/alert.util";
-import {DatasourceService} from "../../../datasource/service/datasource.service";
-import {Modal} from "../../../common/domain/modal";
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataService} from '../service/metadata.service';
+import {ActivatedRoute} from '@angular/router';
+import {Location} from '@angular/common';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {MetadataModelService} from '../service/metadata.model.service';
+import {CommonUtil} from '@common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {Modal} from '@common/domain/modal';
 
 @Component(
   {

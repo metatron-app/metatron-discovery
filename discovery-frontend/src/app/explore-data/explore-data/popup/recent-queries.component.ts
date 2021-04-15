@@ -1,8 +1,8 @@
 import {Component, ElementRef, Injector, Input, OnInit} from '@angular/core';
-import {DatasourceService} from "../../../datasource/service/datasource.service";
-import {ClipboardService} from "ngx-clipboard";
-import {Alert} from "../../../common/util/alert.util";
-import {AbstractComponent} from "../../../common/component/abstract.component";
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {ClipboardService} from 'ngx-clipboard';
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   templateUrl: './recent-queries.component.html',

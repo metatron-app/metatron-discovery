@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {UIChartDataLabelDisplayType} from "../define/common";
+import {UIChartDataLabelDisplayType} from '../define/common';
 
 /**
  * Data Label

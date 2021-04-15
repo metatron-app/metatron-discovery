@@ -15,8 +15,8 @@
 import {RouterModule, Routes} from '@angular/router';
 import {NgModule} from '@angular/core';
 import {CookieService} from 'ng2-cookies';
-import {ExternalPageComponent} from "./external-page.component";
-import {CommonService} from "../common/service/common.service";
+import {ExternalPageComponent} from './external-page.component';
+import {CommonService} from '@common/service/common.service';
 
 const embeddedViewRoutes: Routes = [
   {path: ':url', component: ExternalPageComponent}

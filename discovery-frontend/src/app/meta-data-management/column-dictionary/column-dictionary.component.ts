@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {isNullOrUndefined, isUndefined} from 'util';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 import {ColumnDictionaryService} from './service/column-dictionary.service';
-import {PeriodComponent} from '../../common/component/period/period.component';
-import {Alert} from '../../common/util/alert.util';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {Alert} from '@common/util/alert.util';
 import {CreateColumnDictionaryComponent} from './create-column-dictionary/create-column-dictionary.component';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
-import {PeriodData} from "../../common/value/period.data.value";
-import {Subscription} from "rxjs";
-import {Criteria} from "../../domain/datasource/criteria";
+import {PeriodData} from '@common/value/period.data.value';
+import {Subscription} from 'rxjs';
+import {Criteria} from '@domain/datasource/criteria';
 import DateTimeType = Criteria.DateTimeType;
 
 declare let moment: any;

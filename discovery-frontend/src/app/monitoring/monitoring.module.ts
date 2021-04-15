@@ -13,7 +13,7 @@
  */
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { RouterModule, Routes } from '@angular/router';
 import { WorkbenchEditorModule } from '../workbench/workbench.editor.module';
 import { AuditService } from './audit/service/audit.service';

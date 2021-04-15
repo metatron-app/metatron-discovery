@@ -22,22 +22,22 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {ActivatedRoute} from "@angular/router";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {CommonUtil} from "../../common/util/common.util";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {SortOption} from "../explore-data/service/explore-data-util.service";
-import {CreateWorkbenchContainerComponent} from "../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CreateWorkbookComponent} from "../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
-import {Modal} from "../../common/domain/modal";
-import {CookieConstant} from "../../common/constant/cookie.constant";
-import {Alert} from "../../common/util/alert.util";
-import {MetadataContainerComponent} from "../explore-data/popup/metadata-container.component";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ActivatedRoute} from '@angular/router';
+import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {CommonUtil} from '@common/util/common.util';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {SortOption} from '../explore-data/service/explore-data-util.service';
+import {CreateWorkbenchContainerComponent} from '../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
+import {CreateWorkbookComponent} from '../../workbook/component/create-workbook/refactoring/create-workbook.component';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {Alert} from '@common/util/alert.util';
+import {MetadataContainerComponent} from '../explore-data/popup/metadata-container.component';
 
 @Component({
   selector: 'app-exploredata-favorite-data',

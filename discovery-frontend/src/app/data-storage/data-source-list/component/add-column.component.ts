@@ -14,11 +14,11 @@
  */
 
 import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild} from '@angular/core';
-import { StringUtil } from '../../../common/util/string.util';
+import { StringUtil } from '@common/util/string.util';
 import * as _ from 'lodash';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { FieldRole, IngestionRuleType, LogicalType } from '../../../domain/datasource/datasource';
-import {ColumnSelectBoxComponent} from "./column-select-box.component";
+import { AbstractComponent } from '@common/component/abstract.component';
+import { FieldRole, IngestionRuleType, LogicalType } from '@domain/datasource/datasource';
+import {ColumnSelectBoxComponent} from './column-select-box.component';
 
 @Component({
   selector: 'add-column-component',

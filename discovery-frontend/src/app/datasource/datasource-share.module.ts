@@ -14,8 +14,8 @@
 
 import { NgModule } from '@angular/core';
 import { DatasourceSummaryComponent } from './component/datasource-summary/datasource-summary.component';
-import { CommonModule } from '../common/common.module';
-import { DataPreviewModule } from '../common/data.preview.module';
+import { CommonModule } from '@common/common.module';
+import { DataPreviewModule } from '@common/data.preview.module';
 
 @NgModule({
   imports: [

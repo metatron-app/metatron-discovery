@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
 import { AuditService } from '../../../service/audit.service';
-import { Audit } from '../../../../../domain/audit/audit';
-import { LogComponent } from '../../../../../common/component/modal/log/log.component';
-import { QueryHistory } from '../../../../../domain/query/queryHistory';
-import { Log } from '../../../../../common/domain/modal';
+import { Audit } from '@domain/audit/audit';
+import { LogComponent } from '@common/component/modal/log/log.component';
+import { QueryHistory } from '@domain/query/queryHistory';
+import { Log } from '@common/domain/modal';
 import { DatePipe } from '@angular/common';
 import { isUndefined } from 'util';
 import { LogEditorComponent } from '../../../component/log-editor/log-editor.component';
-import { MomentDatePipe } from '../../../../../common/pipe/moment.date.pipe';
+import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
 import { ActivatedRoute } from '@angular/router';
-import { CommonUtil } from '../../../../../common/util/common.util';
-import {Location} from "@angular/common";
+import { CommonUtil } from '@common/util/common.util';
+import {Location} from '@angular/common';
 
 declare let moment: any;
 
@@ -35,6 +35,19 @@ declare let moment: any;
   providers: [MomentDatePipe]
 })
 export class JobDetailComponent extends AbstractPopupComponent {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(protected auditService: AuditService,
+              protected element: ElementRef,
+              protected activatedRoute : ActivatedRoute,
+              protected location: Location,
+              protected injector: Injector) {
+    super(element, injector);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -68,17 +81,9 @@ export class JobDetailComponent extends AbstractPopupComponent {
   public selectedContentSort: Order = new Order();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
+  | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
-  constructor(protected auditService: AuditService,
-              protected element: ElementRef,
-              protected activatedRoute : ActivatedRoute,
-              protected location: Location,
-              protected injector: Injector) {
-    super(element, injector);
-  }
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
@@ -105,16 +110,11 @@ export class JobDetailComponent extends AbstractPopupComponent {
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
-
   /**
    * 상세 팝업 종료
    */
   public close(): void {
-    let prev = this.auditService.previousRouter;
+    const prev = this.auditService.previousRouter;
     if(''!== prev) {
       this.auditService.previousRouter = '';
       this.router.navigateByUrl(prev);

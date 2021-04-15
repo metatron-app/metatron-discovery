@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import {
   Component,
   ElementRef, EventEmitter,
@@ -22,8 +22,8 @@ import {
 } from '@angular/core';
 import { UserService } from '../../../service/user.service';
 import { isUndefined } from 'util';
-import { StringUtil } from '../../../../common/util/string.util';
-import { Alert } from '../../../../common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { Alert } from '@common/util/alert.util';
 
 @Component({
   selector: 'app-initial-change-password',

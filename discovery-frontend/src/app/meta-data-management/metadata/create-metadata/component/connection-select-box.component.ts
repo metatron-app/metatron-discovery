@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output} from "@angular/core";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output} from '@angular/core';
 import * as _ from 'lodash';
 
 @Component({

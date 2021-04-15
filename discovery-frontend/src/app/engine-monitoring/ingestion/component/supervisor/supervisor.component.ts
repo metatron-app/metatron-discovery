@@ -14,12 +14,12 @@
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {PageResult} from "../../../../domain/common/page";
-import {EngineService} from "../../../service/engine.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {ActivatedRoute} from "@angular/router";
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PageResult} from '@domain/common/page';
+import {EngineService} from '../../../service/engine.service';
+import {StringUtil} from '@common/util/string.util';
+import {ActivatedRoute} from '@angular/router';
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
 
 @Component({
   selector: 'ingestion-supervisor',
@@ -132,7 +132,7 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
   }
 
   private _getSupervisorPagingList() {
-    let list = this._filteringSupervisorList();
+    const list = this._filteringSupervisorList();
     this.pageResult = new PageResult();
     this.pageResult.size = this.page.size;
     this.pageResult.number = this.page.page;

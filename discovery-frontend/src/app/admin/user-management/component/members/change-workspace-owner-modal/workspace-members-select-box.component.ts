@@ -13,11 +13,11 @@
  */
 
 import {Component, ElementRef, HostBinding, Injector, Input, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
 import {EventsService} from './service/events.service';
-import {CommonUtil} from '../../../../../common/util/common.util';
-import {WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
+import {CommonUtil} from '@common/util/common.util';
+import {WorkspaceAdmin} from '@domain/workspace/workspace';
 
 namespace Entity {
   export enum Role {

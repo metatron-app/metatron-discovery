@@ -1,5 +1,5 @@
 import {Type} from './type';
-import {DataStorageConstant} from "../../../data-storage/constant/data-storage-constant";
+import {DataStorageConstant} from '../../../data-storage/constant/data-storage-constant';
 
 export namespace Filter {
   export class Logical {

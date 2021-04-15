@@ -22,16 +22,16 @@ import {
   ViewChild
 } from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Task, TaskStatus, TaskType} from "../../../../domain/engine-monitoring/task";
-import {PageResult} from "../../../../domain/common/page";
-import {EngineService} from "../../../service/engine.service";
-import {ActivatedRoute} from "@angular/router";
-import {CriterionComponent} from "../../../../data-storage/component/criterion/criterion.component";
-import {Criteria} from "../../../../domain/datasource/criteria";
-import {StringUtil} from "../../../../common/util/string.util";
-import {TimezoneService} from "../../../../data-storage/service/timezone.service";
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Task, TaskStatus, TaskType} from '@domain/engine-monitoring/task';
+import {PageResult} from '@domain/common/page';
+import {EngineService} from '../../../service/engine.service';
+import {ActivatedRoute} from '@angular/router';
+import {CriterionComponent} from '../../../../data-storage/component/criterion/criterion.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {StringUtil} from '@common/util/string.util';
+import {TimezoneService} from '../../../../data-storage/service/timezone.service';
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
 
 declare let moment: any;
 
@@ -147,7 +147,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
   }
 
   public getDurationString(taskDuration: number): string {
-    return moment.utc(moment.duration(taskDuration).asMilliseconds()).format("HH:mm:ss");
+    return moment.utc(moment.duration(taskDuration).asMilliseconds()).format('HH:mm:ss');
   }
 
   public getTypeTranslate(taskType: TaskType): string {

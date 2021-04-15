@@ -23,8 +23,8 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Key} from '../../../domain/common/key';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Key} from '@domain/common/key';
 
 @Component({
   selector: 'overview-search',

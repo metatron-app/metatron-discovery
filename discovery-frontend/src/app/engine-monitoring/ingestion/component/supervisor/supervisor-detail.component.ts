@@ -22,16 +22,16 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {EngineService} from "../../../service/engine.service";
-import {ActivatedRoute} from "@angular/router";
-import {Engine} from "../../../../domain/engine-monitoring/engine";
-import {Modal} from "../../../../common/domain/modal";
-import {Alert} from "../../../../common/util/alert.util";
-import {Location} from "@angular/common";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../../../service/engine.service';
+import {ActivatedRoute} from '@angular/router';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {Location} from '@angular/common';
 import * as _ from 'lodash';
-import {Task, TaskType} from "../../../../domain/engine-monitoring/task";
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {Task, TaskType} from '@domain/engine-monitoring/task';
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
 
 declare let echarts: any;
 declare let moment: any;

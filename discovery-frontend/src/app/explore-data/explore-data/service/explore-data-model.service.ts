@@ -1,6 +1,6 @@
-import {Injectable} from "@angular/core";
-import {ExploreDataConstant} from "../../constant/explore-data-constant";
-import {Catalog} from "../../../domain/catalog/catalog";
+import {Injectable} from '@angular/core';
+import {ExploreDataConstant} from '../../constant/explore-data-constant';
+import {Catalog} from '@domain/catalog/catalog';
 
 @Injectable()
 export class ExploreDataModelService {

@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from "@angular/core";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {StringUtil} from "../../common/util/string.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from '@angular/core';
+import {ExploreDataModelService} from './service/explore-data-model.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {StringUtil} from '@common/util/string.util';
 
 declare let $;
 

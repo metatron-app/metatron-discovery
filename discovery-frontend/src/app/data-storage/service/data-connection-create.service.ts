@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {Injectable, Injector} from "@angular/core";
-import {AuthenticationType, ImplementorType} from "../../domain/dataconnection/dataconnection";
-import {TranslateService} from "@ngx-translate/core";
+import {Injectable, Injector} from '@angular/core';
+import {AuthenticationType, ImplementorType} from '../../domain/dataconnection/dataconnection';
+import {TranslateService} from '@ngx-translate/core';
 
 @Injectable()
 export class DataConnectionCreateService {

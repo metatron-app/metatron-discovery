@@ -17,26 +17,26 @@ import {
   ViewChild,
   ViewChildren
 } from '@angular/core';
-import { Stats } from '../../../../domain/datasource/stats';
+import { Stats } from '@domain/datasource/stats';
 import { DatasourceService } from '../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
-import { Covariance } from '../../../../domain/datasource/covariance';
+import { Covariance } from '@domain/datasource/covariance';
 import {
   ConnectionType,
   Datasource,
   Field,
   FieldFormat,
   FieldFormatType, FieldRole, LogicalType
-} from '../../../../domain/datasource/datasource';
-import { Metadata } from '../../../../domain/meta-data-management/metadata';
-import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
+} from '@domain/datasource/datasource';
+import { Metadata } from '@domain/meta-data-management/metadata';
+import { MetadataColumn } from '@domain/meta-data-management/metadata-column';
 import { isUndefined } from 'util';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
 import { EditConfigSchemaComponent } from './edit-config-schema.component';
-import {TimezoneService} from "../../../service/timezone.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
+import {TimezoneService} from '../../../service/timezone.service';
+import {StringUtil} from '@common/util/string.util';
+import {DataSourceCreateService, TypeFilterObject} from '../../../service/data-source-create.service';
 
 declare let echarts: any;
 
@@ -535,7 +535,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @private
    */
   private _setMetaDataField(field: Field): void {
-    const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {'physicalName': field.name});
+    const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {physicalName: field.name});
     // code table
     field['codeTable'] = fieldMetaData.codeTable;
     // dictionary

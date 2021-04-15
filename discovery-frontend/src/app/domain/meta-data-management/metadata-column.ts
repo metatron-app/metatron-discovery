@@ -43,6 +43,14 @@ export class MetadataColumn {
   // 역할
   public role: Type.Role;
 
+  isValidType?: boolean;
+  isValidTimeFormat?: boolean;
+  timeFormatValidMessage?: string;
+  isShowTypeValidPopup?: boolean;
+  isShowTimestampValidPopup: boolean;
+  replaceFl: boolean;
+  checked: boolean;
+
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
   ////////////////////////////////////////////////////////////////////////////
@@ -89,14 +97,6 @@ export class MetadataColumn {
     return _.negate(_.isNil)(metadataColumn)
       && _.negate(_.isNil)(metadataColumn.dictionary);
   }
-
-  isValidType?: boolean;
-  isValidTimeFormat?: boolean;
-  timeFormatValidMessage?: string;
-  isShowTypeValidPopup?: boolean;
-  isShowTimestampValidPopup: boolean;
-  replaceFl: boolean;
-  checked: boolean;
 }
 
 export class LinkedMetaDataColumn extends MetadataColumn {

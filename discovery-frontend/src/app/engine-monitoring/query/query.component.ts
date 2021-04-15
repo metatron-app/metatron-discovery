@@ -21,19 +21,19 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {StateService} from '../service/state.service';
 import {EngineService} from '../service/engine.service';
-import {Engine} from '../../domain/engine-monitoring/engine';
+import {Engine} from '@domain/engine-monitoring/engine';
 import {filter} from 'rxjs/operators';
-import {StringUtil} from "../../common/util/string.util";
-import {CriterionComponent} from "../../data-storage/component/criterion/criterion.component";
-import {Criteria} from "../../domain/datasource/criteria";
-import {ActivatedRoute} from "@angular/router";
-import * as _ from "lodash";
-import {PageResult} from "../../domain/common/page";
-import {TimezoneService} from "../../data-storage/service/timezone.service";
-import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
+import {StringUtil} from '@common/util/string.util';
+import {CriterionComponent} from '../../data-storage/component/criterion/criterion.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {ActivatedRoute} from '@angular/router';
+import * as _ from 'lodash';
+import {PageResult} from '@domain/common/page';
+import {TimezoneService} from '../../data-storage/service/timezone.service';
+import {EngineMonitoringUtil} from '../util/engine-monitoring.util';
 import * as moment from 'moment';
 
 declare let $: any;
@@ -254,7 +254,7 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   private _getQueryPagingList() {
-    let list = this._filteringQueryList();
+    const list = this._filteringQueryList();
     this.pageResult = new PageResult();
     this.pageResult.size = this.page.size;
     this.pageResult.number = this.page.page;

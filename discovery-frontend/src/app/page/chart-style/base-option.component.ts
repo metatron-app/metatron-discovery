@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {UIOption} from '../../common/component/chart/option/ui-option';
+import {UIOption} from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import {ChartType} from '../../common/component/chart/option/define/common';
+import {ChartType} from '@common/component/chart/option/define/common';
 
 
 const possibleChartObj: any = {

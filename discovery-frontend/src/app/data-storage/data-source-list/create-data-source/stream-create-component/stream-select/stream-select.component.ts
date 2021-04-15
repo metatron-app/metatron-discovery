@@ -22,14 +22,14 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
-import {ConnectionValid} from "../../../../component/connection/connection.component";
-import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
-import {FileResult, KafkaData} from "../../../../service/data-source-create.service";
-import {DatasourceService} from "../../../../../datasource/service/datasource.service";
-import {StringUtil} from "../../../../../common/util/string.util";
+import {ConnectionValid} from '../../../../component/connection/connection.component';
+import {Pluploader} from '@common/component/pluploader/pluploader';
+import {FileResult, KafkaData} from '../../../../service/data-source-create.service';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'stream-select',

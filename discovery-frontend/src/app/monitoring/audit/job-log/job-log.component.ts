@@ -13,20 +13,20 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute} from '@angular/router';
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {AuditService} from '../service/audit.service';
-import {Alert} from '../../../common/util/alert.util';
-import {Audit} from '../../../domain/audit/audit';
-import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {CommonUtil} from '../../../common/util/common.util';
-import {PeriodData} from "../../../common/value/period.data.value";
-import {PeriodComponent} from "../../../common/component/period/period.component";
+import {Alert} from '@common/util/alert.util';
+import {Audit} from '@domain/audit/audit';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CommonUtil} from '@common/util/common.util';
+import {PeriodData} from '@common/value/period.data.value';
+import {PeriodComponent} from '@common/component/period/period.component';
 
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
 import * as _ from 'lodash';
 
 declare let moment: any;
@@ -156,7 +156,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
           // elapsed time
           if (!isNullOrUndefined(params['elapsedTime'])) {
-            const sec = ["10", "30", "60"];
+            const sec = ['10', '30', '60'];
             this.selectedElapsedTime = Number(params['elapsedTime']);
             if (sec.indexOf(params['elapsedTime']) === -1) {
               this.elapsedTime.nativeElement.value = this.selectedElapsedTime;

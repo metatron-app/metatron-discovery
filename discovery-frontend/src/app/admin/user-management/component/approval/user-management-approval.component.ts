@@ -13,10 +13,10 @@
  */
 
 import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
-import {PeriodData} from '../../../../common/value/period.data.value';
-import {PeriodComponent} from '../../../../common/component/period/period.component';
+import {PeriodData} from '@common/value/period.data.value';
+import {PeriodComponent} from '@common/component/period/period.component';
 import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
-import {Alert} from '../../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from 'util';
 import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';

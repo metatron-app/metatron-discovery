@@ -13,17 +13,17 @@
  */
 
 
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {Catalog} from "../../domain/catalog/catalog";
-import {StringUtil} from "../../common/util/string.util";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {Tag} from "../../domain/tag/tag";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {ExploreDataModelService} from './service/explore-data-model.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {Catalog} from '@domain/catalog/catalog';
+import {StringUtil} from '@common/util/string.util';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {CatalogService} from '../../meta-data-management/catalog/service/catalog.service';
+import {Tag} from '@domain/tag/tag';
 import * as _ from 'lodash';
-import {EventBroadcaster} from "../../common/event/event.broadcaster";
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 
 @Component({
   selector: 'component-explore-lnb',

@@ -14,7 +14,7 @@
 
 import {AbstractHistoryEntity, UserDetail} from '../common/abstract-history-entity';
 import { PrDataflow } from './pr-dataflow';
-import {header} from "../../common/component/grid/grid.header";
+import {header} from '../../common/component/grid/grid.header';
 
 export class PrDataset extends AbstractHistoryEntity {
 
@@ -77,7 +77,7 @@ export class PrDataset extends AbstractHistoryEntity {
   public ruleNo: string;
 
   // add api modify
-  //public connectionInfo: any;
+  // public connectionInfo: any;
 
   // connection Info
   public dcId: string;

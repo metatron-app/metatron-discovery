@@ -13,14 +13,14 @@
  */
 
 import { Component, ElementRef, Injector, Input, OnInit, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { PopupService } from '@common/service/popup.service';
 import { ModelApprovalService } from '../service/model-approval.service';
-import { NotebookModel } from '../../../domain/model-management/notebookModel';
+import { NotebookModel } from '@domain/model-management/notebookModel';
 import { isUndefined } from 'util';
-import { Alert } from '../../../common/util/alert.util';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { Modal } from '../../../common/domain/modal';
+import { Alert } from '@common/util/alert.util';
+import { DeleteModalComponent } from '@common/component/modal/delete/delete.component';
+import { Modal } from '@common/domain/modal';
 
 
 @Component({

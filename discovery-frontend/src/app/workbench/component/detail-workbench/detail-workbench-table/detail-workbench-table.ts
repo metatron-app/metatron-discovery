@@ -31,7 +31,7 @@ import { Page } from '@domain/common/page';
 import { StringUtil } from '@common/util/string.util';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 import { WorkbenchService } from '../../../service/workbench.service';
-import {ImplementorType} from "@domain/dataconnection/dataconnection";
+import {ImplementorType} from '@domain/dataconnection/dataconnection';
 
 @Component({
   selector: 'detail-workbench-table',
@@ -184,15 +184,15 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
     const tables = this.tables;
 
-    let tableNames : string[] = [];
+    const tableNames : string[] = [];
     for (let idx: number = 0; idx < tables.length; idx++) {
       tableNames.push( tables[idx] );
     }
 
     tableNames.sort();
-    if (sort === "ASC") {
+    if (sort === 'ASC') {
       this.tableSortType = 'DESC';
-    } else if (sort === "DESC") {
+    } else if (sort === 'DESC') {
       tableNames.reverse();
       this.tableSortType = 'ASC';
     }

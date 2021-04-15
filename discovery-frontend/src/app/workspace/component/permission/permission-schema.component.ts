@@ -28,8 +28,8 @@ import {PermissionService} from '../../../user/service/permission.service';
 import * as _ from 'lodash';
 import {CommonUtil} from 'app/common/util/common.util';
 import {WORKSPACE_PERMISSION} from 'app/common/permission/permission';
-import {isNullOrUndefined} from "util";
-import {Alert} from "@common/util/alert.util";
+import {isNullOrUndefined} from 'util';
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'app-permission-schema',
@@ -61,7 +61,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
         role['orgName'] = role.name; // mapper 설정을 위해 orgName 설정
         if (role.permissions && 0 < role.permissions.length) {
           role.permissionNames = role.permissions.map(item => {
-            return <string>(item.name ? item.name : item);
+            return (item.name ? item.name : item) as string;
           });
         }
       });
@@ -314,7 +314,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
         } else {
           params.name = newRoleSetName ? newRoleSetName : CommonUtil.getUUID();
           (newRoleSetDesc) && (params.description = newRoleSetDesc);
-          this.permissionService.createRoleset(<RoleSet>params).then(result => {
+          this.permissionService.createRoleset(params as RoleSet).then(result => {
             resolve(result);
           }).catch(err => {
             this.commonExceptionHandler(err);

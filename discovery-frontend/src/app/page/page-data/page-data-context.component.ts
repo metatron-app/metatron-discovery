@@ -342,7 +342,7 @@ export class PageDataContextComponent extends AbstractComponent {
    */
   public getMetaDataLogicalTypeName():string {
     let name:string = '';
-    let metaData = this.selectedField.uiMetaData;
+    const metaData = this.selectedField.uiMetaData;
     if( metaData ) {
       switch( metaData.type ) {
         case Type.Logical.LNT :
@@ -400,7 +400,7 @@ export class PageDataContextComponent extends AbstractComponent {
    * @private
    */
   private _setResponse(item?: FieldNameAlias) {
-    let field: Field = _.cloneDeep(this.selectedField);
+    const field: Field = _.cloneDeep(this.selectedField);
     if (item) {
       field.nameAlias = item;
       this.selectedField.nameAlias = item;

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 import * as _ from 'lodash';
-import {Engine} from "../../domain/engine-monitoring/engine";
-import {TaskStatus, TaskType} from "../../domain/engine-monitoring/task";
+import {Engine} from '@domain/engine-monitoring/engine';
+import {TaskStatus, TaskType} from '@domain/engine-monitoring/task';
 
 declare const moment: any;
 

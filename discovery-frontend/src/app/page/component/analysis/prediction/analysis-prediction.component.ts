@@ -55,7 +55,7 @@ import {Alert} from '@common/util/alert.util';
 import {UIOption} from '@common/component/chart/option/ui-option';
 import {Field} from '@domain/workbook/configurations/field/field';
 import {UIChartColorBySeries} from '@common/component/chart/option/ui-option/ui-color';
-import {OptionGenerator} from "@common/component/chart/option/util/option-generator";
+import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
 
 @Component({
@@ -105,47 +105,47 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     HYPHEN: string
   } = {
     // Analysis
-    'ANALYSIS': 'Analysis',
+    ANALYSIS: 'Analysis',
     // 예측선
-    'SUB_MENU': '예측선',
+    SUB_MENU: '예측선',
     // 활성화
-    'ACTIVE': '활성화',
+    ACTIVE: '활성화',
     // 예측선을 사용할 수 있는 차트
-    'ACTIVE_FIRST_DESCRIPTION': '예측선을 사용할 수 있는 차트',
+    ACTIVE_FIRST_DESCRIPTION: '예측선을 사용할 수 있는 차트',
     // 라인차트
-    'ACTIVE_LAST_DESCRIPTION': '날짜/시간 차원값이 있는 선형차트',
+    ACTIVE_LAST_DESCRIPTION: '날짜/시간 차원값이 있는 선형차트',
     // Holt-Winters
-    'ALGORITHM_NAME': 'Holt-Winters',
+    ALGORITHM_NAME: 'Holt-Winters',
     // 예측기간
-    'INTERVAL': '예측기간',
+    INTERVAL: '예측기간',
     // 신뢰구간
-    'SLIDER_TITLE': '신뢰구간',
+    SLIDER_TITLE: '신뢰구간',
     // 고급설정
-    'ANALYSIS_SETTING': '고급설정',
+    ANALYSIS_SETTING: '고급설정',
     // alpha
-    'ALPHA': 'alpha',
+    ALPHA: 'alpha',
     // beta
-    'BETA': 'beta',
+    BETA: 'beta',
     // trend
-    'TREND': 'trend',
+    TREND: 'trend',
     // gamma
-    'GAMMA': 'gamma',
+    GAMMA: 'gamma',
     // additive
-    'GAMMA_ADDITIVE': 'additive',
+    GAMMA_ADDITIVE: 'additive',
     // multiplicative
-    'GAMMA_MULTIPLICATIVE': 'multiplicative',
+    GAMMA_MULTIPLICATIVE: 'multiplicative',
     // seasonal
-    'SEASONAL': 'seasonal',
+    SEASONAL: 'seasonal',
     // Forecast
-    'FORECAST': 'Forecast',
+    FORECAST: 'Forecast',
     // Confidence
-    'CONFIDENCE': 'Confidence',
+    CONFIDENCE: 'Confidence',
     // 투명도
-    'OPACITY': '투명도',
+    OPACITY: '투명도',
     // %
-    'PROCENT': '%',
+    PROCENT: '%',
     // -
-    'HYPHEN': '-'
+    HYPHEN: '-'
   };
 
   private MESSAGE: {
@@ -159,15 +159,15 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED: string;
     VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED: string;
   } = {
-    'ALPHA': '알파',
-    'BETA': '베타',
-    'GAMMA': '감마',
-    'PLEASE_VALUE': '값을 입력해주세요.',
-    'VALUES_ONLY_NUMERIC': '값은 숫자만 입력할 수 있습니다.',
-    'PLEASE_FORECAST_PERIOD': '예측기간을 입력해주세요.',
-    'PLEASE_TRANSPARENCY': '투명도를 입력해주세요.',
-    'VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED': '0 보다 작은 값은 입력할 수 없습니다.',
-    'VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED': '100 보다 큰 값은 입력할 수 없습니다.'
+    ALPHA: '알파',
+    BETA: '베타',
+    GAMMA: '감마',
+    PLEASE_VALUE: '값을 입력해주세요.',
+    VALUES_ONLY_NUMERIC: '값은 숫자만 입력할 수 있습니다.',
+    PLEASE_FORECAST_PERIOD: '예측기간을 입력해주세요.',
+    PLEASE_TRANSPARENCY: '투명도를 입력해주세요.',
+    VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED: '0 보다 작은 값은 입력할 수 없습니다.',
+    VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED: '100 보다 큰 값은 입력할 수 없습니다.'
   };
 
   // ----------------------------------------------
@@ -347,17 +347,17 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     analysis: Analysis
   } = {
     // 예측선 Disabled 여부
-    'isPredictionLineDisabled': false,
+    isPredictionLineDisabled: false,
     // 예측선 활성화 여부
-    'isPredictionLineActive': false,
+    isPredictionLineActive: false,
     // 고급설정: 활성화 / 비활성화
-    'isAnalysisSettingsActive': true,
+    isAnalysisSettingsActive: true,
     // Forecast 선택여부
-    'isSelectedForecast': true,
+    isSelectedForecast: true,
     // Confidence 선택여부
-    'isSelectedConfidence': true,
+    isSelectedConfidence: true,
     // Analysis - 서버 스펙에 맞는 vo
-    'analysis': null
+    analysis: null
   };
 
   /**
@@ -606,7 +606,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
           this.removeAnalysisPredictionLine();
 
           // 예측선 데이터 변경 알림
-          //this.predictionLineDataChangeNotification();
+          // this.predictionLineDataChangeNotification();
 
           return;
         }
@@ -901,9 +901,9 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       this.originWidgetConfigurationAnalysis = _.cloneDeep(this.widgetConfiguration.analysis);
 
-      let color = this.uiOption.color;
-      let schema = this.uiOption.color['schema'];
-      let codes: any = _.cloneDeep(ChartColorList[schema]);
+      const color = this.uiOption.color;
+      const schema = this.uiOption.color['schema'];
+      const codes: any = _.cloneDeep(ChartColorList[schema]);
       // userCodes가 있는경우 codes대신 userCodes로 설정
       if ((color as UIChartColorBySeries).mapping) {
         Object.keys((color as UIChartColorBySeries).mapping).forEach((key, index) => {
@@ -1668,8 +1668,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     analysisInAnalysis.confidence.confidenceInterval = this.DEFAULT_PREDICTION_LINE_SLIDER_FROM;
     analysisInAnalysis.confidence.style = new Style();
 
-    let schema = this.uiOption.color['schema'];
-    let colorCodes = _.cloneDeep(ChartColorList[schema]);
+    const schema = this.uiOption.color['schema'];
+    const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
     analysisInAnalysis.confidence.style.color = colorCodes[0];
     // analysisInAnalysis.confidence.style.color = this.uiOption.color['userCodes'] && this.uiOption.color['userCodes'].length > 0 ? this.uiOption.color['userCodes'][0] : this.uiOption.color['codes'][0];
@@ -1692,7 +1692,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
         else {
           // alias가 없는경우
           if( agg.ref ) {
-            //If aggregationType is not defined, it may be aggregated user_defined field.
+            // If aggregationType is not defined, it may be aggregated user_defined field.
             if(agg.aggregationType)
               hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
             else

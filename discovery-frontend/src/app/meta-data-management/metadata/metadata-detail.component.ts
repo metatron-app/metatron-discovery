@@ -14,11 +14,11 @@
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Location} from '@angular/common';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {Alert} from '../../common/util/alert.util';
-import {StringUtil} from '../../common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
 import {MetadataService} from './service/metadata.service';
 import {ActivatedRoute} from '@angular/router';
 import {MetadataModelService} from './service/metadata.model.service';
@@ -26,9 +26,9 @@ import {SelectCatalogComponent} from './component/select-catalog.component';
 import {ChooseCodeTableComponent} from '../component/choose-code-table/choose-code-table.component';
 import {ColumnSchemaComponent} from '../detail/component/column-schema/column-schema.component';
 import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictionary/choose-column-dictionary.component';
-import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
-import {CodeTable} from '../../domain/meta-data-management/code-table';
-import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
 
 @Component({
   selector: 'app-metadata-detail',
@@ -147,7 +147,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
    */
   public goBack() {
     this.router.navigate(['management/metadata/metadata']);
-    //this._location.back();
+    // this._location.back();
   } // function - goBack
 
   /**
