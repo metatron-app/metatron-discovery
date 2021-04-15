@@ -13,15 +13,15 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
+import { Field } from '@domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
+import { Alert } from '@common/util/alert.util';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import {isUndefined} from "util";
-import {AggregateRule} from "../../../../../../domain/data-preparation/prep-rules";
-import {DataflowModelService} from "../../../../service/dataflow.model.service";
+import {isUndefined} from 'util';
+import {AggregateRule} from '@domain/data-preparation/prep-rules';
+import {DataflowModelService} from '../../../../service/dataflow.model.service';
 
-interface formula {
+interface Formula {
   id: number;
   value: string
 }
@@ -47,7 +47,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   public selectedFields: Field[] = [];
 
   public formulaList:string[] = [''];
-  public formulas: formula[];
+  public formulas: Formula[];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -99,7 +99,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
     const value = formulaValueList.join(',');
 
-    var ruleString = `aggregate value: ${value}`;
+    let ruleString = `aggregate value: ${value}`;
     if (0 < this.selectedFields.length) {
       ruleString = `${ruleString} group: ${this.getColumnNamesInArray(this.selectedFields, true).toString()}`;
     }
@@ -147,11 +147,11 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param {number} index
+   * @param {number} _index
    * @param {string} formula
    * @return {number}
    */
-  public trackByFn(index: number, formula: formula) {
+  public trackByFn(_index: number, formula: Formula) {
     return formula.id;
   } // function - trackByFn
 
@@ -184,7 +184,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    */
   protected parsingRuleString(data : {jsonRuleString : AggregateRule}) {
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
+    const arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
     this.formulaList = [];
     this.formulas = [];

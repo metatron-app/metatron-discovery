@@ -12,15 +12,12 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import {isNullOrUndefined, isUndefined} from "util";
-import {NestRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {isNullOrUndefined, isUndefined} from 'util';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {NestRule} from '@domain/data-preparation/prep-rules';
+import {EditRuleComponent} from './edit-rule.component';
 
 @Component({
   selector: 'edit-rule-nest',
@@ -31,8 +28,6 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('newColName')
-  private _newColName: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -43,10 +38,10 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
 
-  public inputValue:string;
-  public defaultIndex : number = 0;
-  public selectedType : string = '';
-  public nestList : string[] = ['map', 'array'];
+  public inputValue: string;
+  public defaultIndex: number = 0;
+  public selectedType: string = '';
+  public nestList: string[] = ['map', 'array'];
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -113,7 +108,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
     }
 
     const columns: string[] = [];
-    const columnsWithBackTick :string[] = [];
+    const columnsWithBackTick: string[] = [];
     this.selectedFields.forEach((item) => {
       columns.push(item.name);
       columnsWithBackTick.push('`' + item.name + '`');
@@ -137,7 +132,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public selectItem (item){
+  public selectItem(item) {
     this.selectedType = item;
   }
 
@@ -146,7 +141,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target: Field, isSelect: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -158,7 +153,8 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
@@ -177,11 +173,11 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {jsonRuleString: NestRule}) {
+  protected parsingRuleString(data: { jsonRuleString: NestRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     // TYPE
     this.selectedType = data.jsonRuleString.type;

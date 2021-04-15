@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { EditRuleComponent } from './edit-rule.component';
 import { isUndefined } from 'util';
-import { Alert } from '../../../../../../common/util/alert.util';
-import {HeaderRule} from "../../../../../../domain/data-preparation/prep-rules";
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Alert } from '@common/util/alert.util';
+import {HeaderRule} from '@domain/data-preparation/prep-rules';
+import { EditRuleComponent } from './edit-rule.component';
 
 @Component({
   selector : 'edit-rule-header',
@@ -85,7 +85,7 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
       return undefined
     }
 
-    if (0 == this.rowNum || this.rowNum > this.fields.length) {
+    if (0 === this.rowNum || this.rowNum > this.fields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.out.of.range'));
       return undefined
     }

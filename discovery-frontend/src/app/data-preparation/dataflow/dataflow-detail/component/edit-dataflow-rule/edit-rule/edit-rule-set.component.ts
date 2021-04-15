@@ -12,16 +12,24 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild
-} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import {isNullOrUndefined, isUndefined} from 'util';
 import * as _ from 'lodash';
-import {SetRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {isNullOrUndefined, isUndefined} from 'util';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {SetRule} from '@domain/data-preparation/prep-rules';
+import {EditRuleComponent} from './edit-rule.component';
+import {RuleSuggestInputComponent} from './rule-suggest-input.component';
 
 @Component({
   selector: 'edit-rule-set',
@@ -32,10 +40,10 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild('set_value_input')
-  private valueInput : RuleSuggestInputComponent;
+  private valueInput: RuleSuggestInputComponent;
 
   @ViewChild('set_row_input')
-  private rowInput : RuleSuggestInputComponent;
+  private rowInput: RuleSuggestInputComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -51,6 +59,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
 
   public inputValue: string;
   public condition: string = '';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -85,7 +94,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: SetRule } {
 
-    
+
     // column
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -95,13 +104,13 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
     // val
     this.inputValue = this.valueInput.getFormula();
 
-    let val = _.cloneDeep(this.inputValue);
+    const val = _.cloneDeep(this.inputValue);
     if (isUndefined(val) || '' === val.trim()) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
     }
 
-    let rules =  {
+    const rules = {
       command: 'set',
       col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
       ruleString: `set col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} value: ${val}`,
@@ -131,7 +140,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target: Field, isSelect: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -140,17 +149,17 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   public openPopupFormulaInput(val: string) {
 
-    let command = val ;
+    const command = val;
     if (val === 'condition') {
       this.condition = this.rowInput.getFormula();
-    } else if (val === 'inputValue'){
+    } else if (val === 'inputValue') {
       this.inputValue = this.valueInput.getFormula();
     }
 
-    if( val === 'condition' || val === 'inputValue' ) {
+    if (val === 'condition' || val === 'inputValue') {
       this.safelyDetectChanges();
 
-      this.advancedEditorClickEvent.emit({command : command, val : val, needCol: true});
+      this.advancedEditorClickEvent.emit({command: command, val: val, needCol: true});
     }
   } // function - openPopupFormulaInput
 
@@ -163,13 +172,12 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
     if (data.command === 'condition') {
       this.condition = data.formula;
       this.rowInput.setFormula(this.condition);
-    } else if (data.command === 'inputValue'){
+    } else if (data.command === 'inputValue') {
       this.inputValue = data.formula;
       this.valueInput.setFormula(this.inputValue);
     }
 
   }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -178,7 +186,8 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * Before component is shown
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * After component is shown
@@ -186,11 +195,11 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   protected afterShowComp() {
 
-    if( this.valueInput ){
+    if (this.valueInput) {
       this.valueInput.setFocus();
     }
 
-    if( this.rowInput ) {
+    if (this.rowInput) {
       this.rowInput.setFormula(this.condition);
     }
 
@@ -200,12 +209,12 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * parse rule string
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {jsonRuleString : SetRule}) {
+  protected parsingRuleString(data: { jsonRuleString: SetRule }) {
 
     if (!data.jsonRuleString.hasOwnProperty('contextMenu')) {
       // COLUMN
-      let arrFields:string[] = data.jsonRuleString.col;
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+      const arrFields: string[] = data.jsonRuleString.col;
+      this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
       this.condition = data.jsonRuleString.condition;
       this.inputValue = data.jsonRuleString.expression;
 

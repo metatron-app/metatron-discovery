@@ -12,13 +12,12 @@
  * limitations under the License.
  */
 
-import {MomentDatePipe} from "app/common/pipe/moment.date.pipe";
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from "@angular/core";
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {DataflowService} from "../dataflow/service/dataflow.service";
-//import {Dataflow, Dataflows} from "../../domain/data-preparation/dataflow";
-import {PrDataflow, Dataflows} from "../../domain/data-preparation/pr-dataflow";
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PrDataflow, Dataflows} from '@domain/data-preparation/pr-dataflow';
+import {DataflowService} from '../dataflow/service/dataflow.service';
 
 @Component({
   selector: 'app-add-dataset-dataflow',
@@ -60,7 +59,6 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
 
   public dataflowIds : string[];
 
-  //public dataflows : Dataflow[];
   public dataflows : PrDataflow[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -122,9 +120,7 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
       dsIds.push(this.datasetId);
 
       // update dataflow with dataset ids
-      this.dataflowService.updateDataSets(this.selectedDataflowId, { dsIds : dsIds }).then((result) => {
-
-        console.log('result ==> ', result );
+      this.dataflowService.updateDataSets(this.selectedDataflowId, { dsIds : dsIds }).then((_result) => {
         this.router.navigate(['/management/datapreparation/dataflow', this.selectedDataflowId]);
         this.cookieService.set('FIND_WRANGLED',this.datasetId);
 
@@ -185,7 +181,6 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
     return result;
   }
 
-  //public selectDataflow(dataflow:Dataflow) {
   public selectDataflow(dataflow:PrDataflow) {
     this.selectedDataflowId = dataflow.dfId;
   }

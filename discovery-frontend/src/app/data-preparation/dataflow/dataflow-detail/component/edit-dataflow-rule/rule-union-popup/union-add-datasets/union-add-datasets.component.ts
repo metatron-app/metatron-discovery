@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../../../common/component/abstract-popup.component';
-import { PrDataset } from '../../../../../../../domain/data-preparation/pr-dataset';
-import { PopupService } from '../../../../../../../common/service/popup.service';
+import { PopupService } from '@common/service/popup.service';
+import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
+import { PrDataset } from '@domain/data-preparation/pr-dataset';
 import { DataflowService } from '../../../../../service/dataflow.service';
 import { PreparationAlert } from '../../../../../../util/preparation-alert.util';
-import * as _ from 'lodash';
 
 @Component({
   selector: 'app-union-add-datasets',
@@ -63,7 +63,7 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
 
   public selectedItems: PrDataset[] = [];
 
-  public isUpdate: boolean = false; //수정 모드 여부
+  public isUpdate: boolean = false; // 수정 모드 여부
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -252,7 +252,7 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
       return !item.origin
     });
     if (listWithNoOrigin.length !== 0) {
-      for (let index = 0; index < listWithNoOrigin.length; index++) {
+      for (let index = 0, nMax = listWithNoOrigin.length; index < nMax; index++) {
         if (_.findIndex(this.selectedItems, {dsId: listWithNoOrigin[index].dsId}) === -1) {
           return false;
         }
@@ -371,8 +371,8 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
 
     }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
   }
 
@@ -440,8 +440,8 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
 
     }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
 
   }

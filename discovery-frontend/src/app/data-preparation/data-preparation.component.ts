@@ -12,16 +12,14 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, Injector, OnInit, OnDestroy } from '@angular/core';
-import { AbstractComponent } from '../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-data-preparation',
   templateUrl: './data-preparation.component.html',
 })
-export class DataPreparationComponent extends AbstractComponent implements OnInit, OnDestroy{
-
+export class DataPreparationComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

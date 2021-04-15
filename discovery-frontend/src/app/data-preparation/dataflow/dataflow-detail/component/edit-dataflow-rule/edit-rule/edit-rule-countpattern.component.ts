@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
+import { isUndefined } from 'util';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import {CountPatternRule} from "../../../../../../domain/data-preparation/prep-rules";
+import { Alert } from '@common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {CountPatternRule} from '@domain/data-preparation/prep-rules';
+import { EditRuleComponent } from './edit-rule.component';
 
 @Component({
   selector : 'edit-rule-countpattern',
@@ -89,7 +89,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
     }
 
     // pattern
-    let clonedPattern = this.pattern;
+    const clonedPattern = this.pattern;
     if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
@@ -175,7 +175,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   protected parsingRuleString(data : {jsonRuleString : CountPatternRule}) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
+    const arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     this.pattern = data.jsonRuleString.pattern;

@@ -12,25 +12,24 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import {isNullOrUndefined, isUndefined} from "util";
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import {MergeRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {isNullOrUndefined, isUndefined} from 'util';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {MergeRule} from '@domain/data-preparation/prep-rules';
+import {EditRuleComponent} from './edit-rule.component';
 
 @Component({
-  selector : 'edit-rule-merge',
-  templateUrl : './edit-rule-merge.component.html'
+  selector: 'edit-rule-merge',
+  templateUrl: './edit-rule-merge.component.html'
 })
 export class EditRuleMergeComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('neColName')
-  private _neColName: ElementRef;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -40,11 +39,12 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
 
-  public isFocus:boolean = false;         // Input Focus t/f
-  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+  public isFocus: boolean = false;         // Input Focus t/f
+  public isTooltipShow: boolean = false;   // Tooltip Show/Hide
 
-  public delimiter:string = '';
-  public newValue:string = '';
+  public delimiter: string = '';
+  public newValue: string = '';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -60,9 +60,11 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   public ngOnInit() {
     super.ngOnInit();
   }
+
   public ngAfterViewInit() {
     super.ngAfterViewInit();
   }
+
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
@@ -86,7 +88,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
     // New Col
     let newVal = this.newValue;
     if (!isUndefined(newVal)) {
-      let withVal = StringUtil.checkSingleQuote(newVal, { isPairQuote: true, isWrapQuote: true });
+      const withVal = StringUtil.checkSingleQuote(newVal, {isPairQuote: true, isWrapQuote: true});
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.merge.col.error'));
         return undefined
@@ -99,7 +101,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
 
     // delimiter
     let clonedDelimiter = this.delimiter;
-    let check = StringUtil.checkSingleQuote(clonedDelimiter, { isWrapQuote: true });
+    const check = StringUtil.checkSingleQuote(clonedDelimiter, {isWrapQuote: true});
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('msg.dp.alert.check.delimiter'));
       return undefined
@@ -107,13 +109,13 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       clonedDelimiter = check[1];
     }
 
-    let ruleString =
+    const ruleString =
       'merge col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString()
       + ' with: ' + clonedDelimiter
       + ' as: ' + newVal;
 
     return {
-      command : 'merge',
+      command: 'merge',
       ruleString: ruleString,
       uiRuleString: {
         name: 'merge',
@@ -133,7 +135,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -141,8 +143,8 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * pattern layer show
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
     this.isFocus = isShow;
   } // function - showHidePatternLayer
 
@@ -154,7 +156,8 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * Before component is shown
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * After component is shown
@@ -173,11 +176,11 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * Parse rule string
    * @param data ({ruleString : string, jsonRuleString : MergeRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : MergeRule}) {
+  protected parsingRuleString(data: { ruleString: string, jsonRuleString: MergeRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     // NEW COLUMN NAME
     this.newValue = data.jsonRuleString.newCol;

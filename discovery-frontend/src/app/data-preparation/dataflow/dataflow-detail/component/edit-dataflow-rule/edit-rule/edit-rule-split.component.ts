@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { isNullOrUndefined, isUndefined} from "util";
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import {SplitRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {isNullOrUndefined, isUndefined} from 'util';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {SplitRule} from '@domain/data-preparation/prep-rules';
+import {EditRuleComponent} from './edit-rule.component';
 
 @Component({
-  selector : 'edit-rule-split',
-  templateUrl : './edit-rule-split.component.html'
+  selector: 'edit-rule-split',
+  templateUrl: './edit-rule-split.component.html'
 })
 export class EditRuleSplitComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -41,14 +41,14 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
   public selectedFields: Field[] = [];
 
   // 상태 저장용 T/F
-  public isFocus:boolean = false;         // Input Focus 여부
-  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+  public isFocus: boolean = false;         // Input Focus 여부
+  public isTooltipShow: boolean = false;   // Tooltip Show/Hide
 
   // Rule 에 대한 입력 값들
-  public pattern:string = '';
-  public limit:number;
-  public ignore:string = '';
-  public isIgnoreCase:boolean = false;
+  public pattern: string = '';
+  public limit: number;
+  public ignore: string = '';
+  public isIgnoreCase: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -108,7 +108,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
+    const patternResult: [boolean, string] = StringUtil.checkSingleQuote(clonedPattern, {isWrapQuote: !StringUtil.checkRegExp(clonedPattern)});
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
       return undefined;
@@ -121,11 +121,11 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
       return undefined;
     }
 
-    let ruleString = `split col: ${this.getColumnNamesInArray(this.selectedFields,true).toString()} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
+    let ruleString = `split col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
-      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
+      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), {isWrapQuote: true});
       if (checkIgnore[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
         return undefined;
@@ -135,13 +135,13 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
     }
 
     return {
-      command : 'split',
+      command: 'split',
       ruleString: ruleString,
       uiRuleString: {
         name: 'split',
         col: this.getColumnNamesInArray(this.selectedFields),
         pattern: this.pattern,
-        limit : this.limit,
+        limit: this.limit,
         ignoreCase: this.isIgnoreCase,
         ignore: this.ignore,
         isBuilder: true
@@ -157,7 +157,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -165,8 +165,8 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    * 패턴 정보 레이어 표시
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
     this.isFocus = isShow;
   } // function - showHidePatternLayer
 
@@ -178,7 +178,8 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
@@ -192,11 +193,11 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    * parse jsonRuleString
    * @param data ({ruleString : string, jsonRuleString : SplitRule})
    */
-  protected parsingRuleString(data: {jsonRuleString : SplitRule}) {
+  protected parsingRuleString(data: { jsonRuleString: SplitRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     this.pattern = data.jsonRuleString.pattern;
 

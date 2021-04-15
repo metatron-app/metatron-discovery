@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {isNullOrUndefined} from 'util';
 import {
   AfterViewInit,
   Component,
@@ -20,14 +22,12 @@ import {
   OnDestroy,
   OnInit, Output, ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../../../common/component/abstract.component';
-//import { Field } from '../../../../../domain/data-preparation/dataset';
-import { Field } from '../../../../../domain/data-preparation/pr-dataset';
-import { StringUtil } from '../../../../../common/util/string.util';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { StringUtil } from '@common/util/string.util';
+import { Alert } from '@common/util/alert.util';
+import { Field } from '@domain/data-preparation/pr-dataset';
 import { DataflowService } from '../../../service/dataflow.service';
-import { Alert } from '../../../../../common/util/alert.util';
-import * as _ from 'lodash';
-import {isNullOrUndefined} from "util";
+
 declare let $;
 
 @Component({
@@ -108,10 +108,9 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   /**
    * Open popup
    * @param {Field[]} fields
-   * @param {string} command : command name
-   * @param {string} condition : If the formula has already been entered, also show in the popup
+   * @param data
    */
-  //public open(fields: Field[], command: string, condition?: string) {
+  // public open(fields: Field[], command: string, condition?: string) {
   public open(fields: Field[], data:{command : string, val : string, needCol?:boolean}) {
     this.isShow = true;
     this._command = data.command;
@@ -206,7 +205,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
    * @param {Field} field
    */
   public selectField(field: Field) {
-    let color = '#439fe5';
+    const color = '#439fe5';
 
     this._insertAtCursor('<span style="color: ' + color + '">' + field.name + '<span id="focusElement"></span></span>');
 
@@ -330,7 +329,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
       return '<span >' + value + '( <span id="focusElement"></span> )</span>';
     } else {
 
-      let color = '#439fe5';
+      const color = '#439fe5';
 
       if (value.hasOwnProperty('indexOf') && value.indexOf('[') === 0) {
         return '<span style="color:' + color + '">' + value.substring(1) + '</span>';
@@ -344,11 +343,11 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   // noinspection JSMethodCanBeStatic
   /**
    * 자동완성 삽입후
-   * @param {string} value
-   * @param $li
+   * @param {string} _value
+   * @param _$li
    * @private
    */
-  private _afterInsertCallback(value: string, $li: any) {
+  private _afterInsertCallback(_value: string, _$li: any) {
 
     const sel = window.getSelection();
     const range = document.createRange();

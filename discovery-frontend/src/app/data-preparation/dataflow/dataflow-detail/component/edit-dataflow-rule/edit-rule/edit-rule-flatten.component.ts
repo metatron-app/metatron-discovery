@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import {FlattenRule} from "../../../../../../domain/data-preparation/prep-rules";
+import { Alert } from '@common/util/alert.util';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {FlattenRule} from '@domain/data-preparation/prep-rules';
+import { EditRuleComponent } from './edit-rule.component';
 
 @Component({
   selector : 'edit-rule-flatten',
@@ -93,7 +93,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
       return undefined
     }
 
-    let ruleString = 'flatten col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString();
+    const ruleString = 'flatten col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString();
 
     return {
       command : 'flatten',
@@ -159,7 +159,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    */
   protected parsingRuleString(data: {jsonRuleString : FlattenRule}) {
 
-    let arrFields:string[] = data.jsonRuleString.col;
+    const arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
   } // function - _parsingRuleString

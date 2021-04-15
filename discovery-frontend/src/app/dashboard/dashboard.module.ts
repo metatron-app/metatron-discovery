@@ -14,15 +14,14 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CommonModule } from '../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { DatasourceShareModule } from '../datasource/datasource-share.module';
 import { DatasourceService } from '../datasource/service/datasource.service';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardService } from './service/dashboard.service';
 import { UpdateDashboardComponent } from './update-dashboard.component';
 import { SelectionFilterComponent } from './component/selection-filter/selection-filter.component';
-import { ChartModule } from '../common/chart.module';
-import { DndModule } from 'ng2-dnd';
+import { ChartModule } from '@common/chart.module';
 import { TextWidgetComponent } from './widgets/text-widget/text-widget.component';
 import { TextWidgetUpdateComponent } from './widgets/text-widget/text-widget.update.component';
 import { FilterWidgetComponent } from './widgets/filter-widget/filter-widget.component';
@@ -35,13 +34,13 @@ import { DashboardWidgetComponent } from './component/dashboard-layout/dashboard
 import { DashboardWidgetHeaderComponent } from './component/dashboard-layout/dashboard.widget.header.component';
 import { DragulaModule } from '../../lib/ng2-dragula';
 import { TextWidgetEditorModule } from './widgets/text-widget/editor/text-widget-editor.module';
-import { ImageService } from '../common/service/image.service';
+import { ImageService } from '@common/service/image.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { AnalysisPredictionService } from '../page/component/analysis/service/analysis.prediction.service';
 import { PageRelationComponent } from './component/update-dashboard/page-relation.component';
 import { TextWidgetPanelComponent } from './component/update-dashboard/text-widget-panel.component';
 import { DatasourcePanelComponent } from './component/update-dashboard/datasource-panel.component';
-import { DataPreviewModule } from '../common/data.preview.module';
+import { DataPreviewModule } from '@common/data.preview.module';
 import { PageWidgetComponent } from './widgets/page-widget/page-widget.component';
 import { ConfigureFiltersInclusionComponent } from './filters/inclusion-filter/configure-filters-inclusion.component';
 import { ConfigureFiltersBoundComponent } from './filters/bound-filter/configure-filters-bound.component';
@@ -57,7 +56,7 @@ import { CreateBoardPopRelationComponent } from './component/create-dashboard/cr
 import { CreateBoardCompleteComponent } from './component/create-dashboard/create-board-complete.component';
 import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 import { UpdateDatasourceComponent } from './component/update-dashboard/update-datasource.component';
-import {TimezoneService} from "../data-storage/service/timezone.service";
+import {TimezoneService} from '../data-storage/service/timezone.service';
 
 const dashboardRoutes: Routes = [
   {
@@ -72,7 +71,6 @@ const dashboardRoutes: Routes = [
     PageShareModule,
     DatasourceShareModule,
     DragulaModule,
-    DndModule,
     DashboardShareModule,
     TextWidgetEditorModule,
     InfiniteScrollModule,
@@ -118,8 +116,7 @@ const dashboardRoutes: Routes = [
     DashboardComponent,
     UpdateDashboardComponent,
     CreateBoardComponent,
-    SelectionFilterComponent,
-    DndModule
+    SelectionFilterComponent
   ],
   bootstrap: [
     DashboardWidgetComponent,

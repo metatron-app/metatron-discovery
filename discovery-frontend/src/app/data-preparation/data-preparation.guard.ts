@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { CanDeactivate } from '@angular/router';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import {CanDeactivate} from '@angular/router';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
 
 export interface ComponentCanDeactivate {
   canDeactive: () => boolean | Observable<boolean>;
@@ -23,10 +23,10 @@ export interface ComponentCanDeactivate {
 @Injectable()
 export class DataPreparationGuard implements CanDeactivate<ComponentCanDeactivate> {
   canDeactivate(component: ComponentCanDeactivate): boolean | Observable<boolean> {
-      if(component.canDeactive) {
-        return component.canDeactive() ? true : false; //confirm('WARNING: Press Cancel to stay or OK to leave.');
-      } else {
-        return true;
-      }
+    if (component.canDeactive) {
+      return !!component.canDeactive(); // confirm('WARNING: Press Cancel to stay or OK to leave.');
+    } else {
+      return true;
+    }
   }
 }
