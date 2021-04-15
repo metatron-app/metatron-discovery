@@ -116,7 +116,7 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
     // 멤버 수정
     // 기존 리스트에서 없는 데이터는 remove로 설정 생성된 데이터는 add로 설정
     this.groupsService.updateGroupUsers(this._groupData.id, this._getUpdateParam())
-      .then((result) => {
+      .then(() => {
         // success alert
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
         // 현재 팝업 닫기
@@ -126,7 +126,7 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
         // 상위 컴포넌트로 noti
         this.memberComplete.emit();
       })
-      .catch((error) => {
+      .catch(() => {
         // error alert
         Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
         // loading hide

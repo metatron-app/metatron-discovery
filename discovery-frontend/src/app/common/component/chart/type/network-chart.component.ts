@@ -138,9 +138,9 @@ export class NetworkChartComponent extends BaseChart<UIOption> implements OnInit
   /**
    * 차트에 설정된 옵션으로 차트를 그린다.
    * - 각 차트에서 Override
-   * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
+   * @param _isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
    */
-  public draw(isKeepRange?: boolean): void {
+  public draw(_isKeepRange?: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Valid 체크
@@ -359,12 +359,12 @@ export class NetworkChartComponent extends BaseChart<UIOption> implements OnInit
   protected convertSeriesData(): BaseOption {
 
     let sourceField: string = '';
-    let sourceColorField: string = '';
-    let sourceSizeField: string = '';
-
-    let targetField: string = '';
-    let targetColorField: string = '';
-    let targetSizeField: string = '';
+    // let sourceColorField: string = '';
+    // let sourceSizeField: string = '';
+    //
+    // let targetField: string = '';
+    // let targetColorField: string = '';
+    // let targetSizeField: string = '';
     const aggs: string[] = [];
 
     // Source data
@@ -377,31 +377,31 @@ export class NetworkChartComponent extends BaseChart<UIOption> implements OnInit
           sourceField = fieldName;
         }
 
-        if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.DIMENSION) || _.eq(column.type, ShelveFieldType.TIMESTAMP))) {
-          sourceColorField = fieldName;
-        } else if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.MEASURE) || _.eq(column.type, ShelveFieldType.CALCULATED))) {
-          sourceSizeField = fieldName;
-        }
+        // if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.DIMENSION) || _.eq(column.type, ShelveFieldType.TIMESTAMP))) {
+        //   sourceColorField = fieldName;
+        // } else if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.MEASURE) || _.eq(column.type, ShelveFieldType.CALCULATED))) {
+        //   sourceSizeField = fieldName;
+        // }
 
         aggs.push(fieldName);
       });
 
     // Target data
-    this.pivot.rows
-      .map((row, idx) => {
-
-        const fieldName: string = row.alias ? row.alias : row.fieldAlias ? row.fieldAlias : row.name;
-
-        if (_.eq(idx, 0)) {
-          targetField = fieldName;
-        }
-
-        if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.DIMENSION) || _.eq(row.type, ShelveFieldType.TIMESTAMP))) {
-          targetColorField = fieldName;
-        } else if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.MEASURE) || _.eq(row.type, ShelveFieldType.CALCULATED))) {
-          targetSizeField = fieldName;
-        }
-      });
+    // this.pivot.rows
+    //   .map((row, idx) => {
+    //
+    //     const fieldName: string = row.alias ? row.alias : row.fieldAlias ? row.fieldAlias : row.name;
+    //
+    //     if (_.eq(idx, 0)) {
+    //       targetField = fieldName;
+    //     }
+    //
+    //     if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.DIMENSION) || _.eq(row.type, ShelveFieldType.TIMESTAMP))) {
+    //       targetColorField = fieldName;
+    //     } else if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.MEASURE) || _.eq(row.type, ShelveFieldType.CALCULATED))) {
+    //       targetSizeField = fieldName;
+    //     }
+    //   });
 
     // link 수치 정보
     const agg: Field = this.pivot.aggregations[0];
@@ -547,10 +547,10 @@ export class NetworkChartComponent extends BaseChart<UIOption> implements OnInit
    * @param params
    * @param format
    * @param uiOption
-   * @param uiData
+   * @param _uiData
    * @returns {string}
    */
-  private getFormatNetworkValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, uiData?: any): string {
+  private getFormatNetworkValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, _uiData?: any): string {
 
     if (params.data.value) {
       // UI 데이터 정보가 있을경우
@@ -905,7 +905,7 @@ export class NetworkChartComponent extends BaseChart<UIOption> implements OnInit
       link.existSelectData = false;
 
       // when it's last data, init opacity
-      const selectedList = selectedSeries.links.filter((item) => {
+      const selected = selectedSeries.links.filter((item) => {
         return item.linkCnt && 0 !== item.linkCnt;
       });
 
@@ -913,7 +913,7 @@ export class NetworkChartComponent extends BaseChart<UIOption> implements OnInit
         return item.selectCnt && 0 !== item.selectCnt;
       });
 
-      if ((!selectedList || 0 === selectedList.length) && (!selectedDataList || 0 === selectedDataList.length)) {
+      if ((!selected || 0 === selected.length) && (!selectedDataList || 0 === selectedDataList.length)) {
         selectedSeries.lineStyle.normal['opacity'] = 0.7;
       }
 
