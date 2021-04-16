@@ -65,7 +65,6 @@ import {ChartUtil} from '../../option/util/chart-util';
 import {isNullOrUndefined, isUndefined} from 'util';
 import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
 import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
-import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from '@common/constant/common.constant';
 import {StringUtil} from '@common/util/string.util';
@@ -327,10 +326,10 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   /**
    * Shelf Valid Check
    * 선반 전체 부분을 체크
-   * @param pivot
+   * @param _pivot
    * @param shelf
    */
-  public isValid(pivot: Pivot, shelf: Shelf): boolean {
+  public isValid(_pivot: Pivot, shelf: Shelf): boolean {
 
     if (!shelf) return false;
 
@@ -527,9 +526,9 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   /**
    * 차트에 옵션 반영
    * - Echart기반 차트가 아닐경우 Override 필요
-   * @param initFl 차트 초기화 여부
+   * @param _initFl 차트 초기화 여부
    */
-  protected apply(initFl: boolean = true): void {
+  protected apply(_initFl: boolean = true): void {
 
   }
 
@@ -586,10 +585,10 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   /**
    * 차트 Resize
    *
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  protected onResize(_event) {
     if (this.olmap) {
       this.olmap.updateSize();
 
@@ -1025,19 +1024,17 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     const styleOption: UIMapOption = this.getUiMapOption();
     const styleLayer: UILayers = styleOption.layers[layerNum];
     const styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
-    return (feature, resolution) => {
+    return (feature, _resolution) => {
       ////////////////////////////////////////////////////////
       // Style options
       ////////////////////////////////////////////////////////
       const layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
       const featureColorType = styleLayer.color.by;
-      let symbolType = null;
       let outlineType = null;
       let lineDashType = null;
       let lineMaxVal = 1; // styleLayer.size.max;
       let outlineColor = null;
-      let featureSizeType = null;
       let featureThicknessType = null;
       let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum], styleLayer.color.aggregationType);
 
@@ -1050,10 +1047,8 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       // Symbol type
       if (_.eq(layerType, MapLayerType.SYMBOL) || _.eq(layerType, MapLayerType.CLUSTER)) {
         const symbolLayer: UISymbolLayer = styleLayer as UISymbolLayer;
-        symbolType = symbolLayer.symbol;
         outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
         outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
-        featureSizeType = symbolLayer.size.by;
       }
 
       // Line type
@@ -1275,7 +1270,6 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       // Style options
       ////////////////////////////////////////////////////////
       const symbolLayer: UISymbolLayer = styleLayer as UISymbolLayer;
-      const layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
       const featureColorType = styleLayer.color.by;
       const symbolType = symbolLayer.symbol;
@@ -1661,16 +1655,16 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       // Style options
       ////////////////////////////////////////////////////////
 
-      const layerType = styleLayer.type;
+      // const layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
       const featureColorType = styleLayer.color.by;
-      const symbolType = null;
-      const outlineType = null;
-      const lineDashType = null;
-      const lineMaxVal = 1; // styleLayer.size.max;
-      let outlineColor = 'black';
-      const featureSizeType = null;
-      let outlineWidth = 1;
+      // const symbolType = null;
+      // const outlineType = null;
+      // const lineDashType = null;
+      // const lineMaxVal = 1; // styleLayer.size.max;
+      // let outlineColor = 'black';
+      // const featureSizeType = null;
+      // let outlineWidth = 1;
 
       ////////////////////////////////////////////////////////
       // Color
@@ -1773,17 +1767,17 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       // when select mode or filter param exists, set feature selection style
       if ((filterFl || selectMode) && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
 
-        outlineWidth = 2;
+        // outlineWidth = 2;
 
         // when style is dark
         if (MapLayerStyle.DARK.toString() === styleOption.style) {
           featureColor = SelectionColor.FEATURE_DARK.toString();
-          outlineColor = SelectionColor.OUTLINE_DARK.toString();
+          // outlineColor = SelectionColor.OUTLINE_DARK.toString();
 
           // when style is colored, light
         } else {
           featureColor = SelectionColor.FEATURE_LIGHT.toString();
-          outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
+          // outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
         }
       }
 
@@ -2105,38 +2099,40 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
   };
 
-  /**
-   * create drag interaction (for selection filter)
-   */
-  private createInteraction(): void {
-
-    // drag style
-    const dragBoxInteraction = new ol.interaction.DragBox({
-      condition: ol.events.condition.shiftKeyOnly,
-      style: new ol.style.Style({
-        stroke: new ol.style.Stroke({
-          color: 'yellow',
-          width: 2
-        })
-      })
-    });
-
-    // TODO need to move on addChartMultiSelectEventListener
-    dragBoxInteraction.on('boxend', (event) => {
-
-      const format = new ol.format.GeoJSON();
-      const geom = event.target.getGeometry();
-
-      // event.target.getMap().getView()
-
-      const feature = new ol.Feature({
-        geometry: geom
-      });
-
-    });
-
-    this.olmap.getInteractions().extend([dragBoxInteraction]);
-  }
+  // /**
+  //  * create drag interaction (for selection filter)
+  //  */
+  // private createInteraction(): void {
+  //
+  //   // drag style
+  //   const dragBoxInteraction = new ol.interaction.DragBox({
+  //     condition: ol.events.condition.shiftKeyOnly,
+  //     style: new ol.style.Style({
+  //       stroke: new ol.style.Stroke({
+  //         color: 'yellow',
+  //         width: 2
+  //       })
+  //     })
+  //   });
+  //
+  //   // TODO need to move on addChartMultiSelectEventListener
+  //   dragBoxInteraction.on('boxend', (event) => {
+  //
+  //     // const format = new ol.format.GeoJSON();
+  //     new ol.format.GeoJSON();
+  //     const geom = event.target.getGeometry();
+  //
+  //     // event.target.getMap().getView()
+  //
+  //     // const feature = new ol.Feature({
+  //     //   geometry: geom
+  //     // });
+  //     new ol.Feature({ geometry: geom });
+  //
+  //   });
+  //
+  //   this.olmap.getInteractions().extend([dragBoxInteraction]);
+  // }
 
   /**
    * Create legend
@@ -2368,7 +2364,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
    * return ranges of color by dimension
    * @returns {any}
    */
-  private setDimensionColorRange(layer: UILayers, data: any, colorList: any, colorAlterList = []): ColorRange[] {
+  private setDimensionColorRange(layer: UILayers, data: any, colorList: any, _colorAlterList = []): ColorRange[] {
 
     const rangeList = [];
     const featureList = [];
@@ -2741,7 +2737,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       else if (_.eq(layer.type, MapLayerType.TILE)) {
 
         // Hexagon layer
-        const hexagonLayer: UITileLayer = layer as UITileLayer;
+        // const hexagonLayer: UITileLayer = layer as UITileLayer;
       }
         ////////////////////////////////////////////////////////
         // Line
@@ -2790,23 +2786,23 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
   }
 
-  /**
-   * Return alpha color
-   * @param hex
-   * @param alpha
-   */
-  private hexToRgbA(hex, alpha): string {
-    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-      let c = hex.substring(1).split('');
-      if (c.length === 3) {
-        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-      }
-      c = '0x' + c.join('');
-      return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
-    } else {
-      return 'rgba(255,255,255,1)';
-    }
-  }
+  // /**
+  //  * Return alpha color
+  //  * @param hex
+  //  * @param alpha
+  //  */
+  // private hexToRgbA(hex, alpha): string {
+  //   if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+  //     let c = hex.substring(1).split('');
+  //     if (c.length === 3) {
+  //       c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+  //     }
+  //     c = '0x' + c.join('');
+  //     return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
+  //   } else {
+  //     return 'rgba(255,255,255,1)';
+  //   }
+  // }
 
   /**
    * when data zoom ends
@@ -2881,11 +2877,11 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     return resultList;
   }
 
-  private getMinZoom() {
-    const width = this.area.nativeElement.clientWidth;
-
-    return Math.ceil(Math.LOG2E * Math.log(width / 256));
-  }
+  // private getMinZoom() {
+  //   const width = this.area.nativeElement.clientWidth;
+  //
+  //   return Math.ceil(Math.LOG2E * Math.log(width / 256));
+  // }
 
   /**
    * Get color list
@@ -2908,7 +2904,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
    */
   private mapSelectionListener = (event) => {
 
-    const scope: any = this;
+    // const scope: any = this;
 
     let selectMode: ChartSelectMode;
     // selection filter data
@@ -2916,7 +2912,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     // all unselected
     let noneDataCnt: boolean = true;
     // layer number
-    let layerNum = 0;
+    // let layerNum = 0;
 
     let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (PixcelFeature) => {
       return PixcelFeature;
@@ -2934,7 +2930,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
       }
 
       // set feature layerNum
-      layerNum = feature.getProperties()['layerNum'];
+      // layerNum = feature.getProperties()['layerNum'];
 
       // set select mode
       if (feature.getProperties()['selection']) {
@@ -3026,39 +3022,39 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
   }
 
-  /**
-   * set selection mode to feature
-   * @param scope
-   * @param feature
-   * @returns {boolean}
-   */
-  private setFeatureSelectionMode(scope: any, feature): boolean {
-
-    let filterFl: boolean = false;
-
-    if (scope.widgetDrawParam
-      && scope.widgetDrawParam.selectFilterListList
-      && scope.widgetDrawParam.selectFilterListList.length > 0) {
-
-      _.each(scope.widgetDrawParam.selectFilterListList, (filter) => {
-        _.each(filter.data, (data) => {
-
-          // find feature by selected properties
-          const properties = feature.getProperties();
-
-          // set selection filter select mode
-          if (properties[filter.alias] === data) {
-            feature.set('selection', ChartSelectMode.ADD);
-          }
-        });
-      });
-
-      // selection filter exists
-      filterFl = true;
-    }
-
-    return filterFl;
-  }
+  // /**
+  //  * set selection mode to feature
+  //  * @param scope
+  //  * @param feature
+  //  * @returns {boolean}
+  //  */
+  // private setFeatureSelectionMode(scope: any, feature): boolean {
+  //
+  //   let filterFl: boolean = false;
+  //
+  //   if (scope.widgetDrawParam
+  //     && scope.widgetDrawParam.selectFilterListList
+  //     && scope.widgetDrawParam.selectFilterListList.length > 0) {
+  //
+  //     _.each(scope.widgetDrawParam.selectFilterListList, (filter) => {
+  //       _.each(filter.data, (data) => {
+  //
+  //         // find feature by selected properties
+  //         const properties = feature.getProperties();
+  //
+  //         // set selection filter select mode
+  //         if (properties[filter.alias] === data) {
+  //           feature.set('selection', ChartSelectMode.ADD);
+  //         }
+  //       });
+  //     });
+  //
+  //     // selection filter exists
+  //     filterFl = true;
+  //   }
+  //
+  //   return filterFl;
+  // }
 
   /**
    * set uiOption min / max value
