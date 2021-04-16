@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {UIOption} from '../ui-option';
+import {UIChartColorByCell, UIOption} from '../ui-option';
 import {
   AnnotationPosition,
   FontSize,
@@ -32,6 +32,8 @@ export interface UIGridChart extends UIOption {
   ////////////////////////////////////////////
   // 서버 스펙
   ////////////////////////////////////////////
+
+  color?: UIChartColorByCell;
 
   // 차트 표현 타입 (피봇, 원본)
   dataType?: GridViewType;

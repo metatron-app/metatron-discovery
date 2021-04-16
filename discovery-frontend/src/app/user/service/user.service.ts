@@ -14,11 +14,11 @@
 
 import {Injectable, Injector} from '@angular/core';
 import {HttpHeaders} from '@angular/common/http';
-import {AbstractService} from '../../common/service/abstract.service';
-import {User} from '../../domain/user/user';
+import {AbstractService} from '@common/service/abstract.service';
+import {User} from '@domain/user/user';
 import 'rxjs/add/operator/toPromise';
-import {CookieConstant} from '../../common/constant/cookie.constant';
-import {CommonUtil} from '../../common/util/common.util';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class UserService extends AbstractService {

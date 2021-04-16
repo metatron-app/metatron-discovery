@@ -87,8 +87,8 @@ export class ConfirmModalComponent extends AbstractComponent implements OnInit, 
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private close() {
-    this.isShow = false;
-  }
+  // private close() {
+  //   this.isShow = false;
+  // }
 
 }

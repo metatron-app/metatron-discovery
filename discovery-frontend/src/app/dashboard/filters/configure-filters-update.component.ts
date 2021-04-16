@@ -51,11 +51,11 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('inputSearch')
-  private _inputSearch: ElementRef;
-
-  @ViewChild('inputNewCandidateValue')
-  private _inputNewCandidateValue: ElementRef;
+  // @ViewChild('inputSearch')
+  // private _inputSearch: ElementRef;
+  //
+  // @ViewChild('inputNewCandidateValue')
+  // private _inputNewCandidateValue: ElementRef;
 
   @ViewChild(ConfigureFiltersTimeComponent)
   private _timeComp: ConfigureFiltersTimeComponent;
@@ -69,8 +69,8 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   @ViewChild('ddpTxtSub')
   private _ddpTxtSub: ElementRef;
 
-  // 수정여부
-  private _isEdit: boolean = false;
+  // // 수정여부
+  // private _isEdit: boolean = false;
 
   // 대시보드
   private _dashboard: Dashboard;
@@ -269,12 +269,12 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
    * 컴포넌트를 연다.
    * @param {Dashboard} board
    * @param {any} data
-   * @param {boolean} isEdit
+   * @param {boolean} _isEdit
    * @private
    */
-  private _openComponent(board: Dashboard, data: { key: string, filter: Filter }, isEdit: boolean = true) {
+  private _openComponent(board: Dashboard, data: { key: string, filter: Filter }, _isEdit: boolean = true) {
     const targetFilter: Filter = _.cloneDeep(data.filter);
-    this._isEdit = isEdit;
+    // this._isEdit = isEdit;
 
     if (this.widget) {
       targetFilter.ui.widgetId = this._getWidgetId();

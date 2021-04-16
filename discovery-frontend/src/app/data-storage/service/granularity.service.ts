@@ -15,7 +15,7 @@
 
 import {Injectable, Injector} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {FieldFormatType, FieldFormatUnit} from '../../domain/datasource/datasource';
+import {FieldFormatType, FieldFormatUnit} from '@domain/datasource/datasource';
 
 declare let moment: any;
 

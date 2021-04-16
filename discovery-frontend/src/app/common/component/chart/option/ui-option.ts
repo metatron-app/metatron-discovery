@@ -3,7 +3,7 @@
  */
 
 import {ChartType, FontSize} from './define/common';
-import {Field} from '../../../../domain/workbook/configurations/field/field';
+import {Field} from '@domain/workbook/configurations/field/field';
 import {UIChartColor} from './ui-option/ui-color';
 import {UIChartZoom} from './ui-option/ui-zoom';
 import {UIChartLegend} from './ui-option/ui-legend';

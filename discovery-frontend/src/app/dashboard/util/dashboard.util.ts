@@ -27,7 +27,8 @@ import {
   BoardConfiguration,
   BoardDataSource,
   BoardDataSourceRelation,
-  Dashboard, JoinMapping,
+  Dashboard,
+  JoinMapping,
   LayoutWidgetInfo
 } from '@domain/dashboard/dashboard';
 import {Datasource, Field, FieldFormatType, FieldRole} from '@domain/datasource/datasource';
@@ -252,7 +253,7 @@ export class DashboardUtil {
    */
   public static isSameDataSource(boardDs: BoardDataSource, dataSource: Datasource): boolean {
     return (boardDs.name === dataSource.name || boardDs.name === dataSource.engineName
-        || (boardDs.temporary && boardDs.id === dataSource.id));
+      || (boardDs.temporary && boardDs.id === dataSource.id));
   } // function - isSameDataSource
 
   /**
@@ -661,7 +662,7 @@ export class DashboardUtil {
    * @param {string} fieldName
    * @return {Filter}
    */
-  public static getBoardFilter(board: Dashboard, dataSource:string, fieldName: string): Filter {
+  public static getBoardFilter(board: Dashboard, dataSource: string, fieldName: string): Filter {
     return board.configuration.filters.find(item => item.dataSource === dataSource && item.field === fieldName);
   } // function - getBoardFilter
 
@@ -693,7 +694,7 @@ export class DashboardUtil {
    * @param board
    * @param filter
    */
-  public static isNewFilter(board: Dashboard, filter: Filter):boolean {
+  public static isNewFilter(board: Dashboard, filter: Filter): boolean {
     return -1 === board.configuration.filters.findIndex(item => item.dataSource === filter.dataSource && item.field === filter.field);
   } // function - isNewFilter
 
@@ -946,12 +947,12 @@ export class DashboardUtil {
 
   /**
    * 필터와 위젯이 같은 것인지 판단한다.
-   * @param {Dashboard} board
+   * @param {Dashboard} _board
    * @param {Filter} filter
    * @param {Widget} widget
    * @return {boolean}
    */
-  public static isSameFilterAndWidget(board: Dashboard, filter: Filter, widget: Widget): boolean {
+  public static isSameFilterAndWidget(_board: Dashboard, filter: Filter, widget: Widget): boolean {
     if ('filter' === widget.type) {
       const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
       return (filterInWidget.dataSource === filter.dataSource && filterInWidget.field === filter.field);

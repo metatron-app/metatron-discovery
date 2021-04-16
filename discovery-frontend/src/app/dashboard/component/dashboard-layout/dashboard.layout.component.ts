@@ -312,8 +312,8 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     // 데이터 소스가 있으면
     if (boardInfo.hasOwnProperty('dataSources') && boardInfo.dataSources.length > 0 && boardDs) {
 
-      const nameAliasList: FieldNameAlias[] = boardInfo.aliases.filter(alias => alias['nameAlias']);
-      const valueAliasList: FieldValueAlias[] = boardInfo.aliases.filter(alias => alias['valueAlias']);
+      const nameAliasList: FieldNameAlias[] = boardInfo.aliases.filter(alias => alias['nameAlias']) as FieldNameAlias[];
+      const valueAliasList: FieldValueAlias[] = boardInfo.aliases.filter(alias => alias['valueAlias']) as FieldValueAlias[];
 
       let summary: { reorderDsList: Datasource[], totalFields: Field[] };
       if ('multi' === boardDs.type) {
@@ -496,7 +496,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     if (boardInfo.widgets) {
       boardInfo.widgets.forEach((widget) => {
         if ('page' === widget.type) {
-          const pgeWidget: PageWidget = widget;
+          const pgeWidget: PageWidget = widget as PageWidget;
           pgeWidget.mode = 'chart';
         }
         widget.dashBoard = boardInfo;
@@ -576,10 +576,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     filters.forEach((item: Filter, idx: number) => {
       if ('interval' === item.type) {
         // ----> convert IntervalFilter to TimeFilter
-        filters[idx] = FilterUtil.convertIntervalToTimeFilter(item, boardInfo);
+        filters[idx] = FilterUtil.convertIntervalToTimeFilter(item as IntervalFilter, boardInfo);
       } else if (FilterUtil.isTimeFilter(item)) {
         // ----> convert TimeFilter ServerSpec to UISpec
-        const timeFilter: TimeFilter = item;
+        const timeFilter: TimeFilter = item as TimeFilter;
         (timeFilter.timeUnit) || (timeFilter.timeUnit = TimeUnit.NONE);
         timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, item.dataSource, item.field);
       }
@@ -600,7 +600,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
           conf.filter = FilterUtil.convertIntervalToTimeFilter(filter as IntervalFilter, boardInfo);
         }
       } else if ('page' === item.type) {
-        const conf: PageWidgetConfiguration = item.configuration;
+        const conf: PageWidgetConfiguration = item.configuration as PageWidgetConfiguration;
         if (conf.filters) {
           conf.filters.forEach((filter: Filter, idx: number) => {
             if (FilterUtil.isTimeFilter(filter)) {
@@ -653,10 +653,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
   /**
    * Dynamic Widget Header Component 등록
    * @param stack
-   * @param {BoardGlobalOptions} globalOpts
+   * @param {BoardGlobalOptions} _globalOpts
    * @private
    */
-  private _bootstrapWidgetHeaderComponent(stack, globalOpts: BoardGlobalOptions) {
+  private _bootstrapWidgetHeaderComponent(stack, _globalOpts: BoardGlobalOptions) {
     const componentState: any = stack.config.content[0];
     if (componentState) {
       const widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
@@ -1230,7 +1230,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         // convert map old spec or filter widget
         boardInfo.widgets.forEach(widget => {
           if ('page' === widget.type && ChartType.MAP === (widget.configuration as PageWidgetConfiguration).chart.type) {
-            const widgetConf: PageWidgetConfiguration = widget.configuration;
+            const widgetConf: PageWidgetConfiguration = widget.configuration as PageWidgetConfiguration;
             widgetConf.shelf.layers
               = widgetConf.shelf.layers.map((layer, idx: number) => {
               if (Array === layer.constructor) {
@@ -1249,7 +1249,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             });
             widgetConf.dataSource = boardInfo.configuration.dataSource; // 무조건!! 위 shelf migration 보다 나중에!! 실행되어야 한다.
           } else if ('filter' === widget.type) {
-            const widgetConf: FilterWidgetConfiguration = widget.configuration;
+            const widgetConf: FilterWidgetConfiguration = widget.configuration as FilterWidgetConfiguration;
             if (!widgetConf.filter) {
               widgetConf.filter = {} as any;
               Object.keys(widgetConf).forEach(key => {
@@ -1318,7 +1318,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
           // remove current_time timestamp filter - S
           boardInfo.configuration.filters
             = boardInfo.configuration.filters.filter((filter: Filter) => {
-            if (FilterUtil.isTimeFilter(filter) && filter.clzField) {
+            if (FilterUtil.isTimeFilter(filter) && filter['clzField']) {
               const filterField: Field = (filter as TimeFilter).clzField;
               if (FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name) {
                 const filterId: string = filter.dataSource + '_' + filter.field;

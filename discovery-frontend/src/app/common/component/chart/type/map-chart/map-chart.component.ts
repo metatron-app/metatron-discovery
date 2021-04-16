@@ -1463,8 +1463,8 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
             if (!isNullOrUndefined(styleLayer['needToCalPointRadius']) && styleLayer['needToCalPointRadius']
               && !isNullOrUndefined(styleLayer['pointRadiusTo'])) {
               // 처음에는 정의된 값이 없음, color 에서 첫번째 measure min/max 가져옴
-              let maxValue: number = !isNullOrUndefined(styleLayer['size'].maxValue) ? parseFloat(_.cloneDeep(styleLayer['size'].maxValue)) : _.cloneDeep(styleLayer.color.maxValue);
-              const minValue: number = !isNullOrUndefined(styleLayer['size'].minValue) ? parseFloat(_.cloneDeep(styleLayer['size'].minValue)) : _.cloneDeep(styleLayer.color.minValue);
+              let maxValue: number = !isNullOrUndefined(styleLayer['size']['maxValue']) ? parseFloat(_.cloneDeep(styleLayer['size']['maxValue'])) : _.cloneDeep(styleLayer.color.maxValue);
+              const minValue: number = !isNullOrUndefined(styleLayer['size']['minValue']) ? parseFloat(_.cloneDeep(styleLayer['size']['minValue'])) : _.cloneDeep(styleLayer.color.minValue);
               // 마이너스 값은 지도에 표시 할 수 없기 때문에 플러스로 치환
               if (minValue < 0) {
                 maxValue = maxValue + (-minValue);

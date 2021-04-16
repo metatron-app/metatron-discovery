@@ -324,7 +324,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit, AfterV
       startDateStr = null;
     }
 
-    let endDateStr:string = null;
+    let endDateStr:string;
     if( this._endDate) {
       if( this.roundSecond ) {
         endDateStr = moment(this._endDate).add(59,'seconds').format(this.returnFormat);

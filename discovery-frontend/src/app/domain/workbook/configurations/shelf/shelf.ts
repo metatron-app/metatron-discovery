@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {ShelfType} from '../../../../common/component/chart/option/define/common';
+import {ShelfType} from '@common/component/chart/option/define/common';
 import {GeoField} from '../field/geo-field';
 
 /**

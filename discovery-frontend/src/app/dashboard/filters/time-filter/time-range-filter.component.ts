@@ -263,9 +263,9 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
 
   /**
    * 기간셋을 삭제할 경우
-   * @param {TimeRangeFilter} filter
+   * @param {TimeRangeFilter} _filter
    */
-  public deleteIntervalRange(filter: TimeRangeFilter) {
+  public deleteIntervalRange(_filter: TimeRangeFilter) {
     (this.timeRangeList.length > 1) && (this.timeRangeList.pop());
     this.isLatestTime = false;
 

@@ -235,9 +235,9 @@ export class PageRelationComponent extends AbstractComponent implements OnInit, 
 
   /**
    * 트리 마우스 업 이벤트
-   * @param {MouseEvent} event
+   * @param {MouseEvent} _event
    */
-  public treeMouseUp(event: MouseEvent) {
+  public treeMouseUp(_event: MouseEvent) {
     this._$tree.find('.ddp-tree-drag-start').removeClass('ddp-tree-drag-start');
   } // function - treeMouseUp
 

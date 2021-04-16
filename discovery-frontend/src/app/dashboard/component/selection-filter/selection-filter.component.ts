@@ -261,10 +261,10 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   // noinspection JSMethodCanBeStatic
   /**
    * 타임 범위 필터
-   * @param {SelectionFilter} filter
+   * @param {SelectionFilter} _filter
    * @return {boolean}
    */
-  public isTimeRangeFilter(filter: SelectionFilter): boolean {
+  public isTimeRangeFilter(_filter: SelectionFilter): boolean {
     // return 'timestamp' === filter.type && !filter.format.discontinuous;
     return false;
   } // function - isTimeRangeFilter

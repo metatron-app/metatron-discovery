@@ -34,7 +34,7 @@ import {
   SymbolType
 } from '../option/define/common';
 import {OptionGenerator} from '../option/util/option-generator';
-import {UIChartColorBySeries, UILineChart, UIOption} from '../option/ui-option';
+import {UIChartColorBySeries, UILineChart} from '../option/ui-option';
 import {Series} from '../option/define/series';
 import * as _ from 'lodash';
 import {Pivot} from '@domain/workbook/configurations/pivot';
@@ -322,9 +322,9 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
 
   /**
    * change dataLabel, tooltip by single series, multi series
-   * @returns {UIOption}
+   * @returns {UILineChart}
    */
-  protected setDataLabel(): UIOption {
+  protected setDataLabel(): UILineChart {
 
     /**
      * check multi series <=> single series
@@ -390,11 +390,11 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
 
   /**
    * Min / Max 연산
-   * @param grid
-   * @param result
-   * @param isYAsis
+   * @param _grid
+   * @param _result
+   * @param _isYAxis
    */
-  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
+  protected calculateMinMax(_grid: UIChartAxisGrid, _result: any, _isYAxis: boolean): void {
 
     // 라인차트는 Override 함으로서 데이터 가공처리를 하지 않음
 
@@ -481,9 +481,9 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
    * 축 교차점 연산
    * @param baseline
    * @param result
-   * @param isYAsis
+   * @param _isYAxis
    */
-  protected calculateBaseline(baseline: number, result: any, isYAsis: boolean): void {
+  protected calculateBaseline(baseline: number, result: any, _isYAxis: boolean): void {
 
     // 멀티시리즈 개수를 구한다.
     const seriesList = [];
@@ -624,7 +624,7 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
         // 기준선 변경시
         let baseline = 0;
         if (axisOption[index].baseline && axisOption[index].baseline !== 0) {
-          baseline = axisOption[index].baseline;
+          baseline = (axisOption[index].baseline as number);
         }
 
         // 축 범위 자동설정이 설정되지 않았고
@@ -812,7 +812,7 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
           }
 
           const lineThickness: number = this.analysis.forecast.style.lineThickness;
-          const lineType: LineType = convertLineTypeEnum(this.analysis.forecast.style.lineType);
+          const lineType: LineType = convertLineTypeEnum(this.analysis.forecast.style.lineType) as LineType;
 
           const lowerSeries = series[index + 1];
           const observationsSeries = series[index + 2];

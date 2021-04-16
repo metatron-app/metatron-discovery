@@ -121,7 +121,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     setTimeout(() => {
 
       if (this.isPageWidget && this.widget) {
-        const pageWidgetConf: PageWidgetConfiguration = this.widget.configuration;
+        const pageWidgetConf: PageWidgetConfiguration = this.widget.configuration as PageWidgetConfiguration;
         if (ChartType.MAP === pageWidgetConf.chart.type) {
           if (pageWidgetConf.shelf.layers
             .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME)
@@ -181,7 +181,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     let strName: string = '';
 
     if (this.isPageWidget && this.widget) {
-      const widgetConf: PageWidgetConfiguration = this.widget.configuration;
+      const widgetConf: PageWidgetConfiguration = this.widget.configuration as PageWidgetConfiguration;
       if (ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers) {
         strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
           const dsInfo: Datasource = this.widget.dashBoard.dataSources.find(item => item.engineName === currVal.ref);

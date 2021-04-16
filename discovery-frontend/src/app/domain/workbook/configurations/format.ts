@@ -13,7 +13,7 @@
  */
 
 import {ByTimeUnit, TimeUnit} from './field/timestamp-field';
-import {CustomSymbol, UIChartFormatItem} from '../../../common/component/chart/option/ui-option/ui-format';
+import {CustomSymbol, UIChartFormatItem} from '@common/component/chart/option/ui-option/ui-format';
 
 export class Format {
 

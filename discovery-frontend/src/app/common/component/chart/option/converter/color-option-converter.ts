@@ -37,7 +37,7 @@ import {FormatOptionConverter} from './format-option-converter';
 import {isNullOrUndefined} from 'util';
 import {UIMapOption} from '../ui-option/map/ui-map-chart';
 import {ChartUtil} from '../util/chart-util';
-import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
+import {GeoField} from '@domain/workbook/configurations/field/geo-field';
 import {MapLayerType} from '../define/map/map-common';
 import UI = OptionGenerator.UI;
 

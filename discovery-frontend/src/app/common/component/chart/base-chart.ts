@@ -18,7 +18,7 @@
 
 import {AfterViewInit, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractComponent} from '../abstract.component';
-import {Pivot} from '../../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {
   UIChartColor,
   UIChartColorByDimension,
@@ -62,11 +62,11 @@ import {FormatOptionConverter} from './option/converter/format-option-converter'
 import {CommonOptionConverter} from './option/converter/common-option-converter';
 import {ToolOptionConverter} from './option/converter/tool-option-converter';
 import {LegendOptionConverter} from './option/converter/legend-option-converter';
-import {analysis} from '../../../page/component/value/analysis';
+import {AnalysisConfig} from '../../../page/component/value/analysis';
 import {ColorRange} from './option/ui-option/ui-color';
 import {UIChartAxisGrid} from './option/ui-option/ui-axis';
 import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
-import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 import {Theme} from '../../value/user.setting.value';
@@ -203,7 +203,7 @@ export abstract class BaseChart<T extends UIOption> extends AbstractComponent im
   public userCustomFunction;
 
   // 고급분석
-  public analysis: analysis = null;
+  public analysis: AnalysisConfig = null;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Getter & Setter

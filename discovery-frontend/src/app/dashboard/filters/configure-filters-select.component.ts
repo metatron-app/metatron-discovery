@@ -260,11 +260,11 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   /**
    * 타임 스탬프의 Granularity 선택
    * @param {Field | CustomField} field
-   * @param {boolean} discontinuous
+   * @param {boolean} _discontinuous
    * @param {TimeUnit} unit
    * @param {ByTimeUnit} byUnit
    */
-  public selectTimestampGranularity(field: Field | CustomField, discontinuous: boolean = false, unit: TimeUnit, byUnit?: ByTimeUnit) {
+  public selectTimestampGranularity(field: Field | CustomField, _discontinuous: boolean = false, unit: TimeUnit, byUnit?: ByTimeUnit) {
     if (field['isEditable']) {
       this.editTimestampFilter(field, unit, byUnit);
     } else {

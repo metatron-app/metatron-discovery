@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { MapBy, MapLinePathType, MapLineStyle } from '../../define/map/map-common';
-import { UILayers } from './ui-layers';
+import {MapLinePathType} from '../../define/map/map-common';
+import {UILayers} from './ui-layers';
 
 /**
  * symbol layer
