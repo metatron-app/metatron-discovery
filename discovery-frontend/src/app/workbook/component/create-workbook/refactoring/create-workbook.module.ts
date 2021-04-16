@@ -14,4 +14,5 @@ import {WorkbookService} from '../../../service/workbook.service';
     WorkbookService
   ]
 })
-export class CreateWorkbookModule {}
+export class CreateWorkbookModule {
+}

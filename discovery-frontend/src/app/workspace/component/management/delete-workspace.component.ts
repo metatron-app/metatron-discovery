@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { Alert } from '@common/util/alert.util';
-import { WorkspaceService } from '../../service/workspace.service';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {WorkspaceService} from '../../service/workspace.service';
 
 @Component({
   selector: 'app-delete-workspace',
@@ -33,7 +33,7 @@ export class DeleteWorkspaceComponent extends AbstractComponent implements OnIni
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
- // TODO private commonUtil: CommonUtil;
+  // TODO private commonUtil: CommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables

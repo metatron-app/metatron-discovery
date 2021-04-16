@@ -12,15 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Alert} from '@common/util/alert.util';
 import {CommonUtil} from '@common/util/common.util';
@@ -58,9 +50,9 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   public isShow = false;
 
   // 워크스페이스 data
-  public data : any = {
-    name : '',
-    description : ''
+  public data: any = {
+    name: '',
+    description: ''
   };
 
   // sharedWorkSpaceList
@@ -78,7 +70,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   public params = {
     size: this.page.size,
     page: this.page.page,
-    sort: { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true }
+    sort: {name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true}
   };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -167,7 +159,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   }
 
   // 닫기
-  public close(completeFl?:boolean) {
+  public close(completeFl?: boolean) {
     this.sharedWorkspaceList = undefined;
     this.isInvalidName = undefined;
     this.isShow = false;

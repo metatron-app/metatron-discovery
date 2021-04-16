@@ -100,7 +100,7 @@ export class CreateWorkbookComponent extends AbstractComponent {
   }
 
   private _getCreateWorkbookParams() {
-    const params: {workspace: string, name: string, type: 'workbook' | 'folder', description?: string, folderId?: string} = {
+    const params: { workspace: string, name: string, type: 'workbook' | 'folder', description?: string, folderId?: string } = {
       workspace: `/api/workspaces/${this.workspaceId}`,
       name: this.name.trim(),
       type: 'workbook'
@@ -140,12 +140,12 @@ export class CreateWorkbookComponent extends AbstractComponent {
 
   private _createWorkBook(): void {
     this.loadingShow();
-    this.workbookService.createWorkbook2(this._getCreateWorkbookParams()).then((result:Book) => {
+    this.workbookService.createWorkbook2(this._getCreateWorkbookParams()).then((result: Book) => {
       // this.createComplete.emit({ createDashboardFl: this.createDashboardFl, id: result['id'] });
       this.loadingHide();
       Alert.success(`'${result.name}’ ` + this.translateService.instant('msg.book.alert.create.workbook.success'));
       if (this.isAccessFromExplore) {
-        const params: {id: string, type: 'workbook'} = {
+        const params: { id: string, type: 'workbook' } = {
           type: 'workbook',
           id: this.sourceId,
         };
