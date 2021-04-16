@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Workspace } from '@domain/workspace/workspace';
-import { RoleSet, RoleSetScope } from '@domain/user/role/roleSet';
-import { PermissionService } from '../../../user/service/permission.service';
-import { Role } from '@domain/user/role/role';
-import { WorkspaceService } from '../../service/workspace.service';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { EventBroadcaster } from '@common/event/event.broadcaster';
-import { PermissionSchemaSetComponent } from './permission-schema-set.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Workspace} from '@domain/workspace/workspace';
+import {RoleSet, RoleSetScope} from '@domain/user/role/roleSet';
+import {PermissionService} from '../../../user/service/permission.service';
+import {Role} from '@domain/user/role/role';
+import {WorkspaceService} from '../../service/workspace.service';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {PermissionSchemaSetComponent} from './permission-schema-set.component';
 import * as _ from 'lodash';
-import { Alert } from '@common/util/alert.util';
-import { CommonUtil } from '@common/util/common.util';
-import { SYSTEM_PERMISSION } from '@common/permission/permission';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
 
 @Component({
   selector: 'app-permission-schema-change',
@@ -59,7 +59,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
   public selectedRoleSetInfo: RoleSet;      // RoleSet 선택 정보
   public selectedRoleSetDetail: RoleSet;    // 선택된 RoleSet 상세 정보
 
-  public isPermSchemaEditMode:boolean = false;  // 퍼미션 스키마 수정 가능 여부
+  public isPermSchemaEditMode: boolean = false;  // 퍼미션 스키마 수정 가능 여부
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -140,7 +140,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
    * @return {string}
    */
   public getRoleSetName(roleSet: RoleSet) {
-    return ( RoleSetScope.PRIVATE === roleSet.scope ) ? this.translateService.instant('msg.permission.ui.custom-schema') : roleSet.name;
+    return (RoleSetScope.PRIVATE === roleSet.scope) ? this.translateService.instant('msg.permission.ui.custom-schema') : roleSet.name;
   } // function - getRoleSetName
 
   /**

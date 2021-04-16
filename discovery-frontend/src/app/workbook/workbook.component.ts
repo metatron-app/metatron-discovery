@@ -12,15 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
@@ -35,7 +27,6 @@ import {Modal} from '@common/domain/modal';
 import {Alert} from '@common/util/alert.util';
 import {UserProfile} from '@domain/user/user-profile';
 import {BoardDataSource, Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
-import {DragDropConfig, DragDropService, DragDropSortableService, SortableContainer} from 'ng2-dnd';
 import {DashboardService} from '../dashboard/service/dashboard.service';
 import {Comment, Comments} from '@domain/comment/comment';
 import {CookieConstant} from '@common/constant/cookie.constant';
@@ -59,7 +50,7 @@ declare let $;
 @Component({
   selector: 'app-workbook',
   templateUrl: './workbook.component.html',
-  providers: [DragDropService, DragDropConfig, SortableContainer, DragDropSortableService, MomentPipe, MomentDatePipe]
+  providers: [MomentPipe, MomentDatePipe]
 })
 export class WorkbookComponent extends AbstractComponent implements OnInit, OnDestroy {
 

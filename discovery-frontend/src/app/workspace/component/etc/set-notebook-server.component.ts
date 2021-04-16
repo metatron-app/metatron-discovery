@@ -12,16 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Output,
-  Renderer2
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {NotebookServerService} from '../../../model-management/notebook-server/service/notebook-server.service';
 import {Page, PageResult} from '@domain/common/page';
@@ -273,14 +264,14 @@ export class SetNotebookServerComponent extends AbstractComponent implements OnI
 
     const page = server === 'jupyter' ? this.jupyter.page : this.zeppelin.page;
     page.sort = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
-    let pageResult = server === 'jupyter' ? this.jupyter.pageResult : this.zeppelin.pageResult;
+    // let pageResult = server === 'jupyter' ? this.jupyter.pageResult : this.zeppelin.pageResult;
     const searchText = server === 'jupyter' ? this.searchJupyter : this.searchZeppelin;
 
     this.notebookServerService.getNotebookServerTypeList(searchText, server, page, 'default')
       .then((servers) => {
 
         // 페이지 객체 저장
-        pageResult = servers['page'];
+        // pageResult = servers['page'];
 
         // 페이지가 첫 번째이면
         if (page.page === 0) {
