@@ -13,16 +13,7 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Field, Field as AbstractField} from '../../domain/workbook/configurations/field/field';
 import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
@@ -55,7 +46,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
   // Widget 데이터의 필터 목록 (필드명만 정제)
   @Input('filterFiledList')
-  public filterFiledList: String[] = [];
+  public filterFiledList: string[] = [];
 
   @Input('widget')
   public widget: PageWidget;
@@ -174,11 +165,11 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
     // 중복체크
     let duppIndex: number = _.findIndex(list, (item) => {
-      return item.pivotAlias == this.editingFieldAlias || item.fieldAlias == this.editingFieldAlias;
+      return item.pivotAlias === this.editingFieldAlias || item.fieldAlias === this.editingFieldAlias;
     });
-    if (duppIndex == -1) {
+    if (duppIndex === -1) {
       this.widget.dashBoard.configuration['fields'].forEach((field, index) => {
-        if (field.nameAlias && field.nameAlias['nameAlias'] == this.editingFieldAlias) {
+        if (field.nameAlias && field.nameAlias['nameAlias'] === this.editingFieldAlias) {
           duppIndex = index;
           return false;
         }
@@ -192,13 +183,13 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
 
     // 값이 없다면 Reset 처리
-    if (this.editingFieldAlias.trim() == '') {
+    if (this.editingFieldAlias.trim() === '') {
       this.onAliasReset(null);
       return;
     }
 
     // 값 적용
-    this.editingFieldAlias = this.editingFieldAlias == this.editingField.name ? this.editingFieldAlias + ' ' : this.editingFieldAlias;
+    this.editingFieldAlias = this.editingFieldAlias === this.editingField.name ? this.editingFieldAlias + ' ' : this.editingFieldAlias;
     this.editingField.alias = this.editingFieldAlias;
     this.editingField.pivotAlias = this.editingFieldAlias;
     this.fix2DepthContext = false;
@@ -241,7 +232,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   }
 
   // editFilter AlignName
-  protected getAlignName() {
+  public getAlignName() {
     if (this.editingField.direction === DIRECTION.ASC) {
       return 'Ascending';
     } else if (this.editingField.direction === DIRECTION.DESC) {
@@ -250,7 +241,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     return 'In order of data';
   }
 
-  protected onChangeOrder(direction: string) {
+  public onChangeOrder(direction: string) {
 
     this.editingField.direction = DIRECTION[direction];
 
@@ -266,7 +257,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     this.changePivotContext.emit({type: 'changePivot'});
   }
 
-  protected hasAlign(direction: string) {
+  public hasAlign(direction: string) {
     if (direction === 'NONE' && !this.editingField.hasOwnProperty('direction')) {
       return true;
     }
@@ -278,7 +269,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * @param aggregationTypeId aggregationType 아이디 (SUM/AVG/COUNT/MIN/MAX/PERCENTILE)
    * @param aggTypeOption PERCENTILE처럼 3depth의 선택값
    */
-  protected onChangeAggregationType(aggregationTypeId: string, aggTypeOption: number) {
+  public onChangeAggregationType(aggregationTypeId: string, aggTypeOption: number) {
 
     // 이벤트 버블링 stop
     event.stopPropagation();
@@ -328,7 +319,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    */
   public onChangeFormat(formatType: string): void {
 
-    if (formatType != '') {
+    if (formatType !== '') {
       // Dispatch Event
       const field: AbstractField = _.cloneDeep(this.editingField);
       if (!field.format) {
@@ -355,7 +346,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   }
 
   // 시리즈로 표현가능 여부
-  protected isPossibleSeries() {
+  public isPossibleSeries() {
 
     // 보조축이 가능한 차트인지 체크
     if (!_.eq(this.chartType, ChartType.BAR)
@@ -370,7 +361,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
 
     // 첫번째 아이템이 아닌지 체크
-    if (this.pivot.aggregations[0] == this.editingField) {
+    if (this.pivot.aggregations[0] === this.editingField) {
       return false;
     }
 
@@ -398,16 +389,16 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * @param byUnitShowFl byUnit show/hide 설정
    * @returns {string}
    */
-  protected getGranularityName(field: AbstractField, byUnitShowFl?: boolean) {
+  public getGranularityName(field: AbstractField, byUnitShowFl?: boolean) {
     // byUnit이 있는경우 3depth에 대한 명칭도 보여줌
     return field.format && field.format.unit ? field.format.byUnit && byUnitShowFl ? field.format.unit.toString() + ' BY ' + field.format.byUnit.toString() : field.format.unit.toString() : '';
   }
 
-  protected onChangeGranularity(discontinuous: boolean, unit: string, byUnit?: string) {
+  public onChangeGranularity(discontinuous: boolean, unit: string, byUnit?: string) {
 
     // 같은 granularity를 선택시 return
-    if (this.editingField.format.discontinuous == discontinuous && this.editingField.format.unit == TimeUnit[unit] &&
-      this.editingField.format.byUnit == ByTimeUnit[byUnit]) {
+    if (this.editingField.format.discontinuous === discontinuous && this.editingField.format.unit === TimeUnit[unit] &&
+      this.editingField.format.byUnit === ByTimeUnit[byUnit]) {
       return;
     }
 
@@ -441,17 +432,17 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     return this.useGranularity(discontinuous, unit, this.editingField.granularity, byUnit);
   }
 
-  protected isGranularitySelected(field: AbstractField, discontinuous: boolean, unit: string, byUnit?: string) {
+  public isGranularitySelected(field: AbstractField, discontinuous: boolean, unit: string, byUnit?: string) {
 
     if (_.isUndefined(field.format)) {
       return false;
     }
 
     if (!discontinuous) {
-      return (!field.format.discontinuous && field.format.unit == TimeUnit[unit]);
+      return (!field.format.discontinuous && field.format.unit === TimeUnit[unit]);
     } else {
-      return (field.format.discontinuous && field.format.unit == TimeUnit[unit])
-        && (!byUnit || (byUnit && field.format.byUnit == ByTimeUnit[byUnit]));
+      return (field.format.discontinuous && field.format.unit === TimeUnit[unit])
+        && (!byUnit || (byUnit && field.format.byUnit === ByTimeUnit[byUnit]));
     }
   }
 
@@ -469,7 +460,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   /**
    * 보조축으로 사용중인 필드여부
    */
-  protected isSecondaryAxis(): boolean {
+  public isSecondaryAxis(): boolean {
 
     // X, Y축만 있다면 사용중이 아님
     if (this.uiOption.secondaryAxis) {
@@ -477,13 +468,13 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
 
     // 현재필드의 보조축인지 체크
-    return this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias;
+    return this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name === this.editingField.alias;
   }
 
   /**
    * when click outside of context menu
    *
-   * @param event - 마우스 이벤트
+   * @param _event - 마우스 이벤트
    */
   public clickOutside(_event: MouseEvent) {
     this.editingField = null;
@@ -512,7 +503,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     let returnValue: boolean = false;
 
     // type is measure, custom field aggregated is false => show
-    if (this.editingField.type == 'measure' && !this.editingField.aggregated) {
+    if (this.editingField.type === 'measure' && !this.editingField.aggregated) {
 
       // map chart => point, heatmap
       if (ChartType.MAP === this.uiOption.type) {
@@ -536,17 +527,17 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
   /**
    * 사용 가능한 Granularity인지 여부
-   * @param discontinuous
+   * @param _discontinuous
    * @param unit
    * @param granularity
-   * @param byUnit
+   * @param _byUnit
    */
-  private useGranularity(_discontinuous: boolean, unit: string, granularity: GranularityType, byUnit?: string): boolean {
+  private useGranularity(_discontinuous: boolean, unit: string, granularity: GranularityType, _byUnit?: string): boolean {
 
     // granularity 가중치 반환 (SECOND => YEAR로 갈수록 점수가 높아짐)
-    const getGranularityScore = (granularity: string): number => {
+    const getGranularityScore = (granularityType: string): number => {
       let score: number = 0;
-      switch (granularity) {
+      switch (granularityType) {
         // 초단위 제거 요청으로 주석처리
         case String(GranularityType.SECOND):
           score = 1;
@@ -601,7 +592,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     } else {
 
       // value가 있는경우
-      if (this.editingField.options.indexOf(key) != -1) {
+      if (this.editingField.options.indexOf(key) !== -1) {
 
         const optionsList = this.editingField.options.split(',');
 
@@ -610,7 +601,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
           const option = optionsList[num];
 
           // 해당 key가 있는경우
-          if (option.indexOf(key) != -1) {
+          if (option.indexOf(key) !== -1) {
             optionsList[num] = num !== 0 ? key + optionData : key + optionData;
           }
         }

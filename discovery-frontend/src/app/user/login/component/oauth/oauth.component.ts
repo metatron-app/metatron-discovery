@@ -63,7 +63,8 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
   public loginFailMsg: string = '';
 
-  public queryString; string;
+  public queryString;
+  string;
   public oauthClientInformation: OauthClientInformation;
   public clientId: string;
 
@@ -77,7 +78,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
               private permissionService: PermissionService,
               private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
-              protected  injector: Injector) {
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -125,7 +126,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loadingShow();
 
-    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+    (this.user.username) && (this.user.username = this.user.username.trim());
 
     this.userService.checkUserIp(this.user, this.oauthClientInformation.basicHeader).then((host) => {
       if (host === true) {
@@ -133,7 +134,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
       } else {
         this.loadingHide();
         const modal = new Modal();
-        modal.name = this.translateService.instant( 'msg.login.access.title' );
+        modal.name = this.translateService.instant('msg.login.access.title');
         modal.description = this.translateService.instant('msg.sso.ui.confirm.userip', {value: host});
         modal.data = this.user;
         // confirm modal
@@ -157,7 +158,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loadingShow();
 
-    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+    (this.user.username) && (this.user.username = this.user.username.trim());
 
     this.loginFailMsg = '';
 
@@ -249,7 +250,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
     }
     modal.description = this.translateService.instant('msg.login.access.description')
       + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
-    if (lastLoginIp != undefined) {
+    if (lastLoginIp !== undefined) {
       modal.description = modal.description + ' (' + lastLoginIp + ')';
     }
     modal.data = forwardUrl;
@@ -261,13 +262,13 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 }
 
 interface OauthClientInformation {
-  clientName:string
-  basicHeader:string
-  faviconPath:string
-  backgroundFilePath:string
-  logoFilePath:string
-  logoDesc:string
-  smallLogoFilePath:string
-  smallLogoDesc:string
-  copyrightHtml:string
+  clientName: string
+  basicHeader: string
+  faviconPath: string
+  backgroundFilePath: string
+  logoFilePath: string
+  logoDesc: string
+  smallLogoFilePath: string
+  smallLogoDesc: string
+  copyrightHtml: string
 }

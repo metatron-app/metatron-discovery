@@ -20,7 +20,7 @@ import {ChartModule} from '@common/chart.module';
 import {WidgetService} from '../dashboard/service/widget.service';
 import {ImageService} from '@common/service/image.service';
 import {DashboardShareModule} from '../dashboard/dashboard-share.module';
-import {PageFilterPanel} from './filter/filter-panel.component';
+import {PageFilterPanelComponent} from './filter/filter-panel.component';
 import {DashboardService} from '../dashboard/service/dashboard.service';
 import {DragulaModule} from '../../lib/ng2-dragula';
 import {PageDataContextComponent} from './page-data/page-data-context.component';
@@ -37,7 +37,6 @@ import {TooltipOptionComponent} from './chart-style/tooltip-option.component';
 import {XAxisOptionComponent} from './chart-style/xaxis-option.component';
 import {YAxisOptionComponent} from './chart-style/yaxis-option.component';
 import {ColorOptionComponent} from './chart-style/color-option.component';
-import {SplitOptionComponent} from './chart-style/split-option.component';
 import {AxisValueOptionComponent} from './chart-style/axis-value-option.component';
 import {AxisCategoryOptionComponent} from './chart-style/axis-category-option.component';
 import {CalculatedRowOptionComponent} from './chart-style/calc-option.component';
@@ -67,7 +66,7 @@ import {PagePivotFormatComponent} from './page-pivot/page-pivot-format.component
     PageComponent,
     PagePivotComponent,
     FormatItemComponent,
-    PageFilterPanel,
+    PageFilterPanelComponent,
     PageDataContextComponent,
     PopupValueAliasComponent,
     CommonOptionComponent,
@@ -82,7 +81,6 @@ import {PagePivotFormatComponent} from './page-pivot/page-pivot-format.component
     SecondaryIndicatorComponent,
     FormatOptionComponent,
     ColorOptionComponent,
-    SplitOptionComponent,
     CalculatedRowOptionComponent,
     CalculatedOptionSliderComponent,
     MapPagePivotComponent,
@@ -98,7 +96,7 @@ import {PagePivotFormatComponent} from './page-pivot/page-pivot-format.component
     PageComponent,
     PagePivotComponent,
     FormatItemComponent,
-    PageFilterPanel,
+    PageFilterPanelComponent,
     PageDataContextComponent,
     PopupValueAliasComponent,
     CommonOptionComponent,
@@ -113,7 +111,6 @@ import {PagePivotFormatComponent} from './page-pivot/page-pivot-format.component
     SecondaryIndicatorComponent,
     FormatOptionComponent,
     ColorOptionComponent,
-    SplitOptionComponent,
     CalculatedRowOptionComponent,
     CalculatedOptionSliderComponent,
     MapPagePivotComponent,

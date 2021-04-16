@@ -31,7 +31,6 @@ import * as _ from 'lodash';
 
 declare let moment: any;
 
-
 @Component({
   selector: 'app-job-log',
   templateUrl: './job-log.component.html',
@@ -77,12 +76,12 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   // 팝업 모드
   public mode: string;
 
-  public selectedElapsedTime : any;
+  public selectedElapsedTime: any;
 
   public CommonUtil = CommonUtil;
 
   @ViewChild('elapsedTime')
-  public elapsedTime : ElementRef;
+  public elapsedTime: ElementRef;
 
   public logTypeDefaultIndex: number = 0;
 
@@ -337,9 +336,9 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    * On click of elapsed time
    * @param time
    */
-  public onClickElapsedTime(time?: string|number) {
+  public onClickElapsedTime(time?: string | number) {
 
-    if(time) {
+    if (time) {
 
       this.elapsedTime.nativeElement.value = '';
       this.selectedElapsedTime = time;
@@ -367,7 +366,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
     if (this.searchText) {
       params = {
-        searchKeyword : this.searchText
+        searchKeyword: this.searchText
       }
     }
     // status
@@ -431,19 +430,19 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   private initView() {
 
     this.types = [
-      { label: 'All', value: 'all' },
-      { label: 'Workbench Query', value: 'QUERY' },
-      { label : 'Workbench Others', value : 'JOB'}
+      {label: 'All', value: 'all'},
+      {label: 'Workbench Query', value: 'QUERY'},
+      {label: 'Workbench Others', value: 'JOB'}
 
     ];
     this.selectedType = this.types[0];
 
     this.statusTypes = [
-      { label: 'All', value: 'all' },
-      { label: 'Success', value: 'SUCCESS' },
-      { label: 'Running', value: 'RUNNING' },
-      { label: 'Cancelled', value: 'CANCELLED' },
-      { label: 'Fail', value: 'FAIL' }
+      {label: 'All', value: 'all'},
+      {label: 'Success', value: 'SUCCESS'},
+      {label: 'Running', value: 'RUNNING'},
+      {label: 'Cancelled', value: 'CANCELLED'},
+      {label: 'Fail', value: 'FAIL'}
     ];
     this.selectedStatus = this.statusTypes[0];
     this.selectedElapsedTime = 'ALL';
@@ -454,11 +453,11 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    * audit list request params
    * @returns {page: number; size: number}
    */
-  private getAuditRequestParams() : any{
+  private getAuditRequestParams(): any {
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
     // 이름
     if (this.searchText !== '') {
@@ -474,7 +473,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     }
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
-      params['dateType']= this.selectedDate.type;
+      params['dateType'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
@@ -523,7 +522,6 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
         this.loadingHide();
       });
   }
-
 
 
 }

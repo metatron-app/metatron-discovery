@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import {Injectable, Injector, OnInit} from '@angular/core';
+import * as _ from 'lodash';
+import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '@common/service/abstract.service';
 import {Analysis} from '../../value/analysis';
 import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
-import * as _ from 'lodash';
 import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {UIOption} from '@common/component/chart/option/ui-option';
 import {CommonUtil} from '@common/util/common.util';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
 
 @Injectable()
-export class AnalysisPredictionService extends AbstractService implements OnInit {
+export class AnalysisPredictionService extends AbstractService {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -31,6 +31,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
 
   constructor(protected injector: Injector) {
     super(injector);
+    AnalysisPredictionService.predictionLineTypeAdditional.concat(`${this.predictionLineTypeSuffix}`);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -56,10 +57,6 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public ngOnInit(): void {
-    AnalysisPredictionService.predictionLineTypeAdditional.concat(`${this.predictionLineTypeSuffix}`);
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -74,8 +71,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
    * @param {PageWidgetConfiguration} widgetConfiguration
    * @param {PageWidget} widget
    * @param {LineChartComponent} chart
-   * @param {{data: any; config: SearchQueryRequest; uiOption: UIOption}} resultData
-   * @param {BaseChart} baseChart
+   * @param resultData
    */
   public getAnalysisPredictionLineFromPage(widgetConfiguration: PageWidgetConfiguration,
                                            widget: PageWidget,
@@ -108,8 +104,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
    * @param {PageWidgetConfiguration} widgetConfiguration
    * @param {PageWidget} widget
    * @param {LineChartComponent} chart
-   * @param {{data: any; config: SearchQueryRequest; uiOption: UIOption}} resultData
-   * @param {BaseChart} baseChart
+   * @param _resultData
    */
   public changeAnalysisPredictionLine(widgetConfiguration: PageWidgetConfiguration,
                                       widget: PageWidget,
@@ -145,16 +140,16 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
    * @param {PageWidgetConfiguration} widgetConfiguration
    * @param {PageWidget} widget
    * @param {LineChartComponent} chart
-   * @param {{data: any; config: SearchQueryRequest; uiOption: UIOption}} resultData
+   * @param resultData
    * @param filters
    */
   public getAnalysisPredictionLineFromDashBoard(widgetConfiguration: PageWidgetConfiguration,
                                                 widget: PageWidget,
                                                 chart: any,
                                                 resultData: { data: any; config: SearchQueryRequest; uiOption: UIOption },
-                                                filters?:Filter[] ): Promise<any> {
+                                                filters?: Filter[]): Promise<any> {
 
-    const analysisParam:Analysis = this.createGetAnalysisParameter(widgetConfiguration, widget);
+    const analysisParam: Analysis = this.createGetAnalysisParameter(widgetConfiguration, widget);
     analysisParam.filters = filters;
     return this.getAnalysis(analysisParam)
       .then((result) => {
@@ -209,7 +204,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
     // 고급분석 API 호출시 필요한 부가 정보들
     const param: Analysis = new Analysis();
     param.dataSource = _.cloneDeep(widgetConf.dataSource);
-    param.dataSource.name = (param.dataSource.engineName && param.dataSource.name != param.dataSource.engineName)?param.dataSource.engineName:param.dataSource.name;
+    param.dataSource.name = (param.dataSource.engineName && param.dataSource.name !== param.dataSource.engineName) ? param.dataSource.engineName : param.dataSource.name;
     param.limits = _.cloneDeep(widgetConf.limit);
     param.resultFormat = {type: 'chart', mode: 'line', columnDelimeter: '―'};
     param.pivot = _.cloneDeep(widgetConf.pivot);
@@ -319,7 +314,6 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
    *
    * @param targetSeries
    * @param lower
-   * @returns {{lowerSeries: any; lowerSeriesData: any}}
    */
   private createLowerSeries(targetSeries: any, lower: any) {
     // Lower 시리즈 라인

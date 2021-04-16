@@ -17,24 +17,26 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
-  Output, SimpleChange, SimpleChanges
+  Output,
+  SimpleChange,
+  SimpleChanges
 } from '@angular/core';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { Filter } from '@domain/workbook/configurations/filter/filter';
-import { Dashboard } from '@domain/dashboard/dashboard';
-import { Field } from '@domain/datasource/datasource';
-import { InclusionFilter } from '@domain/workbook/configurations/filter/inclusion-filter';
-import { DatasourceService } from '../../datasource/service/datasource.service';
-import { FilterUtil } from '../../dashboard/util/filter.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {Field} from '@domain/datasource/datasource';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {DatasourceService} from '../../datasource/service/datasource.service';
+import {FilterUtil} from '../../dashboard/util/filter.util';
 
 @Component({
   selector: 'page-filter-panel',
   templateUrl: './filter-panel.component.html'
 })
-export class PageFilterPanel extends AbstractComponent implements OnInit, OnDestroy {
+export class PageFilterPanelComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -155,7 +157,7 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param index
+   * @param _index
    * @param {Filter} filter
    * @return {string}
    */

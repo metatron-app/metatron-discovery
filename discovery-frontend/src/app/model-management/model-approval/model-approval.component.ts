@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PopupService } from '@common/service/popup.service';
-import { SubscribeArg } from '@common/domain/subscribe-arg';
-import { ModelApprovalService } from './service/model-approval.service';
-import { Alert } from '@common/util/alert.util';
-import { NotebookModel } from '@domain/model-management/notebookModel';
-import { Modal } from '@common/domain/modal';
-import { DeleteModalComponent } from 'app/common/component/modal/delete/delete.component';
-import { StringUtil } from '@common/util/string.util';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { isUndefined } from 'util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {PopupService} from '@common/service/popup.service';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {ModelApprovalService} from './service/model-approval.service';
+import {Alert} from '@common/util/alert.util';
+import {NotebookModel} from '@domain/model-management/notebookModel';
+import {Modal} from '@common/domain/modal';
+import {DeleteModalComponent} from 'app/common/component/modal/delete/delete.component';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {isUndefined} from 'util';
 
 @Component({
   selector: 'app-model-approval',
@@ -43,7 +43,7 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
   protected datePeriod: any;
 
   // 선택 된 모델 한개
-  protected selectedModelId: string = '';
+  public selectedModelId: string = '';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -130,8 +130,8 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
 
     const params = {};
 
-    let startDateParam: string = '';
-    let endDateParam: string = '';
+    let startDateParam: string;
+    let endDateParam: string;
     if (isUndefined(this.datePeriod) || this.datePeriod.type === 'ALL') {
       startDateParam = '';
       endDateParam = '';
@@ -208,9 +208,9 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
         }
 
       }).catch((error) => {
-        this.loadingHide();
-        Alert.error(error.message.toString());
-      });
+      this.loadingHide();
+      Alert.error(error.message.toString());
+    });
   }
 
 
@@ -257,7 +257,7 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
   }
 
   // 하나씩 선택
-  protected check(item) {
+  public check(item) {
     item.selected = !item.selected;
     this.isCheckAll = this.resultData.every((obj) => {
       return obj.selected;
@@ -306,7 +306,7 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
     const checkList = this.resultData.filter(obj => obj.selected);
 
     this.selectedModelId = '';
-    for (let i = 0; i < checkList.length; i = i + 1) {
+    for (let i = 0, nMax = checkList.length; i < nMax; i = i + 1) {
       const temp: any = checkList[i];
       if (temp.selected === true) {
         this.selectedModelId = this.selectedModelId + temp.id + ',';
@@ -329,7 +329,7 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
 
         this.page.page = 0;
         this.getModelApprovalList(true);
-      }).catch((error) => {
+      }).catch(() => {
         Alert.error('삭제에 실패했습니다.');
         this.loadingHide();
       });
@@ -341,7 +341,7 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
         this.loadingHide();
         Alert.success('삭제되었습니다.');
         this.getModelApprovalList(true);
-      }).catch((error) => {
+      }).catch(() => {
         this.loadingHide();
         Alert.error('삭제에 실패했습니다.');
       });
@@ -356,12 +356,8 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
     return !this.resultData.find(obj => obj.selected);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // 삭제 확인 창
-  protected confirmDelete(event, id) {
+  public confirmDelete(event, id) {
     console.log('confirm delete');
     event.stopPropagation();
 
@@ -371,10 +367,7 @@ export class ModelApprovalComponent extends AbstractComponent implements OnInit,
 
     this.selectedModelId = id;
     this.deleteModalComponent.init(modal);
-
   }
-
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

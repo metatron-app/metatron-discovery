@@ -12,11 +12,10 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '@common/service/abstract.service';
-import { Page } from '@domain/common/page';
-import { CommonUtil } from '@common/util/common.util';
-import { NoteBook } from '@domain/notebook/notebook';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
+import {Page} from '@domain/common/page';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class ModelApprovalService extends AbstractService {
@@ -27,8 +26,8 @@ export class ModelApprovalService extends AbstractService {
 
 
   // Model List를 불러온다
-  public searchModels(params:any, page: Page): Promise<any> {
-  // public searchModels(name: string, user: string, begindate: any, enddate: any, status: string, subscribe: string, page: Page): Promise<any> {
+  public searchModels(params: any, page: Page): Promise<any> {
+    // public searchModels(name: string, user: string, begindate: any, enddate: any, status: string, subscribe: string, page: Page): Promise<any> {
     let url = this.API_URL + `nbmodels/search?projection=forListView`;
 
     url += '&' + CommonUtil.objectToUrlString(params);
@@ -43,19 +42,19 @@ export class ModelApprovalService extends AbstractService {
   }
 
   // Model 한개 detail
-  public getModelApprovalDetail(modelId: string, projection: string = 'forDetailView') {
+  public getModelApprovalDetail(modelId: string, _projection: string = 'forDetailView') {
     return this.get(this.API_URL + `nbmodels/${modelId}`);
   }
 
   /**
    * 상세 조회
    * @param {string} id
-   * @param {Page} page
+   * @param {Page} _page
    * @param {string} projection
-   * @param {Object} options
+   * @param {Object} _options
    * @returns {Promise<any>}
    */
-  public getModelDetail(id: string, page: Page, projection: string = 'forDetailView', options?: object): Promise<any> {
+  public getModelDetail(id: string, _page: Page, projection: string = 'forDetailView', _options?: object): Promise<any> {
     const url = this.API_URL + `nbmodels/` + id + `&projection=${projection}`;
     return this.get(url);
   }
@@ -79,7 +78,7 @@ export class ModelApprovalService extends AbstractService {
   }
 
   // 테스트 코드 이력 가져오기
-  public getRunTestHistory(id:string, projection: string = 'forHistoryListView') {
+  public getRunTestHistory(id: string, projection: string = 'forHistoryListView') {
     return this.get(this.API_URL + `nbmodels/${id}?projection=${projection}`);
   }
 }

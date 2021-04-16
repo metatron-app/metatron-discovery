@@ -18,10 +18,10 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnDestroy,
+  OnInit,
   Output,
-  QueryList,
-  ViewChild,
-  ViewChildren
+  ViewChild
 } from '@angular/core';
 import {UIChartColorByValue, UIOption} from '../../common/component/chart/option/ui-option';
 import {Pivot} from '@domain/workbook/configurations/pivot';
@@ -42,7 +42,8 @@ import {
   LineMode,
   LineStyle,
   PieSeriesViewType,
-  PointShape, ShelveFieldType,
+  PointShape,
+  ShelveFieldType,
   SymbolType,
   UIChartDataLabelDisplayType,
   UIFontStyle,
@@ -66,10 +67,7 @@ import {
   UILabelIcon,
   UILabelSecondaryIndicator
 } from '@common/component/chart/option/ui-option/ui-label-chart';
-import {
-  UIChartColorByCell,
-  UIChartColorGradationByValue
-} from '@common/component/chart/option/ui-option/ui-color';
+import {UIChartColorByCell, UIChartColorGradationByValue} from '@common/component/chart/option/ui-option/ui-color';
 import {UIChartDataLabel} from '@common/component/chart/option/ui-option/ui-datalabel';
 import {ColorPickerComponent} from '@common/component/color-picker/color.picker.component';
 import {ColorPicker} from '@common/component/color-picker/colorpicker';
@@ -82,7 +80,7 @@ import {ChartUtil} from '@common/component/chart/option/util/chart-util';
   selector: 'common-option',
   templateUrl: './common-option.component.html'
 })
-export class CommonOptionComponent extends BaseOptionComponent {
+export class CommonOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
 
   // 차트정보
   @Input('uiOption')
@@ -92,8 +90,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
 
     // limit값이 체크되고 size값이 없는경우 기본값 설정
-    this._setLimit( uiOption.limit );
-    this.limitPlaceHolder = OptionGenerator.defaultLimit( this.uiOption.type );
+    this._setLimit(uiOption.limit);
+    this.limitPlaceHolder = OptionGenerator.defaultLimit(this.uiOption.type);
 
     // Pivot 설정
     if (_.isUndefined(this.pivot)) {
@@ -103,7 +101,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // 폰트크기 기본설정
     if (!this.uiOption.fontSize) this.uiOption.fontSize = FontSize.NORMAL;
 
-    if (ChartType.GRID == this.uiOption.type) {
+    if (ChartType.GRID === this.uiOption.type) {
       // gridChart의 기본 colorTarget 설정
       if (!(uiOption.color as UIChartColorByCell).colorTarget) (uiOption.color as UIChartColorByCell).colorTarget = CellColorTarget.TEXT;
 
@@ -136,7 +134,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // Set
     this.pivot = pivot;
 
-    if (ChartType.GRID == this.uiOption.type) {
+    if (ChartType.GRID === this.uiOption.type) {
       // 교차선반에서 aggregated값 찾기
       this.isNoOriginData = false;
       for (const item of this.pivot.aggregations) {
@@ -147,7 +145,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
       }
 
       // isNoOriginData가 true일때 원본보기상태이면 피봇상태로 재설정
-      if (this.isNoOriginData && GridViewType.MASTER == this.uiOption['dataType']) {
+      if (this.isNoOriginData && GridViewType.MASTER === this.uiOption['dataType']) {
         const dataType = GridViewType.PIVOT;
         this.uiOption = (_.extend({}, this.uiOption, {dataType}) as UIOption);
         this.isNoOriginData = false;
@@ -156,7 +154,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     }
 
     // KPI 차트 옵션추가
-    if (this.uiOption.type == ChartType.LABEL) {
+    if (this.uiOption.type === ChartType.LABEL) {
 
       const option: UILabelChart = this.uiOption as UILabelChart;
 
@@ -174,12 +172,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
         const setFieldName = ((item, shelveFieldType?: ShelveFieldType): string => {
           // shelveFieldType이 있는경우 해당타입일때만 데이터 리턴
           if (!shelveFieldType || (shelveFieldType && item.type === shelveFieldType)) {
-            let fieldName = !_.isEmpty(item.alias) ? item.alias : item.name;
+            let fieldName: string;
             if (item['alias'] && item['alias'] !== item.name) {
               fieldName = item['alias'];
             } else {
               // aggregation type과 함께 alias 설정
-              const alias: string = item['fieldAlias'] ? item['fieldAlias'] : ( item['logicalName'] ? item['logicalName'] : item['name'] );
+              const alias: string = item['fieldAlias'] ? item['fieldAlias'] : (item['logicalName'] ? item['logicalName'] : item['name']);
               fieldName = item.aggregationType ? item.aggregationType + `(${alias})` : `${alias}`;
             }
             return fieldName;
@@ -188,7 +186,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
         const aggs = this.pivot.aggregations.map((aggregation) => {
           return setFieldName(aggregation, ShelveFieldType.MEASURE);
-        }).filter((item)=> {return typeof item !== 'undefined'});
+        }).filter((item) => {
+          return typeof item !== 'undefined'
+        });
 
         for (let num: number = 0; num < this.pivot.aggregations.length; num++) {
 
@@ -198,15 +198,15 @@ export class CommonOptionComponent extends BaseOptionComponent {
           const field: any = this.pivot.aggregations[num];
           let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
           const displayName: any = aggs[num];
-          if( field.aggregationType && field.aggregationType !=  '' ) {
-            alias = field.aggregationType +'('+ alias +')';
+          if (field.aggregationType && field.aggregationType !== '') {
+            alias = field.aggregationType + '(' + alias + ')';
           }
 
           /////////////////////
           // Pivot이 추가되었을때 처리
           /////////////////////
 
-          // if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
+          // if( option.series.length <= num || option.series.length !== this.pivot.aggregations.length ) {
           if (option.series.length <= num) {
             if (num > 0) {
               option.series[num] = {
@@ -236,8 +236,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
                 emphasized: option.secondaryIndicators[0].emphasized
 
               };
-            }
-            else {
+            } else {
               option.series[num] = {};
               option.icons[num] = {};
               option.annotations[num] = {};
@@ -325,12 +324,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
           // this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
           this.iconTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
         }
-        if( isTextAll ) {
-          if( option.annotations && 0 < option.annotations.length && option.annotations[0].show ) {
+        if (isTextAll) {
+          if (option.annotations && 0 < option.annotations.length && option.annotations[0].show) {
             this.kpiText = option.annotations[0].description;
-          }
-          else {
-            this.kpiText =  '';
+          } else {
+            this.kpiText = '';
           }
           this.kpiTextTemp = this.kpiText;
         } else {
@@ -338,16 +336,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
           this.textTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
 
           if (option.annotations[0].show) {
-            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description :  '';
-          }
-          else {
-            this.kpiText =  '';
+            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description : '';
+          } else {
+            this.kpiText = '';
           }
           this.kpiTextTemp = this.kpiText;
         }
       }
     }
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -368,12 +366,6 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
   @ViewChild('textTargetListComp')
   private textTargetListComp: SelectComponent;
-
-  @ViewChildren('iconType')
-  private iconTypeComp: QueryList<SelectComponent>;
-
-  @ViewChild('direction')
-  private directionComp: SelectComponent;
 
   // @ViewChild('period')
   // private periodComp: SelectComponent;
@@ -418,10 +410,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public pivot: Pivot;
   public pivotTemp: Pivot;
 
-  public limitPlaceHolder:number;
+  public limitPlaceHolder: number;
 
   // KPI: 아이콘 목록
-  public kpiIconList: Object[] = [
+  public kpiIconList: object[] = [
     {name: this.translateService.instant('msg.page.li.icon.user'), value: 'USER'},
     {name: this.translateService.instant('msg.page.li.icon.visits'), value: 'HITS'},
     {name: this.translateService.instant('msg.page.li.icon.time'), value: 'TIME'},
@@ -429,13 +421,13 @@ export class CommonOptionComponent extends BaseOptionComponent {
   ];
 
   // KPI: 추가 차트 표시 옵션
-  public kpiDirectionList: Object[] = [
+  public kpiDirectionList: object[] = [
     {name: this.translateService.instant('msg.page.li.kpi.horizontal'), value: 'HORIZONTAL'},
     {name: this.translateService.instant('msg.page.li.kpi.vertical'), value: 'VERTICAL'}
   ];
 
   // KPI: 비교기간 목록
-  public kpiPeriodList: Object[] = [
+  public kpiPeriodList: object[] = [
     {name: this.translateService.instant('msg.page.li.previous.year'), value: TimeUnit.YEAR},
     {name: this.translateService.instant('msg.page.li.previous.quarter'), value: TimeUnit.QUARTER},
     {name: this.translateService.instant('msg.page.li.previous.month'), value: TimeUnit.MONTH},
@@ -443,27 +435,39 @@ export class CommonOptionComponent extends BaseOptionComponent {
   ];
 
   // KPI: 아이콘/설명 관련
-  public kpiIconTargetList: Object[] = [
+  public kpiIconTargetList: object[] = [
     {name: this.translateService.instant('msg.comm.ui.list.all'), value: ''}
   ];
-  public kpiIconTarget: Object = this.kpiIconTargetList[0];
-  public kpiTextTarget: Object = this.kpiIconTargetList[0];
-  public kpiText: string =  '';
-  public kpiTextTemp: string =  '';
+  public kpiIconTarget: object = this.kpiIconTargetList[0];
+  public kpiTextTarget: object = this.kpiIconTargetList[0];
+  public kpiText: string = '';
+  public kpiTextTemp: string = '';
 
   // 기본 limit값
   public DEFAULT_LIMIT: number = 1000;
 
   // grid position 리스트
-  public remarkPositionList: Object[] = [
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.top.right'), value: AnnotationPosition.TOP_RIGHT},
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.top.left'), value: AnnotationPosition.TOP_LEFT},
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.right'), value: AnnotationPosition.BOTTOM_RIGHT},
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.left'), value: AnnotationPosition.BOTTOM_LEFT}
+  public remarkPositionList: object[] = [
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.top.right'),
+      value: AnnotationPosition.TOP_RIGHT
+    },
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.top.left'),
+      value: AnnotationPosition.TOP_LEFT
+    },
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.right'),
+      value: AnnotationPosition.BOTTOM_RIGHT
+    },
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.left'),
+      value: AnnotationPosition.BOTTOM_LEFT
+    }
   ];
 
   // grid 가로정렬 리스트
-  public hAlignList: Object[] = [
+  public hAlignList: object[] = [
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.default'), value: UIPosition.AUTO},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.left'), value: UIPosition.LEFT},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.center'), value: UIPosition.CENTER},
@@ -512,7 +516,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
+   | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
@@ -520,7 +524,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    *
    * @param type
    */
-  protected barOrientType(type: UIOrient): void {
+  public barOrientType(type: UIOrient): void {
 
     let align = _.cloneDeep((this.uiOption as UIBarChart).align);
 
@@ -530,26 +534,26 @@ export class CommonOptionComponent extends BaseOptionComponent {
     const dataLabel = this.setDataLabelByOrient();
 
     // 가로형인경우 rotation 사용x
-    if (UIOrient.HORIZONTAL == type) dataLabel.enableRotation = false;
+    if (UIOrient.HORIZONTAL === type) dataLabel.enableRotation = false;
 
     // chartZooms가 1개인경우 현재타입의 반대타입으로 dataZoom 타입 설정
-    if (this.uiOption.chartZooms && this.uiOption.chartZooms.length == 1) {
+    if (this.uiOption.chartZooms && this.uiOption.chartZooms.length === 1) {
       this.uiOption.chartZooms[0].orient = UIOrient.HORIZONTAL === type ? UIOrient.VERTICAL : UIOrient.HORIZONTAL;
     }
 
     align = type;
 
-    const row = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.ROW);
+    const row = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.ROW);
     })[0];
-    const subRow = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.SUBROW);
+    const subRow = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.SUBROW);
     })[0];
-    const column = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.COLUMN);
+    const column = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.COLUMN);
     })[0];
-    const subColumn = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.SUBCOLUMN);
+    const subColumn = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.SUBCOLUMN);
     })[0];
 
     // xAxis
@@ -608,7 +612,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     const yAxisLabel = _.cloneDeep(yAxis.label);
 
     // horizontal인경우
-    if (UIOrient.HORIZONTAL == type) {
+    if (UIOrient.HORIZONTAL === type) {
 
       // x축 value, y축 category 설정
       xAxis.label = yAxisLabel;
@@ -629,7 +633,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     }) as UIOption);
 
     // subAxis
-    if( this.uiOption.secondaryAxis ) {
+    if (this.uiOption.secondaryAxis) {
       axis = _.cloneDeep(this.uiOption.secondaryAxis);
       switch (axis.mode) {
         case AxisLabelType.ROW :
@@ -653,15 +657,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
           axis.customName = subRow.customName;
           break;
       }
-      this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: axis }) as UIOption);
+      this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: axis}) as UIOption);
     }
 
     this.update();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * Bar - 차트 시리즈 표현 타입
@@ -695,7 +695,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public changeBarSeriesViewType(mark: BarMarkType) {
 
     // 같은타입으로 재선택시 return (사용자 색상설정이 초기화되므로)
-    if (this.uiOption['mark'] == mark) {
+    if (this.uiOption['mark'] === mark) {
       return;
     }
 
@@ -719,7 +719,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     });
 
     // 병렬형으로 변경시 데이터라벨, 툴팁의 SERIES관련설정은 제거
-    if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes && BarMarkType.MULTIPLE == mark) {
+    if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes && BarMarkType.MULTIPLE === mark) {
 
       const seriesTypeList = [UIChartDataLabelDisplayType.SERIES_NAME, UIChartDataLabelDisplayType.SERIES_VALUE, UIChartDataLabelDisplayType.SERIES_PERCENT];
 
@@ -846,7 +846,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param hAlign
    * @param headerFl
    */
-  public textAlign(hAlign: Object, headerFl: boolean): void {
+  public textAlign(hAlign: object, headerFl: boolean): void {
 
     // 헤더일때
     if (headerFl) {
@@ -907,7 +907,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     const ranges = (this.uiOption.color as UIChartColorByValue).ranges;
 
     // 피봇, 원본 타입이 변경되지 않은경우
-    if (gridType == dataType) return;
+    if (gridType === dataType) return;
 
     // 사용자 색상설정되고, 피봇 - 원본이 변경된경우
     if (ranges && ranges.length > 0 && gridType !== dataType) {
@@ -939,7 +939,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
       (this.uiOption as UIGridChart).contentStyle = (this.uiOption as UIGridChart).contentStyle ? (this.uiOption as UIGridChart).contentStyle : {};
       (this.uiOption as UIGridChart).contentStyle.showHeader = false;
     } else {
-      if( 'origin' === (this.uiOption as UIGridChart).valueFormat.type ) {
+      if ('origin' === (this.uiOption as UIGridChart).valueFormat.type) {
         (this.uiOption as UIGridChart).valueFormat.type = 'number';
       }
     }
@@ -952,7 +952,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /**
    * Grid -  layout
    *
-   * @param {Orient} orient
+   * @param {UIOrient} measureLayout
    */
   public gridLayout(measureLayout: UIOrient): void {
 
@@ -1077,7 +1077,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
   /**
    * KPI - Label 표시 여부
-   *
+   * @param _idx
    * @param show
    */
   public kpiShowLabel(_idx: number, show: boolean): void {
@@ -1100,8 +1100,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
         positiveColor: '#08b496',
         negativeColor: '#eb5f53'
       };
-    }
-    else {
+    } else {
       delete option.positiveNegativeColor;
     }
     this.uiOption = (_.extend({}, this.uiOption, {positiveNegativeColor: option.positiveNegativeColor}) as UIOption);
@@ -1152,7 +1151,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.icons, (series) => {
-      if (this.kpiIconTarget['value'] == '' || this.kpiIconTarget['value'] == series.seriesName) {
+      if (this.kpiIconTarget['value'] === '' || this.kpiIconTarget['value'] === series.seriesName) {
         series.show = true;
         series.iconType = iconType;
       }
@@ -1167,16 +1166,15 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiIsIconAll(): boolean {
     const option: UILabelChart = this.uiOption as UILabelChart;
-    let iconType: string =  '';
+    let iconType: string = '';
     let isAll: boolean = true;
     _.each(option.icons, (series) => {
       const labelSeries: UILabelIcon = (series as UILabelIcon);
       if (!_.isUndefined(labelSeries.show)) {
         const seriesIconType: string = labelSeries.iconType;
-        if (iconType ==  '') {
+        if (iconType === '') {
           iconType = seriesIconType;
-        }
-        else if (iconType != seriesIconType) {
+        } else if (iconType !== seriesIconType) {
           isAll = false;
         }
       }
@@ -1196,9 +1194,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /**
    * KPI - 아이콘 대상 변경
    */
-  public kpiChangeIconTarget(target: Object): void {
+  public kpiChangeIconTarget(target: object): void {
     this.kpiIconTarget = target;
-    if (this.kpiIconTarget['value'] == '') {
+    if (this.kpiIconTarget['value'] === '') {
       const option: UILabelChart = this.uiOption as UILabelChart;
       this.kpiChangeIconType(option.icons[0].iconType);
     }
@@ -1211,19 +1209,18 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public kpiGetIconSelected(iconType: string): boolean {
 
     const option: UILabelChart = this.uiOption as UILabelChart;
-    if (this.kpiIconTarget['value'] == '') {
-      if (iconType == option.icons[0].iconType
-        || (iconType == 'USER' && !option.icons[0].iconType)) {
+    if (this.kpiIconTarget['value'] === '') {
+      if (iconType === option.icons[0].iconType
+        || (iconType === 'USER' && !option.icons[0].iconType)) {
         return true;
       }
       return false;
-    }
-    else {
+    } else {
       const labelSeries: UILabelIcon[] = (option.icons as UILabelIcon[]);
-      for (let num = 0; num < labelSeries.length; num++) {
-        if (labelSeries[num].seriesName == this.kpiIconTarget['value']) {
-          if (iconType == labelSeries[num].iconType
-            || (iconType == 'USER' && !labelSeries[num].iconType)) {
+      for (let num = 0, nMax = labelSeries.length; num < nMax; num++) {
+        if (labelSeries[num].seriesName === this.kpiIconTarget['value']) {
+          if (iconType === labelSeries[num].iconType
+            || (iconType === 'USER' && !labelSeries[num].iconType)) {
             return true;
           }
           return false;
@@ -1240,15 +1237,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
     const option: UILabelChart = this.uiOption as UILabelChart;
     const show: boolean = !option.annotations[0].show;
     if (show) {
-      this.kpiText =  '';
+      this.kpiText = '';
       this.kpiTextTemp = this.kpiText;
     }
     _.each(option.annotations, (series) => {
       if (show) {
-        series.description =  '';
+        series.description = '';
         series.show = true;
-      }
-      else {
+      } else {
         delete series.description;
         series.show = false;
       }
@@ -1271,8 +1267,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
         const seriesText: string = labelSeries.description;
         if (_.isUndefined(text)) {
           text = seriesText;
-        }
-        else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
+        } else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
           isAll = false;
         }
       }
@@ -1287,16 +1282,15 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public kpiTextIndex(): number {
     const option: UILabelChart = this.uiOption as UILabelChart;
     let text: string;
-    const index: number = 0;
-    _.each(option.annotations, (series, index) => {
+    let index: number = 0;
+    _.each(option.annotations, (series, annIdx) => {
       const labelSeries: UILabelAnnotation = (series as UILabelAnnotation);
       if (!_.isUndefined(labelSeries.show)) {
         const seriesText: string = labelSeries.description;
         if (_.isUndefined(text)) {
           text = seriesText;
-        }
-        else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
-          index = index;
+        } else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
+          index = annIdx;
         }
       }
     });
@@ -1316,18 +1310,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /**
    * KPI - 설명 대상 변경
    */
-  public kpiChangeTextTarget(target: Object): void {
+  public kpiChangeTextTarget(target: object): void {
     const option: UILabelChart = this.uiOption as UILabelChart;
     this.kpiTextTarget = target;
-    if (this.kpiTextTarget['value'] == '') {
-      this.kpiText = option.annotations[0].description ? option.annotations[0].description :  '';
+    if (this.kpiTextTarget['value'] === '') {
+      this.kpiText = option.annotations[0].description ? option.annotations[0].description : '';
       this.kpiTextTemp = this.kpiText;
-    }
-    else {
+    } else {
       const labelSeries: UILabelAnnotation[] = (option.annotations as UILabelAnnotation[]);
-      for (let num = 0; num < labelSeries.length; num++) {
-        if (labelSeries[num].seriesName == this.kpiTextTarget['value']) {
-          this.kpiText = labelSeries[num].description ? labelSeries[num].description :  '';
+      for (let num = 0, nMax = labelSeries.length; num < nMax; num++) {
+        if (labelSeries[num].seriesName === this.kpiTextTarget['value']) {
+          this.kpiText = labelSeries[num].description ? labelSeries[num].description : '';
           this.kpiTextTemp = this.kpiText;
           break;
         }
@@ -1344,7 +1337,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     this.kpiText = this.kpiTextTemp;
     const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.annotations, (series) => {
-      if (this.kpiTextTarget['value'] == '' || this.kpiTextTarget['value'] == series.seriesName) {
+      if (this.kpiTextTarget['value'] === '' || this.kpiTextTarget['value'] === series.seriesName) {
         series.description = this.kpiText;
       }
     });
@@ -1367,7 +1360,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     this.uiOption = (_.extend({}, this.uiOption, {contentStyle: (this.uiOption as UIGridChart).contentStyle}) as UIOption);
 
     // 원본보기인경우 show value column false일때 alert 표시하고 off되지않게 설정
-    // if (GridViewType.MASTER == (<UIGridChart>this.uiOption).dataType && (<UIGridChart>this.uiOption).dataType && !show) {
+    // if (GridViewType.MASTER === (<UIGridChart>this.uiOption).dataType && (<UIGridChart>this.uiOption).dataType && !show) {
     //
     //   this.changeDetect.detectChanges();
     //
@@ -1385,9 +1378,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param {number} limit
    * @param {boolean} isLimitCheck
    */
-  public onLimitChange(limit: number, isLimitCheck?:boolean): void {
+  public onLimitChange(limit: number, isLimitCheck?: boolean): void {
 
-    if( !isNullOrUndefined(isLimitCheck) ) {
+    if (!isNullOrUndefined(isLimitCheck)) {
       this.uiOption.limitCheck = isLimitCheck;
     }
 
@@ -1456,7 +1449,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public getPositionIndex(): number {
 
     return _.findIndex(this.remarkPositionList, (item) => {
-      return item['value'] == this.uiOption['annotation']['pos']
+      return item['value'] === this.uiOption['annotation']['pos']
     });
   }
 
@@ -1523,7 +1516,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
       if (!headerStyle.fontStyles) headerStyle.fontStyles = [];
 
       // 없는경우 리스트에 추가
-      if (-1 == headerStyle.fontStyles.indexOf(fontStyle)) {
+      if (-1 === headerStyle.fontStyles.indexOf(fontStyle)) {
         headerStyle.fontStyles.push(fontStyle);
 
         // 이미존재하는경우 리스트에서 제거
@@ -1540,7 +1533,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
       if (!contentStyle.fontStyles) contentStyle.fontStyles = [];
 
       // 없는경우 리스트에 추가
-      if (-1 == contentStyle.fontStyles.indexOf(fontStyle)) {
+      if (-1 === contentStyle.fontStyles.indexOf(fontStyle)) {
         contentStyle.fontStyles.push(fontStyle);
 
         // 이미존재하는경우 리스트에서 제거
@@ -1663,10 +1656,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param limit
    * @private
    */
-  private _setLimit( limit:number ) {
+  private _setLimit(limit: number) {
     // limit값이 체크되고 size값이 없는경우 기본값 설정
     if (this.uiOption.limitCheck) {
-      this.uiOption.limit = ( limit ) ? limit : OptionGenerator.defaultLimit( this.uiOption.type );
+      this.uiOption.limit = (limit) ? limit : OptionGenerator.defaultLimit(this.uiOption.type);
     } else {
       this.uiOption.limit = undefined;
     }

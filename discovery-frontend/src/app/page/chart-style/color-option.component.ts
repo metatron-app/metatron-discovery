@@ -55,11 +55,11 @@ import {Field} from '@domain/workbook/configurations/field/field';
 import UI = OptionGenerator.UI;
 
 // 색상 타입 리스트
-const colorTypeList: Object[] = [
-  { label : 'None', id : ChartColorType.SINGLE },
-  { label : 'Series', id : ChartColorType.SERIES },
-  { label : 'Dimension', id: ChartColorType.DIMENSION },
-  { label : 'Measure', id: ChartColorType.MEASURE }
+const colorTypeList: object[] = [
+  {label: 'None', id: ChartColorType.SINGLE},
+  {label: 'Series', id: ChartColorType.SERIES},
+  {label: 'Dimension', id: ChartColorType.DIMENSION},
+  {label: 'Measure', id: ChartColorType.MEASURE}
 ];
 
 /**
@@ -81,7 +81,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   }
 
   @Input('resultData')
-  public set setResultData(resultData: Object) {
+  public set setResultData(resultData: object) {
     this.resultData = resultData;
     if (resultData && resultData['data'] && resultData['data']['info'] && this.uiOption) {
       const tmpInfo = resultData['data']['info'];
@@ -99,13 +99,13 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     this.uiOption = uiOption;
 
     // only if fieldList doesn't exist
-    if (!this.uiOption.fieldList || 0 == this.uiOption.fieldList.length) {
+    if (!this.uiOption.fieldList || 0 === this.uiOption.fieldList.length) {
 
       this.uiOption.fieldList = this.setFieldList();
     }
 
     // only if ranges of 'color by measure' don't exist
-    if ( !this.uiOption.color['ranges'] && ChartColorType.MEASURE == this.uiOption.color.type) {
+    if (!this.uiOption.color['ranges'] && ChartColorType.MEASURE === this.uiOption.color.type) {
 
       const colorList = ChartColorList[this.uiOption.color['schema']] as any;
 
@@ -114,9 +114,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
       this.resultData['type'] = null;
 
-    // only if gradations are empty, customMode is gradient type
-    } else if (this.uiOption.color['customMode'] && ChartColorType.MEASURE == this.uiOption.color.type &&
-      ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
+      // only if gradations are empty, customMode is gradient type
+    } else if (this.uiOption.color['customMode'] && ChartColorType.MEASURE === this.uiOption.color.type &&
+      ColorCustomMode.GRADIENT === this.uiOption.color['customMode']) {
 
       this.changeDetect.detectChanges();
 
@@ -145,11 +145,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
 
-    this.$colorPickerPopup = $('#colorPanelColorPicker');
   }
-
-  // colorPicker jquery object
-  private $colorPickerPopup: JQuery;
 
   // selected item index in gradation list
   private gradationIndex: number;
@@ -158,49 +154,49 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public measureText: string;
 
   // series, dimension color list
-  public defaultColorList: Object[] = [
-    { index: 1, colorNum: 'SC1' },
-    { index: 2, colorNum: 'SC2' },
-    { index: 3, colorNum: 'SC3' },
-    { index: 4, colorNum: 'SC4' },
-    { index: 5, colorNum: 'SC5' },
-    { index: 6, colorNum: 'SC6' },
-    { index: 7, colorNum: 'SC7' },
-    { index: 8, colorNum: 'SC8' },
-    { index: 9, colorNum: 'SC9' }
+  public defaultColorList: object[] = [
+    {index: 1, colorNum: 'SC1'},
+    {index: 2, colorNum: 'SC2'},
+    {index: 3, colorNum: 'SC3'},
+    {index: 4, colorNum: 'SC4'},
+    {index: 5, colorNum: 'SC5'},
+    {index: 6, colorNum: 'SC6'},
+    {index: 7, colorNum: 'SC7'},
+    {index: 8, colorNum: 'SC8'},
+    {index: 9, colorNum: 'SC9'}
   ];
 
-  public measureColorList: Object[] = [
-    { index: 1, colorNum: 'VC1' },
-    { index: 2, colorNum: 'VC2' },
-    { index: 3, colorNum: 'VC3' },
-    { index: 4, colorNum: 'VC4' },
-    { index: 5, colorNum: 'VC5' },
-    { index: 6, colorNum: 'VC6' },
-    { index: 7, colorNum: 'VC7' }
+  public measureColorList: object[] = [
+    {index: 1, colorNum: 'VC1'},
+    {index: 2, colorNum: 'VC2'},
+    {index: 3, colorNum: 'VC3'},
+    {index: 4, colorNum: 'VC4'},
+    {index: 5, colorNum: 'VC5'},
+    {index: 6, colorNum: 'VC6'},
+    {index: 7, colorNum: 'VC7'}
   ];
 
   // measure 반전(value) color list
-  public measureReverseColorList: Object[] = [
-    { index: 8, colorNum: 'VC8' },
-    { index: 9, colorNum: 'VC9' },
-    { index: 10, colorNum: 'VC10' },
-    { index: 11, colorNum: 'VC11' },
-    { index: 12, colorNum: 'VC12' },
-    { index: 13, colorNum: 'VC13' },
-    { index: 14, colorNum: 'VC14' },
-    { index: 15, colorNum: 'VC15' },
-    { index: 16, colorNum: 'VC16' },
-    { index: 17, colorNum: 'VC17' },
-    { index: 18, colorNum: 'VC18' },
-    { index: 19, colorNum: 'VC19' }
+  public measureReverseColorList: object[] = [
+    {index: 8, colorNum: 'VC8'},
+    {index: 9, colorNum: 'VC9'},
+    {index: 10, colorNum: 'VC10'},
+    {index: 11, colorNum: 'VC11'},
+    {index: 12, colorNum: 'VC12'},
+    {index: 13, colorNum: 'VC13'},
+    {index: 14, colorNum: 'VC14'},
+    {index: 15, colorNum: 'VC15'},
+    {index: 16, colorNum: 'VC16'},
+    {index: 17, colorNum: 'VC17'},
+    {index: 18, colorNum: 'VC18'},
+    {index: 19, colorNum: 'VC19'}
   ];
 
   // selected default color
-  public selectedDefaultColor: Object = this.defaultColorList[0];
+  public selectedDefaultColor: object = this.defaultColorList[0];
 
   // selected measure color
-  public selectedMeasureColor: Object = this.measureColorList[0];
+  public selectedMeasureColor: object = this.measureColorList[0];
 
   // show / hide setting for color picker
   public colorListFlag: boolean = false;
@@ -210,7 +206,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
   // colorRange Component
   @ViewChildren('colorChartSlider')
-  public colorRangeComp : QueryList<RangeSliderComponent>;
+  public colorRangeComp: QueryList<RangeSliderComponent>;
 
   // color picker element
   @ViewChild('colorPicker')
@@ -224,8 +220,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public currentRange: ColorRange;
 
   // color type list
-  public colorRangeTypeList = [{name : this.translateService.instant('msg.page.chart.color.measure.new.range.type.default'), value: ColorCustomMode.SECTION},
-                               {name : this.translateService.instant('msg.page.chart.color.measure.new.range.type.gradient'), value: ColorCustomMode.GRADIENT}];
+  public colorRangeTypeList = [{
+    name: this.translateService.instant('msg.page.chart.color.measure.new.range.type.default'),
+    value: ColorCustomMode.SECTION
+  },
+    {
+      name: this.translateService.instant('msg.page.chart.color.measure.new.range.type.gradient'),
+      value: ColorCustomMode.GRADIENT
+    }];
 
   // min / max
   public minValue: string;
@@ -239,7 +241,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   // range list for view
   public rangesViewList = [];
 
-  public resultData: Object;
+  public resultData: object;
 
   public isTemplateColorInverted: boolean = undefined;
 
@@ -280,7 +282,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     (this.uiOption.color as UIChartColorBySeries).settingUseFl = false;
 
     // 선택된 컬러타입 selected color type
-    const selectedColorType = _.find(colorTypeList, (item) => { return item['id'] === typeId;});
+    const selectedColorType = _.find(colorTypeList, (item) => {
+      return item['id'] === typeId;
+    });
 
     let schema;
 
@@ -290,24 +294,24 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       schema = ChartColorType.MEASURE === selectedColorType['id'] ? this.measureColorList[0]['colorNum'] : this.defaultColorList[0]['colorNum'];
 
       // color by measure의 ranges 리스트가 없는경우
-      if (ChartColorType.MEASURE.toString() == typeId) {
+      if (ChartColorType.MEASURE.toString() === typeId) {
 
         // set color ranges
         this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], ChartColorList[schema] as any);
       }
       // color by series mapping값 설정
-      else if (ChartColorType.SERIES.toString() == typeId) {
+      else if (ChartColorType.SERIES.toString() === typeId) {
 
         this.uiOption.color = this.setMapping();
       }
 
       // 그리드라면
-      if( _.eq(this.uiOption.type, ChartType.GRID) ) {
+      if (_.eq(this.uiOption.type, ChartType.GRID)) {
 
         schema = ChartColorType.MEASURE === selectedColorType['id'] ? this.measureColorList[0]['colorNum'] : [];
 
         // colorTarget이 비어있다면 기본값 세팅
-        if( _.isUndefined(this.uiOption.color['colorTarget']) ) {
+        if (_.isUndefined(this.uiOption.color['colorTarget'])) {
           this.uiOption.color['colorTarget'] = CellColorTarget.TEXT;
         }
       }
@@ -323,7 +327,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     };
 
     // single일때에는 code값만 설정
-    if ('single' == typeId) {
+    if ('single' === typeId) {
 
       colorOption['code'] = '';
       // color by single이 아닌경우에만 schema, colorTarget 설정
@@ -332,23 +336,23 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       colorOption['colorTarget'] = this.uiOption.color['colorTarget'];
 
       // color by series일때
-      if ('series' == typeId) {
+      if ('series' === typeId) {
         colorOption['mapping'] = this.uiOption.color['mapping'];
         colorOption['mappingArray'] = this.uiOption.color['mappingArray'];
 
         // color by measure일때
-      } else if ('measure' == typeId) {
+      } else if ('measure' === typeId) {
         colorOption['ranges'] = this.uiOption.color['ranges'];
       }
     }
 
     // dimension인 경우
-    if (typeId == ChartColorType.DIMENSION.toString()) {
+    if (typeId === ChartColorType.DIMENSION.toString()) {
 
       // targetField를 입력
       colorOption['targetField'] = _.last(this.uiOption.fieldList);
 
-      if (ChartType.GAUGE == this.uiOption.type) {
+      if (ChartType.GAUGE === this.uiOption.type) {
         this.uiOption.legend.auto = false;
       }
     }
@@ -356,7 +360,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // 해당 컬러타입으로 설정
     this.uiOption = (_.extend({}, this.uiOption, {
       color: colorOption,
-      legend : this.uiOption.legend
+      legend: this.uiOption.legend
     }) as UIOption);
 
     // update
@@ -385,7 +389,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /**
    * 팔레트 색상을 변경한다
    */
-  public changeColor(colorObj: Object, gridColorObj?: Object) {
+  public changeColor(colorObj: object, gridColorObj?: object) {
     let color = _.cloneDeep(colorObj);
     if ($('input#invertColor').is(':checked')) {
       color['colorNum'] = 'R' + color['colorNum'];
@@ -398,7 +402,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], ChartColorList[color['colorNum']]);
 
       // 선택된 컬러를 변수에 설정
-      if( _.eq(this.uiOption.type, ChartType.GRID) ) {
+      if (_.eq(this.uiOption.type, ChartType.GRID)) {
         this.selectedMeasureColor = color;
         const gridColor = _.cloneDeep(gridColorObj);
         if ($('input#invertColor').is(':checked')) {
@@ -437,13 +441,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public invertColor() {
     event.stopPropagation();
 
-    if ($('input#invertColor').is(':checked')) {
-      this.isTemplateColorInverted = true;
-    } else {
-      this.isTemplateColorInverted = false;
-    }
+    this.isTemplateColorInverted = $('input#invertColor').is(':checked');
 
-    let colorList: Object[] = [];
+    let colorList: object[] = [];
 
     // measure color list 합치기
     colorList = colorList.concat(this.measureColorList);
@@ -490,7 +490,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public checkMeasureSelectedColor(): any {
 
-    let colorList: Object[] = [];
+    let colorList: object[] = [];
 
     // measure color list 합치기
     colorList = colorList.concat(this.measureColorList);
@@ -509,7 +509,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
   /**
    * 라인차트일때 교차의 dimension여부에 따라 color by dimension show hide 설정
-   * @param chartType
+   * @param _chartType
    */
   public lineChartCheck(_chartType: string): boolean {
 
@@ -526,7 +526,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 사용자 색상설정 show
    */
   public showUserColorSet() {
-    const colorObj:UIChartColorBySeries = this.uiOption.color as UIChartColorBySeries;
+    const colorObj: UIChartColorBySeries = this.uiOption.color as UIChartColorBySeries;
     // color setting show / hide 값 반대로 설정
     colorObj.settingUseFl = !colorObj.settingUseFl;
     // if( !colorObj.settingUseFl ) {
@@ -580,7 +580,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public colorPaletteSelected(colorCode: string, item?: any) {
 
     // color by series일때
-    if (this.uiOption.color.type == ChartColorType.SERIES) {
+    if (this.uiOption.color.type === ChartColorType.SERIES) {
       // 선택된 필드의 index 가져오기
       const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: item.alias});
 
@@ -601,10 +601,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
         (this.uiOption.color as UIChartColorBySeries).mapping[(this.uiOption.color as UIChartColorBySeries).mappingArray[index]['alias']] = colorCode;
 
         // 그리드라면
-        if( _.eq(this.uiOption.type, ChartType.GRID) ) {
+        if (_.eq(this.uiOption.type, ChartType.GRID)) {
 
           // colorTarget이 비어있다면 기본값 세팅
-          if( _.isUndefined(this.uiOption.color['colorTarget']) ) {
+          if (_.isUndefined(this.uiOption.color['colorTarget'])) {
             this.uiOption.color['colorTarget'] = CellColorTarget.TEXT;
           }
         }
@@ -623,18 +623,18 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
         this.update();
       }
       // color by measure일때
-    } else if (this.uiOption.color.type == ChartColorType.MEASURE) {
+    } else if (this.uiOption.color.type === ChartColorType.MEASURE) {
 
-      const index = this.rangesViewList.findIndex( rangeItem => rangeItem.color === item.color );
+      const index = this.rangesViewList.findIndex(rangeItem => rangeItem.color === item.color);
 
       // 선택된 색상으로 설정
       (this.uiOption.color as UIChartColorByValue).ranges[index].color = colorCode;
 
       // 그리드라면
-      if( _.eq(this.uiOption.type, ChartType.GRID) ) {
+      if (_.eq(this.uiOption.type, ChartType.GRID)) {
 
         // colorTarget이 비어있다면 기본값 세팅
-        if( _.isUndefined(this.uiOption.color['colorTarget']) ) {
+        if (_.isUndefined(this.uiOption.color['colorTarget'])) {
           this.uiOption.color['colorTarget'] = CellColorTarget.TEXT;
         }
       }
@@ -676,8 +676,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // 현재 단계의 최소값 설정
     minValue = minValue + (maxValue - minValue) / 2;
 
-    const formatMinValue =  Math.floor(Number(minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
-    const formatMaxValue =  Math.floor(Number(maxValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const formatMinValue = Math.floor(Number(minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const formatMaxValue = Math.floor(Number(maxValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 하위단계의 최대값 현재 최소값으로 변경
     rangeList[index].lte = formatMinValue;
@@ -725,7 +725,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
           ranges: ranges
         };
       }
-    // color range hide일때
+      // color range hide일때
     } else {
       // color by measure기본 ranges값으로 초기화
       const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema] as any);
@@ -738,10 +738,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     }
 
     // 그리드라면
-    if( _.eq(this.uiOption.type, ChartType.GRID) ) {
+    if (_.eq(this.uiOption.type, ChartType.GRID)) {
 
       // colorTarget이 비어있다면 기본값 세팅
-      if( _.isUndefined(this.uiOption.color['colorTarget']) ) {
+      if (_.isUndefined(this.uiOption.color['colorTarget'])) {
         colorOption['colorTarget'] = CellColorTarget.TEXT;
       } else {
         colorOption['colorTarget'] = this.uiOption.color['colorTarget']
@@ -764,7 +764,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const rangeList = (this.uiOption.color as UIChartColorByValue).ranges;
 
     // rangeList가 1개 남은경우 삭제불가
-    if (1 == rangeList.length) return;
+    if (1 === rangeList.length) return;
 
     const upperValue = rangeList[index - 1] ? rangeList[index - 1] : null;
     const lowerValue = rangeList[index + 1] ? rangeList[index + 1] : null;
@@ -791,7 +791,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // 리스트에서 선택된 컬러범위 제거
     rangeList.splice(index, 1);
 
-    this.uiOption = (_.extend({}, this.uiOption, { color : this.uiOption.color }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {color: this.uiOption.color}) as UIOption);
 
     this.update();
 
@@ -800,15 +800,15 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /**
    * 사용자 색상설정 타입 선택시
    */
-  public selectColorRangeType(customMode: Object): void {
+  public selectColorRangeType(customMode: object): void {
 
-    if (this.uiOption.color['customMode'] == customMode['value']) return;
+    if (this.uiOption.color['customMode'] === customMode['value']) return;
 
     // 선택된 customMode 설정
     this.uiOption.color['customMode'] = customMode['value'];
 
     // case gradation
-    if (ColorCustomMode.GRADIENT == customMode['value']) {
+    if (ColorCustomMode.GRADIENT === customMode['value']) {
       delete this.uiOption.color['ranges'];
       delete this.uiOption.color['visualGradations'];
       // gradation range initialize
@@ -817,15 +817,15 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       this.uiOption.color['ranges'] = obj['ranges'];
       this.rangesViewList = this.uiOption.color['ranges'];
       this.uiOption.color['visualGradations'] = obj['visualGradations'];
-    // section일때
-    } else if (ColorCustomMode.SECTION == customMode['value']) {
+      // section일때
+    } else if (ColorCustomMode.SECTION === customMode['value']) {
       delete this.uiOption.color['ranges'];
       delete this.uiOption.color['visualGradations'];
       // range initialize
       this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], ChartColorList[this.uiOption.color['schema']] as any);
     }
 
-    this.uiOption = (_.extend({}, this.uiOption, {color : this.uiOption.color}) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {color: this.uiOption.color}) as UIOption);
 
     this.update();
   }
@@ -833,14 +833,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /**
    * 그라데이션 초기화설정
    */
-  private gradationInit(gradations: Object[], initFl?: boolean): Object {
+  private gradationInit(gradations: object[], initFl?: boolean): object {
 
     const colorList = ChartColorList[this.uiOption.color['schema']];
 
-    const minValue = this.checkMinZero(this.uiOption.minValue, parseInt(this.uiOption.minValue.toFixed(0)));
-    const maxValue = parseInt(this.uiOption.maxValue.toFixed(0));
+    const minValue = this.checkMinZero(this.uiOption.minValue, parseInt(this.uiOption.minValue.toFixed(0), 10));
+    const maxValue = parseInt(this.uiOption.maxValue.toFixed(0), 10);
 
-    if (!gradations || gradations.length == 0) {
+    if (!gradations || gradations.length === 0) {
       gradations = [
         {
           color: colorList[0],
@@ -855,7 +855,13 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       ];
     }
 
-    const data : Object= {min: minValue, max: maxValue, separateValue: this.separateValue, positionMin: -4, positionMax : 215};
+    const data: object = {
+      min: minValue,
+      max: maxValue,
+      separateValue: this.separateValue,
+      positionMin: -4,
+      positionMax: 215
+    };
 
     this.changeDetect.detectChanges();
 
@@ -863,7 +869,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const obj = this.gradationComp.init(gradations, data, initFl);
 
     // change emit이 안타는경우 type이 없을때 type값 설정
-    if (initFl) obj['ranges'].forEach((item) => {if (!item['type']) {item['type'] = ColorRangeType.GRADIENT; return item} else { return item}});
+    if (initFl) obj['ranges'].forEach((item) => {
+      if (!item['type']) {
+        item['type'] = ColorRangeType.GRADIENT;
+        return item
+      } else {
+        return item
+      }
+    });
 
     return obj;
   }
@@ -881,7 +894,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // 색상 범위리스트
     const rangeList = (this.uiOption.color as UIChartColorByValue).ranges;
 
-    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt)) || isNumber == false) {
+    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt)) || isNumber === false) {
       // set original value
       range.gt = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMin, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
       return;
@@ -897,7 +910,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     // 입력가능 최소 / 최대범위 구하기
     const minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
-                   rangeList[index].gt ? rangeList[index].gt : rangeList[index].lte;
+      rangeList[index].gt ? rangeList[index].gt : rangeList[index].lte;
     const maxValue = range.lte;
 
     // 최대값인경우 (변경불가)
@@ -929,7 +942,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // set changed range in list
     rangeList[index] = range;
 
-    this.uiOption = (_.extend({}, this.uiOption, { color : this.uiOption.color }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {color: this.uiOption.color}) as UIOption);
 
     this.update();
   }
@@ -947,7 +960,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // 색상 범위리스트
     const rangeList = (this.uiOption.color as UIChartColorByValue).ranges;
 
-    if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte)) || isNumber == false ) {
+    if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte)) || isNumber === false) {
 
       // set original value
       range.lte = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMax, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
@@ -961,7 +974,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const uiMinValue = this.checkMinZero(this.uiOption.minValue, this.uiOption.minValue);
 
     // 하위 fixMin값
-    const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
+    const lowerfixMin = rangeList[index + 1] ? (rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
 
     // 최소값인경우
     if (!rangeList[index + 1]) {
@@ -970,7 +983,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       if (uiMinValue < range.lte && rangeList[index - 1].fixMin > range.lte) {
 
         range.fixMax = range.lte;
-        rangeList[index-1].gt = range.lte;
+        rangeList[index - 1].gt = range.lte;
       } else {
         // 기존값으로 리턴
         range.lte = range.fixMax;
@@ -1003,7 +1016,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // set changed range in list
     rangeList[index] = range;
 
-    this.uiOption = (_.extend({}, this.uiOption, { color : this.uiOption.color }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {color: this.uiOption.color}) as UIOption);
 
     this.update();
   }
@@ -1027,7 +1040,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // set color ranges
     this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.resultData['data'], colorList, rangeList);
 
-    this.uiOption = (_.extend({}, this.uiOption, { color : this.uiOption.color }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {color: this.uiOption.color}) as UIOption);
 
     this.update();
   }
@@ -1043,16 +1056,15 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     let returnString: string = '';
 
     // case max value
-    if (0 == index) {
+    if (0 === index) {
 
       returnString += ': ' + currentRnage.fixMin;
 
-    // case min value
-    } else if (rangeList.length - 1 == index) {
+      // case min value
+    } else if (rangeList.length - 1 === index) {
 
       returnString += ': ' + currentRnage.fixMax;
-    }
-    else {
+    } else {
 
       // 하위값이 있는경우 하위값의 min값이 있는경우 min값으로 설정 없는경우 최소값 설정
       const availableMin = !rangeList[index + 1] ? null : rangeList[index + 1].fixMin ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax;
@@ -1071,7 +1083,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public colorGaugePaletteSelected(colorCode: string, item?: any) {
 
     // 선택된 필드의 index 가져오기
-    const index = _.findIndex(this.uiOption.fieldDimensionDataList, (data) => {return item.alias == data});
+    const index = _.findIndex(this.uiOption.fieldDimensionDataList, (data) => {
+      return item.alias === data
+    });
 
     const color = ChartColorList[(this.uiOption.color as UIChartColorByDimension).schema];
 
@@ -1134,15 +1148,22 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
   /**
    * 변경된 gradation 리스트값 설정
-   * @param {Object} data
+   * @param {object} data
    */
-  public changeGradations(data: Object) {
+  public changeGradations(data: object) {
 
     this.uiOption.color['visualGradations'] = data['visualGradations'];
 
-    data['ranges'].forEach((item) => {if (!item.type) {item.type = ColorRangeType.GRADIENT; return item} else { return item}});
+    data['ranges'].forEach((item) => {
+      if (!item.type) {
+        item.type = ColorRangeType.GRADIENT;
+        return item
+      } else {
+        return item
+      }
+    });
 
-    if (JSON.stringify(data['ranges']) != JSON.stringify(this.uiOption.color['ranges'])) {
+    if (JSON.stringify(data['ranges']) !== JSON.stringify(this.uiOption.color['ranges'])) {
       this.uiOption.color['ranges'] = data['ranges'];
 
       this.rangesViewList = this.uiOption.color['ranges'];
@@ -1211,10 +1232,11 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public showGradationColor(item, index) {
 
     // 선택된 값이 있는경우 => input박스 height값만큼 color picker top위치 내려줌
-    if (undefined == this.gradationIndex && undefined !== item.value) {
-      let top = $('.sp-container').not('.sp-hidden').offset().top;
+    if (undefined === this.gradationIndex && undefined !== item.value) {
+      const $container = $('.sp-container');
+      let top = $container.not('.sp-hidden').offset().top;
       top += 30;
-      $('.sp-container').not('.sp-hidden').css({top : top});
+      $container.not('.sp-hidden').css({top: top});
     }
 
     // 현재 그라데이션 리스트에서 선택된 index
@@ -1242,11 +1264,11 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       // 현재 그라데이션 리스트에서 선택된 index
       this.gradationIndex = undefined;
 
-    // 인풋박스, 리스트, 추가버튼 선택이 아닐때
-    } else if (-1 == $(event.target).attr('class').indexOf('ddp-input-txt') &&
-        -1 == $(event.target).attr('class').indexOf('sp-preview-inner') &&
-        -1 == $(event.target).attr('class').indexOf('ddp-icon-apply') &&
-        -1 == $(event.target).attr('class').indexOf('ddp-list-blank')) {
+      // 인풋박스, 리스트, 추가버튼 선택이 아닐때
+    } else if (-1 === $(event.target).attr('class').indexOf('ddp-input-txt') &&
+      -1 === $(event.target).attr('class').indexOf('sp-preview-inner') &&
+      -1 === $(event.target).attr('class').indexOf('ddp-icon-apply') &&
+      -1 === $(event.target).attr('class').indexOf('ddp-list-blank')) {
 
       // 다른 선택된 클래스 제거
       this.$element.find('.ddp-box-color').find('.sp-replacer').removeClass('sp-active');
@@ -1259,7 +1281,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       // 현재 그라데이션 리스트에서 선택된 index
       this.gradationIndex = undefined;
 
-    // 인풋박스일때
+      // 인풋박스일때
     } else if (null !== index && -1 !== $(event.target).attr('class').indexOf('ddp-input-txt')) {
       // 선택해제된 클래스 재설정
       this.$element.find('#ddp-box-color-' + index + ' .sp-replacer').addClass('sp-active');
@@ -1290,12 +1312,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * @returns {number}
    */
   public getDimensionIndex() {
-
     if (!this.uiOption.fielDimensionList) return;
-
-    const index = _.findIndex(this.uiOption.fielDimensionList, {name : this.uiOption.color['targetField']});
-
-    return index;
+    return _.findIndex(this.uiOption.fielDimensionList, {name: this.uiOption.color['targetField']});
   }
 
   /**
@@ -1347,9 +1365,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     color = _.cloneDeep(color.replace('#', ''));
 
-    const rColor = parseInt(color.substring(0,2),16);
-    const gColor = parseInt(color.substring(2,4),16);
-    const bColor = parseInt(color.substring(4),16);
+    const rColor = parseInt(color.substring(0, 2), 16);
+    const gColor = parseInt(color.substring(2, 4), 16);
+    const bColor = parseInt(color.substring(4), 16);
 
     return 'rgb(' + rColor + ',' + gColor + ',' + bColor + ')';
   }
@@ -1362,7 +1380,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   private setUserCodes(color: object): object {
 
     // color by series가 아닐거나 mapping값이 없을때 return
-    if ((!_.eq(ChartColorType.SERIES, this.uiOption.color.type) && !_.eq(ChartType.GAUGE, this.uiOption.type)) || (_.eq(ChartType.GAUGE, this.uiOption.type) && !_.eq(ChartColorType.DIMENSION, this.uiOption.color.type))  || !(this.uiOption.color as UIChartColorBySeries).mapping) return;
+    if ((!_.eq(ChartColorType.SERIES, this.uiOption.color.type) && !_.eq(ChartType.GAUGE, this.uiOption.type)) || (_.eq(ChartType.GAUGE, this.uiOption.type) && !_.eq(ChartColorType.DIMENSION, this.uiOption.color.type)) || !(this.uiOption.color as UIChartColorBySeries).mapping) return;
 
     // 기존 색상 리스트
     const colorList = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema];
@@ -1388,11 +1406,11 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     let chartColorList = [];
 
     // VC가 포함되지 않은 리스트인경우 schema의 리스트값으로 설정
-    if (-1 == (this.uiOption.color as UIChartColorBySeries).schema.indexOf('VC')) {
+    if (-1 === (this.uiOption.color as UIChartColorBySeries).schema.indexOf('VC')) {
 
       chartColorList = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema];
 
-    // color by measure에 해당하는 리스트인경우 SC1리스트값으로 초기화
+      // color by measure에 해당하는 리스트인경우 SC1리스트값으로 초기화
     } else {
 
       chartColorList = (ChartColorList['SC1'] as any);
@@ -1408,13 +1426,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
       // fieldMeasureList에서 제거된 값 제거
       for (const key in (this.uiOption.color as UIChartColorBySeries).mapping) {
+        if (key) {
+          const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: key});
 
-        const index = _.findIndex(this.uiOption.fieldMeasureList, {alias : key});
-
-        // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
-        if (-1 == index || colorChangedFl) {
-          delete (this.uiOption.color as UIChartColorBySeries).mapping[key];
-          colorChangedFl = true;
+          // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
+          if (-1 === index || colorChangedFl) {
+            delete (this.uiOption.color as UIChartColorBySeries).mapping[key];
+            colorChangedFl = true;
+          }
         }
       }
 
@@ -1430,7 +1449,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
       Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
 
-        (this.uiOption.color as UIChartColorBySeries).mappingArray.push({alias: key, color: (this.uiOption.color as UIChartColorBySeries).mapping[key]});
+        (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
+          alias: key,
+          color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
+        });
       });
     }
 
@@ -1464,19 +1486,19 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   private setRangeViewByDecimal(ranges: ColorRange[]) {
 
-    if (!ranges || 0 == ranges.length) return;
+    if (!ranges || 0 === ranges.length) return;
     // decimal null check
-    const decimal = this.uiOption.valueFormat!=null?this.uiOption.valueFormat.decimal:0;
+    const decimal = this.uiOption.valueFormat != null ? this.uiOption.valueFormat.decimal : 0;
     // decimal null check
-    const commaUseFl = this.uiOption.valueFormat!=null?this.uiOption.valueFormat.useThousandsSep:false;
+    const commaUseFl = this.uiOption.valueFormat != null ? this.uiOption.valueFormat.useThousandsSep : false;
 
     const returnList: any = _.cloneDeep(ranges);
 
     for (const item of returnList) {
-      item['fixMax'] = null == item.fixMax ? null : FormatOptionConverter.getDecimalValue(item.fixMax, decimal, commaUseFl) as any;
-      item['fixMin'] = null == item.fixMin ? null : FormatOptionConverter.getDecimalValue(item.fixMin, decimal, commaUseFl) as any;
-      item['gt']     = null == item.gt ? null :FormatOptionConverter.getDecimalValue(item.gt, decimal, commaUseFl) as any;
-      item['lte']    = null == item.lte ? null : FormatOptionConverter.getDecimalValue(item.lte, decimal, commaUseFl) as any;
+      item['fixMax'] = null === item.fixMax ? null : FormatOptionConverter.getDecimalValue(item.fixMax, decimal, commaUseFl) as any;
+      item['fixMin'] = null === item.fixMin ? null : FormatOptionConverter.getDecimalValue(item.fixMin, decimal, commaUseFl) as any;
+      item['gt'] = null === item.gt ? null : FormatOptionConverter.getDecimalValue(item.gt, decimal, commaUseFl) as any;
+      item['lte'] = null === item.lte ? null : FormatOptionConverter.getDecimalValue(item.lte, decimal, commaUseFl) as any;
     }
 
     return returnList;
@@ -1489,10 +1511,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   private parseStrFloat(range: any): any {
 
-    range.fixMax = null == range.fixMax ? null : FormatOptionConverter.getNumberValue(range.fixMax);
-    range.fixMin = null == range.fixMin ? null : FormatOptionConverter.getNumberValue(range.fixMin);
-    range.gt     = null == range.gt ? null : FormatOptionConverter.getNumberValue(range.gt);
-    range.lte    = null == range.lte ? null : FormatOptionConverter.getNumberValue(range.lte);
+    range.fixMax = null === range.fixMax ? null : FormatOptionConverter.getNumberValue(range.fixMax);
+    range.fixMin = null === range.fixMin ? null : FormatOptionConverter.getNumberValue(range.fixMin);
+    range.gt = null === range.gt ? null : FormatOptionConverter.getNumberValue(range.gt);
+    range.lte = null === range.lte ? null : FormatOptionConverter.getNumberValue(range.lte);
     return range;
   }
 
@@ -1505,7 +1527,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     let returnValue: number = elseValue;
 
-    switch(this.uiOption.type) {
+    switch (this.uiOption.type) {
 
       // charts minvalue is zero
       case ChartType.BAR:
@@ -1525,10 +1547,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   private isNumberRegex(value: any): boolean {
     // comma 빼기
-    if( value.indexOf(',') != -1) {
+    if (value.indexOf(',') !== -1) {
       value = value.replace(/,/g, '');
     }
-    return Number( value ) !== NaN;
+    return !isNaN(Number(value));
   }
 
   private removeInputRangeStatus() {
@@ -1537,7 +1559,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       if (rangeVal['minInputShow']) delete rangeVal['minInputShow'];
       if (rangeVal['maxInputShow']) delete rangeVal['maxInputShow'];
     });
-    if(!_.isUndefined(this.uiOption.color['ranges']) && this.uiOption.color['ranges'].length > 0) {
+    if (!_.isUndefined(this.uiOption.color['ranges']) && this.uiOption.color['ranges'].length > 0) {
       _.each(this.uiOption.color['ranges'], (uiRangeVal) => {
         if (uiRangeVal['minInputShow']) delete uiRangeVal['minInputShow'];
         if (uiRangeVal['maxInputShow']) delete uiRangeVal['maxInputShow'];

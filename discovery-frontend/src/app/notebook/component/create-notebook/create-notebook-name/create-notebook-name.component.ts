@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnInit} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {PopupService} from '@common/service/popup.service';
 import {NoteBook} from '@domain/notebook/notebook';
@@ -26,7 +26,7 @@ import * as $ from 'jquery';
   selector: 'app-create-notebook-name',
   templateUrl: './create-notebook-name.component.html'
 })
-export class CreateNotebookNameComponent extends AbstractPopupComponent implements OnInit {
+export class CreateNotebookNameComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -166,7 +166,8 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
     this.name = this.name ? this.name.trim() : ''; // trim 처리
     if (this.name === '') {
       this.showError = true;
-      $('.ddp-type-contents').animate({ scrollTop: $('.ddp-type-contents').height() }, 1000);
+      const $contents = $('.ddp-type-contents');
+      $contents.animate({scrollTop: $contents.height()}, 1000);
       return;
     }
     if (isUndefined(this.selectedServerType)) {
@@ -199,7 +200,7 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
     if (this.notebook.datasource) {
       param.dsType = this.notebook.datasource.dsType;
       param.dsId = this.notebook.datasource.id;
-      if(this.notebook.datasource.dsType === 'DASHBOARD' || this.notebook.datasource.dsType === 'CHART') {
+      if (this.notebook.datasource.dsType === 'DASHBOARD' || this.notebook.datasource.dsType === 'CHART') {
         param.dsName = this.notebook.path + ' > ' + this.notebook.datasource.name;
       } else {
         param.dsName = this.notebook.datasource.name;
@@ -212,7 +213,7 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
 
 
     // 생성 api
-    this.notebookService.createNotebook(param).then((data:NoteBook) => {
+    this.notebookService.createNotebook(param).then((data: NoteBook) => {
 
       if (data) {
         // 로딩 hide

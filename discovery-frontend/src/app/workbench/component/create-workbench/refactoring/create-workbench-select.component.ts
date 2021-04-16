@@ -1,5 +1,5 @@
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
 import {CreateWorkbenchModelService} from './service/create-workbench-model.service';
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
 import {StringUtil} from '@common/util/string.util';
@@ -14,7 +14,7 @@ import * as _ from 'lodash';
   selector: 'component-workbench-select',
   templateUrl: 'create-workbench-select.component.html'
 })
-export class CreateWorkbenchSelectComponent extends AbstractComponent {
+export class CreateWorkbenchSelectComponent extends AbstractComponent implements OnInit {
 
   @Input() readonly workspaceId: string;
   readonly authenticationTypeList = this.constant.getAuthenticationTypeFilters();
@@ -68,7 +68,7 @@ export class CreateWorkbenchSelectComponent extends AbstractComponent {
   }
 
   isMoreContents(): boolean {
-    return this.pageResult.number < this.pageResult.totalPages -1;
+    return this.pageResult.number < this.pageResult.totalPages - 1;
   }
 
   getConvertedConnectionTypeLabel(implementor) {

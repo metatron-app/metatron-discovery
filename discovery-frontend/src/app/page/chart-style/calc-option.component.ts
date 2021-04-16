@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input} from '@angular/core';
-import {BaseOptionComponent} from './base-option.component';
+import * as _ from 'lodash';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {TotalValueStyle, UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
 import {UIOption} from '@common/component/chart/option/ui-option';
 import {FontSize, GridViewType, Operator, UIPosition} from '@common/component/chart/option/define/common';
-import * as _ from 'lodash';
+import {BaseOptionComponent} from './base-option.component';
 
 @Component({
   selector: 'calc-option',
   templateUrl: './calc-option.component.html'
 })
-export class CalculatedRowOptionComponent extends BaseOptionComponent {
+export class CalculatedRowOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -48,7 +48,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
 
     // 원본데이터인경우 연산행 제거
-    if (GridViewType.MASTER == (this.uiOption as UIGridChart).dataType && this.uiOption['totalValueStyle']) {
+    if (GridViewType.MASTER === (this.uiOption as UIGridChart).dataType && this.uiOption['totalValueStyle']) {
       this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: null}) as UIOption);
       this.update();
     }
@@ -159,8 +159,8 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private apply(totalValueStyle: TotalValueStyle): void {
-    this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: totalValueStyle}) as UIOption);
-    this.update();
-  }
+  // private apply(totalValueStyle: TotalValueStyle): void {
+  //   this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: totalValueStyle}) as UIOption);
+  //   this.update();
+  // }
 }

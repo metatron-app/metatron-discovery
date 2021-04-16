@@ -12,20 +12,19 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { AuditService } from '../../../service/audit.service';
-import { Audit } from '@domain/audit/audit';
-import { LogComponent } from '@common/component/modal/log/log.component';
-import { QueryHistory } from '@domain/query/queryHistory';
-import { Log } from '@common/domain/modal';
-import { DatePipe } from '@angular/common';
-import { isUndefined } from 'util';
-import { LogEditorComponent } from '../../../component/log-editor/log-editor.component';
-import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
-import { ActivatedRoute } from '@angular/router';
-import { CommonUtil } from '@common/util/common.util';
-import {Location} from '@angular/common';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AuditService} from '../../../service/audit.service';
+import {Audit} from '@domain/audit/audit';
+import {LogComponent} from '@common/component/modal/log/log.component';
+import {QueryHistory} from '@domain/query/queryHistory';
+import {Log} from '@common/domain/modal';
+import {DatePipe, Location} from '@angular/common';
+import {isUndefined} from 'util';
+import {LogEditorComponent} from '../../../component/log-editor/log-editor.component';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {ActivatedRoute} from '@angular/router';
+import {CommonUtil} from '@common/util/common.util';
 
 declare let moment: any;
 
@@ -34,7 +33,7 @@ declare let moment: any;
   templateUrl: './job-detail.component.html',
   providers: [MomentDatePipe]
 })
-export class JobDetailComponent extends AbstractPopupComponent {
+export class JobDetailComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -43,7 +42,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
   // 생성자
   constructor(protected auditService: AuditService,
               protected element: ElementRef,
-              protected activatedRoute : ActivatedRoute,
+              protected activatedRoute: ActivatedRoute,
               protected location: Location,
               protected injector: Injector) {
     super(element, injector);
@@ -83,7 +82,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
+  public convertMilliseconds: (ms: number) => string = CommonUtil.convertMilliseconds;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
@@ -115,7 +114,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
    */
   public close(): void {
     const prev = this.auditService.previousRouter;
-    if(''!== prev) {
+    if ('' !== prev) {
       this.auditService.previousRouter = '';
       this.router.navigateByUrl(prev);
     } else {
@@ -144,7 +143,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
     if (this.isPlanNull()) {
       return;
     }
-    const log: Log = new Log;
+    const log: Log = new Log();
     log.title = 'Plan Information';
     // 생성시간
     log.subTitle = [];
@@ -159,7 +158,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
    * @param {QueryHistory} queryData
    */
   public onClickOpenQueryModal(queryData: QueryHistory): void {
-    const log: Log = new Log;
+    const log: Log = new Log();
     const datePipe = new DatePipe('en-EN');
     log.title = 'QUERY';
     log.subTitle = [];
@@ -179,7 +178,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
    * @param {QueryHistory} queryData
    */
   public onClickOpenLogModal(type: string, queryData ?: QueryHistory): void {
-    const log: Log = new Log;
+    const log: Log = new Log();
     const datePipe = new DatePipe('en-EN');
     // titles
     log.subTitle = [];
@@ -290,7 +289,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
    * @private
    */
   private _getQueryHistory(connectionId: string): void {
-    this.auditService.getQueryHistories({ dataConnectionId: connectionId, page: 0, size: 5 })
+    this.auditService.getQueryHistories({dataConnectionId: connectionId, page: 0, size: 5})
       .then((result) => {
         // 데이터 있을때
         result._embedded && (this.queryHistoryList = result._embedded.queryhistories.sort((prev, next) => {

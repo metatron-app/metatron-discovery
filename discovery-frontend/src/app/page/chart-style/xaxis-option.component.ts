@@ -12,26 +12,22 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { LogicalType } from '@domain/datasource/datasource';
-import {
-  UIOption
-} from '@common/component/chart/option/ui-option';
-import {
-  AxisLabelType, ChartAxisLabelType, ChartType, UIOrient
-} from '@common/component/chart/option/define/common';
-import { Alert } from '@common/util/alert.util';
 import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {LogicalType} from '@domain/datasource/datasource';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {AxisLabelType, ChartAxisLabelType, ChartType, UIOrient} from '@common/component/chart/option/define/common';
+import {Alert} from '@common/util/alert.util';
 import {BaseOptionComponent} from './base-option.component';
 import {UIChartAxis} from '@common/component/chart/option/ui-option/ui-axis';
-import { OptionGenerator } from '@common/component/chart/option/util/option-generator';
+import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
 
 @Component({
   selector: 'xaxis-option',
   templateUrl: './xaxis-option.component.html'
 })
-export class XAxisOptionComponent extends BaseOptionComponent {
+export class XAxisOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -50,7 +46,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
   public nameUiOption: UIOption;
 
   // gauge: label direction
-  public labelDirectionList: Object[] = [
+  public labelDirectionList: object[] = [
     {name: '가로방향', value: 'HORIZONTAL'},
     {name: '세로방향', value: 'VERTICAL'}
   ];
@@ -102,7 +98,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
         this.uiOption.xAxis.label = UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE);
       } else {
         // label값 생성
-        this.uiOption.xAxis.label = this.uiOption['align'] && UIOrient.HORIZONTAL == this.uiOption['align'] ? UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE) : UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY);
+        this.uiOption.xAxis.label = this.uiOption['align'] && UIOrient.HORIZONTAL === this.uiOption['align'] ? UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE) : UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY);
       }
     }
     // 라벨값이 없는경우
@@ -113,7 +109,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
         this.uiOption.yAxis.label = UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY);
       } else {
         // label값 생성
-        this.uiOption.yAxis.label = this.uiOption['align'] && UIOrient.HORIZONTAL == this.uiOption['align'] ? UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY) : UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE);
+        this.uiOption.yAxis.label = this.uiOption['align'] && UIOrient.HORIZONTAL === this.uiOption['align'] ? UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY) : UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE);
       }
     }
 
@@ -137,7 +133,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
     if (!this.uiOption.xAxis.showName) return;
 
     // enter시 currentTarget.value값으로 설정, click시 row / column에 따라 nameUiOption axis name값으로 설정
-    const value = name ? name : AxisLabelType.ROW === axisLabelType ?  this.nameUiOption.xAxis.customName : this.nameUiOption.yAxis.customName;
+    const value = name ? name : AxisLabelType.ROW === axisLabelType ? this.nameUiOption.xAxis.customName : this.nameUiOption.yAxis.customName;
 
     // max length validation
     if (value && value.length > 20) {
@@ -147,18 +143,17 @@ export class XAxisOptionComponent extends BaseOptionComponent {
       return;
     }
 
-    if( _.eq(this.uiOption.xAxis.mode, axisLabelType) ) {
+    if (_.eq(this.uiOption.xAxis.mode, axisLabelType)) {
       this.uiOption.xAxis.name = value;
     }
 
     if (_.isEmpty(value) || (value && _.isEmpty(value.trim()))) {
       delete this.uiOption.xAxis.customName;
-    }
-    else {
+    } else {
       this.uiOption.xAxis.customName = value.trim();
     }
 
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: this.uiOption.xAxis}) as UIOption);
     this.update();
     this.changeAxisNameEvent.emit();
   }
@@ -171,10 +166,10 @@ export class XAxisOptionComponent extends BaseOptionComponent {
    */
   public showAxisName(axisLabelType: any, show: boolean): void {
 
-    if( _.eq(this.uiOption.xAxis.mode, axisLabelType) ) {
+    if (_.eq(this.uiOption.xAxis.mode, axisLabelType)) {
       this.uiOption.xAxis.showName = show;
     }
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: this.uiOption.xAxis}) as UIOption);
 
     this.update();
   }
@@ -187,10 +182,10 @@ export class XAxisOptionComponent extends BaseOptionComponent {
    */
   public showAxisLabel(axisLabelType: any, show: boolean): void {
 
-    if( _.eq(this.uiOption.xAxis.mode, axisLabelType) ) {
+    if (_.eq(this.uiOption.xAxis.mode, axisLabelType)) {
       this.uiOption.xAxis.showLabel = show;
     }
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: this.uiOption.xAxis}) as UIOption);
 
     this.update();
   }
@@ -208,12 +203,12 @@ export class XAxisOptionComponent extends BaseOptionComponent {
 
     this.xAxisRotateFlag = false;
 
-    if( _.eq(this.uiOption.xAxis.mode, axisLabelType) ) {
+    if (_.eq(this.uiOption.xAxis.mode, axisLabelType)) {
       this.uiOption.xAxis.label = this.uiOption.xAxis.label ? this.uiOption.xAxis.label : {};
       this.uiOption.xAxis.label.type = ChartAxisLabelType.CATEGORY;
       this.uiOption.xAxis.label['rotation'] = rotate;
     }
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: this.uiOption.xAxis}) as UIOption);
 
     this.update();
   }
@@ -225,7 +220,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
 
     // axisConfig show / hide 설정
     this.uiOption.xAxis.axisOption.showFl = !this.uiOption.xAxis.axisOption.showFl;
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: this.uiOption.xAxis}) as UIOption);
     this.update();
   }
 
@@ -238,7 +233,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
 
     if (!axisConfig) return;
 
-    switch(type) {
+    switch (type) {
       case 'min' :
         // null값인경우
         if (!axisValue) axisValue = axisConfig.originMin;
@@ -282,7 +277,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
     }
 
     axisConfig.changeType = type;
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: this.uiOption.xAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: this.uiOption.xAxis}) as UIOption);
     this.update();
   }
 
@@ -299,13 +294,13 @@ export class XAxisOptionComponent extends BaseOptionComponent {
     // 모든 dimension리스트의 값이 dimension이면서 logicalType이 integer/double일떄
     const checkDimensionList = dimensionList.filter((item) => {
 
-      if (item.type == 'dimension' && item.field.logicalType == LogicalType.INTEGER || item.field.logicalType == LogicalType.DOUBLE) {
+      if (item.type === 'dimension' && item.field.logicalType === LogicalType.INTEGER || item.field.logicalType === LogicalType.DOUBLE) {
         return item;
       }
     });
 
     // length가 같을때 true
-    return checkDimensionList.length == dimensionList.length;
+    return checkDimensionList.length === dimensionList.length;
   }
 
   /**
@@ -313,7 +308,7 @@ export class XAxisOptionComponent extends BaseOptionComponent {
    */
   public changeXAxisValue(axis: UIChartAxis): void {
 
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: axis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: axis}) as UIOption);
 
     this.update();
   }
@@ -324,10 +319,11 @@ export class XAxisOptionComponent extends BaseOptionComponent {
    */
   public changeBaseline(axis: UIChartAxis): void {
 
-    this.uiOption = (_.extend({}, this.uiOption, { xAxis: axis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {xAxis: axis}) as UIOption);
 
     this.update({});
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnInit } from '@angular/core';
-import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
-import { PopupService } from '@common/service/popup.service';
-import { NoteBook } from '@domain/notebook/notebook';
-import { Datasource } from '@domain/datasource/datasource';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {NoteBook} from '@domain/notebook/notebook';
+import {Datasource} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-notebook-select',
   templateUrl: './create-notebook-select.component.html'
 })
-export class CreateNotebookSelectComponent extends AbstractPopupComponent implements OnInit {
+export class CreateNotebookSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables

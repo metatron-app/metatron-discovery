@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {NoteBook} from '@domain/notebook/notebook';
 import {isUndefined} from 'util';
@@ -24,7 +24,7 @@ import * as _ from 'lodash';
   selector: 'app-add-notebook-server',
   templateUrl: './add-notebook-server.component.html'
 })
-export class AddNotebookServerComponent extends AbstractComponent implements OnInit {
+export class AddNotebookServerComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -141,9 +141,9 @@ export class AddNotebookServerComponent extends AbstractComponent implements OnI
 
   // 저장
   public confirm() {
-    this.notebook.url  = this.notebook.url  ? this.notebook.url.trim() : ''; // trim 처리
+    this.notebook.url = this.notebook.url ? this.notebook.url.trim() : ''; // trim 처리
     // this.notebook.port  = this.notebook.port  ? this.notebook.port.trim() : ''; // trim 처리
-    this.notebook.name  = this.notebook.name  ? this.notebook.name.trim() : ''; // trim 처리
+    this.notebook.name = this.notebook.name ? this.notebook.name.trim() : ''; // trim 처리
 
     if (this.notebook.url === '' || isUndefined(this.notebook.url)) {
       this.isUrlReqError = true;

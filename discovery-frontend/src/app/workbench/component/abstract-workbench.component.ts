@@ -13,13 +13,13 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {ElementRef, Injector} from '@angular/core';
+import {ElementRef, Injector, OnDestroy} from '@angular/core';
 import {CommonConstant} from '@common/constant/common.constant';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {WorkbenchService} from '../service/workbench.service';
 import {Message} from '@stomp/stompjs';
 
-export class AbstractWorkbenchComponent extends AbstractComponent {
+export class AbstractWorkbenchComponent extends AbstractComponent implements OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -62,7 +62,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
    * 웹소켓 체크
    * @param {Function} callback
    */
-  public webSocketCheck(callback?: Function) {
+  public webSocketCheck(callback?: () => void) {
     this.checkAndConnectWebSocket(true).then(() => {
       try {
         this._createWebSocket(callback);
@@ -86,7 +86,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
    * @param {Function} callback
    * @private
    */
-  private _createWebSocket(callback?: Function): void {
+  private _createWebSocket(callback?: () => void): void {
     // 웹소켓 아이디
     WorkbenchService.websocketId = CommonConstant.websocketId;
     try {

@@ -22,7 +22,6 @@ import {DeleteModalComponent} from '@common/component/modal/delete/delete.compon
 import {ActivatedRoute} from '@angular/router';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {NotebookService} from './service/notebook.service';
-import {Subscription} from 'rxjs/Subscription';
 import {SubscribeArg} from '@common/domain/subscribe-arg';
 import {NoteBook} from '@domain/notebook/notebook';
 import {UserDetail} from '@domain/common/abstract-history-entity';
@@ -39,9 +38,6 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 팝업 서비스
-  private popupSubscription: Subscription;
 
   // 선택된 모델 아이디
   public selectedModelId: string;
@@ -100,12 +96,14 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
 
     this.resultData.createdBy = new UserDetail();
 
-    this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-      this.createApiLayerShow = false;
-      if (data.name === 'create-notebook-api-create') {
-        this.getNotebookApi();
-      }
-    });
+    this.subscriptions.push(
+      this.popupService.view$.subscribe((data: SubscribeArg) => {
+        this.createApiLayerShow = false;
+        if (data.name === 'create-notebook-api-create') {
+          this.getNotebookApi();
+        }
+      })
+    );
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -147,7 +145,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
               this.setNotebookDescription();
 
               // Send statistics data
-              this.sendViewActivityStream( this.selectedModelId, 'NOTEBOOK' );
+              this.sendViewActivityStream(this.selectedModelId, 'NOTEBOOK');
             } else {
               this.loadingHide();
               this.openAccessDeniedConfirm();

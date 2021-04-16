@@ -20,4 +20,5 @@ import {CreateWorkbenchCompleteComponent} from './create-workbench-complete.comp
     ConstantService
   ]
 })
-export class CreateWorkbenchModule {}
+export class CreateWorkbenchModule {
+}

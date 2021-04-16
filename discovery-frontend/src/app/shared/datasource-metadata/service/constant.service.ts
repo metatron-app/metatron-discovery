@@ -111,12 +111,12 @@ export class ConstantService {
 
   public getTypeFiltersInDimensionIncludeGeoTypes() {
     return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL
-                                                    && type.value !== Type.Logical.HASHED_MAP));
+      && type.value !== Type.Logical.HASHED_MAP));
   }
 
   public getTypeFiltersInDimensionOnlyBaseTypeString() {
     return _.cloneDeep(this.typeFilters.filter(type => type.value !== Type.Logical.ALL
-                                                    && type.value !== Type.Logical.HASHED_MAP));
+      && type.value !== Type.Logical.HASHED_MAP));
   }
 
   public getTypeFiltersInMeasure() {
@@ -124,7 +124,7 @@ export class ConstantService {
       this.typeFilters.filter(type => {
         return type.value !== Type.Logical.ALL &&
           (type.value === Type.Logical.INTEGER || type.value === Type.Logical.DOUBLE
-          || type.value === Type.Logical.ARRAY || type.value === Type.Logical.HASHED_MAP);
+            || type.value === Type.Logical.ARRAY || type.value === Type.Logical.HASHED_MAP);
       }));
   }
 
