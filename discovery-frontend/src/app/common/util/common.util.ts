@@ -17,7 +17,7 @@ import {CommonConstant} from '../constant/common.constant';
 import {CookieConstant} from '../constant/cookie.constant';
 import {SYSTEM_PERMISSION} from 'app/common/permission/permission';
 import {Modal} from '../domain/modal';
-import {environment} from '../../../environments/environment';
+import {environment} from '@environments/environment';
 import {Router} from '@angular/router';
 import {isNullOrUndefined} from 'util';
 import {Theme, UserSetting} from '../value/user.setting.value';

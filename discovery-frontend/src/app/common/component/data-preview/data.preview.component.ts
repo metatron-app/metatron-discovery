@@ -38,8 +38,7 @@ import {
   Status,
   TemporaryDatasource
 } from '@domain/datasource/datasource';
-import {SlickGridHeader} from 'app/common/component/grid/grid.header';
-import {header} from '../grid/grid.header';
+import {Header, SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
 import {GridOption} from '../grid/grid.option';
 import {Alert} from '../../util/alert.util';
@@ -442,7 +441,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {header[]}
    * @private
    */
-  private _getGridHeader(fields: Field[]): header[] {
+  private _getGridHeader(fields: Field[]): Header[] {
     const derivedFieldList = fields ? fields.filter(field => field.derived) : [];
     // if exist derived field list
     if (derivedFieldList.length > 0) {
@@ -504,7 +503,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   private updateGrid(data?: any, fields?: Field[]) {
     // 헤더정보 생성
-    const headers: header[] = this._getGridHeader(this._getFilteredFieldList(fields || this.columns));
+    const headers: Header[] = this._getGridHeader(this._getFilteredFieldList(fields || this.columns));
     let rows: any[] = data || this.gridData;
     // row and headers가 있을 경우에만 그리드 생성
     if (rows && 0 < headers.length) {

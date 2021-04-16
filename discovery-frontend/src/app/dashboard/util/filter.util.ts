@@ -292,10 +292,10 @@ export class FilterUtil {
   /**
    * 기본 정규식 필터 생성
    * @param {string} fieldName
-   * @param preFilterData
+   * @param _preFilterData
    * @return {RegExprFilter}
    */
-  public static getBasicRegExprFilter(fieldName: string, preFilterData: any): RegExprFilter {
+  public static getBasicRegExprFilter(fieldName: string, _preFilterData: any): RegExprFilter {
     const regExprFilter = new RegExprFilter();
     regExprFilter.field = fieldName;
     regExprFilter.expr = '';
@@ -745,7 +745,7 @@ export class FilterUtil {
   } // function - getTimeListFilter
 
 
-  static setParameterFilterValue(filter: Filter, key: string, value: any): void {
+  static setParameterFilterValue(filter: Filter, _key: string, value: any): void {
     if (filter.type === 'include') {
       const inclusionFilter: InclusionFilter = filter as InclusionFilter;
       if (Array.isArray(value)) {

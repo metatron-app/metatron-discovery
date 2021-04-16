@@ -15,11 +15,11 @@ import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Datasource, Field, FieldNameAlias, FieldValueAlias } from '../datasource/datasource';
 import { Widget } from './widget/widget';
 import { Workbook } from '../workbook/workbook';
-import { ChartSelectInfo } from '../../common/component/chart/base-chart';
+import { ChartSelectInfo } from '@common/component/chart/base-chart';
 import { Filter } from '../workbook/configurations/filter/filter';
 import { BoardGlobalOptions } from './dashboard.globalOptions';
 import { CustomField } from '../workbook/configurations/field/custom-field';
-import { CommonUtil } from '../../common/util/common.util';
+import { CommonUtil } from '@common/util/common.util';
 import {Sort} from '../workbook/configurations/sort';
 
 /**

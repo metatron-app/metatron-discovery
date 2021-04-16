@@ -100,7 +100,7 @@ import {UIRadarChart} from '../ui-option/ui-radar-chart';
 import {UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue} from '../ui-option/ui-axis';
 import {MapBy, MapLayerType, MapLineStyle, MapType} from '../define/map/map-common';
 import {UIMapOption} from '../ui-option/map/ui-map-chart';
-import {CommonConstant} from '../../../../constant/common.constant';
+import {CommonConstant} from '@common/constant/common.constant';
 
 export namespace OptionGenerator {
 

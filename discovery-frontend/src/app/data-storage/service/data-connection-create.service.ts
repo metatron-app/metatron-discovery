@@ -14,7 +14,7 @@
 
 import {Injectable, Injector} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {AuthenticationType, ImplementorType} from '../../domain/dataconnection/dataconnection';
+import {AuthenticationType, ImplementorType} from '@domain/dataconnection/dataconnection';
 
 @Injectable()
 export class DataConnectionCreateService {

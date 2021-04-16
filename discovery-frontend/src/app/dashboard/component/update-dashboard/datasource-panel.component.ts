@@ -155,7 +155,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
-    this._differ = differs.find({}).create();
+    this._differ = this.differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -628,7 +628,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     totalFields.forEach(field => {
       field.useChartFilter = false;
       field.useFilter = false;
-      field['isCustomMeasure'] = this.isCustomMeasureField(field);
+      field['isCustomMeasure'] = this.isCustomMeasureField(field as Field);
     });
 
     // 필드로 필터 사용판단

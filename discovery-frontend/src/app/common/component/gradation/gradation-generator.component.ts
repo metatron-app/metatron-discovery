@@ -110,7 +110,7 @@ export class GradationGeneratorComponent extends AbstractComponent implements On
       separateValue: data.separateValue,
       type: 'linear',
       code_shown: false,
-      change: (sliderList, values, displaySliders, currentValue) => {
+      change: (sliderList, _values, displaySliders, currentValue) => {
 
         // visualMap에 설정되는 리스트
         this.displaySliders = displaySliders;

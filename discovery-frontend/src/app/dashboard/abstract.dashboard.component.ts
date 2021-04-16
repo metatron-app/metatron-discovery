@@ -90,7 +90,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
     const filterWidget: FilterWidget = DashboardUtil.getFilterWidgetByFilter(board, filter);
     if (board.configuration.filterRelations && filterWidget) {
       this._findWidgetRelation(filterWidget.id, board.configuration.filterRelations, [],
-        (target: DashboardWidgetRelation, hierarchy: string[]) => {
+        (_target: DashboardWidgetRelation, hierarchy: string[]) => {
           if (0 < hierarchy.length) {
             prevFilter = hierarchy.map(item => {
               const conf: FilterWidgetConfiguration = (DashboardUtil.getWidget(board, item) as FilterWidget).configuration;
@@ -189,7 +189,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
   protected _removeWidgetRelation(widgetId: string, items: DashboardWidgetRelation[], board?: Dashboard) {
     if (items) {
       this._findWidgetRelation(widgetId, items, [],
-        (target: DashboardWidgetRelation, hierarchy: string[], list: DashboardWidgetRelation[]) => {
+        (target: DashboardWidgetRelation, _hierarchy: string[], list: DashboardWidgetRelation[]) => {
           const delIdx: number = list.findIndex(item => item.ref === target.ref);
           if (-1 < delIdx) {
             list.splice(delIdx, 1);
@@ -269,7 +269,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
     };
 
     this._findWidgetRelation(targetId, items, [],
-      (target: DashboardWidgetRelation, hierarchy: string[]) => {
+      (target: DashboardWidgetRelation, _hierarchy: string[]) => {
         (callback) && (callback(target, getChildItems(target.children, [])));
         return true;
       },

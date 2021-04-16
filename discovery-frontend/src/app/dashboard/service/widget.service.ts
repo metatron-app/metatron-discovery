@@ -13,19 +13,19 @@
  */
 
 import * as _ from 'lodash';
-import { Injectable } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
-import { AbstractService } from '@common/service/abstract.service';
-import { Widget } from '@domain/dashboard/widget/widget';
-import { Observable } from 'rxjs';
-import { CookieConstant } from '@common/constant/cookie.constant';
-import { SearchQueryRequest } from '@domain/datasource/data/search-query-request';
-import { UIOption } from '@common/component/chart/option/ui-option';
-import { SPEC_VERSION } from '@common/component/chart/option/define/common';
-import { OptionGenerator } from '@common/component/chart/option/util/option-generator';
-import { FilterUtil } from '../util/filter.util';
-import { isNullOrUndefined } from 'util';
-import { CommonConstant } from '@common/constant/common.constant';
+import {Injectable} from '@angular/core';
+import {HttpHeaders} from '@angular/common/http';
+import {AbstractService} from '@common/service/abstract.service';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {Observable} from 'rxjs';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {SPEC_VERSION} from '@common/component/chart/option/define/common';
+import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
+import {FilterUtil} from '../util/filter.util';
+import {isNullOrUndefined} from 'util';
+import {CommonConstant} from '@common/constant/common.constant';
 
 @Injectable()
 export class WidgetService extends AbstractService {
@@ -119,9 +119,9 @@ export class WidgetService extends AbstractService {
    * @param {SearchQueryRequest} query
    * @param {boolean} original
    * @param {boolean} preview
-   * @param {any} param
+   * @param {any} _param
    */
-  public previewConfig(query: SearchQueryRequest, original: boolean, preview:boolean, param: any = null): Promise<any> {
+  public previewConfig(query: SearchQueryRequest, original: boolean, preview: boolean, _param: any = null): Promise<any> {
 
     // 파라미터 가공
     const config: object = {
@@ -179,7 +179,7 @@ export class WidgetService extends AbstractService {
     // 호출
     return this.http.post(url, config, option)
       .map((res) => {
-        return new Blob([res], { type: strType })
+        return new Blob([String(res)], {type: strType})
       });
   } // function - downloadConfig
 
@@ -191,7 +191,7 @@ export class WidgetService extends AbstractService {
    * @param {any} param
    * @returns {Promise<any>}
    */
-  public previewWidget(widgetId: string, original: boolean, preview:boolean, param: any = null): Promise<any> {
+  public previewWidget(widgetId: string, original: boolean, preview: boolean, param: any = null): Promise<any> {
     const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=${preview}&limit=100000000`;
     return this.post(url, param);
   } // function - previewWidget
@@ -233,7 +233,7 @@ export class WidgetService extends AbstractService {
     // 호출
     return this.http.post(url, param, option)
       .map((res) => {
-        return new Blob([res], { type: strType })
+        return new Blob([String(res)], {type: strType})
       });
   } // function - downloadWidget
 

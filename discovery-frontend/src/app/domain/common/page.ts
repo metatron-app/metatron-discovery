@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { CommonConstant } from '../../common/constant/common.constant';
+import { CommonConstant } from '@common/constant/common.constant';
 
 /**
  * 페이지 파라미터용

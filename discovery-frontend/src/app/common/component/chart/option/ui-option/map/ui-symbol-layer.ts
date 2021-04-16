@@ -16,11 +16,11 @@
  * symbol layer
  */
 
-import { MapOutline } from './ui-outline';
-import { MapBy, MapSymbolType } from '../../define/map/map-common';
-import { UILayers } from './ui-layers';
+import {MapOutline} from './ui-outline';
+import {MapBy, MapSymbolType} from '../../define/map/map-common';
+import {UILayers} from './ui-layers';
 
-export interface UISymbolLayer extends UILayers {
+export interface UISymbolLayer extends Omit<UILayers, 'size'> {
 
   // Type of symbol
   symbol?: MapSymbolType;

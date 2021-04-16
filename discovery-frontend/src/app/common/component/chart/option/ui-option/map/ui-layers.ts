@@ -12,9 +12,12 @@
  * limitations under the License.
  */
 
+import {MapLayerSize} from '@common/component/chart/option/ui-option/map/ui-symbol-layer';
 import {MapBy, MapLayerType, MapLineStyle, MapSymbolType} from '../../define/map/map-common';
-import { ColorRange } from '../ui-color';
+import {ColorRange} from '../ui-color';
 import {MapOutline} from './ui-outline';
+
+export type UISymbolLayer = Omit<UILayers, 'size'> & { size: MapLayerSize };
 
 /**
  * map chart layer
@@ -49,24 +52,24 @@ export interface UILayers {
   ////////////////////////
 
   // heatMap radius
-  heatMapRadius? : number;
+  heatMapRadius?: number;
 
   // tile radius
-  tileRadius? : number;
+  tileRadius?: number;
 
   // point radius
   pointRadius?: number;
 
-  symbolPointType? : MapSymbolType;
-  symbolOutline? : MapOutline;
+  symbolPointType?: MapSymbolType;
+  symbolOutline?: MapOutline;
 
-  clusterPointType? : MapSymbolType;
-  clusterOutline? : MapOutline;
+  clusterPointType?: MapSymbolType;
+  clusterOutline?: MapOutline;
 
   // color type 관련
-  noneColor? : string;
-  dimensionColor? : string;
-  measureColor? : string;
+  noneColor?: string;
+  dimensionColor?: string;
+  measureColor?: string;
 }
 
 /**
@@ -116,31 +119,29 @@ interface SymbolColor {
   settingUseFl: boolean;
 
   // type schema, transparency
-  symbolSchema? : string;
-  symbolTransparency? : number;
+  symbolSchema?: string;
+  symbolTransparency?: number;
 
-  heatMapSchema? : string;
-  heatMapTransparency? : number;
+  heatMapSchema?: string;
+  heatMapTransparency?: number;
 
-  tileSchema? : string;
-  tranTransparency? : number;
+  tileSchema?: string;
+  tranTransparency?: number;
 
-  polygonSchema? : string;
+  polygonSchema?: string;
 
   // cluster => UI Only
   clusterSchema?: string;
   clusterTransparency?: number;
 
-  changeRange? : boolean;
+  changeRange?: boolean;
 }
 
 interface LayerSize {
   by: string;
   column: string;
-  min: number;
-  max: number;
-  minValue: string;
-  maxValue: string;
+  min?: number;
+  max?: number;
 }
 
 /**

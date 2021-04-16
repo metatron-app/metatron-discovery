@@ -28,7 +28,7 @@ import {isNullOrUndefined} from 'util';
 import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {AggregationType} from '../workbook/configurations/field/measure-field';
 import {Type} from '../../shared/datasource-metadata/domain/type';
-import {StringUtil} from '../../common/util/string.util';
+import {StringUtil} from '@common/util/string.util';
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID

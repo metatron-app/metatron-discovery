@@ -79,7 +79,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
-    this._differ = differs.find({}).create();
+    this._differ = this.differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -125,7 +125,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
   public getWidgetContents(widget: Widget): string {
     if (widget) {
       let strContents: string = widget.configuration['contents'];
-      strContents = strContents.replace(/&(lt|gt);/g, (strMatch, p1) => {
+      strContents = strContents.replace(/&(lt|gt);/g, (_strMatch, p1) => {
         return (p1 === 'lt') ? '<' : '>';
       });
       return strContents.replace(/<\/?[^>]+(>|$)/g, '');
@@ -156,7 +156,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    * @param {Widget} item
    */
   public modifyWidget(item: Widget) {
-    this.selectedTextWidget = item;
+    this.selectedTextWidget = item as TextWidget;
     this.showTextEditor = true;
   } // function - modifyWidget
 

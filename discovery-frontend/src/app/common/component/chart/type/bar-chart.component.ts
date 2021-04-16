@@ -33,7 +33,7 @@ import {
 import {OptionGenerator} from '../option/util/option-generator';
 import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {UIBarChart, UIChartAxis, UIOption} from '../option/ui-option';
+import {UIBarChart, UIChartAxis} from '../option/ui-option';
 import {DataZoomType} from '../option/define/datazoom';
 import {UIChartAxisGrid} from '../option/ui-option/ui-axis';
 import {Axis} from '../option/define/axis';
@@ -376,9 +376,9 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
 
   /**
    * change dataLabel, tooltip by single series, multi series
-   * @returns {UIOption}
+   * @returns {UIBarChart}
    */
-  protected setDataLabel(): UIOption {
+  protected setDataLabel(): UIBarChart {
 
     /**
      * check multi series <=> single series
@@ -470,7 +470,7 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
 
         let min = null;
         let max = null;
-        let calculateMin = null;
+        // let calculateMin = null;
         if (this.isStacked() && this.originalData.categories && this.originalData.categories.length > 0) {
           _.each(this.originalData.categories, (category) => {
             _.each(category.value, (value) => {
@@ -482,13 +482,13 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
               }
             });
           });
-          calculateMin = Math.ceil(min - ((max - min) * 0.05));
+          // calculateMin = Math.ceil(min - ((max - min) * 0.05));
           // min = min > 0
           //   ? calculateMin >= 0 ? calculateMin : min
           //   : min;
           max = max == null ? 0 : max;
         } else {
-          calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
+          // calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
           min = this.originalData.info.minValue;
           // min = this.originalData.info.minValue > 0
           //   ? calculateMin >= 0 ? calculateMin : min
@@ -503,7 +503,7 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
         // 기준선 변경시
         let baseline = 0;
         if (axisOption[index].baseline && axisOption[index].baseline !== 0) {
-          baseline = axisOption[index].baseline;
+          baseline = axisOption[index].baseline as number;
         }
 
         // 축 범위 자동설정이 설정되지 않았고
@@ -528,7 +528,7 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
     return this.chartOption;
   }
 
-  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAxis: boolean): void {
+  protected calculateMinMax(grid: UIChartAxisGrid, result: any, _isYAxis: boolean): void {
 
     // 축범위 자동설정일 경우
     if (grid.autoScaled) {
@@ -628,7 +628,7 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
               if (seriesValue[valIdx] <= 0) {
                 column.value[valIdx] = grid.max;
               } else {
-                column.value[valIdx] = grid.max - totalValue[valIdx];
+                column.value[valIdx] = (grid.max as number) - totalValue[valIdx];
               }
             } else if (totalValue[valIdx] + value < grid.min) {
               column.value[valIdx] = 0;
@@ -647,7 +647,7 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
           if (value < grid.min) {
             result.data.columns.map((column, _colIdx) => {
               column.value.map((_value, colValIdx) => {
-                if (index === valueIndex) {
+                if (colValIdx === valueIndex) {
                   column.value[colValIdx] = 0;
                 }
               });
@@ -742,7 +742,7 @@ export class BarChartComponent extends BaseChart<UIBarChart> implements OnInit, 
   /**
    * uiOption의 중첩시 최소 / 최대값 설정
    */
-  private setStackMinMaxValue(): UIOption {
+  private setStackMinMaxValue(): UIBarChart {
     const series = _.cloneDeep(this.data.columns);
 
     // 중첩 최소 / 최대값 초기화

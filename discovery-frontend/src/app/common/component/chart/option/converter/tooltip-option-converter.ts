@@ -17,7 +17,7 @@ import { UIChartFormat } from '../ui-option/ui-format';
 import { UIOption } from '../ui-option';
 import * as _ from 'lodash';
 import { UIChartDataLabelDisplayType } from '../define/common';
-import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
+import { GeoField } from '@domain/workbook/configurations/field/geo-field';
 
 /**
  * 수자 포맷 옵션 컨버터

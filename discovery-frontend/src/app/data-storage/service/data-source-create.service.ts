@@ -11,12 +11,12 @@ import {
   IngestionRuleType,
   LogicalType,
   SourceType
-} from '../../domain/datasource/datasource';
-import {PageResult} from '../../domain/common/page';
-import {StringUtil} from '../../common/util/string.util';
-import {CommonConstant} from '../../common/constant/common.constant';
-import {GranularityType} from '../../domain/workbook/configurations/field/timestamp-field';
-import {HiveFileFormat, PrDataSnapshot, SsType} from '../../domain/data-preparation/pr-snapshot';
+} from '@domain/datasource/datasource';
+import {PageResult} from '@domain/common/page';
+import {StringUtil} from '@common/util/string.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {GranularityType} from '@domain/workbook/configurations/field/timestamp-field';
+import {HiveFileFormat, PrDataSnapshot, SsType} from '@domain/data-preparation/pr-snapshot';
 import {DataStorageConstant} from '../constant/data-storage-constant';
 import {ConnectionParam} from './data-connection-create.service';
 import {GranularityObject, GranularityService} from './granularity.service';

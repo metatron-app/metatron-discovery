@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Field, FieldRole, IngestionRule, LogicalType} from '../../../datasource/datasource';
+import {Field, FieldRole, IngestionRule, LogicalType} from '@domain/datasource/datasource';
 import {UserDefinedField} from './user-defined-field';
 
 export class CustomField extends UserDefinedField {

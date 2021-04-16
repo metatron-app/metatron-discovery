@@ -127,12 +127,12 @@ export class LineChartSplit {
       const seriesdata = [];
 
       // 교차에 등록된 Dimension Count
-      let dimensionCount: number = 0;
-      _.each(pivot.aggregations, (item) => {
-        if( !_.eq(item.type, ShelveFieldType.MEASURE) ) {
-          dimensionCount++;
-        }
-      });
+      // let dimensionCount: number = 0;
+      // _.each(pivot.aggregations, (item) => {
+      //   if( !_.eq(item.type, ShelveFieldType.MEASURE) ) {
+      //     dimensionCount++;
+      //   }
+      // });
 
       // 데이터 세팅
       // Measure 시리즈일경우
@@ -201,6 +201,7 @@ export class LineChartSplit {
       }
       else {
 
+        const refineColumns: object[] = [];
         if( num === 0 ) {
 
           ////////////////////////////////////////
@@ -218,13 +219,12 @@ export class LineChartSplit {
           });
 
           // Measure가 여러개일경우 첫번째 Measure에 해당하는 Column 정보만 정제한다.
-          // let refineColumns: Object[] = [];
           data.columns.map((column, _columnIndex) => {
             const columnNameList = _.split(column.name, CHART_STRING_DELIMITER);
             let measureIndex = -1;
-            _.each(columnNameList, (item, index) => {
+            _.each(columnNameList, (item, colNameIdx) => {
               if (item.indexOf(measureName) !== -1) {
-                measureIndex = index;
+                measureIndex = colNameIdx;
                 return false;
               }
             });
@@ -417,7 +417,7 @@ export class LineChartSplit {
     console.log(series);
     console.log(seriesList);
     console.log(splitSeriesList);
-    console.log(refineColumns);
+    // console.log(refineColumns);
 
     // 시리즈 목록을 루프돌며 Split 시리즈를 설정한다.
     if( aggregationDimensionCount > 1 ) {
@@ -455,7 +455,7 @@ export class LineChartSplit {
     console.log(series);
     console.log(seriesList);
     console.log(splitSeriesList);
-    console.log(refineColumns);
+    // console.log(refineColumns);
 
     ////////////////////////////////////////
     // Y축 - Min / Max 설정

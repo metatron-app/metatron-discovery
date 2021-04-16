@@ -1056,11 +1056,11 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   // noinspection JSMethodCanBeStatic
   /**
    * 필터 목록의
-   * @param index
+   * @param _index
    * @param {FilterWidget} filterWidget
    * @return {string}
    */
-  public filterListTrackByFn(index, filterWidget: FilterWidget) {
+  public filterListTrackByFn(_index, filterWidget: FilterWidget) {
     const filter: Filter = (filterWidget.configuration as FilterWidgetConfiguration).filter;
     return filter.dataSource + filter.type + filter.field;
   } // function - trackByFn
@@ -1251,9 +1251,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   /**
    * 필터 변경
    * @param {Filter} filter
-   * @param {boolean} isSetPanel
+   * @param {boolean} _isSetPanel
    */
-  public updateFilter(filter: Filter, isSetPanel: boolean = false) {
+  public updateFilter(filter: Filter, _isSetPanel: boolean = false) {
 
     this.showBoardLoading();
 
@@ -1266,7 +1266,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 변경된 필터가 어떤 필터의 상위 필터인 경우 하위 필터의 값을 초기화 해준다. - S
     {
-      const findRelationInfo = (targetId: string, items: DashboardWidgetRelation[], callback: (relItem: DashboardWidgetRelation) => boolean) => {
+      const findRelationInfo = (targetId: string, items: DashboardWidgetRelation[], callback: (relItem: DashboardWidgetRelation) => void) => {
         return items.some((relItem: DashboardWidgetRelation) => {
           if (targetId === relItem.ref) {
             return callback(relItem);

@@ -24,9 +24,9 @@ import {
 } from '@angular/router';
 
 import * as _ from 'lodash';
-import {EventBroadcaster} from './common/event/event.broadcaster';
-import {UserSetting} from './common/value/user.setting.value';
-import {CommonUtil} from './common/util/common.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {UserSetting} from '@common/value/user.setting.value';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-root',

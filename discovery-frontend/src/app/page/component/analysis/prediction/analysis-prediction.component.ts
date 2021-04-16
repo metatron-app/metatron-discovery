@@ -32,7 +32,7 @@ import {RangeSliderComponent} from '../slider/range-slider.component';
 import {Pivot} from '@domain/workbook/configurations/pivot';
 import {ChartColorList, GraphicType, ShelveFieldType, ShelveType} from '@common/component/chart/option/define/common';
 import {PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
-import {Analysis, analysis, Confidence, Forecast, HyperParameter, Style} from '../../value/analysis';
+import {Analysis, AnalysisConfig, Confidence, Forecast, HyperParameter, Style} from '../../value/analysis';
 import {ColorPickerLayerComponent} from '../color.picker/color.picker.layer.component';
 import * as $ from 'jquery';
 import {SelectComponent} from '@common/component/select/select.component';
@@ -775,7 +775,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       this.data.analysis = null;
       this.data.analysis = new Analysis();
-      this.data.analysis.analysis = new analysis();
+      this.data.analysis.analysis = new AnalysisConfig();
       this.data.analysis.analysis = this.widgetConfiguration.analysis;
 
       // 측정 목록 초기화
@@ -1622,7 +1622,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     _analysis.pivot = this.widgetConfiguration.pivot;
     this.data.analysis = _analysis;
 
-    const analysisInAnalysis = new analysis();
+    const analysisInAnalysis = new AnalysisConfig();
 
     analysisInAnalysis.timeUnit = this.widgetConfiguration.pivot.columns[0].format.unit;
     analysisInAnalysis.interval = 12;
@@ -1684,7 +1684,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
     this.data.analysis = _analysis;
 
-    this.widgetConfiguration.analysis = new analysis();
+    this.widgetConfiguration.analysis = new AnalysisConfig();
     this.widgetConfiguration.analysis = this.data.analysis.analysis;
   }
 

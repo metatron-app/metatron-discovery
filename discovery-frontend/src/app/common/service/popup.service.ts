@@ -15,7 +15,7 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs/Subject';
 import {SubscribeArg} from '../domain/subscribe-arg';
-import {Dashboard, PresentationDashboard} from '../../domain/dashboard/dashboard';
+import {Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
 
 @Injectable()
 export class PopupService {

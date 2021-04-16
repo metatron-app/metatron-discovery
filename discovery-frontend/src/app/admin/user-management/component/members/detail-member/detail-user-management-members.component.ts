@@ -20,7 +20,6 @@ import {Modal} from '@common/domain/modal';
 import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
 import {Alert} from '@common/util/alert.util';
 import {UpdateUserManagementMembersComponent} from '../update-member/update-user-management-members.component';
-import {PermissionService} from '../../../../../user/service/permission.service';
 import {CommonUtil} from '@common/util/common.util';
 import {Group} from '@domain/user/group';
 import {ChangeWorkspaceOwnerModalComponent} from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
@@ -94,9 +93,8 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
 
   // 생성자
   constructor(
-    private permissionService: PermissionService,
     private activatedRoute: ActivatedRoute,
-    private _location:Location,
+    private _location: Location,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -393,20 +391,18 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     // 로딩 show
     this.loadingShow();
     // 비밀번호 초기화
-    this.membersService.userPasswordReset(this.userData.email).
-      then(() => {
-        // alert
-        Alert.success(
-          this.translateService.instant('msg.mem.alert.reset.usr.pw.success'));
-        // 로딩 hide
-        this.loadingHide();
-      }).
-      catch((error) => {
-        // alert
-        Alert.error(error);
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this.membersService.userPasswordReset(this.userData.email).then(() => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.mem.alert.reset.usr.pw.success'));
+      // 로딩 hide
+      this.loadingHide();
+    }).catch((error) => {
+      // alert
+      Alert.error(error);
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -418,29 +414,27 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     // 로딩 show
     this.loadingShow();
     // 비밀번호 초기화
-    this.membersService.updateUserStatus(this._userId, status).
-      then(() => {
-        // alert
-        Alert.success(status === 'LOCKED'
-          ?
-          this.translateService.instant(
-            'msg.mem.alert.change.usr.status.inactive.success',
-            {value: this.userData.fullName})
-          :
-          this.translateService.instant(
-            'msg.mem.alert.change.usr.status.active.success',
-            {value: this.userData.fullName}));
-        // 로딩 hide
-        this.loadingHide();
-        // 사용자 재조회
-        this.getUserDetail();
-      }).
-      catch((error) => {
-        // alert
-        Alert.error(error);
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this.membersService.updateUserStatus(this._userId, status).then(() => {
+      // alert
+      Alert.success(status === 'LOCKED'
+        ?
+        this.translateService.instant(
+          'msg.mem.alert.change.usr.status.inactive.success',
+          {value: this.userData.fullName})
+        :
+        this.translateService.instant(
+          'msg.mem.alert.change.usr.status.active.success',
+          {value: this.userData.fullName}));
+      // 로딩 hide
+      this.loadingHide();
+      // 사용자 재조회
+      this.getUserDetail();
+    }).catch((error) => {
+      // alert
+      Alert.error(error);
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**

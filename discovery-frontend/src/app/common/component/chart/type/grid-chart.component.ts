@@ -34,7 +34,7 @@ import {
 } from '../option/define/common';
 import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {UIChartColorByCell, UIOption} from '../option/ui-option';
+import {UIChartColorByCell} from '../option/ui-option';
 import {UIGridChart} from '../option/ui-option/ui-grid-chart';
 import {UIChartColorGradationByCell} from '../option/ui-option/ui-color';
 
@@ -126,9 +126,9 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
   /**
    * 차트에 설정된 옵션으로 차트를 그린다.
    * - 각 차트에서 Override
-   * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
+   * @param _isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
    */
-  public draw(isKeepRange?: boolean): void {
+  public draw(_isKeepRange?: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Valid 체크
@@ -563,9 +563,9 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
   /**
    * 차트에 옵션 반영
    * - Echart기반 차트가 아닐경우 Override 필요
-   * @param initFl 차트 초기화 여부
+   * @param _initFl 차트 초기화 여부
    */
-  protected apply(initFl: boolean = true): void {
+  protected apply(_initFl: boolean = true): void {
 
     // 원본보기일때 원본보기 데이터로 정제된 데이터를 설정
     const data = this.uiOption.dataType === GridViewType.MASTER ? this.originData : this.data;
@@ -684,9 +684,9 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
 
   /**
    * uiOption headerStyle, contentStyle 기본설정
-   * @returns {UIOption}
+   * @returns {UIGridChart}
    */
-  private setGridData(): UIOption {
+  private setGridData(): UIGridChart {
 
     const uiOption = this.uiOption;
 

@@ -21,16 +21,16 @@ import {AppComponent} from './app.component';
 import {RouterModule, Routes} from '@angular/router';
 import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {environment} from '../environments/environment';
-import {PopupService} from './common/service/popup.service';
-import {EventBroadcaster} from './common/event/event.broadcaster';
-import {UnloadConfirmService} from './common/service/unload.confirm.service';
-import {CanDeactivateGuard} from './common/gaurd/can.deactivate.guard';
-import {SsoGuard} from './common/gaurd/sso.guard';
+import {environment} from '@environments/environment';
+import {PopupService} from '@common/service/popup.service';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {UnloadConfirmService} from '@common/service/unload.confirm.service';
+import {CanDeactivateGuard} from '@common/gaurd/can.deactivate.guard';
+import {SsoGuard} from '@common/gaurd/sso.guard';
 import {UserService} from './user/service/user.service';
 import {CookieService} from 'ng2-cookies';
 import {ClipboardModule} from 'ngx-clipboard';
-import {LoaderInterceptor} from './common/interceptor/loader-interceptor';
+import {LoaderInterceptor} from '@common/interceptor/loader-interceptor';
 
 // 다국어 파일 경로 지정
 export function createTranslateLoader(http: HttpClient) {

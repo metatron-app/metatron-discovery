@@ -134,7 +134,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
     this.loadingShow();
     // 삭제 요청
     this.groupsService.deleteGroup(this._groupId)
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.groups.alert.grp.del.success'));
         // 로딩 hide
@@ -200,7 +200,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
       this.loadingShow();
       // 그룹 수정
       this._updateGroup(params)
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.groups.alert.grp.update.success'));
           // flag
@@ -234,7 +234,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
       this.loadingShow();
       // 그룹 수정
       this._updateGroup(params)
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.groups.alert.grp.update.success'));
           // flag
@@ -418,7 +418,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });

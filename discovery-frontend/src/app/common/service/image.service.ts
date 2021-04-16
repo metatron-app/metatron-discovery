@@ -207,7 +207,7 @@ export class ImageService {
       };
 
       // 이미지 업로드 성공
-      this.uploader.onSuccessItem = (item, response, status, headers) => {
+      this.uploader.onSuccessItem = (_item, response, _status, _headers) => {
         if (typeof response === 'string') {
           resolve(JSON.parse(response));
         } else {
@@ -216,7 +216,7 @@ export class ImageService {
       };
 
       // 이미지 업로드 실패
-      this.uploader.onErrorItem = (item, response, status, headers) => {
+      this.uploader.onErrorItem = (_item, response, _status, _headers) => {
         if (typeof response === 'string') {
           reject(JSON.parse(response));
         } else {

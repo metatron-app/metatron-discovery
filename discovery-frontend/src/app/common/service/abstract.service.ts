@@ -16,7 +16,7 @@ import {Injectable, Injector} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {CommonConstant} from '../constant/common.constant';
 import 'rxjs/add/operator/toPromise';
-import {User} from '../../domain/user/user';
+import {User} from '@domain/user/user';
 import {CookieService} from 'ng2-cookies';
 import {CookieConstant} from '../constant/cookie.constant';
 import {NavigationExtras, Router} from '@angular/router';

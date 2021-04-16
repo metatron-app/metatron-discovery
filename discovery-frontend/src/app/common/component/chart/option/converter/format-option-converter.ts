@@ -33,8 +33,8 @@ import {PivotTableInfo} from '../../base-chart';
 import {UIChartFormat, UIChartFormatItem} from '../ui-option/ui-format';
 import {UIChartDataLabel} from '../ui-option/ui-datalabel';
 import {UIChartAxis, UIChartAxisLabelValue} from '../ui-option/ui-axis';
-import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
-import {Field} from '../../../../../domain/workbook/configurations/field/field';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Field} from '@domain/workbook/configurations/field/field';
 
 /**
  * 수자 포맷 옵션 컨버터

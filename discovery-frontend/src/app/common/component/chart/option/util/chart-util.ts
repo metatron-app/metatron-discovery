@@ -13,8 +13,8 @@
  */
 
 import * as _ from 'lodash';
-import {Field} from '../../../../../domain/workbook/configurations/field/field';
-import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
+import {Field} from '@domain/workbook/configurations/field/field';
+import {GeoField} from '@domain/workbook/configurations/field/geo-field';
 import {ChartType} from '../define/common';
 
 export class ChartUtil {

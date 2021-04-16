@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import {Pivot} from '../../../domain/workbook/configurations/pivot';
-import {Limit} from '../../../domain/workbook/configurations/limit';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {UserDefinedField} from '../../../domain/workbook/configurations/field/user-defined-field';
-import {SeriesType} from '../../../common/component/chart/option/define/common';
-import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {BoardDataSource} from '../../../domain/dashboard/dashboard';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Limit} from '@domain/workbook/configurations/limit';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {UserDefinedField} from '@domain/workbook/configurations/field/user-defined-field';
+import {SeriesType} from '@common/component/chart/option/define/common';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {BoardDataSource} from '@domain/dashboard/dashboard';
 
 export class Analysis {
 

@@ -221,7 +221,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
         const startPickerSettings: TimeRangePickerSettings
           = new TimeRangePickerSettings(
           'ddp-text-calen',
-          (fdate: string, date: Date) => {
+          (_fdate: string, date: Date) => {
             this._fromDate = date;
           },
           () => {
@@ -272,7 +272,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
         const endPickerSettings: TimeRangePickerSettings
           = new TimeRangePickerSettings(
           'ddp-text-calen',
-          (fdate: string, date: Date) => {
+          (_fdate: string, date: Date) => {
             this._toDate = date;
           },
           () => {
