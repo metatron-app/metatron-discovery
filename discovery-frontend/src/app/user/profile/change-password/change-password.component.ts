@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '@common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { UserService } from '../../service/user.service';
-import { isUndefined } from 'util';
-import { StringUtil } from '@common/util/string.util';
-import { Alert } from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {UserService} from '../../service/user.service';
+import {isUndefined} from 'util';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'app-change-password',
@@ -177,7 +177,7 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
       this.loadingHide();
       this.resultNewPassword = false;
       if (StringUtil.isNotEmpty(error.code)) {
-        this.newPasswordMessage = this.translateService.instant('login.ui.fail.'+error.code);
+        this.newPasswordMessage = this.translateService.instant('login.ui.fail.' + error.code);
       }
       return;
     });
@@ -315,10 +315,10 @@ export class ChangePasswordComponent extends AbstractComponent implements OnInit
         this.loadingHide();
 
         // error alert
-        if(err.code == 'UR0009') {
+        if (err.code === 'UR0009') {
           Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail.minimum'));
-        } else if(err.code == 'UR0010'){
-            Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail.matched.past'));
+        } else if (err.code === 'UR0010') {
+          Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail.matched.past'));
         } else {
           Alert.error(this.translateService.instant('msg.comm.alert.profile.password.fail'));
         }

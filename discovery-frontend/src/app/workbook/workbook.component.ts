@@ -1237,7 +1237,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @returns {boolean}
    */
   public isInvalidDatasource(dashboard: Dashboard): boolean {
-    return dashboard.dataSources.filter((ds) => ds.valid).length == 0;
+    return dashboard.dataSources.filter((ds) => ds.valid).length === 0;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { UIOption } from '@common/component/chart/option/ui-option';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {UIOption} from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
 import {
   BarMarkType,
@@ -23,15 +23,15 @@ import {
   UIOrient,
   UIPosition
 } from '@common/component/chart/option/define/common';
-import { Pivot } from '@domain/workbook/configurations/pivot';
-import { LabelBaseOptionComponent } from './labelbase-option.component';
-import { LabelOptionConverter } from '@common/component/chart/option/converter/label-option-converter';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {LabelBaseOptionComponent} from './labelbase-option.component';
+import {LabelOptionConverter} from '@common/component/chart/option/converter/label-option-converter';
 
 @Component({
   selector: 'datalabel-option',
   templateUrl: './datalabel-option.component.html'
 })
-export class DataLabelOptionComponent extends LabelBaseOptionComponent {
+export class DataLabelOptionComponent extends LabelBaseOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -49,51 +49,93 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   public pivot: Pivot;
 
   // 위치설정 Bar 세로형인경우
-  public positionBarVerticalList: Object[] = [
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.outside.top'), value: DataLabelPosition.OUTSIDE_TOP},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.top'), value: DataLabelPosition.INSIDE_TOP},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.bottom'), value: DataLabelPosition.INSIDE_BOTTOM},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'), value: DataLabelPosition.CENTER}
+  public positionBarVerticalList: object[] = [
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.outside.top'),
+      value: DataLabelPosition.OUTSIDE_TOP
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.top'),
+      value: DataLabelPosition.INSIDE_TOP
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.bottom'),
+      value: DataLabelPosition.INSIDE_BOTTOM
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'),
+      value: DataLabelPosition.CENTER
+    }
   ];
 
   // 위치설정 Bar 가로형인경우
-  public positionBarHorizontalList: Object[] = [
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.outside.right'), value: DataLabelPosition.OUTSIDE_RIGHT},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.right'), value: DataLabelPosition.INSIDE_RIGHT},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.left'), value: DataLabelPosition.INSIDE_LEFT},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'), value: DataLabelPosition.CENTER}
+  public positionBarHorizontalList: object[] = [
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.outside.right'),
+      value: DataLabelPosition.OUTSIDE_RIGHT
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.right'),
+      value: DataLabelPosition.INSIDE_RIGHT
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.left'),
+      value: DataLabelPosition.INSIDE_LEFT
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'),
+      value: DataLabelPosition.CENTER
+    }
   ];
 
   // 위치설정 Gauge형인경우
-  public positionGaugeList: Object[] = [
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.top'), value: DataLabelPosition.INSIDE_TOP},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.bottom'), value: DataLabelPosition.INSIDE_BOTTOM},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'), value: DataLabelPosition.CENTER}
+  public positionGaugeList: object[] = [
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.top'),
+      value: DataLabelPosition.INSIDE_TOP
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.bottom'),
+      value: DataLabelPosition.INSIDE_BOTTOM
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'),
+      value: DataLabelPosition.CENTER
+    }
   ];
 
   // 위치설정 Gauge 가로형인경우
-  public positionGaugeHorizontalList: Object[] = [
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.right'), value: DataLabelPosition.INSIDE_RIGHT},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.left'), value: DataLabelPosition.INSIDE_LEFT},
-    {name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'), value: DataLabelPosition.CENTER}
+  public positionGaugeHorizontalList: object[] = [
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.right'),
+      value: DataLabelPosition.INSIDE_RIGHT
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.left'),
+      value: DataLabelPosition.INSIDE_LEFT
+    },
+    {
+      name: this.translateService.instant('msg.page.chart.datalabel.position.inside.center'),
+      value: DataLabelPosition.CENTER
+    }
   ];
 
   // 위치설정 Line 세로형인경우
-  public positionLineVerticalList: Object[] = [
+  public positionLineVerticalList: object[] = [
     {name: this.translateService.instant('msg.page.chart.datalabel.position.top'), value: DataLabelPosition.TOP},
     {name: this.translateService.instant('msg.page.chart.datalabel.position.bottom'), value: DataLabelPosition.BOTTOM},
     {name: this.translateService.instant('msg.page.chart.datalabel.position.center'), value: DataLabelPosition.CENTER}
   ];
 
   // 위치설정 Line 가로형인경우
-  public positionLineHorizontalList: Object[] = [
+  public positionLineHorizontalList: object[] = [
     {name: this.translateService.instant('msg.page.chart.datalabel.position.right'), value: DataLabelPosition.RIGHT},
     {name: this.translateService.instant('msg.page.chart.datalabel.position.left'), value: DataLabelPosition.LEFT},
     {name: this.translateService.instant('msg.page.chart.datalabel.position.center'), value: DataLabelPosition.CENTER}
   ];
 
   // 위치설정 Box형인경우
-  public positionBoxList: Object[] = [
+  public positionBoxList: object[] = [
     {name: this.translateService.instant('msg.page.chart.datalabel.position.top'), value: DataLabelPosition.TOP},
     {name: this.translateService.instant('msg.page.chart.datalabel.position.bottom'), value: DataLabelPosition.BOTTOM}
   ];
@@ -119,13 +161,13 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
 
-    if( !uiOption.dataLabel ) {
+    if (!uiOption.dataLabel) {
       uiOption.dataLabel = {};
       uiOption.dataLabel.showValue = false;
     }
 
     // displayTypes가 없으면서 showValue가 true인 경우 displayTypes 설정
-    if ( true == uiOption.dataLabel.showValue && !uiOption.dataLabel.displayTypes) {
+    if (true === uiOption.dataLabel.showValue && !uiOption.dataLabel.displayTypes) {
       uiOption.dataLabel.displayTypes = this.setDisplayTypes(uiOption.type);
     }
 
@@ -136,10 +178,10 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     }
 
     // treemap 차트일때
-    if (ChartType.TREEMAP == uiOption.type && !uiOption.dataLabel.hAlign) {
+    if (ChartType.TREEMAP === uiOption.type && !uiOption.dataLabel.hAlign) {
       uiOption.dataLabel.hAlign = UIPosition.CENTER;
     }
-    if (ChartType.TREEMAP == uiOption.type && !uiOption.dataLabel.vAlign) {
+    if (ChartType.TREEMAP === uiOption.type && !uiOption.dataLabel.vAlign) {
       uiOption.dataLabel.vAlign = UIPosition.CENTER;
     }
 
@@ -163,7 +205,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     this.pivot = pivot;
 
     // 바차트의 중첩일때 dataLabel.pos값을 변경
-    if (ChartType.BAR == this.uiOption.type && BarMarkType.STACKED == this.uiOption['mark']) {
+    if (ChartType.BAR === this.uiOption.type && BarMarkType.STACKED === this.uiOption['mark']) {
       const positionList = this.getPositionList(this.uiOption);
       if (positionList && positionList.length > 0) this.uiOption.dataLabel.pos = positionList[positionList.length - 1]['value'];
     }
@@ -195,7 +237,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     this.uiOption.dataLabel.showValue = show;
 
     // showValue가 true인 경우 displayTypes 설정
-    if (true == this.uiOption.dataLabel.showValue) {
+    if (true === this.uiOption.dataLabel.showValue) {
       // displayTypes가 없는경우 차트에 따라서 기본 displayTypes설정
       if (!this.uiOption.dataLabel.displayTypes) {
         this.uiOption.dataLabel.displayTypes = this.setDisplayTypes(this.uiOption.type);
@@ -219,14 +261,14 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   public toggleDisplayType(displayType: UIChartDataLabelDisplayType, typeIndex: number): void {
 
     // 값이 없을경우 기화
-    if( !this.uiOption.dataLabel.displayTypes ) {
+    if (!this.uiOption.dataLabel.displayTypes) {
       this.uiOption.dataLabel.displayTypes = [];
     }
 
     // 이미 체크된 상태라면 제거
     let isFind = false;
     _.each(this.uiOption.dataLabel.displayTypes, (type, index) => {
-      if( _.eq(type, displayType) ) {
+      if (_.eq(type, displayType)) {
         isFind = true;
 
         this.uiOption.dataLabel.displayTypes[index] = null;
@@ -234,7 +276,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     });
 
     // 체크되지 않은 상태라면 추가
-    if( !isFind ) {
+    if (!isFind) {
       this.uiOption.dataLabel.displayTypes[typeIndex] = displayType;
     }
 
@@ -251,24 +293,23 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   /**
    * 차트 및 옵션에 따른 위치설정 목록을 반환한다.
    */
-  public getPositionList(uiOption: UIOption, chartSecondType?: ChartType): Object[] {
+  public getPositionList(uiOption: UIOption, chartSecondType?: ChartType): object[] {
 
     if (!uiOption) return;
 
     // 바형태 가로 / 세로형 차트일 경우, 결합차트의 바차트부분인경우
-    if( _.eq(uiOption.type, ChartType.BAR)) {
+    if (_.eq(uiOption.type, ChartType.BAR)) {
       // 가로형
-      if( _.eq(uiOption['align'], UIOrient.HORIZONTAL) ) {
-        return BarMarkType.STACKED == uiOption['mark'] ? this.positionGaugeHorizontalList : this.positionBarHorizontalList;
+      if (_.eq(uiOption['align'], UIOrient.HORIZONTAL)) {
+        return BarMarkType.STACKED === uiOption['mark'] ? this.positionGaugeHorizontalList : this.positionBarHorizontalList;
       }
       // 세로형
       else {
-        return BarMarkType.STACKED == uiOption['mark'] ? this.positionGaugeList :this.positionBarVerticalList;
+        return BarMarkType.STACKED === uiOption['mark'] ? this.positionGaugeList : this.positionBarVerticalList;
       }
-    }
-    else if(_.eq(uiOption.type, ChartType.WATERFALL) || (_.eq(uiOption.type, ChartType.COMBINE) && _.eq(chartSecondType, ChartType.BAR)) ) {
+    } else if (_.eq(uiOption.type, ChartType.WATERFALL) || (_.eq(uiOption.type, ChartType.COMBINE) && _.eq(chartSecondType, ChartType.BAR))) {
       // 가로형
-      if( _.eq(uiOption['align'], UIOrient.HORIZONTAL) ) {
+      if (_.eq(uiOption['align'], UIOrient.HORIZONTAL)) {
         return this.positionBarHorizontalList;
       }
       // 세로형
@@ -277,15 +318,15 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
       }
     }
     // 라인형태 가로 / 세로형 차트일 경우
-    else if( _.eq(uiOption.type, ChartType.LINE)
-        || _.eq(uiOption.type, ChartType.SCATTER)
-        || _.eq(uiOption.type, ChartType.SCATTER)
-        || _.eq(uiOption.type, ChartType.COMBINE)
-        || _.eq(uiOption.type, ChartType.RADAR)
-        || _.eq(uiOption.type, ChartType.NETWORK)
-        || _.eq(uiOption.type, ChartType.CONTROL)) {
+    else if (_.eq(uiOption.type, ChartType.LINE)
+      || _.eq(uiOption.type, ChartType.SCATTER)
+      || _.eq(uiOption.type, ChartType.SCATTER)
+      || _.eq(uiOption.type, ChartType.COMBINE)
+      || _.eq(uiOption.type, ChartType.RADAR)
+      || _.eq(uiOption.type, ChartType.NETWORK)
+      || _.eq(uiOption.type, ChartType.CONTROL)) {
       // 가로형
-      if( _.eq(uiOption['align'], UIOrient.HORIZONTAL) ) {
+      if (_.eq(uiOption['align'], UIOrient.HORIZONTAL)) {
         return this.positionLineHorizontalList;
       }
       // 세로형
@@ -294,11 +335,11 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
       }
     }
     // 박스형태 차트일 경우
-    else if( _.eq(uiOption.type, ChartType.BOXPLOT) ) {
+    else if (_.eq(uiOption.type, ChartType.BOXPLOT)) {
       return this.positionBoxList;
     }
     // 게이지형태 차트일 경우
-    else if( _.eq(uiOption.type, ChartType.GAUGE) ) {
+    else if (_.eq(uiOption.type, ChartType.GAUGE)) {
       return this.positionGaugeList;
     }
 
@@ -314,11 +355,11 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     let index: number = 0;
 
     // 목록
-    const positionList: Object[] = this.getPositionList(this.uiOption);
+    const positionList: object[] = this.getPositionList(this.uiOption);
 
     // 인덱스 찾음
     _.each(positionList, (item, idx) => {
-      if( _.eq(item['value'], pos) ) {
+      if (_.eq(item['value'], pos)) {
         index = idx;
         return;
       }
@@ -330,7 +371,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   /**
    * 위치설정 변경
    */
-  public changePosition(position: Object): void {
+  public changePosition(position: object): void {
 
     // 적용
     this.uiOption.dataLabel.pos = position['value'];
@@ -340,7 +381,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   /**
    * 결합차트 - line 차트부분 위치설정 변경
    */
-  public changeLinePosition(position: Object): void {
+  public changeLinePosition(position: object): void {
 
     // 적용
     this.uiOption.dataLabel.secondaryPos = position['value'];
@@ -362,11 +403,10 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
    */
   public changeBackgroundColor(): void {
 
-    if( !this.uiOption.dataLabel.textBackgroundColor ) {
+    if (!this.uiOption.dataLabel.textBackgroundColor) {
       // this.uiOption.dataLabel.textBackgroundColor = "transparent";
       this.uiOption.dataLabel.textBackgroundColor = '#000000';
-    }
-    else {
+    } else {
       delete this.uiOption.dataLabel.textBackgroundColor;
     }
 
@@ -378,11 +418,10 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
    */
   public changeTextOutlineColor(): void {
 
-    if( !this.uiOption.dataLabel.textOutlineColor ) {
+    if (!this.uiOption.dataLabel.textOutlineColor) {
       // this.uiOption.dataLabel.textOutlineColor = "transparent";
       this.uiOption.dataLabel.textOutlineColor = '#000000';
-    }
-    else {
+    } else {
       delete this.uiOption.dataLabel.textOutlineColor;
     }
 
@@ -417,7 +456,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
   public apply(): void {
 
     // 옵션 적용
-    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {dataLabel: this.uiOption.dataLabel}) as UIOption);
     this.update();
   }
 
@@ -433,7 +472,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     // when set outside label, delete text align
     delete dataLabel.textAlign;
 
-    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {dataLabel: this.uiOption.dataLabel}) as UIOption);
     this.update();
   }
 
@@ -450,14 +489,14 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
       delete this.uiOption.dataLabel.textBackgroundColor;
       delete this.uiOption.dataLabel.textOutlineColor;
 
-    // text color가 없는경우 => 기본값 설정
+      // text color가 없는경우 => 기본값 설정
     } else {
       // 빈값 설정
       // this.uiOption.dataLabel.textColor = ' ';
       this.uiOption.dataLabel.textColor = '#FFFFFF';
     }
 
-    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {dataLabel: this.uiOption.dataLabel}) as UIOption);
     this.update();
   }
 
@@ -468,7 +507,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
     this.uiOption.dataLabel.hAlign = hAlign;
 
-    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {dataLabel: this.uiOption.dataLabel}) as UIOption);
     this.update();
   }
 
@@ -479,10 +518,9 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
     this.uiOption.dataLabel.vAlign = vAlign;
 
-    this.uiOption = (_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {dataLabel: this.uiOption.dataLabel}) as UIOption);
     this.update();
   }
-
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -507,10 +545,10 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
       case ChartType.COMBINE:
         // when bar, line chart has single series
         if ((chartType === ChartType.BAR && this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) ||
-           ((chartType === ChartType.LINE || chartType === ChartType.COMBINE) && this.pivot.aggregations.length <= 1)) {
+          ((chartType === ChartType.LINE || chartType === ChartType.COMBINE) && this.pivot.aggregations.length <= 1)) {
           displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
           displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
-        // when bar, line, combine chart has multi series
+          // when bar, line, combine chart has multi series
         } else {
           displayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
           displayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
@@ -524,6 +562,8 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
       case ChartType.HEATMAP:
       case ChartType.GAUGE:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
+        displayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
+        break;
       case ChartType.SCATTER:
       case ChartType.PIE:
       case ChartType.TREEMAP:

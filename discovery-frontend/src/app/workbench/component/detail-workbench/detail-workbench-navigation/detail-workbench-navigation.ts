@@ -24,7 +24,7 @@ import { CommonConstant } from '@common/constant/common.constant';
   selector: 'detail-workbench-navigation',
   templateUrl: './detail-workbench-navigation.html',
 })
-export class DetailWorkbenchNavigation extends AbstractComponent implements OnInit, OnDestroy {
+export class DetailWorkbenchNavigationComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

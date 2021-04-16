@@ -13,7 +13,7 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnChanges, OnDestroy, OnInit,
   Output
 } from '@angular/core';
 import { AbstractComponent } from  '@common/component/abstract.component';
@@ -21,10 +21,7 @@ import { isUndefined } from 'util';
 
 @Component({
   selector: 'app-workbench-tab',
-  templateUrl: './detail-workbench-tab.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './detail-workbench-tab.component.html'
 })
 export class DetailWorkbenchTabComponent extends AbstractComponent implements OnInit, OnDestroy, OnChanges {
 
@@ -104,6 +101,7 @@ export class DetailWorkbenchTabComponent extends AbstractComponent implements On
   }
 
   // 컴포넌트 내부  host 클릭이벤트 처리
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       // 팝업창 닫기

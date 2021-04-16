@@ -121,8 +121,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _splitVertical: any;
   private _splitHorizontal: any;
 
-  private _workspaceId: string;
-
   private _initialTimer: any;
 
   public editorListObj = new EditorList();
@@ -186,7 +184,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public tabLayerY: string = '';
 
-  public allQuery: String = 'ALL';
+  public allQuery: string = 'ALL';
 
   public mode: string = '';
 
@@ -305,7 +303,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.workbenchId = params['id'];
     });
 
-    (navigator.userAgent.replace(/ /g, '').toUpperCase().indexOf('MAC') == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true);
+    (navigator.userAgent.replace(/ /g, '').toUpperCase().indexOf('MAC') === -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true);
   }
 
   public ngAfterViewInit() {
@@ -321,7 +319,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.loadingBar.hide();
       this.loadingShow();
       this._loadInitData(() => {
-        if(this.loginLayerShow) {
+        if (this.loginLayerShow) {
           this.loadingHide();
         } else {
           this.webSocketCheck(() => this.loadingHide());
@@ -343,7 +341,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }, 500);
   }
 
-  public webSocketCheck(callback?: Function) {
+  public webSocketCheck(callback?: () => void) {
     this.checkAndConnectWebSocket(true).then(() => {
       try {
         this.createWebSocket(() => {
@@ -601,7 +599,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   public tabLayerEnter($event) {
-    if ($event.target.value == '') {
+    if ($event.target.value === '') {
       Alert.warning(this.translateService.instant('msg.bench.ui.query.tab.title'));
     } else {
       this.textList[this.selectedTabNum]['editorMode'] = false;
@@ -1142,7 +1140,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const csvFilePath = targetTab.result.csvFilePath;
     const fieldList = targetTab.result.fields;
 
-    if (direction == 'PREV') {
+    if (direction === 'PREV') {
       targetTab.pageNum--;
     } else {
       targetTab.pageNum++;
@@ -1433,13 +1431,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
   }
 
-  private _loadInitData(connectWebSocket: Function) {
+  private _loadInitData(connectWebSocket: () => void) {
     this.workbenchService.getWorkbench(this.workbenchId).then((data) => {
       if (data.valid) {
         WorkbenchService.workbench = data;
         WorkbenchService.workbenchId = this.workbenchId;
 
-        this._workspaceId = data.workspace.id;
         this.workspaceService.getWorkSpace(data.workspace.id, 'forDetailView').then((workspace: Workspace) => {
 
           const permissionChecker: PermissionChecker = new PermissionChecker(workspace);
@@ -1677,7 +1674,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         return a.order - b.order;
       });
 
-      for (let idx1: number = 0; idx1 < editors.length; idx1 = idx1 + 1) {
+      for (let idx1: number = 0, nMax1 = editors.length; idx1 < nMax1; idx1 = idx1 + 1) {
         this.textList.push({
           name: editors[idx1].name,
           query: editors[idx1].query,
@@ -1714,7 +1711,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     (currentTab.showLog) || (this.drawGridData());
   }
 
-  private createWebSocket(callback?: Function): void {
+  private createWebSocket(callback?: () => void): void {
     const dataConn: Dataconnection = this.workbenchTemp.dataConnection;
     this.workbench = this.workbenchTemp;
     this.workbench.dataConnection.connectionDatabase = dataConn.database;
@@ -1781,7 +1778,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           Alert.error(data['message']);
         }
 
-        if ('CONNECT' == data.command) {
+        if ('CONNECT' === data.command) {
           (callback) && (callback.call(this));
         }
 
@@ -1839,7 +1836,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.isExecutingQuery = false;
 
-    if (currentTabs.length == 0) {
+    if (currentTabs.length === 0) {
       return false;
     }
 
@@ -1900,7 +1897,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         .build()
     );
 
-    for (let index: number = 0; index < data.fields.length; index = index + 1) {
+    for (let index: number = 0, nMax = data.fields.length; index < nMax; index = index + 1) {
       const temp = data.fields[index].name;
       const columnCnt = temp.length;
       const columnWidth = (7 > columnCnt) ? 80 : (columnCnt * 13.5);
@@ -1922,9 +1919,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     const rows: any[] = [];
     const startRowIdx = (currentTab.pageNum * currentTab.result.defaultNumRows);
-    for (let idx1: number = 0; idx1 < data.data.length; idx1 = idx1 + 1) {
+    for (let idx1: number = 0, nMax1 = data.data.length; idx1 < nMax1; idx1 = idx1 + 1) {
       const row = {};
-      for (let idx2: number = 0; idx2 < data.fields.length; idx2 = idx2 + 1) {
+      for (let idx2: number = 0, nMax2 = data.fields.length; idx2 < nMax2; idx2 = idx2 + 1) {
         const temp = data.fields[idx2].name;
         if (data.fields[idx2].logicalType === 'INTEGER' && data.data[idx1][temp]) {
           try {
@@ -2009,7 +2006,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public cancelRunningQuery(useLog: boolean = false) {
     // cannot cancel until cancel timer tick.
-    if(!this.isCancelAvailable){
+    if (!this.isCancelAvailable) {
       return;
     }
 
@@ -2435,9 +2432,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.editor.setOptions(tableTemp);
 
     // H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
-    if (this.mimeType == 'HIVE' || this.mimeType == 'PRESTO' || this.mimeType == 'GENERAL') {
+    if (this.mimeType === 'HIVE' || this.mimeType === 'PRESTO' || this.mimeType === 'GENERAL') {
       this.editor.setModeOptions('text/x-hive');
-    } else if ( this.mimeType == 'POSTGRESQL' ) {
+    } else if (this.mimeType === 'POSTGRESQL') {
       this.editor.setModeOptions('text/x-pgsql');
     } else {
       this.editor.setModeOptions('text/x-mysql');
@@ -2484,7 +2481,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.onEndedResizing();
       }
     });
-    $connLabel.width( $lnbPanel.width() - 110 );
+    $connLabel.width($lnbPanel.width() - 110);
   }
 
   private _deactiveHorizontalSlider() {
@@ -2571,7 +2568,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isCancelAvailable = false;
 
     // if timer exist..
-    if(this._cancelTimer != undefined){
+    if (this._cancelTimer !== undefined) {
       // clear existed timer
       clearTimeout(this._cancelTimer);
     }

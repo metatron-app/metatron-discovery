@@ -43,7 +43,8 @@ import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page
 import {
   BarMarkType,
   ChartType,
-  EventType, SeriesType,
+  EventType,
+  SeriesType,
   ShelveFieldType,
   ShelveType,
   UIFormatCurrencyType,
@@ -96,7 +97,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public widgetConfig: PageWidgetConfiguration;
 
   // Widget 데이터의 필터 목록 (필드명만 정제)
-  public filterFiledList: String[] = [];
+  public filterFiledList: string[] = [];
 
   // 현재 에디팅중인 필드
   public editingField: AbstractField;
@@ -138,11 +139,11 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
   // 데이터 (왼쪽 lnb에서 현재 올라간 선반의 아이콘 제거)
   @Output('deletePivotItem')
-  public deletePivotItem: EventEmitter<Object> = new EventEmitter();
+  public deletePivotItem: EventEmitter<object> = new EventEmitter();
 
   // 데이터 (왼쪽 lnb에서 현재 올라간 선반의 아이콘 제거)
   @Output('changePivotItem')
-  public changePivotItem: EventEmitter<Object> = new EventEmitter();
+  public changePivotItem: EventEmitter<object> = new EventEmitter();
 
   // Pivot 정보가 바뀐 경우
   @Output('changePivot')
@@ -323,7 +324,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       case ChartType.SANKEY :
       case ChartType.CONTROL :
 
-        if (ChartType.BAR == type) {
+        if (ChartType.BAR === type) {
           // 바차트의 병렬 / 중첩에 따른 pivot 데이터 변경
           this.changeBarStackPivot();
         }
@@ -418,8 +419,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * 페이지에서 필드 추가 할때
    * @param {Field} targetField
    * @param {string} targetContainer
+   * @param {AbstractField} _pivotField
    */
-  public addField(targetField: Field, targetContainer: string, pivotField: AbstractField) {
+  public addField(targetField: Field, targetContainer: string, _pivotField: AbstractField) {
     let shelf;
 
     if (targetContainer === 'column') {
@@ -441,6 +443,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
   /**
    * 선반 삭제
+   * @param event
+   * @param fieldPivot
    * @param shelf
    * @param {number} idx
    */
@@ -515,9 +519,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         (targetField.role === FieldRole.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
 
         // 타입필드로 설정
-        const timeField = new TimestampField();
         // timeField.alias = timeField.granularity.toString().toUpperCase() + `(${targetField.name})`;
-        field = timeField;
+        field = new TimestampField();
       } else if (targetField.role === FieldRole.DIMENSION) {
         field = new DimensionField();
       } else if (targetField.role === FieldRole.MEASURE) {
@@ -541,7 +544,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       field.segGranularity = targetField.segGranularity;
       if (!_.isUndefined(targetField.ref)) {
         field.ref = targetField.ref;
-      } else if (targetField.type == 'user_expr') {
+      } else if (targetField.type === 'user_expr') {
         field.ref = 'user_defined';
       }
 
@@ -606,6 +609,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * Datasource Field의 선반 위치정보 수정
    * @param targetField
    * @param targetContainer
+   * @param pivotField
    */
   public changeFieldPivot(targetField: Field, targetContainer: string, pivotField: AbstractField): void {
 
@@ -725,7 +729,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param formatType
    */
   public onChangeFormat(formatType: string): void {
-    if (formatType != '') {
+    if (formatType !== '') {
       // Dispatch Event
       const field: AbstractField = _.cloneDeep(this.editingField);
       if (!field.format) {
@@ -762,7 +766,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public isGuide(type: string): boolean {
 
     // 차트 타입 선택전이라면 false 반환
-    if (this.chartType == '') {
+    if (this.chartType === '') {
       return false;
     }
 
@@ -788,7 +792,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             count++;
           }
         }
-        return count != 1;
+        return count !== 1;
       }
       // 1 time dimension
       else if (_.eq(this.chartType, ChartType.CONTROL)
@@ -801,9 +805,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             count++;
           }
         }
-        return count != 1;
+        return count !== 1;
       }
-      // 1 dimension
+        // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
@@ -815,7 +819,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             count++;
           }
         }
-        return count != 1;
+        return count !== 1;
       }
     }
     // 열
@@ -837,9 +841,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             count++;
           }
         }
-        return count != 1;
+        return count !== 1;
       }
-      // 1 dimension
+        // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.BOXPLOT)) {
@@ -851,7 +855,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             count++;
           }
         }
-        return count != 1;
+        return count !== 1;
       }
     }
     // 교차
@@ -886,7 +890,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             mCount++;
           }
         }
-        return dCount == 0 || dCount > 1 || mCount == 0 || mCount > 1;
+        return dCount === 0 || dCount > 1 || mCount === 0 || mCount > 1;
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.HEATMAP)
@@ -904,7 +908,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             count++;
           }
         }
-        return count != 1;
+        return count !== 1;
       }
       // 1 time dimension
       else if (_.eq(this.chartType, ChartType.CONTROL)) {
@@ -916,7 +920,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             count++;
           }
         }
-        return count != 1;
+        return count !== 1;
       }
       // 2~4 measure
       else if (_.eq(this.chartType, ChartType.COMBINE)) {
@@ -943,7 +947,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public getGuideText(type: string, isText: boolean = true): string {
 
     // 차트 타입 선택전이라면 공백 반환
-    if (this.chartType == '') {
+    if (this.chartType === '') {
       return '';
     }
 
@@ -970,7 +974,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc', {value: '1'}) : 'ddp-box-dimension';
       }
-      // 1 dimension
+        // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
@@ -997,7 +1001,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
         return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc', {value: '1'}) : 'ddp-box-measure';
       }
-      // 1 dimension
+        // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.BOXPLOT)) {
@@ -1145,11 +1149,11 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     // 중복체크
     let duppIndex: number = _.findIndex(_.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations), (item) => {
-      return item.pivotAlias == this.editingFieldAlias || item.fieldAlias == this.editingFieldAlias;
+      return item.pivotAlias === this.editingFieldAlias || item.fieldAlias === this.editingFieldAlias;
     });
-    if (duppIndex == -1) {
+    if (duppIndex === -1) {
       this.widget.dashBoard.configuration['fields'].forEach((field, index) => {
-        if (field.nameAlias && field.nameAlias['nameAlias'] == this.editingFieldAlias) {
+        if (field.nameAlias && field.nameAlias['nameAlias'] === this.editingFieldAlias) {
           duppIndex = index;
           return false;
         }
@@ -1163,13 +1167,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 값이 없다면 Reset 처리
-    if (this.editingFieldAlias.trim() == '') {
+    if (this.editingFieldAlias.trim() === '') {
       this.onAliasReset(null);
       return;
     }
 
     // 값 적용
-    this.editingFieldAlias = this.editingFieldAlias == this.editingField.name ? this.editingFieldAlias + ' ' : this.editingFieldAlias;
+    this.editingFieldAlias = this.editingFieldAlias === this.editingField.name ? this.editingFieldAlias + ' ' : this.editingFieldAlias;
     this.editingField.alias = this.editingFieldAlias;
     this.editingField.pivotAlias = this.editingFieldAlias;
     this.fix2DepthContext = false;
@@ -1400,7 +1404,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 첫번째 아이템이 아닌지 체크
-    if (this.pivot.aggregations[0] == this.editingField) {
+    if (this.pivot.aggregations[0] === this.editingField) {
       return false;
     }
 
@@ -1419,11 +1423,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 현재필드의 보조축인지 체크
-    if (this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias) {
-      return true;
-    } else {
-      return false;
-    }
+    return ( this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name === this.editingField.alias );
   }
 
   protected onClickedOutside(event) {
@@ -1437,7 +1437,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   protected fieldSetting(shelves: AbstractField[]) {
 
     // type이 measure일떄
-    if ('measure' == this.editingField.type) {
+    if ('measure' === this.editingField.type) {
 
       const aggregationTypeList = [];
 
@@ -1445,7 +1445,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       for (const item of shelves) {
 
         // percentile의 경우 option에 값을 넣어줌
-        if (this.editingField.type == item.type && this.editingField.alias == item.alias && this.editingField.name == item.name) {
+        if (this.editingField.type === item.type && this.editingField.alias === item.alias && this.editingField.name === item.name) {
 
           aggregationTypeList.push(item.aggregationType);
         }
@@ -1458,7 +1458,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       this.editingField.aggregationTypeList = aggregationTypeList;
 
       // type이 timestamp일때
-    } else if ('timestamp' == this.editingField.type) {
+    } else if ('timestamp' === this.editingField.type) {
 
       const granularityList = [];
 
@@ -1466,7 +1466,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       for (const item of shelves) {
 
         // percentile의 경우 option에 값을 넣어줌
-        if (this.editingField.type == item.type && this.editingField.alias == item.alias && this.editingField.name == this.editingField.name) {
+        if (this.editingField.type === item.type && this.editingField.alias === item.alias && this.editingField.name === this.editingField.name) {
 
           granularityList.push(item.format.unit);
         }
@@ -1521,7 +1521,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     const shelves = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
 
     // type이 measure일떄
-    if ('measure' == this.editingField.type) {
+    if ('measure' === this.editingField.type) {
 
       const aggregationTypeList = [];
 
@@ -1529,7 +1529,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       for (const item of shelves) {
 
         // percentile의 경우 option에 값을 넣어줌
-        if (this.editingField.type == item.type && this.editingField.alias == item.alias && this.editingField.name == item.name) {
+        if (this.editingField.type === item.type && this.editingField.alias === item.alias && this.editingField.name === item.name) {
 
           aggregationTypeList.push(item.aggregationType);
         }
@@ -1542,7 +1542,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       this.editingField.aggregationTypeList = aggregationTypeList;
 
       // type이 timestamp일때
-    } else if ('timestamp' == this.editingField.type) {
+    } else if ('timestamp' === this.editingField.type) {
 
       const granularityList = [];
 
@@ -1550,7 +1550,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       for (const item of shelves) {
 
         // percentile의 경우 option에 값을 넣어줌
-        if (this.editingField.type == item.type && this.editingField.alias == item.alias && this.editingField.name == this.editingField.name) {
+        if (this.editingField.type === item.type && this.editingField.alias === item.alias && this.editingField.name === this.editingField.name) {
 
           granularityList.push(item.format.unit);
         }
@@ -1691,8 +1691,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   protected onChangeGranularity(discontinuous: boolean, unit: string, byUnit?: string) {
 
     // 같은 granularity를 선택시 return
-    if (this.editingField.format.discontinuous == discontinuous && this.editingField.format.unit == TimeUnit[unit] &&
-      this.editingField.format.byUnit == ByTimeUnit[byUnit]) {
+    if (this.editingField.format.discontinuous === discontinuous && this.editingField.format.unit === TimeUnit[unit] &&
+      this.editingField.format.byUnit === ByTimeUnit[byUnit]) {
       return;
     }
 
@@ -1715,15 +1715,15 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     this.onSetGranularity(discontinuous, unit, byUnit);
   }
 
-  // editFilter AlignName
-  protected getAlignName() {
-    if (this.editingField.direction === DIRECTION.ASC) {
-      return 'Ascending';
-    } else if (this.editingField.direction === DIRECTION.DESC) {
-      return 'Descending';
-    }
-    return 'In order of data';
-  }
+  // // editFilter AlignName
+  // protected getAlignName() {
+  //   if (this.editingField.direction === DIRECTION.ASC) {
+  //     return 'Ascending';
+  //   } else if (this.editingField.direction === DIRECTION.DESC) {
+  //     return 'Descending';
+  //   }
+  //   return 'In order of data';
+  // }
 
   /**
    *
@@ -1743,10 +1743,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     if (!discontinuous) {
-      return (!field.format.discontinuous && field.format.unit == TimeUnit[unit]);
+      return (!field.format.discontinuous && field.format.unit === TimeUnit[unit]);
     } else {
-      return (field.format.discontinuous && field.format.unit == TimeUnit[unit])
-        && (!byUnit || (byUnit && field.format.byUnit == ByTimeUnit[byUnit]));
+      return (field.format.discontinuous && field.format.unit === TimeUnit[unit])
+        && (!byUnit || (byUnit && field.format.byUnit === ByTimeUnit[byUnit]));
     }
   }
 
@@ -1889,7 +1889,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         if (duplicateList.length > 1) {
 
           // aggregation이 적용된 custom field인 경우 제거
-          if ('user_expr' == field.subType && field['aggregated']) {
+          if ('user_expr' === field.subType && field['aggregated']) {
 
             shelf.splice(idx, 1);
             removedPivotItemFl = true;
@@ -1940,7 +1940,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
           copiedTimestampList = copiedTimestampList.filter((item) => {
 
             // none인 경우 무조건 통과
-            return item['id'] == GranularityType.NONE ? true : this.useGranularity(false, item['id'], this.dragField.granularity);
+            return item['id'] === GranularityType.NONE ? true : this.useGranularity(false, item['id'], this.dragField.granularity);
           });
         }
 
@@ -1965,7 +1965,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
           }
 
           // 중복값이 timestampTypeList 리스트를 넘어간다면 제거
-          if (copiedTimestampList && copiedTimestampList.length == 0) {
+          if (copiedTimestampList && copiedTimestampList.length === 0) {
 
             shelf.splice(idx, 1);
 
@@ -2151,7 +2151,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 해당 리스트에서 type에 해당하는경우 값 제거, data에서 선반표시 제거
    * @param deleteList 삭제할 리스트
-   * @param type - optional, measure / dimension 타입
+   * @param deleteType
+   * @param typeList - optional, measure / dimension 타입
    * @param addList - optional, 삭제한 아이템을 추가할 리스트
    * @param fieldPivot - optional
    */
@@ -2164,7 +2165,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       for (const type of typeList) {
 
         // type이 없는경우 true, 타입이 있는경우 타입값이 아이템의 타입값과 같을때만 true
-        const typeCheck: boolean = !type || '' === type ? true : type === item.type ? true : false;
+        const typeCheck: boolean = !type || '' === type ? true : ( type === item.type );
 
         // type일떄
         if (typeCheck) {
@@ -2214,7 +2215,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     } else {
 
       // value가 있는경우
-      if (this.editingField.options.indexOf(key) != -1) {
+      if (this.editingField.options.indexOf(key) !== -1) {
 
         const optionsList = this.editingField.options.split(',');
 
@@ -2223,7 +2224,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
           const option = optionsList[num];
 
           // 해당 key가 있는경우
-          if (option.indexOf(key) != -1) {
+          if (option.indexOf(key) !== -1) {
             optionsList[num] = num !== 0 ? key + optionData : key + optionData;
           }
         }
@@ -2567,15 +2568,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     $currentShelve.find('.ddp-wrap-example').each(function () {
       totalExWidth += Math.ceil($(this).outerWidth() + 2);
     });
-    $currentShelve.find('.ddp-ui-default').each(function (i) {
+    $currentShelve.find('.ddp-ui-default').each(function (_i) {
       totalDefaultWidth += Math.ceil($(this).outerWidth() + 2);
     });
-    $currentShelve.find('.ddp-box-network').each(function (i) {
+    $currentShelve.find('.ddp-box-network').each(function (_i) {
       totanetworkWidth += Math.ceil(($(this).outerWidth() + 4) - $(this).find('.ddp-ui-default').outerWidth() + 10);
     });
-    const totalWidth = totalExWidth + totalDefaultWidth + totanetworkWidth;
-
-    return totalWidth;
+    return totalExWidth + totalDefaultWidth + totanetworkWidth;
   }
 
   /**
@@ -2615,15 +2614,15 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   /**
    * index에 따라서 선반 위치 변경
    */
-  private moveShelfItemByIndex(fieldTypeList: String[], deleteIndex: number, columnIndexList?: number[], rowIndexList?: number[], columnUnlimitedIndex?: number, rowUnlimitedIndex?: number) {
+  private moveShelfItemByIndex(fieldTypeList: string[], deleteIndex: number, columnIndexList?: number[], rowIndexList?: number[], columnUnlimitedIndex?: number, rowUnlimitedIndex?: number) {
 
     // 선반 타입에 따른 선반 리스트 리턴
     const getFieldList = (item): void => {
-      if (FieldPivot.COLUMNS == item.currentPivot) {
+      if (FieldPivot.COLUMNS === item.currentPivot) {
         _.remove(this.pivot.columns, item);
-      } else if (FieldPivot.ROWS == item.currentPivot) {
+      } else if (FieldPivot.ROWS === item.currentPivot) {
         _.remove(this.pivot.rows, item);
-      } else if (FieldPivot.AGGREGATIONS == item.currentPivot) {
+      } else if (FieldPivot.AGGREGATIONS === item.currentPivot) {
         _.remove(this.pivot.aggregations, item);
       }
     }
@@ -2678,16 +2677,17 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
   /**
    * 사용 가능한 Granularity인지 여부
-   * @param discontinuous
+   * @param _discontinuous
    * @param unit
-   * @param byUnit
+   * @param granularity
+   * @param _byUnit
    */
   private useGranularity(_discontinuous: boolean, unit: string, granularity: GranularityType, _byUnit?: string): boolean {
 
     // granularity 가중치 반환 (SECOND => YEAR로 갈수록 점수가 높아짐)
-    const getGranularityScore = (granularity: string): number => {
+    const getGranularityScore = (granularityType: string): number => {
       let score: number = 0;
-      switch (granularity) {
+      switch (granularityType) {
         // 초단위 제거 요청으로 주석처리
         case String(GranularityType.SECOND):
           score = 1;
@@ -2738,11 +2738,11 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         const item = shelve[index];
 
         // timestamp일때
-        if (item.type == 'timestamp') {
+        if (item.type === 'timestamp') {
 
           // 중복 리스트 찾기
           const duplicateList = shelve.filter((data) => {
-            return data.name == item.name
+            return data.name === item.name
           });
 
           // 중복리스트가 있는경우

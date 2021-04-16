@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector} from '@angular/core';
-import {YAxisOptionComponent} from './yaxis-option.component';
-import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
 import {UIOption} from '@common/component/chart/option/ui-option';
 import {UIChartAxis} from '@common/component/chart/option/ui-option/ui-axis';
+import {YAxisOptionComponent} from './yaxis-option.component';
 
 @Component({
   selector: 'secondary-axis-option',
   templateUrl: './secondary-axis-option.component.html'
 })
-export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
+export class SecondaryAxisOptionComponent extends YAxisOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -76,9 +76,9 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
   /**
    * 축 이름
    *
-   * @param axisType
-   * @param index
-   * @param event
+   * @param axisLabelType
+   * @param _idx
+   * @param name
    */
   public axisName(axisLabelType: any, _idx: number, name: string): void {
 
@@ -93,18 +93,17 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
       return;
     }
 
-    if( _.eq(this.uiOption.secondaryAxis.mode, axisLabelType) ) {
+    if (_.eq(this.uiOption.secondaryAxis.mode, axisLabelType)) {
       this.uiOption.secondaryAxis.name = value;
     }
 
     if (_.isEmpty(value) || (value && _.isEmpty(value.trim()))) {
       delete this.uiOption.secondaryAxis.customName;
-    }
-    else {
+    } else {
       this.uiOption.secondaryAxis.customName = value.trim();
     }
 
-    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: this.uiOption.secondaryAxis}) as UIOption);
     this.update();
     this.changeAxisNameEvent.emit();
   }
@@ -117,10 +116,10 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
    */
   public showAxisName(axisLabelType: any, show: boolean): void {
 
-    if( _.eq(this.uiOption.secondaryAxis.mode, axisLabelType) ) {
+    if (_.eq(this.uiOption.secondaryAxis.mode, axisLabelType)) {
       this.uiOption.secondaryAxis.showName = show;
     }
-    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: this.uiOption.secondaryAxis}) as UIOption);
 
     this.update();
   }
@@ -133,10 +132,10 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
    */
   public showAxisLabel(axisLabelType: any, show: boolean): void {
 
-    if( _.eq(this.uiOption.secondaryAxis.mode, axisLabelType) ) {
+    if (_.eq(this.uiOption.secondaryAxis.mode, axisLabelType)) {
       this.uiOption.secondaryAxis.showLabel = show;
     }
-    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: this.uiOption.secondaryAxis}) as UIOption);
 
     this.update();
   }
@@ -146,7 +145,7 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
    */
   public changeSecondaryAxisValue(axis: UIChartAxis): void {
 
-    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: axis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: axis}) as UIOption);
 
     this.update();
   }
@@ -157,30 +156,25 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
    */
   public changeSecondaryAxisBaseline(axis: UIChartAxis): void {
 
-    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: axis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: axis}) as UIOption);
 
     this.update({});
   }
 
   /**
    * Show Secondary Axis
-   * @param axisType
-   * @param index
-   * @param show
-   * @param event
    */
   public showSecondaryAxis(): void {
 
     this.uiOption.secondaryAxis.disabled = _.isUndefined(this.uiOption.secondaryAxis.disabled) ? true : !this.uiOption.secondaryAxis.disabled;
-    if( this.uiOption.secondaryAxis.disabled ) {
+    if (this.uiOption.secondaryAxis.disabled) {
       this.uiOption.secondaryAxis.showName = false;
       this.uiOption.secondaryAxis.showLabel = false;
-    }
-    else {
+    } else {
       this.uiOption.secondaryAxis.showName = true;
       this.uiOption.secondaryAxis.showLabel = true;
     }
-    this.uiOption = (_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: this.uiOption.secondaryAxis}) as UIOption);
     this.update();
   }
 

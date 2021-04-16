@@ -169,7 +169,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
    */
   public changeFontStyle(fontStyle: string): void {
 
-    if (-1 == this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle])) {
+    if (-1 === this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle])) {
       this.totalValueStyle.fontStyles.push(UIFontStyle[fontStyle]);
     } else {
       this.totalValueStyle.fontStyles.splice(this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]), 1);
@@ -179,10 +179,6 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
   }
 
   public isFontStyle(fontStyle: string): boolean {
-    if (this.totalValueStyle && this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]) != -1) {
-      return true;
-    } else {
-      return false;
-    }
+    return (this.totalValueStyle && this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]) !== -1);
   }
 }

@@ -12,14 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Renderer2
-} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, Renderer2} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Page, PageResult} from '@domain/common/page';
 import {Activity} from '@domain/user/activity';

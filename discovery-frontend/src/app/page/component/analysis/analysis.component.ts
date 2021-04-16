@@ -27,7 +27,6 @@ import {
 } from '@angular/core';
 import {PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {AnalysisPredictionComponent} from './prediction/analysis-prediction.component';
-import {TrendLineComponent} from './trend.line/trend.line.component';
 import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
 import {UIOption} from '@common/component/chart/option/ui-option';
@@ -95,8 +94,6 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public whatKindOfChart: string = '';
-
   public dataSubLayerKey: string = '';
 
   // ---------------------------------------
@@ -125,10 +122,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  constructor(private element: ElementRef,
+  constructor(protected element: ElementRef,
               protected injector: Injector,
               private analysisPredictionService: AnalysisPredictionService) {
-
     super(element, injector);
   }
 
@@ -164,14 +160,14 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public drawComplete(uiOption: UIOption, param?: Object): void {
+  public drawComplete(uiOption: UIOption, param?: object): void {
     this.synchronize(uiOption, param);
   }
 
-  public synchronize(uiOption: UIOption, param?: Object, data?: Object): void {
+  public synchronize(uiOption: UIOption, param?: object, data?: object): void {
 
     // pivot이 변경된경우 변경된 parameters값 적용
-    if (data && EventType.CHANGE_PIVOT == data['type']) {
+    if (data && EventType.CHANGE_PIVOT === data['type']) {
 
       const widget = data['widget'];
       const lineChart = data['lineChart'];

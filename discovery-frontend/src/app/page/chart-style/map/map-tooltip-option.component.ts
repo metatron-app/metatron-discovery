@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {UIChartDataLabelDisplayType} from '@common/component/chart/option/define/common';
 import * as _ from 'lodash';
 import {ChartUtil} from '@common/component/chart/option/util/chart-util';
@@ -26,7 +26,7 @@ import {TooltipOptionConverter} from '@common/component/chart/option/converter/t
   selector: 'map-tooltip-option',
   templateUrl: './map-tooltip-option.component.html'
 })
-export class MapTooltipOptionComponent extends TooltipOptionComponent {
+export class MapTooltipOptionComponent extends TooltipOptionComponent implements OnInit, OnDestroy {
 
   // selected layer item list
   public selectedLayerItems: Field[] = [];
@@ -68,14 +68,14 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
       const tempFields = shelf.layers[this.uiOption.layerNum].fields;
       for (let fieldIndex = 0; tempFields.length > fieldIndex; fieldIndex++) {
         // 공간연산에 사용된 aggregationType으로 tooltip 설정
-        if (tempFields[fieldIndex].name == this.uiOption.analysis.operation.aggregation.column) {
-          if (_.isUndefined(this.uiOption.analysis.operation.aggregation.type) && tempFields[fieldIndex].isCustomField == true) {
+        if (tempFields[fieldIndex].name === this.uiOption.analysis.operation.aggregation.column) {
+          if (_.isUndefined(this.uiOption.analysis.operation.aggregation.type) && tempFields[fieldIndex].isCustomField === true) {
             // 공간연산에 설정된 default 값인 count 를 사용 할 경우, Measure 에 중첩된 count 이름 값이 있을 경우 전부 삭제 후 한개만 등록
             layerItems = [];
             layerItems.push(tempFields[fieldIndex]);
             break;
           } else if (_.isUndefined(tempFields[fieldIndex].isCustomField)
-            || (!_.isUndefined(tempFields[fieldIndex].isCustomField) && tempFields[fieldIndex].isCustomField == false)) {
+            || (!_.isUndefined(tempFields[fieldIndex].isCustomField) && tempFields[fieldIndex].isCustomField === false)) {
             layerItems.push(tempFields[fieldIndex]);
           }
         }
@@ -125,27 +125,27 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     });
   }
 
-  /**
-   * return columns matching with string array
-   * @param {string[]} columns
-   * @returns {Field[]}
-   */
-  private setColumns(columns: string[]): Field[] {
-
-    const fields: Field[] = [];
-
-    let field: Field;
-    columns.forEach((alias) => {
-
-      field = (_.find(this.selectedLayerItems, (field) => {
-        return _.eq(alias, ChartUtil.getAggregationAlias(field));
-      }) as any);
-
-      if (field) fields.push(field);
-    });
-
-    return fields;
-  }
+  // /**
+  //  * return columns matching with string array
+  //  * @param {string[]} columns
+  //  * @returns {Field[]}
+  //  */
+  // private setColumns(columns: string[]): Field[] {
+  //
+  //   const fields: Field[] = [];
+  //
+  //   let field: Field;
+  //   columns.forEach((alias) => {
+  //
+  //     field = (_.find(this.selectedLayerItems, (field) => {
+  //       return _.eq(alias, ChartUtil.getAggregationAlias(field));
+  //     }) as any);
+  //
+  //     if (field) fields.push(field);
+  //   });
+  //
+  //   return fields;
+  // }
 
   // constructor
   constructor(protected elementRef: ElementRef,
@@ -301,14 +301,8 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
    * @returns {boolean}
    */
   public returnMapTooltip(tooltipType: string): boolean {
-
-    if (this.uiOption.toolTip.displayTypes &&
-      -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType])) {
-
-      return true;
-    }
-
-    return false;
+    return this.uiOption.toolTip.displayTypes &&
+      -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType]);
   }
 
   /**

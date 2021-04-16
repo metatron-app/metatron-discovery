@@ -12,16 +12,11 @@
  * limitations under the License.
  */
 
-/**
- * Created by paige on 2017. 7. 17..
- */
-
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '@common/service/abstract.service';
-import 'rxjs/add/operator/toPromise';
-import { NoteBook } from '@domain/notebook/notebook';
-import { CommonUtil } from '@common/util/common.util';
-import { NotebookModel } from '@domain/model-management/notebookModel';
+import {Injectable, Injector} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {NoteBook} from '@domain/notebook/notebook';
+import {NotebookModel} from '@domain/model-management/notebookModel';
 
 @Injectable()
 export class NotebookService extends AbstractService {
@@ -80,7 +75,6 @@ export class NotebookService extends AbstractService {
     const url = this.API_URL + `widgets/` + widgetId;
     return this.get(url + '?projection=' + projection);
   }
-
 
   // 노트북 모델 요청
   public setNotebookModelRequest(notebookModel: NotebookModel, workspaceId: string, notebookId: string) {

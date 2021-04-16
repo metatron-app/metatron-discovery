@@ -27,11 +27,11 @@ import {
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
-import {LogicalType} from '../../../../domain/datasource/datasource';
-import {Alert} from '../../../../common/util/alert.util';
-import {ShelveFieldType} from '../../../../common/component/chart/option/define/common';
+import {LogicalType} from '@domain/datasource/datasource';
+import {Alert} from '@common/util/alert.util';
+import {ShelveFieldType} from '@common/component/chart/option/define/common';
 import {Field as AbstractField, Field} from '../../../../domain/workbook/configurations/field/field';
-import {ChartUtil} from '../../../../common/component/chart/option/util/chart-util';
+import {ChartUtil} from '@common/component/chart/option/util/chart-util';
 import {isNullOrUndefined} from 'util';
 
 @Component({
@@ -68,7 +68,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   public unitList: any = [
     {name: 'Meters', value: 'meters'}
-    ,{name: 'Kilometers', value: 'kilometers'}
+    , {name: 'Kilometers', value: 'kilometers'}
   ];
   public unitIndex: number = 0;
   public unitInput: string = '100';
@@ -143,7 +143,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       && changes['uiOption']['currentValue']['analysis']['use'] == true
       && this.baseList.layers.length > 0) {
       return;
-    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption']) ) {
+    } else if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])) {
       this.uiOption = (changes['uiOption'].currentValue as UIMapOption);
       this.mapSpatialChanges(this.uiOption, this.shelf);
     }
@@ -205,7 +205,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         this.setMeasureList();
 
         // 기존 데이터 체크
-        if( !_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] ){
+        if (!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use']) {
           const operation = this.uiOption.analysis.operation;
           this.isBufferOn = (operation.buffer != 0);
           if (this.isBufferOn) {
@@ -228,22 +228,22 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
             this.bufferIndex = 0;
           }
           this.isChoroplethOn = operation.choropleth;
-          if( this.isChoroplethOn ){
+          if (this.isChoroplethOn) {
             const measureList = this.fieldList.measureList;
             for (let index = 0; index < measureList.length; index++) {
               if (_.isUndefined(operation.aggregation.type)) {
                 this.colorByIndex = 0;
                 break;
               }
-              if( measureList[index].name == operation.aggregation.column ) {
+              if (measureList[index].name == operation.aggregation.column) {
                 this.colorByIndex = index;
                 break;
               }
             }
           }
-          if( !_.isUndefined(operation.aggregation.type) ){
+          if (!_.isUndefined(operation.aggregation.type)) {
             for (let index = 0; index < this.aggregateTypes.length; index++) {
-              if( this.aggregateTypes[index].name == operation.aggregation.type ) {
+              if (this.aggregateTypes[index].name == operation.aggregation.type) {
                 this.aggregateTypesIndex = index;
                 break;
               }
@@ -545,7 +545,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     mapUIOption.analysis['operation']['bufferUnit'] = this.bufferList[this.bufferIndex].value;
     if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
-    } else if(this.uiOption.layers[findCompareIndex].type.toString().toLowerCase().indexOf('polygon') != -1 && this.isBufferOn == false) {
+    } else if (this.uiOption.layers[findCompareIndex].type.toString().toLowerCase().indexOf('polygon') != -1 && this.isBufferOn == false) {
       // polygon 일 경우 min/max 값이 서버에서 전달이 명확하지 않아 아래와 같이 설정
       mapUIOption.analysis['operation']['buffer'] = 0;
     } else {
@@ -553,7 +553,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       mapUIOption.analysis['operation']['buffer'] = 1;
     }
 
-    if( mapUIOption.analysis.operation.aggregation.column == 'count' && this.colorByIndex == 0 ){
+    if (mapUIOption.analysis.operation.aggregation.column == 'count' && this.colorByIndex == 0) {
       delete mapUIOption.analysis.operation.aggregation.type;
     }
 
@@ -641,7 +641,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    * 공간연산 실행 이후 option 변경시 자동으로 공간연산 실행 중단
    */
   private doEnableAnalysisBtn() {
-    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
+    if (!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
       this.uiOption.analysis['isReAnalysis'] = true;
       // setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 1000);
     }

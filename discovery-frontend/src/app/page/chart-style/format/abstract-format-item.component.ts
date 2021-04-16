@@ -12,16 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
+import {ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {SelectComponent} from '@common/component/select/select.component';
 import {Format} from '@domain/workbook/configurations/format';
@@ -112,11 +103,26 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
 
   // 수치표기 약어목록
   public numericAliasList: object[] = [
-    {name: this.translateService.instant('msg.page.format.numeric.alias.none'), value: String(UIFormatNumericAliasType.NONE)},
-    {name: this.translateService.instant('msg.page.format.numeric.alias.auto'), value: String(UIFormatNumericAliasType.AUTO)},
-    {name: this.translateService.instant('msg.page.format.numeric.alias.kilo'), value: String(UIFormatNumericAliasType.KILO)},
-    {name: this.translateService.instant('msg.page.format.numeric.alias.milion'), value: String(UIFormatNumericAliasType.MEGA)},
-    {name: this.translateService.instant('msg.page.format.numeric.alias.billion'), value: String(UIFormatNumericAliasType.GIGA)},
+    {
+      name: this.translateService.instant('msg.page.format.numeric.alias.none'),
+      value: String(UIFormatNumericAliasType.NONE)
+    },
+    {
+      name: this.translateService.instant('msg.page.format.numeric.alias.auto'),
+      value: String(UIFormatNumericAliasType.AUTO)
+    },
+    {
+      name: this.translateService.instant('msg.page.format.numeric.alias.kilo'),
+      value: String(UIFormatNumericAliasType.KILO)
+    },
+    {
+      name: this.translateService.instant('msg.page.format.numeric.alias.milion'),
+      value: String(UIFormatNumericAliasType.MEGA)
+    },
+    {
+      name: this.translateService.instant('msg.page.format.numeric.alias.billion'),
+      value: String(UIFormatNumericAliasType.GIGA)
+    },
   ];
 
   // 선택된 수치표기 약어
@@ -124,8 +130,14 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
 
   // 포멧 위치 리스트
   public positionList: object[] = [
-    {name: this.translateService.instant('msg.page.format.custom.symbol.position.front'), value: UIFormatSymbolPosition.BEFORE},
-    {name: this.translateService.instant('msg.page.format.custom.symbol.position.back'), value: UIFormatSymbolPosition.AFTER}
+    {
+      name: this.translateService.instant('msg.page.format.custom.symbol.position.front'),
+      value: UIFormatSymbolPosition.BEFORE
+    },
+    {
+      name: this.translateService.instant('msg.page.format.custom.symbol.position.back'),
+      value: UIFormatSymbolPosition.AFTER
+    }
   ];
 
   // 미리보기 값
@@ -138,10 +150,10 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    | Getter & Setter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input('uiOption')
-  public set setUiOption(uiOption : UIOption) {
+  public set setUiOption(uiOption: UIOption) {
     this.uiOption = uiOption;
     this.typeList = JSON.parse(JSON.stringify(this._orgTypeList));
-    if( uiOption.type === ChartType.GRID && (uiOption as UIGridChart).dataType === GridViewType.MASTER ) {
+    if (uiOption.type === ChartType.GRID && (uiOption as UIGridChart).dataType === GridViewType.MASTER) {
       this.typeList.push({name: this.translateService.instant('msg.page.li.origin'), value: 'origin'});
     }
   }
@@ -149,7 +161,9 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   @Input('format')
   public set setFormat(format: Format) {
 
-    if( !format ) { return; }
+    if (!format) {
+      return;
+    }
 
     // Set
     this.format = format;
@@ -161,7 +175,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     this.setNumericAlias = this.format.abbr;
     if (this.format.customSymbol) {
       this.customSymbol = {};
-      this.customSymbol.value = this.format.customSymbol ? this.format.customSymbol.value :  '';
+      this.customSymbol.value = this.format.customSymbol ? this.format.customSymbol.value : '';
       this.customSymbol.pos = this.format.customSymbol ? this.format.customSymbol.pos : UIFormatSymbolPosition.BEFORE;
       this.customSymbol.abbreviations = this.format.customSymbol ? this.format.customSymbol.abbreviations : false;
     }
@@ -175,11 +189,13 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public set setType(type: string) {
 
     // 값이 유효하지 않으면 패스~
-    if( !type ) { return; }
+    if (!type) {
+      return;
+    }
 
     // 타입 목록에서 찾아서 주입
-    for( let num: number = 0 ; num < this.typeList.length ; num++ ) {
-      if( this.typeList[num]['value'] == type ) {
+    for (let num: number = 0; num < this.typeList.length; num++) {
+      if (this.typeList[num]['value'] === type) {
         this.typeListComp.setDefaultIndex = num;
         this.selectedType = this.typeList[num];
         this.changeDetect.detectChanges();
@@ -193,13 +209,15 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public set setSign(sign: string) {
 
     // 값이 유효하지 않으면 패스~
-    if( !sign || !this.signListComp ) { return; }
+    if (!sign || !this.signListComp) {
+      return;
+    }
 
     const signList: object[] = this.currencySignList;
 
     // 심볼 목록에서 찾아서 주입
-    for( let num: number = 0 ; num < signList.length ; num++ ) {
-      if( signList[num]['value'] == sign ) {
+    for (let num: number = 0; num < signList.length; num++) {
+      if (signList[num]['value'] === sign) {
         this.signListComp.setDefaultIndex = num;
         this.selectedSign = signList[num];
         break;
@@ -212,13 +230,15 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public set setNumericAlias(numericAlias: string) {
 
     // 값이 유효하지 않으면 패스~
-    if( !numericAlias || !this.numericAliasListComp ) { return; }
+    if (!numericAlias || !this.numericAliasListComp) {
+      return;
+    }
 
     const aliasList: object[] = this.numericAliasList;
 
     // 심볼 목록에서 찾아서 주입
-    for( let num: number = 0 ; num < aliasList.length ; num++ ) {
-      if( aliasList[num]['value'] == numericAlias ) {
+    for (let num: number = 0; num < aliasList.length; num++) {
+      if (aliasList[num]['value'] === numericAlias) {
         this.numericAliasListComp.setDefaultIndex = num;
         this.selectedNumericAlias = aliasList[num];
         break;
@@ -232,7 +252,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
 
   // 생성자
   protected constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+                        protected injector: Injector) {
     super(elementRef, injector);
     this.typeList = JSON.parse(JSON.stringify(this._orgTypeList));
   }
@@ -272,15 +292,18 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    * @param isPlus
    */
   public onDigitChange(isPlus: boolean): void {
-    if( isPlus ) {
+    if (isPlus) {
 
-      if( this.decimal == this.MAX_DIGIT ) { return; }
+      if (this.decimal === this.MAX_DIGIT) {
+        return;
+      }
 
       this.decimal = this.decimal + 1;
-    }
-    else {
+    } else {
 
-      if( this.decimal == this.MIN_DIGIT ) { return; }
+      if (this.decimal === this.MIN_DIGIT) {
+        return;
+      }
 
       this.decimal = this.decimal - 1;
     }
@@ -296,11 +319,11 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    */
   public onDigitValid(): void {
 
-    if( this.decimalCopy == this.decimal ) {
+    if (this.decimalCopy === this.decimal) {
       return;
     }
 
-    if( this.decimalCopy < this.MIN_DIGIT || this.decimalCopy > this.MAX_DIGIT ) {
+    if (this.decimalCopy < this.MIN_DIGIT || this.decimalCopy > this.MAX_DIGIT) {
       this.decimalCopy = 2;
     }
 
@@ -341,7 +364,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public change(): void {
 
     // Null Check
-    if( !this.format ) {
+    if (!this.format) {
       this.format = {};
     }
 
@@ -390,7 +413,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     if (this.customSymbol) {
 
       this.customSymbol = null;
-    // customSymbol값이 없는경우
+      // customSymbol값이 없는경우
     } else {
 
       // customSymbol 생성

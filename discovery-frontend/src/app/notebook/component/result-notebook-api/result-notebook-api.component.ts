@@ -12,17 +12,16 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
-import { NotebookService } from '../../service/notebook.service';
-import { isUndefined } from 'util';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {NotebookService} from '../../service/notebook.service';
+import {isUndefined} from 'util';
 
 @Component({
   selector: 'app-result-notebook-api',
   templateUrl: './result-notebook-api.component.html',
 })
 export class ResultNotebookApiComponent extends AbstractPopupComponent implements OnInit {
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables

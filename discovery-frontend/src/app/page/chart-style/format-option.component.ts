@@ -12,17 +12,12 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, Injector, OnDestroy, OnInit, Input, ViewChild,
-  Output, EventEmitter
-} from '@angular/core';
-import { Field as AbstractField } from '../../domain/workbook/configurations/field/field';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Field as AbstractField} from '../../domain/workbook/configurations/field/field';
 import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
 import {Format} from '@domain/workbook/configurations/format';
-import {UIOption, UIChartFormat} from '@common/component/chart/option/ui-option';
-import {CustomField} from '@domain/workbook/configurations/field/custom-field';
-import {FormatItemComponent} from './format/format-item.component';
+import {UIChartFormat, UIOption} from '@common/component/chart/option/ui-option';
 import {BaseOptionComponent} from './base-option.component';
 
 @Component({
@@ -33,9 +28,6 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @ViewChild('commonFormat')
-  private commonFormatComp: FormatItemComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -85,28 +77,28 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
 
     // Pivot 정보에서 매저만 골라낸다
     const fieldList: AbstractField[] = _.cloneDeep(_.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations));
-    for( let num: number = fieldList.length - 1 ; num >= 0 ; num-- ) {
-      if( 'measure' != fieldList[num].type.toLowerCase() ) {
+    for (let num: number = fieldList.length - 1; num >= 0; num--) {
+      if ('measure' !== fieldList[num].type.toLowerCase()) {
         fieldList.splice(num, 1);
       }
     }
 
     // 이전 필드목록의 포맷타입을 승계한다.
-    for( const afterField of fieldList ) {
+    for (const afterField of fieldList) {
       let isBeforeFormat: boolean = false;
-      for( const beforeField of this.fieldList ) {
-        if( afterField.name == beforeField.name && afterField.aggregationType == beforeField.aggregationType ) {
-          afterField.format == beforeField.format;
+      for (const beforeField of this.fieldList) {
+        if (afterField.name === beforeField.name && afterField.aggregationType === beforeField.aggregationType) {
+          afterField.format === beforeField.format;
           isBeforeFormat = true;
           break;
         }
       }
-      if( !isBeforeFormat && !afterField.format ) {
+      if (!isBeforeFormat && !afterField.format) {
         afterField.format = this.format;
 
         // 현재 필드의 포맷변경
         _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations).forEach((field) => {
-          if( field.type == 'measure' && field.name == afterField.name && field.aggregationType == afterField.aggregationType ) {
+          if (field.type === 'measure' && field.name === afterField.name && field.aggregationType === afterField.aggregationType) {
             field.format = this.format;
           }
         });
@@ -120,7 +112,7 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
     this.fieldList = fieldList;
 
     // UI Option 반영
-    if( this.format ) {
+    if (this.format) {
       this.apply();
     }
   }
@@ -128,12 +120,11 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
   // @Input('format')
   set setFormat(format: Format) {
 
-    if( !format ) {
+    if (!format) {
 
       if (this.uiOption && this.uiOption.valueFormat) {
         format = this.uiOption.valueFormat;
-      }
-      else {
+      } else {
         return;
       }
     }
@@ -205,7 +196,7 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
 
     // 모든 매저의 포맷변경
     _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations).forEach((field) => {
-      if( field.type == 'measure' ) {
+      if (field.type === 'measure') {
         field.format = this.format;
       }
     });
@@ -218,20 +209,19 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
     this.apply();
   }
 
-  /**
-   * Individual일때 각 Measure명 반환
-   */
-  public getFieldNmae(field: CustomField): string {
-
-    const name: string = field.alias ? field.alias : field.fieldAlias ? field.fieldAlias : field.name;
-
-    if( !field.aggregated && field.aggregationType && (!field.alias || field.alias == field.name) ) {
-      return field.aggregationType+'('+name+')';
-    }
-    else {
-      return name;
-    }
-  }
+  // /**
+  //  * Individual일때 각 Measure명 반환
+  //  */
+  // public getFieldNmae(field: CustomField): string {
+  //
+  //   const name: string = field.alias ? field.alias : field.fieldAlias ? field.fieldAlias : field.name;
+  //
+  //   if (!field.aggregated && field.aggregationType && (!field.alias || field.alias === field.name)) {
+  //     return field.aggregationType + '(' + name + ')';
+  //   } else {
+  //     return name;
+  //   }
+  // }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -252,7 +242,7 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
       customSymbol: this.format.customSymbol,
       abbr: this.format.abbr
     };
-    this.uiOption = (_.extend({}, this.uiOption, { valueFormat: uiFormat }) as UIOption);
+    this.uiOption = (_.extend({}, this.uiOption, {valueFormat: uiFormat}) as UIOption);
 
     // 이벤트 발생
     this.update();

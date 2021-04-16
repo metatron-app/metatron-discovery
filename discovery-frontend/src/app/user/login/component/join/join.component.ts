@@ -13,17 +13,23 @@
  */
 
 import {
-  Component, EventEmitter, OnInit, Output,
-  ElementRef, Injector, OnDestroy, ViewChild, Renderer2
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  Renderer2,
+  ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { UserService } from '../../../service/user.service';
-import { User } from '@domain/user/user';
-import { StringUtil } from '@common/util/string.util';
-import { FileUploader } from 'ng2-file-upload';
-import { CommonConstant } from '@common/constant/common.constant';
-import { Alert } from '@common/util/alert.util';
-import { isUndefined } from 'util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {UserService} from '../../../service/user.service';
+import {User} from '@domain/user/user';
+import {FileUploader} from 'ng2-file-upload';
+import {CommonConstant} from '@common/constant/common.constant';
+import {Alert} from '@common/util/alert.util';
+import {isUndefined} from 'util';
 
 @Component({
   selector: 'app-join',
@@ -63,19 +69,19 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // 상위 컴포넌트로 완료 이벤트 전파
   @Output()
-  public joinComplete:EventEmitter<{code:string,msg?:string}> = new EventEmitter();
+  public joinComplete: EventEmitter<{ code: string, msg?: string }> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private userService: UserService,
               protected elementRef: ElementRef,
-              protected  injector: Injector,
+              protected injector: Injector,
               protected renderer: Renderer2) {
     super(elementRef, injector);
     // 이미지 업로드 URL 설정
     this.uploader
-      = new FileUploader({ url: CommonConstant.API_CONSTANT.API_URL + 'images/upload' });
+      = new FileUploader({url: CommonConstant.API_CONSTANT.API_URL + 'images/upload'});
   }
 
 
@@ -120,10 +126,10 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
       this.userService.join(this.user).then(() => {
         this.loadingHide();
         this.isShow = false;
-        this.joinComplete.emit({ code : 'SUCCESS'});
-      }).catch(err=> {
+        this.joinComplete.emit({code: 'SUCCESS'});
+      }).catch(err => {
         this.loadingHide();
-        this.joinComplete.emit({ code : 'FAIL', msg : err.details ? err.details : '' });
+        this.joinComplete.emit({code: 'FAIL', msg: err.details ? err.details : ''});
       });
 
       // 프로필 사진이 있으면 업로드부터
@@ -258,120 +264,119 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
     | Private Methods
     |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /** Validation */
-  private validation(type: string) {
-
-    let text = this.user[type]; // TODO : 중간에 있는 space 없에야함
-    isUndefined(text) ? text = '' : null;
-
-    const idReg = /(^[0-9].*(?=[0-9a-zA-Z\.]{2,19}$)(?=.*\d?)(?=.*[a-zA-Z])(?=.*[\.]?).*$)|(^[a-zA-Z].*(?=[0-9a-zA-Z\.]{2,19}$)(?=.*\d?)(?=.*[a-zA-Z]?)(?=.*[\.]?).*$)/;
-    const passwordReg = /^.*(?=^.{10,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^*()\-_=+\\\|\[\]{};:\'",.<>\/?`~]).*$/g;
-
-    // 아이디 validation
-    if ('username' === type) {
-      if (text.length === 0) {
-        return;
-      }
-      // 1. 아이디는 영문, 숫자 조합으로 3자에서 20자 이내로 한글은 사용할 수 없습니다
-      if (!idReg.test(text) || text.length < 3 || text.length > 20) {
-        this.joinValidation.username = false;
-        this.joinValidation.usernameMessage
-          = this.translateService.instant('LOGIN_JOIN_VALID_ID');
-        return;
-      }
-
-      // 2. 아이디 중복체크 API
-      this.userService.duplicateId(text).then((result) => {
-        if (result.duplicated === true) {
-          this.joinValidation.username = false;
-          this.joinValidation.usernameMessage
-            = this.translateService.instant('LOGIN_JOIN_USE_ID');
-        } else {
-          this.joinValidation.username = true;
-        }
-      }).catch((error) => {
-        this.joinValidation.username = false;
-        this.joinValidation.usernameMessage
-          = this.translateService.instant('LOGIN_JOIN_VALID_ID');
-        return;
-      });
-      this.joinValidation.username = true;
-    }
-    // Email validation
-    else if ('email' === type) {
-      if (text.length === 0) {
-        return;
-      }
-      if (!StringUtil.isEmail(text)) { // 이메일 형식에 맞는지 확인
-        this.joinValidation.email = false;
-        this.joinValidation.emailMessage
-          = this.translateService.instant('LOGIN_JOIN_VALID_EMAIL');
-        return;
-      }
-
-      // 이메일 중복체크 API
-      this.userService.duplicateEmail(text)
-        .then((result) => {
-          if (result.duplicated === true) {
-            this.joinValidation.email = false;
-            this.joinValidation.emailMessage
-              = this.translateService.instant('LOGIN_JOIN_USE_EMAIL');
-          } else {
-            this.joinValidation.email = true;
-          }
-        }).catch((error) => {
-        this.loadingHide();
-        this.joinValidation.email = false;
-        this.joinValidation.emailMessage
-          = this.translateService.instant('LOGIN_JOIN_VALID_ID');
-        return;
-      });
-      this.joinValidation.email = true;
-    }
-    // password confirm validation
-    else if ('password' === type) {
-      if (text.length === 0) {
-        return;
-      }
-      this.userService.validatePassword(this.user)
-        .then((result) => {
-          this.joinValidation.password = true;
-        }).catch((error) => {
-        this.loadingHide();
-        this.joinValidation.password = false;
-        if (StringUtil.isNotEmpty(error.code)) {
-          this.joinValidation.passwordMessage
-            = this.translateService.instant('login.ui.fail.'+error.code);
-        } else {
-          this.joinValidation.passwordMessage
-            = this.translateService.instant('LOGIN_JOIN_VALID_PASSWORD2');
-        }
-        return;
-      });
-      this.joinValidation.password = true;
-      if (StringUtil.isNotEmpty(this.user.confirmPassword)) {
-        this.validation('confirmPassword');
-      }
-    }
-    else if ('confirmPassword' === type) {
-      if (text.length === 0) {
-        return;
-      }
-      // check if password and confirmpassword is same
-      if (this.user.password && this.user.confirmPassword && 0 !== this.user.password.length && 0 !== this.user.confirmPassword.length) {
-        if (this.user.password !== this.user.confirmPassword) {
-          this.joinValidation.confirmPassword = false;
-          this.joinValidation.confirmPasswordMessage = this.translateService.instant('LOGIN_JOIN_NOMATCH_PASSWORD');
-          return;
-        } else {
-          this.joinValidation.confirmPassword = true;
-        }
-      }
-    }
-
-    // 검증 통과시 validation true로 변경
-    this.joinValidation[type] = true;
-
-  } // function - validation
+  // private validation(type: string) {
+  //
+  //   let text = this.user[type]; // TODO : 중간에 있는 space 없에야함
+  //   isUndefined(text) ? text = '' : null;
+  //
+  //   const idReg = /(^[0-9].*(?=[0-9a-zA-Z\.]{2,19}$)(?=.*\d?)(?=.*[a-zA-Z])(?=.*[\.]?).*$)|(^[a-zA-Z].*(?=[0-9a-zA-Z\.]{2,19}$)(?=.*\d?)(?=.*[a-zA-Z]?)(?=.*[\.]?).*$)/;
+  //   const passwordReg = /^.*(?=^.{10,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^*()\-_=+\\\|\[\]{};:\'",.<>\/?`~]).*$/g;
+  //
+  //   // 아이디 validation
+  //   if ('username' === type) {
+  //     if (text.length === 0) {
+  //       return;
+  //     }
+  //     // 1. 아이디는 영문, 숫자 조합으로 3자에서 20자 이내로 한글은 사용할 수 없습니다
+  //     if (!idReg.test(text) || text.length < 3 || text.length > 20) {
+  //       this.joinValidation.username = false;
+  //       this.joinValidation.usernameMessage
+  //         = this.translateService.instant('LOGIN_JOIN_VALID_ID');
+  //       return;
+  //     }
+  //
+  //     // 2. 아이디 중복체크 API
+  //     this.userService.duplicateId(text).then((result) => {
+  //       if (result.duplicated === true) {
+  //         this.joinValidation.username = false;
+  //         this.joinValidation.usernameMessage
+  //           = this.translateService.instant('LOGIN_JOIN_USE_ID');
+  //       } else {
+  //         this.joinValidation.username = true;
+  //       }
+  //     }).catch((error) => {
+  //       this.joinValidation.username = false;
+  //       this.joinValidation.usernameMessage
+  //         = this.translateService.instant('LOGIN_JOIN_VALID_ID');
+  //       return;
+  //     });
+  //     this.joinValidation.username = true;
+  //   }
+  //   // Email validation
+  //   else if ('email' === type) {
+  //     if (text.length === 0) {
+  //       return;
+  //     }
+  //     if (!StringUtil.isEmail(text)) { // 이메일 형식에 맞는지 확인
+  //       this.joinValidation.email = false;
+  //       this.joinValidation.emailMessage
+  //         = this.translateService.instant('LOGIN_JOIN_VALID_EMAIL');
+  //       return;
+  //     }
+  //
+  //     // 이메일 중복체크 API
+  //     this.userService.duplicateEmail(text)
+  //       .then((result) => {
+  //         if (result.duplicated === true) {
+  //           this.joinValidation.email = false;
+  //           this.joinValidation.emailMessage
+  //             = this.translateService.instant('LOGIN_JOIN_USE_EMAIL');
+  //         } else {
+  //           this.joinValidation.email = true;
+  //         }
+  //       }).catch((error) => {
+  //       this.loadingHide();
+  //       this.joinValidation.email = false;
+  //       this.joinValidation.emailMessage
+  //         = this.translateService.instant('LOGIN_JOIN_VALID_ID');
+  //       return;
+  //     });
+  //     this.joinValidation.email = true;
+  //   }
+  //   // password confirm validation
+  //   else if ('password' === type) {
+  //     if (text.length === 0) {
+  //       return;
+  //     }
+  //     this.userService.validatePassword(this.user)
+  //       .then((result) => {
+  //         this.joinValidation.password = true;
+  //       }).catch((error) => {
+  //       this.loadingHide();
+  //       this.joinValidation.password = false;
+  //       if (StringUtil.isNotEmpty(error.code)) {
+  //         this.joinValidation.passwordMessage
+  //           = this.translateService.instant('login.ui.fail.' + error.code);
+  //       } else {
+  //         this.joinValidation.passwordMessage
+  //           = this.translateService.instant('LOGIN_JOIN_VALID_PASSWORD2');
+  //       }
+  //       return;
+  //     });
+  //     this.joinValidation.password = true;
+  //     if (StringUtil.isNotEmpty(this.user.confirmPassword)) {
+  //       this.validation('confirmPassword');
+  //     }
+  //   } else if ('confirmPassword' === type) {
+  //     if (text.length === 0) {
+  //       return;
+  //     }
+  //     // check if password and confirmpassword is same
+  //     if (this.user.password && this.user.confirmPassword && 0 !== this.user.password.length && 0 !== this.user.confirmPassword.length) {
+  //       if (this.user.password !== this.user.confirmPassword) {
+  //         this.joinValidation.confirmPassword = false;
+  //         this.joinValidation.confirmPasswordMessage = this.translateService.instant('LOGIN_JOIN_NOMATCH_PASSWORD');
+  //         return;
+  //       } else {
+  //         this.joinValidation.confirmPassword = true;
+  //       }
+  //     }
+  //   }
+  //
+  //   // 검증 통과시 validation true로 변경
+  //   this.joinValidation[type] = true;
+  //
+  // } // function - validation
 
   // 입력값 검증 결과
   private isValid() {

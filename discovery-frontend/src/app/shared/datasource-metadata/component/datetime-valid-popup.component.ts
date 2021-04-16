@@ -14,7 +14,7 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {TimezoneService} from '../../../data-storage/service/timezone.service';
 import {FieldFormat, FieldFormatType, FieldFormatUnit} from '@domain/datasource/datasource';
 import {StringUtil} from '@common/util/string.util';
@@ -25,7 +25,7 @@ import {isNullOrUndefined} from 'util';
   selector: 'datetime-valid-popup',
   templateUrl: './datetime-valid-popup.component.html',
 })
-export class DatetimeValidPopupComponent extends AbstractComponent {
+export class DatetimeValidPopupComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   private _valueList: string[];
 
@@ -61,7 +61,10 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   @Output() readonly changedFieldFormatString = new EventEmitter();
 
   public readonly formatUnitList: { label: string, value: FieldFormatUnit }[] = [
-    {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
+    {
+      label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'),
+      value: FieldFormatUnit.MILLISECOND
+    },
     {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND},
   ];
 
@@ -236,7 +239,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
 
   /**
    * Change Unix type
-   * @param {{label: string; value: FieldFormatUnit}} type
+   * @param type
    */
   public onChangeUnixType(type: { label: string, value: FieldFormatUnit }) {
     if (!this.isReadOnly && this.fieldFormat.unit !== type.value) {

@@ -15,23 +15,33 @@
 /**
  * Created by juheeko on 20/10/2017.
  */
-import { Component, ElementRef, EventEmitter, HostListener, Injector, Output, ViewChild } from '@angular/core';
-import { AbstractComponent } from '@common/component/abstract.component';
-import { Field, FieldNameAlias, FieldRole, FieldValueAlias, LogicalType } from '@domain/datasource/datasource';
-import { StringUtil } from '@common/util/string.util';
-import { PopupValueAliasComponent } from '../page-pivot/popup-value-alias.component';
-import { Alert } from '@common/util/alert.util';
-import { DatasourceAliasService } from '../../datasource/service/datasource-alias.service';
-import { BoardDataSource } from '@domain/dashboard/dashboard';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Field, FieldNameAlias, FieldRole, FieldValueAlias, LogicalType} from '@domain/datasource/datasource';
+import {StringUtil} from '@common/util/string.util';
+import {PopupValueAliasComponent} from '../page-pivot/popup-value-alias.component';
+import {Alert} from '@common/util/alert.util';
+import {DatasourceAliasService} from '../../datasource/service/datasource-alias.service';
+import {BoardDataSource} from '@domain/dashboard/dashboard';
 import * as _ from 'lodash';
-import { isNullOrUndefined, isString } from 'util';
+import {isNullOrUndefined, isString} from 'util';
 import {Type} from '../../shared/datasource-metadata/domain/type';
 
 @Component({
   selector: 'page-data-context',
   templateUrl: './page-data-context.component.html'
 })
-export class PageDataContextComponent extends AbstractComponent {
+export class PageDataContextComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -245,7 +255,7 @@ export class PageDataContextComponent extends AbstractComponent {
     this.fix2DepthContext = false;
 
     // validation
-    if( isNullOrUndefined( this.editingFieldAlias ) || '' === this.editingFieldAlias.trim() ) {
+    if (isNullOrUndefined(this.editingFieldAlias) || '' === this.editingFieldAlias.trim()) {
       Alert.info(this.translateService.instant('msg.page.alert.chart.alias.empty.warn'));
       this.editingFieldAlias = null;
       return;
@@ -257,7 +267,7 @@ export class PageDataContextComponent extends AbstractComponent {
       return;
     }
 
-    if( this.editingFieldAlias.toLowerCase() === this.selectedField.name.toLowerCase() ) {
+    if (this.editingFieldAlias.toLowerCase() === this.selectedField.name.toLowerCase()) {
       Alert.info(this.translateService.instant('msg.page.alert.chart.alias.dupfield.warn'));
       this.editingFieldAlias = null;
       return;
@@ -275,7 +285,7 @@ export class PageDataContextComponent extends AbstractComponent {
     // }
 
     // 값이 없다면 Reset 처리
-    if (this.editingFieldAlias.trim() == '') {
+    if (this.editingFieldAlias.trim() === '') {
       this.onAliasReset(null);
       return;
     }
@@ -294,7 +304,7 @@ export class PageDataContextComponent extends AbstractComponent {
   public onAliasReset(event: Event): void {
 
     // 이벤트 캔슬
-    (event) && ( event.stopPropagation() );
+    (event) && (event.stopPropagation());
 
     // 값 적용
     this.selectedField.nameAlias.nameAlias = this.selectedField.name;
@@ -340,11 +350,11 @@ export class PageDataContextComponent extends AbstractComponent {
    * Get metaData logical type name
    * @return {string}
    */
-  public getMetaDataLogicalTypeName():string {
-    let name:string = '';
+  public getMetaDataLogicalTypeName(): string {
+    let name: string = '';
     const metaData = this.selectedField.uiMetaData;
-    if( metaData ) {
-      switch( metaData.type ) {
+    if (metaData) {
+      switch (metaData.type) {
         case Type.Logical.LNT :
           name = 'LATITUDE';
           break;

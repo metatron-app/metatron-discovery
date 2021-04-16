@@ -36,7 +36,6 @@ import {CommonUtil} from '@common/util/common.util';
 import {PeriodData} from '@common/value/period.data.value';
 
 declare let moment: any;
-
 declare let echarts: any;
 
 @Component({
@@ -330,9 +329,9 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
         // use configuration item and data specified to show chart
         this.chart.setOption(option);
         this.chart.off('click');
-        this.chart.on('click', (params) => {
-          if (params) {
-            const idx = params['dataIndex'];
+        this.chart.on('click', (chartClickOpts) => {
+          if (chartClickOpts) {
+            const idx = chartClickOpts['dataIndex'];
             this.openPopupDetail({
               name: 'Job log list - ' + keys[idx],
               label: 'user',
@@ -791,7 +790,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   /**
    * 차트 Resize
    *
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
   protected onResize(_event) {

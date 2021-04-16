@@ -12,23 +12,23 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@common/common.module';
-import { RouterModule, Routes } from '@angular/router';
-import { NotebookServerComponent } from './notebook-server/notebook-server.component';
-import { ModelApprovalComponent } from './model-approval/model-approval.component';
-import { ModelManagementComponent } from './model-management.component';
-import { AddNotebookServerComponent } from './notebook-server/add-notebook-server/add-notebook-server.component';
-import { ModelApprovalDetailComponent } from './model-approval/model-approval-detail/model-approval-detail.component';
-import { NotebookServerService } from './notebook-server/service/notebook-server.service';
-import { ModelApprovalService } from './model-approval/service/model-approval.service';
-import { ModelApprovalResultComponent } from './model-approval/model-approval-result/model-approval-result.component';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@common/common.module';
+import {RouterModule, Routes} from '@angular/router';
+import {NotebookServerComponent} from './notebook-server/notebook-server.component';
+import {ModelApprovalComponent} from './model-approval/model-approval.component';
+import {ModelManagementComponent} from './model-management.component';
+import {AddNotebookServerComponent} from './notebook-server/add-notebook-server/add-notebook-server.component';
+import {ModelApprovalDetailComponent} from './model-approval/model-approval-detail/model-approval-detail.component';
+import {NotebookServerService} from './notebook-server/service/notebook-server.service';
+import {ModelApprovalService} from './model-approval/service/model-approval.service';
+import {ModelApprovalResultComponent} from './model-approval/model-approval-result/model-approval-result.component';
 
 const modelManagementRoutes: Routes = [
-  { path: '', redirectTo: 'notebook', pathMatch: 'full' },
+  {path: '', redirectTo: 'notebook', pathMatch: 'full'},
   // { path: 'model', component: ModelManagementComponent, redirectTo: 'model/approval' },
-  { path: 'approval', component: ModelApprovalComponent },
-  { path: 'notebook', component: NotebookServerComponent },
+  {path: 'approval', component: ModelApprovalComponent},
+  {path: 'notebook', component: NotebookServerComponent},
 ];
 
 @NgModule({

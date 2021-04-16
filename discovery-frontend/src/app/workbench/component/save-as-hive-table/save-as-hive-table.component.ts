@@ -81,7 +81,7 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
       this.errMsgTableName = this.translateService.instant('msg.common.ui.required');
       return false;
     } else {
-      if(StringUtil.isAlphaNumericUnderscore(this.tableName) === false) {
+      if (StringUtil.isAlphaNumericUnderscore(this.tableName) === false) {
         this.isInvalidTableName = true;
         this.errMsgTableName = this.translateService.instant('msg.bench.alert.invalid-hive-table-name');
         return false;

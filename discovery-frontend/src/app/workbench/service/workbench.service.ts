@@ -68,7 +68,7 @@ export class WorkbenchService extends AbstractService {
    *****************************************/
 
   // 워크벤치 생성
-  public createWorkbench(params: {name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string}): Promise<any> {
+  public createWorkbench(params: { name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string }): Promise<any> {
     return this.post(this.API_URL + 'workbenchs', params);
   }
 
@@ -162,7 +162,7 @@ export class WorkbenchService extends AbstractService {
       runIndex: additional.runIndex
     };
 
-    if(additional.retryQueryResultOrder) {
+    if (additional.retryQueryResultOrder) {
       param['retryQueryResultOrder'] = additional.retryQueryResultOrder;
     }
 
@@ -184,35 +184,35 @@ export class WorkbenchService extends AbstractService {
     return this.post(this.API_URL + `queryeditors/${queryEditorId}/query/cancel`, params); // params => query / webSocketId
   }
 
-  public checkConnectionStatus(queryEditorId: string, socketId: string)  {
+  public checkConnectionStatus(queryEditorId: string, socketId: string) {
     const param = {
-      webSocketId : socketId
+      webSocketId: socketId
     };
     return this.post(this.API_URL + `queryeditors/${queryEditorId}/status`, param);
   }
 
   // 쿼리 결과 조회 (페이징 사용)
-  public runQueryResult(editorId: String, csvFilePath : string, pageSize : number, pageNumber : number, fieldList : any) {
+  public runQueryResult(editorId: string, csvFilePath: string, pageSize: number, pageNumber: number, fieldList: any) {
     const id = editorId;
     const param = {
-      csvFilePath : csvFilePath,
-      pageSize    : pageSize,
-      pageNumber  : pageNumber,
-      fieldList   : fieldList
+      csvFilePath: csvFilePath,
+      pageSize: pageSize,
+      pageNumber: pageNumber,
+      fieldList: fieldList
     };
     return this.post(this.API_URL + `queryeditors/${id}/query/result`, param);
   }
 
   // 스키마 정보 데이터 조회
-  public getSchemaInfoTableData(table:string, connection:any) {
-    const params:any = {};
+  public getSchemaInfoTableData(table: string, connection: any) {
+    const params: any = {};
 
     const connInfo: any = {};
     connInfo.implementor = connection.implementor;
     connInfo.hostname = connection.hostname;
     connInfo.port = connection.port;
     // connection 정보가 USERINFO 일 경우 제외
-    if( connInfo.authenticationType != 'USERINFO' ) {
+    if (connInfo.authenticationType !== 'USERINFO') {
       connInfo.username = connection.username;
       connInfo.password = connection.password;
     }
@@ -228,7 +228,7 @@ export class WorkbenchService extends AbstractService {
     connInfo.url = connection.url;
 
     // properties 속성이 존재 할경우
-    if( !isNullOrUndefined(connection.properties) ){
+    if (!isNullOrUndefined(connection.properties)) {
       connInfo.properties = connection.properties;
     }
 
