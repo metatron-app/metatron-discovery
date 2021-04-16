@@ -12,20 +12,6 @@
  * limitations under the License.
  */
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package app.metatron.discovery.domain.datasource;
 
 import com.google.common.base.Preconditions;
@@ -104,7 +90,9 @@ import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 
 /**
- * Created by kyungtaak on 2016. 4. 1..
+ * Datasource Event Handler
+ *
+ * @author Kyungtaak Noh
  */
 @RepositoryEventHandler(DataSource.class)
 public class DataSourceEventHandler {
@@ -352,7 +340,7 @@ public class DataSourceEventHandler {
   public void handleDataSourceAfterSave(DataSource dataSource) {
 
     // 배치 수집 경로가 아닌 경우 Pass
-    if (dataSource.getConnType() == ENGINE && dataSource.getIngestion() != null) {
+    if (dataSource.getConnType() == ENGINE) {
 
       IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
 
@@ -408,7 +396,11 @@ public class DataSourceEventHandler {
           }
         }
       } else if (ingestionInfo instanceof RealtimeIngestionInfo) {
-        // TODO: 기존 동작하고 있는 적재 task 가 존재하는지 확인 (재정의 필요)
+        /*
+            When the data source information is updated,
+            the changes should be reflected in the real-time data source as well, but we separate this.
+            In case of schema changes, you can use the "/api/datasources/{id}/fields" API.
+         */
       }
     }
 

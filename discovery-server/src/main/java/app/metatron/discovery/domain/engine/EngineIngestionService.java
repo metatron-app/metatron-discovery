@@ -215,6 +215,7 @@ public class EngineIngestionService {
    * 실제 스펙을 가지고 Supervisor task 전달
    */
   private Optional<IngestionHistory> doSupervisorIngestion(String dataSourceId, IngestionInfo info, SupervisorIndex spec) {
+
     String ingestionSpec = null;
     try {
       ingestionSpec = GlobalObjectMapper.getDefaultMapper().writeValueAsString(spec);

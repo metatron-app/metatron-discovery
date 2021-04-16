@@ -70,8 +70,6 @@ public class AbstractSpecBuilder {
 
   protected DataSchema dataSchema = new DataSchema();
 
-  protected boolean useRelay;
-
   protected boolean derivedTimestamp;
 
   protected Map<String, SecondaryIndexing> secondaryIndexing = Maps.newLinkedHashMap();
@@ -80,6 +78,9 @@ public class AbstractSpecBuilder {
 
     // Set datasource name
     dataSchema.setDataSource(dataSource.getEngineName());
+
+    // Whether to use relay type for metric configuration
+    boolean useRelay = false;
 
     // Use ingestion rule and field format
     for (Field field : dataSource.getFields()) {
@@ -142,7 +143,7 @@ public class AbstractSpecBuilder {
         dataSource.getSegGranularity() == null ? DataSource.GranularityType.DAY.name() : dataSource.getSegGranularity().name(),
         intervals == null ? null : intervals.toArray(new String[0]));
 
-    // Set Roll up
+    // Set the rollup property to false if you need to use "relay" even if the rollup property is true.
     if (useRelay) {
       granularitySpec.setRollup(false);
     } else {
@@ -162,20 +163,19 @@ public class AbstractSpecBuilder {
 
     dataSchema.setGranularitySpec(granularitySpec);
 
-    if (!useRelay) {
-      // Set measure field
-      // 1. default pre-Aggreation
+    if (BooleanUtils.isTrue(granularitySpec.getRollup())) {
+      // create default pre-aggregation field
       dataSchema.addMetrics(new CountAggregation("count"));
     }
 
-    // 2. set measure from datasource
+    // set measure from datasource
     List<Field> measureFields = dataSource.getFieldByRole(Field.FieldRole.MEASURE);
     for (Field field : measureFields) {
       // 삭제된 필드는 추가 하지 않음
       if (BooleanUtils.isTrue(field.getUnloaded())) {
         continue;
       }
-      dataSchema.addMetrics(field.getAggregation(useRelay));
+      dataSchema.addMetrics(field.getAggregation(BooleanUtils.isTrue(granularitySpec.getRollup())));
     }
 
   }

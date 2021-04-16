@@ -42,6 +42,11 @@ public class LinkIngestionInfo extends JdbcIngestionInfo implements IngestionInf
     // Empty Constructor
   }
 
+  @Override
+  public void update(IngestionInfo ingestionInfo) {
+    // Not supported yet
+  }
+
   public Integer getExpired() {
     return expired;
   }

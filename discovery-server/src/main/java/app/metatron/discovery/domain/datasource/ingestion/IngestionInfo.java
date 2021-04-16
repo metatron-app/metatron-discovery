@@ -39,6 +39,7 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionIn
     @JsonSubTypes.Type(value = HiveIngestionInfo.class, name = "hive")
 })
 public interface IngestionInfo {
+
   FileFormat getFormat();
 
   Boolean getRollup();
@@ -46,4 +47,11 @@ public interface IngestionInfo {
   Map<String, Object> getTuningOptions();
 
   List<String> getIntervals();
+
+  /**
+   * Use when you want to change the ingestion spec.
+   *
+   * @param ingestionInfo
+   */
+  void update(IngestionInfo ingestionInfo);
 }

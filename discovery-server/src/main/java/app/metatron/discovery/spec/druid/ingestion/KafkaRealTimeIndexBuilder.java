@@ -31,6 +31,8 @@ import app.metatron.discovery.spec.druid.ingestion.tuning.TuningConfig;
  */
 public class KafkaRealTimeIndexBuilder extends AbstractSpecBuilder {
 
+  String id;
+
   TuningConfig tuningConfig;
 
   IoConfig ioConfig;
@@ -41,6 +43,9 @@ public class KafkaRealTimeIndexBuilder extends AbstractSpecBuilder {
   }
 
   public KafkaRealTimeIndexBuilder dataSchema(DataSource dataSource) {
+
+    // Set the id for supervisor update
+    id = dataSource.getEngineName();
 
     setDataSchema(dataSource);
 
@@ -96,6 +101,7 @@ public class KafkaRealTimeIndexBuilder extends AbstractSpecBuilder {
   public KafkaRealTimeIndex build() {
 
     KafkaRealTimeIndex spec = new KafkaRealTimeIndex();
+    spec.setId(id);
     spec.setDataSchema(dataSchema);
     spec.setTuningConfig(tuningConfig);
     spec.setIoConfig(ioConfig);

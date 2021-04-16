@@ -265,6 +265,9 @@ public class Field implements MetatronDomain<Long> {
   public Field(String name, DataType type, FieldRole role, long seq) {
     this.name = name;
     this.type = type;
+    if(this.type != null) {
+      this.logicalType = this.type.toLogicalType();
+    }
     this.role = role == null ? this.type.toRole() : role;
     this.seq = seq;
   }
@@ -276,6 +279,9 @@ public class Field implements MetatronDomain<Long> {
     this.type = SearchParamValidator.enumUpperValue(DataType.class, patch.getValue("type"), "type");
     this.role = SearchParamValidator.enumUpperValue(FieldRole.class, patch.getValue("role"), "role");
     this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
+    if(this.logicalType == null) {
+      this.logicalType = this.type.toLogicalType();
+    }
     this.aggrType = SearchParamValidator.enumUpperValue(MeasureField.AggregationType.class, patch.getValue("aggrType"), "aggrType");
     this.seq = patch.getLongValue("seq");
 
@@ -324,7 +330,7 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public void updateField(CollectionPatch patch) {
-    // if(patch.hasProperty("name")) this.name = patch.getValue("name");
+
     if (patch.hasProperty("logicalName")) this.logicalName = patch.getValue("logicalName");
 
     if (patch.hasProperty("description")) this.description = patch.getValue("description");
@@ -382,9 +388,9 @@ public class Field implements MetatronDomain<Long> {
    * Ingestion spec. 처리시 확인 할 것
    */
   @JsonIgnore
-  public Aggregation getAggregation(boolean isRelay) {
+  public Aggregation getAggregation(boolean rollup) {
 
-    if (isRelay) {
+    if (!rollup) {
       return new RelayAggregation(name, getOriginalName(), logicalType.toEngineMetricType());
     }
 

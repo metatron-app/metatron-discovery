@@ -98,6 +98,11 @@ public class HiveIngestionInfo implements IngestionInfo {
     this.context = context;
   }
 
+  @Override
+  public void update(IngestionInfo ingestionInfo) {
+    // Not supported yet
+  }
+
   @JsonIgnore
   public <T> T getContextValue(String key) {
     if (context == null) {
