@@ -139,6 +139,8 @@ interface LayerSize {
   column: string;
   min: number;
   max: number;
+  minValue: string;
+  maxValue: string;
 }
 
 /**
