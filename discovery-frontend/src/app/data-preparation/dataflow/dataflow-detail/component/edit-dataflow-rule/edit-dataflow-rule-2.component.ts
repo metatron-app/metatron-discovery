@@ -15,6 +15,7 @@
 import {isNullOrUndefined, isUndefined} from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
+import Split from 'split.js'
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs/Subscription';
 import {
@@ -51,8 +52,6 @@ import {EditRuleComponent} from './edit-rule/edit-rule.component';
 import {ExtendInputFormulaComponent} from './extend-input-formula.component';
 import {EditRuleGridComponent} from './edit-rule-grid/edit-rule-grid.component';
 import {MultipleRenamePopupComponent} from './multiple-rename-popup.component';
-
-declare let Split;
 
 @Component({
   selector: 'app-edit-dataflow-rule-2',

@@ -168,15 +168,32 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 값 제거
+   */
+  public clearValue() {
+    this._inputElm.nativeElement.value = '';
+    this.value = '';
+    this.changeEvent.emit(this.value);
+  } // function - clearValue
+
+  /**
+   * 값 입력 여부
+   * @return {boolean}
+   */
+  public isNotEmptyInput(): boolean {
+    if (this._inputElm) {
+      return '' !== this._inputElm.nativeElement.value;
+    } else {
+      return false;
+    }
+  } // function - isNotEmptyInput
 
   /**
    * 키 입력 핸들러
    * @param event
    */
-  protected keyupHandler(event: KeyboardEvent) {
+  public keyupHandler(event: KeyboardEvent) {
     if (this.immediately || 13 === event.keyCode) {
       // 즉시 적용 및 Enter 적용
       this.setValue();
@@ -192,14 +209,14 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
   /**
    * input focus event handler
    */
-  protected focusHandler() {
+  public focusHandler() {
     this.inputFocusEvent.emit();
   } // function - focusHandler
 
   /**
    * input blur event handler
    */
-  protected blurHandler() {
+  public blurHandler() {
     this.inputBlurEvent.emit();
     this.setValue();
   } // function - blurHandler
@@ -207,7 +224,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
   /**
    * 값 적용
    */
-  protected setValue() {
+  public setValue() {
     let inputValue = this._inputElm.nativeElement.value;
     inputValue = inputValue ? ((this.isTrim) ? inputValue.trim() : inputValue) : '';
     if (inputValue !== this.value) {
@@ -221,33 +238,16 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
     }
   } // function - setValue
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 값 적용 취소
    */
   protected resetValue() {
     this._inputElm.nativeElement.value = this.value;
   } // function - resetValue
-
-  /**
-   * 값 제거
-   */
-  protected clearValue() {
-    this._inputElm.nativeElement.value = '';
-    this.value = '';
-    this.changeEvent.emit(this.value);
-  } // function - clearValue
-
-  /**
-   * 값 입력 여부
-   * @return {boolean}
-   */
-  protected isNotEmptyInput(): boolean {
-    if (this._inputElm) {
-      return '' !== this._inputElm.nativeElement.value;
-    } else {
-      return false;
-    }
-  } // function - isNotEmptyInput
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

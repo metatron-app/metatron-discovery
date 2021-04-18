@@ -404,7 +404,7 @@ export enum PeriodType {
 }
 
 class PeriodPickerSettings extends PickerSettings {
-  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (fdate: string, date: Date) => void, useTimePicker: boolean ) {
+  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (inst, completed: boolean) => void, useTimePicker: boolean ) {
     super( clz, onSelectDate, onHide );
 
     if( useTimePicker ) {

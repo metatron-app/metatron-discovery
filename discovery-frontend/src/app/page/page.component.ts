@@ -997,13 +997,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param customField
    * @param columnType
    */
-  public openCustomFieldPopup(customField?: ExpressionField, columnType?: string) {
+  public openCustomFieldPopup(customField?: Field | ExpressionField, columnType?: string) {
 
     // dimension / measure / parameter 구분값
     this.columnType = columnType;
 
     if (customField) {
-      this.selectedCustomField = customField;
+      this.selectedCustomField = customField as ExpressionField;
     } else {
       this.selectedCustomField = null;
     }

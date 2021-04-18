@@ -344,52 +344,52 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   }
 
-  /**
-   * 제안 정보 설정
-   * @param ruleString
-   * @param poz
-   */
-  protected setSuggetionInfo( ruleString: string, poz: number) {
-
-    const parseInfo = this.ruleSuggest.getParseInfo(ruleString);
-
-    const tokenPoz = poz - 1; /* antlr 파서 토큰 위치  poz - 1 */
-
-    const tokenInfo = this.ruleSuggest.getPozToken( parseInfo, tokenPoz );
-
-    let funcType = this.funcType ;
-    let columnType = this.columnType;
-
-    try{
-      // 부모가 함수 이름인지
-      const parFuncName = this.ruleSuggest.getParentFuction(parseInfo.tokens, tokenPoz);
-
-      // 함수가 컬럼 이름만 파라마터로 취하는지 여부
-      if( this.ruleSuggest.isOnlyColumnName(parFuncName) ) {
-        funcType = 'no';
-      }
-
-      if( this.isFisrtFuncCommand(parseInfo.tokens.length) ){
-        columnType = 'no';
-      }
-    }catch(e) {
-      console.log('warn RuleSuggestInputComponent.setSuggetionInfo ',e);
-    }
-
-    const itemList = this.ruleSuggest.getList(tokenInfo, tokenPoz, funcType, columnType );
-
-    this.selectedTokenInfo = tokenInfo;
-
-    if( itemList && itemList.length > 0 ){
-      this.isSuggestOpen = true;
-      this.broadCastOpenCloseSelectBox();
-      this.suggestItems = itemList;
-      this.selectedIndex = -1;
-    } else {
-      this.initSuggest();
-    }
-
-  }
+  // /**
+  //  * 제안 정보 설정
+  //  * @param ruleString
+  //  * @param poz
+  //  */
+  // protected setSuggetionInfo( ruleString: string, poz: number) {
+  //
+  //   const parseInfo = this.ruleSuggest.getParseInfo(ruleString);
+  //
+  //   const tokenPoz = poz - 1; /* antlr 파서 토큰 위치  poz - 1 */
+  //
+  //   const tokenInfo = this.ruleSuggest.getPozToken( parseInfo, tokenPoz );
+  //
+  //   let funcType = this.funcType ;
+  //   let columnType = this.columnType;
+  //
+  //   try{
+  //     // 부모가 함수 이름인지
+  //     const parFuncName = this.ruleSuggest.getParentFuction(parseInfo.tokens, tokenPoz);
+  //
+  //     // 함수가 컬럼 이름만 파라마터로 취하는지 여부
+  //     if( this.ruleSuggest.isOnlyColumnName(parFuncName) ) {
+  //       funcType = 'no';
+  //     }
+  //
+  //     if( this.isFisrtFuncCommand(parseInfo.tokens.length) ){
+  //       columnType = 'no';
+  //     }
+  //   }catch(e) {
+  //     console.log('warn RuleSuggestInputComponent.setSuggetionInfo ',e);
+  //   }
+  //
+  //   const itemList = this.ruleSuggest.getList(tokenInfo, tokenPoz, funcType, columnType );
+  //
+  //   this.selectedTokenInfo = tokenInfo;
+  //
+  //   if( itemList && itemList.length > 0 ){
+  //     this.isSuggestOpen = true;
+  //     this.broadCastOpenCloseSelectBox();
+  //     this.suggestItems = itemList;
+  //     this.selectedIndex = -1;
+  //   } else {
+  //     this.initSuggest();
+  //   }
+  //
+  // }
 
   private broadCastOpenCloseSelectBox() {
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow: true } );
@@ -642,16 +642,15 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       return true;
     }
 
-    const input = $event.currentTarget;
+    // const input = $event.currentTarget;
 
-    const baseString = this.getBaseRule();
-    const ruleString = baseString + input.value;
-    const inputPoz = this.getCursorPosition( input);
+    // const baseString = this.getBaseRule();
+    // const ruleString = baseString + input.value;
+    // const inputPoz = this.getCursorPosition( input);
 
-    const poz = inputPoz+baseString.length;
+    // const poz = inputPoz+baseString.length;
 
-    this.setSuggetionInfo(ruleString, poz);
-
+    // this.setSuggetionInfo(ruleString, poz);
 
     if( $event.preventDefault ) {
       // 기본 이벤트 취소

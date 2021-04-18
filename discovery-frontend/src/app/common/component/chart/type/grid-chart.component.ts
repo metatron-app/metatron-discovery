@@ -448,7 +448,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
 
       this.gridModel.useSelectStyle = this.uiOption && _.eq((this.uiOption as UIGridChart).dataType, GridViewType.PIVOT);
       this.gridModel.leftAxisWidth = this.uiOption && _.eq((this.uiOption as UIGridChart).dataType, GridViewType.PIVOT) ? 120 : 65;
-      const schema = (this.uiOption.color as UIChartColorByCell).schema;
+      const schema = this.uiOption.color.schema;
       this.gridModel.showColorStep = !_.isEmpty(schema);
 
       const cellColor = this.uiOption.color;

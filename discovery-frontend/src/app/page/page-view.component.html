@@ -1650,10 +1650,6 @@
                                       *ngIf="isChartShow && possibleChartCheck('secondaryIndicator',selectChart) && 'secondaryIndicator' === rnbMenu"
                                       [(uiOption)]="uiOption" [(pivot)]="pivot"
                                       [widget]="widget"></secondary-indicator-option>
-          <split-option #splitOption
-                        *ngIf="isChartShow && possibleChartCheck('split',selectChart) && 'split' === rnbMenu"
-                        (drawChartParam)="onSetDrawChartParam($event)"
-                        [(uiOption)]="uiOption"></split-option>
           <page-filter-panel *ngIf="'filter' === rnbMenu"
                              [dashboard]="widget.dashBoard"
                              [boardFilters]="boardFilters"

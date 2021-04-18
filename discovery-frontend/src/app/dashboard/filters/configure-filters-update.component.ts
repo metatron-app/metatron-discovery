@@ -105,9 +105,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   @Output()
   public done: EventEmitter<Filter> = new EventEmitter();
 
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -120,6 +117,26 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Getter / Setter
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public get dimensionTypeIconClass(): string {
+    if (this.targetField) {
+      return Field.getDimensionTypeIconClass(this.targetField as Field);
+    } else {
+      return '';
+    }
+  }
+
+  public get measureTypeIconClass(): string {
+    if (this.targetField) {
+      return Field.getMeasureTypeIconClass(this.targetField as Field);
+    } else {
+      return '';
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -249,6 +266,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
       }
     }
   } // function - toggleFilterScope
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

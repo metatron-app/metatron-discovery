@@ -32,7 +32,7 @@ import {FilterUtil} from '../util/filter.util';
 import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
 import {AbstractDashboardComponent} from '../abstract.dashboard.component';
 
-export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent
+export abstract class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent
   implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -196,6 +196,11 @@ export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDash
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * 필터 초기화
+   */
+  public abstract resetFilter();
+
+  /**
    * 글로벌 필터를 차트 필터로 변환 (차트에서만)
    * @param {Filter} filter
    */
@@ -218,14 +223,6 @@ export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDash
   public openUpdateFilterPopup(filter: Filter) {
     this.openUpdateFilterPopupEvent.emit(filter);
   } // function - openUpdateFilterPopup
-
-  /**
-   * 필터 초기화
-   * @param {Filter} _filter
-   */
-  public resetFilter(_filter: Filter) {
-    throw new Error('SubClass should implements changeLock method');
-  } // function resetFilter
 
   /**
    *  필터내용 보이기 감추기

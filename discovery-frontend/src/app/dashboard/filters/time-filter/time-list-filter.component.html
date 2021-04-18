@@ -35,25 +35,25 @@
               {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
             </a>
           </li>
-<!--
-          <li [class.ddp-selected]="targetFilter['sortTarget'] === 'FREQUENCY' && targetFilter['sortType'] === 'DESC'">
-            <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'FREQUENCY','DESC');">
-              {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
-            </a>
-          </li>
--->
+          <!--
+                    <li [class.ddp-selected]="targetFilter['sortTarget'] === 'FREQUENCY' && targetFilter['sortType'] === 'DESC'">
+                      <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'FREQUENCY','DESC');">
+                        {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+          -->
           <li [class.ddp-selected]="targetFilter['sortTarget'] === 'ALPHNUMERIC' && targetFilter['sortType'] === 'ASC'">
             <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'ALPHNUMERIC','ASC');">
               {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
             </a>
           </li>
-<!--
-          <li [class.ddp-selected]="targetFilter['sortTarget'] === 'ALPHNUMERIC' && targetFilter['sortType'] === 'DESC'">
-            <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'ALPHNUMERIC','DESC');">
-              {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
-            </a>
-          </li>
--->
+          <!--
+                    <li [class.ddp-selected]="targetFilter['sortTarget'] === 'ALPHNUMERIC' && targetFilter['sortType'] === 'DESC'">
+                      <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'ALPHNUMERIC','DESC');">
+                        {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
+                      </a>
+                    </li>
+          -->
         </ul>
       </div>
       <!-- //popup -->
@@ -70,7 +70,7 @@
 <!-- //option -->
 
 <!-- 아이템 목록 영역 -->
-<div [ngClass]="{ 'ddp-box-item-search ddp-edit-none' : 'CHANGE' === mode }" >
+<div [ngClass]="{ 'ddp-box-item-search ddp-edit-none' : 'CHANGE' === mode }">
 
   <!-- 후보값 목록 표시 -->
   <ul class="ddp-list-checktype"
@@ -83,18 +83,18 @@
       </label>
     </li>
 
-    <li *ngFor="let item of pageCandidateList" >
+    <li *ngFor="let item of pageCandidateList">
       <!-- check -->
-      <label class="ddp-label-checkbox" >
-        <input (click)="candidateSelect(item, $event)" [checked]="isCheckedItem(item)" type="checkbox" >
+      <label class="ddp-label-checkbox">
+        <input (click)="candidateSelect(item, $event)" [checked]="isCheckedItem(item)" type="checkbox">
         <i class="ddp-icon-checkbox"></i>
         <span class="ddp-txt-checkbox">
-          {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
+          {{ (null === item.name || 'null' === item.name) ? '(Null)' : (('' === item.name || undefined === item.name) ? '(Empty)' : item.name) }}
           <span class="ddp-data-valuenum">{{item.count}}</span>
         </span>
       </label>
       <em *ngIf="'CHANGE' === mode" (click)="candidateShowToggle(item)"
-          [ngClass]="{'true':'ddp-icon-eyes2-on', 'false':'ddp-icon-eyes2-none'}[isShowItem(item)]"></em>
+          class="{{isShowItem(item) ? 'ddp-icon-eyes2-on' : 'ddp-icon-eyes2-none'}}"></em>
     </li>
 
     <!-- 페이지 번호 표시 -->

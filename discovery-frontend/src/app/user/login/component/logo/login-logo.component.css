@@ -1,3 +1,4 @@
+@charset "utf-8";
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,8 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@charset "utf-8";
-
 :host-context(.ddp-ui-login .ddp-ui-logo) .st0{fill:#1A274B;}
 :host-context(.ddp-ui-login .ddp-ui-logo) .st1{fill:#272950;}
 :host-context(.ddp-ui-login .ddp-ui-logo) .st2{fill:#47DBF4;}

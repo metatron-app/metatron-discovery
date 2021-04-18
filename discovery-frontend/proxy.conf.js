@@ -7,14 +7,14 @@ const PROXY_CONFIG = [
       "/static",
       "/resources"
     ],
-    target: "http://52.231.167.55:8185",
+    target: "http://52.231.167.55:8187",
     secure: false
   },
   {
     context: [
       "/stomp"
     ],
-    target: "http://52.231.167.55:8185",
+    target: "http://52.231.167.55:8187",
     secure: false
   }
 ];

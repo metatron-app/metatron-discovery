@@ -230,7 +230,7 @@
              *ngFor="let folderData of (getList()
            | baseFilter:['type','folder']
            | baseFilter:['name', srchText]
-           | baseSort : [selectedContentSort.key, selectedContentSort.type])"
+           | baseSort : [selectedContentSort?.key, selectedContentSort?.type])"
              (click)="detailFolder(folderData.id); $event.stopPropagation();"
              [ngClass]="{'ddp-box-edit' : folderData.edit, 'ddp-selected' : folderData.checked}">
           <!-- check 되었을때. ddp-selected 추가 -->
@@ -287,9 +287,9 @@
       <div class="ddp-box-block"
            *ngFor="let book of (getList()
            | baseFilter:['type', 'folder', true]
-           | baseFilter:['type', selectedContentFilter.key]
+           | baseFilter:['type', selectedContentFilter?.key]
            | baseFilter:['name', srchText]
-           | baseSort : [selectedContentSort.key, selectedContentSort.type])"
+           | baseSort : [selectedContentSort?.key, selectedContentSort?.type])"
            (click)="detailValidPage(book); $event.stopPropagation();"
            [ngClass]="{'ddp-box-workbench' : book.type === 'workbench' , 'ddp-selected' : book.checked , 'ddp-disabled' : !book.contents.connValid }">
         <em *ngIf="checkEditAuth(book)" (click)="deleteModalOpen(book); $event.stopPropagation();"
@@ -482,9 +482,9 @@
       <!-- 폴더 타입을 제외한 나머지 컨텐츠 -->
       <li *ngFor="let book of (getList()
         | baseFilter:['type', 'folder', true]
-        | baseFilter:['type', selectedContentFilter.key]
+        | baseFilter:['type', selectedContentFilter?.key]
         | baseFilter:['name', srchText]
-        | baseSort : [selectedContentSort.key, selectedContentSort.type]); let i=index" (click)="detailValidPage(book); $event.stopPropagation();"
+        | baseSort : [selectedContentSort?.key, selectedContentSort?.type]); let i=index" (click)="detailValidPage(book); $event.stopPropagation();"
           [ngClass]="{'ddp-selected' : book.checked , 'ddp-disabled' : !book.contents.connValid }">
         <a href="javascript:" draggable="false">
           <!-- checkbox -->

@@ -257,9 +257,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
 
   /**
    * 값 초기화 (서버에 마지막으로 저장된 값)
-   * @param {InclusionFilter} _filter
    */
-  public resetFilter(_filter: InclusionFilter) {
+  public resetFilter() {
     this.filter = _.cloneDeep(this.originalFilter);
     this.safelyDetectChanges();
     this.updateFilterEvent.emit(this.filter);

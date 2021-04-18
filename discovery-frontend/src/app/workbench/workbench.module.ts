@@ -17,7 +17,6 @@ import {RouterModule, Routes} from '@angular/router';
 import {NgModule} from '@angular/core';
 import {WorkbenchShareModule} from './workbench-share.module';
 import {WorkbenchComponent} from './workbench.component';
-import {SplitPaneModule} from 'ng2-split-pane/lib/ng2-split-pane';
 import {WorkbenchService} from './service/workbench.service';
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {WidgetService} from '../dashboard/service/widget.service';
@@ -45,7 +44,6 @@ const workbenchRoutes: Routes = [
     CommonModule,
     WorkbenchShareModule,
     WorkbenchEditorModule,
-    SplitPaneModule,
     DataSourceCreateModule,
     PageShareModule,
     RouterModule.forChild(workbenchRoutes),

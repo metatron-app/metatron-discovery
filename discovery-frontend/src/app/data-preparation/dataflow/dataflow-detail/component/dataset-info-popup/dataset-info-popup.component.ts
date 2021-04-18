@@ -14,6 +14,7 @@
 
 import * as $ from 'jquery';
 import * as _ from 'lodash';
+import Split from 'split.js'
 import * as pixelWidth from 'string-pixel-width';
 import {isNull, isNullOrUndefined, isUndefined} from 'util';
 
@@ -48,8 +49,6 @@ import {PreparationCommonUtil} from '../../../../util/preparation-common.util';
 import {DatasetService} from '../../../../dataset/service/dataset.service';
 import {DataflowModelService} from '../../../service/dataflow.model.service';
 import {DataflowService} from '../../../service/dataflow.service';
-
-declare let Split;
 
 @Component({
   selector: 'app-dataset-info-popup',
