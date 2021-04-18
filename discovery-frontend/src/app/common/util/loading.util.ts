@@ -27,7 +27,7 @@ export class Loading {
   * 로딩 표시
   */
   public static show() {
-    (0 === this.$loading.length) && (this.$loading = $('.ddp-loading'));
+    (!this.$loading || 0 === this.$loading.length) && (this.$loading = $('.ddp-loading'));
     this.$loading.show();
   }
 

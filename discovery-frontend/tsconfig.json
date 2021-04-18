@@ -1,8 +1,9 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "allowUnreachableCode": false,      // 도달 불가능한 코드에 대한 허용 여부.
-    "allowUnusedLabels": false,         // 사용하지 않는 라벨에 대한 허용 여부
+    "allowSyntheticDefaultImports": true, // json 파일을 import 허용 여부
+    "allowUnreachableCode": false,        // 도달 불가능한 코드에 대한 허용 여부.
+    "allowUnusedLabels": false,           // 사용하지 않는 라벨에 대한 허용 여부
     "baseUrl": "src",
     "declaration": false,   // .d.ts 파일의 생성 여부
     "downlevelIteration": false, // target이 ES3 및 ES5 일때도 for..of, spread, destructuring 문법 지원 - TypeScript 2.3 이전에는 target이 ES6/ES2015 이후 버전일때만 지원함

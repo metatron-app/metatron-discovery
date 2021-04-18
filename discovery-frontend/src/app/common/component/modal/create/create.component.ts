@@ -73,12 +73,15 @@ export class CreateModalComponent extends AbstractComponent implements OnInit, O
     this.modal = modal;
   }
 
+  public close() {
+    this.isShow = false;
+  }
+
   // 데이터생성화면으로 이동 확인
   public done() {
     this.isShow = false;
     this.createConfirm.emit(this.modal);
   }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -87,8 +90,5 @@ export class CreateModalComponent extends AbstractComponent implements OnInit, O
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // private close() {
-  //   this.isShow = false;
-  // }
 
 }

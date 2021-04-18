@@ -35,7 +35,7 @@
     "@stomp/ng2-stompjs": "7.2.0",
     "@turf/turf": "5.1.6",
     "air-datepicker": "2.2.3",
-    "antlr4": "4.7.2",
+    "antlr4": "4.9.2",
     "codemirror": "5.59.3",
     "core-js": "3.10.0",
     "dragula": "3.7.2",
@@ -53,7 +53,6 @@
     "ng2-cookies": "1.0.12",
     "ng2-file-upload": "1.4.0",
     "ng2-ion-range-slider": "2.0.0",
-    "ng2-split-pane": "1.4.0",
     "ngx-clipboard": "12.3.1",
     "ngx-infinite-scroll": "^10.0.1",
     "ngx-moment": "5.0.0",
@@ -64,7 +63,8 @@
     "sql-formatter": "2.3.2",
     "string-pixel-width": "1.8.0",
     "zone.js": "0.10.2",
-    "xlsx": "0.16.9"
+    "xlsx": "0.16.9",
+    "split.js": "1.6.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1102.7",
@@ -76,7 +76,7 @@
     "@types/jasmine": "2.5.45",
     "@types/jquery": "3.3.29",
     "@types/lodash": "4.14.119",
-    "@types/node": "8.10.39",
+    "@types/node": "14.14.41",
     "codelyzer": "6.0.1",
     "jasmine-core": "3.3.0",
     "jasmine-spec-reporter": "4.2.1",

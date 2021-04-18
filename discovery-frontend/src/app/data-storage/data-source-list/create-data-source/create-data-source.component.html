@@ -123,8 +123,7 @@
 
 <!-- druid select 1/1 -->
 <druid-select *ngIf="step==='druid-select'"
-              [sourceData]="sourceData"
-              [(step)]="step"
+              [step]="step"
               (druidComplete)="createComplete()"
               (close)="createClose()"></druid-select>
 

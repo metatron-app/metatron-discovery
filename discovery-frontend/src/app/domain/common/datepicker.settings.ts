@@ -22,9 +22,9 @@ export class PickerSettings {
   public timeFormat: string;
   public timepicker: boolean = false;
   public onSelect: (fdate: string, date: Date) => void;
-  public onHide: (fdate: string, date: Date) => void;
+  public onHide: (inst, completed: boolean) => void;
 
-  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (fdate: string, date: Date) => void) {
+  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (inst, completed: boolean) => void) {
     this.class = clz;
     this.onSelect = onSelectDate;
     this.onHide = onHide;

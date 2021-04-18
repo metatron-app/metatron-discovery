@@ -14,6 +14,7 @@
 
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
+import Split from 'split.js'
 import {
   AfterViewInit,
   Component,
@@ -49,8 +50,6 @@ import {isNullOrUndefined} from 'util';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {CreateBoardPopJoinComponent} from './create-board-pop-join.component';
 import {FilterUtil} from '../../util/filter.util';
-
-declare let Split;
 
 @Component({
   selector: 'create-board-ds-info',

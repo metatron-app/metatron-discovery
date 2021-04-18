@@ -25,14 +25,6 @@ export interface UIChartColor {
 }
 
 /**
- * 단색 (사용안하는경우)
- */
-export interface UIChartColorBySingle extends UIChartColor {
-
-  code: string;
-}
-
-/**
  * color by Dimension
  */
 export interface UIChartColorByDimension extends UIChartColor {

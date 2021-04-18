@@ -75,11 +75,11 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   private deleteWorkspaceComponent: DeleteWorkspaceComponent;
 
   // 데이터소스 뷰 컴포넌트
-  @ViewChild(DatasourceComponent)
+  @ViewChild(DatasourceComponent, {static: true})
   private datasourceComponent: DatasourceComponent;
 
   // 멤버 뷰 컴포넌트
-  @ViewChild(SharedMemberComponent)
+  @ViewChild(SharedMemberComponent, {static: true})
   private sharedMemberComponent: SharedMemberComponent;
 
   // 멤버 관리 컴포넌트
@@ -129,7 +129,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 워크 스페이스 데이터
-  public workspace: Workspace;
+  public workspace: Workspace = new Workspace();
   // 폴더 데이터
   public folder: Folder;
 

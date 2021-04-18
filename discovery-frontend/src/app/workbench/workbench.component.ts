@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import Split from 'split.js'
 import {AbstractComponent} from '@common/component/abstract.component';
 import {
   AfterViewInit,
@@ -56,7 +57,6 @@ import {Message} from '@stomp/stompjs';
 import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from '@domain/dataconnection/dataconnection';
 
 declare let moment: any;
-declare let Split;
 
 @Component({
   selector: 'app-workbench',

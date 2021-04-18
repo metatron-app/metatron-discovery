@@ -1,4 +1,4 @@
-import {ParseInfo, RuleChecker, TokenInfo} from './rule.checker';
+import {ParseInfo, TokenInfo} from './rule.checker';
 import {Field} from '@domain/data-preparation/pr-dataset';
 
 export interface FuncInfo {
@@ -57,14 +57,9 @@ export class RuleSuggest {
   /** 컬럼 이름 목록 */
   private columnList: any[] = [];
 
-  /** rule 검사및 토큰 정보  */
-  private ruleChecker: RuleChecker;
-
   constructor() {
 
     this.initFunction();
-
-    this.ruleChecker = new RuleChecker();
   }
 
   /**
@@ -115,13 +110,13 @@ export class RuleSuggest {
     return this.funcAggrNames.indexOf(funcName) !== -1 || this.funcWindowNames.indexOf(funcName) !== -1;
   }
 
-  /**
-   * 파싱 정보를 가져온다.
-   * @param source
-   */
-  public getParseInfo(source: string): ParseInfo {
-    return this.ruleChecker.parse(source);
-  }
+  // /**
+  //  * 파싱 정보를 가져온다.
+  //  * @param source
+  //  */
+  // public getParseInfo(source: string): ParseInfo {
+  //   return this.ruleChecker.parse(source);
+  // }
 
   /**
    * 토큰 목록을 가져온다.

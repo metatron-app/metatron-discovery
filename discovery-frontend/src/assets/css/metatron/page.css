@@ -365,9 +365,8 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word; overflow:hidden;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-tags {max-width:110px; padding:6px; border-radius:3px; background-color:#f2f1f8; color:#666eb2; font-size:13px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; }
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-tags + .ddp-tags {margin-left:5px;}
@@ -1229,9 +1228,8 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;}
 
 /**********************************************************************************
@@ -1567,9 +1565,8 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;
 }
 
@@ -2776,9 +2773,8 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;}
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date {display:block; padding:7px 0 0 0; font-size:12px; color:#c5c6cd; }
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date span.ddp-data-ago {color:#4c515a;}
@@ -4281,9 +4277,8 @@ em[class*="ddp-bg-chart-"] {display:inline-block; position:absolute; top:50%; le
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;}
 .ddp-list-sub2 .ddp-ui-color-select .ddp-txt-label .ddp-ui-txt {display:block; position:relative; padding:0 17px 0 21px;}
 .ddp-list-sub2 .ddp-ui-color-select .ddp-txt-label .ddp-btn-reset3 {position:absolute; top:50%; right:0; margin-top:-7px;}
@@ -5965,9 +5960,8 @@ table.ddp-table-detail tbody tr td .ddp-txt-cut{
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;
 }
 table.ddp-table-detail tbody tr td .ddp-data-form {display:block; padding-top:5px;}
@@ -6825,26 +6819,23 @@ table.ddp-table-union tr td .ddp-data-dropped strong {color:#666eb2; font-weight
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;}
 .popup-prep-snapshot .ddp-layout-pop-right .ddp-view-detail dl.ddp-dl-detail dd { overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;}
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title.type-edit span.ddp-txt-title {position:relative; padding-right:23px; font-size:16px; font-weight:bold;color:#35393f; line-height:22px; letter-spacing:-1px; box-sizing:border-box;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word; cursor:pointer;}
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title.type-edit span.ddp-txt-title .ddp-link-edit {display:none;position:absolute; bottom:2px; right:5px;}
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title.type-edit span.ddp-txt-title:hover .ddp-link-edit {display:block;}
@@ -10271,9 +10262,8 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;
 }
 .ddp-ui-banner ul.ddp-list-popular li a .ddp-data-det {padding:0 10px;margin-top:5px; font-size:12px; color:#fff; opacity:0.7;
@@ -10281,9 +10271,8 @@ table.ddp-table-line tbody tr td .ddp-ui-popularity .ddp-bar {float:left;}
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 라인수 */
-  /* autoprefixer: off */
+  /* autoprefixer: next */
   -webkit-box-orient: vertical;
-  /* autoprefixer: on */
   word-wrap:break-word;}
 .ddp-ui-banner ul.ddp-list-popular li a .ddp-data-bottom {position:absolute; bottom:0; left:0; right:0; padding:4px 10px; background:rgba(0,0,0,0.2);}
 .ddp-ui-banner ul.ddp-list-popular li a .ddp-data-bottom .ddp-list-tags {display:block; margin-top:0;color:#c1cef1; overflow:hidden;}

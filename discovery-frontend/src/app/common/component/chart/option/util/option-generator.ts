@@ -64,6 +64,7 @@ import {
   ColorRange,
   CustomSymbol,
   UIChartAxis,
+  UIChartColorByCell,
   UIChartColorByDimension,
   UIChartColorBySeries,
   UIChartColorByValue,
@@ -90,7 +91,6 @@ import {UIBarChart} from '../ui-option/ui-bar-chart';
 import {UILineChart} from '../ui-option/ui-line-chart';
 import {UIScatterChart} from '../ui-option/ui-scatter-chart';
 import {UIGridChart} from '../ui-option/ui-grid-chart';
-import {UIChartColorBySingle} from '../ui-option/ui-color';
 import {UILabelChart} from '../ui-option/ui-label-chart';
 import {UIChartDataLabel} from '../ui-option/ui-datalabel';
 import {UICombineChart} from '../ui-option/ui-combine-chart';
@@ -1088,13 +1088,12 @@ export namespace OptionGenerator {
 
       /**
        * Color by single 옵션 생성
-       * @param code code string값 (필수값)
        * @returns {{type: ChartColorType, code: string}}
        */
-      export function singleUIChartColor(code: string): UIChartColorBySingle {
+      export function singleUIChartColor(): UIChartColorByCell {
         return {
           type: ChartColorType.SINGLE,
-          code
+          schema: ''
         };
       }
     }
@@ -1578,7 +1577,7 @@ export namespace OptionGenerator {
     export function defaultGridChartUIOption(): UIGridChart {
       return {
         type: ChartType.GRID,
-        color: UI.Color.singleUIChartColor(''),
+        color: UI.Color.singleUIChartColor(),
         dataType: GridViewType.PIVOT,
         measureLayout: UIOrient.VERTICAL,
         headerStyle: {

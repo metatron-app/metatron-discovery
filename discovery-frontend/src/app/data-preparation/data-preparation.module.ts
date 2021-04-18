@@ -31,7 +31,6 @@ import {CreateDatasetStagingSelectdataComponent} from './dataset/create-dataset/
 import {DatasetService} from './dataset/service/dataset.service';
 import {CreateDatasetDbSelectComponent} from './dataset/create-dataset/create-dataset-db-select.component';
 import {CreateDatasetDbQueryComponent} from './dataset/create-dataset/create-dataset-db-query.component';
-import {SplitPaneModule} from 'ng2-split-pane/lib/ng2-split-pane';
 import {WorkbenchEditorModule} from '../workbench/workbench.editor.module';
 import {DataflowDetailComponent} from './dataflow/dataflow-detail/dataflow-detail.component';
 import {RuleJoinPopupComponent} from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-join-popup/rule-join-popup.component';
@@ -105,7 +104,6 @@ const dataPreparationRoutes: Routes = [
     CommonModule,
     FileModule,
     RouterModule.forChild(dataPreparationRoutes),
-    SplitPaneModule,
     WorkbenchEditorModule,
     DataSourceCreateModule,
     DataStorageShareModule

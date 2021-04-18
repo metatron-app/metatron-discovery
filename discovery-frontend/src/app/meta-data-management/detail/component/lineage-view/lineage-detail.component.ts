@@ -12,6 +12,7 @@
 * limitations under the License.
 */
 
+import Split from 'split.js'
 import {
   AfterViewInit,
   Component,
@@ -33,8 +34,6 @@ import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
 import {GridComponent} from '@common/component/grid/grid.component';
 import {GridOption} from '@common/component/grid/grid.option';
 import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
-
-declare let Split;
 
 @Component({
   selector: 'app-metadata-detail-lineagedetail',

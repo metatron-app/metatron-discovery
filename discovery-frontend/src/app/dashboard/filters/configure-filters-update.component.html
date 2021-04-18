@@ -47,10 +47,10 @@
         <div class="ddp-icons" style="height:49px;" [ngStyle]="isDirectEdit ? {'padding-left': '7px'} : {}">
           <a *ngIf="!isDirectEdit" (click)="clickBtnBack()" href="javascript:" class="ddp-btn-back"></a>
           <span *ngIf="!isMeasure()" class="ddp-icon-box">
-            <em class="{{getDimensionTypeIconClass(targetField)}}" ></em>
+            <em class="{{dimensionTypeIconClass}}" ></em>
           </span>
           <span *ngIf="isMeasure()" class="ddp-icon-box ddp-measure">
-            <em class="{{getMeasureTypeIconClass(targetField)}}" ></em>
+            <em class="{{measureTypeIconClass}}" ></em>
           </span>
         </div>
         <!-- // 아이콘 영역 -->
