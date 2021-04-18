@@ -49,7 +49,7 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   /**
    * 패널
    */
-  @ViewChild('panel')
+  @ViewChild('panel', {static: true})
   private panel: ElementRef;
 
   /**

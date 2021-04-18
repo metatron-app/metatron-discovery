@@ -837,9 +837,14 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
         // 레이아웃 생성 및 위젯 등록 방식 지정
         this._layoutObj = new GoldenLayout(objLayout, this._$layoutContainer);
         // 위젯 추가에 대한 처리
-        this._layoutObj.registerComponent('widget', (container, componentState) => {
-          this._bootstrapWidgetComponent(container, componentState);
-        });
+        this._layoutObj.registerComponent('widget',
+          ((scope) => {
+            // tslint:disable-next-line:only-arrow-functions
+            return function (container, componentState) {
+              scope._bootstrapWidgetComponent(container, componentState);
+            }
+          })(this)
+        );
 
         // 레이아웃 변경에 대한 이벤트 처리
         this._layoutObj.on('stateChanged', () => {
