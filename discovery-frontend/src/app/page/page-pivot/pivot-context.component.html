@@ -107,14 +107,14 @@
           <ul class="ddp-list-popup">
             <li *ngFor="let aggType of aggTypeList"
                 [class.ddp-selected]="aggType['id'] == editingField.aggregationType && 'PERCENTILE' !== editingField.aggregationType"
-                (click)="onChangeAggregationType(aggType['id'])"
+                (click)="onChangeAggregationType(aggType['id'], null)"
                 [class.ddp-disabled]="-1 !== editingField.aggregationTypeList.indexOf(aggType['id'])">
               <a href="javascript:">
                 {{aggType['label']}}
                 <em *ngIf="'PERCENTILE' !== aggType['id']" class="ddp-icon-check"></em>
 
                 <div *ngIf="'PERCENTILE' === aggType['id']" class="ddp-data-result ddp-type">
-                  {{'PERCENTILE' !== editingField.aggregationType ? '' : editingField.options && -1 !== editingField.options.indexOf(0.25) ? '1/4' : '3/4'}}
+                  {{'PERCENTILE' !== editingField.aggregationType ? '' : editingField.options && -1 !== editingField.options.indexOf('0.25') ? '1/4' : '3/4'}}
                   <em class="ddp-icon-view"></em>
                 </div>
               </a>
@@ -151,14 +151,14 @@
         <!-- 2depth -->
         <div class="ddp-ui-layer-sub">
           <ul class="ddp-list-popup">
-            <li (click)="combineChangeSeriesConvertType('bar')"
+            <li (click)="combineChangeSeriesConvertType(seriesType.BAR)"
                 [ngClass]="{'ddp-selected' : !editingField || !editingField?.options ? combineAggIndex % 2 == 0 : -1 !== editingField.options.indexOf('bar')}">
               <a href="javascript:">
                 {{'msg.page.li.bar' | translate}}
                 <em class="ddp-icon-check"></em>
               </a>
             </li>
-            <li (click)="combineChangeSeriesConvertType('line')"
+            <li (click)="combineChangeSeriesConvertType(seriesType.LINE)"
                 [ngClass]="{'ddp-selected' : !editingField || !editingField?.options ? combineAggIndex % 2 !== 0 : -1 !== editingField.options.indexOf('line')}">
               <a href="javascript:">
                 {{'msg.page.li.line' | translate}}

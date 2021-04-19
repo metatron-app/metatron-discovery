@@ -588,7 +588,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
    * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(_event) {
+  public onResize(_event) {
     if (this.olmap) {
       this.olmap.updateSize();
 

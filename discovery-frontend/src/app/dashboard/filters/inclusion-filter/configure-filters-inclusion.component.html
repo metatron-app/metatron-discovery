@@ -346,7 +346,7 @@
             </span>
         </label>
         <em (click)="candidateShowToggle(item)"
-            [ngClass]="{'true':'ddp-icon-eyes2-on', 'false':'ddp-icon-eyes2-none'}[isShowItem(item)]"></em>
+            class="{{isShowItem(item) ? 'ddp-icon-eyes2-on' : 'ddp-icon-eyes2-none'}}"></em>
         <em *ngIf="item.isDefinedValue" (click)="deleteDefinedValue(item)" class="ddp-icon-sclose2" ></em>
       </li>
     </ul>

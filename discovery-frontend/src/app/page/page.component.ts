@@ -3368,6 +3368,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
   }
 
+  public checkSelectedChart(type: string): boolean{
+    return this.selectChart == type;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -3714,7 +3718,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       return allPivot.filter((field: AbstractField) => {
         return fieldType.indexOf(field.type) > -1;
       }).length;
-
     }
 
     /**

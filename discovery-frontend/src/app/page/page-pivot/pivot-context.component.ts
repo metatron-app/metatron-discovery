@@ -82,6 +82,10 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   public fix2DepthContext: boolean = false;
   public fixMeasureFormatContext: boolean = false;
 
+  public get seriesType(): typeof SeriesType{
+    return  SeriesType;
+  }
+
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {

@@ -110,7 +110,7 @@
               </li>
               <!-- ddp-selected 추가시 popup 열림 -->
               <li class="ddp-add" (clickOutside)="$event.stopPropagation(); this.addColumnShowFl=false;" (click)="toggleAddColumn()"
-                  [ngClass]="{'ddp-selected' : addColumnShowFl && uiOption?.toolTip?.displayTypes.indexOf('DATA_VALUE') != -1}">
+                  [ngClass]="{'ddp-selected' : addColumnShowFl && uiOption?.toolTip?.displayTypes.indexOf(uiChartDataLabelDisplayType.DATA_VALUE) != -1}">
                 <span class="ddp-data-value">
                     {{'msg.page.chart.datalabel.map.add.column'| translate}}
                 </span>
@@ -118,7 +118,7 @@
               </li>
             </ul>
 
-            <div [style.display]="addColumnShowFl && uiOption?.toolTip?.displayTypes.indexOf('DATA_VALUE') != -1 ? 'block' : 'none'" class="ddp-box-layout4">
+            <div [style.display]="addColumnShowFl && uiOption?.toolTip?.displayTypes.indexOf(uiChartDataLabelDisplayType.DATA_VALUE) != -1 ? 'block' : 'none'" class="ddp-box-layout4">
               <!-- search -->
               <div class="ddp-form-search">
                 <em class="ddp-icon-search"></em>

@@ -2,7 +2,7 @@
  * Created by Dolkkok on 2017. 7. 20..
  */
 
-import {ChartType, FontSize} from './define/common';
+import {BarMarkType, ChartType, FontSize, LabelStyle, LineMarkType, PointShape, UIOrient} from './define/common';
 import {Field} from '@domain/workbook/configurations/field/field';
 import {UIChartColor} from './ui-option/ui-color';
 import {UIChartZoom} from './ui-option/ui-zoom';
@@ -11,6 +11,9 @@ import {UIChartAxis} from './ui-option/ui-axis';
 import {UIChartFormat} from './ui-option/ui-format';
 import {UIChartDataLabel} from './ui-option/ui-datalabel';
 import {UIChartTooltip} from './ui-option/ui-tooltip';
+import {ValueStyle} from "@common/component/chart/option/ui-option/ui-grid-chart";
+import {UILabelAnnotation, UILabelIcon} from "@common/component/chart/option/ui-option/ui-label-chart";
+import {BarColor} from "@common/component/chart/option/ui-option/ui-waterfall-chart";
 
 /**
  * Export
@@ -65,6 +68,54 @@ export interface UIOption {
   toolTip?: UIChartTooltip;
 
   limit?: number;
+
+  ////////////////////////////////////////////
+  // Child 요소
+  ////////////////////////////////////////////
+
+  // 헤더 스타일
+  headerStyle?: ValueStyle;
+
+  // 본문 스타일
+  contentStyle?: ValueStyle;
+
+  dataType?: any;
+
+  // 'PIVOT' 모드일때, 측정값 표현 방식
+  measureLayout?: UIOrient;
+
+  // 차트 유형 : 그래프 표현 방향(가로/세로)
+  align?: UIOrient;
+
+  // 포인트 모양
+  pointShape?: PointShape;
+
+  // 포인트 투명도
+  pointTransparency?: number;
+
+  // 차트유형
+  mark?: any;
+  markType?: any;
+  barMarkType?: BarMarkType;
+  lineMarkType?: LineMarkType;
+
+  curveStyle?: any;
+  lineStyle?: any;
+  lineMode?: any;
+  layout?: any;
+  positiveNegativeColor?: any;
+
+  // 시리즈별 그래픽 아이콘 지정
+  icons?: UILabelIcon[];
+
+  annotations?:UILabelAnnotation[];
+
+  // Label 차트 표현 스타일
+  chartStyle?: LabelStyle;
+
+  // 양수 / 음수 색상
+  barColor?: BarColor;
+
 
   ////////////////////////////////////////////
   // UI 스펙

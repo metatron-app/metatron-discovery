@@ -58,6 +58,10 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent implements 
     this.uiOption = uiOption;
   }
 
+  public get uiChartDataLabelDisplayType(): typeof UIChartDataLabelDisplayType{
+    return UIChartDataLabelDisplayType;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

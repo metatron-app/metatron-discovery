@@ -16,7 +16,7 @@ package app.metatron.discovery.prep.parser.preparation;
 
 import static java.util.stream.Collectors.toList;
 
-import app.metatron.discovery.prep.parser.antlr.RuleBaseVisitor;
+import app.metatron.discovery.prep.parser.antlrcd.RuleBaseVisitor;
 import app.metatron.discovery.prep.parser.antlr.RuleLexer;
 import app.metatron.discovery.prep.parser.antlr.RuleParser;
 import app.metatron.discovery.prep.parser.exceptions.FunctionInvalidFunctionNameException;
