@@ -474,6 +474,65 @@ export class CommonOptionComponent extends BaseOptionComponent implements OnInit
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.right'), value: UIPosition.RIGHT},
   ];
 
+  public get uiFontStyle(): typeof UIFontStyle{
+    return UIFontStyle;
+  }
+
+  public get uiPosition(): typeof UIPosition{
+    return UIPosition;
+  }
+
+  public get fontSize(): typeof FontSize{
+    return FontSize;
+  }
+
+  public get uiOrient(): typeof UIOrient{
+    return UIOrient;
+  }
+
+  public get cellColorTarget(): typeof CellColorTarget{
+    return CellColorTarget;
+  }
+
+  public get barMarkType(): typeof BarMarkType{
+    return BarMarkType;
+  }
+
+  public get lineMarkType(): typeof LineMarkType{
+    return LineMarkType;
+  }
+
+  public get lineCornerType(): typeof LineCornerType{
+    return LineCornerType;
+  }
+
+  public get lineStyle(): typeof LineStyle{
+    return LineStyle;
+  }
+
+  public get lineMode(): typeof LineMode{
+    return LineMode;
+  }
+
+  public get pointShape(): typeof PointShape{
+    return PointShape;
+  }
+
+  public get pieSeriesType(): typeof PieSeriesViewType{
+    return PieSeriesViewType;
+  }
+
+  public get labelStyle(): typeof LabelStyle{
+    return LabelStyle;
+  }
+
+  public get labelLayout(): typeof LabelLayoutType{
+    return LabelLayoutType;
+  }
+
+  public get gridType(): typeof GridViewType{
+    return GridViewType;
+  }
   /**
    * 색상 component init
    * @param colorPickerEle

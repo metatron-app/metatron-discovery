@@ -826,119 +826,119 @@
                 -->
                 <ul class="ddp-list-chart-type">
                   <li [class.ddp-recommend]="recommendCharts.indexOf('bar') > -1"
-                      [class.ddp-selected]="selectChart == 'bar'" (click)="selectChart = 'bar'">
+                      [class.ddp-selected]="checkSelectedChart('bar')" (click)="selectChart = 'bar'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-bar"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.bar' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('grid') > -1"
-                      [class.ddp-selected]="selectChart == 'grid'" (click)="selectChart = 'grid'">
+                      [class.ddp-selected]="checkSelectedChart('grid')" (click)="selectChart = 'grid'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-txt"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.text-table' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('line') > -1"
-                      [class.ddp-selected]="selectChart == 'line'" (click)="selectChart = 'line'">
+                      [class.ddp-selected]="checkSelectedChart('line')" (click)="selectChart = 'line'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-line"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.line' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('scatter') > -1"
-                      [class.ddp-selected]="selectChart == 'scatter'" (click)="selectChart = 'scatter'">
+                      [class.ddp-selected]="checkSelectedChart('scatter')" (click)="selectChart = 'scatter'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-scatter"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.scatter' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('heatmap') > -1"
-                      [class.ddp-selected]="selectChart == 'heatmap'" (click)="selectChart = 'heatmap'">
+                      [class.ddp-selected]="checkSelectedChart('heatmap')" (click)="selectChart = 'heatmap'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-heatmap"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.heat-map' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('pie') > -1"
-                      [class.ddp-selected]="selectChart == 'pie'" (click)="selectChart = 'pie'">
+                      [class.ddp-selected]="checkSelectedChart('pie')" (click)="selectChart = 'pie'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-pie"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.pie' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1"
-                      [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
+                      [class.ddp-selected]="checkSelectedChart('map')" (click)="selectChart = 'map'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-map"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.map.view' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('label') > -1"
-                      [class.ddp-selected]="selectChart == 'label'" (click)="selectChart = 'label'">
+                      [class.ddp-selected]="checkSelectedChart('label')" (click)="selectChart = 'label'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-kpi"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.kpi' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('boxplot') > -1"
-                      [class.ddp-selected]="selectChart == 'boxplot'" (click)="selectChart = 'boxplot'">
+                      [class.ddp-selected]="checkSelectedChart('boxplot')" (click)="selectChart = 'boxplot'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-boxplot"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.box-plot' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('waterfall') > -1"
-                      [class.ddp-selected]="selectChart == 'waterfall'" (click)="selectChart = 'waterfall'">
+                      [class.ddp-selected]="checkSelectedChart('waterfall')" (click)="selectChart = 'waterfall'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-waterfall"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.water-fall' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('wordcloud') > -1"
-                      [class.ddp-selected]="selectChart == 'wordcloud'" (click)="selectChart = 'wordcloud'">
+                      [class.ddp-selected]="checkSelectedChart('wordcloud')" (click)="selectChart = 'wordcloud'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-wordcloud"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.word-cloud' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('combine') > -1"
-                      [class.ddp-selected]="selectChart == 'combine'" (click)="selectChart = 'combine'">
+                      [class.ddp-selected]="checkSelectedChart('combine')" (click)="selectChart = 'combine'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-combo"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.combine-chart' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('treemap') > -1"
-                      [class.ddp-selected]="selectChart == 'treemap'" (click)="selectChart = 'treemap'">
+                      [class.ddp-selected]="checkSelectedChart('treemap')" (click)="selectChart = 'treemap'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-treemap"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.tree-map' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('radar') > -1"
-                      [class.ddp-selected]="selectChart == 'radar'" (click)="selectChart = 'radar'">
+                      [class.ddp-selected]="checkSelectedChart('radar')" (click)="selectChart = 'radar'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-radar"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.radar-chart' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('network') > -1"
-                      [class.ddp-selected]="selectChart == 'network'" (click)="selectChart = 'network'">
+                      [class.ddp-selected]="checkSelectedChart('network')" (click)="selectChart = 'network'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-network"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.network' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('gauge') > -1"
-                      [class.ddp-selected]="selectChart == 'gauge'" (click)="selectChart = 'gauge'">
+                      [class.ddp-selected]="checkSelectedChart('gauge')" (click)="selectChart = 'gauge'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-gauge"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.gauge-chart' | translate}}</span>
                     </a>
                   </li>
                   <li [class.ddp-recommend]="recommendCharts.indexOf('sankey') > -1"
-                      [class.ddp-selected]="selectChart == 'sankey'" (click)="selectChart = 'sankey'">
+                      [class.ddp-selected]="checkSelectedChart('sankey')" (click)="selectChart = 'sankey'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-sankey"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.sankey' | translate}}</span>

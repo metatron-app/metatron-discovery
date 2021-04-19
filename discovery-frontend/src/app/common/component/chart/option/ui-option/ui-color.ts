@@ -21,7 +21,8 @@ export interface UIChartColor {
 
   // 차트 색상 타입
   type: ChartColorType;
-
+  // 색상 대상 (셀/텍스트)
+  colorTarget?: CellColorTarget;
 }
 
 /**

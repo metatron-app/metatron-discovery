@@ -36,9 +36,10 @@
               <div *ngIf="possibleChartCheck('labelCategoryName', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox ddp-check-full">
                   <input type="checkbox"
-                         [ngModel]="checkCategoryNameDisable() && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_NAME') != -1)"
+                         [ngModel]="checkCategoryNameDisable()
+                         && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.CATEGORY_NAME) != -1)"
                          [disabled]="!checkCategoryNameDisable()"
-                         (click)="toggleDisplayType('CATEGORY_NAME', 0)">
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.CATEGORY_NAME, 0)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.name' | translate}}</span>
                 </label>
@@ -46,9 +47,10 @@
               <div *ngIf="possibleChartCheck('labelCategoryValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox ">
                   <input type="checkbox"
-                         [ngModel]="!checkCategoryDisable() && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_VALUE') != -1)"
+                         [ngModel]="!checkCategoryDisable()
+                         && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.CATEGORY_VALUE) != -1)"
                          [disabled]="checkCategoryDisable()"
-                         (click)="toggleDisplayType('CATEGORY_VALUE', 1)">
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.CATEGORY_VALUE, 1)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.value' | translate}}</span>
                 </label>
@@ -56,9 +58,10 @@
               <div *ngIf="possibleChartCheck('labelCategoryPercent', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="!checkCategoryDisable() && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_PERCENT') != -1)"
+                         [ngModel]="!checkCategoryDisable()
+                         && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.CATEGORY_PERCENT) != -1)"
                          [disabled]="checkCategoryDisable()"
-                         (click)="toggleDisplayType('CATEGORY_PERCENT', 2)">
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.CATEGORY_PERCENT, 2)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.percent' | translate}}</span>
                 </label>
@@ -66,9 +69,10 @@
               <div *ngIf="possibleChartCheck('labelSeriesName', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox ">
                   <input type="checkbox"
-                         [ngModel]="!checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_NAME') != -1"
+                         [ngModel]="!checkSeriesDisable()
+                         && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.SERIES_NAME) != -1"
                          [disabled]="checkSeriesDisable() || checkSeriesNameDisable()"
-                         (click)="toggleDisplayType('SERIES_NAME', 3)">
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.SERIES_NAME, 3)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.name' | translate}}</span>
                 </label>
@@ -76,9 +80,10 @@
               <div *ngIf="possibleChartCheck('labelSeriesValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="!checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_VALUE') != -1"
+                         [ngModel]="!checkSeriesDisable()
+                         && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.SERIES_VALUE) != -1"
                          [disabled]="checkSeriesDisable()"
-                         (click)="toggleDisplayType('SERIES_VALUE', 4)">
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.SERIES_VALUE, 4)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.value' | translate}}</span>
                 </label>
@@ -86,9 +91,10 @@
               <div *ngIf="possibleChartCheck('labelSeriesPercent', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="!checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_PERCENT') != -1"
+                         [ngModel]="!checkSeriesDisable()
+                         && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.SERIES_PERCENT) != -1"
                          [disabled]="checkSeriesDisable()"
-                         (click)="toggleDisplayType('SERIES_PERCENT', 5)">
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.SERIES_PERCENT, 5)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.percent' | translate}}</span>
                 </label>
@@ -96,8 +102,9 @@
               <div *ngIf="possibleChartCheck('labelXAxisValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('XAXIS_VALUE') != -1)"
-                         (click)="toggleDisplayType('XAXIS_VALUE', 6)">
+                         [ngModel]="(uiOption.dataLabel?.displayTypes
+                         && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.XAXIS_VALUE) != -1)"
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.XAXIS_VALUE, 6)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.xaxis.value' | translate}}</span>
                 </label>
@@ -105,8 +112,9 @@
               <div *ngIf="possibleChartCheck('labelYAxisValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('YAXIS_VALUE') != -1)"
-                         (click)="toggleDisplayType('YAXIS_VALUE', 7)">
+                         [ngModel]="(uiOption.dataLabel?.displayTypes
+                         && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.YAXIS_VALUE) != -1)"
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.YAXIS_VALUE, 7)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.yaxis.value' | translate}}</span>
                 </label>
@@ -114,8 +122,9 @@
               <div *ngIf="possibleChartCheck('labelValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('VALUE') != -1)"
-                         (click)="toggleDisplayType('VALUE', 8)">
+                         [ngModel]="(uiOption.dataLabel?.displayTypes
+                         && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.VALUE) != -1)"
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.VALUE, 8)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.value' | translate}}</span>
                 </label>
@@ -123,8 +132,9 @@
               <div *ngIf="possibleChartCheck('labelNodeName', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('NODE_NAME') != -1)"
-                         (click)="toggleDisplayType('NODE_NAME', 9)">
+                         [ngModel]="(uiOption.dataLabel?.displayTypes
+                         && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.NODE_NAME) != -1)"
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.NODE_NAME, 9)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.node.name' | translate}}</span>
                 </label>
@@ -132,8 +142,9 @@
               <div *ngIf="possibleChartCheck('labelLinkValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('LINK_VALUE') != -1)"
-                         (click)="toggleDisplayType('LINK_VALUE', 10)">
+                         [ngModel]="(uiOption.dataLabel?.displayTypes
+                         && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.LINK_VALUE) != -1)"
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.LINK_VALUE, 10)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.link.value' | translate}}</span>
                 </label>
@@ -141,8 +152,9 @@
               <div *ngIf="possibleChartCheck('labelNodeValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('NODE_VALUE') != -1)"
-                         (click)="toggleDisplayType('NODE_VALUE', 11)">
+                         [ngModel]="(uiOption.dataLabel?.displayTypes
+                         && uiOption?.dataLabel?.displayTypes.indexOf(uiChartDataLabelDisplayType.NODE_VALUE) != -1)"
+                         (click)="toggleDisplayType(uiChartDataLabelDisplayType.NODE_VALUE, 11)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.node.value' | translate}}</span>
                 </label>
@@ -190,7 +202,7 @@
               <div class="ddp-col-7">
                 <!-- selectbox -->
                 <component-select
-                  [array]="getPositionList(uiOption, 'bar')"
+                  [array]="getPositionList(uiOption, chartType.BAR)"
                   [viewKey]="'name'"
                   [defaultIndex]="getPositionIndex(uiOption?.dataLabel?.pos)"
                   (onSelected)="changePosition($event)"
@@ -241,15 +253,15 @@
                 <div class="ddp-col-6 ddp-txt-right">
                   <ul class="ddp-list-express ddp-tab3 ddp-type">
                     <li [class.ddp-selected]="uiOption?.dataLabel?.hAlign?.toString() == 'LEFT'"
-                      (click)="changeHAlign('LEFT')">
+                      (click)="changeHAlign(uiPosition.LEFT)">
                       <em class="ddp-icon-left"></em>
                     </li>
                     <li [class.ddp-selected]="uiOption?.dataLabel?.hAlign?.toString() == 'CENTER'"
-                      (click)="changeHAlign('CENTER')">
+                      (click)="changeHAlign(uiPosition.CENTER)">
                       <em class="ddp-icon-center"></em>
                     </li>
                     <li [class.ddp-selected]="uiOption?.dataLabel?.hAlign?.toString() == 'RIGHT'"
-                      (click)="changeHAlign('RIGHT')">
+                      (click)="changeHAlign(uiPosition.RIGHT)">
                       <em class="ddp-icon-right"></em>
                     </li>
                   </ul>
@@ -266,15 +278,15 @@
                 <div class="ddp-col-6 ddp-txt-right">
                   <ul class="ddp-list-express ddp-tab3 ddp-type">
                     <li [class.ddp-selected]="uiOption?.dataLabel?.vAlign?.toString() == 'TOP'"
-                      (click)="changeVAlign('TOP')">
+                      (click)="changeVAlign(uiPosition.TOP)">
                       <em class="ddp-icon-top"></em>
                     </li>
                     <li [class.ddp-selected]="uiOption?.dataLabel?.vAlign?.toString() == 'CENTER'"
-                      (click)="changeVAlign('CENTER')">
+                      (click)="changeVAlign(uiPosition.CENTER)">
                       <em class="ddp-icon-middle"></em>
                     </li>
                     <li [class.ddp-selected]="uiOption?.dataLabel?.vAlign?.toString() == 'BOTTOM'"
-                      (click)="changeVAlign('BOTTOM')">
+                      (click)="changeVAlign(uiPosition.BOTTOM)">
                       <em class="ddp-icon-bottom"></em>
                     </li>
                   </ul>
@@ -384,15 +396,15 @@
               <div class="ddp-col-6 ddp-txt-right">
                 <ul class="ddp-list-express ddp-tab3 ddp-type" [ngClass]="{'ddp-disabled' :uiOption['dataLabel']['showOutside']}">
                   <li [class.ddp-selected]="uiOption?.dataLabel?.textAlign == 'LEFT'"
-                      (click)="changeTextAlign('LEFT')">
+                      (click)="changeTextAlign(uiPosition.LEFT)">
                     <em class="ddp-icon-left"></em>
                   </li>
                   <li [class.ddp-selected]="!uiOption?.dataLabel?.textAlign || uiOption?.dataLabel?.textAlign == 'CENTER'"
-                      (click)="changeTextAlign('CENTER')">
+                      (click)="changeTextAlign(uiPosition.CENTER)">
                     <em class="ddp-icon-center"></em>
                   </li>
                   <li [class.ddp-selected]="uiOption?.dataLabel?.textAlign == 'RIGHT'"
-                      (click)="changeTextAlign('RIGHT')">
+                      (click)="changeTextAlign(uiPosition.RIGHT)">
                     <em class="ddp-icon-right"></em>
                   </li>
                 </ul>

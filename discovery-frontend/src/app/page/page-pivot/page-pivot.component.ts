@@ -294,6 +294,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public get fieldPivot(): typeof FieldPivot{
+    return FieldPivot;
+  }
+
   /**
    * 선반정보 변경시
    */
@@ -1508,7 +1512,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param event
    * @param field
    */
-  protected openFieldSetting(event, field) {
+  public openFieldSetting(event, field) {
     if (this.editingField === field) {
       this.editingField = null;
       // this.$editFieldLayer.hide();
@@ -1731,7 +1735,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param byUnitShowFl byUnit show/hide 설정
    * @returns {string}
    */
-  protected getGranularityName(field: AbstractField, byUnitShowFl?: boolean) {
+  public getGranularityName(field: AbstractField, byUnitShowFl?: boolean) {
     // byUnit이 있는경우 3depth에 대한 명칭도 보여줌
     return field.format && field.format.unit ? field.format.byUnit && byUnitShowFl ? field.format.unit.toString() + ' BY ' + field.format.byUnit.toString() : field.format.unit.toString() : '';
   }

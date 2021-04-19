@@ -144,6 +144,7 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
       return;
     }
 
+
     // 헤더정보 생성
     const headers: Header[] = data.header.map((column: any) => {
       return new SlickGridHeader()

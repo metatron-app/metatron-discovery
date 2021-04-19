@@ -212,7 +212,7 @@ export class CommonOptionConverter {
    * @param valueAxis
    * @returns {BaseOption}
    */
-  public static convertXAxisRotate(chartOption: BaseOption, orient: Orient, categoryAxis, valueAxis): BaseOption {
+  public static convertXAxisRotate(chartOption: BaseOption, orient: UIOrient, categoryAxis, valueAxis): BaseOption {
 
     // orient 값이 없는경우 return
     if (_.isUndefined(orient)) return chartOption;
@@ -242,7 +242,7 @@ export class CommonOptionConverter {
    * @param categoryAxis
    * @returns {BaseOption}
    */
-  public static convertYAxisRotate(chartOption: BaseOption, orient: Orient, categoryAxis): BaseOption {
+  public static convertYAxisRotate(chartOption: BaseOption, orient: UIOrient, categoryAxis): BaseOption {
 
     // orient 값이 없는경우 return
     if (_.isUndefined(orient)) return chartOption;

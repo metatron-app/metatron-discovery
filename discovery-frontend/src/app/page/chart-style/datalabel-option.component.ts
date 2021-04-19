@@ -143,6 +143,18 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent implement
   // 빈값을 제거한 displayTypes
   public displayTypes: UIChartDataLabelDisplayType[] = [];
 
+  public get uiChartDataLabelDisplayType(): typeof UIChartDataLabelDisplayType{
+    return UIChartDataLabelDisplayType;
+  }
+
+  public get chartType(): typeof ChartType{
+    return ChartType;
+  }
+
+  public get uiPosition(): typeof UIPosition{
+    return UIPosition;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

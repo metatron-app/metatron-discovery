@@ -154,6 +154,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
           rows.push(row);
         }
       });
+
       this.lineageData = {};
       this.lineageData['header'] = header;
       this.lineageData['rows'] = rows;

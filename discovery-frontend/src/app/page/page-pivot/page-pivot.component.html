@@ -64,7 +64,7 @@
                   <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
                   <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
                   <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                  <span class="ddp-icon-close" (click)="removeField($event, 'COLUMNS', pivot.columns, i)"><em></em></span>
+                  <span class="ddp-icon-close" (click)="removeField($event, fieldPivot.COLUMNS, pivot.columns, i)"><em></em></span>
                 </div>
                 <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
@@ -135,7 +135,7 @@
                   <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
                   <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
                   <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                  <span class="ddp-icon-close" (click)="removeField($event, 'ROWS', pivot.rows, i)"><em></em></span>
+                  <span class="ddp-icon-close" (click)="removeField($event, fieldPivot.ROWS, pivot.rows, i)"><em></em></span>
                 </div>
                 <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>
@@ -206,7 +206,7 @@
                   <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
                   <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
                   <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                  <span class="ddp-icon-close" (click)="removeField($event, 'AGGREGATIONS', pivot.aggregations, i)"><em></em></span>
+                  <span class="ddp-icon-close" (click)="removeField($event, fieldPivot.AGGREGATIONS, pivot.aggregations, i)"><em></em></span>
                 </div>
                 <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
               </div>

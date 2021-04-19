@@ -147,6 +147,10 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent implements
   //   return fields;
   // }
 
+  public get uiChartDataLabelDisplayType(): typeof UIChartDataLabelDisplayType{
+    return UIChartDataLabelDisplayType;
+  }
+
   // constructor
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {

@@ -44,7 +44,7 @@
 
   <!-- 숫자일때 -->
   <!-- divide2 -->
-  <div class="ddp-divide2" *ngIf="selectedType['value'] != 'currency'" [class.ddp-disabled]="selectedType?.value == 'origin'">
+  <div class="ddp-divide2" *ngIf="checkSelectedType('currency')" [class.ddp-disabled]="selectedType?.value == 'origin'">
     <div class="ddp-list-label">{{'msg.page.th.decimal.place' | translate}}</div>
     <!-- number -->
     <div class="ddp-input-number">
