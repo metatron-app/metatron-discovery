@@ -182,7 +182,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
   } // get - isShowChartTools
 
   get isNotMapType() {
-    return this.chart.uiOption.type !== ChartType.MAP;
+    return (this.chart) ? this.chart.uiOption.type !== ChartType.MAP : true;
   }
 
   // is Origin data down
@@ -1176,7 +1176,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
   /**
    * redraw chart
    */
-  public changeDraw(_event: Event) {
+  public changeDraw() {
     this._search(null, this._currentSelectionFilters);
   }
 
@@ -1307,7 +1307,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     } // end if - dashboard.configuration
 
     this.safelyDetectChanges();
-    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
+    if (this.chart) {
+      this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
+    }
 
   } // function - _setWidget
 

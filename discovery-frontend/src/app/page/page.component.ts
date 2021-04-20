@@ -1492,7 +1492,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     // // 공간연산 tooltip이 제대로 적용이 되지 않을 경우
-    if (this.uiOption['analysis'] !== null && this.uiOption['analysis']['use'] === true) {
+    if (this.uiOption['analysis'] && this.uiOption['analysis']['use'] === true) {
       $('.ddp-wrap-chart-menu a').mouseover(function () {
         const $tooltipTop = $(this).offset().top;
         $(this).find('.ddp-ui-tooltip-info').css('top', $tooltipTop + 15)

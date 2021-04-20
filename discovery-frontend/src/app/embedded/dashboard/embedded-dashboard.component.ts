@@ -110,7 +110,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
     super.ngOnDestroy();
   }
 
-  @HostListener('window:popstate', ['$event'])
+  @HostListener('window:popstate')
   public onPopstate() {
     window.history.pushState(null, null, window.location.href);
   }

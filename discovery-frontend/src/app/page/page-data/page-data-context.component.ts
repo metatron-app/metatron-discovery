@@ -12,9 +12,8 @@
  * limitations under the License.
  */
 
-/**
- * Created by juheeko on 20/10/2017.
- */
+import * as _ from 'lodash';
+import {isNullOrUndefined, isString} from 'util';
 import {
   Component,
   ElementRef,
@@ -26,16 +25,15 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Field, FieldNameAlias, FieldRole, FieldValueAlias, LogicalType} from '@domain/datasource/datasource';
-import {StringUtil} from '@common/util/string.util';
-import {PopupValueAliasComponent} from '../page-pivot/popup-value-alias.component';
-import {Alert} from '@common/util/alert.util';
-import {DatasourceAliasService} from '../../datasource/service/datasource-alias.service';
 import {BoardDataSource} from '@domain/dashboard/dashboard';
-import * as _ from 'lodash';
-import {isNullOrUndefined, isString} from 'util';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {Type} from '../../shared/datasource-metadata/domain/type';
+import {DatasourceAliasService} from '../../datasource/service/datasource-alias.service';
+import {PopupValueAliasComponent} from '../page-pivot/popup-value-alias.component';
 
 @Component({
   selector: 'page-data-context',
@@ -81,11 +79,11 @@ export class PageDataContextComponent extends AbstractComponent implements OnIni
 
   // custom field 팝업열기
   @Output()
-  public openCustomFieldEvent: EventEmitter<Field> = new EventEmitter();
+  public openCustomFieldEvent: EventEmitter<CustomField> = new EventEmitter();
 
   // custom field 삭제하기
   @Output()
-  public deleteCustomFieldEvent: EventEmitter<Field> = new EventEmitter();
+  public deleteCustomFieldEvent: EventEmitter<CustomField> = new EventEmitter();
 
   @Output('changeAlias')
   public changeAliasEvent: EventEmitter<Field> = new EventEmitter();
@@ -123,7 +121,7 @@ export class PageDataContextComponent extends AbstractComponent implements OnIni
   /**
    * context menu 클릭시
    */
-  @HostListener('click', ['$event'])
+  @HostListener('click')
   public clickListener() {
     if (!this.fix2DepthContext) {
       // 기본 이벤트 제거
@@ -217,14 +215,14 @@ export class PageDataContextComponent extends AbstractComponent implements OnIni
   public customFieldEmit(selectedField: Field) {
 
     // 상위 컴포넌트로 noti
-    this.openCustomFieldEvent.emit(selectedField);
+    this.openCustomFieldEvent.emit(selectedField as CustomField);
   }
 
   /**
    * 해당 필드를 삭제시 (custom field인 경우)
    */
   public deleteCustomField() {
-    this.deleteCustomFieldEvent.emit(this.selectedField);
+    this.deleteCustomFieldEvent.emit(this.selectedField as CustomField);
   }
 
   /**

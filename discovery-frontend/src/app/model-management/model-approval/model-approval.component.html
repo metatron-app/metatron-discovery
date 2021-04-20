@@ -1,216 +1,216 @@
-<!--
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+<!--&lt;!&ndash;-->
+<!--  ~ Licensed under the Apache License, Version 2.0 (the "License");-->
+<!--  ~ you may not use this file except in compliance with the License.-->
+<!--  ~ You may obtain a copy of the License at-->
+<!--  ~-->
+<!--  ~      http://www.apache.org/licenses/LICENSE-2.0-->
+<!--  ~-->
+<!--  ~ Unless required by applicable law or agreed to in writing, software-->
+<!--  ~ distributed under the License is distributed on an "AS IS" BASIS,-->
+<!--  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.-->
+<!--  ~ See the License for the specific language governing permissions and-->
+<!--  ~ limitations under the License.-->
+<!--  &ndash;&gt;-->
 
-<em class="ddp-bg-back"></em>
-<div class="ddp-ui-contents-in">
-  <!-- top -->
-  <div class="ddp-ui-contents-top">
-    <div class="ddp-ui-title">
-      Notebook Management
-    </div>
+<!--<em class="ddp-bg-back"></em>-->
+<!--<div class="ddp-ui-contents-in">-->
+<!--  &lt;!&ndash; top &ndash;&gt;-->
+<!--  <div class="ddp-ui-contents-top">-->
+<!--    <div class="ddp-ui-title">-->
+<!--      Notebook Management-->
+<!--    </div>-->
 
-    <!-- tab -->
-    <ul class="ddp-list-top-tab">
-      <li class="ddp-selected">
-        <a [routerLink]="['/management/model/approval']">Model Approval</a>
-      </li>
-      <li>
-        <a [routerLink]="['/management/model/notebook']">Notebook Server</a>
-      </li>
-    </ul>
-    <!-- //tab -->
+<!--    &lt;!&ndash; tab &ndash;&gt;-->
+<!--    <ul class="ddp-list-top-tab">-->
+<!--      <li class="ddp-selected">-->
+<!--        <a [routerLink]="['/management/model/approval']">Model Approval</a>-->
+<!--      </li>-->
+<!--      <li>-->
+<!--        <a [routerLink]="['/management/model/notebook']">Notebook Server</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--    &lt;!&ndash; //tab &ndash;&gt;-->
 
-  </div>
-  <!-- //top -->
+<!--  </div>-->
+<!--  &lt;!&ndash; //top &ndash;&gt;-->
 
-  <div class="ddp-ui-contents-list">
-    <div class="ddp-wrap-option">
+<!--  <div class="ddp-ui-contents-list">-->
+<!--    <div class="ddp-wrap-option">-->
 
-      <!-- option -->
-      <div class="ddp-ui-option ddp-clear">
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">Status</label>
-          <label class="ddp-label-radio ddp-inline">
-            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('');" checked >
-            <i class="ddp-icon-radio "></i>
-            <span class="ddp-txt-radio">All</span>
-          </label>
-          <label class="ddp-label-radio ddp-inline" >
-            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('APPROVAL');" >
-            <i class="ddp-icon-radio "></i>
-            <span class="ddp-txt-radio">Approved</span>
-          </label>
-          <label class="ddp-label-radio ddp-inline" >
-            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('REJECT');" >
-            <i class="ddp-icon-radio "></i>
-            <span class="ddp-txt-radio">Rejected</span>
-          </label>
-          <label class="ddp-label-radio ddp-inline" >
-            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('PENDING');" >
-            <i class="ddp-icon-radio "></i>
-            <span class="ddp-txt-radio">Pending</span>
-          </label>
-          <!-- //edit option -->
-        </div>
+<!--      &lt;!&ndash; option &ndash;&gt;-->
+<!--      <div class="ddp-ui-option ddp-clear">-->
+<!--        <div class="ddp-wrap-edit">-->
+<!--          <label class="ddp-label-type">Status</label>-->
+<!--          <label class="ddp-label-radio ddp-inline">-->
+<!--            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('');" checked >-->
+<!--            <i class="ddp-icon-radio "></i>-->
+<!--            <span class="ddp-txt-radio">All</span>-->
+<!--          </label>-->
+<!--          <label class="ddp-label-radio ddp-inline" >-->
+<!--            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('APPROVAL');" >-->
+<!--            <i class="ddp-icon-radio "></i>-->
+<!--            <span class="ddp-txt-radio">Approved</span>-->
+<!--          </label>-->
+<!--          <label class="ddp-label-radio ddp-inline" >-->
+<!--            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('REJECT');" >-->
+<!--            <i class="ddp-icon-radio "></i>-->
+<!--            <span class="ddp-txt-radio">Rejected</span>-->
+<!--          </label>-->
+<!--          <label class="ddp-label-radio ddp-inline" >-->
+<!--            <input type="radio" name="snapshotFormatRadio" (click)="setStatus('PENDING');" >-->
+<!--            <i class="ddp-icon-radio "></i>-->
+<!--            <span class="ddp-txt-radio">Pending</span>-->
+<!--          </label>-->
+<!--          &lt;!&ndash; //edit option &ndash;&gt;-->
+<!--        </div>-->
 
-        <!-- edit -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">Format</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <!-- selectbox -->
-            <!-- 선택시 : ddp-selected 추가 -->
-            <component-select [array]="taskTypeList"
-                              [viewKey]="'viewKey'"
-                              (onSelected)="onSelectedTaskType($event)">
-            </component-select>
-            <!-- //selectbox -->
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit">
-          <component-period
-            [withTime]="false"
-            (changeDate)="changeDate($event)"
-            [returnFormat]="'YYYY-MM-DD'"
-          ></component-period>
-          <!-- //edit option -->
+<!--        &lt;!&ndash; edit &ndash;&gt;-->
+<!--        <div class="ddp-wrap-edit">-->
+<!--          <label class="ddp-label-type">Format</label>-->
+<!--          &lt;!&ndash; edit option &ndash;&gt;-->
+<!--          <div class="ddp-ui-edit-option">-->
+<!--            &lt;!&ndash; selectbox &ndash;&gt;-->
+<!--            &lt;!&ndash; 선택시 : ddp-selected 추가 &ndash;&gt;-->
+<!--            <component-select [array]="taskTypeList"-->
+<!--                              [viewKey]="'viewKey'"-->
+<!--                              (onSelected)="onSelectedTaskType($event)">-->
+<!--            </component-select>-->
+<!--            &lt;!&ndash; //selectbox &ndash;&gt;-->
+<!--          </div>-->
+<!--          &lt;!&ndash; //edit option &ndash;&gt;-->
+<!--        </div>-->
+<!--        &lt;!&ndash; //edit &ndash;&gt;-->
+<!--        &lt;!&ndash; edit &ndash;&gt;-->
+<!--        <div class="ddp-wrap-edit">-->
+<!--          <component-period-->
+<!--            [withTime]="false"-->
+<!--            (changeDate)="changeDate($event)"-->
+<!--            [returnFormat]="'YYYY-MM-DD'"-->
+<!--          ></component-period>-->
+<!--          &lt;!&ndash; //edit option &ndash;&gt;-->
 
-        </div>
-        <!-- //edit -->
-      </div>
-      <!-- //option -->
+<!--        </div>-->
+<!--        &lt;!&ndash; //edit &ndash;&gt;-->
+<!--      </div>-->
+<!--      &lt;!&ndash; //option &ndash;&gt;-->
 
-      <!-- option -->
-      <div class="ddp-ui-option ddp-clear">
-        <!-- 검색 -->
-        <div class="ddp-form-search ddp-fleft">
-          <em class="ddp-icon-search"></em>
-          <input type="text" placeholder="Search by model name, requester name or ID" [(ngModel)]="searchText" (keyup.enter)="getModelApprovalList(true)" (keyup.esc)="searchText='';getModelApprovalList(true)">
-          <em class="ddp-btn-search-close" (click)="searchText='';getModelApprovalList(true)"></em>
-        </div>
-        <!-- //검색 -->
-        <!-- right -->
-        <div class="ddp-ui-rightoption">
-          <span class="ddp-data-total">There are {{resultData.length}} lists</span>
-          <a href="javascript:" class="ddp-btn-link" [ngClass]="{'ddp-disabled': deleteAvailable()}" (click)="deleteAvailable() ? $event.stopPropagation() : deleteMultiple()"><em class="ddp-icon-link-cut"></em>Delete selections</a>
-        </div>
-        <!-- //right -->
-      </div>
-      <!-- //option -->
-    </div>
-
-
-    <table class="ddp-table-form ddp-table-type3">
-      <colgroup>
-        <col width="51px">
-        <col width="*">
-        <col width="7%">
-        <col width="13%">
-        <col width="10%">
-        <col width="10%">
-        <col width="13%">
-      </colgroup>
-      <thead>
-      <tr >
-        <th class="ddp-txt-center">
-          <div class="ddp-ui-checkbox" [ngClass]="{'ddp-checkboxtype' : partialChecked()}">
-            <!--TO DO-->
-            <!--체크가 되었을 때 활성화 된다-->
-            <input type="checkbox" class="ddp-checkbox-form" (click)="checkAll()" [(ngModel)]="isCheckAll">
-            <i class="ddp-icon-checkbox"></i>
-          </div>
-        </th>
-        <th>
-          Model
-        </th>
-        <th>
-          Format
-        </th>
-        <th>
-          Requester (ID)
-        </th>
-        <th>
-          Request date
-
-          <em class="ddp-icon-array-default2"></em>
-          <em class="ddp-icon-array-asc2" style="display:none;"></em>
-          <em class="ddp-icon-array-des2" style="display:none;"></em>
-        </th>
-        <th>
-          Status
-        </th>
-        <th>
-          Last Updated
-
-          <em class="ddp-icon-array-default2"></em>
-          <em class="ddp-icon-array-asc2" style="display:none;"></em>
-          <em class="ddp-icon-array-des2" style="display:none;"></em>
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let item of resultData" (click)="modelApprovalDetail(item.id)">
-        <td class="ddp-txt-center" (click)="checkColumn($event)">
-          <div class="ddp-ui-checkbox">
-            <input type="checkbox" class="ddp-checkbox-form" [(ngModel)]="item.selected" (click)="check(item)">
-            <i class="ddp-icon-checkbox"></i>
-          </div>
-        </td>
-
-        <td>
-          <div class=" ddp-txt-long">
-            {{item.name}}
-            <span class="ddp-txt-colortype" *ngIf="item.description"> - {{item.description}}</span>
-            <em class="ddp-icon-global"></em>
-          </div>
-        </td>
-        <td>
-          {{item.subscribeType}}
-        </td>
-        <td>
-          {{item.createdBy.fullName}}({{item.createdBy.email}})
-        </td>
-        <td>
-          {{item.createdTime | mdate : 'YYYY-MM-DD HH:mm'}}
-        </td>
-        <td>
-          <span class="ddp-data-state" [ngClass]="{'ddp-approved': item.statusType == 'APPROVAL', 'ddp-rejected': item.statusType == 'REJECT', 'ddp-waiting': item.statusType == 'PENDING'}"><em class="ddp-icon-state"></em>
-          {{item.statusType}}
-          </span>
-        </td>
-        <td>
-          <!--modified time-->
-          <em class="ddp-icon-by">by</em>
-          {{item.createdBy.fullName}}
-          <div class="ddp-btn-control">
-            <em class="ddp-icon-control-cut" (click)="confirmDelete($event,item.id);"></em>
-          </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <!-- 더보기 -->
-    <div class="ddp-box-add-link" *ngIf="page.page < pageResult.totalPages && pageResult" (click)="getModelApprovalList()">
-      <span class="ddp-link-type">더보기 <em class="ddp-icon-view"></em></span>
-    </div>
-  </div>
+<!--      &lt;!&ndash; option &ndash;&gt;-->
+<!--      <div class="ddp-ui-option ddp-clear">-->
+<!--        &lt;!&ndash; 검색 &ndash;&gt;-->
+<!--        <div class="ddp-form-search ddp-fleft">-->
+<!--          <em class="ddp-icon-search"></em>-->
+<!--          <input type="text" placeholder="Search by model name, requester name or ID" [(ngModel)]="searchText" (keyup.enter)="getModelApprovalList(true)" (keyup.esc)="searchText='';getModelApprovalList(true)">-->
+<!--          <em class="ddp-btn-search-close" (click)="searchText='';getModelApprovalList(true)"></em>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; //검색 &ndash;&gt;-->
+<!--        &lt;!&ndash; right &ndash;&gt;-->
+<!--        <div class="ddp-ui-rightoption">-->
+<!--          <span class="ddp-data-total">There are {{resultData.length}} lists</span>-->
+<!--          <a href="javascript:" class="ddp-btn-link" [ngClass]="{'ddp-disabled': deleteAvailable()}" (click)="deleteAvailable() ? $event.stopPropagation() : deleteMultiple()"><em class="ddp-icon-link-cut"></em>Delete selections</a>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; //right &ndash;&gt;-->
+<!--      </div>-->
+<!--      &lt;!&ndash; //option &ndash;&gt;-->
+<!--    </div>-->
 
 
-</div>
+<!--    <table class="ddp-table-form ddp-table-type3">-->
+<!--      <colgroup>-->
+<!--        <col width="51px">-->
+<!--        <col width="*">-->
+<!--        <col width="7%">-->
+<!--        <col width="13%">-->
+<!--        <col width="10%">-->
+<!--        <col width="10%">-->
+<!--        <col width="13%">-->
+<!--      </colgroup>-->
+<!--      <thead>-->
+<!--      <tr >-->
+<!--        <th class="ddp-txt-center">-->
+<!--          <div class="ddp-ui-checkbox" [ngClass]="{'ddp-checkboxtype' : partialChecked()}">-->
+<!--            &lt;!&ndash;TO DO&ndash;&gt;-->
+<!--            &lt;!&ndash;체크가 되었을 때 활성화 된다&ndash;&gt;-->
+<!--            <input type="checkbox" class="ddp-checkbox-form" (click)="checkAll()" [(ngModel)]="isCheckAll">-->
+<!--            <i class="ddp-icon-checkbox"></i>-->
+<!--          </div>-->
+<!--        </th>-->
+<!--        <th>-->
+<!--          Model-->
+<!--        </th>-->
+<!--        <th>-->
+<!--          Format-->
+<!--        </th>-->
+<!--        <th>-->
+<!--          Requester (ID)-->
+<!--        </th>-->
+<!--        <th>-->
+<!--          Request date-->
 
-<app-model-approval-detail *ngIf="step=='model-approval-detail'" [selectedModelId]="selectedModelId" ></app-model-approval-detail>
-<app-delete-modal (deleteConfirm)="deleteModel()"></app-delete-modal>
+<!--          <em class="ddp-icon-array-default2"></em>-->
+<!--          <em class="ddp-icon-array-asc2" style="display:none;"></em>-->
+<!--          <em class="ddp-icon-array-des2" style="display:none;"></em>-->
+<!--        </th>-->
+<!--        <th>-->
+<!--          Status-->
+<!--        </th>-->
+<!--        <th>-->
+<!--          Last Updated-->
+
+<!--          <em class="ddp-icon-array-default2"></em>-->
+<!--          <em class="ddp-icon-array-asc2" style="display:none;"></em>-->
+<!--          <em class="ddp-icon-array-des2" style="display:none;"></em>-->
+<!--        </th>-->
+<!--      </tr>-->
+<!--      </thead>-->
+<!--      <tbody>-->
+<!--      <tr *ngFor="let item of resultData" (click)="modelApprovalDetail(item.id)">-->
+<!--        <td class="ddp-txt-center" (click)="checkColumn($event)">-->
+<!--          <div class="ddp-ui-checkbox">-->
+<!--            <input type="checkbox" class="ddp-checkbox-form" [(ngModel)]="item.selected" (click)="check(item)">-->
+<!--            <i class="ddp-icon-checkbox"></i>-->
+<!--          </div>-->
+<!--        </td>-->
+
+<!--        <td>-->
+<!--          <div class=" ddp-txt-long">-->
+<!--            {{item.name}}-->
+<!--            <span class="ddp-txt-colortype" *ngIf="item.description"> - {{item.description}}</span>-->
+<!--            <em class="ddp-icon-global"></em>-->
+<!--          </div>-->
+<!--        </td>-->
+<!--        <td>-->
+<!--          {{item.subscribeType}}-->
+<!--        </td>-->
+<!--        <td>-->
+<!--          {{item.createdBy.fullName}}({{item.createdBy.email}})-->
+<!--        </td>-->
+<!--        <td>-->
+<!--          {{item.createdTime | mdate : 'YYYY-MM-DD HH:mm'}}-->
+<!--        </td>-->
+<!--        <td>-->
+<!--          <span class="ddp-data-state" [ngClass]="{'ddp-approved': item.statusType == 'APPROVAL', 'ddp-rejected': item.statusType == 'REJECT', 'ddp-waiting': item.statusType == 'PENDING'}"><em class="ddp-icon-state"></em>-->
+<!--          {{item.statusType}}-->
+<!--          </span>-->
+<!--        </td>-->
+<!--        <td>-->
+<!--          &lt;!&ndash;modified time&ndash;&gt;-->
+<!--          <em class="ddp-icon-by">by</em>-->
+<!--          {{item.createdBy.fullName}}-->
+<!--          <div class="ddp-btn-control">-->
+<!--            <em class="ddp-icon-control-cut" (click)="confirmDelete($event,item.id);"></em>-->
+<!--          </div>-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      </tbody>-->
+<!--    </table>-->
+<!--    &lt;!&ndash; 더보기 &ndash;&gt;-->
+<!--    <div class="ddp-box-add-link" *ngIf="page.page < pageResult.totalPages && pageResult" (click)="getModelApprovalList()">-->
+<!--      <span class="ddp-link-type">더보기 <em class="ddp-icon-view"></em></span>-->
+<!--    </div>-->
+<!--  </div>-->
+
+
+<!--</div>-->
+
+<!--<app-model-approval-detail *ngIf="step=='model-approval-detail'" [selectedModelId]="selectedModelId" ></app-model-approval-detail>-->
+<!--<app-delete-modal (deleteConfirm)="deleteModel()"></app-delete-modal>-->

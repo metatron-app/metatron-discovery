@@ -182,7 +182,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   @ViewChildren('metadataColumnSchemaNameTds')
   private metadataColumnSchemaNameTds: QueryList<ElementRef>;
 
-  @HostListener('click', ['$event'])
+  @HostListener('click')
   public clickListener() {
     this._hideTypeListPopup();
   }

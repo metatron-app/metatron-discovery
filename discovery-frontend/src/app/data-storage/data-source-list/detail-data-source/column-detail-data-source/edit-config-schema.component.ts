@@ -131,7 +131,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   @ViewChildren('nameTds')
   private nameTds: QueryList<ElementRef>;
 
-  @HostListener('click', ['$event'])
+  @HostListener('click')
   public clickListener() {
     this._hideTypeListPopup();
   }

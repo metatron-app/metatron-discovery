@@ -152,7 +152,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
     super.ngOnDestroy();
   } // function - ngOnDestroy
 
-  @HostListener('window:popstate', ['$event'])
+  @HostListener('window:popstate')
   public onPopstate() {
     window.history.pushState(null, null, window.location.href);
   }

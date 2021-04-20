@@ -148,7 +148,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    * Get elapsed day
    * @param item
    */
-  public getElapsedDay(item) {
+  public getElapsedDay(item?) {
     if (isUndefined(item) || isUndefined(item.elapsedTime) ) {
       return 0;
     }

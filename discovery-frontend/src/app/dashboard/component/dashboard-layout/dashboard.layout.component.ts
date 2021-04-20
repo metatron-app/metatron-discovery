@@ -189,7 +189,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     this.destroyDashboard();
   } // function - ngOnDestroy
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   public onResize() {
     this.updateLayoutSize();
   } // function - onResize

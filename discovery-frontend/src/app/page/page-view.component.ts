@@ -1404,9 +1404,9 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
 
   /**
    * 라인차트 생성 완료 이벤트
-   *  - (drawFinished)="lineChartDrawComplete($event);"
+   *  - (drawFinished)="lineChartDrawComplete();"
    */
-  public lineChartDrawComplete(_event: Event): void {
+  public lineChartDrawComplete(): void {
     // 고급분석 컴포넌트에 라인차트가 생성되었음을 알려주면
     // 내부에서 고급분석 데이터 싱크를 맞춘다
     this.analysisComponent.drawComplete(this.uiOption, {pivot: this.pivot});

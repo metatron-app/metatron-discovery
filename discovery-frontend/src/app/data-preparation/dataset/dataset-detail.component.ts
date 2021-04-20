@@ -479,7 +479,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
 
-  public closeSelectDataflow(_event:Event) {
+  public closeSelectDataflow() {
     // close popup
     this.isSelectDataflowOpen = false;
   }

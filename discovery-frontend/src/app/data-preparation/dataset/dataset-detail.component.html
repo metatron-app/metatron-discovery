@@ -222,7 +222,7 @@
 <create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
 <snapshot-loading></snapshot-loading>
 <app-add-dataset-dataflow *ngIf="isSelectDataflowOpen"
-                          (close)="closeSelectDataflow($event)"
+                          (close)="closeSelectDataflow()"
                           [datasetName]="dataset.dsName"
                           [datasetId]="dataset.dsId"
                           [dfStr]="dfStr">

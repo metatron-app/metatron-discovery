@@ -281,7 +281,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    * 차트 Resize
    *
    */
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   public onResize() {
     $('.sys-create-board-top-panel').css('height', '100%').css('height', '-=1px');
   } // function - onResize
