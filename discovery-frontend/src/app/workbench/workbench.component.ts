@@ -407,7 +407,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   @HostListener('window:resize', ['$event'])
-  protected onResize() {
+  public onResize() {
     clearTimeout(this._resizeTimer);
     this._resizeTimer = setTimeout(() => {
       this.onEndedResizing();

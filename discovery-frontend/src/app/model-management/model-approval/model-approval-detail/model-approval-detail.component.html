@@ -107,13 +107,13 @@
           Data type
         </th>
         <td>
-          {{resultData['notebook'].dsType}}
+          {{getResultOfNotebook('dsType')}}
         </td>
         <th>
           Request Date
         </th>
         <td>
-          {{resultData['notebook'].createdTime | date:'yyyy-MM-dd'}}
+          {{getResultOfNotebook('createdTime') | date:'yyyy-MM-dd'}}
         </td>
       </tr>
       <tr>
@@ -121,13 +121,13 @@
           Data source
         </th>
         <td>
-          {{resultData['notebook'].dsName}}
+          {{getResultOfNotebook('dsName')}}
         </td>
         <th>
           Requester
         </th>
         <td>
-          {{resultData['notebook'].createdBy.fullName}}({{resultData['notebook'].createdBy.email}})
+          {{getResultOfNotebook('createdBy').fullName}}({{getResultOfNotebook('createdBy').email}})
         </td>
       </tr>
       <tr>
@@ -135,8 +135,8 @@
           Develop language
         </th>
         <td colspan="3">
-          <span class="ddp-data-lang-r" *ngIf="resultData['notebook'].kernelType=='R'">R</span>
-          <span class="ddp-data-lang-python" *ngIf="resultData['notebook'].kernelType=='PYTHON'">PYTHON</span>
+          <span class="ddp-data-lang-r" *ngIf="getResultOfNotebook('kernelType')=='R'">R</span>
+          <span class="ddp-data-lang-python" *ngIf="getResultOfNotebook('kernelType')=='PYTHON'">PYTHON</span>
         </td>
       </tr>
       <tr>
@@ -144,7 +144,7 @@
           Format Type
         </th>
         <td>
-          {{resultData['notebook'].connectorType}}
+          {{getResultOfNotebook('connectorType')}}
         </td>
       </tr>
       <tr>

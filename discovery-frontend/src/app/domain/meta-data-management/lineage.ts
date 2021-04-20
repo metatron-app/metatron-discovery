@@ -23,4 +23,6 @@ export class LineageEdge extends AbstractHistoryEntity {
   public toMetaId: string;
   public toMetaName: string;
   public toColName: string;
+  public description: string;
+  public tier: number;
 }

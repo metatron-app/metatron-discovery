@@ -38,7 +38,7 @@ import {ExploreDataConstant} from '../../constant/explore-data-constant';
 import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
 import {CreateWorkbookComponent} from '../../../workbook/component/create-workbook/refactoring/create-workbook.component';
 import {CreateWorkbenchContainerComponent} from '../../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
-import {SortOption} from '../service/explore-data-util.service';
+import {ExploreDataUtilService, SortOption} from '../service/explore-data-util.service';
 
 @Component({
   selector: 'app-explore-data-creator-data-list-popup',
@@ -103,6 +103,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     protected element: ElementRef,
     private resolver: ComponentFactoryResolver,
     private metadataService: MetadataService,
+    public exploreDataUtilService: ExploreDataUtilService,
     protected injector: Injector) {
     super(element, injector);
   }

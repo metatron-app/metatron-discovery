@@ -101,7 +101,7 @@ export class SchemaConfigureChangeTypePopupComponent extends AbstractComponent i
    * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(_event) {
+  public onResize(_event) {
     // #1925
     if (this._typeSelectBox && this._typeSelectBox.isListShow) {
       this._typeSelectBox.isListShow = false;

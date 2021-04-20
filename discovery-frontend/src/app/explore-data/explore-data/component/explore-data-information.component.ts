@@ -83,4 +83,12 @@ export class ExploreDataInformationComponent extends AbstractComponent {
       this.isShowInformation = undefined;
     }
   }
+
+  get dataSource(): Datasource{
+    return <Datasource>this.source.source;
+  }
+
+  get dataConnection(): Dataconnection{
+    return <Dataconnection>this.source.source;
+  }
 }

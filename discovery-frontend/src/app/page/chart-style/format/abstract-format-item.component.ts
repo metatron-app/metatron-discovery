@@ -69,7 +69,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public format: Format;
 
   // 타입 목록
-  public typeList: object[] = [
+  public typeList: any[] = [
     {name: this.translateService.instant('msg.page.li.num'), value: 'number'},
     {name: this.translateService.instant('msg.page.li.currency'), value: 'currency'},
     {name: this.translateService.instant('msg.page.li.percent'), value: 'percent'},
@@ -77,7 +77,7 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   ];
 
   // 선택된 공통 타입
-  public selectedType: object = this.typeList[0];
+  public selectedType: any = this.typeList[0];
 
   // 기호: 통화일때
   public currencySignList: object[] = [
@@ -439,6 +439,8 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
   public checkSelectedType(type: string): boolean{
     return (this.selectedType['value']==type);
   }
+
+
 
 
 

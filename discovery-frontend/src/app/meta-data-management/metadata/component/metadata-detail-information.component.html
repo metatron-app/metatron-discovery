@@ -190,7 +190,7 @@
             {{ 'msg.metadata.metadata.detail.ui.status' | translate }}
           </th>
           <td>
-            <span class="{{ statusClass }}" > {{ metadata.source.source.status }} </span>
+            <span class="{{ statusClass }}" > {{ dataSource.status }} </span>
           </td>
         </tr>
         <tr *ngIf="metadata.sourceType === sourceType.ENGINE && metadata.source.source === undefined">

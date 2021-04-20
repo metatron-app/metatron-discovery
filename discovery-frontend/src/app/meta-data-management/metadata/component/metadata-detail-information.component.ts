@@ -55,6 +55,10 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   public searchCatalogList: { id: string, name: string, count: number, hierarchies: { id: string, name: string }[] }[] = [];
   public popularityCatalogList: { id: string, name: string, count: number, hierarchies: { id: string, name: string }[] }[] = [];
 
+  get dataSource(): Datasource{
+    return <Datasource>this.metadata.source.source;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  | Constructor
  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -347,6 +351,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       }
     }
   }
+
 
   private _getPopularityCatalogs() {
     this.catalogService.getPopularityCatalogs({size: 10}).then(result => {

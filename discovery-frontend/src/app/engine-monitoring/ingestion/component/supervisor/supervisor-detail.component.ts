@@ -95,7 +95,7 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
    * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(_event) {
+  public onResize(_event) {
     if (!_.isNil(this._lagChart)) {
       this._lagChart.resize();
     }

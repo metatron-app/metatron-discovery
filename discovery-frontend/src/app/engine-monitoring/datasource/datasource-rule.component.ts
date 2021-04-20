@@ -52,6 +52,8 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
 
   public isShow: boolean;
 
+  public ruleTypeList: any[];
+
   @Output('changeRetention') public changeEvent: EventEmitter<any> = new EventEmitter();
 
   public ngOnInit() {

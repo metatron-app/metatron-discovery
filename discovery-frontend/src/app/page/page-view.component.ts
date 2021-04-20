@@ -3277,6 +3277,10 @@ export class PageViewComponent extends AbstractPopupComponent implements OnInit,
     }
   }
 
+  public checkSelectChart(type: string) :boolean{
+    return (this.selectChart == type);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

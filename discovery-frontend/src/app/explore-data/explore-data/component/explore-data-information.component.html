@@ -24,22 +24,22 @@
             </tr>
             <tr>
               <th>{{'msg.storage.th.segment.gran'| translate}}</th>
-              <td>{{source.source.segGranularity}}</td>
+              <td>{{dataSource.segGranularity}}</td>
             </tr>
             <tr>
               <th>{{'msg.storage.th.query.gran'| translate}}</th>
-              <td>{{source.source.granularity}}</td>
+              <td>{{dataSource.granularity}}</td>
             </tr>
           </ng-container>
         </ng-container>
         <ng-container *ngIf="isDatabaseType()">
           <tr>
             <th>{{'msg.comm.th.host'| translate}}</th>
-            <td>{{source.source.hostname}}</td>
+            <td>{{dataConnection.hostname}}</td>
           </tr>
           <tr>
             <th>{{'msg.comm.th.port'| translate}}</th>
-            <td>{{source.source.port}}</td>
+            <td>{{dataConnection.port}}</td>
           </tr>
           <tr>
             <th>{{'msg.storage.ui.security'| translate}}</th>
