@@ -177,7 +177,7 @@
               Queue Insertion Time
             </th>
             <td>
-              {{task.queue_insertion_time}}
+              {{task.queueInsertionTime}}
             </td>
           </tr>
           <tr>
@@ -185,7 +185,7 @@
               Time Stamp
             </th>
             <td>
-              {{task.created_time}}
+              {{task.createdTime}}
             </td>
           </tr>
           <tr>
@@ -223,7 +223,7 @@
 
           </tbody>
         </table>
-        <a href="javascript:" class="ddp-btn-selection ddp-black" (click)="goToTask(task.task_id)"><em class="ddp-icon-view"></em>{{'msg.engine.monitoring.ingestion.supervisor.move.task' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection ddp-black" (click)="goToTask(task.taskId)"><em class="ddp-icon-view"></em>{{'msg.engine.monitoring.ingestion.supervisor.move.task' | translate}}</a>
       </div>
     </div>
   </div>

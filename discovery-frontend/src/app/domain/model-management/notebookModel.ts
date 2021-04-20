@@ -33,7 +33,6 @@ export class History extends AbstractHistoryEntity {
   public elapsedTime: number;
   public errorLog: string;
   public success: boolean;
-
 }
 
 export class Notebook extends AbstractHistoryEntity {

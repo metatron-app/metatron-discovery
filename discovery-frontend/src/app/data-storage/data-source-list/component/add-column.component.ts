@@ -124,7 +124,7 @@ export class AddColumnComponent extends AbstractComponent implements OnInit, OnD
    * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(_event) {
+  public onResize(_event) {
     // #1925
     this.closeSelectBoxes();
   }

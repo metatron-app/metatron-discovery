@@ -166,7 +166,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
    * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(_event) {
+  public onResize(_event) {
     // #1925
     this.closeSelectBoxes();
   }

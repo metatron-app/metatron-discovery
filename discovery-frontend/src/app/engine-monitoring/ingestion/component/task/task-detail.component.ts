@@ -99,7 +99,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
    * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(_event) {
+  public onResize(_event) {
     if (!_.isNil(this._rowChart)) {
       this._rowChart.resize();
     }
@@ -150,7 +150,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
     });
   }
 
-  public changeRowCheckbox(event: MouseEvent) {
+  public changeRowCheckbox(event: Event) {
     const value = $(event.target).val();
     if (value === 'All') {
       if ($(event.target).is(':checked')) {

@@ -474,7 +474,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * @param {PageWidget} widget
    * @returns {boolean}
    */
-  public isAvailableGrid(widget: PageWidget) {
+  public isAvailableGrid(widget: Widget) {
     const chartType = (widget.configuration as PageWidgetConfiguration).chart.type.toString();
     const invalidChart = ['grid', 'scatter', 'pie'];
     return (-1 === invalidChart.indexOf(chartType));

@@ -218,4 +218,8 @@ export class ModelApprovalDetailComponent extends AbstractPopupComponent impleme
     this.resultLayer = false;
   }
 
+  public getResultOfNotebook(type: string): any{
+    return this.resultData['notebook'][type];
+  }
+
 }

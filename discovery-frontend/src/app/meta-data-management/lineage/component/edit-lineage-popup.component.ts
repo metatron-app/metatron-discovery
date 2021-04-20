@@ -109,6 +109,15 @@ export class EditLineagePopupComponent extends AbstractPopupComponent implements
   }
 
   /**
+   * 리니지 상세정보 클릭 이벤트
+   * @param {string} lineageId
+   */
+  public onClickDetailLineage(lineageId: string): void {
+    // 상세화면으로 이동
+    this.router.navigate(['management/metadata/lineage', lineageId]).then();
+  }
+
+  /**
    * 코드 테이블 리스트 조회
    * @private
    */

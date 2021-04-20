@@ -35,6 +35,7 @@ export class MetadataSource extends AbstractHistoryEntity {
   // Datasource
   public source: Datasource | Dataconnection;
 
+
   static isNotEmptySource(metadataSource: MetadataSource): boolean {
     return !_.isNil(metadataSource.source);
   }

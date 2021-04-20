@@ -72,7 +72,7 @@ export class ExploreDataSearchComponent extends AbstractComponent implements OnI
 
 
   @HostListener('window:scroll', ['$event'])
-  protected scrollWindow(_event) {
+  public scrollWindow(_event) {
     const windowScrollTop = $(window).scrollTop();
     if (windowScrollTop > 0) {
       this.$layoutContents.addClass('ddp-scroll');

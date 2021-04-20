@@ -793,7 +793,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(_event) {
+  public onResize(_event) {
     clearTimeout(this.timer);
     // 그리드스터에서 애니매이션이 있어서 딜레이가 필요...
     this.timer = setTimeout(

@@ -17,6 +17,7 @@ import {Alert} from '@common/util/alert.util';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Metadata} from '@domain/meta-data-management/metadata';
 import {RecentQueriesComponent} from './recent-queries.component';
+import {DashboardUtil} from "../../../dashboard/util/dashboard.util";
 
 @Component({
   selector: 'explore-metadata-overview',
@@ -38,6 +39,10 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
   @Input() readonly recentlyUsedDashboardList = [];
 
   @Output() clickedTopUser = new EventEmitter();
+
+  // Dashboard util for get dashboard image
+  public dashboardUtil: DashboardUtil = new DashboardUtil();
+
 
   public isShowMoreCatalogs: boolean = false;
 
@@ -106,6 +111,7 @@ export class MetadataOverviewComponent extends AbstractComponent implements OnIn
     // alert
     Alert.success(this.translateService.instant('msg.storage.alert.clipboard.copy'));
   }
+
 }
 
 
