@@ -188,7 +188,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   /**
    * When scrolled
    */
-  public scrollHandler() {
+  public scrollHandler(_event: Event) {
     this.dataflowModelService.scrollClose.next();
   }
 
