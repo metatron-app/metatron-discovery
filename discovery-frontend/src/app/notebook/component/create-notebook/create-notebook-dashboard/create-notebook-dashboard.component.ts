@@ -138,7 +138,7 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
   }
 
   // 대시 보드 Detail 구하기
-  public showDashboardDetail(dashboardId: string) {
+  public showDashboardDetail(dashboardId: string, _dashboardName:string) {
     this.loadingShow();
     this.dashboardService.getDashboard(dashboardId)
       .then((data) => {

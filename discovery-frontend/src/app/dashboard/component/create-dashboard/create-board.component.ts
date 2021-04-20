@@ -121,6 +121,7 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
    * Next 가능 여부 체크
    * @param {{isDenyNext?: boolean, isShowButtons?: boolean}} data
    */
+
   public checkAllowNext(data: { isDenyNext?: boolean, isShowButtons?: boolean }) {
     (data.hasOwnProperty('isDenyNext')) && (this.isDenyNext = data.isDenyNext);
     (data.hasOwnProperty('isShowButtons')) && (this.isShowButtons = data.isShowButtons);

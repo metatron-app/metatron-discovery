@@ -994,12 +994,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   /**
    *  커스텀 컬럼 필드 오픈
-   * @param customField
-   * @param columnType
    */
   public openCustomFieldPopup(customField?: Field | ExpressionField, columnType?: string) {
-
-    // dimension / measure / parameter 구분값
+    //dimension / measure / parameter 구분값
     this.columnType = columnType;
 
     if (customField) {

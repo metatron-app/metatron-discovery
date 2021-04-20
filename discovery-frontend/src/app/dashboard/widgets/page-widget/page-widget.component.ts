@@ -1176,7 +1176,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
   /**
    * redraw chart
    */
-  public changeDraw() {
+  public changeDraw(_event: Event) {
     this._search(null, this._currentSelectionFilters);
   }
 

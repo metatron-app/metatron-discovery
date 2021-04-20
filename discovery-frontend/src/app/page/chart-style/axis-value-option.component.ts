@@ -396,7 +396,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent implements O
   /**
    * 보조선 선색상변경
    */
-  public changeGridLineColor(): void {
+  public changeGridLineColor(_event: Event): void {
 
   }
 

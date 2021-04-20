@@ -312,17 +312,17 @@ export class DataflowDetail2Component extends AbstractPopupComponent implements 
   /**
    * Dataflow 이름 셋 (this.dataflowName은 container이고 this.dataflow.dfName이 실제 이름임
    */
-  public setDataflowName(dfName: string) {
+  public setDataflowName(dfName?: string) {
 
     this.isDataflowNameEditMode = false;
-    this.dataflowName = dfName;
+    if(dfName) this.dataflowName = dfName;
 
   }
 
   /**
    * Dataflow 섦영 셋 (this.dataflowDesc은 container이고 this.dataflow.dfDesc 실제 설명임
    */
-  public setDataflowDesc(dfDesc: string) {
+  public setDataflowDesc(dfDesc?: string) {
 
     this.isDataflowDescEditMode = false;
     this.dataflowDesc = !_.isNil(dfDesc) ? dfDesc : '';

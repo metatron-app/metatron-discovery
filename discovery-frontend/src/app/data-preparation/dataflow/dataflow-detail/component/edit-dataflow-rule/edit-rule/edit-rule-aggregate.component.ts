@@ -12,7 +12,16 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChildren,
+  QueryList
+} from '@angular/core';
 import { Field } from '@domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '@common/util/alert.util';
@@ -159,7 +168,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /**
    * When scrolled
    */
-  public scrollHandler() {
+  public scrollHandler(_event: Event) {
     this.dataflowModelService.scrollClose.next();
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
