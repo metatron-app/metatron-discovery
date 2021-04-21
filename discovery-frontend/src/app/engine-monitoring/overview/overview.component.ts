@@ -67,7 +67,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild(NodeInformationComponent)
   private readonly _nodeInformationComponent: NodeInformationComponent;
 
-  @ViewChild(GraphComponent)
+  @ViewChild(GraphComponent, {static: true})
   private readonly _graphComponent: GraphComponent;
 
   @ViewChild(NodeTooltipComponent)
