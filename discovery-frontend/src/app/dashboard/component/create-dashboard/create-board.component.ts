@@ -37,7 +37,7 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(CreateBoardDsNetworkComponent)
+  @ViewChild(CreateBoardDsNetworkComponent, {static: true})
   public networkBoardComp: CreateBoardDsNetworkComponent;
 
   @Input()
