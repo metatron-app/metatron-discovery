@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -190,7 +189,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   public done() {
     if (this.layoutType === 'ADD') {
       // 선택된 데이터셋이 없으면 X
-      if (isNullOrUndefined(this.selectedDatasets) || this.selectedDatasets.length === 0) {
+      if (this.isNullOrUndefined(this.selectedDatasets) || this.selectedDatasets.length === 0) {
         return
       }
       const datasetLists: string[] = [];

@@ -25,10 +25,10 @@ import {
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
 import {ByTimeUnit, TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
-import {isNullOrUndefined} from 'util';
 import {FilterUtil} from '../../util/filter.util';
 
 @Component({
@@ -112,7 +112,7 @@ export class TimeUnitSelectComponent extends AbstractComponent implements OnInit
     const dataChanges: SimpleChange = changes.inputFilter;
     if (dataChanges) {
       this.filter = dataChanges.currentValue;
-      if (isNullOrUndefined(this.filter.timeUnit)) {
+      if (this.isNullOrUndefined(this.filter.timeUnit)) {
         this.filter.timeUnit = TimeUnit.NONE;
       }
       this.timeUnitLabel = 'Granularity :' + this.filter.timeUnit.toString();
@@ -189,8 +189,8 @@ export class TimeUnitSelectResult {
   public byUnit?: ByTimeUnit;
 
   constructor(discontinuous?: boolean, unit?: TimeUnit, byUnit?: ByTimeUnit) {
-    this.unit = (isNullOrUndefined(unit)) ? TimeUnit.NONE : unit;
-    (isNullOrUndefined(byUnit)) || (this.byUnit = byUnit);
-    (isNullOrUndefined(discontinuous)) || (this.discontinuous = discontinuous);
+    this.unit = (CommonUtil.isNullOrUndefined(unit)) ? TimeUnit.NONE : unit;
+    (CommonUtil.isNullOrUndefined(byUnit)) || (this.byUnit = byUnit);
+    (CommonUtil.isNullOrUndefined(discontinuous)) || (this.discontinuous = discontinuous);
   }
 } // class - TimeUnitSelectResult

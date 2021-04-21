@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {
   AfterViewInit,
   Component,
@@ -717,7 +716,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       expr = StringUtil.trim(expr);
 
       const cloneDs:BoardDataSource = _.cloneDeep( this.dataSource );
-      if( !isNullOrUndefined(cloneDs.engineName) ) {
+      if( !this.isNullOrUndefined(cloneDs.engineName) ) {
         cloneDs.name = cloneDs.engineName;
       }
       const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs), userFields: this.customFields };

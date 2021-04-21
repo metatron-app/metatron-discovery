@@ -25,7 +25,7 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {isNullOrUndefined} from 'util';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'component-input',
@@ -113,11 +113,11 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
     const valueChanges: SimpleChange = changes.value;
     const disabledChanges: SimpleChange = changes.disabled;
     if (this._inputElm) {
-      if (valueChanges && !isNullOrUndefined(valueChanges.currentValue)) {
+      if (valueChanges && !CommonUtil.isNullOrUndefined(valueChanges.currentValue)) {
         this._inputElm.nativeElement.value = valueChanges.currentValue;
       }
 
-      if (disabledChanges && !isNullOrUndefined(disabledChanges.currentValue)) {
+      if (disabledChanges && !CommonUtil.isNullOrUndefined(disabledChanges.currentValue)) {
         this._inputElm.nativeElement.disabled = disabledChanges.currentValue;
       }
     }
@@ -133,7 +133,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
     if (0 < this.maxLen) {
       inputNativeElm.maxLength = this.maxLen;
     }
-    if (isNullOrUndefined(this.value)) {
+    if (CommonUtil.isNullOrUndefined(this.value)) {
       inputNativeElm.value = '';
     }
 
@@ -228,7 +228,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
     let inputValue = this._inputElm.nativeElement.value;
     inputValue = inputValue ? ((this.isTrim) ? inputValue.trim() : inputValue) : '';
     if (inputValue !== this.value) {
-      if ((isNullOrUndefined(this.beforeChangeValue) || this.beforeChangeValue(inputValue))
+      if ((CommonUtil.isNullOrUndefined(this.beforeChangeValue) || this.beforeChangeValue(inputValue))
         && ('string' === this.valueType || ('number' === this.valueType && !isNaN(Number(inputValue))))) {
         this.value = inputValue;
         this.changeEvent.emit(this.value);

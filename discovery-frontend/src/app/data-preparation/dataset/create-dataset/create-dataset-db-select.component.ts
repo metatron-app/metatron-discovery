@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {PopupService} from '@common/service/popup.service';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
@@ -70,7 +69,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     this.pageResult.size = 20;
 
     // 처음
-    if (isNullOrUndefined(this.datasetJdbc.connectionList)) {
+    if (this.isNullOrUndefined(this.datasetJdbc.connectionList)) {
       this.datasetJdbc.dsType = DsType.IMPORTED;
       this.datasetJdbc.importType = ImportType.DATABASE;
       this._getConnections();
@@ -130,7 +129,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    * @param connection
    */
   public selectConnection(connection) {
-    if (!isNullOrUndefined(connection)) {
+    if (!this.isNullOrUndefined(connection)) {
       this._connectionComponent.init(connection);
     } else {
       this._connectionComponent.init();

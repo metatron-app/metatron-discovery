@@ -25,7 +25,6 @@ import {PeriodData} from '@common/value/period.data.value';
 import {Page} from '@domain/common/page';
 
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
-import {isNullOrUndefined} from 'util';
 
 declare let moment: any;
 
@@ -118,27 +117,27 @@ export class SharedWorkspacesComponent extends AbstractComponent implements OnIn
       this.activatedRoute.queryParams.subscribe(params => {
 
         const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
+        (this.isNullOrUndefined(size)) || (this.page.size = size);
 
         const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+        (this.isNullOrUndefined(page)) || (this.page.page = page);
 
         const publicType = params['publicType'];
-        (isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
+        (this.isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
 
         const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchText = searchText);
+        (this.isNullOrUndefined(searchText)) || (this.searchText = searchText);
 
         const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
+        if (!this.isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
           this.selectedContentSort.key = sortInfo[0];
           this.selectedContentSort.sort = sortInfo[1];
         }
         const published = params['published'];
-        (isNullOrUndefined(published)) || (this.filterAllowance = published);
+        (this.isNullOrUndefined(published)) || (this.filterAllowance = published);
         const active = params['active'];
-        if (!isNullOrUndefined(active)) {
+        if (!this.isNullOrUndefined(active)) {
           this._filterStatus = ('true' === active) ? 'active' : 'inactive';
         }
 
@@ -147,11 +146,11 @@ export class SharedWorkspacesComponent extends AbstractComponent implements OnIn
         this._filterDate.dateType = params['searchDateBy'] ? params['searchDateBy']:'CREATED';
         const from = params['from'];
         const to = params['to'];
-        if (!isNullOrUndefined(from)) {
+        if (!this.isNullOrUndefined(from)) {
           this._filterDate.startDate = from;
           this._filterDate.startDateStr = decodeURIComponent(from);
         }
-        if (!isNullOrUndefined(to)) {
+        if (!this.isNullOrUndefined(to)) {
           this._filterDate.endDate = to;
           this._filterDate.endDateStr = decodeURIComponent(to);
         }
@@ -570,8 +569,8 @@ export class SharedWorkspacesComponent extends AbstractComponent implements OnIn
       .then((result) => {
 
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].workspaces.length === 0))
+          this.isNullOrUndefined(result['_embedded']) ||
+          (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].workspaces.length === 0))
         {
           this.page.page = result.page.number - 1;
           this._getWorkspaceListInServer();

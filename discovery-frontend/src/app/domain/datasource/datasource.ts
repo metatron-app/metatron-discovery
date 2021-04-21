@@ -24,11 +24,11 @@ import {
   KafkaData
 } from '../../data-storage/service/data-source-create.service';
 import {PrDataSnapshot} from '../data-preparation/pr-snapshot';
-import {isNullOrUndefined} from 'util';
 import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {AggregationType} from '../workbook/configurations/field/measure-field';
 import {Type} from '../../shared/datasource-metadata/domain/type';
 import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -310,11 +310,11 @@ export class Field {
 
 
   public static isEmptyFormat(field): boolean {
-    return isNullOrUndefined(field.format);
+    return CommonUtil.isNullOrUndefined(field.format);
   }
 
   public static isEmptyIngestionRule(field): boolean {
-    return isNullOrUndefined(field.ingestionRule);
+    return CommonUtil.isNullOrUndefined(field.ingestionRule);
   }
 
   public static getSlicedColumnName?(field: Field): string {
@@ -695,22 +695,22 @@ export class FieldFormat {
     const resultFieldFormat = new FieldFormat();
     resultFieldFormat.type = fieldFormat.type;
     // if not undefined properties
-    if (!isNullOrUndefined(fieldFormat.unit)) {
+    if (!CommonUtil.isNullOrUndefined(fieldFormat.unit)) {
       resultFieldFormat.unit = fieldFormat.unit;
     }
-    if (!isNullOrUndefined(fieldFormat.timeZone)) {
+    if (!CommonUtil.isNullOrUndefined(fieldFormat.timeZone)) {
       resultFieldFormat.timeZone = fieldFormat.timeZone;
     }
-    if (!isNullOrUndefined(fieldFormat.format)) {
+    if (!CommonUtil.isNullOrUndefined(fieldFormat.format)) {
       resultFieldFormat.format = fieldFormat.format;
     }
-    if (!isNullOrUndefined(fieldFormat.locale)) {
+    if (!CommonUtil.isNullOrUndefined(fieldFormat.locale)) {
       resultFieldFormat.locale = fieldFormat.locale;
     }
-    if (!isNullOrUndefined(fieldFormat.originalSrsName)) {
+    if (!CommonUtil.isNullOrUndefined(fieldFormat.originalSrsName)) {
       resultFieldFormat.originalSrsName = fieldFormat.originalSrsName;
     }
-    if (!isNullOrUndefined(fieldFormat.isValidFormat)) {
+    if (!CommonUtil.isNullOrUndefined(fieldFormat.isValidFormat)) {
       resultFieldFormat.isValidFormat = fieldFormat.isValidFormat;
     }
     return resultFieldFormat;
@@ -756,7 +756,7 @@ export class FieldFormat {
   }
 
   isEmptyFormat() {
-    return isNullOrUndefined(this.format);
+    return CommonUtil.isNullOrUndefined(this.format);
   }
 
   public changeType(_format: string): void {

@@ -32,7 +32,6 @@ import {Alert} from '@common/util/alert.util';
 import {ShelveFieldType} from '@common/component/chart/option/define/common';
 import {Field as AbstractField, Field} from '../../../../domain/workbook/configurations/field/field';
 import {ChartUtil} from '@common/component/chart/option/util/chart-util';
-import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'map-spatial',
@@ -182,7 +181,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
                 && this.uiOption.layers.length > 0
                 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
-                if (!isNullOrUndefined(this.uiOption) && !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis.selectedLayerNum)) {
+                if (!this.isNullOrUndefined(this.uiOption) && !this.isNullOrUndefined(this.uiOption.analysis) && !this.isNullOrUndefined(this.uiOption.analysis.selectedLayerNum)) {
                   this.baseList['selectedNum'] = this.uiOption.analysis.selectedLayerNum;
                 } else {
                   if (!isChanged) {
@@ -346,7 +345,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
     // 공간연산 실행 체크 (Validation)
     if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true
-      && (isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) || (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) && this.uiOption.analysis['isReAnalysis'] == false))) {
+      && (this.isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) || (!this.isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) && this.uiOption.analysis['isReAnalysis'] == false))) {
       // Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.already'));
       return;
     }
@@ -403,7 +402,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       uiOption: mapUIOption
     };
 
-    if (!isNullOrUndefined(this.uiOption.analysis['isReAnalysis'])
+    if (!this.isNullOrUndefined(this.uiOption.analysis['isReAnalysis'])
       && this.uiOption.analysis['isReAnalysis'] == true
       && this.uiOption.layers.length >= 3) {
       value.action = 'reAnalysis';
@@ -481,7 +480,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       unitInputData = unitInputData * 1000;
     }
 
-    const tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    const tempReAnalysis = !this.isNullOrUndefined(this.uiOption.analysis) && !this.isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -519,7 +518,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       bufferDataValue = bufferDataValue * 1000;
     }
 
-    const tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    const tempReAnalysis = !this.isNullOrUndefined(this.uiOption.analysis) && !this.isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -568,7 +567,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private symmetricalSetData(baseData: string, compareData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
 
-    const tempReAnalysis = !isNullOrUndefined(this.uiOption.analysis) && !isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
+    const tempReAnalysis = !this.isNullOrUndefined(this.uiOption.analysis) && !this.isNullOrUndefined(this.uiOption.analysis['isReAnalysis']) ? this.uiOption.analysis['isReAnalysis'] : false;
 
     mapUIOption.analysis = {
       use: true,
@@ -631,7 +630,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         this.fieldList = tempObj;
       }
 
-      if (isNullOrUndefined(this.fieldList['measureList'][this.colorByIndex])) {
+      if (this.isNullOrUndefined(this.fieldList['measureList'][this.colorByIndex])) {
         this.colorByIndex = 0;
       }
     }

@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 
 import {
   Component,
@@ -29,6 +28,7 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {PickerSettings} from '@domain/common/datepicker.settings';
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
@@ -216,7 +216,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
       // }
       this._fromDate = fromMoment.toDate();
 
-      if (isNullOrUndefined(this._fromPicker)) {
+      if (this.isNullOrUndefined(this._fromPicker)) {
         // 시작일 DatePicker 생성
         const startPickerSettings: TimeRangePickerSettings
           = new TimeRangePickerSettings(
@@ -268,7 +268,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
       this._toDate = toMoment.toDate();
 
       // 종료일 DatePicker 생성
-      if (isNullOrUndefined(this._toPicker)) {
+      if (this.isNullOrUndefined(this._toPicker)) {
         const endPickerSettings: TimeRangePickerSettings
           = new TimeRangePickerSettings(
           'ddp-text-calen',
@@ -400,7 +400,7 @@ export class TimeRangeData {
     this.maxTime = maxTime;
     this.interval = interval;
     this.mockup = mockUp;
-    this.timeUnit = (isNullOrUndefined(timeUnit)) ? TimeUnit.NONE : timeUnit;
+    this.timeUnit = (CommonUtil.isNullOrUndefined(timeUnit)) ? TimeUnit.NONE : timeUnit;
   }
 } // structure - TimeRangeData
 

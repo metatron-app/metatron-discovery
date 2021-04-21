@@ -12,8 +12,7 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
-
+import {CommonUtil} from '@common/util/common.util';
 import {
   IntervalFilter,
   IntervalRelativeTimeType,
@@ -690,7 +689,7 @@ export class FilterUtil {
    */
   public static getTimeRangeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string, ds?: Datasource): TimeRangeFilter {
     const timeFilter = new TimeRangeFilter(field);
-    timeFilter.timeUnit = isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
+    timeFilter.timeUnit = CommonUtil.isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
@@ -716,7 +715,7 @@ export class FilterUtil {
    */
   public static getTimeRelativeFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string): TimeRelativeFilter {
     const timeFilter = new TimeRelativeFilter(field);
-    timeFilter.timeUnit = isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
+    timeFilter.timeUnit = CommonUtil.isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
@@ -737,7 +736,7 @@ export class FilterUtil {
     timeFilter.timeUnit = timeUnit;
     timeFilter.discontinuous = discontinuous;
     timeFilter.valueList = [];
-    (isNullOrUndefined(byTimeUnit)) || (timeFilter.byTimeUnit = byTimeUnit);
+    (CommonUtil.isNullOrUndefined(byTimeUnit)) || (timeFilter.byTimeUnit = byTimeUnit);
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 

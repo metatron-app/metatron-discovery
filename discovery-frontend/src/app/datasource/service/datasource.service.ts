@@ -43,7 +43,6 @@ import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
 import {FilteringType} from '@domain/workbook/configurations/field/timestamp-field';
 import {TimeCompareRequest} from '@domain/datasource/data/time-compare-request';
-import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {GeoBoundaryFormat, GeoHashFormat} from '@domain/workbook/configurations/field/geo-field';
 import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
@@ -215,7 +214,7 @@ export class DatasourceService extends AbstractService {
     } else {
 
       // 필드 설정
-      if (isNullOrUndefined(field)) {
+      if (CommonUtil.isNullOrUndefined(field)) {
         board.dataSources.some(ds => {
           if (ds.engineName === filter.dataSource) {
             return ds.fields.some(dsField => {
@@ -341,14 +340,14 @@ export class DatasourceService extends AbstractService {
     delete query.dataSource['fields']; // 불필요 항목 제거
 
     // EngineName 처리
-    if (!isNullOrUndefined(query.dataSource.engineName)) {
+    if (!CommonUtil.isNullOrUndefined(query.dataSource.engineName)) {
       query.dataSource.name = query.dataSource.engineName;
       delete query.dataSource['engineName'];
     }
 
-    if (!isNullOrUndefined(query.dataSource.dataSources)) {
+    if (!CommonUtil.isNullOrUndefined(query.dataSource.dataSources)) {
       for (const datasource of query.dataSource.dataSources) {
-        if (!isNullOrUndefined(datasource.engineName)) {
+        if (!CommonUtil.isNullOrUndefined(datasource.engineName)) {
           datasource.name = datasource.engineName;
           delete datasource['engineName'];
         }
@@ -1118,7 +1117,7 @@ export class DatasourceService extends AbstractService {
     if (this._useMetaDataQuery) {
       // 메타데이터 처리
       const dsField: Field
-        = dataSourceFields.find(item => item.name === field.name && !isNullOrUndefined(item.uiMetaData));
+        = dataSourceFields.find(item => item.name === field.name && !CommonUtil.isNullOrUndefined(item.uiMetaData));
       (dsField) && (field['logicalName'] = dsField.uiMetaData.name);
     }
 

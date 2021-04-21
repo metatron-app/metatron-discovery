@@ -20,7 +20,6 @@ import {PermissionService} from '../../../user/service/permission.service';
 import * as _ from 'lodash';
 import {CommonUtil} from 'app/common/util/common.util';
 import {WORKSPACE_PERMISSION} from 'app/common/permission/permission';
-import {isNullOrUndefined} from 'util';
 import {Alert} from '@common/util/alert.util';
 
 @Component({
@@ -128,7 +127,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
    * @param {number} removeIdx
    */
   public removeRole(removeIdx: number) {
-    if (isNullOrUndefined(this.editRoleSet.roles[removeIdx]['isNewRole'])) {
+    if (this.isNullOrUndefined(this.editRoleSet.roles[removeIdx]['isNewRole'])) {
       // 삭제 RoleSet 이름 저장
       this.editRoleSet.removeRoleNames.push(this.editRoleSet.roles[removeIdx].name);
     }

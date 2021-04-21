@@ -767,6 +767,14 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     // store language
   }
 
+  /**
+   * Returns true if the given object is null or undefined. Otherwise, returns false.
+   * @param val
+   */
+  public isNullOrUndefined(val): boolean {
+    return val === undefined || val === null;
+  } // func - isNullOrUndefined
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

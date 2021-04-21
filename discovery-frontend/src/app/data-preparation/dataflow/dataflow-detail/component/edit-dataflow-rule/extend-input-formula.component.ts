@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {
   AfterViewInit,
   Component,
@@ -133,7 +132,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
     this._$calculationInput = $(this._calculationInput.nativeElement);
 
     // set condition
-    if (!isNullOrUndefined(condition)) {
+    if (!this.isNullOrUndefined(condition)) {
       this._$calculationInput.text(condition);
     }
 

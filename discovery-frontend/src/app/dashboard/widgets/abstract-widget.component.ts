@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {AfterViewInit, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {Alert} from '@common/util/alert.util';
@@ -135,7 +134,7 @@ export abstract class AbstractWidgetComponent<T extends Widget> extends Abstract
     if (this.isEditMode) {
       this.commonExceptionHandler(error);
     } else {
-      (isNullOrUndefined(error) || typeof error !== 'object') && (error = {});
+      (this.isNullOrUndefined(error) || typeof error !== 'object') && (error = {});
       error.show = false;
       this.errorInfo = error;
     }

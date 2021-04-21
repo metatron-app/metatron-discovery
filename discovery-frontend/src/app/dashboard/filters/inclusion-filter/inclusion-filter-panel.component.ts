@@ -13,8 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
-
 import {
   AfterViewInit,
   Component,
@@ -562,7 +560,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
             if (this.searchText) {
               result.forEach(searchItem => {
                 const item = this._candidateList.find(candidateItem => candidateItem.name === searchItem.field);
-                if (isNullOrUndefined(item)) {
+                if (this.isNullOrUndefined(item)) {
                   this._candidateList.push(this._objToCandidate(searchItem, this.field));
                 }
               });

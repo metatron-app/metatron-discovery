@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 
 import {Alert} from '@common/util/alert.util';
@@ -920,7 +919,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     if (this.selectedValues && 0 < this.selectedValues.length) {
       this.selectedValues.forEach((selectedItem) => {
         const item = this._candidateList.find(candidateItem => candidateItem.name === selectedItem.name);
-        if (isNullOrUndefined(item)) {
+        if (this.isNullOrUndefined(item)) {
           this._candidateList.push(selectedItem);
         }
       });

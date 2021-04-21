@@ -24,7 +24,6 @@ import {EditLineagePopupComponent} from './component/edit-lineage-popup.componen
 import {PeriodComponent, PeriodType} from '@common/component/period/period.component';
 import {Alert} from '@common/util/alert.util';
 import {ActivatedRoute} from '@angular/router';
-import {isNullOrUndefined} from 'util';
 import * as _ from 'lodash';
 import {PeriodData} from '@common/value/period.data.value';
 
@@ -116,21 +115,21 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
 
-          if (!isNullOrUndefined(params['descContains'])) {
+          if (!this.isNullOrUndefined(params['descContains'])) {
             this.searchText = params['descContains'];
           }
 
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
@@ -422,8 +421,8 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
-        isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0)) {
+        this.isNullOrUndefined(result['_embedded']) ||
+        (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getLineageList();
       }
@@ -456,7 +455,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
       page: this.page.page
     };
 
-    if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
+    if (!this.isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['descContains'] = this.searchText.trim();
     }
 

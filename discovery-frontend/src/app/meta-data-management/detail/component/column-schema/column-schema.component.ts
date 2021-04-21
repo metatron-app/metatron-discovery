@@ -50,7 +50,6 @@ import {StringUtil} from '@common/util/string.util';
 import {StorageService} from '../../../../data-storage/service/storage.service';
 import {Metadata} from '@domain/meta-data-management/metadata';
 import {DatetimeValidPopupComponent} from '../../../../shared/datasource-metadata/component/datetime-valid-popup.component';
-import {isNullOrUndefined} from 'util';
 
 class Order {
   key: string = 'physicalName';
@@ -1109,7 +1108,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   }
 
   private _hideTypeListPopup() {
-    if (!isNullOrUndefined(this.getColumns())) {
+    if (!this.isNullOrUndefined(this.getColumns())) {
       this.getColumns().forEach(item => {
         item['typeListFl'] = false;
         item['codeTableShowFl'] = false;

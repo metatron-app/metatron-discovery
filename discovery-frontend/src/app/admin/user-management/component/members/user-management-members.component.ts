@@ -24,7 +24,6 @@ import {Modal} from '@common/domain/modal';
 import {Alert} from '@common/util/alert.util';
 import {ChangeWorkspaceOwnerModalComponent} from './change-workspace-owner-modal/change-workspace-owner-modal.component';
 import {ActivatedRoute} from '@angular/router';
-import {isNullOrUndefined} from 'util';
 
 declare let moment: any;
 
@@ -112,13 +111,13 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         // TODO selected type
 
         const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
+        (this.isNullOrUndefined(size)) || (this.page.size = size);
 
         const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+        (this.isNullOrUndefined(page)) || (this.page.page = page);
 
         const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
+        if (!this.isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
           this.selectedContentSort.key = sortInfo[0];
           this.selectedContentSort.sort = sortInfo[1];
@@ -126,11 +125,11 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
 
         // 검색어
         const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+        (this.isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
 
         // Status
         const active = params['active'];
-        if (!isNullOrUndefined(active)) {
+        if (!this.isNullOrUndefined(active)) {
           this.statusId = ('true' === active) ? 'ACTIVE' : 'INACTIVE';
         }
 
@@ -138,7 +137,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         this.selectedDate.type = 'ALL';
         const from = params['from'];
         const to = params['to'];
-        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+        if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
           this.selectedDate.startDate = from;
           this.selectedDate.endDate = to;
           this.selectedDate.startDateStr = decodeURIComponent(from);
@@ -525,8 +524,8 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].users.length === 0)) {
+          this.isNullOrUndefined(result['_embedded']) ||
+          (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].users.length === 0)) {
           this.page.page = result.page.number - 1;
           this._getMemberList();
         }

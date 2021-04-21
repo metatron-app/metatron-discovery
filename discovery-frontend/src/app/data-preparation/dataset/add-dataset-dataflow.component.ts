@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
 import {AbstractComponent} from '@common/component/abstract.component';
@@ -40,7 +39,7 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
 
   @Input('dfStr')
   public set setDfStr(dfStr) {
-    if (!isNullOrUndefined(dfStr)) {
+    if (!this.isNullOrUndefined(dfStr)) {
       this.dataflowIds = dfStr.split(',');
     }
   }
@@ -161,7 +160,7 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
         this.dataflows = this.dataflows.concat(result['_embedded']['preparationdataflows']);
         this.page.page += 1;
 
-        if (!isNullOrUndefined(this.dataflowIds)) {
+        if (!this.isNullOrUndefined(this.dataflowIds)) {
           this.dataflows = this.dataflows.filter((item) => {
             return -1 === this.dataflowIds.indexOf(item.dfId)
           })

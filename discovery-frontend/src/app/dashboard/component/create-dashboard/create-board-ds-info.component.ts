@@ -46,7 +46,6 @@ import {
 import {ConnectionType, Datasource, DataSourceSummary, Field, Status} from '@domain/datasource/datasource';
 import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
-import {isNullOrUndefined} from 'util';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {CreateBoardPopJoinComponent} from './create-board-pop-join.component';
 import {FilterUtil} from '../../util/filter.util';
@@ -206,7 +205,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
 
     if (dataSource) {
       // 초기값 설정
-      (isNullOrUndefined(dataSource.type)) && (dataSource.type = 'default');
+      (this.isNullOrUndefined(dataSource.type)) && (dataSource.type = 'default');
 
       if (ConnectionType.LINK.toString() === dataSource.connType) {
         this.isLinkedDataSource = true;
@@ -216,7 +215,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
         pseudoDashboard.configuration.dataSource = dataSource;
         pseudoDashboard.configuration.fields = dataSource.uiFields;
 
-        this.essentialFilters = isNullOrUndefined(dataSource.uiFilters) ? [] : _.cloneDeep(dataSource.uiFilters);
+        this.essentialFilters = this.isNullOrUndefined(dataSource.uiFilters) ? [] : _.cloneDeep(dataSource.uiFilters);
         FilterUtil.getPanelContentsList(
           this.essentialFilters,
           pseudoDashboard,
@@ -292,11 +291,11 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * @param {string} targetDsId
    */
   public showJoinPopup(join?: JoinMapping, targetDsId?: string) {
-    if (isNullOrUndefined(join)) {
+    if (this.isNullOrUndefined(join)) {
       // New Join - 1 Depth
       this._joinPopupComp.addJoin(this.dataSource, this._candidateDataSources, this.joinMappings, this.dataSource);
     } else {
-      if (isNullOrUndefined(targetDsId)) {
+      if (this.isNullOrUndefined(targetDsId)) {
         // New Join - 2 Depth
         const targetDs: Datasource = this._allDataSources.find((ds) => ds.id === join.id);
         const metaDs: BoardDataSource = new BoardDataSource();

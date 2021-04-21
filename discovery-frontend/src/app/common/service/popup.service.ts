@@ -13,7 +13,7 @@
  */
 
 import {Injectable} from '@angular/core';
-import {Subject} from 'rxjs/Subject';
+import {Subject} from 'rxjs';
 import {SubscribeArg} from '../domain/subscribe-arg';
 import {Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
 

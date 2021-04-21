@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -154,7 +153,7 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit,
     // 검색어가 있다면
     if (isSearchTextEmpty) {
       arrayList = arrayList.filter((item) => {
-        if (!isNullOrUndefined(this.viewKey)) {
+        if (!this.isNullOrUndefined(this.viewKey)) {
           return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
         } else {
           return item.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;

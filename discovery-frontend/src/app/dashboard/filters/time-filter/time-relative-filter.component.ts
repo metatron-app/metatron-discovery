@@ -12,8 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
-
 import {
   ElementRef,
   OnDestroy,
@@ -163,7 +161,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       // 기본값 설정
       (tempFilter.hasOwnProperty('value') && 0 < tempFilter.value) || (tempFilter.value = 1);
       (tempFilter.tense) || (tempFilter.tense = TimeRelativeTense.PREVIOUS);
-      if (isNullOrUndefined(tempFilter.relTimeUnit)) {
+      if (this.isNullOrUndefined(tempFilter.relTimeUnit)) {
         tempFilter.relTimeUnit = TimeUnit.WEEK;
       }
       this.selectedTimeUnitItem = this.timeUnitComboList.find(item => item.value === tempFilter.relTimeUnit);

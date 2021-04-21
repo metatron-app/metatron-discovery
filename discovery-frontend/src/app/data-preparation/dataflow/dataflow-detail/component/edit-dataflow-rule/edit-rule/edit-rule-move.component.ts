@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,} from '@angular/core';
 import {Alert} from '@common/util/alert.util';
 import {Field} from '@domain/data-preparation/pr-dataset';
@@ -95,12 +94,12 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
       return undefined
     }
 
-    if (isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
+    if (this.isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
       return undefined
     }
 
-    if (isNullOrUndefined(this.selectedStandardField)) {
+    if (this.isNullOrUndefined(this.selectedStandardField)) {
       Alert.warning(this.translateService.instant('msg.dp.ui.move.tooltip'));
       return undefined
     }

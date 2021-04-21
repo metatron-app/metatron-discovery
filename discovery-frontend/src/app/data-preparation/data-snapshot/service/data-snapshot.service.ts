@@ -13,8 +13,8 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {Injectable, Injector} from '@angular/core';
 import {HttpHeaders} from '@angular/common/http';
 import {CommonUtil} from '@common/util/common.util';
@@ -64,7 +64,7 @@ export class DataSnapshotService extends AbstractService {
   private _getSnapshotType(ssType: SsType): string {
 
     let type;
-    if (!isNullOrUndefined(ssType)) {
+    if (!CommonUtil.isNullOrUndefined(ssType)) {
       type = ssType.toString();
     } else {
       type = `${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
@@ -186,9 +186,11 @@ export class DataSnapshotService extends AbstractService {
     };
 
     return this.http.get(`${this._baseUrl}${ssId}/download?fileType=` + fileFormat, option)
-      .map((res) => {
-        return new Blob([String(res)], {type: mineType})
-      });
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: mineType})
+        })
+      );
   }
 
 

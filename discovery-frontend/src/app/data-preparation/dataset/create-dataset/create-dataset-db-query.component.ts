@@ -14,7 +14,6 @@
 
 import * as $ from 'jquery';
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -175,12 +174,12 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.getDatabases();
 
     // Only initialise sqlInfo when sqlInfo doesn't have value
-    if (isNullOrUndefined(this.datasetJdbc.sqlInfo)) {
+    if (this.isNullOrUndefined(this.datasetJdbc.sqlInfo)) {
       this.datasetJdbc.sqlInfo = new QueryInfo();
     }
 
     // Only initialise tableInfo when tableInfo doesn't have value
-    if (isNullOrUndefined(this.datasetJdbc.tableInfo)) {
+    if (this.isNullOrUndefined(this.datasetJdbc.tableInfo)) {
       this.datasetJdbc.tableInfo = new TableInfo();
     }
 
@@ -207,7 +206,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.datasetJdbc.sqlInfo.valid = true;
       } else {
 
-        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
+        if (this.isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
           this.showQueryStatus = true;
           this.isQuerySuccess = false;
           this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
@@ -916,7 +915,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
 
     // When no tab is selected -> default is TABLE
-    if (isNullOrUndefined(this.datasetJdbc.rsType)) {
+    if (this.isNullOrUndefined(this.datasetJdbc.rsType)) {
       this.datasetJdbc.rsType = RsType.TABLE;
     }
 

@@ -13,7 +13,6 @@
  */
 
 import * as $ from 'jquery';
-import {isNullOrUndefined} from 'util';
 import {
   AfterViewInit,
   Component,
@@ -184,7 +183,7 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
     let selected: boolean = isSelect;
 
     if (this.isMulti) {
-      (isNullOrUndefined(selected)) && (selected = !this.selectedItemKeys.some(item => item === checkedKey));
+      (this.isNullOrUndefined(selected)) && (selected = !this.selectedItemKeys.some(item => item === checkedKey));
       if (selected) {
         // add key
         this.selectedItemKeys.push(checkedKey);

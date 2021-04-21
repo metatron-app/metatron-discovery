@@ -19,7 +19,6 @@ import {TimezoneService} from '../../../data-storage/service/timezone.service';
 import {FieldFormat, FieldFormatType, FieldFormatUnit} from '@domain/datasource/datasource';
 import {StringUtil} from '@common/util/string.util';
 import {FieldConfigService} from '../../../data-storage/service/field-config.service';
-import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'datetime-valid-popup',
@@ -95,13 +94,13 @@ export class DatetimeValidPopupComponent extends AbstractComponent implements On
    */
   public init(): void {
     // field format
-    if (isNullOrUndefined(this.fieldFormat.formatInitialize)) {
+    if (this.isNullOrUndefined(this.fieldFormat.formatInitialize)) {
       this.fieldFormat = FieldFormat.of(this.fieldFormat);
     }
     // set value list
-    if (isNullOrUndefined(this._valueList)) {
+    if (this.isNullOrUndefined(this._valueList)) {
       this._valueList = this._dateList ? this._dateList.reduce((acc, data) => {
-        if (!isNullOrUndefined(data[this.name])) {
+        if (!this.isNullOrUndefined(data[this.name])) {
           acc.push(data[this.name]);
         }
         return acc;
@@ -110,7 +109,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent implements On
     // if init format
     if (StringUtil.isEmpty(this.fieldFormat.format) && this.fieldFormat.type === FieldFormatType.DATE_TIME) {
       // if not exist default format
-      if (isNullOrUndefined(this.defaultFormat)) {
+      if (this.isNullOrUndefined(this.defaultFormat)) {
         this._checkFormatValidation(true);
       } else { // if exist default format
         this.fieldFormat.format = this.defaultFormat;
@@ -127,13 +126,13 @@ export class DatetimeValidPopupComponent extends AbstractComponent implements On
 
   public initFromDictionary(): void {
     // field format
-    if (isNullOrUndefined(this.fieldFormat.formatInitialize)) {
+    if (this.isNullOrUndefined(this.fieldFormat.formatInitialize)) {
       this.fieldFormat = FieldFormat.of(this.fieldFormat);
     }
     // set value list
-    if (isNullOrUndefined(this._valueList)) {
+    if (this.isNullOrUndefined(this._valueList)) {
       this._valueList = this._dateList ? this._dateList.reduce((acc, data) => {
-        if (!isNullOrUndefined(data[this.name])) {
+        if (!this.isNullOrUndefined(data[this.name])) {
           acc.push(data[this.name]);
         }
         return acc;
@@ -142,7 +141,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent implements On
     // if init format
     if (StringUtil.isEmpty(this.fieldFormat.format) && this.fieldFormat.type === FieldFormatType.DATE_TIME) {
       // if not exist default format
-      if (isNullOrUndefined(this.defaultFormat)) {
+      if (this.isNullOrUndefined(this.defaultFormat)) {
         this._checkFormatValidation(true);
       } else { // if exist default format
         this.fieldFormat.format = this.defaultFormat;
@@ -163,7 +162,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent implements On
    */
   public cancelPopup(): void {
     // if not exist isValidFormat property in field, set false
-    if (isNullOrUndefined(this.fieldFormat.isValidFormat)) {
+    if (this.isNullOrUndefined(this.fieldFormat.isValidFormat)) {
       this.fieldFormat.isValidFormat = false;
       this.fieldFormat.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
     }

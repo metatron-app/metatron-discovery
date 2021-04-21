@@ -33,7 +33,6 @@ import {Modal} from '@common/domain/modal';
 import {ConnectionType, Datasource, TemporaryDatasource} from '@domain/datasource/datasource';
 import {BoardDataSource, BoardDataSourceRelation, Dashboard} from '@domain/dashboard/dashboard';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
-import {isNullOrUndefined} from 'util';
 import {CreateBoardPopDsSelectComponent} from './create-board-pop-ds-select.component';
 import {CreateBoardPopRelationComponent} from './create-board-pop-relation.component';
 
@@ -303,7 +302,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public isInvalidate(): boolean {
     return (0 === this._boardDataSources.length)
-      || this._relations.some(item => isNullOrUndefined(item.ui.sourceField) || isNullOrUndefined(item.ui.targetField));
+      || this._relations.some(item => this.isNullOrUndefined(item.ui.sourceField) || this.isNullOrUndefined(item.ui.targetField));
   } // function - isInvalidate
 
   /**

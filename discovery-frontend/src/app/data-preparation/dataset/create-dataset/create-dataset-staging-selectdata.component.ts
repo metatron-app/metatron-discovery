@@ -42,7 +42,6 @@ import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
 import {GridOption} from '@common/component/grid/grid.option';
 import {StringUtil} from '@common/util/string.util';
 import * as $ from 'jquery';
-import {isNullOrUndefined} from 'util';
 import {DataconnectionService} from '@common/service/dataconnection.service';
 
 @Component({
@@ -181,12 +180,12 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.getDatabases();
 
     // Only initialise sqlInfo when sqlInfo doesn't have value
-    if (isNullOrUndefined(this.datasetHive.sqlInfo)) {
+    if (this.isNullOrUndefined(this.datasetHive.sqlInfo)) {
       this.datasetHive.sqlInfo = new QueryInfo();
     }
 
     // Only initialise tableInfo when tableInfo doesn't have value
-    if (isNullOrUndefined(this.datasetHive.tableInfo)) {
+    if (this.isNullOrUndefined(this.datasetHive.tableInfo)) {
       this.datasetHive.tableInfo = new TableInfo();
     }
 
@@ -214,7 +213,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       if (this.showQueryStatus && this.isQuerySuccess) {
         this.datasetHive.sqlInfo.valid = true;
       } else {
-        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
+        if (this.isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
           this.showQueryStatus = true;
           this.isQuerySuccess = false;
           this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
@@ -859,7 +858,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
 
     // When type info is null set it to TABLE
-    if (isNullOrUndefined(this.datasetHive.rsType)) {
+    if (this.isNullOrUndefined(this.datasetHive.rsType)) {
       this.datasetHive.rsType = RsType.TABLE;
     }
 

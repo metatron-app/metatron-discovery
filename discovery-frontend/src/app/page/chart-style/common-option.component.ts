@@ -72,7 +72,6 @@ import {UIChartDataLabel} from '@common/component/chart/option/ui-option/ui-data
 import {ColorPickerComponent} from '@common/component/color-picker/color.picker.component';
 import {ColorPicker} from '@common/component/color-picker/colorpicker';
 import {BarColor, UIWaterfallChart} from '@common/component/chart/option/ui-option/ui-waterfall-chart';
-import {isNullOrUndefined} from 'util';
 import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
 import {ChartUtil} from '@common/component/chart/option/util/chart-util';
 
@@ -1439,7 +1438,7 @@ export class CommonOptionComponent extends BaseOptionComponent implements OnInit
    */
   public onLimitChange(limit: number, isLimitCheck?: boolean): void {
 
-    if (!isNullOrUndefined(isLimitCheck)) {
+    if (!this.isNullOrUndefined(isLimitCheck)) {
       this.uiOption.limitCheck = isLimitCheck;
     }
 

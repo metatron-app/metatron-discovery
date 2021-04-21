@@ -14,7 +14,6 @@
 
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -108,7 +107,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
     } else {
       this.fileResult = this.sourceData.uploadData.fileResult;
       // 현재 페이지 데이터소스 파일보가 있다면
-      if (this.sourceData.hasOwnProperty('fileData') && !isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
+      if (this.sourceData.hasOwnProperty('fileData') && !this.isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
         // init data
         this._initData(_.cloneDeep(this.sourceData.fileData));
       } else {
@@ -205,7 +204,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
   }
 
   public get getErrorMessage() {
-    if (isNullOrUndefined(this.globalErrorMessage)) {
+    if (this.isNullOrUndefined(this.globalErrorMessage)) {
       return this.selectedFileDetailData.errorMessage;
     } else {
       return this.globalErrorMessage;
@@ -246,7 +245,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
     // 현재 페이지의 데이터소스 생성정보 저장
     this._saveFileData(this.sourceData);
     // set field list, field data
-    if (!isNullOrUndefined(this.selectedFileDetailData)) {
+    if (!this.isNullOrUndefined(this.selectedFileDetailData)) {
       this.sourceData.fieldList = this.selectedFileDetailData.fields;
       this.sourceData.fieldData = this.selectedFileDetailData.data;
     }
@@ -427,7 +426,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
         }
       })
       .catch(error => {
-        if (!isNullOrUndefined(error.message)) {
+        if (!this.isNullOrUndefined(error.message)) {
           this.loadingHide();
           this.globalErrorMessage = error.message;
         } else {

@@ -11,8 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {isNullOrUndefined} from 'util';
-
 import {
   AfterViewInit,
   Component,
@@ -126,7 +124,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
           if (pageWidgetConf.shelf.layers
             .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME)
             .some(layer => {
-              return isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
+              return this.isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
             })) {
             this.isMissingDataSource = true;
           }

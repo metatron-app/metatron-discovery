@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -341,7 +340,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       // 변경될 타입이 GEO 타입이라면
       if (typeToChange.value === LogicalType.GEO_POINT || typeToChange.value === LogicalType.GEO_POLYGON || typeToChange.value === LogicalType.GEO_LINE) {
         // if not exist format in field
-        if (isNullOrUndefined(targetField.format)) {
+        if (this.isNullOrUndefined(targetField.format)) {
           targetField.format = new FieldFormat();
         }
         // loading show
@@ -358,7 +357,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
             // loading hide
             this.loadingHide();
           });
-      } else if (typeToChange.value === LogicalType.TIMESTAMP && isNullOrUndefined(targetField.format)) {  // 변경될 타입이 TIMESTAMP 타입이라면
+      } else if (typeToChange.value === LogicalType.TIMESTAMP && this.isNullOrUndefined(targetField.format)) {  // 변경될 타입이 TIMESTAMP 타입이라면
         targetField.format = new FieldFormat();
         //
         this.safelyDetectChanges();
@@ -412,7 +411,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         // find field in fieldList
         const targetField = this.fieldList.find(field => field.name === originField.name);
         // if not exist target field (removed field)
-        if (isNullOrUndefined(targetField)) {
+        if (this.isNullOrUndefined(targetField)) {
           // TODO removed field 설정후 result.push
         } else { // if exist target field
           const tempField = _.cloneDeep(targetField);
@@ -447,7 +446,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     });
     // TODO check created field
     // this.fieldList.forEach((field) => {
-    //   if (isNullOrUndefined(this._originFieldList.find(originField => originField.name === field.name))) {
+    //   if (this.isNullOrUndefined(this._originFieldList.find(originField => originField.name === field.name))) {
     //     // TODO created field 설정후 result.push
     //   }
     // });
@@ -578,7 +577,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   }
 
   private _hideTypeListPopup() {
-    if (!isNullOrUndefined(this.filteredFieldList)) {
+    if (!this.isNullOrUndefined(this.filteredFieldList)) {
       this.filteredFieldList.forEach(item => {
         item.isShowTypeList = false;
       })

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -515,7 +514,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   public editItem(column: Column, _index: number, input: HTMLInputElement) {
 
     // 에러가 있을떄는 에러가 해결돼야 다른 컬럼을 수정할 수 있다
-    if (isNullOrUndefined(this.errorEsg)) {
+    if (this.isNullOrUndefined(this.errorEsg)) {
 
       // 에러가 없을때만 !
       column.isEditing = true;
@@ -532,7 +531,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param column
    */
   public focus(column: Column) {
-    if (isNullOrUndefined(this.errorEsg)) {
+    if (this.isNullOrUndefined(this.errorEsg)) {
       column.isEditing = true;
     }
   }
@@ -617,7 +616,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   public onKeydownHandler(event: KeyboardEvent, column: Column) {
 
     if (event.keyCode === 9) {
-      if (isNullOrUndefined(this.errorEsg)) {
+      if (this.isNullOrUndefined(this.errorEsg)) {
 
         // 에러가 있을때 탭을 눌렀다면 현재 input을 벗어나지 못함
         column.isEditing = true;
@@ -652,7 +651,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    */
   public isRenameInputEmpty(column: Column): boolean {
     let result: boolean = false;
-    if (column.renamedAs.trim() === '' || isNullOrUndefined(column.renamedAs)) {
+    if (column.renamedAs.trim() === '' || this.isNullOrUndefined(column.renamedAs)) {
       this.errorEsg = this.translateService.instant('msg.dp.alert.empty.column');
       result = true;
     }
@@ -702,7 +701,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       }
 
       // 포커스 아웃 할 대상은 false 로 바꿔줘야한다
-      if (isNullOrUndefined(this.errorEsg)) {
+      if (this.isNullOrUndefined(this.errorEsg)) {
         column.isEditing = false;
       }
 
@@ -827,7 +826,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
       const renamedAs = this.columns.map((colItem) => colItem.renamedAs);
 
-      if (!isNullOrUndefined(koMatched) || !otherMatched) {
+      if (!this.isNullOrUndefined(koMatched) || !otherMatched) {
         while (-1 !== renamedAs.indexOf('column' + this.indexForName)) {
           this.indexForName += 1;
         }
@@ -860,7 +859,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         .Sortable(false)
         .Formatter((_row, cell, value) => {
           const colDescs = (this.typeDesc) ? this.typeDesc[cell] : {};
-          if (!isNullOrUndefined(colDescs)) {
+          if (!this.isNullOrUndefined(colDescs)) {
             value = this._setFieldFormatter(value, colDescs.type, colDescs);
           }
           return value;

@@ -22,7 +22,6 @@ import {ActivatedRoute} from '@angular/router';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {Alert} from '@common/util/alert.util';
 import {Modal} from '@common/domain/modal';
-import {isNullOrUndefined} from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 import {InitialChangePasswordComponent} from '../initial-change-password/initial-change-password.component';
@@ -204,7 +203,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   public confirmComplete(data) {
-    if (!isNullOrUndefined(data)) {
+    if (!this.isNullOrUndefined(data)) {
       if (data === this.user) {
         this.login();
       } else {

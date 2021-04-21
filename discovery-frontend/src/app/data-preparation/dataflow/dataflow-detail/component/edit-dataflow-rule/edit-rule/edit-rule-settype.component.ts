@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Alert} from '@common/util/alert.util';
 import {StringUtil} from '@common/util/string.util';
@@ -173,12 +172,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames: cols}).then((result) => {
 
-      if (!isNullOrUndefined(result)) {
+      if (!this.isNullOrUndefined(result)) {
         this.makeTimestampList(result);
         // timestamp --> string (max x)
         // string --> timestamp (max o)
         // timestamp --> timestamp (max x)
-        if (!isNullOrUndefined(this.selectedTimestamp) && '' !== this.selectedTimestamp) {
+        if (!this.isNullOrUndefined(this.selectedTimestamp) && '' !== this.selectedTimestamp) {
           //
         } else if (cols.length > 0) { // 선택된 컬럼이 있다면
           this.selectedTimestamp = '';

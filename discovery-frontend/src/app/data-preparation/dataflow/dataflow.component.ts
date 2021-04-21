@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -97,27 +96,27 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['backFromDetail'])) {
+          if (!this.isNullOrUndefined(params['backFromDetail'])) {
             if( params['backFromDetail']==='true' ) {
               params = this.dataflowService.getParamsForDataflowList();
             }
           }
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
 
-          if (!isNullOrUndefined(params['dfName'])) {
+          if (!this.isNullOrUndefined(params['dfName'])) {
             this.searchText = params['dfName'];
           }
 
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
@@ -245,7 +244,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     this.dataflowService.getDataflowList(params).then((data) => {
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
-      const nullOrUndefined = isNullOrUndefined(data['_embedded']);
+      const nullOrUndefined = this.isNullOrUndefined(data['_embedded']);
       const preparationdatasets = data['_embedded'].preparationdatasets;
 
       if (this.page.page > 0 &&
@@ -351,7 +350,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
       pseudoParam : (new Date()).getTime()
     };
 
-    if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
+    if (!this.isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
       params['dfName'] = this.searchText;
     }
 

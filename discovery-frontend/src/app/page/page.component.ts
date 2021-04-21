@@ -51,7 +51,7 @@ import {DatasourceService} from '../datasource/service/datasource.service';
 import {BaseChart, ChartSelectInfo} from '@common/component/chart/base-chart';
 import {UIOption} from '@common/component/chart/option/ui-option';
 import {GridChartComponent} from '@common/component/chart/type/grid-chart.component';
-import {Subject} from 'rxjs/Subject';
+import {Subject} from 'rxjs';
 import {DIRECTION, Sort} from '@domain/workbook/configurations/sort';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
@@ -67,7 +67,6 @@ import {DragulaService} from '../../lib/ng2-dragula';
 import {PageDataContextComponent} from './page-data/page-data-context.component';
 import {Format} from '@domain/workbook/configurations/format';
 import {FilterUtil} from '../dashboard/util/filter.util';
-import {isNullOrUndefined} from 'util';
 import {AnalysisComponent} from './component/analysis/analysis.component';
 import {AnalysisPredictionService} from './component/analysis/service/analysis.prediction.service';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
@@ -667,7 +666,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @private
    */
   private _setDefaultAreaForBBox(dataSource: Datasource) {
-    if ((isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || !this.isChartShow) && dataSource.summary) {
+    if ((this.isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || !this.isChartShow) && dataSource.summary) {
       this.widgetConfiguration.chart['lowerCorner'] = dataSource.summary['geoLowerCorner'];
       this.widgetConfiguration.chart['upperCorner'] = dataSource.summary['geoUpperCorner'];
     }
@@ -730,17 +729,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         this.widget.configuration = new PageWidgetConfiguration();
         this.widget.configuration.dataSource = DashboardUtil.getBoardDataSourceFromDataSource(this.widget.dashBoard, dataSource);
         this.widget.configuration.filters = DashboardUtil.getFiltersForBoardDataSource(this.widget.dashBoard,
-          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+          this.isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
         this.widget.configuration.customFields = DashboardUtil.getCustomFieldsForBoardDataSource(this.widget.dashBoard,
-          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+          this.isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
       }
 
       if (ConnectionType.LINK === this.dataSource.connType) {
         this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
-          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+          this.isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
       } else {
         this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
-          isNullOrUndefined(this.widget.configuration.dataSource.engineName) ? this.widget.configuration.dataSource.name : this.widget.configuration.dataSource.engineName);
+          this.isNullOrUndefined(this.widget.configuration.dataSource.engineName) ? this.widget.configuration.dataSource.name : this.widget.configuration.dataSource.engineName);
       }
 
       if (StringUtil.isEmpty(this.widget.name)) {
@@ -2434,7 +2433,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       const currentMapLayer = this.shelf.layers[layerNum].fields;
 
       // check is different database on the same shelf (do not need to loop because database checking)
-      if (!isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
+      if (!this.isNullOrUndefined(currentMapLayer) && !this.isNullOrUndefined(currentMapLayer[0]) && !this.isNullOrUndefined(currentMapLayer[0]['field'])
         && targetField.dataSource !== currentMapLayer[0].field.dataSource) {
         Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
         return;
@@ -3340,7 +3339,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public changeDraw(value?: any) {
     // 공간연산
-    if (!isNullOrUndefined(value) && value.action.toString().toLowerCase().indexOf('analysis') !== -1) {
+    if (!this.isNullOrUndefined(value) && value.action.toString().toLowerCase().indexOf('analysis') !== -1) {
       if (value.action.toString().toLowerCase().indexOf('remove') !== -1) {
         // 공간연산 중지
         this.mapPivot.removeAnalysis();
@@ -4327,10 +4326,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       if (ConnectionType.LINK === this.dataSource.connType) {
         this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
-          isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
+          this.isNullOrUndefined(this.dataSource.engineName) ? this.dataSource.name : this.dataSource.engineName);
       } else {
         this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard,
-          isNullOrUndefined(this.widget.configuration.dataSource.engineName) ? this.widget.configuration.dataSource.name : this.widget.configuration.dataSource.engineName);
+          this.isNullOrUndefined(this.widget.configuration.dataSource.engineName) ? this.widget.configuration.dataSource.name : this.widget.configuration.dataSource.engineName);
       }
     }
 

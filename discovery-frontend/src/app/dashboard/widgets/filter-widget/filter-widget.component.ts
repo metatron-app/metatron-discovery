@@ -59,7 +59,6 @@ import {
 } from '@domain/workbook/configurations/filter/time-relative-filter';
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {DIRECTION} from '@domain/workbook/configurations/sort';
-import {isNullOrUndefined} from 'util';
 
 declare let moment;
 
@@ -659,7 +658,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
           }
 
           // Sort List
-          if (isNullOrUndefined(inclusionFilter.sort)) {
+          if (this.isNullOrUndefined(inclusionFilter.sort)) {
             inclusionFilter.sort = new InclusionItemSort(InclusionSortBy.TEXT, DIRECTION.ASC);
           }
           if (InclusionSortBy.COUNT === inclusionFilter.sort.by) {

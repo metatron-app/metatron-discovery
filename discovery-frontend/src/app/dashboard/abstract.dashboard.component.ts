@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {CommonUtil} from '@common/util/common.util';
 import {Datasource} from '@domain/datasource/datasource';
@@ -48,7 +47,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
           if (-1 === uniqFilterKeyList.indexOf(uniqFilterKey)) {
             const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
             (filterDs) && (filter.dataSource = filterDs.engineName);
-            if (isNullOrUndefined(filter.dataSource)) {
+            if (this.isNullOrUndefined(filter.dataSource)) {
               const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
               (fieldDs) && (filter.dataSource = fieldDs.engineName);
             }
@@ -69,7 +68,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
             const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === conf.filter.dataSource);
             (filterDs) && (conf.filter.dataSource = filterDs.engineName);
 
-            if (isNullOrUndefined(conf.filter.dataSource)) {
+            if (this.isNullOrUndefined(conf.filter.dataSource)) {
               const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === conf.filter.field));
               (fieldDs) && (conf.filter.dataSource = fieldDs.engineName);
             }

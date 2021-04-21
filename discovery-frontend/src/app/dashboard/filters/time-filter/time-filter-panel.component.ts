@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
@@ -150,7 +149,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
    * @param {TimeFilter} filter
    */
   public changeFilterEvent(filter: TimeFilter) {
-    if (isNullOrUndefined(filter) || !FilterUtil.isTimeFilter(filter)) {
+    if (this.isNullOrUndefined(filter) || !FilterUtil.isTimeFilter(filter)) {
       return;
     }
     // this.filter = _.cloneDeep(filter);

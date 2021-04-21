@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {StringUtil} from '@common/util/string.util';
@@ -172,15 +171,15 @@ export class ExploreDataListComponent extends AbstractComponent implements OnIni
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
-          if (!isNullOrUndefined(params['sourceType'])) {
+          if (!this.isNullOrUndefined(params['sourceType'])) {
             this.selectedSourceTypeFilter = params['sourceType'].split(',');
           }
 

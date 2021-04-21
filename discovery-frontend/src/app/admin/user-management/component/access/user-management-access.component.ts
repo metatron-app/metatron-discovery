@@ -17,7 +17,6 @@ import {PeriodData} from '@common/value/period.data.value';
 import {PeriodComponent} from '@common/component/period/period.component';
 import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
 import {Alert} from '@common/util/alert.util';
-import {isNullOrUndefined} from 'util';
 import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
 import {Activity} from '@domain/user/activity';
@@ -101,32 +100,32 @@ export class UserManagementAccessComponent extends AbstractUserManagementCompone
         if (!_.isEmpty(params)) {
 
           const page = params['page'];
-          (isNullOrUndefined(page)) || (this.page.page = page);
+          (this.isNullOrUndefined(page)) || (this.page.page = page);
 
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
           }
 
           const size = params['size'];
-          (isNullOrUndefined(size)) || (this.page.size = size);
+          (this.isNullOrUndefined(size)) || (this.page.size = size);
 
           // Status
           const action = params['action'];
-          (isNullOrUndefined(action)) || (this.action = action);
+          (this.isNullOrUndefined(action)) || (this.action = action);
 
           // 검색어
           const searchText = params['nameContains'];
-          (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+          (this.isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
 
           const from = params['from'];
           const to = params['to'];
 
           this._filterDate = new PeriodData();
           this._filterDate.type = 'ALL';
-          if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
             this._filterDate.startDate = from;
             this._filterDate.endDate = to;
             this._filterDate.type = params['type'];

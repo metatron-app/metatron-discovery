@@ -26,7 +26,6 @@ import {CommonUtil} from '@common/util/common.util';
 import {PeriodData} from '@common/value/period.data.value';
 import {PeriodComponent} from '@common/component/period/period.component';
 
-import {isNullOrUndefined} from 'util';
 import * as _ from 'lodash';
 
 declare let moment: any;
@@ -114,21 +113,21 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
-          if (!isNullOrUndefined(params['searchKeyword'])) {
+          if (!this.isNullOrUndefined(params['searchKeyword'])) {
             this.searchText = params['searchKeyword'];
           }
 
           // status
           let index = 0;
-          if (!isNullOrUndefined(params['status'])) {
+          if (!this.isNullOrUndefined(params['status'])) {
             index = this.statusTypes.findIndex((item) => {
               return item.value.toLowerCase() === params['status'].toLowerCase()
             });
@@ -137,7 +136,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
           // log type
           let idx = 0;
-          if (!isNullOrUndefined(params['type'])) {
+          if (!this.isNullOrUndefined(params['type'])) {
             idx = this.types.findIndex((item) => {
               return item.value.toLowerCase() === params['type'].toLowerCase()
             });
@@ -147,14 +146,14 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
           // sort
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
           }
 
           // elapsed time
-          if (!isNullOrUndefined(params['elapsedTime'])) {
+          if (!this.isNullOrUndefined(params['elapsedTime'])) {
             const sec = ['10', '30', '60'];
             this.selectedElapsedTime = Number(params['elapsedTime']);
             if (sec.indexOf(params['elapsedTime']) === -1) {
@@ -169,7 +168,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
           const to = params['to'];
           this.selectedDate = new PeriodData();
           this.selectedDate.type = 'ALL';
-          if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
             this.selectedDate.startDate = from;
             this.selectedDate.endDate = to;
             this.selectedDate.dateType = 'CREATED';

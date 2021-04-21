@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {Observable} from 'rxjs/Observable';
 import {Injectable, Injector} from '@angular/core';
 import {CommonUtil} from '@common/util/common.util';
@@ -152,7 +151,7 @@ export class DataconnectionService extends AbstractService {
     connInfo.url = dataconnection.url;
 
     // properties 속성이 존재 할경우
-    if( !isNullOrUndefined(dataconnection.properties) ){
+    if( !CommonUtil.isNullOrUndefined(dataconnection.properties) ){
       connInfo.properties = dataconnection.properties;
     }
 
