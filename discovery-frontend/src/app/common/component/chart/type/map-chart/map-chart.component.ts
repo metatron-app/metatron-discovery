@@ -2786,23 +2786,24 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
   }
 
-  // /**
-  //  * Return alpha color
-  //  * @param hex
-  //  * @param alpha
-  //  */
-  // private hexToRgbA(hex, alpha): string {
-  //   if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-  //     let c = hex.substring(1).split('');
-  //     if (c.length === 3) {
-  //       c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-  //     }
-  //     c = '0x' + c.join('');
-  //     return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
-  //   } else {
-  //     return 'rgba(255,255,255,1)';
-  //   }
-  // }
+  /**
+   * Return alpha color
+   * @param hex
+   * @param alpha
+   */
+  // @ts-ignore
+  private hexToRgbA(hex, alpha): string {
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+      let c = hex.substring(1).split('');
+      if (c.length === 3) {
+        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+      }
+      c = '0x' + c.join('');
+      return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
+    } else {
+      return 'rgba(255,255,255,1)';
+    }
+  }
 
   /**
    * when data zoom ends
@@ -3022,39 +3023,40 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
     }
   }
 
-  // /**
-  //  * set selection mode to feature
-  //  * @param scope
-  //  * @param feature
-  //  * @returns {boolean}
-  //  */
-  // private setFeatureSelectionMode(scope: any, feature): boolean {
-  //
-  //   let filterFl: boolean = false;
-  //
-  //   if (scope.widgetDrawParam
-  //     && scope.widgetDrawParam.selectFilterListList
-  //     && scope.widgetDrawParam.selectFilterListList.length > 0) {
-  //
-  //     _.each(scope.widgetDrawParam.selectFilterListList, (filter) => {
-  //       _.each(filter.data, (data) => {
-  //
-  //         // find feature by selected properties
-  //         const properties = feature.getProperties();
-  //
-  //         // set selection filter select mode
-  //         if (properties[filter.alias] === data) {
-  //           feature.set('selection', ChartSelectMode.ADD);
-  //         }
-  //       });
-  //     });
-  //
-  //     // selection filter exists
-  //     filterFl = true;
-  //   }
-  //
-  //   return filterFl;
-  // }
+  /**
+   * set selection mode to feature
+   * @param scope
+   * @param feature
+   * @returns {boolean}
+   */
+  // @ts-ignore
+  private setFeatureSelectionMode(scope: any, feature): boolean {
+
+    let filterFl: boolean = false;
+
+    if (scope.widgetDrawParam
+      && scope.widgetDrawParam.selectFilterListList
+      && scope.widgetDrawParam.selectFilterListList.length > 0) {
+
+      _.each(scope.widgetDrawParam.selectFilterListList, (filter) => {
+        _.each(filter.data, (data) => {
+
+          // find feature by selected properties
+          const properties = feature.getProperties();
+
+          // set selection filter select mode
+          if (properties[filter.alias] === data) {
+            feature.set('selection', ChartSelectMode.ADD);
+          }
+        });
+      });
+
+      // selection filter exists
+      filterFl = true;
+    }
+
+    return filterFl;
+  }
 
   /**
    * set uiOption min / max value
