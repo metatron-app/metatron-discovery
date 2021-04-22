@@ -19,7 +19,6 @@ import {Page, PageResult} from 'app/domain/common/page';
 import {WorkspaceService} from '../../service/workspace.service';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceMemberProjection} from '@domain/workspace/workspace-member';
-import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'app-change-workspace-owner',
@@ -114,9 +113,9 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
    * 소유자 변경 후 화면 종료
    */
   public done() {
-    if (!this.isNoMember && !isNullOrUndefined(this.selectedUser)) {
+    if (!this.isNoMember && !this.isNullOrUndefined(this.selectedUser)) {
       this.loadingShow();
-      if (isNullOrUndefined(this.selectedUser)) {
+      if (this.isNullOrUndefined(this.selectedUser)) {
         this.loadingHide();
         Alert.warning(this.translateService.instant('msg.space.ui.ph.owner'));
       } else {

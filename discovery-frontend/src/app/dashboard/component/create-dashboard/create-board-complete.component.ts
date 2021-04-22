@@ -17,7 +17,6 @@ import {AbstractPopupComponent} from '@common/component/abstract-popup.component
 import {Alert} from '@common/util/alert.util';
 import {CommonUtil} from '@common/util/common.util';
 import {StringUtil} from '@common/util/string.util';
-import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {BoardGlobalOptions} from '@domain/dashboard/dashboard.globalOptions';
 import {ConnectionType} from '@domain/datasource/datasource';
 import {BoardDataSource, BoardDataSourceRelation, Dashboard, JoinMapping} from '@domain/dashboard/dashboard';
@@ -69,8 +68,7 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
-              private dashboardService: DashboardService,
-              private broadCaster: EventBroadcaster) {
+              private dashboardService: DashboardService) {
     super(elementRef, injector);
   }
 
@@ -172,8 +170,8 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
         .then((board: Dashboard) => {
           Alert.success(`'${this.dashboard.name}' ` + this.translateService.instant('msg.board.alert.create.success'));
           this.loadingHide();
-          this.broadCaster.broadcast('WORKBOOK_RELOAD_BOARD_LIST', {boardId: board.id});
-          this.close();
+          this.router.navigate(['/workbook/' + this._workbookId], {fragment: board.id}).then();
+
         }).catch(err => this.commonExceptionHandler(err));
     }
   } // function - complete

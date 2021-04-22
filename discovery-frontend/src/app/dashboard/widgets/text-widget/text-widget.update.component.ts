@@ -39,7 +39,7 @@ export class TextWidgetUpdateComponent extends AbstractPopupComponent implements
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('editor')
+  @ViewChild('editor', {static: true})
   private editor: TextWidgetEditorComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

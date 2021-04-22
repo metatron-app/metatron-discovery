@@ -13,6 +13,7 @@
  */
 
 import * as _ from 'lodash';
+import {map} from 'rxjs/operators';
 import {Injectable} from '@angular/core';
 import {HttpHeaders} from '@angular/common/http';
 import {AbstractService} from '@common/service/abstract.service';
@@ -24,8 +25,8 @@ import {UIOption} from '@common/component/chart/option/ui-option';
 import {SPEC_VERSION} from '@common/component/chart/option/define/common';
 import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
 import {FilterUtil} from '../util/filter.util';
-import {isNullOrUndefined} from 'util';
 import {CommonConstant} from '@common/constant/common.constant';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class WidgetService extends AbstractService {
@@ -34,7 +35,7 @@ export class WidgetService extends AbstractService {
    * MapView 에 대한 설정 정보를 얻습니다.
    */
   public loadPropMapView() {
-    if (isNullOrUndefined(sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG))) {
+    if (CommonUtil.isNullOrUndefined(sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG))) {
       this.get(this.API_URL + `widgets/properties/mapview`).then(data => {
         sessionStorage.setItem(CommonConstant.PROP_MAP_CONFIG, JSON.stringify(data));
       });
@@ -178,9 +179,11 @@ export class WidgetService extends AbstractService {
 
     // 호출
     return this.http.post(url, config, option)
-      .map((res) => {
-        return new Blob([String(res)], {type: strType})
-      });
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: strType})
+        })
+      );
   } // function - downloadConfig
 
   /**
@@ -232,9 +235,11 @@ export class WidgetService extends AbstractService {
 
     // 호출
     return this.http.post(url, param, option)
-      .map((res) => {
-        return new Blob([String(res)], {type: strType})
-      });
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: strType})
+        })
+      );
   } // function - downloadWidget
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

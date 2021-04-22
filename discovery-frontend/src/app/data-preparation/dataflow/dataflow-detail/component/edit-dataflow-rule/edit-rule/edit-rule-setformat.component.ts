@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Alert} from '@common/util/alert.util';
 import {StringUtil} from '@common/util/string.util';
@@ -277,7 +276,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     // FORMAT
-    if (!isNullOrUndefined(data.jsonRuleString.format)) {
+    if (!this.isNullOrUndefined(data.jsonRuleString.format)) {
       this.selectedTimestamp = data.jsonRuleString.format;
       this.getTimestampFormats();
     }

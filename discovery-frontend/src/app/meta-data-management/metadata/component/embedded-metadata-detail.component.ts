@@ -93,7 +93,7 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent implement
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @HostListener('window:popstate', ['$event'])
+  @HostListener('window:popstate')
   public onPopstate() {
     window.history.pushState(null, null, window.location.href);
   }

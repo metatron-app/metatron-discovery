@@ -13,6 +13,7 @@
  */
 
 import * as _ from 'lodash';
+import {map} from 'rxjs/operators';
 import {Observable} from 'rxjs/Observable';
 import {Injectable, Injector} from '@angular/core';
 import {HttpHeaders} from '@angular/common/http';
@@ -205,9 +206,11 @@ export class DatasetService extends AbstractService {
     };
 
     return this.http.get(this.API_URL + `preparationdatasets/${dsId}/download?fileType=` + fileFormat, option)
-      .map((res) => {
-        return new Blob([String(res)], {type: mineType})
-      });
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: mineType})
+        })
+      );
   }
 
   public makeLineage(params: any) {

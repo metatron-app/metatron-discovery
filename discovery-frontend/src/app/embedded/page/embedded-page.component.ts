@@ -131,7 +131,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     super.ngOnDestroy();
   }
 
-  @HostListener('window:popstate', ['$event'])
+  @HostListener('window:popstate')
   public onPopstate() {
     window.history.pushState(null, null, window.location.href);
   }

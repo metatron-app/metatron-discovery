@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash'
 import {UIChartColor, UIChartColorByDimension, UIChartColorBySeries, UIChartColorByValue, UIOption} from '../ui-option';
 import {PivotTableInfo} from '../../base-chart';
 import {
@@ -27,14 +28,13 @@ import {
   VisualMapDimension
 } from '../define/common';
 import {BaseOption} from '../base-option';
-import * as _ from 'lodash'
+import {CommonUtil} from '@common/util/common.util';
 import {OptionGenerator} from '../util/option-generator';
 import {VisualMapType} from '../define/visualmap';
 import {Series} from '../define/series';
 import {UIScatterChart} from '../ui-option/ui-scatter-chart';
 import {ColorRange} from '../ui-option/ui-color';
 import {FormatOptionConverter} from './format-option-converter';
-import {isNullOrUndefined} from 'util';
 import {UIMapOption} from '../ui-option/map/ui-map-chart';
 import {ChartUtil} from '../util/chart-util';
 import {GeoField} from '@domain/workbook/configurations/field/geo-field';
@@ -174,7 +174,7 @@ export class ColorOptionConverter {
       }
     });
 
-    if (isNullOrUndefined(pivotType) || isNullOrUndefined(paramType)) {
+    if (CommonUtil.isNullOrUndefined(pivotType) || CommonUtil.isNullOrUndefined(paramType)) {
       _.forEach(fieldInfo, (value, key) => {
         if (_.indexOf(value, targetField) > -1) {
           fieldIdx = _.indexOf(value, targetField);

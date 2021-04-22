@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {Injectable, Injector} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {StringUtil} from '@common/util/string.util';
@@ -21,6 +20,7 @@ import {Field, FieldFormat, FieldFormatType, LogicalType} from '@domain/datasour
 import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
 import {Type} from '../../shared/datasource-metadata/domain/type';
 import {TimezoneService} from './timezone.service';
+import {CommonUtil} from "@common/util/common.util";
 
 @Injectable()
 export class FieldConfigService extends AbstractService {
@@ -42,7 +42,7 @@ export class FieldConfigService extends AbstractService {
    */
   public getFieldDataList(targetField: Field | MetadataColumn, originDataList: any[]): string[] {
     return originDataList.reduce((acc, data) => {
-      !isNullOrUndefined(data[targetField.name]) && acc.push(data[targetField.name]);
+      !CommonUtil.isNullOrUndefined(data[targetField.name]) && acc.push(data[targetField.name]);
       return acc;
     }, []);
   }
@@ -85,13 +85,13 @@ export class FieldConfigService extends AbstractService {
   public checkEnableGeoTypeAndSetValidationResult(fieldFormat: FieldFormat, dataList: string[], targetType: Type.Logical) {
     return new Promise((resolve, reject) => {
       // if not exist srs name
-      if (isNullOrUndefined(fieldFormat.originalSrsName)) {
+      if (CommonUtil.isNullOrUndefined(fieldFormat.originalSrsName)) {
         fieldFormat.geoCoordinateInitialize();
       }
       // change GEO format type
       fieldFormat.type = this._getSrsName(targetType);
       // if not exist data list
-      if (isNullOrUndefined(dataList) || dataList.length < 1) {
+      if (CommonUtil.isNullOrUndefined(dataList) || dataList.length < 1) {
         // set type valid FALSE
         fieldFormat.isValidFormat = false;
         // set type valid message

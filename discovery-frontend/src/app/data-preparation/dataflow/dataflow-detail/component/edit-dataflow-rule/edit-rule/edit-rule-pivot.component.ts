@@ -150,11 +150,11 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data: { target: Field, isSelect: boolean, selectedList: Field[] }) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
-  public changeGroupFields(data: { target: Field, isSelect: boolean, selectedList: Field[] }) {
+  public changeGroupFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedGroupFields = data.selectedList;
   }
 
@@ -188,7 +188,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   /**
    * When scrolled
    */
-  public scrollHandler(_event: Event) {
+  public scrollHandler() {
     this.dataflowModelService.scrollClose.next();
   }
 

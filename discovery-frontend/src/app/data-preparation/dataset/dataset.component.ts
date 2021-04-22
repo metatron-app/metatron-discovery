@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, HostListener, Injector, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Alert} from '@common/util/alert.util';
@@ -113,15 +112,15 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
-          if (!isNullOrUndefined(params['dsName'])) {
+          if (!this.isNullOrUndefined(params['dsName'])) {
             this.searchText = params['dsName'];
           }
 
@@ -145,7 +144,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
           }
 
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
@@ -177,8 +176,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
         if (this.page.page > 0 &&
-          (isNullOrUndefined(data['_embedded']) ||
-            (!isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdatasets.length === 0))) {
+          (this.isNullOrUndefined(data['_embedded']) ||
+            (!this.isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdatasets.length === 0))) {
           this.page.page = data['page'].number - 1;
           this.getDatasets();
         }
@@ -397,7 +396,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       pseudoParam: (new Date()).getTime()
     };
 
-    if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
+    if (!this.isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
       params['dsName'] = this.searchText;
     }
 

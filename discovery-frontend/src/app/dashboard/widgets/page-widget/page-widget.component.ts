@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {ClipboardService} from 'ngx-clipboard';
 import {
   AfterViewInit,
@@ -182,7 +181,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
   } // get - isShowChartTools
 
   get isNotMapType() {
-    return this.chart.uiOption.type !== ChartType.MAP;
+    return (this.chart) ? this.chart.uiOption.type !== ChartType.MAP : true;
   }
 
   // is Origin data down
@@ -639,7 +638,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    */
   public changeExternalFilterList(externalFilters?: Filter[]): Filter[] {
 
-    (isNullOrUndefined(externalFilters)) && (externalFilters = []);
+    (this.isNullOrUndefined(externalFilters)) && (externalFilters = []);
 
     // 대시보드에서 필터를 발생시킨경우 => 필터 목록 제거
     for (let num = (this._selectFilterList.length - 1); num >= 0; num--) {
@@ -931,7 +930,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    * @param {string} brushType
    */
   public changeMouseSelectMode(mode: string, brushType: string) {
-    if (isNullOrUndefined(this.chart)) {
+    if (this.isNullOrUndefined(this.chart)) {
       return;
     }
     if (ChartMouseMode.SINGLE.toString() === mode) {
@@ -1176,7 +1175,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
   /**
    * redraw chart
    */
-  public changeDraw(_event: Event) {
+  public changeDraw() {
     this._search(null, this._currentSelectionFilters);
   }
 
@@ -1237,7 +1236,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
               this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
                 .forEach((abstractField) => {
-                  if (isNullOrUndefined(abstractField.field)
+                  if (this.isNullOrUndefined(abstractField.field)
                     && String(field.type) === abstractField.type.toUpperCase() && field.name === abstractField.name) {
                     abstractField.field = field;
                   }
@@ -1257,7 +1256,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         const widgetDataSource: Datasource
           = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
 
-        if (isNullOrUndefined(widgetDataSource)) {
+        if (this.isNullOrUndefined(widgetDataSource)) {
           // If the widget does not have a data source
           this.processStart();
           this._isDuringProcess = true;
@@ -1276,7 +1275,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
           fields.forEach((field) => {
             this.widgetConfiguration.pivot.rows
               .forEach((abstractField) => {
-                if (isNullOrUndefined(abstractField.field)
+                if (this.isNullOrUndefined(abstractField.field)
                   && String(field.type) === abstractField.type.toUpperCase() && field.name === abstractField.name) {
                   abstractField.field = field;
                 }
@@ -1284,7 +1283,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
             this.widgetConfiguration.pivot.columns
               .forEach((abstractField) => {
-                if (isNullOrUndefined(abstractField.field)
+                if (this.isNullOrUndefined(abstractField.field)
                   && String(field.type) === abstractField.type.toUpperCase() && field.name === abstractField.name) {
                   abstractField.field = field;
                 }
@@ -1292,7 +1291,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
             this.widgetConfiguration.pivot.aggregations
               .forEach((abstractField) => {
-                if (isNullOrUndefined(abstractField.field)
+                if (this.isNullOrUndefined(abstractField.field)
                   && String(field.type) === abstractField.type.toUpperCase() && field.name === abstractField.name) {
                   abstractField.field = field;
                 }
@@ -1307,7 +1306,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     } // end if - dashboard.configuration
 
     this.safelyDetectChanges();
-    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
+    if (this.chart) {
+      this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
+    }
 
   } // function - _setWidget
 
@@ -1448,7 +1449,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         targetDs = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, boardConf.dataSource);
       }
 
-      if (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
+      if (this.isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
         this.widgetConfiguration.chart['lowerCorner'] = targetDs.summary['geoLowerCorner'];
         this.widgetConfiguration.chart['upperCorner'] = targetDs.summary['geoUpperCorner'];
       }
@@ -1478,7 +1479,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
       if (this.widgetConfiguration.shelf.layers
         .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME)
         .some(layer => {
-          return isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
+          return this.isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
         })) {
         this.isMissingDataSource = true;
         this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
@@ -1487,7 +1488,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
       }
 
       // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
-      if (isNullOrUndefined(globalFilters)) {
+      if (this.isNullOrUndefined(globalFilters)) {
         globalFilters = [];
         this.widgetConfiguration.shelf.layers
           .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME).forEach(layer => {
@@ -1511,7 +1512,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
       // 필터 설정
       const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
 
-      if (isNullOrUndefined(widgetDataSource)) {
+      if (this.isNullOrUndefined(widgetDataSource)) {
         this.isMissingDataSource = true;
         this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
         this.updateComplete();
@@ -1519,7 +1520,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
       }
 
       // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
-      if (isNullOrUndefined(globalFilters)) {
+      if (this.isNullOrUndefined(globalFilters)) {
         globalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
       }
 

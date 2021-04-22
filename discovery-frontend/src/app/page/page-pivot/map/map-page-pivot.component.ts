@@ -38,7 +38,6 @@ import {UIOption} from '@common/component/chart/option/ui-option';
 import {Alert} from '@common/util/alert.util';
 import {ChartUtil} from '@common/component/chart/option/util/chart-util';
 import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
-import {isNullOrUndefined} from 'util';
 import {CommonConstant} from '@common/constant/common.constant';
 import {TooltipOptionConverter} from '@common/component/chart/option/converter/tooltip-option-converter';
 
@@ -227,7 +226,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
 
     const currentMapLayer = this.shelf.layers[this.uiOption.layerNum].fields;
     // check is different database on the same shelf (do not need to loop because database checking)
-    if (!isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
+    if (!this.isNullOrUndefined(currentMapLayer) && !this.isNullOrUndefined(currentMapLayer[0]) && !this.isNullOrUndefined(currentMapLayer[0]['field'])
       && targetField.dataSource !== currentMapLayer[0].field.dataSource) {
       this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.filter((field) => {
         return (field.name !== targetField.name && field.ref !== targetField.ref)
@@ -462,7 +461,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    */
   public addLayer(index: number): void {
     if (this.shelf.layers.length >= 2
-      || isNullOrUndefined(this.shelf.layers[0]) || isNullOrUndefined(this.shelf.layers[0].fields) || this.shelf.layers[0].fields.length <= 0) {
+      || this.isNullOrUndefined(this.shelf.layers[0]) || this.isNullOrUndefined(this.shelf.layers[0].fields) || this.shelf.layers[0].fields.length <= 0) {
       Alert.warning('Please select GEO dimension one or more');
       return;
     } else {
@@ -923,7 +922,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
         // 크기 반경 관련 설정
         if (this.uiOption['layers'][layerIndex]['type'] === MapLayerType.SYMBOL) {
           // 크기 설정
-          if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
+          if (this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
             // default size of points are 5 pixel
             this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
             this.uiOption.layers[layerIndex].pointRadius = 5;
@@ -934,14 +933,14 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
           // Measure 값이 없을 경우
           if (this.shelf['layers'][layerIndex].fields.length <= 1
             || (this.shelf['layers'][layerIndex].fields.length > 1
-              && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
-              && isNullOrUndefined(hasMeasure))) {
+              && this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
+              && this.isNullOrUndefined(hasMeasure))) {
             delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
             delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
             delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
             this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
           } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
-            if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
+            if (this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
               if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
                 this.uiOption.layers[layerIndex]['pointRadiusTo'] = 20;
               } else {

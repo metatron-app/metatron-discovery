@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {Message} from '@stomp/stompjs';
 import {
   ApplicationRef,
@@ -400,7 +399,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         linkedDsList.forEach(dsInfo => {
           promises.push(new Promise<any>((res, rej) => {
             const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard, dsInfo);
-            if (isNullOrUndefined(boardDsInfo['temporaryId'])) {
+            if (this.isNullOrUndefined(boardDsInfo['temporaryId'])) {
               rej('INVALID_LINKED_DATASOURCE');
               return;
             }

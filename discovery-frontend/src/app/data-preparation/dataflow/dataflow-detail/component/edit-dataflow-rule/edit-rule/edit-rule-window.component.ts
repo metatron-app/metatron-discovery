@@ -108,11 +108,11 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public changeGroupFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeGroupFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
   }
 
-  public changeSortFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeSortFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedSortFields = data.selectedList;
   }
 

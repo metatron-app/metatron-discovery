@@ -33,7 +33,6 @@ import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {Field} from '@domain/datasource/datasource';
 import {BoardDataSource, BoardDataSourceRelation, QueryParam} from '@domain/dashboard/dashboard';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'create-board-pop-relation',
@@ -211,7 +210,7 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    * @return {boolean}
    */
   public isValid(): boolean {
-    return !isNullOrUndefined(this.relation.ui.sourceField) && !isNullOrUndefined(this.relation.ui.targetField);
+    return !this.isNullOrUndefined(this.relation.ui.sourceField) && !this.isNullOrUndefined(this.relation.ui.targetField);
   } // function - isValid
 
   /**

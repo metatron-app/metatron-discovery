@@ -42,7 +42,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('rangeSlider')
+  @ViewChild('rangeSlider', {static: true})
   private _rangeSlider: ElementRef;
 
   private _$rangeSlider: any;

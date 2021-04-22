@@ -13,11 +13,10 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
 import {AbstractService} from '@common/service/abstract.service';
 import {QueryEditor, Workbench} from '@domain/workbench/workbench';
-import {CommonUtil} from '@common/util/common.util';
 import {Page} from '@domain/common/page';
-import {isNullOrUndefined} from 'util';
 
 @Injectable()
 export class WorkbenchService extends AbstractService {
@@ -228,7 +227,7 @@ export class WorkbenchService extends AbstractService {
     connInfo.url = connection.url;
 
     // properties 속성이 존재 할경우
-    if (!isNullOrUndefined(connection.properties)) {
+    if (!CommonUtil.isNullOrUndefined(connection.properties)) {
       connInfo.properties = connection.properties;
     }
 

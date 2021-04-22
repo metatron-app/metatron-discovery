@@ -123,7 +123,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * Clear interval
    */
   public clearExistingInterval() {
-    if (!isNullOrUndefined(this.interval)) {
+    if (!this.isNullOrUndefined(this.interval)) {
       clearInterval(this.interval);
       this.interval = undefined;
     }

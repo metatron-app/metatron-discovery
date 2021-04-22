@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {isNullOrUndefined} from 'util';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {Alert} from '@common/util/alert.util';
 import {StringUtil} from '@common/util/string.util';
@@ -104,7 +103,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
     // pattern
     let clonedPattern = this.pattern;
-    if (isNullOrUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
+    if (this.isNullOrUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
@@ -116,7 +115,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
     clonedPattern = patternResult[1];
 
     // limit
-    if (isNullOrUndefined(this.limit)) {
+    if (this.isNullOrUndefined(this.limit)) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
       return undefined;
     }

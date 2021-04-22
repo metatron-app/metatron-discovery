@@ -133,7 +133,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 

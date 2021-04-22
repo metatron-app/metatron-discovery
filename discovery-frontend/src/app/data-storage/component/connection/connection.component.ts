@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
 import {StringUtil} from '@common/util/string.util';
 import {AbstractComponent} from '@common/component/abstract.component';
@@ -119,7 +118,7 @@ export class ConnectionComponent extends AbstractComponent {
     this._connectionInputInitialize();
     this.inputErrorInitialize();
     this.connectionValidInitialize();
-    if (isNullOrUndefined(connection)) {
+    if (this.isNullOrUndefined(connection)) {
       this.properties = [];
       this.selectedAuthenticationType = this.authenticationTypeList[0];
       this.selectedConnectionType = this.connectionTypeList[0];

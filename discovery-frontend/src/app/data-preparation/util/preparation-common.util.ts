@@ -13,7 +13,7 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
+import {CommonUtil} from '@common/util/common.util';
 import {SsType} from '@domain/data-preparation/pr-snapshot';
 import {DsType, FileFormat, ImportType, PrDataset} from '@domain/data-preparation/pr-dataset';
 
@@ -354,7 +354,7 @@ export class PreparationCommonUtil {
 
     const val = new RegExp(/^.*\.(csv|sql|txt|json)$/).exec(fileName);
 
-    if (isNullOrUndefined(val)) {
+    if (CommonUtil.isNullOrUndefined(val)) {
       return 'csv';
     }
 
@@ -374,7 +374,7 @@ export class PreparationCommonUtil {
     const val = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName);
 
     // returns [fileName,'csv'] if regular expression is error
-    if (isNullOrUndefined(val)) {
+    if (CommonUtil.isNullOrUndefined(val)) {
       return [fileName, 'csv']
     }
 

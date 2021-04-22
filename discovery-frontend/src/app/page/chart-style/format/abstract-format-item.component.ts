@@ -34,10 +34,10 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('typeListSelect')
+  @ViewChild('typeListSelect', {static: true})
   private typeListComp: SelectComponent;
 
-  @ViewChild('signListSelect')
+  @ViewChild('signListSelect', {static: true})
   private signListComp: SelectComponent;
 
   @ViewChild('numericAliasListSelect')

@@ -19,7 +19,6 @@ import {SYSTEM_PERMISSION} from 'app/common/permission/permission';
 import {Modal} from '../domain/modal';
 import {environment} from '@environments/environment';
 import {Router} from '@angular/router';
-import {isNullOrUndefined} from 'util';
 import {Theme, UserSetting} from '../value/user.setting.value';
 import {LocalStorageConstant} from '../constant/local-storage.constant';
 
@@ -296,7 +295,7 @@ export class CommonUtil {
    * @param obj
    */
   public static objectToArray(obj: any) {
-    if (isNullOrUndefined(obj)) {
+    if (obj === undefined || obj === null) {
       return [];
     } else if (obj.forEach) {
       return obj;
@@ -371,6 +370,10 @@ export class CommonUtil {
         $body.removeClass(Theme.DARK);
       }
     }
+  }
+
+  public static isNullOrUndefined(val): boolean {
+    return val === undefined || val === null;
   }
 
 }

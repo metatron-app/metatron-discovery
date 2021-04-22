@@ -22,12 +22,12 @@
   </div>
   <div class="ddp-wrap-box-info">
     <!--box scroll -->
-    <div class="ddp-wrap-boxwrap" (scroll)="scrollHandler($event)">
+    <div class="ddp-wrap-boxwrap" (scroll)="scrollHandler()">
       <div class="ddp-wrap-boxadd" *ngFor="let item of formulas; trackBy:trackByFn; let idx = index;">
         <div class="ddp-wrap-datainput">
             <rule-suggest-input
             [index]="idx"
-            [formula]="item.value" [isEmptyViewAll]="true" 
+            [formula]="item.value" [isEmptyViewAll]="true"
             [command]="'window'" [cmdArg]="'value'" [funcType]="'window'"
             [tabIndex]="2" [placeholder]="'msg.dp.th.expression.ph' | translate"
             [fields]="fields"

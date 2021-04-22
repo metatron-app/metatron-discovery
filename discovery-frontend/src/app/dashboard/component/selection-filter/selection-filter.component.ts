@@ -293,9 +293,11 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   /**
    * @description 자동 업데이트 on/off
    */
-  public onClickAutoUpdate(isCycleUpdated = false) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
+  public onClickAutoUpdate(isCycleUpdated = false, event?: MouseEvent) {
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
     if (!isCycleUpdated) {
       this.isAutoUpdate = !this.isAutoUpdate;
       this.isShowUpdateCycle = false;

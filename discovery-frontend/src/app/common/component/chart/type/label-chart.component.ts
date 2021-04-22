@@ -98,7 +98,7 @@ export class LabelChartComponent extends BaseChart<UILabelChart>
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('labelArea')
+  @ViewChild('labelArea', {static: true})
   private area: ElementRef;
 
   // KPI Area Element

@@ -262,7 +262,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   public customMoment(date: (Date | string)) {
     if (date.constructor === String) {
-      return moment(date).replace('.000Z', '');
+      return moment((date as string).replace('.000Z', ''));
     } else {
       return moment(date);
     }
@@ -766,6 +766,14 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     this.translateService.use(lang);
     // store language
   }
+
+  /**
+   * Returns true if the given object is null or undefined. Otherwise, returns false.
+   * @param val
+   */
+  public isNullOrUndefined(val): boolean {
+    return val === undefined || val === null;
+  } // func - isNullOrUndefined
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method

@@ -25,7 +25,6 @@ import {CommonUtil} from '../util/common.util';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {catchError} from 'rxjs/internal/operators';
-import {isNullOrUndefined} from 'util';
 import {Alert} from '../util/alert.util';
 import {TranslateService} from '@ngx-translate/core';
 
@@ -80,7 +79,7 @@ export class AbstractService {
     // 헤더
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: isNullOrUndefined(basicHeader) ?
+      Authorization: CommonUtil.isNullOrUndefined(basicHeader) ?
         'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==' : basicHeader,
     });
 
@@ -129,7 +128,7 @@ export class AbstractService {
     // 헤더
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: isNullOrUndefined(basicHeader) ?
+      Authorization: CommonUtil.isNullOrUndefined(basicHeader) ?
         'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==' : basicHeader,
     });
 

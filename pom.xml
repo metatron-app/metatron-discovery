@@ -74,7 +74,7 @@
         <junit.version>4.12</junit.version>
 
         <jackson.version>2.9.9</jackson.version>
-        <jackson.databind.version>2.9.10.4</jackson.databind.version>
+        <jackson.databind.version>2.9.10.7</jackson.databind.version>
 
         <metatron.metis.version>2.0.0-SNAPSHOT</metatron.metis.version>
 
@@ -571,7 +571,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.3</version>
+                <version>1.9.4</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>commons-logging</artifactId>
@@ -648,7 +648,7 @@
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
-                <version>2.3.0</version>
+                <version>2.3.2</version>
             </dependency>
 
             <dependency>
@@ -677,7 +677,7 @@
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi</artifactId>
-                <version>3.16</version>
+                <version>3.17</version>
             </dependency>
 
             <!--

@@ -26,7 +26,6 @@ import {CriterionComponent} from '../component/criterion/criterion.component';
 import {Criteria} from '@domain/datasource/criteria';
 import {ActivatedRoute} from '@angular/router';
 import {Alert} from '@common/util/alert.util';
-import {isNullOrUndefined} from 'util';
 import * as _ from 'lodash';
 import {StorageService} from '../service/storage.service';
 
@@ -295,8 +294,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].connections.length === 0)) {
+          this.isNullOrUndefined(result['_embedded']) ||
+          (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].connections.length === 0)) {
           this.page.page = result.page.number - 1;
           this._setConnectionList();
         }

@@ -14,7 +14,6 @@
 
 import * as _ from 'lodash';
 import {Subscription} from 'rxjs';
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Alert} from '@common/util/alert.util';
@@ -111,16 +110,16 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
       if (!_.isEmpty(params)) {
 
-        if (!isNullOrUndefined(params['size'])) {
+        if (!this.isNullOrUndefined(params['size'])) {
           this.page.size = params['size'];
         }
 
-        if (!isNullOrUndefined(params['page'])) {
+        if (!this.isNullOrUndefined(params['page'])) {
           this.page.page = params['page'];
         }
 
 
-        if (!isNullOrUndefined(params['nameContains'])) {
+        if (!this.isNullOrUndefined(params['nameContains'])) {
           this.searchText = params['nameContains'];
         }
 
@@ -424,8 +423,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
-        isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].codetables.length === 0)) {
+        this.isNullOrUndefined(result['_embedded']) ||
+        (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].codetables.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getCodeTableList();
       }
@@ -460,7 +459,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
       pseudoParam: (new Date()).getTime()
     };
     // 검색어
-    if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
+    if (!this.isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['nameContains'] = this.searchText.trim();
     }
     // date

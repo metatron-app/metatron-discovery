@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {StringUtil} from '@common/util/string.util';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
@@ -232,7 +231,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // dom 이 모두 로드되었을때 작동
       this.changeDetect.detectChanges();
       // 그리드 생성
-      isNullOrUndefined(this.metaData)
+      this.isNullOrUndefined(this.metaData)
         ? this._gridComponent.create(headers, rows, new GridOption()
           .SyncColumnCellResize(true)
           .MultiColumnSort(true)
@@ -249,7 +248,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // search
       this._gridComponent.search(this.searchTextKeyword || '');
       // ExplicitInitialization 을 true 로 줬기 떄문에 init해줘야 한다.
-      !isNullOrUndefined(this.metaData) && this._gridComponent.grid.init();
+      !this.isNullOrUndefined(this.metaData) && this._gridComponent.grid.init();
     } else {
       this._gridComponent.destroy();
     }

@@ -37,7 +37,6 @@ import {SharedMemberManageComponent} from './component/permission/shared-member-
 import {SubscribeArg} from '@common/domain/subscribe-arg';
 import {PopupService} from '@common/service/popup.service';
 import {SetNotebookServerComponent} from './component/etc/set-notebook-server.component';
-import {isNullOrUndefined} from 'util';
 import {CookieConstant} from '@common/constant/cookie.constant';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {PageResult} from '@domain/common/page';
@@ -309,12 +308,12 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @param book
    */
   public getWorkbenchConnTypeIcon(book: Book): string {
-    if (isNullOrUndefined(this._connTypeList) || 0 === this._connTypeList.length) {
+    if (this.isNullOrUndefined(this._connTypeList) || 0 === this._connTypeList.length) {
       this._connTypeList = StorageService.connectionTypeList;
     }
     const connType = this.getConnType(book);
     return this.getConnImplementorGrayImgUrl(connType,
-      isNullOrUndefined(this._connTypeList.find(item => item.implementor === connType)) ?
+      this.isNullOrUndefined(this._connTypeList.find(item => item.implementor === connType)) ?
         null : this._connTypeList.find(item => item.implementor === connType).iconResource3
     );
   } // function - getWorkbenchConnTypeIcon
@@ -1620,8 +1619,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     this.workspaceId = (workspaceId) ? workspaceId : undefined;
     this.currentFolderId = (folderId) ? folderId : undefined;
 
-    (isNullOrUndefined(this.workspaceId)) || (this.cookieWorkspace.workspaceId = this.workspaceId);
-    (isNullOrUndefined(this.currentFolderId)) || (this.cookieWorkspace.folderId = this.isRoot ? null : this.currentFolderId);
+    (this.isNullOrUndefined(this.workspaceId)) || (this.cookieWorkspace.workspaceId = this.workspaceId);
+    (this.isNullOrUndefined(this.currentFolderId)) || (this.cookieWorkspace.folderId = this.isRoot ? null : this.currentFolderId);
 
     if (this.viewType === null) {
       this.viewType = DEFAULT_VIEW_TYPE;
@@ -1754,8 +1753,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     const criteria: UsedCriteria = this.getUsedCriteriaFromLocalStorage();
 
     this.viewType = criteria.workspace.viewType ? criteria.workspace.viewType : DEFAULT_VIEW_TYPE;
-    this.contentSortIndex = isNullOrUndefined(criteria.workspace.contentSortIndex) ? DEFAULT_CONTENT_SORT_INDEX : criteria.workspace.contentSortIndex;
-    this.contentFilterIndex = isNullOrUndefined(criteria.workspace.contentFilterIndex) ? DEFAULT_CONTENT_FILTER_INDEX : criteria.workspace.contentFilterIndex;
+    this.contentSortIndex = this.isNullOrUndefined(criteria.workspace.contentSortIndex) ? DEFAULT_CONTENT_SORT_INDEX : criteria.workspace.contentSortIndex;
+    this.contentFilterIndex = this.isNullOrUndefined(criteria.workspace.contentFilterIndex) ? DEFAULT_CONTENT_FILTER_INDEX : criteria.workspace.contentFilterIndex;
   }
 }
 

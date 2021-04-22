@@ -26,7 +26,6 @@ import {
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Dataconnection} from '@domain/dataconnection/dataconnection';
 import {StringUtil} from '@common/util/string.util';
-import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'detail-workbench-dataconnection-info',
@@ -69,7 +68,7 @@ export class DetailWorkbenchDataconnectionInfoComponent extends AbstractComponen
   public ngOnInit(): void {
     console.log('dataconnection', this.dataconnection);
     // 권한 정보가 없을 경우
-    if (isNullOrUndefined(this.dataconnection.authenticationType)) {
+    if (this.isNullOrUndefined(this.dataconnection.authenticationType)) {
       this.dataconnection.authenticationType = 'MANUAL';
     }
   }

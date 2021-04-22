@@ -1260,7 +1260,7 @@ var nicLinkButton = nicEditorAdvancedButton.extend({
     }
     this.removePane();
 
-    if(!this.ln) {
+    if(!this.ln || !this.ln.setAttributes) {
       var tmp = this.inputs['title'].value;
       ( undefined === tmp || '' === tmp ) && ( tmp = 'new_link' ) ;
       this.ne.nicCommand("createlink",tmp);

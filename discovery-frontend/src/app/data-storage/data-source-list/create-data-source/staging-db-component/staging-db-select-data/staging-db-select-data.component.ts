@@ -14,7 +14,6 @@
 
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import {isNullOrUndefined} from 'util';
 import {
   ChangeDetectorRef,
   Component,
@@ -470,7 +469,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      if (!isNullOrUndefined(item.alias)) {
+      if (!this.isNullOrUndefined(item.alias)) {
         item.alias = this._sliceTableName(item.alias);
       }
       return item;

@@ -14,7 +14,6 @@
 
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import {isNullOrUndefined} from 'util';
 import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Alert} from '@common/util/alert.util';
 import {StringUtil} from '@common/util/string.util';
@@ -410,7 +409,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      if (!isNullOrUndefined(item.alias)) {
+      if (!this.isNullOrUndefined(item.alias)) {
         item.alias = this._sliceTableName(item.alias);
       }
       return item;

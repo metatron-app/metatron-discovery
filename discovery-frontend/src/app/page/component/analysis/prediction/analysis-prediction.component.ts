@@ -36,7 +36,7 @@ import {Analysis, AnalysisConfig, Confidence, Forecast, HyperParameter, Style} f
 import {ColorPickerLayerComponent} from '../color.picker/color.picker.layer.component';
 import * as $ from 'jquery';
 import {SelectComponent} from '@common/component/select/select.component';
-import {Subject} from 'rxjs/Subject';
+import {Subject} from 'rxjs';
 import {Subscription} from 'rxjs/Subscription';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Alert} from '@common/util/alert.util';

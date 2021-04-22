@@ -88,7 +88,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, A
     super(element, injector);
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize() {
     const height = $('.ddp-ui-contents-list').outerHeight() + 190 + 54;
     this.$layoutContentsClass.css('height', height);

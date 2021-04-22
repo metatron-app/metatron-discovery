@@ -32,7 +32,6 @@ import {BaseOptionComponent} from '../base-option.component';
 import {ColorTemplateComponent} from '@common/component/color-picker/color-template.component';
 import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
-import {isNullOrUndefined} from 'util';
 import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 import {ChartUtil} from '@common/component/chart/option/util/chart-util';
 import {UILayers} from '@common/component/chart/option/ui-option/map/ui-layers';
@@ -248,14 +247,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     if (MapLayerType.HEATMAP === layerType) {
 
       layer = this.setColorByShelf(false, layerIndex);
-      if (isNullOrUndefined(layer.color.heatMapTransparency)) {
+      if (this.isNullOrUndefined(layer.color.heatMapTransparency)) {
         layer.color.heatMapTransparency = 10;
       }
       layer.color.transparency = layer.color.heatMapTransparency;
-      if (isNullOrUndefined(layer['blur'])) {
+      if (this.isNullOrUndefined(layer['blur'])) {
         layer['blur'] = 20;
       }
-      if (isNullOrUndefined(layer.heatMapRadius)) {
+      if (this.isNullOrUndefined(layer.heatMapRadius)) {
         layer.heatMapRadius = 20;
       }
       layer['radius'] = layer.heatMapRadius;
@@ -276,15 +275,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.SYMBOL === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(false, layerIndex);
-      if (isNullOrUndefined(layer.color.symbolTransparency)) {
+      if (this.isNullOrUndefined(layer.color.symbolTransparency)) {
         layer.color.symbolTransparency = 50;
       }
       layer.color.transparency = layer.color.symbolTransparency;
-      if (isNullOrUndefined(layer.symbolPointType)) {
+      if (this.isNullOrUndefined(layer.symbolPointType)) {
         layer.symbolPointType = MapSymbolType.CIRCLE;
       }
       (layer as UISymbolLayer).symbol = layer.symbolPointType;
-      if (isNullOrUndefined(layer.symbolOutline)) {
+      if (this.isNullOrUndefined(layer.symbolOutline)) {
         layer.symbolOutline = null;
       }
       (layer as UISymbolLayer).outline = layer.symbolOutline;
@@ -305,15 +304,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.CLUSTER === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(false, layerIndex);
-      if (isNullOrUndefined(layer.color.clusterTransparency)) {
+      if (this.isNullOrUndefined(layer.color.clusterTransparency)) {
         layer.color.clusterTransparency = 10;
       }
       layer.color.transparency = layer.color.clusterTransparency;
-      if (isNullOrUndefined(layer.clusterPointType)) {
+      if (this.isNullOrUndefined(layer.clusterPointType)) {
         layer.clusterPointType = MapSymbolType.CIRCLE;
       }
       (layer as UISymbolLayer).symbol = layer.clusterPointType;
-      if (isNullOrUndefined(layer.clusterOutline)) {
+      if (this.isNullOrUndefined(layer.clusterOutline)) {
         layer.clusterOutline = null;
       }
       (layer as UISymbolLayer).outline = layer.clusterOutline;
@@ -329,11 +328,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.TILE === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(true, layerIndex);
-      if (isNullOrUndefined(layer.color.tranTransparency)) {
+      if (this.isNullOrUndefined(layer.color.tranTransparency)) {
         layer.color.tranTransparency = 10;
       }
       layer.color.transparency = layer.color.tranTransparency;
-      if (isNullOrUndefined(layer.tileRadius)) {
+      if (this.isNullOrUndefined(layer.tileRadius)) {
         layer.tileRadius = 20;
       }
       layer['radius'] = layer.tileRadius;
@@ -344,7 +343,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
       this.rangesViewList = this.setRangeViewByDecimal(layer.color.ranges);
 
-      // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
+      // if( this.isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
       //   this.uiOption.layers[this.index]['coverage'] = 0.9;
       // }
 
@@ -529,7 +528,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       return;
     }
     // validation
-    if (!isNullOrUndefined(this.uiOption.layers[index]['pointRadiusTo'])) {
+    if (!this.isNullOrUndefined(this.uiOption.layers[index]['pointRadiusTo'])) {
       if (sizeValue === 'pointRadiusFrom' && inputValue > this.uiOption.layers[index]['pointRadiusTo']) {
         $event.target.value = this.uiOption.layers[index][sizeValue];
         return;
@@ -2004,7 +2003,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         // 크기 반경 관련 설정
         if (this.uiOption['layers'][layerIndex]['type'] === MapLayerType.SYMBOL) {
           // 크기 설정
-          if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
+          if (this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
             // default size of points are 5 pixel
             this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
             this.uiOption.layers[layerIndex].pointRadius = 5;
@@ -2015,14 +2014,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
           // Measure 값이 없을 경우
           if (this.shelf['layers'][layerIndex].fields.length <= 1
             || (this.shelf['layers'][layerIndex].fields.length > 1
-              && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
-              && isNullOrUndefined(hasMeasure))) {
+              && this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
+              && this.isNullOrUndefined(hasMeasure))) {
             delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
             delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
             delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
             this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
           } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
-            if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
+            if (this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
               if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
                 this.uiOption.layers[layerIndex]['pointRadiusTo'] = 20;
               } else {
@@ -2060,7 +2059,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       let minValue = 0;
       let maxValue = 0;
       // 공간연산으로 인한 data index 설정
-      const dataIndex = !isNullOrUndefined(this.uiOption.analysis) && this.uiOption.analysis.use === true ? this.uiOption.analysis.layerNum : layerIndex;
+      const dataIndex = !this.isNullOrUndefined(this.uiOption.analysis) && this.uiOption.analysis.use === true ? this.uiOption.analysis.layerNum : layerIndex;
       if (!_.isUndefined(data[dataIndex].valueRange) && !_.isUndefined(data[dataIndex].valueRange[alias])) {
         // less than 0, set minValue
         minValue = _.cloneDeep(data[dataIndex].valueRange[alias].minValue);

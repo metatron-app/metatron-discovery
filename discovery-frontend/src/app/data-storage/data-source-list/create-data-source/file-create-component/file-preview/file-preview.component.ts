@@ -14,7 +14,6 @@
 
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import {isNullOrUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -136,7 +135,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     // set file result
     this.fileResult = this.sourceData.uploadData.fileResult;
     // 현재 페이지 데이터소스 파일보가 있다면
-    if (this.sourceData.hasOwnProperty('fileData') && !isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
+    if (this.sourceData.hasOwnProperty('fileData') && !this.isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
       // init data
       this._initData(_.cloneDeep(this.sourceData.fileData));
     } else {
@@ -167,8 +166,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     }
     if (this.fileResult) {
       if (this.isCsvFile()) {
-        isNullOrUndefined(this.isValidDelimiter) && (this.isValidDelimiter = false);
-        isNullOrUndefined(this.isValidSeparator) && (this.isValidSeparator = false);
+        this.isNullOrUndefined(this.isValidDelimiter) && (this.isValidDelimiter = false);
+        this.isNullOrUndefined(this.isValidSeparator) && (this.isValidSeparator = false);
       }
       // validation
       if (this.isEnableNext()) {
@@ -436,7 +435,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   }
 
   public get getErrorMessage() {
-    if (isNullOrUndefined(this.globalErrorMessage)) {
+    if (this.isNullOrUndefined(this.globalErrorMessage)) {
       return this.isCsvFile() ? this.selectedFileDetailData.errorMessage : this.fileResult.selectedSheet.errorMessage;
     } else {
       return this.globalErrorMessage;
@@ -478,7 +477,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     // 현재 페이지의 데이터소스 생성정보 저장
     this._saveFileData(this.sourceData);
     // set field list, field data
-    if (!isNullOrUndefined(this.selectedFileDetailData)) {
+    if (!this.isNullOrUndefined(this.selectedFileDetailData)) {
       this.sourceData.fieldList = this.selectedFileDetailData.fields;
       this.sourceData.fieldData = this.selectedFileDetailData.data;
     }
@@ -687,7 +686,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         }
       })
       .catch(error => {
-        if (!isNullOrUndefined(error.message)) {
+        if (!this.isNullOrUndefined(error.message)) {
           this.loadingHide();
           this.globalErrorMessage = error.message;
         } else {

@@ -30,7 +30,6 @@ import {MetadataEntity} from '../metadata.entity';
 import {DataconnectionService} from '@common/service/dataconnection.service';
 import {ConnectionParam} from '../../../data-storage/service/data-connection-create.service';
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 import {SchemaTableListComponent} from './component/schema-table-list.component';
 import {SchemaTablePreviewComponent} from './component/schema-table-preview.component';
 import SchemaInfo = MetadataEntity.SchemaInfo;
@@ -219,7 +218,7 @@ export class CreateMetadataDbSelectComponent extends AbstractComponent implement
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      if (!isNullOrUndefined(item.alias)) {
+      if (!this.isNullOrUndefined(item.alias)) {
         item.alias = this._sliceTableName(item.alias);
       }
       return item;

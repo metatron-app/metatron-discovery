@@ -104,7 +104,7 @@
     <!-- switch -->
     <!-- checked 일 때 is-selected 추가 -->
     <div class="rs-wrap-swtich" [class.is-selected]="isAutoUpdate">
-      <label class="rs-switch-auto" (click)="onClickAutoUpdate()">
+      <label class="rs-switch-auto" (click)="onClickAutoUpdate(false, $event)">
         <input type="checkbox" [checked]="isAutoUpdate">
         <span class="rs-txt-auto"></span>
         <i></i>

@@ -24,7 +24,6 @@ import {
   Output
 } from '@angular/core';
 import {AbstractComponent} from '../abstract.component';
-import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'component-select',
@@ -217,12 +216,12 @@ export class SelectComponent extends AbstractComponent implements OnInit, OnDest
 
     let iconClass : string = '';
 
-    if( isNullOrUndefined(item.field) ){
+    if( this.isNullOrUndefined(item.field) ){
       return iconClass;
     }
 
     // map chart custom field check
-    if( !isNullOrUndefined(item.isCustomField) && item.isCustomField ){
+    if( !this.isNullOrUndefined(item.isCustomField) && item.isCustomField ){
       return iconClass;
     }
 

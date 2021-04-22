@@ -26,7 +26,6 @@ import {PermissionService} from '../service/permission.service';
 import {ConfirmSmallComponent} from '@common/component/modal/confirm-small/confirm-small.component';
 import {Modal} from '@common/domain/modal';
 import {CommonUtil} from '@common/util/common.util';
-import {isNullOrUndefined} from 'util';
 import {InitialChangePasswordComponent} from './component/initial-change-password/initial-change-password.component';
 
 declare let moment: any;
@@ -162,7 +161,7 @@ export class LoginComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   public confirmComplete(data) {
-    if (!isNullOrUndefined(data)) {
+    if (!CommonUtil.isNullOrUndefined(data)) {
       if (data === this.user) {
         this.login();
       } else {

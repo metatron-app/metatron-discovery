@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 import * as _ from 'lodash';
-import {isNullOrUndefined} from 'util';
 
 import {
   AfterContentChecked,
@@ -161,7 +160,7 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
   public ngOnInit() {
     super.ngOnInit();
 
-    (isNullOrUndefined(this.selectedItems)) && (this.selectedItems = []);
+    (this.isNullOrUndefined(this.selectedItems)) && (this.selectedItems = []);
 
     if (this.candidateList != null && this.candidateList.length > 0) {
       if (typeof this.candidateList[0] === 'string') {

@@ -82,7 +82,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Map element
-  @ViewChild('mapArea')
+  @ViewChild('mapArea', {static: true})
   private area: ElementRef;
   private $area: any;
 
@@ -91,7 +91,7 @@ export class MapChartComponent extends BaseChart<UIMapOption> implements AfterVi
   private tooltipEl: ElementRef;
 
   // Feature icon element
-  @ViewChild('feature')
+  @ViewChild('feature', {static: true})
   private featureEl: ElementRef;
 
   private _propMapConf = sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG);

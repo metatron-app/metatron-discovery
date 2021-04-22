@@ -12,8 +12,6 @@
 * limitations under the License.
 */
 
-import {isNullOrUndefined} from 'util';
-
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {PopupService} from '@common/service/popup.service';
@@ -133,8 +131,8 @@ export class EditLineagePopupComponent extends AbstractPopupComponent implements
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
-        isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0)) {
+        this.isNullOrUndefined(result['_embedded']) ||
+        (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getLineageList();
       }
@@ -165,7 +163,7 @@ export class EditLineagePopupComponent extends AbstractPopupComponent implements
       page: this.page.page
     };
 
-    if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
+    if (!this.isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['nameContains'] = this.searchText.trim();
     }
 

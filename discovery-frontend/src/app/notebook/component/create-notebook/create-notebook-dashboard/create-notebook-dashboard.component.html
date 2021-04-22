@@ -74,7 +74,7 @@
               </ul>
               <ul class="ddp-list-file" *ngIf="data.hasOwnProperty('dashBoards') === true">
                 <li *ngFor="let dashboard of data.dashBoards"
-                  (click)="showDashboardDetail(dashboard['id'], dashboard['name'])">
+                  (click)="showDashboardDetail(dashboard['id'])">
                   <a href="javascript:">
                     <em class="ddp-icon-dashboard3"></em>
                     <!--<em class="ddp-icon-chart3"></em>-->
