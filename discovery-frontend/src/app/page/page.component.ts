@@ -334,7 +334,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   @ViewChild(ColorOptionComponent)
   private colorComponent: ColorOptionComponent;
 
-  @ViewChild(AnalysisComponent)
+  @ViewChild(AnalysisComponent, {static: true})
   public analysisComponent: AnalysisComponent;
 
   @ViewChild(LineChartComponent)
@@ -995,7 +995,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    *  커스텀 컬럼 필드 오픈
    */
   public openCustomFieldPopup(customField?: Field | ExpressionField, columnType?: string) {
-    //dimension / measure / parameter 구분값
+    // dimension / measure / parameter 구분값
     this.columnType = columnType;
 
     if (customField) {
@@ -3291,7 +3291,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     let valid: boolean = true;
 
     // 공간연산 실행시 나머지 옵션 레이어 disable
-    if ('map' === this.selectChart && this.uiOption['analysis'] !== null && this.uiOption['analysis']['use'] === true) {
+    if ('map' === this.selectChart && this.uiOption['analysis'] && this.uiOption['analysis']['use'] === true) {
       (layerNum === this.shelf.layers.length - 1 ? valid = false : valid = true);
       return valid;
     }
