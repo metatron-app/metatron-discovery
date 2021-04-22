@@ -330,7 +330,7 @@ export class CreateSnapshotPopupComponent extends AbstractPopupComponent impleme
    * When db name is selected
    * @param dbName
    */
-  public onSelectedDBName(dbName, _dbList: string[]) {
+  public onSelectedDBName(dbName) {
     this.snapshot['dbName'] = dbName;
   }
 

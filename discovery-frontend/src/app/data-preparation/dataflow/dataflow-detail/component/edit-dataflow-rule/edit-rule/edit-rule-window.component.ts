@@ -213,7 +213,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /**
    * When scrolled
    */
-  public scrollHandler(_event: Event) {
+  public scrollHandler() {
     this.dataflowModelService.scrollClose.next();
   }
 

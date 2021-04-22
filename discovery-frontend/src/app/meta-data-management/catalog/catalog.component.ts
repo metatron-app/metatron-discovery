@@ -314,7 +314,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    * 메타데이터 이름 수정 버튼 클릭시
    * @param catalog
    */
-  public editCatalog(catalog, _index) {
+  public editCatalog(catalog) {
     catalog.editing = true;
     this.safelyDetectChanges();
     this.catalogInput.nativeElement.value = catalog.name; // 현재 값 적용

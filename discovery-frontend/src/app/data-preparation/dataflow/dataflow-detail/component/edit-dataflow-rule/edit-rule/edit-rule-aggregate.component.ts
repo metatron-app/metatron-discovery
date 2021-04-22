@@ -168,7 +168,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /**
    * When scrolled
    */
-  public scrollHandler(_event: Event) {
+  public scrollHandler() {
     this.dataflowModelService.scrollClose.next();
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
