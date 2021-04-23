@@ -22,6 +22,7 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.ingestion.*;
@@ -2108,12 +2109,15 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     Map<String, Object> consumeProperties = Maps.newHashMap();
     consumeProperties.put("bootstrap.servers", "localhost:9092");
 
+    Map<String, Object> tuningOptions = Maps.newHashMap();
+    tuningOptions.put("resetOffsetAutomatically", "true");
+
     RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo("test_topic",
                                                                     consumeProperties,
                                                                     new JsonFileFormat(),
                                                                     false,
                                                                     null,
-                                                                    null, null);
+                                                                    null, tuningOptions);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
 
@@ -2132,6 +2136,95 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dsRes.then()
 //      .statusCode(HttpStatus.SC_CREATED)
     .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createAndUpdateDataSourceWithRealTimeIngestion() throws JsonProcessingException {
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("RealTime_Ingestion_" + System.currentTimeMillis());
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(SECOND);
+    dataSource.setSegGranularity(HOUR);
+    dataSource.setSrcType(REALTIME);
+
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("event_time", DataType.TIMESTAMP, TIMESTAMP, 0L));
+    fields.add(new Field("d1", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("d2", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+    fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 4L));
+
+    dataSource.setFields(fields);
+
+    Map<String, Object> consumeProperties = Maps.newHashMap();
+    consumeProperties.put("bootstrap.servers", "localhost:9092");
+
+    Map<String, Object> tuningOptions = Maps.newHashMap();
+    tuningOptions.put("resetOffsetAutomatically", "true");
+
+    RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo("test_topic",
+                                                                    consumeProperties,
+                                                                    new JsonFileFormat(),
+                                                                    false,
+                                                                    null,
+                                                                    null, tuningOptions);
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(dataSource)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+    dsRes.then()
+         .log().all()
+         .statusCode(HttpStatus.SC_CREATED);
+    // @formatter:on
+
+    try {
+      TestUtils.printTestTitle("Successfully created the realtime datasource. Now 5 sec. sleep..");
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    String dataSourceId = from(dsRes.asString()).get("id");
+
+    Map<String, Object> updatedTuningOptions = Maps.newHashMap();
+    updatedTuningOptions.put("resetOffsetAutomatically", "true");
+    updatedTuningOptions.put("httpTimeout", "PT5S");
+
+    RealtimeIngestionInfo rii = new RealtimeIngestionInfo(null, null, updatedTuningOptions);
+
+    CollectionPatch collectionPatch = new CollectionPatch();
+    collectionPatch.setOp(CollectionPatch.CollectionAction.ADD);
+    collectionPatch.add("name", "m3");
+    collectionPatch.add("type", "DOUBLE");
+    collectionPatch.add("role", "MEASURE");
+    collectionPatch.add("seq", 5);
+
+    IngestionUpdateRequest iur = new IngestionUpdateRequest(rii, Lists.newArrayList(collectionPatch));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(iur)
+      .log().all()
+    .when()
+      .patch("/api/datasources/{id}/ingestion", dataSourceId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_NO_CONTENT);
     // @formatter:on
 
   }

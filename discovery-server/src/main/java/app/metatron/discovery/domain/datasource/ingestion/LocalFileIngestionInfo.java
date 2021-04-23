@@ -56,6 +56,11 @@ public class LocalFileIngestionInfo implements IngestionInfo {
   public LocalFileIngestionInfo() {
   }
 
+  @Override
+  public void update(IngestionInfo ingestionInfo) {
+    // Not supported yet
+  }
+
   public String getPath() {
     return path;
   }

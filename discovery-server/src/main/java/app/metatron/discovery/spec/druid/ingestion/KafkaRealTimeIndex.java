@@ -26,12 +26,29 @@ import app.metatron.discovery.spec.druid.ingestion.tuning.TuningConfig;
  */
 public class KafkaRealTimeIndex implements SupervisorIndex {
 
+  /**
+   * Supervisor Id
+   */
+  String id;
+
+  /**
+   * Data Schema Spec.
+   */
   DataSchema dataSchema;
 
+  /**
+   * tuning configuration
+   */
   TuningConfig tuningConfig;
 
+  /**
+   * Input configuration
+   */
   IoConfig ioConfig;
 
+  /**
+   * Context - Extra. configuration
+   */
   Map<String, Object> context;
 
   public KafkaRealTimeIndex() {
@@ -67,5 +84,13 @@ public class KafkaRealTimeIndex implements SupervisorIndex {
 
   public void setContext(Map<String, Object> context) {
     this.context = context;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 }

@@ -33,6 +33,11 @@ public class SingleIngestionInfo extends JdbcIngestionInfo implements IngestionI
     this.scope = scope;
   }
 
+  @Override
+  public void update(IngestionInfo ingestionInfo) {
+    // Not supported yet
+  }
+
   public IngestionScope getScope() {
     return scope;
   }
