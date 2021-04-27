@@ -137,13 +137,13 @@ export class DatasourceService extends AbstractService {
     if (!disableCache && historyItem) {
       return new Promise((resolve, _reject) => {
         console.log('>>>>> history data');
-        resolve(historyItem.result);
+        resolve(JSON.parse(JSON.stringify(historyItem.result)));
       });
     } else {
       return this.post(this.API_URL + 'datasources/query/search', query)
         .then(result => {
           console.log('>>>>> query data');
-          this._searchHistory.push({query: stringifyQuery, result: result});
+          this._searchHistory.push({query: stringifyQuery, result: JSON.parse(JSON.stringify(result))});
           return result;
         });
     }

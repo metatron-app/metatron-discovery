@@ -78,6 +78,7 @@
     "no-unused-expression" : false,
     "template-banana-in-box": true,
     "template-no-negated-async": true,
+    "triple-equals": false,
     "use-lifecycle-interface": true,
     "use-pipe-transform-interface": true,
     "no-unnecessary-initializer": false,
