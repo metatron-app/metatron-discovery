@@ -572,26 +572,26 @@ export class GaugeChartComponent extends BaseChart<UIOption> implements OnInit, 
   protected setUIData(): any {
 
     // rows 축의 개수만큼 넣어줌
-    _.each(this.data.columns, (data) => {
-
-      data.categoryValue = 0;
-      data.categoryPercent = 0;
-
-      // category의 합을 설정
-      for (const item of data) {
-        data.categoryPercent += item.percentage;
-        data.categoryValue += item.value;
-      }
-
-      data.categoryPercent = _.cloneDeep(Math.round(data.categoryPercent));
-      data.categoryValue = _.cloneDeep(Math.round(data.categoryValue));
-
-      // 해당 property에 값 설정
-      for (const item of data) {
-        item['categoryPercent'] = _.cloneDeep(Math.round(data.categoryPercent));
-        item['categoryValue'] = _.cloneDeep(Math.round(data.categoryValue));
-      }
-    });
+    // _.each(this.data.columns, (data) => {
+    //
+    //   data.categoryValue = 0;
+    //   data.categoryPercent = 0;
+    //
+    //   // category의 합을 설정
+    //   for (const item of data) {
+    //     data.categoryPercent += item.percentage;
+    //     data.categoryValue += item.value;
+    //   }
+    //
+    //   data.categoryPercent = _.cloneDeep(Math.round(data.categoryPercent));
+    //   data.categoryValue = _.cloneDeep(Math.round(data.categoryValue));
+    //
+    //   // 해당 property에 값 설정
+    //   for (const item of data) {
+    //     item['categoryPercent'] = _.cloneDeep(Math.round(data.categoryPercent));
+    //     item['categoryValue'] = _.cloneDeep(Math.round(data.categoryValue));
+    //   }
+    // });
 
     return this.data.columns;
   }
