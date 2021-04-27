@@ -353,16 +353,18 @@ export class BoxPlotChartComponent extends BaseChart<UIOption> implements OnInit
 
     let result: string[] = [];
 
+    let valueList = params.data.length ? params.data : params.data.value;
+
     if (!this.uiOption.toolTip || !this.uiOption.toolTip.displayTypes) {
 
       const nameList = _.split(params.name, CHART_STRING_DELIMITER);
       result = FormatOptionConverter.getTooltipName(nameList, this.pivot.columns, result, true);
 
-      result.push('High: ' + FormatOptionConverter.getFormatValue(params.data[0], format));
-      result.push('3Q: ' + FormatOptionConverter.getFormatValue(params.data[1], format));
-      result.push('Median: ' + FormatOptionConverter.getFormatValue(params.data[2], format));
-      result.push('1Q: ' + FormatOptionConverter.getFormatValue(params.data[3], format));
-      result.push('Low: ' + FormatOptionConverter.getFormatValue(params.data[4], format));
+      result.push('High: ' + FormatOptionConverter.getFormatValue(valueList[0], format));
+      result.push('3Q: ' + FormatOptionConverter.getFormatValue(valueList[1], format));
+      result.push('Median: ' + FormatOptionConverter.getFormatValue(valueList[2], format));
+      result.push('1Q: ' + FormatOptionConverter.getFormatValue(valueList[3], format));
+      result.push('Low: ' + FormatOptionConverter.getFormatValue(valueList[4], format));
     } else {
 
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
@@ -372,23 +374,23 @@ export class BoxPlotChartComponent extends BaseChart<UIOption> implements OnInit
       }
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.HIGH_VALUE)) {
 
-        result.push('High: ' + FormatOptionConverter.getFormatValue(params.data[0], format));
+        result.push('High: ' + FormatOptionConverter.getFormatValue(valueList[0], format));
       }
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.THREE_Q_VALUE)) {
 
-        result.push('3Q: ' + FormatOptionConverter.getFormatValue(params.data[3], format));
+        result.push('3Q: ' + FormatOptionConverter.getFormatValue(valueList[3], format));
       }
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.MEDIAN_VALUE)) {
 
-        result.push('Median: ' + FormatOptionConverter.getFormatValue(params.data[2], format));
+        result.push('Median: ' + FormatOptionConverter.getFormatValue(valueList[2], format));
       }
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.FIRST_Q_VALUE)) {
 
-        result.push('1Q: ' + FormatOptionConverter.getFormatValue(params.data[1], format));
+        result.push('1Q: ' + FormatOptionConverter.getFormatValue(valueList[1], format));
       }
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LOW_VALUE)) {
 
-        result.push('Low: ' + FormatOptionConverter.getFormatValue(params.data[4], format));
+        result.push('Low: ' + FormatOptionConverter.getFormatValue(valueList[4], format));
       }
     }
 
