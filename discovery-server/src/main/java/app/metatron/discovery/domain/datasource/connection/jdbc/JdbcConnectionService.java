@@ -479,7 +479,7 @@ public class JdbcConnectionService {
             continue;
           }
           String fieldAlias = field.getName();
-          String fieldName = field.getSqlName();
+          String fieldName = StringUtils.defaultIfEmpty(field.getSqlName(), field.getName());
           if (StringUtils.contains(fieldAlias, ".")) {
             String[] splicedFieldAlias = StringUtils.split(fieldAlias, ".");
             fieldAlias = splicedFieldAlias[splicedFieldAlias.length - 1];
