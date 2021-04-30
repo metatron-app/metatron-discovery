@@ -33,7 +33,7 @@ import {SchemaConfigureMainComponent} from '../../../../component/schema-configu
 })
 export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  @ViewChild(SchemaConfigureMainComponent)
+  @ViewChild(SchemaConfigureMainComponent, {static: true})
   private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;
 
   // 생성될 데이터소스 정보

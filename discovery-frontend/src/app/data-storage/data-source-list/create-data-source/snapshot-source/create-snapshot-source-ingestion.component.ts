@@ -35,7 +35,7 @@ import {IngestionSettingComponent} from '../../component/ingestion-setting.compo
 })
 export class CreateSnapshotSourceIngestionComponent extends AbstractPopupComponent implements OnChanges {
 
-  @ViewChild(IngestionSettingComponent)
+  @ViewChild(IngestionSettingComponent, {static: true})
   private _ingestionSettingComponent: IngestionSettingComponent;
 
   @Input('sourceData')

@@ -31,7 +31,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(ConnectionComponent)
+  @ViewChild(ConnectionComponent, {static: true})
   private readonly _connectionComponent: ConnectionComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

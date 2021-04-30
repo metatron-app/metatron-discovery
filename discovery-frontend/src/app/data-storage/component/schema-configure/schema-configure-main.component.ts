@@ -33,10 +33,10 @@ export class SchemaConfigureMainComponent extends AbstractComponent implements O
   public selectedRoleFilter: Filter.Role = this.constant.getRoleTypeFilterFirst();
   public selectedTypeFilter: Filter.Logical = this.constant.getTypeFiltersFirst();
 
-  @ViewChild(SchemaConfigureFilterComponent)
+  @ViewChild(SchemaConfigureFilterComponent, {static: true})
   private readonly _filterComponent: SchemaConfigureFilterComponent;
 
-  @ViewChild(SchemaConfigureFieldComponent)
+  @ViewChild(SchemaConfigureFieldComponent, {static: true})
   private readonly _fieldComponent: SchemaConfigureFieldComponent;
 
   @Input()

@@ -43,7 +43,7 @@ import {ConnectionComponent, ConnectionValid} from '../../../../component/connec
 export class DbSetDataConnectionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   // connection component
-  @ViewChild(ConnectionComponent)
+  @ViewChild(ConnectionComponent, {static: true})
   private readonly _connectionComponent: ConnectionComponent;
 
   // create source data

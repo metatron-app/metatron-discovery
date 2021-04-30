@@ -43,7 +43,7 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
   @Input('sourceData')
   private _sourceData: DatasourceInfo;
 
-  @ViewChild(IngestionSettingComponent)
+  @ViewChild(IngestionSettingComponent, {static: true})
   private _ingestionSettingComponent: IngestionSettingComponent;
 
   @Input('step')

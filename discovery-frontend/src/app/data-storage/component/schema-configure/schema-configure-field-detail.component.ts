@@ -59,10 +59,10 @@ declare const moment;
 })
 export class SchemaConfigureFieldDetailComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
-  @ViewChild('geoCoordinateSelectBox')
+  @ViewChild('geoCoordinateSelectBox', {static: true})
   private readonly _geoCoordinateSelectBox: StorageFilterSelectBoxComponent;
 
-  @ViewChild('typeSelectBox')
+  @ViewChild('typeSelectBox', {static: true})
   private readonly _typeSelectBox: StorageFilterSelectBoxComponent;
 
   // current milli seconds

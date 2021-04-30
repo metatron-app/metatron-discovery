@@ -28,10 +28,10 @@ import {StorageFilterSelectBoxComponent} from '../../data-source-list/component/
 })
 export class SchemaConfigureFilterComponent extends AbstractComponent {
 
-  @ViewChild('roleFilterSelectBox')
+  @ViewChild('roleFilterSelectBox', {static: true})
   private readonly _roleFilterSelectBox: StorageFilterSelectBoxComponent;
 
-  @ViewChild('typeFilterSelectBox')
+  @ViewChild('typeFilterSelectBox', {static: true})
   private readonly _typeFilterSelectBox: StorageFilterSelectBoxComponent;
 
   // filter list

@@ -33,13 +33,13 @@ import {SchemaConfigureTimestampComponent} from './schema-configure-timestamp.co
 })
 export class SchemaConfigureFieldComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild(SchemaConfigureChangeTypePopupComponent)
+  @ViewChild(SchemaConfigureChangeTypePopupComponent, {static: true})
   private readonly _changeTypePopupComponent: SchemaConfigureChangeTypePopupComponent;
 
-  @ViewChild(SchemaConfigureDeletePopupComponent)
+  @ViewChild(SchemaConfigureDeletePopupComponent, {static: true})
   private readonly _deletePopupComponent: SchemaConfigureDeletePopupComponent;
 
-  @ViewChild(SchemaConfigureTimestampComponent)
+  @ViewChild(SchemaConfigureTimestampComponent, {static: true})
   private readonly _timestampComponent: SchemaConfigureTimestampComponent;
 
   @Input()
