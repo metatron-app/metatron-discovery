@@ -44,6 +44,7 @@ import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {Datasource} from '@domain/datasource/datasource';
 import {WidgetService} from '../dashboard/service/widget.service';
 import {DashboardUtil} from '../dashboard/util/dashboard.util';
+import {DragulaService} from '../../lib/ng2-dragula';
 
 declare let $;
 
@@ -150,7 +151,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public onlyShowingFlag: boolean = false;
 
   // 대시보드 리스트 타입 : LIST, CARD
-  public listType: string;
+  public listType: 'LIST' | 'CARD';
 
   // 대시보드 목록 페이지 번호 및 검색어
   public dashboardPage: PageResult = new PageResult();
@@ -196,10 +197,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
               private widgetService: WidgetService,
               private popupService: PopupService,
               private broadCaster: EventBroadcaster,
+              private dragulaSvc: DragulaService,
               private _clipboardService: ClipboardService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
+    this.listType = 'CARD';
+    this._settingDnd();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -249,7 +253,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         .subscribe((fragment: string) => {
           this._routeFragment = fragment;
           if (this.workbookId) {
-            if( this.isShowCreateDashboard ) {
+            if (this.isShowCreateDashboard) {
               this._getWorkbook().then(() => {
                 // 생성 후 체크가 모두 선택
                 this.selectedDatasources = this.datasources.map(ds => ds.id);
@@ -335,6 +339,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
+
+    this.dragulaSvc.destroy('boardListSort');
 
     // z-index 이슈를 해결하기 위한 코드
     $('.ddp-layout-contents').removeClass('ddp-layout-board');
@@ -810,7 +816,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * Change list type
    * @param {string} type
    */
-  public changeListType(type: string) {
+  public changeListType(type: 'LIST' | 'CARD') {
     this.listType = type;
     this.safelyDetectChanges();
     if (this.selectedDashboard) {
@@ -1366,4 +1372,20 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.selectedDashboard = dashboard;
     this.dashboardService.setCurrentDashboard(dashboard);
   }
+
+  /**
+   * Drag and drop 설정
+   * @private
+   */
+  private _settingDnd() {
+
+    this.dragulaSvc.setOptions('boardListSort', {copy: false});
+
+    const dragulaDropModelSubs = this.dragulaSvc.dropModel.subscribe((_value) => {
+      this.changeOrder();
+    });
+
+    this.subscriptions.push(dragulaDropModelSubs);
+
+  } // func - _settingDnd
 }

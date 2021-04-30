@@ -14,6 +14,7 @@
 
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
+import {DragulaModule} from '../../lib/ng2-dragula';
 import {WorkbookComponent} from './workbook.component';
 import {DashboardModule} from '../dashboard/dashboard.module';
 import {WorkbookService} from './service/workbook.service';
@@ -36,6 +37,7 @@ const workbookRoutes: Routes = [
 @NgModule({
   imports: [
     CommonModule,
+    DragulaModule,
     DashboardModule,
     DashboardShareModule,
     DataPreviewModule,
