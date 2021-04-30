@@ -21,7 +21,8 @@ import {CatalogService} from '../../../meta-data-management/catalog/service/cata
 
 @Component({
   selector: 'component-catalog-folder',
-  templateUrl: 'catalog-folder.component.html'
+  templateUrl: 'catalog-folder.component.html',
+  styles: [':host .ddp-txt-search { font-size:13px; color:#666db7; }']
 })
 export class CatalogFolderComponent extends AbstractComponent implements OnInit {
   // data

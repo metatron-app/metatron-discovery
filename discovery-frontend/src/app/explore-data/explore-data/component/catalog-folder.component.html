@@ -3,7 +3,7 @@
     <em class="ddp-icon-view" (click)="onChangeFolderOpen(catalog.id)" *ngIf="isEmptySearchKeyword() && catalog.countOfChild !== 0"></em>
     <div class="ddp-txt-link">
       <em class="ddp-icon-folder"></em>
-      {{getCatalogName()}}
+      <span [innerHTML]="getCatalogName()"></span>
 <!--      <span class="ddp-data-num">({{ catalog.countOfChild }})</span>-->
     </div>
   </a>

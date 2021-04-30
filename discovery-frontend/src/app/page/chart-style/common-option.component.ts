@@ -385,6 +385,8 @@ export class CommonOptionComponent extends BaseOptionComponent implements OnInit
   private contentFontColorPickerEle: any;
   private fontColorPickerEle: any;
   private backgroundColorPickerEle: any;
+
+  private _prevLimit: number;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -473,65 +475,66 @@ export class CommonOptionComponent extends BaseOptionComponent implements OnInit
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.right'), value: UIPosition.RIGHT},
   ];
 
-  public get uiFontStyle(): typeof UIFontStyle{
+  public get uiFontStyle(): typeof UIFontStyle {
     return UIFontStyle;
   }
 
-  public get uiPosition(): typeof UIPosition{
+  public get uiPosition(): typeof UIPosition {
     return UIPosition;
   }
 
-  public get fontSize(): typeof FontSize{
+  public get fontSize(): typeof FontSize {
     return FontSize;
   }
 
-  public get uiOrient(): typeof UIOrient{
+  public get uiOrient(): typeof UIOrient {
     return UIOrient;
   }
 
-  public get cellColorTarget(): typeof CellColorTarget{
+  public get cellColorTarget(): typeof CellColorTarget {
     return CellColorTarget;
   }
 
-  public get barMarkType(): typeof BarMarkType{
+  public get barMarkType(): typeof BarMarkType {
     return BarMarkType;
   }
 
-  public get lineMarkType(): typeof LineMarkType{
+  public get lineMarkType(): typeof LineMarkType {
     return LineMarkType;
   }
 
-  public get lineCornerType(): typeof LineCornerType{
+  public get lineCornerType(): typeof LineCornerType {
     return LineCornerType;
   }
 
-  public get lineStyle(): typeof LineStyle{
+  public get lineStyle(): typeof LineStyle {
     return LineStyle;
   }
 
-  public get lineMode(): typeof LineMode{
+  public get lineMode(): typeof LineMode {
     return LineMode;
   }
 
-  public get pointShape(): typeof PointShape{
+  public get pointShape(): typeof PointShape {
     return PointShape;
   }
 
-  public get pieSeriesType(): typeof PieSeriesViewType{
+  public get pieSeriesType(): typeof PieSeriesViewType {
     return PieSeriesViewType;
   }
 
-  public get labelStyle(): typeof LabelStyle{
+  public get labelStyle(): typeof LabelStyle {
     return LabelStyle;
   }
 
-  public get labelLayout(): typeof LabelLayoutType{
+  public get labelLayout(): typeof LabelLayoutType {
     return LabelLayoutType;
   }
 
-  public get gridType(): typeof GridViewType{
+  public get gridType(): typeof GridViewType {
     return GridViewType;
   }
+
   /**
    * 색상 component init
    * @param colorPickerEle
@@ -1447,6 +1450,12 @@ export class CommonOptionComponent extends BaseOptionComponent implements OnInit
     // limit값이 null인경우 limitCheck값 false로 설정
     if (_.isNull(limit)) this.uiOption.limitCheck = false;
 
+    if (2 > limit) {
+      this.uiOption.limit = this._prevLimit;
+      this.safelyDetectChanges();
+      return;
+    }
+
     this._setLimit(limit);
     this.update({});
   }
@@ -1721,6 +1730,7 @@ export class CommonOptionComponent extends BaseOptionComponent implements OnInit
     } else {
       this.uiOption.limit = undefined;
     }
+    this._prevLimit = this.uiOption.limit;
     this.safelyDetectChanges();
   } // function - _setLimit
 

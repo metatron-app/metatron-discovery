@@ -52,7 +52,7 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
 
   public isShow: boolean;
 
-  public ruleTypeList: any[];
+  public ruleTypeList: any[] = ['loadForever', 'loadByPeriod', 'loadByInterval', 'dropForever', 'dropByPeriod', 'dropByInterval']
 
   @Output('changeRetention') public changeEvent: EventEmitter<any> = new EventEmitter();
 
