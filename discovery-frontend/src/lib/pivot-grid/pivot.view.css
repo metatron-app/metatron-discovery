@@ -53,7 +53,7 @@
 .pivot-view .pivot-view-row .pivot-view-cell {
   position: absolute;
   border-right: 1px solid #dddddd;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #dfdfdf;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

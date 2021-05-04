@@ -3747,7 +3747,7 @@
   "msg.page.calc.option.title": "Calculation settings",
   "msg.page.calc.label": "Label",
   "msg.page.calc.label.operator": "Operator",
-  "msg.page.calc.label.operator.sum": "Sum",
+  "msg.page.calc.label.operator.sum": "Total",
   "msg.page.calc.label.operator.sub-sum": "Sub Total",
   "msg.page.calc.label.operator.average": "Average",
   "msg.page.calc.label.operator.sub-average": "Sub Average",
