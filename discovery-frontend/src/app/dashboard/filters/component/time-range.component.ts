@@ -65,7 +65,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input('mode')
-  public mode: string = 'CHANGE';          // 화면 모드
+  public mode: 'CHANGE' | 'WIDGET' | 'PANEL' = 'CHANGE';          // 화면 모드
 
   @Input('initial')
   public compData: TimeRangeData;
@@ -139,6 +139,16 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Getter / Setter
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 위젯 모드 여부
+   */
+  public get isWidgetMode(): boolean {
+    return 'WIDGET' === this.mode;
+  } // get - isWidgetMode
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -180,8 +190,22 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
     const interval: TimeRange = this.compData.interval;
 
     // 경계값 설정 여부 확인
-    this.isEarliestDateTime = interval.startDate === TimeRangeFilter.EARLIEST_DATETIME;
-    this.isLatestDateTime = interval.endDate === TimeRangeFilter.LATEST_DATETIME;
+    if (interval.startDate === TimeRangeFilter.EARLIEST_DATETIME) {
+      if( this.isWidgetMode ) {
+        this.isEarliestDateTime = false;
+        interval.startDate = minTime;
+      } else {
+        this.isEarliestDateTime = true;
+      }
+    }
+    if (interval.endDate === TimeRangeFilter.LATEST_DATETIME) {
+      if( this.isWidgetMode ) {
+        this.isLatestDateTime = false;
+        interval.endDate = maxTime;
+      } else {
+        this.isLatestDateTime = true;
+      }
+    }
 
     this.safelyDetectChanges();
 

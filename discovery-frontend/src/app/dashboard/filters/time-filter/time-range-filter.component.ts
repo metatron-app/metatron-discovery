@@ -14,15 +14,18 @@
 
 import * as _ from 'lodash';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Injector,
-  OnInit,
-  OnDestroy,
   Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
   SimpleChange,
-  SimpleChanges,
-  EventEmitter, Output, OnChanges, AfterViewInit
+  SimpleChanges
 } from '@angular/core';
 import {Dashboard} from '@domain/dashboard/dashboard';
 import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
@@ -67,7 +70,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   public dashboard: Dashboard;            // 대시보드
 
   @Input('mode')
-  public mode: string = 'CHANGE';          // 화면 모드
+  public mode: 'CHANGE' | 'WIDGET' | 'PANEL' = 'CHANGE';          // 화면 모드
 
   // 필터 변경 이벤트
   @Output()
@@ -134,7 +137,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @param {boolean} isBroadcast
    */
   public setData(filter: TimeRangeFilter, isBroadcast: boolean = false) {
-    if( !this._isRunningCandidate ) {
+    if (!this._isRunningCandidate) {
       this._isRunningCandidate = true;
       this.loadingShow();
       const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);

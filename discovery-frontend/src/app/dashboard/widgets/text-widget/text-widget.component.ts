@@ -36,6 +36,8 @@ export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> imp
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public widget: TextWidget;
 
+  public isMaximize = false;                // 최대 여부
+
   @Input('widget')
   set setWidget(widget: TextWidget) {
     this.widget = widget;
@@ -93,6 +95,14 @@ export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> imp
   public setConfiguration(objConfig: any) {
     this.widget.configuration = objConfig;
   } // function - setConfiguration
+
+  /**
+   * 위젯 사이즈 전환
+   */
+  public toggleWidgetSize() {
+    this.isMaximize = !this.isMaximize;
+    this.broadCaster.broadcast('TOGGLE_SIZE', {widgetId: this.widget.id});
+  } // function - toggleWidgetSize
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
