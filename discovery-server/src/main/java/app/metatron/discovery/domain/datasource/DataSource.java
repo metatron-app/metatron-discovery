@@ -28,6 +28,7 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.CollectionPatch;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -559,6 +560,38 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     return metaFieldMap;
+  }
+
+  /**
+   * Patch field information
+   *
+   * @param patches
+   */
+  public void patchFields(List<CollectionPatch> patches) {
+
+    Map<Long, Field> fieldMap = getFieldMap();
+
+    for (CollectionPatch patch : patches) {
+      Long fieldId = patch.getLongValue("id");
+      switch (patch.getOp()) {
+        case ADD:
+          fields.add(new Field(patch));
+          break;
+        case REPLACE:
+          if (fieldMap.containsKey(fieldId)) {
+            Field field = fieldMap.get(fieldId);
+            field.updateField(patch);
+          }
+          break;
+        case REMOVE:
+          if (fieldMap.containsKey(fieldId)) {
+            fields.remove(fieldMap.get(fieldId));
+          }
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   /**

@@ -38,6 +38,11 @@ public class BatchIngestionInfo extends JdbcIngestionInfo implements IngestionIn
   public BatchIngestionInfo() {
   }
 
+  @Override
+  public void update(IngestionInfo ingestionInfo) {
+    // Not supported yet
+  }
+
   public BatchIngestionInfo(IngestionScope range) {
     this.range = range;
   }

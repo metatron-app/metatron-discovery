@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource.ingestion;
 
+import app.metatron.discovery.domain.datasource.IngestionUpdateRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+import com.google.common.collect.Maps;
 
 /**
  * Specify Real-time ingestion
@@ -87,6 +89,32 @@ public class RealtimeIngestionInfo implements IngestionInfo {
     this.intervals = intervals;
     this.taskOptions = taskOptions;
     this.tuningOptions = tuningOptions;
+  }
+
+  public RealtimeIngestionInfo(List<String> intervals, Map<String, Object> taskOptions,
+                               Map<String, Object> tuningOptions) {
+    this.intervals = intervals;
+    this.taskOptions = taskOptions;
+    this.tuningOptions = tuningOptions;
+  }
+
+  public void update(IngestionInfo ingestionInfo) {
+
+    RealtimeIngestionInfo rii = (RealtimeIngestionInfo) ingestionInfo;
+
+    if(rii.getIntervals() != null) {
+      this.intervals = rii.getIntervals();
+    }
+
+    if(rii.getTaskOptions() != null) {
+      if(this.taskOptions == null) taskOptions = Maps.newHashMap();
+      this.taskOptions.putAll(rii.getTaskOptions());
+    }
+
+    if(rii.getTuningOptions() != null) {
+      if(this.tuningOptions == null) tuningOptions = Maps.newHashMap();
+      this.tuningOptions.putAll(rii.getTuningOptions());
+    }
   }
 
   @Override

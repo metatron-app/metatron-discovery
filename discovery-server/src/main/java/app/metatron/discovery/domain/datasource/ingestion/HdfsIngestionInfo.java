@@ -75,6 +75,11 @@ public class HdfsIngestionInfo implements IngestionInfo {
     this.jobProperties = jobProperties;
   }
 
+  @Override
+  public void update(IngestionInfo ingestionInfo) {
+    // Not supported yet
+  }
+
   public List<String> getPaths() {
     return paths;
   }

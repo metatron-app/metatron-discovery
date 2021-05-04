@@ -14,8 +14,8 @@
 
 import * as _ from 'lodash';
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
-import {TotalValueStyle, UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
 import {UIOption} from '@common/component/chart/option/ui-option';
+import {TotalValueStyle, UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
 import {FontSize, GridViewType, Operator, UIPosition} from '@common/component/chart/option/define/common';
 import {BaseOptionComponent} from './base-option.component';
 
@@ -61,26 +61,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent implements
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -88,79 +69,124 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent implements
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 연산행 show / hide 설정
+   * 로우 설정 On/Off
    */
-  public showCalculatedRow(): void {
+  public toggleRow(): void {
+        const uiOption = (this.uiOption as UIGridChart);
 
-    const uiOption = (this.uiOption as UIGridChart);
-
-    // annotation 최초설정시
     if (!uiOption.totalValueStyle) {
-
-      uiOption.totalValueStyle = {};
-      // uiOption.totalValueStyle.label = this.translateService.instant('msg.page.calc.label.grand.total');
-      uiOption.totalValueStyle.fontSize = FontSize.NORMAL;
-      uiOption.totalValueStyle.fontStyles = [];
-      uiOption.totalValueStyle.fontColor = '';
-      uiOption.totalValueStyle.backgroundColor = '#eeeeee';
-      uiOption.totalValueStyle.hAlign = UIPosition.AUTO;
-      uiOption.totalValueStyle.vAlign = UIPosition.MIDDLE;
-      uiOption.totalValueStyle.aggregationType = Operator.SUM;
-
-      // annotation이 있을때
+      // annotation 최초설정시
+      uiOption.totalValueStyle = this._getDefaultConfig();
     } else {
-
+      // annotation이 있을때
       uiOption.totalValueStyle = null;
     }
 
-    this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: uiOption.totalValueStyle}) as UIOption);
+    this.onChangedRowConfig(uiOption.totalValueStyle);
+  } // func - toggleRow
 
+  /**
+   * 로우 설정 변경
+   * @param style
+   */
+  public onChangedRowConfig(style: TotalValueStyle) {
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, {totalValueStyle: style});
     this.update();
-  }
+  } // func - onChangedRowConfig
 
-  public onChangedCalculatedRowSlider(style: TotalValueStyle) {
-    this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: style}) as UIOption);
+  /**
+   * 부분합 로우 설정 On/Off
+   */
+  public togglePartialRow(): void {
+    const uiOption = this.uiOption;
+
+    if (!uiOption.subTotalValueStyle) {
+      // annotation 최초설정시
+      uiOption.subTotalValueStyle = this._getDefaultConfig();
+    } else {
+      // annotation이 있을때
+      uiOption.subTotalValueStyle = null;
+    }
+
+    this.onChangedPartialRowConfig(uiOption.subTotalValueStyle);
+  } // func - togglePartialRow
+
+  /**
+   * 부분합 로우 설정 변경
+   * @param style
+   */
+  public onChangedPartialRowConfig(style: TotalValueStyle) {
+    this.uiOption = _.extend({}, this.uiOption, {subTotalValueStyle: style}) as UIOption;
     this.update();
-  }
+  } // func - onChangedPartialRowConfig
 
-  public showCalculatedColumn(): void {
+  /**
+   * 컬럼 설정 On/Off
+   */
+  public toggleColumn(): void {
     const uiOption = (this.uiOption as UIGridChart);
 
     // annotation 최초설정시
     if (!uiOption.showCalculatedColumnStyle) {
-      uiOption.showCalculatedColumnStyle = {};
-      // uiOption.totalValueStyle.label = this.translateService.instant('msg.page.calc.label.grand.total');
-      uiOption.showCalculatedColumnStyle.fontSize = FontSize.NORMAL;
-      uiOption.showCalculatedColumnStyle.fontStyles = [];
-      uiOption.showCalculatedColumnStyle.fontColor = '';
-      uiOption.showCalculatedColumnStyle.backgroundColor = '#eeeeee';
-      uiOption.showCalculatedColumnStyle.hAlign = UIPosition.AUTO;
-      uiOption.showCalculatedColumnStyle.vAlign = UIPosition.MIDDLE;
-      uiOption.showCalculatedColumnStyle.aggregationType = Operator.SUM;
+      uiOption.showCalculatedColumnStyle = this._getDefaultConfig();
     } else {
       uiOption.showCalculatedColumnStyle = null;
     }
 
-    this.uiOption = (_.extend({}, this.uiOption, {showCalculatedColumnStyle: uiOption.showCalculatedColumnStyle}) as UIOption);
+    this.onChangedColumnConfig(uiOption.showCalculatedColumnStyle);
+  } // func - toggleColumn
 
+  /**
+   * 컬럼 설정 변경
+   * @param style
+   */
+  public onChangedColumnConfig(style: TotalValueStyle) {
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, {showCalculatedColumnStyle: style});
     this.update();
-  }
+  } // func - onChangedColumnConfig
 
-  public onChangedCalculatedColumnSlider(style: TotalValueStyle) {
-    this.uiOption = (_.extend({}, this.uiOption, {showCalculatedColumnStyle: style}) as UIOption);
+  /**
+   * 부분합 컬럼 설정 On/Off
+   */
+  public togglePartialColumn(): void {
+    const uiOption = this.uiOption as UIGridChart;
+
+    // annotation 최초설정시
+    if (!uiOption.subTotalColumnStyle) {
+      uiOption.subTotalColumnStyle = this._getDefaultConfig();
+    } else {
+      uiOption.subTotalColumnStyle = null;
+    }
+
+    this.onChangedPartialColumnConfig(uiOption.subTotalColumnStyle);
+  } // func - togglePartialColumn
+
+  /**
+   * 부분합 컬럼 설정 변경
+   * @param style
+   */
+  public onChangedPartialColumnConfig(style: TotalValueStyle) {
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, {subTotalColumnStyle: style});
     this.update();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  } // func - onChangedPartialColumnConfig
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 기본 설정
+   * @private
+   */
+  private _getDefaultConfig() {
+    return {
+      fontSize: FontSize.NORMAL,
+      fontStyles: [],
+      fontColor: '',
+      backgroundColor: '#eeeeee',
+      hAlign: UIPosition.AUTO,
+      vAlign: UIPosition.MIDDLE,
+      aggregationType: Operator.SUM
+    };
+  } // func - _getDefaultConfig
 
-  // private apply(totalValueStyle: TotalValueStyle): void {
-  //   this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: totalValueStyle}) as UIOption);
-  //   this.update();
-  // }
 }

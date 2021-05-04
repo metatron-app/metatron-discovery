@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.datasource;
 
 import app.metatron.discovery.domain.datasource.data.SqlQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -95,15 +96,6 @@ import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.ReingestionRequest;
 import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineLoadService;
@@ -535,9 +527,74 @@ public class DataSourceController {
 
   }
 
+  /**
+   * API to change ingestion information(ingestion spec.and field) in the data source
+   *
+   * @param id datasource identifier
+   * @param updateRequest ingestion information
+   * @return
+   */
+  @RequestMapping(path = "/datasources/{id}/ingestion", method = RequestMethod.PATCH)
+  public @ResponseBody
+  ResponseEntity<?> patchIngestionInfoInDataSource(
+          @PathVariable("id") String id, @RequestBody IngestionUpdateRequest updateRequest) {
+
+    DataSource dataSource = dataSourceRepository.findOne(id);
+    if (dataSource == null) {
+      throw new ResourceNotFoundException(id);
+    }
+
+    if(CollectionUtils.isNotEmpty(updateRequest.getPatchFields())) {
+      dataSource.patchFields(updateRequest.getPatchFields());
+    }
+
+    // 실시간인 케이스만 먼저 개발
+    if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
+
+      IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
+      ingestionInfo.update(updateRequest.getIngestionInfo());
+
+      dataSource.setIngestionInfo(ingestionInfo);
+
+      List<IngestionHistory> ingestionHistories = ingestionHistoryRepository
+              .findByDataSourceIdAndStatus(dataSource.getId(), IngestionHistory.IngestionStatus.RUNNING);
+
+      IngestionHistory ingestionHistory = null;
+      if (CollectionUtils.isEmpty(ingestionHistories)) {
+        LOGGER.warn("Not found realtime task (supervisor) to update spec.");
+      } else {
+        ingestionHistory = ingestionHistories.get(0);
+      }
+
+      Optional<IngestionHistory> newIngestionHistory = engineIngestionService.realtimeIngestion(dataSource);
+      if(!newIngestionHistory.isPresent() || newIngestionHistory.get().getStatus() == IngestionHistory.IngestionStatus.FAILED) {
+        LOGGER.warn("Fail to update supervisor : {}", dataSource.getEngineName());
+      }
+
+      if(ingestionHistory == null) {
+        ingestionHistory = newIngestionHistory.get();
+      } else {
+        ingestionHistory.setIngestionInfo(dataSource.getIngestionInfo());
+      }
+
+      ingestionHistoryRepository.saveAndFlush(ingestionHistory);
+
+    }
+
+    dataSourceRepository.saveAndFlush(dataSource);
+
+    metadataService.updateFromDataSource(dataSource, true);
+
+    return ResponseEntity.noContent().build();
+
+  }
 
   /**
-   * 데이터 소스내 필드 정보를 수정합니다.
+   * Update field information
+   *
+   * @param id
+   * @param patches
+   * @return
    */
   @RequestMapping(path = "/datasources/{id}/fields", method = RequestMethod.PATCH)
   public @ResponseBody
@@ -549,33 +606,10 @@ public class DataSourceController {
       throw new ResourceNotFoundException(id);
     }
 
-    Map<Long, Field> fieldMap = dataSource.getFieldMap();
-    for (CollectionPatch patch : patches) {
-      Long fieldId = patch.getLongValue("id");
-      switch (patch.getOp()) {
-        case ADD:
-          dataSource.getFields().add(new Field(patch));
-          LOGGER.debug("Add field in datasource({})", dataSource.getId());
-          break;
-        case REPLACE:
-          if (fieldMap.containsKey(fieldId)) {
-            Field field = fieldMap.get(fieldId);
-            field.updateField(patch);
-            LOGGER.debug("Updated field in datasource({}) : {}", dataSource.getId(), fieldId);
-          }
-          break;
-        case REMOVE:
-          if (fieldMap.containsKey(fieldId)) {
-            dataSource.getFields().remove(fieldMap.get(fieldId));
-            LOGGER.debug("Deleted field in datasource({}) : {}", dataSource.getId(), fieldId);
-          }
-          break;
-        default:
-          break;
-      }
-    }
+    dataSource.patchFields(patches);
 
     dataSourceRepository.saveAndFlush(dataSource);
+
     metadataService.updateFromDataSource(dataSource, true);
 
     return ResponseEntity.noContent().build();
