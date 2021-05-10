@@ -213,7 +213,7 @@ export class LineChartComponent extends BaseChart<UILineChart> implements OnInit
       yAxis: [Axis.valueAxis(Position.MIDDLE, null, false, false, true, true, true)],
       legend: Legend.custom(false, false, Position.LEFT, SymbolType.CIRCLE, '100%', 20, 5),
       dataZoom: [DataZoom.horizontalDataZoom(), DataZoom.horizontalInsideDataZoom()],
-      tooltip: Tooltip.itemTooltip(),
+      tooltip: Tooltip.axisTooltip(),
       toolbox: Toolbox.hiddenToolbox(),
       brush: Brush.selectBrush(),
       series: []
