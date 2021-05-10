@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { AdvancedFilter } from './advanced-filter';
-import { AggregationType } from '../field/measure-field';
+import {AdvancedFilter} from './advanced-filter';
+import {AggregationType} from '../field/measure-field';
 
-export class MeasurePositionFilter extends AdvancedFilter{
+export class MeasurePositionFilter extends AdvancedFilter {
 
   /**
    *  집계 타입
@@ -44,6 +44,6 @@ export class MeasurePositionFilter extends AdvancedFilter{
  * 조건(=, >, <, >=, <=) 및 제한(상위,하위) 형태 포함
  */
 export enum PositionType {
-  TOP = <any>'TOP',
-  BOTTOM = <any>'BOTTOM'
+  TOP = 'TOP',
+  BOTTOM = 'BOTTOM'
 }

@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Location} from '@angular/common';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Workbench } from '../../../../domain/workbench/workbench';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { ConnectionRequest } from '../../../../domain/dataconnection/connectionrequest';
-import { ImplementorType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
-import { isUndefined } from 'util';
-import { StringUtil } from '../../../../common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Workbench} from '@domain/workbench/workbench';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {Alert} from '@common/util/alert.util';
+import {ConnectionRequest} from '@domain/dataconnection/connectionrequest';
+import {Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';
+import {isUndefined} from 'util';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-workbench-login',
@@ -58,11 +58,10 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
   public connectionComplete = new EventEmitter();
 
   // 로그인 아이디
-  protected loginId: string = '';
+  public loginId: string = '';
 
   // 로그인 패스워드
-  protected loginPw: string = '';
-
+  public loginPw: string = '';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -70,7 +69,7 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
 
   // 생성자
   constructor(private _location: Location,
-              protected  connectionService: DataconnectionService,
+              protected connectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -100,17 +99,13 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
 
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // 강제 닫기를 누를 경우
-  protected close() {
+  public close() {
     this._location.back();
   }
 
   // 커넥션 체크
-  protected checkConnection() {
+  public checkConnection() {
 
     if (this.loginId === '') {
       Alert.warning(this.translateService.instant('msg.bench.alert.id.description'));
@@ -124,10 +119,10 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
 
     this.dataconnection.implementor = this.workbench.dataConnection.implementor;
 
-    ( !StringUtil.isEmpty(this.workbench.dataConnection.hostname) ) && (this.dataconnection.hostname = this.workbench.dataConnection.hostname);
-    ( this.workbench.dataConnection.port ) && (this.dataconnection.port = this.workbench.dataConnection.port);
-    ( !StringUtil.isEmpty(this.workbench.dataConnection.url) ) && (this.dataconnection.url = this.workbench.dataConnection.url);
-    ( !StringUtil.isEmpty(this.workbench.dataConnection.sid) ) && (this.dataconnection.sid = this.workbench.dataConnection.sid);
+    (!StringUtil.isEmpty(this.workbench.dataConnection.hostname)) && (this.dataconnection.hostname = this.workbench.dataConnection.hostname);
+    (this.workbench.dataConnection.port) && (this.dataconnection.port = this.workbench.dataConnection.port);
+    (!StringUtil.isEmpty(this.workbench.dataConnection.url)) && (this.dataconnection.url = this.workbench.dataConnection.url);
+    (!StringUtil.isEmpty(this.workbench.dataConnection.sid)) && (this.dataconnection.sid = this.workbench.dataConnection.sid);
     // add authenticationType in connection
     this.dataconnection.authenticationType = this.workbench.dataConnection.authenticationType || 'MANUAL';
     // if authenticationType is not USERINFO, add username and password in connection
@@ -166,6 +161,10 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
         }
       });
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   protected getImplemntor(param: string): ImplementorType {
     if (param === 'H2') {

@@ -12,22 +12,13 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Engine} from '../../../domain/engine-monitoring/engine';
-import * as _ from "lodash";
-import {CommonUtil} from "../../../common/util/common.util";
-import {LocalStorageConstant} from "../../../common/constant/local-storage.constant";
-import {EngineMonitoringData} from "../../../common/value/engine-monitoring.data.value";
+import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
+import {LocalStorageConstant} from '@common/constant/local-storage.constant';
+import {EngineMonitoringData} from '@common/value/engine-monitoring.data.value';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
 
 declare let moment: any;
 
@@ -79,15 +70,15 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
   }
 
   public getClusterSize(): string {
-    if (_.isNil(this.clusterSize)){
+    if (_.isNil(this.clusterSize)) {
       return '';
     } else {
-      $('.ddp-wrap-hover-layout .ddp-data-bar').css('width', Math.round(this.clusterSize.currSize/this.clusterSize.maxSize*100) +'%');
+      $('.ddp-wrap-hover-layout .ddp-data-bar').css('width', Math.round(this.clusterSize.currSize / this.clusterSize.maxSize * 100) + '%');
       return CommonUtil.formatBytes(this.clusterSize.currSize, 0) + ' / ' + CommonUtil.formatBytes(this.clusterSize.maxSize, 0);
     }
   }
 
-  public changeDuration(type?:string) {
+  public changeDuration(type?: string) {
     if (!_.isNil(type)) {
       this.engineMonitoringData.duration = type;
       this._setEngineMonitoringDataToLocalStorage();
@@ -96,7 +87,7 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
     this.changeEvent.emit(this.engineMonitoringData.duration);
   }
 
-  public changeRefresh(interval:number) {
+  public changeRefresh(interval: number) {
     this._setRefresh(interval);
     this.isShowIntervalList = false;
   }
@@ -112,14 +103,14 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
     }
   }
 
-  private _setRefresh(refresh?:number) {
+  private _setRefresh(refresh?: number) {
     if (!_.isNil(refresh)) {
       this.engineMonitoringData.refresh = refresh;
       this._setEngineMonitoringDataToLocalStorage();
       this._clearInterval();
     }
 
-    if (this.engineMonitoringData.refresh != 0) {
+    if (this.engineMonitoringData.refresh !== 0) {
       this._interval = setInterval(() => {
         this.changeDuration();
       }, this.engineMonitoringData.refresh * 1000);
@@ -136,13 +127,13 @@ export class StatusComponent extends AbstractComponent implements OnInit, OnDest
   }
 
   private _setLabelRefresh() {
-    if (this.engineMonitoringData.refresh == 5) {
+    if (this.engineMonitoringData.refresh === 5) {
       this.labelRefresh = '5s';
-    } else if (this.engineMonitoringData.refresh == 10) {
+    } else if (this.engineMonitoringData.refresh === 10) {
       this.labelRefresh = '10s';
-    } else if (this.engineMonitoringData.refresh == 30) {
+    } else if (this.engineMonitoringData.refresh === 30) {
       this.labelRefresh = '30s';
-    } else if (this.engineMonitoringData.refresh == 60) {
+    } else if (this.engineMonitoringData.refresh === 60) {
       this.labelRefresh = '1m';
     } else {
       this.labelRefresh = 'Off';

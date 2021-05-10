@@ -12,8 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { QueryEditor } from './queryEditor';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
 export class QueryHistory extends AbstractHistoryEntity {
   // identifer
@@ -45,9 +44,9 @@ export class QueryHistory extends AbstractHistoryEntity {
 
 // Query 상태
 export enum QueryResultStatus {
-  SUCCESS = <any>'SUCCESS',
-  FAIL = <any>'FAIL',
-  CANCELLED = <any>'CANCELLED',
-  RUNNING = <any>'RUNNING',
-  ALL = <any>'ALL',
+  SUCCESS = 'SUCCESS',
+  FAIL = 'FAIL',
+  CANCELLED = 'CANCELLED',
+  RUNNING = 'RUNNING',
+  ALL = 'ALL',
 }

@@ -63,30 +63,28 @@ export class GridOption {
    *                {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
    *            ];
    *            var options = {
-   *	 			enableCellNavigation: true,
-   *	 			enableColumnReorder: false,
-   *	 			explicitInitialization: true
-   *	 		};
+   *              enableCellNavigation: true,
+   *              enableColumnReorder: false,
+   *              explicitInitialization: true
+   *            };
    *            $(function () {
-   *	 			var data = [];
-   *	 			for (var i = 0; i < 500; i++) {
-   *	 				data[i] = {
-   *	 				title: "Task " + i,
-   *	 				duration: "5 days",
-   *	 				percentComplete: Math.round(Math.random() * 100),
-   *	 				start: "01/01/2009",
-   *	 				finish: "01/05/2009",
-   *	 				effortDriven: (i % 5 == 0)
-   *	 			};
-   *	 		}
-   *
-   *	 		// create a detached container element
-   *	 		var myGrid = $("<div id='myGrid' style='width:600px;height:500px;'></div>");
-   *	 		grid = new Slick.Grid(myGrid, data, columns, options);
-   *	 		myGrid.appendTo($("#myTable"));
-   *	 		grid.init();
-   *
-   *	 	})
+   *              var data = [];
+   *              for (var i = 0; i < 500; i++) {
+   *                data[i] = {
+   *                  title: "Task " + i,
+   *                  duration: "5 days",
+   *                  percentComplete: Math.round(Math.random() * 100),
+   *                  start: "01/01/2009",
+   *                  finish: "01/05/2009",
+   *                  effortDriven: (i % 5 == 0)
+   *                };
+   *              }
+   *              // create a detached container element
+   *              var myGrid = $("<div id='myGrid' style='width:600px;height:500px;'></div>");
+   *              grid = new Slick.Grid(myGrid, data, columns, options);
+   *              myGrid.appendTo($("#myTable"));
+   *              grid.init();
+   *           })
    *    </script>
    *
    * @type {boolean}
@@ -917,601 +915,207 @@ export class Option {
 
   constructor(builder: GridOption) {
     if (typeof builder.dualSelectionActivate !== 'undefined') {
-      this._dualSelectionActivate = builder.dualSelectionActivate;
+      this.dualSelectionActivate = builder.dualSelectionActivate;
     }
     if (typeof builder.cellExternalCopyManagerActivate !== 'undefined') {
-      this._cellExternalCopyManagerActivate = builder.cellExternalCopyManagerActivate;
+      this.cellExternalCopyManagerActivate = builder.cellExternalCopyManagerActivate;
     }
     if (typeof builder.columnGroup !== 'undefined') {
-      this._columnGroup = builder.columnGroup;
+      this.columnGroup = builder.columnGroup;
     }
     if (typeof builder.explicitInitialization !== 'undefined') {
-      this._explicitInitialization = builder.explicitInitialization;
+      this.explicitInitialization = builder.explicitInitialization;
     }
     if (typeof builder.frozenTotal !== 'undefined') {
-      this._frozenTotal = builder.frozenTotal;
+      this.frozenTotal = builder.frozenTotal;
     }
     if (typeof builder.rowHeight !== 'undefined') {
-      this._rowHeight = builder.rowHeight;
+      this.rowHeight = builder.rowHeight;
     }
     if (typeof builder.defaultColumnWidth !== 'undefined') {
-      this._defaultColumnWidth = builder.defaultColumnWidth;
+      this.defaultColumnWidth = builder.defaultColumnWidth;
     }
     if (typeof builder.enableAddRow !== 'undefined') {
-      this._enableAddRow = builder.enableAddRow;
+      this.enableAddRow = builder.enableAddRow;
     }
     if (typeof builder.leaveSpaceForNewRows !== 'undefined') {
-      this._leaveSpaceForNewRows = builder.leaveSpaceForNewRows;
+      this.leaveSpaceForNewRows = builder.leaveSpaceForNewRows;
     }
     if (typeof builder.editable !== 'undefined') {
-      this._editable = builder.editable;
+      this.editable = builder.editable;
     }
     if (typeof builder.asyncEditorLoading !== 'undefined') {
-      this._asyncEditorLoading = builder.asyncEditorLoading;
+      this.asyncEditorLoading = builder.asyncEditorLoading;
     }
     if (typeof builder.asyncEditorLoadDelay !== 'undefined') {
-      this._asyncEditorLoadDelay = builder.asyncEditorLoadDelay;
+      this.asyncEditorLoadDelay = builder.asyncEditorLoadDelay;
     }
     if (typeof builder.asyncPostRenderDelay !== 'undefined') {
-      this._asyncPostRenderDelay = builder.asyncPostRenderDelay;
+      this.asyncPostRenderDelay = builder.asyncPostRenderDelay;
     }
     if (typeof builder.autoEdit !== 'undefined') {
-      this._autoEdit = builder.autoEdit;
+      this.autoEdit = builder.autoEdit;
     }
     if (typeof builder.autoHeight !== 'undefined') {
-      this._autoHeight = builder.autoHeight;
+      this.autoHeight = builder.autoHeight;
     }
     if (typeof builder.cellFlashingCssClass !== 'undefined') {
-      this._cellFlashingCssClass = builder.cellFlashingCssClass;
+      this.cellFlashingCssClass = builder.cellFlashingCssClass;
     }
     if (typeof builder.dataItemColumnValueExtractor !== 'undefined') {
-      this._dataItemColumnValueExtractor = builder.dataItemColumnValueExtractor;
+      this.dataItemColumnValueExtractor = builder.dataItemColumnValueExtractor;
     }
     if (typeof builder.defaultFormatter !== 'undefined') {
-      this._defaultFormatter = builder.defaultFormatter;
+      this.defaultFormatter = builder.defaultFormatter;
     }
     if (typeof builder.editorFactory !== 'undefined') {
-      this._editorFactory = builder.editorFactory;
+      this.editorFactory = builder.editorFactory;
     }
     if (typeof builder.editorLock !== 'undefined') {
-      this._editorLock = builder.editorLock;
+      this.editorLock = builder.editorLock;
     }
     if (typeof builder.enableAsyncPostRender !== 'undefined') {
-      this._enableAsyncPostRender = builder.enableAsyncPostRender;
+      this.enableAsyncPostRender = builder.enableAsyncPostRender;
     }
     if (typeof builder.enableCellNavigation !== 'undefined') {
-      this._enableCellNavigation = builder.enableCellNavigation;
+      this.enableCellNavigation = builder.enableCellNavigation;
     }
     if (typeof builder.enableColumnReorder !== 'undefined') {
-      this._enableColumnReorder = builder.enableColumnReorder;
+      this.enableColumnReorder = builder.enableColumnReorder;
     }
     if (typeof builder.enableTextSelectionOnCells !== 'undefined') {
-      this._enableTextSelectionOnCells = builder.enableTextSelectionOnCells;
+      this.enableTextSelectionOnCells = builder.enableTextSelectionOnCells;
     }
     if (typeof builder.forceFitColumns !== 'undefined') {
-      this._forceFitColumns = builder.forceFitColumns;
+      this.forceFitColumns = builder.forceFitColumns;
     }
     if (typeof builder.forceSyncScrolling !== 'undefined') {
-      this._forceSyncScrolling = builder.forceSyncScrolling;
+      this.forceSyncScrolling = builder.forceSyncScrolling;
     }
     if (typeof builder.formatterFactory !== 'undefined') {
-      this._formatterFactory = builder.formatterFactory;
+      this.formatterFactory = builder.formatterFactory;
     }
     if (typeof builder.fullWidthRows !== 'undefined') {
-      this._fullWidthRows = builder.fullWidthRows;
+      this.fullWidthRows = builder.fullWidthRows;
     }
     if (typeof builder.headerRowHeight !== 'undefined') {
-      this._headerRowHeight = builder.headerRowHeight;
+      this.headerRowHeight = builder.headerRowHeight;
     }
     if (typeof builder.multiColumnSort !== 'undefined') {
-      this._multiColumnSort = builder.multiColumnSort;
+      this.multiColumnSort = builder.multiColumnSort;
     }
     if (typeof builder.multiSelect !== 'undefined') {
-      this._multiSelect = builder.multiSelect;
+      this.multiSelect = builder.multiSelect;
     }
     if (typeof builder.selectedCellCssClass !== 'undefined') {
-      this._selectedCellCssClass = builder.selectedCellCssClass;
+      this.selectedCellCssClass = builder.selectedCellCssClass;
     }
     if (typeof builder.showHeaderRow !== 'undefined') {
-      this._showHeaderRow = builder.showHeaderRow;
+      this.showHeaderRow = builder.showHeaderRow;
     }
     if (typeof builder.topPanelHeight !== 'undefined') {
-      this._topPanelHeight = builder.topPanelHeight;
+      this.topPanelHeight = builder.topPanelHeight;
     }
     if (typeof builder.cellHighlightCssClass !== 'undefined') {
-      this._cellHighlightCssClass = builder.cellHighlightCssClass;
+      this.cellHighlightCssClass = builder.cellHighlightCssClass;
     }
     if (typeof builder.editCommandHandler !== 'undefined') {
-      this._editCommandHandler = builder.editCommandHandler;
+      this.editCommandHandler = builder.editCommandHandler;
     }
     if (typeof builder.enableCellRangeSelection !== 'undefined') {
-      this._enableCellRangeSelection = builder.enableCellRangeSelection;
+      this.enableCellRangeSelection = builder.enableCellRangeSelection;
     }
     if (typeof builder.enableRowReordering !== 'undefined') {
-      this._enableRowReordering = builder.enableRowReordering;
+      this.enableRowReordering = builder.enableRowReordering;
     }
     if (typeof builder.syncColumnCellResize !== 'undefined') {
-      this._syncColumnCellResize = builder.syncColumnCellResize;
+      this.syncColumnCellResize = builder.syncColumnCellResize;
     }
     if (typeof builder.showTopPanel !== 'undefined') {
-      this._showTopPanel = builder.showTopPanel;
+      this.showTopPanel = builder.showTopPanel;
     }
     if (typeof builder.frozenBottom !== 'undefined') {
-      this._frozenBottom = builder.frozenBottom;
+      this.frozenBottom = builder.frozenBottom;
     }
     if (typeof builder.frozenColumn !== 'undefined') {
-      this._frozenColumn = builder.frozenColumn;
+      this.frozenColumn = builder.frozenColumn;
     }
     if (typeof builder.frozenRow !== 'undefined') {
-      this._frozenRow = builder.frozenRow;
+      this.frozenRow = builder.frozenRow;
     }
     if (typeof builder.enableHeaderClick !== 'undefined') {
-      this._enableHeaderClick = builder.enableHeaderClick;
+      this.enableHeaderClick = builder.enableHeaderClick;
     }
     if (typeof builder.nullCellStyleActivate !== 'undefined') {
-      this._nullCellStyleActivate = builder.nullCellStyleActivate;
+      this.nullCellStyleActivate = builder.nullCellStyleActivate;
     }
     if (typeof builder.enableHeaderMenu !== 'undefined') {
-      this._enableHeaderMenu = builder.enableHeaderMenu;
+      this.enableHeaderMenu = builder.enableHeaderMenu;
     }
     if (typeof builder.enableSeqSort !== 'undefined') {
-      this._enableSeqSort = builder.enableSeqSort;
+      this.enableSeqSort = builder.enableSeqSort;
     }
     if (typeof builder.enableMultiSelectionWithCtrlAndShift !== 'undefined') {
-      this._enableMultiSelectionWithCtrlAndShift = builder.enableMultiSelectionWithCtrlAndShift;
+      this.enableMultiSelectionWithCtrlAndShift = builder.enableMultiSelectionWithCtrlAndShift;
     }
     if (typeof builder.rowSelectionActivate !== 'undefined') {
-      this._enableRowSelected = builder.rowSelectionActivate;
+      this.rowSelectionActivate = builder.rowSelectionActivate;
     }
 
   }
 
-  private _columnGroup: boolean;
-  private _frozenTotal: boolean;
+  public columnGroup: boolean;
+  public frozenTotal: boolean;
+
+  public explicitInitialization: boolean;
+  public rowHeight: number;
+  public defaultColumnWidth;
+  public enableAddRow: boolean;
+  public leaveSpaceForNewRows: boolean;
+  public editable: boolean;
+  public asyncEditorLoading: boolean;
+  public asyncEditorLoadDelay: number;
+  public asyncPostRenderDelay: number;
+  public autoEdit: boolean;
+  public autoHeight: boolean;
+  public cellFlashingCssClass: string;
+  public dataItemColumnValueExtractor: string;
+  public defaultFormatter: any;
+  public editorFactory: string;
+  public editorLock: any;
+  public enableAsyncPostRender: boolean;
+  public enableCellNavigation: boolean;
+  public enableColumnReorder: boolean;
+  public enableTextSelectionOnCells: boolean;
+  public forceFitColumns: boolean;
+  public forceSyncScrolling: boolean;
+  public formatterFactory: string;
+  public fullWidthRows: boolean;
+  public headerRowHeight: number;
+  public multiColumnSort: boolean;
+  public multiSelect: boolean;
+  public selectedCellCssClass: string;
+  public showHeaderRow: boolean;
+  public topPanelHeight: number;
+
+  public cellHighlightCssClass: string;
+  public editCommandHandler: any;
+  public enableCellRangeSelection: string;
+  public enableRowReordering: string;
+  public syncColumnCellResize: boolean;
+
+  public showTopPanel: boolean;
+  public frozenBottom: boolean;
+  public frozenColumn: number;
+  public frozenRow: number;
+  public enableHeaderClick: boolean;
+  public nullCellStyleActivate: boolean;
+  public enableHeaderMenu: boolean;
+  public enableSeqSort: boolean;
+
+  public dualSelectionActivate: boolean;
+  public rowSelectionActivate: boolean;
+  public cellExternalCopyManagerActivate: boolean;
+  public enableMultiSelectionWithCtrlAndShift: boolean;
 
-  private _explicitInitialization: boolean;
-  private _rowHeight: number;
-  private _defaultColumnWidth;
-  private _enableAddRow: boolean;
-  private _leaveSpaceForNewRows: boolean;
-  private _editable: boolean;
-  private _asyncEditorLoading: boolean;
-  private _asyncEditorLoadDelay: number;
-  private _asyncPostRenderDelay: number;
-  private _autoEdit: boolean;
-  private _autoHeight: boolean;
-  private _cellFlashingCssClass: string;
-  private _dataItemColumnValueExtractor: string;
-  private _defaultFormatter: any;
-  private _editorFactory: string;
-  private _editorLock: any;
-  private _enableAsyncPostRender: boolean;
-  private _enableCellNavigation: boolean;
-  private _enableColumnReorder: boolean;
-  private _enableTextSelectionOnCells: boolean;
-  private _forceFitColumns: boolean;
-  private _forceSyncScrolling: boolean;
-  private _formatterFactory: string;
-  private _fullWidthRows: boolean;
-  private _headerRowHeight: number;
-  private _multiColumnSort: boolean;
-  private _multiSelect: boolean;
-  private _selectedCellCssClass: string;
-  private _showHeaderRow: boolean;
-  private _topPanelHeight: number;
-
-  private _cellHighlightCssClass: string;
-  private _editCommandHandler: any;
-  private _enableCellRangeSelection: string;
-  private _enableRowReordering: string;
-  private _syncColumnCellResize: boolean;
-
-  private _showTopPanel: boolean;
-  private _frozenBottom: boolean;
-  private _frozenColumn: number;
-  private _frozenRow: number;
-  private _enableHeaderClick: boolean;
-  private _nullCellStyleActivate: boolean;
-  private _enableHeaderMenu : boolean;
-  private _enableSeqSort : boolean;
-
-  private _dualSelectionActivate: boolean;
-  private _enableRowSelected: boolean;
-  private _cellExternalCopyManagerActivate: boolean;
-  private _enableMultiSelectionWithCtrlAndShift : boolean;
-
-  get rowSelectionActivate(): boolean {
-    return this._enableRowSelected;
-  }
-
-  set rowSelectionActivate(value: boolean) {
-    this._enableRowSelected = value;
-  }
-
-  get dualSelectionActivate(): boolean {
-    return this._dualSelectionActivate;
-  }
-
-  set dualSelectionActivate(value: boolean) {
-    this._dualSelectionActivate = value;
-  }
-
-  get cellExternalCopyManagerActivate(): boolean {
-    return this._cellExternalCopyManagerActivate;
-  }
-
-  set cellExternalCopyManagerActivate(value: boolean) {
-    this._cellExternalCopyManagerActivate = value;
-  }
-
-  get columnGroup(): boolean {
-    return this._columnGroup;
-  }
-
-  set columnGroup(value: boolean) {
-    this._columnGroup = value;
-  }
-
-  get frozenTotal(): boolean {
-    return this._frozenTotal;
-  }
-
-  set frozenTotal(value: boolean) {
-    this._frozenTotal = value;
-  }
-
-  get explicitInitialization(): boolean {
-    return this._explicitInitialization;
-  }
-
-  set explicitInitialization(value: boolean) {
-    this._explicitInitialization = value;
-  }
-
-  get rowHeight(): number {
-    return this._rowHeight;
-  }
-
-  set rowHeight(value: number) {
-    this._rowHeight = value;
-  }
-
-  get defaultColumnWidth() {
-    return this._defaultColumnWidth;
-  }
-
-  set defaultColumnWidth(value) {
-    this._defaultColumnWidth = value;
-  }
-
-  get enableAddRow(): boolean {
-    return this._enableAddRow;
-  }
-
-  set enableAddRow(value: boolean) {
-    this._enableAddRow = value;
-  }
-
-  get leaveSpaceForNewRows(): boolean {
-    return this._leaveSpaceForNewRows;
-  }
-
-  set leaveSpaceForNewRows(value: boolean) {
-    this._leaveSpaceForNewRows = value;
-  }
-
-  get editable(): boolean {
-    return this._editable;
-  }
-
-  set editable(value: boolean) {
-    this._editable = value;
-  }
-
-  get asyncEditorLoading(): boolean {
-    return this._asyncEditorLoading;
-  }
-
-  set asyncEditorLoading(value: boolean) {
-    this._asyncEditorLoading = value;
-  }
-
-  get asyncEditorLoadDelay(): number {
-    return this._asyncEditorLoadDelay;
-  }
-
-  set asyncEditorLoadDelay(value: number) {
-    this._asyncEditorLoadDelay = value;
-  }
-
-  get asyncPostRenderDelay(): number {
-    return this._asyncPostRenderDelay;
-  }
-
-  set asyncPostRenderDelay(value: number) {
-    this._asyncPostRenderDelay = value;
-  }
-
-  get autoEdit(): boolean {
-    return this._autoEdit;
-  }
-
-  set autoEdit(value: boolean) {
-    this._autoEdit = value;
-  }
-
-  get autoHeight(): boolean {
-    return this._autoHeight;
-  }
-
-  set autoHeight(value: boolean) {
-    this._autoHeight = value;
-  }
-
-  get cellFlashingCssClass(): string {
-    return this._cellFlashingCssClass;
-  }
-
-  set cellFlashingCssClass(value: string) {
-    this._cellFlashingCssClass = value;
-  }
-
-  get dataItemColumnValueExtractor(): string {
-    return this._dataItemColumnValueExtractor;
-  }
-
-  set dataItemColumnValueExtractor(value: string) {
-    this._dataItemColumnValueExtractor = value;
-  }
-
-  get defaultFormatter(): any {
-    return this._defaultFormatter;
-  }
-
-  set defaultFormatter(value: any) {
-    this._defaultFormatter = value;
-  }
-
-  get editorFactory(): string {
-    return this._editorFactory;
-  }
-
-  set editorFactory(value: string) {
-    this._editorFactory = value;
-  }
-
-  get editorLock(): any {
-    return this._editorLock;
-  }
-
-  set editorLock(value: any) {
-    this._editorLock = value;
-  }
-
-  get enableAsyncPostRender(): boolean {
-    return this._enableAsyncPostRender;
-  }
-
-  set enableAsyncPostRender(value: boolean) {
-    this._enableAsyncPostRender = value;
-  }
-
-  get enableCellNavigation(): boolean {
-    return this._enableCellNavigation;
-  }
-
-  set enableCellNavigation(value: boolean) {
-    this._enableCellNavigation = value;
-  }
-
-  get enableColumnReorder(): boolean {
-    return this._enableColumnReorder;
-  }
-
-  set enableColumnReorder(value: boolean) {
-    this._enableColumnReorder = value;
-  }
-
-  get enableTextSelectionOnCells(): boolean {
-    return this._enableTextSelectionOnCells;
-  }
-
-  set enableTextSelectionOnCells(value: boolean) {
-    this._enableTextSelectionOnCells = value;
-  }
-
-  get forceFitColumns(): boolean {
-    return this._forceFitColumns;
-  }
-
-  set forceFitColumns(value: boolean) {
-    this._forceFitColumns = value;
-  }
-
-  get forceSyncScrolling(): boolean {
-    return this._forceSyncScrolling;
-  }
-
-  set forceSyncScrolling(value: boolean) {
-    this._forceSyncScrolling = value;
-  }
-
-  get formatterFactory(): string {
-    return this._formatterFactory;
-  }
-
-  set formatterFactory(value: string) {
-    this._formatterFactory = value;
-  }
-
-  get fullWidthRows(): boolean {
-    return this._fullWidthRows;
-  }
-
-  set fullWidthRows(value: boolean) {
-    this._fullWidthRows = value;
-  }
-
-  get headerRowHeight(): number {
-    return this._headerRowHeight;
-  }
-
-  set headerRowHeight(value: number) {
-    this._headerRowHeight = value;
-  }
-
-  get multiColumnSort(): boolean {
-    return this._multiColumnSort;
-  }
-
-  set multiColumnSort(value: boolean) {
-    this._multiColumnSort = value;
-  }
-
-  get multiSelect(): boolean {
-    return this._multiSelect;
-  }
-
-  set multiSelect(value: boolean) {
-    this._multiSelect = value;
-  }
-
-  get selectedCellCssClass(): string {
-    return this._selectedCellCssClass;
-  }
-
-  set selectedCellCssClass(value: string) {
-    this._selectedCellCssClass = value;
-  }
-
-  get showHeaderRow(): boolean {
-    return this._showHeaderRow;
-  }
-
-  set showHeaderRow(value: boolean) {
-    this._showHeaderRow = value;
-  }
-
-  get topPanelHeight(): number {
-    return this._topPanelHeight;
-  }
-
-  set topPanelHeight(value: number) {
-    this._topPanelHeight = value;
-  }
-
-  get cellHighlightCssClass(): string {
-    return this._cellHighlightCssClass;
-  }
-
-  set cellHighlightCssClass(value: string) {
-    this._cellHighlightCssClass = value;
-  }
-
-  get editCommandHandler(): any {
-    return this._editCommandHandler;
-  }
-
-  set editCommandHandler(value: any) {
-    this._editCommandHandler = value;
-  }
-
-  get enableCellRangeSelection(): string {
-    return this._enableCellRangeSelection;
-  }
-
-  set enableCellRangeSelection(value: string) {
-    this._enableCellRangeSelection = value;
-  }
-
-  get enableRowReordering(): string {
-    return this._enableRowReordering;
-  }
-
-  set enableRowReordering(value: string) {
-    this._enableRowReordering = value;
-  }
-
-  get syncColumnCellResize(): boolean {
-    return this._syncColumnCellResize;
-  }
-
-  set syncColumnCellResize(value: boolean) {
-    this._syncColumnCellResize = value;
-  }
-
-  get showTopPanel(): boolean {
-    return this._showTopPanel;
-  }
-
-  set showTopPanel(value: boolean) {
-    this._showTopPanel = value;
-  }
-
-  get frozenBottom(): boolean {
-    return this._frozenBottom;
-  }
-
-  set frozenBottom(value: boolean) {
-    this._frozenBottom = value;
-  }
-
-  get frozenColumn(): number {
-    return this._frozenColumn;
-  }
-
-  set frozenColumn(value: number) {
-    this._frozenColumn = value;
-  }
-
-  get frozenRow(): number {
-    return this._frozenRow;
-  }
-
-  set frozenRow(value: number) {
-    this._frozenRow = value;
-  }
-
-  get enableHeaderClick(): boolean {
-    return this._enableHeaderClick;
-  }
-
-  set enableHeaderClick(value: boolean) {
-    this._enableHeaderClick = value;
-  }
-
-  get nullCellStyleActivate(): boolean {
-    return this._nullCellStyleActivate;
-  }
-
-  set nullCellStyleActivate(value: boolean) {
-    this._nullCellStyleActivate = value;
-  }
-
-  get enableHeaderMenu(): boolean {
-    return this._enableHeaderMenu;
-  }
-
-  set enableHeaderMenu(value: boolean) {
-    this._enableHeaderMenu = value;
-  }
-
-  get enableSeqSort(): boolean {
-    return this._enableSeqSort;
-  }
-
-  set enableSeqSort(value: boolean) {
-    this._enableSeqSort = value;
-  }
-
-  get enableMultiSelectionWithCtrlAndShift(): boolean {
-    return this._enableMultiSelectionWithCtrlAndShift;
-  }
-
-  set enableMultiSelectionWithCtrlAndShift(value: boolean) {
-    this._enableMultiSelectionWithCtrlAndShift = value;
-  }
-
-
-  /* tslint:enable:variable-name function-name */
 }

@@ -13,15 +13,21 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
   Output
 } from '@angular/core';
-import { isUndefined } from 'util';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
-import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
-import { WorkbenchService } from '../../../service/workbench.service';
+import {isUndefined} from 'util';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {MetadataService} from '../../../../meta-data-management/metadata/service/metadata.service';
+import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
+import {WorkbenchService} from '../../../service/workbench.service';
 
 @Component({
   selector: 'detail-workbench-table-info-desc',
@@ -30,16 +36,11 @@ import { WorkbenchService } from '../../../service/workbench.service';
   //   '(document:click)': 'onClickHost($event)',
   // }
 })
-export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent implements OnInit, OnChanges, OnDestroy {
+export class DetailWorkbenchTableInfoDescComponent extends AbstractWorkbenchComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * Need for finding top value to locate popup
-   * **/
-  private top: string;
 
   private params: any = {};
 
@@ -54,11 +55,6 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
     return `${this.params['top']}px`;
   }
 
-  @Input('top')
-  set setTop(value: string) {
-    this.top = value;
-  }
-
   @Input('tableParams')
   public set setParams(params: any) {
     this.params = params;
@@ -68,10 +64,10 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   public tables: any[] = [];
 
   // result data
-  public resultData : any[] = [];
+  public resultData: any[] = [];
 
   // select table
-  public selectedTable : string = '';
+  public selectedTable: string = '';
 
   @Output()
   public showLayer: EventEmitter<string> = new EventEmitter();
@@ -149,10 +145,12 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
         this.tables = [];
         // key-pair
         for (const key in data) {
-          this.tables.push({
-            itemKey: key,
-            item: data[key]
-          });
+          if (key) {
+            this.tables.push({
+              itemKey: key,
+              item: data[key]
+            });
+          }
         }
         // 메타데이터 조회
         this._getMetaData();
@@ -177,8 +175,8 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   private _getMetaData(): void {
 
     // table array 생성
-    let tableNameArr: string[] = [];
-    tableNameArr.push( this.params['selectedTable'] );
+    const tableNameArr: string[] = [];
+    tableNameArr.push(this.params['selectedTable']);
 
     this._metaDataService.getMetadataByConnection(this.params['dataconnection'].id, this.params['dataconnection'].database, tableNameArr)
       .then((result) => {
@@ -189,43 +187,44 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
         });
 
         let tempLabel = '';
-        let tempArr : any[] = [];
+        let tempArr: any[] = [];
 
         this.resultData = [];
 
         // result Data 생성
         for (const key in this.tables) {
 
-          let tempData = {
-            'label' : '',
-            'data' : tempArr
-          };
+          if (key) {
+            const tempData = {
+              label: '',
+              data: tempArr
+            };
 
-          if( this.tables[key]['itemKey'].startsWith('#') ){
+            if (this.tables[key]['itemKey'].startsWith('#')) {
 
-            if( key != '0' ){
-              tempData.label = tempLabel.split('#')[1];
-              tempData.data = tempArr;
-              this.resultData.push( tempData );
+              if (key !== '0') {
+                tempData.label = tempLabel.split('#')[1];
+                tempData.data = tempArr;
+                this.resultData.push(tempData);
 
-              tempLabel = '';
-              tempArr = [];
+                tempLabel = '';
+                tempArr = [];
+              }
+
+              // label
+              tempLabel = this.tables[key]['itemKey'];
+            } else {
+              // data
+              tempArr.push(this.tables[key]);
             }
 
-            // label
-            tempLabel = this.tables[key]['itemKey'];
-          } else {
-            // data
-            tempArr.push( this.tables[key] );
+            // 마지막 데이터일 경우
+            if (this.tables.length - 1 === Number(key)) {
+              tempData.label = tempLabel.split('#')[1];
+              tempData.data = tempArr;
+              this.resultData.push(tempData);
+            }
           }
-
-          // 마지막 데이터일 경우
-          if( this.tables.length-1 == Number( key ) ){
-            tempData.label = tempLabel.split('#')[1];
-            tempData.data = tempArr;
-            this.resultData.push( tempData );
-          }
-
         }
 
         // 로딩 hide

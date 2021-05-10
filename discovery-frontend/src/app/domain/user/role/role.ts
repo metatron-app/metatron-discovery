@@ -12,38 +12,38 @@
  * limitations under the License.
  */
 
-import { Permission } from './permission';
-import { RoleSet } from './roleSet';
-import { AbstractHistoryEntity } from '../../common/abstract-history-entity';
-import { User } from '../user';
+import {Permission} from './permission';
+import {RoleSet} from './roleSet';
+import {AbstractHistoryEntity} from '../../common/abstract-history-entity';
+import {User} from '../user';
 
 export class Role extends AbstractHistoryEntity {
   public id: string;
   public name: string;
   public description: string;
   public scope: RoleScope;
-  public predefined:boolean;
-  public adminRole:boolean;     // Workspace 내 RoleSet 에 포함된 경우, Admin. Role 인 경우
-  public defaultRole:boolean;   // Workspace 내 RoleSet 에 포함된 경우, Default Role 인 경우
-  public refRole:string;
-  public cntMembers:number;
-  public permissions:Permission[] = [];
-  public users:User[] = [];
-  public roleSet:RoleSet;
-  public permissionNames:string[] = [];
-  public userCount : number;
-  public groupCount : number;
+  public predefined: boolean;
+  public adminRole: boolean;     // Workspace 내 RoleSet 에 포함된 경우, Admin. Role 인 경우
+  public defaultRole: boolean;   // Workspace 내 RoleSet 에 포함된 경우, Default Role 인 경우
+  public refRole: string;
+  public cntMembers: number;
+  public permissions: Permission[] = [];
+  public users: User[] = [];
+  public roleSet: RoleSet;
+  public permissionNames: string[] = [];
+  public userCount: number;
+  public groupCount: number;
 
   // for UI
   // orgName -> roleSet, permission-schema.component.ts 에서 사용
 }
 
 export enum RoleScope {
-  GLOBAL = <any>'GLOBAL',
-  WORKSPACE = <any>'WORKSPACE'
+  GLOBAL = 'GLOBAL',
+  WORKSPACE = 'WORKSPACE'
 }
 
 export enum RoleType {
-  USER = <any>'USER',
-  GROUP = <any>'GROUP'
+  USER = 'USER',
+  GROUP = 'GROUP'
 }

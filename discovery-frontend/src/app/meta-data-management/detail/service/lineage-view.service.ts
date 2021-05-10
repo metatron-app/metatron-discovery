@@ -13,9 +13,7 @@
 */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
-import * as _ from 'lodash';
+import {AbstractService} from '@common/service/abstract.service';
 
 @Injectable()
 export class LineageViewService extends AbstractService {
@@ -54,53 +52,56 @@ export class LineageViewService extends AbstractService {
   public createDatasource(param: any): Promise<any> {
     return this.post(this.API_URL + 'datasources', param);
   }
-  public createConnection(param: any) : Promise<any> {
+
+  public createConnection(param: any): Promise<any> {
     return this.post(this.API_URL + 'connections', param);
   }
 
   /**
-  * 리니지 엣지 목록 생성
-  * @param {any} params
-  * @returns {Promise<any>}
-  */
+   * 리니지 엣지 목록 생성
+   * @param {any} params
+   * @returns {Promise<any>}
+   */
   public postLineageEdge(params: any): Promise<any> {
     return this.post(this.URL_LINEAGENODE + `/edge`, params);
   }
 
   /**
-  * 리니지 엣지 목록 조회
-  * @param {string} projection
-  * @returns {Promise<any>}
-  */
-  public getLineageEdges(projection: string = 'forDetailView'): Promise<any> {
+   * 리니지 엣지 목록 조회
+   * @param {string} _projection
+   * @returns {Promise<any>}
+   */
+  public getLineageEdges(_projection: string = 'forDetailView'): Promise<any> {
     return this.get(this.URL_LINEAGENODE + `/edge`);
   }
 
   /**
-  * 메타데이터를 기준으로 리니지 맵 조회
-  * @param {string} metadataId
-  * @param {string} projection
-  * @returns {Promise<any>}
-  */
-  public getLineageMapForMetadata(metadataId: string, nodeCnt: number, alignment: string, projection: string = 'forDetailView'): Promise<any> {
+   * 메타데이터를 기준으로 리니지 맵 조회
+   * @param {string} metadataId
+   * @param {number} nodeCnt
+   * @param {string} alignment
+   * @param {string} _projection
+   * @returns {Promise<any>}
+   */
+  public getLineageMapForMetadata(metadataId: string, nodeCnt: number, alignment: string, _projection: string = 'forDetailView'): Promise<any> {
     let url = this.URL_LINEAGENODE + `/map/${metadataId}`;
-    if(nodeCnt && alignment) {
-      url = url + `?nodeCnt=` +nodeCnt+ `&alignment=`+alignment.toUpperCase();
-    } else if(nodeCnt) {
-      url = url + `?nodeCnt=` +nodeCnt;
-    } else if(alignment) {
-      url = url + `?alignment=` +alignment.toUpperCase();
+    if (nodeCnt && alignment) {
+      url = url + `?nodeCnt=` + nodeCnt + `&alignment=` + alignment.toUpperCase();
+    } else if (nodeCnt) {
+      url = url + `?nodeCnt=` + nodeCnt;
+    } else if (alignment) {
+      url = url + `?alignment=` + alignment.toUpperCase();
     }
     return this.get(url);
   }
 
   /**
-  * 엣지 조회
-  * @param {string} edgeId
-  * @param {string} projection
-  * @returns {Promise<any>}
-  */
-  public getLineageEdge(edgeId: string, projection: string = 'forDetailView'): Promise<any> {
+   * 엣지 조회
+   * @param {string} edgeId
+   * @param {string} _projection
+   * @returns {Promise<any>}
+   */
+  public getLineageEdge(edgeId: string, _projection: string = 'forDetailView'): Promise<any> {
     return this.get(this.URL_LINEAGENODE + `/edge/${edgeId}`);
   }
 

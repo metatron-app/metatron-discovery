@@ -13,12 +13,14 @@
  */
 
 import * as _ from 'lodash';
+
 import {
   Component,
   ElementRef,
   EventEmitter,
   Injector,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -26,11 +28,11 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {PickerSettings} from '../../../domain/common/datepicker.settings';
-import {isNullOrUndefined} from 'util';
-import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PickerSettings} from '@domain/common/datepicker.settings';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 
 declare let moment: any;
 declare let $: any;
@@ -39,7 +41,7 @@ declare let $: any;
   selector: 'component-time-range',
   templateUrl: './time-range.component.html'
 })
-export class TimeRangeComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class TimeRangeComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -63,7 +65,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input('mode')
-  public mode: string = 'CHANGE';          // 화면 모드
+  public mode: 'CHANGE' | 'WIDGET' | 'PANEL' = 'CHANGE';          // 화면 모드
 
   @Input('initial')
   public compData: TimeRangeData;
@@ -137,11 +139,17 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
+   | Getter / Setter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 위젯 모드 여부
+   */
+  public get isWidgetMode(): boolean {
+    return 'WIDGET' === this.mode;
+  } // get - isWidgetMode
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
+   | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
@@ -149,7 +157,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
    * @param {ComboItem} item
    * @param {boolean} isFrom
    */
-  protected onSelectComboItem(item: ComboItem, isFrom: boolean) {
+  public onSelectComboItem(item: ComboItem, isFrom: boolean) {
     if (isFrom) {
       this.selectedFromComboItem = item;
     } else {
@@ -157,6 +165,10 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
     }
     this.onDateChange.emit(this._getTimeRange(false));
   } // function - onSelectComboItem
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Protected Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -178,8 +190,22 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
     const interval: TimeRange = this.compData.interval;
 
     // 경계값 설정 여부 확인
-    this.isEarliestDateTime = interval.startDate === TimeRangeFilter.EARLIEST_DATETIME;
-    this.isLatestDateTime = interval.endDate === TimeRangeFilter.LATEST_DATETIME;
+    if (interval.startDate === TimeRangeFilter.EARLIEST_DATETIME) {
+      if( this.isWidgetMode ) {
+        this.isEarliestDateTime = false;
+        interval.startDate = minTime;
+      } else {
+        this.isEarliestDateTime = true;
+      }
+    }
+    if (interval.endDate === TimeRangeFilter.LATEST_DATETIME) {
+      if( this.isWidgetMode ) {
+        this.isLatestDateTime = false;
+        interval.endDate = maxTime;
+      } else {
+        this.isLatestDateTime = true;
+      }
+    }
 
     this.safelyDetectChanges();
 
@@ -188,14 +214,14 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
     } else {
       let fromMoment;
       if (interval.startDate && 'undefined' !== interval.startDate) {
-        fromMoment = this.customMoment( interval.startDate );
+        fromMoment = this.customMoment(interval.startDate);
       } else {
         fromMoment = moment(minTime);
       }
 
       if (TimeUnit.WEEK === this.compData.timeUnit) {
         this.comboList = _.cloneDeep(this._weekList);
-        const arrDateInfo = (<string>interval.startDate).split('-');
+        const arrDateInfo = (interval.startDate as string).split('-');
         fromMoment = moment(arrDateInfo[0] + '-01-01');
         const startWeek: number = Number(arrDateInfo[1]);
         this.fromComboIdx = this.comboList.findIndex(item => item.value === startWeek);
@@ -214,12 +240,12 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
       // }
       this._fromDate = fromMoment.toDate();
 
-      if (isNullOrUndefined(this._fromPicker)) {
+      if (this.isNullOrUndefined(this._fromPicker)) {
         // 시작일 DatePicker 생성
         const startPickerSettings: TimeRangePickerSettings
           = new TimeRangePickerSettings(
           'ddp-text-calen',
-          (fdate: string, date: Date) => {
+          (_fdate: string, date: Date) => {
             this._fromDate = date;
           },
           () => {
@@ -238,15 +264,15 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
       (this._toPicker) && (this._toPicker.destroy());
     } else {
       let toMoment;
-      if (interval.endDate && 'undefined' != interval.endDate) {
-        toMoment = this.customMoment( interval.endDate );
+      if (interval.endDate && 'undefined' !== interval.endDate) {
+        toMoment = this.customMoment(interval.endDate);
       } else {
         toMoment = moment(maxTime);
       }
 
       if (TimeUnit.WEEK === this.compData.timeUnit) {
         this.comboList = _.cloneDeep(this._weekList);
-        const arrDateInfo = (<string>interval.endDate).split('-');
+        const arrDateInfo = (interval.endDate as string).split('-');
         toMoment = moment(arrDateInfo[0] + '-01-01');
         const endWeek: number = Number(arrDateInfo[1]);
         this.toComboIdx = this.comboList.findIndex(item => item.value === endWeek);
@@ -266,11 +292,11 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
       this._toDate = toMoment.toDate();
 
       // 종료일 DatePicker 생성
-      if (isNullOrUndefined(this._toPicker)) {
+      if (this.isNullOrUndefined(this._toPicker)) {
         const endPickerSettings: TimeRangePickerSettings
           = new TimeRangePickerSettings(
           'ddp-text-calen',
-          (fdate: string, date: Date) => {
+          (_fdate: string, date: Date) => {
             this._toDate = date;
           },
           () => {
@@ -398,7 +424,7 @@ export class TimeRangeData {
     this.maxTime = maxTime;
     this.interval = interval;
     this.mockup = mockUp;
-    this.timeUnit = (isNullOrUndefined(timeUnit)) ? TimeUnit.NONE : timeUnit;
+    this.timeUnit = (CommonUtil.isNullOrUndefined(timeUnit)) ? TimeUnit.NONE : timeUnit;
   }
 } // structure - TimeRangeData
 
@@ -420,7 +446,7 @@ class ComboItem {
  */
 class TimeRangePickerSettings extends PickerSettings {
 
-  constructor(clz: string, onSelectDate: Function, onHide: Function, timeUnit: TimeUnit) {
+  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: () => void, timeUnit: TimeUnit) {
     super(clz, onSelectDate, onHide);
 
     switch (timeUnit) {

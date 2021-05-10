@@ -12,25 +12,22 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnInit, ViewChild} from '@angular/core';
-import {DatasetService} from './service/dataset.service';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {DsType, ImportType, PrDataset} from '../../domain/data-preparation/pr-dataset';
-import {SubscribeArg} from '../../common/domain/subscribe-arg';
-import {PopupService} from '../../common/service/popup.service';
-import {Subscription} from 'rxjs/Subscription';
-import {Modal} from '../../common/domain/modal';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Alert} from '../../common/util/alert.util';
-import {PreparationAlert} from '../util/preparation-alert.util';
-import {ActivatedRoute} from '@angular/router';
-import {DataflowService} from '../dataflow/service/dataflow.service';
-import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
-import {PreparationCommonUtil} from "../util/preparation-common.util";
-import {isNullOrUndefined} from "util";
-import {Page} from "../../domain/common/page";
-import {StringUtil} from "../../common/util/string.util";
 import * as _ from 'lodash';
+import {Component, ElementRef, HostListener, Injector, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {PopupService} from '@common/service/popup.service';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Page} from '@domain/common/page';
+import {DsType, ImportType, PrDataset} from '@domain/data-preparation/pr-dataset';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {PreparationCommonUtil} from '../util/preparation-common.util';
+import {DatasetService} from './service/dataset.service';
 
 @Component({
   selector: 'app-dataset',
@@ -42,8 +39,6 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private popupSubscription: Subscription;
-
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -63,14 +58,14 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
   public selectedDeletedsId: string;
 
-  public selectedItem : PrDataset;
+  public selectedItem: PrDataset;
 
   public selectedContentSort: Order = new Order();
 
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
 
-  public datasetTypes : TypeStruct[];
+  public datasetTypes: TypeStruct[];
 
   public ImportType = ImportType;
 
@@ -78,13 +73,12 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
   public DsType = DsType; // [IMPORTED, WRANGLED]
 
-  public selectedTypes : TypeStruct[];
+  public selectedTypes: TypeStruct[];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private datasetService: DatasetService,
-              private dataflowService: DataflowService,
               private activatedRoute: ActivatedRoute,
               private popupService: PopupService,
               protected elementRef: ElementRef,
@@ -102,13 +96,15 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     this._initView();
 
     // After creating dataset
-    this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-      this.step = data.name;
-      if (this.step === 'complete-dataset-create') {
-        this.page = new Page();
-        this.getDatasets();
-      }
-    });
+    this.subscriptions.push(
+      this.popupService.view$.subscribe((data: SubscribeArg) => {
+        this.step = data.name;
+        if (this.step === 'complete-dataset-create') {
+          this.page = new Page();
+          this.getDatasets();
+        }
+      })
+    );
 
     this.subscriptions.push(
       // Get query param from url
@@ -116,15 +112,15 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
-          if (!isNullOrUndefined(params['dsName'])) {
+          if (!this.isNullOrUndefined(params['dsName'])) {
             this.searchText = params['dsName'];
           }
 
@@ -148,7 +144,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
           }
 
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
@@ -180,9 +176,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
         if (this.page.page > 0 &&
-          (isNullOrUndefined(data['_embedded']) ||
-          (!isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdatasets.length === 0)))
-        {
+          (this.isNullOrUndefined(data['_embedded']) ||
+            (!this.isNullOrUndefined(data['_embedded']) && data['_embedded'].preparationdatasets.length === 0))) {
           this.page.page = data['page'].number - 1;
           this.getDatasets();
         }
@@ -198,15 +193,15 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
   }
 
   /** 데이터셋 검색
    * @param event
-   * */
-  public searchDataset(event : any) {
+   */
+  public searchDataset(event: any) {
 
     if (13 === event.keyCode || 27 === event.keyCode) {
       event.keyCode === 27 ? this.searchText = '' : null;
@@ -218,7 +213,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
   /** changing status
    * @param status (All, imported, wrangled)
-   * */
+   */
   public changeStatus(status) {
 
     event.stopImmediatePropagation();
@@ -249,7 +244,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   private _deleteSelectedItem(val) {
     const index = _.findIndex(this.selectedTypes, {name: val.name});
     if (-1 !== index) {
-      this.selectedTypes.splice(index,1);
+      this.selectedTypes.splice(index, 1);
     }
   }
 
@@ -261,8 +256,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   /** 데이터셋 지우기 확인
    * @param event
    * @param dataset 삭제할 데이터셋
-   * */
-  public confirmDelete(event : any, dataset : PrDataset) {
+   */
+  public confirmDelete(event: any, dataset: PrDataset) {
 
     event.stopPropagation();
     const modal = new Modal();
@@ -277,7 +272,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
   /**
    *  검색어 삭제 시
-   *  */
+   */
   public clearSearch() {
     this.searchText = '';
     this.page.page = 0;
@@ -286,7 +281,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
 
   /**
    * 데이터 셋 지우기
-   * */
+   */
   public deleteDataset() {
 
     this.loadingShow();
@@ -302,22 +297,22 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       }
     }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
   }
 
 
   /** row click (상세화면)
    * @param selectedItem 선택된 데이터셋
-   * */
+   */
   public itemRowClick(selectedItem: PrDataset) {
     this.router.navigate(['/management/datapreparation/dataset', selectedItem.dsId]).then();
   }
 
   /** 정렬
    * @param key 소팅할 선택된 컬럼
-   * */
+   */
   public changeOrder(key: string) {
 
     // 초기화
@@ -371,6 +366,16 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     ).then();
   } // function - reloadPage
 
+  /**
+   * @param event Event
+   */
+  @HostListener('document:keydown.enter', ['$event'])
+  public onEnterKeydownHandler(event: KeyboardEvent) {
+    if (event.keyCode === 13 && this.deleteModalComponent.isShow) {
+      this.deleteModalComponent.done();
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -380,34 +385,24 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * @param event Event
-   */
-  @HostListener('document:keydown.enter', ['$event'])
-  private _onEnterKeydownHandler(event: KeyboardEvent) {
-    if(event.keyCode === 13  && this.deleteModalComponent.isShow) {
-      this.deleteModalComponent.done();
-    }
-  }
-
-  /**
    * Returns parameter for dataset list
    * @private
    */
-  private _getDsParams(): any{
+  private _getDsParams(): any {
 
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
 
-    if (!isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
+    if (!this.isNullOrUndefined(this.searchText) || StringUtil.isNotEmpty(this.searchText)) {
       params['dsName'] = this.searchText;
     }
 
     params['dsType'] = '';
     if (this.selectedTypes.length !== 0) {
-      const list = this.selectedTypes.map((item) =>{
+      const list = this.selectedTypes.map((item) => {
         return item.value;
       });
       params['dsType'] = list.toString();
@@ -426,8 +421,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   private _initView() {
 
     this.datasetTypes = [
-      {name : 'IMPORTED', value : DsType.IMPORTED, checked : true, class : 'ddp-imported' },
-      {name : 'WRANGLED', value : DsType.WRANGLED, checked : false, class : 'ddp-wargled' }
+      {name: 'IMPORTED', value: DsType.IMPORTED, checked: true, class: 'ddp-imported'},
+      {name: 'WRANGLED', value: DsType.WRANGLED, checked: false, class: 'ddp-wargled'}
     ];
 
     this.selectedTypes = [];

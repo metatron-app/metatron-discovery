@@ -13,15 +13,13 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Rule} from '@domain/data-preparation/pr-dataset';
+import {PrDataSnapshot, SsType, Status} from '@domain/data-preparation/pr-snapshot';
+import {DataSnapshotService} from '../../../../data-snapshot/service/data-snapshot.service';
+import {PreparationCommonUtil} from '../../../../util/preparation-common.util';
 import {DataflowService} from '../../../service/dataflow.service';
-import {PrDataSnapshot, SsType, Status} from '../../../../../domain/data-preparation/pr-snapshot';
-import {isNullOrUndefined} from 'util';
-import {Rule} from '../../../../../domain/data-preparation/pr-dataset';
-import {DataSnapshotService} from "../../../../data-snapshot/service/data-snapshot.service";
-import {Alert} from "../../../../../common/util/alert.util";
-import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
-import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-rule-list',
@@ -124,7 +122,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * Clear interval
    */
   public clearExistingInterval() {
-    if (!isNullOrUndefined(this.interval)) {
+    if (!this.isNullOrUndefined(this.interval)) {
       clearInterval(this.interval);
       this.interval = undefined;
     }
@@ -137,7 +135,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * @return {number} interval을 stop 하려면 -1을 리턴한다.
    */
   public pollingContinue(list) : number {
-    let statusList = ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','NOT_AVAILABLE'];
+    const statusList = ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','NOT_AVAILABLE'];
     return list.findIndex((item) => {
       return -1 !== statusList.indexOf(item.status.toString())
     });
@@ -286,7 +284,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   public isDisableHover(index : number) : boolean {
 
     // Rule list 에서 편집중인 룰이 있는지 확인한다.
-    let idx = this.ruleList.findIndex((rule) => {
+    const idx = this.ruleList.findIndex((rule) => {
       return rule.isEditMode;
     });
 
@@ -305,8 +303,8 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    */
   public getSnapshotStatus(status : string) : string[] {
 
-    let result = [];
-    let progress = ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','NOT_AVAILABLE'];
+    let result: any[];
+    const progress = ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','NOT_AVAILABLE'];
     if ('SUCCEEDED' === status) {
       result = ['Success','success'];
     } else if ('FAILED' === status) {
@@ -318,7 +316,6 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     }
     return result
   }
-
 
   /**
    * Navigate to snapshot list
@@ -399,7 +396,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
 
 
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
     })
   } // function - cancelSnapshotConfirm
 

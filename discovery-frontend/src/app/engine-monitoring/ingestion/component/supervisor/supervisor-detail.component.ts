@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   AfterViewInit,
   Component,
@@ -22,16 +23,15 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {EngineService} from "../../../service/engine.service";
-import {ActivatedRoute} from "@angular/router";
-import {Engine} from "../../../../domain/engine-monitoring/engine";
-import {Modal} from "../../../../common/domain/modal";
-import {Alert} from "../../../../common/util/alert.util";
-import {Location} from "@angular/common";
-import * as _ from 'lodash';
-import {Task, TaskType} from "../../../../domain/engine-monitoring/task";
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {Location} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {Task, TaskType} from '@domain/engine-monitoring/task';
+import {EngineService} from '../../../service/engine.service';
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
 
 declare let echarts: any;
 declare let moment: any;
@@ -92,10 +92,10 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     if (!_.isNil(this._lagChart)) {
       this._lagChart.resize();
     }
@@ -139,7 +139,7 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     this.showConfirm = false;
   }
 
-  public changeLagDuration(duration:string) {
+  public changeLagDuration(duration: string) {
     this.isShowLagDuration = false;
     this.loadingShow();
     this.selectedLagDuration = duration;
@@ -150,7 +150,7 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     }, 300);
   }
 
-  public getDurationLabel(duration:string) {
+  public getDurationLabel(duration: string) {
     return EngineMonitoringUtil.getDurationLabel(duration);
   }
 
@@ -179,13 +179,13 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     })
   }
 
-  private _getSupervisorLag(fromDate?:string): void {
+  private _getSupervisorLag(fromDate?: string): void {
     if (_.isNil(fromDate)) {
       fromDate = this._getFromDate('1HOUR');
     }
     const queryParam: any =
       {
-        monitoringTarget : {
+        monitoringTarget: {
           metric: Engine.MonitoringTarget.SUPERVISOR_LAG,
           datasource: this.dataSource
         },
@@ -264,7 +264,7 @@ export class SupervisorDetailComponent extends AbstractComponent implements OnIn
     });
   }
 
-  private _getFromDate(duration:string) {
+  private _getFromDate(duration: string) {
     if ('1DAY' === duration) {
       return moment().subtract(1, 'days').utc().format('YYYY-MM-DDTHH:mm:ss');
     } else if ('7DAYS' === duration) {

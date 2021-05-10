@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
@@ -24,27 +24,19 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {
-  DatasourceInfo,
-  Field,
-  FieldFormatType,
-  IngestionRuleType
-} from '../../../../../domain/datasource/datasource';
-import {Alert} from '../../../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '@domain/datasource/datasource';
+import {DataStorageConstant} from '../../../../constant/data-storage-constant';
+import {GranularityService} from '../../../../service/granularity.service';
+import {CreateSourceCompleteData, DataSourceCreateService} from '../../../../service/data-source-create.service';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {CommonUtil} from '../../../../../common/util/common.util';
-import * as _ from 'lodash';
-import {StringUtil} from '../../../../../common/util/string.util';
-import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../../../common/domain/modal';
-import {CookieConstant} from '../../../../../common/constant/cookie.constant';
-import {CommonConstant} from "../../../../../common/constant/common.constant";
-import {GranularityService} from "../../../../service/granularity.service";
-import {
-  CreateSourceCompleteData,
-  DataSourceCreateService
-} from "../../../../service/data-source-create.service";
-import {DataStorageConstant} from "../../../../constant/data-storage-constant";
 
 /**
  * Creating datasource with File - complete step
@@ -193,14 +185,14 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     this.loadingShow();
     // create datasource
     this.datasourceService.overwriteDatasource(this._sourceData.datasourceId, this._getCreateDatasourceParams())
-      .then((result) => {
+      .then(() => {
         // complete alert
         Alert.success(`'${this.createCompleteData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.reingestion.success'));
         this.loadingHide();
         this.close();
         this.onComplete.emit();
       })
-      .catch((error) => {
+      .catch(() => {
         // loading hide
         this.loadingHide();
         // modal
@@ -245,7 +237,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
             this.close();
           });
       })
-      .catch((error) => {
+      .catch(() => {
         // loading hide
         this.loadingHide();
         // modal
@@ -258,7 +250,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
         modal.description = this.translateService.instant('msg.storage.ui.source.create.fail.description');
         // show error modal
         this.confirmModal.init(modal);
-    });
+      });
   }
 
   /**
@@ -402,7 +394,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // timestamp enable
     const isCreateTimestamp = this.getSchemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
     // fields param
-    let fields = _.cloneDeep(this.getSchemaData.fieldList);
+    const fields = _.cloneDeep(this.getSchemaData.fieldList);
     // seq number
     let seq = 0;
     // field setting
@@ -454,7 +446,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     }
     // if not used current_time TIMESTAMP, set intervals
     if (this.getSchemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
-      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
+      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

@@ -13,9 +13,9 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../common/component/abstract.component';
 import {ActivatedRoute} from '@angular/router';
-import {Engine} from '../domain/engine-monitoring/engine';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
 
 @Component({
   selector: 'engine-monitoring',

@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Filter } from './filter';
+import {Filter} from './filter';
 
-export class LikeFilter extends Filter{
+export class LikeFilter extends Filter {
   /**
    * Like 구문, Wildcard 관련 문자('_', '%') 포함 <br/>
    * Escape 문자(기본값 '\') 지원

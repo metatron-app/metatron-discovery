@@ -13,26 +13,29 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output, ViewChild
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input, OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
-import { CommonUtil } from '../../common/util/common.util';
-import {StringUtil} from "../../common/util/string.util";
-import {isNullOrUndefined} from "util";
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'prep-select-box',
   templateUrl: './prep-select-box.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  },
   styles: [
     '.ddp-list-selectbox li.sys-focus-item { background-color: #f6f6f7 !important; }'
   ]
 })
-export class PrepSelectBoxComponent extends AbstractComponent implements OnInit {
+export class PrepSelectBoxComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -103,17 +106,17 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
   @Output() public onSelected = new EventEmitter();
 
   // select box 길이 full length 여부
-  @Input() public isFull : boolean = false;
+  @Input() public isFull: boolean = false;
 
   // 옵션이 왼쪽으로 길어지는 여부
-  @Input() public isOptionToLeft:boolean = false;
+  @Input() public isOptionToLeft: boolean = false;
 
   // 키보드 조작 가능 여부
   @Input()
   public isAllowKeyboardManipulation: boolean = false;
 
   @Input()
-  public isSearchAllowed : boolean = false;
+  public isSearchAllowed: boolean = false;
 
   @Input()
   public isWritable: boolean = false;
@@ -150,7 +153,7 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
     // 검색어가 있다면
     if (isSearchTextEmpty) {
       arrayList = arrayList.filter((item) => {
-        if (!isNullOrUndefined(this.viewKey)) {
+        if (!this.isNullOrUndefined(this.viewKey)) {
           return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
         } else {
           return item.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
@@ -160,6 +163,7 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
     }
     return arrayList;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -185,12 +189,12 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
       }
     }
 
-    //Close select box when a command list or other select box is clicked
+    // Close select box when a command list or other select box is clicked
     this.subscriptions.push(
-      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
-        if( data.id === 'commandList' ) {
+      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id: string, isShow: boolean }) => {
+        if (data.id === 'commandList') {
           this.isShowSelectList = data.isShow;
-        } else if( data.id !== this._FIELD_COMBO_ID && data.id !== 'toggleList') {
+        } else if (data.id !== this._FIELD_COMBO_ID && data.id !== 'toggleList') {
           this.isShowSelectList = false;
         }
       })
@@ -203,13 +207,26 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
 
   // Destroy
   public ngOnDestroy() {
-
     super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * Click inside component
+   * @param event
+   */
+  @HostListener('document:click', ['$event'])
+  public onClickHost(event) {
+    // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      // 팝업창 닫기
+      this.isShowSelectList = false;
+      !this.isWritable ? this.searchText = '' : null;
+    }
+  }
 
   /**
    * When an item is clicked from select box
@@ -224,19 +241,6 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
     this.safelyDetectChanges();
 
     this.onSelected.emit(item);     // emit event
-  }
-
-  /**
-   * Click inside component
-   * @param event
-   */
-  public onClickHost(event) {
-    // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      // 팝업창 닫기
-      this.isShowSelectList = false;
-      !this.isWritable ? this.searchText = '' : null;
-    }
   }
 
   /**
@@ -258,8 +262,8 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
    * show pattern info tooltip
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {id: 'toggleList', isShow: isShow});
   } // function - showHidePatternLayer
 
 
@@ -307,7 +311,7 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
         $currFocusItem.removeClass('sys-focus-item');
 
         // Emitting event telling not to apply rule !
-        this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'enterKey', isShow : false } );
+        this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {id: 'enterKey', isShow: false});
         break;
     }
   }

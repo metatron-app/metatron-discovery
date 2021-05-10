@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { CommonUtil } from '../../common/util/common.util';
-import { RoleSet, RoleSetScope } from '../../domain/user/role/roleSet';
+import {CommonUtil} from '@common/util/common.util';
+import {RoleSet, RoleSetScope} from '@domain/user/role/roleSet';
 
 @Injectable()
 export class PermissionService extends AbstractService {
@@ -72,8 +72,8 @@ export class PermissionService extends AbstractService {
    * @param {any} params
    * @return {Promise<any>}
    */
-  public addRemoveAssignedRoleMember(roleId: string, params: any) : Promise<any> {
-    return this.patch(this.API_URL + `roles/${roleId}/directories`,params);
+  public addRemoveAssignedRoleMember(roleId: string, params: any): Promise<any> {
+    return this.patch(this.API_URL + `roles/${roleId}/directories`, params);
   } // function - addRemoveAssignedRoleMember
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -99,7 +99,7 @@ export class PermissionService extends AbstractService {
    * @return {Promise<any>}
    */
   public getWorkspaceCustomRoleSet(workspaceId: string): Promise<any> {
-    return this.getRolesets({ scope: RoleSetScope.PRIVATE, nameContains: workspaceId })
+    return this.getRolesets({scope: RoleSetScope.PRIVATE, nameContains: workspaceId})
       .then(listResult => {
         if (listResult['_embedded'] && listResult['_embedded']['roleSets']) {
           // 기존 Private RoleSet이 존재할 경우
@@ -172,7 +172,7 @@ export class PermissionService extends AbstractService {
    * @param params
    * @return {Promise<any>}
    */
-  public getWorkspacesByRoleSet(roleSetId:string, params:any) {
+  public getWorkspacesByRoleSet(roleSetId: string, params: any) {
     let url = this.API_URL + `rolesets/${roleSetId}/workspaces?projection=forSimpleListView`;
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
@@ -201,7 +201,7 @@ export class PermissionService extends AbstractService {
    */
   public getPermissionCheck(domain: string, permission: string): Promise<boolean> {
     return this.get(this.API_URL + 'auth/' + domain + '/permissions/check?permissions=' + permission)
-      .then(response => Promise.resolve(( response && response['hasPermission'] )))
+      .then(response => Promise.resolve((response && response['hasPermission'])))
       .catch(() => Promise.resolve(false));
   } // function - getPermissionCheck
 

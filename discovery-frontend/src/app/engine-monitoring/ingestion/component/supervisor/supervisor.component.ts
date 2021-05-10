@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {PageResult} from "../../../../domain/common/page";
-import {EngineService} from "../../../service/engine.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {ActivatedRoute} from "@angular/router";
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PageResult} from '@domain/common/page';
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
+import {EngineService} from '../../../service/engine.service';
 
 @Component({
   selector: 'ingestion-supervisor',
@@ -132,7 +132,7 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
   }
 
   private _getSupervisorPagingList() {
-    let list = this._filteringSupervisorList();
+    const list = this._filteringSupervisorList();
     this.pageResult = new PageResult();
     this.pageResult.size = this.page.size;
     this.pageResult.number = this.page.page;
@@ -144,7 +144,7 @@ export class SupervisorComponent extends AbstractComponent implements OnInit, On
   }
 
   private _getSupervisorList() {
-    if (_.isNil(this.supervisorTotalList) || this.supervisorTotalList.length == 0) {
+    if (_.isNil(this.supervisorTotalList) || this.supervisorTotalList.length === 0) {
       this.engineService.getSupervisorList().then((data) => {
         this.supervisorTotalList = data;
         this._getSupervisorPagingList();

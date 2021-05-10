@@ -12,24 +12,15 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {RoleSet} from '../../../domain/user/role/roleSet';
+import {Component, ElementRef, HostListener, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {RoleSet} from '@domain/user/role/roleSet';
 import {Role} from 'app/domain/user/role/role';
 import {PermissionService} from '../../../user/service/permission.service';
 import * as _ from 'lodash';
 import {CommonUtil} from 'app/common/util/common.util';
 import {WORKSPACE_PERMISSION} from 'app/common/permission/permission';
-import {isNullOrUndefined} from "util";
-import {Alert} from "../../../common/util/alert.util";
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'app-permission-schema',
@@ -40,7 +31,6 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private _orgRoleSet: RoleSet;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -52,7 +42,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
   // RoleSet 정보
   public editRoleSet: RoleSet;
 
-  public errorMsg:string = '';
+  public errorMsg: string = '';
 
   @Input('roleSet')
   set setRoleSet(roleSet: RoleSet) {
@@ -61,14 +51,13 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
         role['orgName'] = role.name; // mapper 설정을 위해 orgName 설정
         if (role.permissions && 0 < role.permissions.length) {
           role.permissionNames = role.permissions.map(item => {
-            return <string>(item.name ? item.name : item);
+            return (item.name ? item.name : item) as string;
           });
         }
       });
     } else {
       roleSet = this._getBasicRoleSet(roleSet);
     }
-    this._orgRoleSet = _.cloneDeep(roleSet);
     this.editRoleSet = _.cloneDeep(roleSet);
     this.editRoleSet.removeRoleNames = [];
     this.changeDetect.markForCheck();
@@ -76,7 +65,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
 
   @Input() public editMode: boolean = true;   // 수정 모드 여부
   @Input() public desc: boolean = true;       // 설명 표시 여부
-  @Input() public useAPI:boolean = true;      // API 사용 여부
+  @Input() public useAPI: boolean = true;      // API 사용 여부
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
@@ -110,7 +99,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
   @HostListener('click', ['$event.target'])
   public clickOther(target) {
     this.errorMsg = '';
-    this.editRoleSet.roles.forEach( item => delete item['error'] );
+    this.editRoleSet.roles.forEach(item => delete item['error']);
     const $eventTarget: JQuery = $(target);
     if (!$eventTarget.hasClass('ddp-txt-edit') && 0 === $eventTarget.closest('.ddp-txt-edit').length) {
       this.editRoleSet.roles.forEach(item => this.resetRoleName(item));
@@ -138,14 +127,14 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
    * @param {number} removeIdx
    */
   public removeRole(removeIdx: number) {
-    if( isNullOrUndefined( this.editRoleSet.roles[removeIdx]['isNewRole'] ) ) {
+    if (this.isNullOrUndefined(this.editRoleSet.roles[removeIdx]['isNewRole'])) {
       // 삭제 RoleSet 이름 저장
-      this.editRoleSet.removeRoleNames.push( this.editRoleSet.roles[removeIdx].name );
+      this.editRoleSet.removeRoleNames.push(this.editRoleSet.roles[removeIdx].name);
     }
     // Role 삭제
     (-1 < removeIdx) && (this.editRoleSet.roles.splice(removeIdx, 1));
     // 무조건 하나의 Role 을 Default 로 선정해준다.
-    (1 === this.editRoleSet.roles.length) && ( this.editRoleSet.roles[0].defaultRole = true );
+    (1 === this.editRoleSet.roles.length) && (this.editRoleSet.roles[0].defaultRole = true);
   } // function - removeRole
 
   /**
@@ -199,7 +188,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
    */
   public togglePerm(role: Role, permKey: string) {
     if (this.editMode) {
-      let isAdd: boolean = true;
+      let isAdd: boolean;
       if (role.permissionNames) {
         const permIdx: number = role.permissionNames.indexOf(permKey);
         if (-1 === permIdx) {
@@ -222,7 +211,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
 
   /**
    * defaultRole 체크 클릭 ( 수정모드일때만 동작 )
-   * @param {Role} selectedRole
+   * @param idx
    */
   public clickDefaultRole(idx: number) {
     if (this.editMode) {
@@ -314,7 +303,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
         } else {
           params.name = newRoleSetName ? newRoleSetName : CommonUtil.getUUID();
           (newRoleSetDesc) && (params.description = newRoleSetDesc);
-          this.permissionService.createRoleset(<RoleSet>params).then(result => {
+          this.permissionService.createRoleset(params as RoleSet).then(result => {
             resolve(result);
           }).catch(err => {
             this.commonExceptionHandler(err);

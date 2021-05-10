@@ -12,25 +12,19 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Engine} from '../../../domain/engine-monitoring/engine';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
 import {StateService} from '../../service/state.service';
 
 @Component({
   selector: '[header-menu]',
-  templateUrl: './header-menu.component.html',
-  host: { '[class.ddp-top-menu]': 'true' }
+  templateUrl: './header-menu.component.html'
 })
 export class HeaderMenuComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-top-menu';
 
   @Input()
   public readonly content: Engine.Content;

@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { ScrollLoadingGridModel } from './scroll-loading-grid.model';
-import { GridOption, Option } from '../../../../../../common/component/grid/grid.option';
-import { header, SlickGridHeader } from '../../../../../../common/component/grid/grid.header';
-import * as _ from 'lodash';
+import { GridOption, Option } from '@common/component/grid/grid.option';
+import { Header, SlickGridHeader } from '@common/component/grid/grid.header';
 
 declare const jQuery_1_7;
 declare const Slick: any;
@@ -33,6 +33,8 @@ declare const Slick: any;
   ]
 })
 export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  public static readonly ID_PROPERTY: string = '_idProperty_';     // 아이디
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -60,7 +62,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   private readonly _ROW_EMPTY: number = -1;       // 로우 데이터가 없는 경우 -1
 
-  private __selectedRows: any = [];            // 그리드에서 선택된 로우 리스트
+  private _selectedRows: any = [];            // 그리드에서 선택된 로우 리스트
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -69,7 +71,6 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public static readonly ID_PROPERTY: string = '_idProperty_';     // 아이디
 
   @Output() private selectedHeaderEvent = new EventEmitter();           // 헤더 선택시 알림
 
@@ -152,7 +153,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param {number} ruleIdx
    * @param {number} totalRowCnt
    */
-  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null, ruleIdx: number, totalRowCnt: number) {
+  public create(headers: Header[], gridModel: ScrollLoadingGridModel, option: Option = null, ruleIdx: number, totalRowCnt: number) {
 
     // 기존 그리드 삭제
     this.destroy();
@@ -184,7 +185,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
         .Resizable(true)
         .Unselectable(true)
         .Sortable(this._option.enableSeqSort)
-        .Formatter((row, cell, value, columnDef) => {
+        .Formatter((_row, _cell, value, columnDef) => {
           if (this._option.enableHeaderClick && columnDef.id === ScrollLoadingGridComponent.ID_PROPERTY) {
             return '<div style=\'line-height:30px;\'>' + '&middot;' + '</div>';
           } else {
@@ -217,7 +218,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     if(naviAgent.indexOf('msie') > 0 || naviAgent.indexOf('trident/') > 0 || naviAgent.indexOf('edge/') > 0) {
       ieBrowser = true;
     }
-    if(ieBrowser == false){
+    if(ieBrowser === false){
       $('.slick-headerrow').css('overflow-x','auto');
       $('.slick-header').css('overflow-x','auto');
     }
@@ -313,7 +314,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     // let rows: any[] =
     //   fnScope._grid.getSelectedRows()
     //     .map(rowIndex => fnScope.dataView.getItem(rowIndex));
-    let rows: any[] =
+    const rows: any[] =
       fnScope._grid.getSelectedRows().map(rowIndex => fnScope._gridModel.data[rowIndex]);
 
     return _.cloneDeep(rows);
@@ -334,13 +335,13 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     (opts) || (opts = {});
 
     // get column index with column id
-    let columnIdx = this._grid.getColumnIndex(id);
+    const columnIdx = this._grid.getColumnIndex(id);
 
-    let isSelect = false;
+    let isSelect: boolean;
     if ('string' === typeof isSelectOrToggle && 'TOGGLE' === isSelectOrToggle) {
       isSelect = (0 === this._selectColumnIds.filter(item => item === id).length);
     } else {
-      isSelect = <boolean>isSelectOrToggle;
+      isSelect = isSelectOrToggle as boolean;
     }
 
     // 선택 컬럼 목록 변경
@@ -350,7 +351,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     // 이벤트 발생
     (this._grid.getColumns()[columnIdx]) && (this._grid.getColumns()[columnIdx]['select'] = isSelect);
 
-    let selectedColumnData = {
+    const selectedColumnData = {
       id: id,
       isSelect: isSelect,
       selectColumnIds: this._selectColumnIds,
@@ -421,7 +422,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
     const fnScope: any = scope === null ? this : scope;
 
-    let rRows: any[] = [];
+    const rRows: any[] = [];
 
     // 그리드에 보여지고 있는 로우의 숫자
     // const gridRowLength = fnScope.dataView.getLength();
@@ -439,8 +440,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param index
    */
   public rowSelection(index): void {
-    // console.info('index', index);
-    this.__selectedRows = index;
+    // console.log('index', index);
+    this._selectedRows = index;
     if (this._gridSelectionModelType === 'cell') {
       this.rowAllUnSelection();
     }
@@ -456,7 +457,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   public rowAllUnSelection(scope: any = null): void {
     const fnScope: any = scope === null ? this : scope;
     fnScope._grid.setSelectedRows([]);
-    this.__selectedRows = [];
+    this._selectedRows = [];
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -472,10 +473,10 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param {ScrollLoadingGridModel} gridModel
    * @private
    */
-  private _generateGrid(headers: header[], gridModel: ScrollLoadingGridModel) {
+  private _generateGrid(headers: Header[], gridModel: ScrollLoadingGridModel) {
 
     // 그리드 생성
-    let grid = new Slick.Grid(`#${this._GRID_ID}`, gridModel.data, headers, this._option);
+    const grid = new Slick.Grid(`#${this._GRID_ID}`, gridModel.data, headers, this._option);
 
     // 툴팁 플러그인 추가
     const autoTooltips = new Slick.AutoTooltips({ enableForHeaderCells: true });
@@ -496,7 +497,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
     if (this._option.enableHeaderMenu) {
       // Header menu plugin
-      let headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
+      const headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
       headerButtonsPlugin.onCommand.subscribe((e, args) => {
 
         const contextMenuParam = {
@@ -518,8 +519,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       grid.registerPlugin(headerButtonsPlugin);
     }
 
-    grid.getContainerNode().querySelector('.slick-header').addEventListener('scroll', (event)=>{
-      if(grid.getContainerNode().querySelector('.slick-viewport').scrollLeft != grid.getContainerNode().querySelector('.slick-header').scrollLeft)
+    grid.getContainerNode().querySelector('.slick-header').addEventListener('scroll', (_event)=>{
+      if(grid.getContainerNode().querySelector('.slick-viewport').scrollLeft !== grid.getContainerNode().querySelector('.slick-header').scrollLeft)
       grid.getContainerNode().querySelector('.slick-viewport').scrollLeft = grid.getContainerNode().querySelector('.slick-header').scrollLeft;
     });
 
@@ -545,7 +546,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   /**
    * Grid horizaltal scroll timer
-   * @param {viewPortLeftPx} number
+   * @param {number} viewPortLeftPx
    * @private
    */
   private fixGridScroll(viewPortLeftPx: number): void {
@@ -581,7 +582,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     });
 
     // 그리드 스크롤 이벤트
-    grid.onScroll.subscribe((e: any, args:any) => {
+    grid.onScroll.subscribe((_e: any, _args:any) => {
       this.allContextMenuClose();
     });
 
@@ -599,7 +600,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       this._loadingIndicator.show();
     });
 
-    gridModel.onDataLoaded.subscribe((e, args) => {
+    gridModel.onDataLoaded.subscribe((_e, args) => {
 
       // 데이터 업데이트
       grid.setData(gridModel.data);
@@ -780,7 +781,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       if (this._option.headerRowHeight !== 25) {
         $('.slick-viewport').css('top', this._option.headerRowHeight + 30 + 'px');
       }
-      grid.onHeaderRowCellRendered.subscribe((event, args) => {
+      grid.onHeaderRowCellRendered.subscribe((_event, args) => {
         this.onHeaderRowCellRendered.emit(args);
       });
     }
@@ -792,10 +793,10 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     // -----------------------------------------------------------------------------------------------------------------
     grid.onColumnsResized.subscribe(() => {
       for (let i = 0, totI = this._grid.getColumns().length; i < totI; i++) {
-        let column = this._grid.getColumns()[i];
+        const column = this._grid.getColumns()[i];
         this._columnResized = true;
-        //Check if column width has changed
-        if (column.width != column.previousWidth) {
+        // Check if column width has changed
+        if (column.width !== column.previousWidth) {
           this.onColumnResize.emit({ idx: i, field : column.field,name: column.name, uuid : column.id, width: column.width });
           setTimeout(() => {
             this._columnResized = false;
@@ -826,7 +827,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    */
   private moreEventAfterSelectRow(): void {
     if(this._gridSelectionModelType !== 'row') return;
-    this._grid.setSelectedRows(this.__selectedRows);
+    this._grid.setSelectedRows(this._selectedRows);
   }
 
 
@@ -876,7 +877,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
         result.selected = true;
     }else{
       if(row.hasOwnProperty(idProperty)) {
-        for(let i: number = 0; i < selectedList.length; i = i + 1) {
+        for(let i: number = 0, nMax = selectedList.length; i < nMax; i = i + 1) {
           if(selectedList[i] === undefined) continue;
           if(selectedList[i].hasOwnProperty(idProperty) === false) continue;
           if(selectedList[i][idProperty] === row[idProperty]) {
@@ -951,17 +952,17 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @private
    */
   private _generateUUID(): string {
-    let d = new Date().getTime();
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      let r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      const d = new Date().getTime();
+      const r = (d + Math.random() * 16) % 16 | 0;
+      // d = Math.floor(d / 16);
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
   } // function - _generateUUID
 
   /**
    * 셀 드래그 옵션 초기화
-   * @param scope
+   * @param grid
    */
   private initCellExternalCopyManager(grid): void {
 

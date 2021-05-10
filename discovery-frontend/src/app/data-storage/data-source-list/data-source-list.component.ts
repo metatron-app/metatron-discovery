@@ -11,26 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {Datasource, SourceType, Status} from '@domain/datasource/datasource';
 import {DatasourceService} from '../../datasource/service/datasource.service';
-import {Datasource, SourceType, Status} from '../../domain/datasource/datasource';
-import {Alert} from '../../common/util/alert.util';
-import {Modal} from '../../common/domain/modal';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
-import {StringUtil} from '../../common/util/string.util';
-import {ActivatedRoute} from "@angular/router";
-import {CriterionComponent} from "../component/criterion/criterion.component";
-import {Criteria} from "../../domain/datasource/criteria";
-import {isNullOrUndefined} from "util";
+import {CriterionComponent} from '../component/criterion/criterion.component';
 
 @Component({
   selector: 'app-data-source',
   templateUrl: './data-source-list.component.html',
   providers: [MomentDatePipe]
 })
-export class DataSourceListComponent extends AbstractComponent {
+export class DataSourceListComponent extends AbstractComponent implements OnInit {
 
   @ViewChild(CriterionComponent)
   private readonly criterionComponent: CriterionComponent;
@@ -40,7 +40,7 @@ export class DataSourceListComponent extends AbstractComponent {
   private deleteModalComponent: DeleteModalComponent;
 
   private _queryParams = void 0;
-  private _isSetCriterionList:boolean = false;
+  private _isSetCriterionList: boolean = false;
 
   // datasource create step
   public mode: string;
@@ -75,7 +75,7 @@ export class DataSourceListComponent extends AbstractComponent {
         // init criterion list
         this.criterionComponent.initCriterionList(result);
         this._isSetCriterionList = true;
-        if( this._queryParams ) {
+        if (this._queryParams) {
           this.setDsListParam(this._queryParams);
         }
       })
@@ -84,7 +84,7 @@ export class DataSourceListComponent extends AbstractComponent {
     this.subscriptions.push(
       this.activatedRoute.queryParams.subscribe(params => {
         this._queryParams = params;
-        if( this._isSetCriterionList ) {
+        if (this._isSetCriterionList) {
           this.setDsListParam(params);
         }
       })
@@ -177,7 +177,7 @@ export class DataSourceListComponent extends AbstractComponent {
     this.loadingShow();
     // 데이터소스 삭제
     this.datasourceService.deleteDatasource(modalData.data)
-      .then((result) => {
+      .then(() => {
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
 
         if (this.page.page > 0 && this.datasourceList.length === 1) {
@@ -233,17 +233,17 @@ export class DataSourceListComponent extends AbstractComponent {
    */
   public onClickDatasource(sourceId: string): void {
     // open datasource detail
-    sessionStorage.setItem( 'IS_LOCATION_BACK_DS_LIST', 'TRUE' );
+    sessionStorage.setItem('IS_LOCATION_BACK_DS_LIST', 'TRUE');
     this.router.navigate(['/management/storage/datasource', sourceId]).then();
   }
 
   /**
    * Changed filter
-   * @param searchParams
+   * @param _searchParams
    */
-  public onChangedFilter(searchParams): void {
+  public onChangedFilter(_searchParams): void {
     // reload page
-    if( this._queryParams && this._isSetCriterionList ) {
+    if (this._queryParams && this._isSetCriterionList) {
       this.reloadPage(true);
     }
   }
@@ -354,8 +354,8 @@ export class DataSourceListComponent extends AbstractComponent {
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].datasources.length === 0)) {
+          this.isNullOrUndefined(result['_embedded']) ||
+          (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].datasources.length === 0)) {
           this.page.page = result.page.number - 1;
           this._setDatasourceList();
         }
@@ -372,7 +372,6 @@ export class DataSourceListComponent extends AbstractComponent {
 
   /**
    * Get search query params
-   * @return {{size: number; page: number; sort: string}}
    * @private
    */
   private _getQueryParams() {

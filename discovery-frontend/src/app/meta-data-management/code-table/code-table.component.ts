@@ -12,21 +12,20 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Modal} from '../../common/domain/modal';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {CodeTableService} from './service/code-table.service';
-import {CodeTable} from '../../domain/meta-data-management/code-table';
-import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
-import {Alert} from '../../common/util/alert.util';
-import {CreateCodeTableComponent} from './create-code-table/create-code-table.component';
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
-import {PeriodData} from "../../common/value/period.data.value";
-import {Subscription} from "rxjs";
-import {Criteria} from "../../domain/datasource/criteria";
+import {Subscription} from 'rxjs';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {PeriodData} from '@common/value/period.data.value';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {Criteria} from '@domain/datasource/criteria';
+import {CreateCodeTableComponent} from './create-code-table/create-code-table.component';
+import {CodeTableService} from './service/code-table.service';
 import DateTimeType = Criteria.DateTimeType;
 
 declare let moment: any;
@@ -111,16 +110,16 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
       if (!_.isEmpty(params)) {
 
-        if (!isNullOrUndefined(params['size'])) {
+        if (!this.isNullOrUndefined(params['size'])) {
           this.page.size = params['size'];
         }
 
-        if (!isNullOrUndefined(params['page'])) {
+        if (!this.isNullOrUndefined(params['page'])) {
           this.page.page = params['page'];
         }
 
 
-        if (!isNullOrUndefined(params['nameContains'])) {
+        if (!this.isNullOrUndefined(params['nameContains'])) {
           this.searchText = params['nameContains'];
         }
 
@@ -266,7 +265,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
   /**
    * 캘린더 선택 이벤트
-   * @param event
+   * @param selectedDate
    */
   public onChangeData(selectedDate): void {
     this.selectedType = selectedDate.type;
@@ -274,7 +273,12 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     const betweenFrom = selectedDate.startDate;
     const betweenTo = selectedDate.endDate;
 
-    let startDate, endDate, type, startDateStr, endDateStr, dateType = null;
+    let startDate;
+    let endDate;
+    let type;
+    let startDateStr;
+    let endDateStr;
+    const dateType = null;
 
     const returnFormat = 'YYYY-MM-DDTHH:mm';
 
@@ -419,8 +423,8 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
-        isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].codetables.length === 0)) {
+        this.isNullOrUndefined(result['_embedded']) ||
+        (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].codetables.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getCodeTableList();
       }
@@ -455,7 +459,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
       pseudoParam: (new Date()).getTime()
     };
     // 검색어
-    if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
+    if (!this.isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['nameContains'] = this.searchText.trim();
     }
     // date

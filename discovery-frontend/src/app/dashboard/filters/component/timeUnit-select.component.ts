@@ -18,22 +18,24 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnChanges,
   OnDestroy,
-  OnInit, Output,
+  OnInit,
+  Output,
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import { ByTimeUnit, TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
-import { isNullOrUndefined } from 'util';
-import { FilterUtil } from '../../util/filter.util';
+import {CommonUtil} from '@common/util/common.util';
+import {ByTimeUnit, TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {FilterUtil} from '../../util/filter.util';
 
 @Component({
   selector: 'timeUnit-select',
   templateUrl: './timeUnit-select.component.html'
 })
-export class TimeUnitSelectComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class TimeUnitSelectComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -61,15 +63,15 @@ export class TimeUnitSelectComponent extends AbstractComponent implements OnInit
   */
   public dpContinuousList: string[] = ['Second', 'Minute', 'Hour', 'Day', 'Week', 'Month', 'Year', 'None'];
   public dpDiscontinuousList: any[] = [
-    { name: 'Day by week', unit: 'DAY', byUnit: 'WEEK' },
-    { name: 'Day by month', unit: 'DAY', byUnit: 'MONTH' },
-    { name: 'Day by year', unit: 'DAY', byUnit: 'YEAR' },
-    { name: 'Week by month', unit: 'WEEK', byUnit: 'MONTH' },
-    { name: 'Week by year', unit: 'WEEK', byUnit: 'YEAR' },
-    { name: 'Month by year', unit: 'MONTH', byUnit: 'YEAR' },
-    { name: 'Year', unit: 'YEAR' }
+    {name: 'Day by week', unit: 'DAY', byUnit: 'WEEK'},
+    {name: 'Day by month', unit: 'DAY', byUnit: 'MONTH'},
+    {name: 'Day by year', unit: 'DAY', byUnit: 'YEAR'},
+    {name: 'Week by month', unit: 'WEEK', byUnit: 'MONTH'},
+    {name: 'Week by year', unit: 'WEEK', byUnit: 'YEAR'},
+    {name: 'Month by year', unit: 'MONTH', byUnit: 'YEAR'},
+    {name: 'Year', unit: 'YEAR'}
   ];
-  public timeUnitLabel:string = 'NONE';
+  public timeUnitLabel: string = 'NONE';
 
   public isOpenOpts: boolean = false;
 
@@ -110,7 +112,7 @@ export class TimeUnitSelectComponent extends AbstractComponent implements OnInit
     const dataChanges: SimpleChange = changes.inputFilter;
     if (dataChanges) {
       this.filter = dataChanges.currentValue;
-      if( isNullOrUndefined( this.filter.timeUnit ) ) {
+      if (this.isNullOrUndefined(this.filter.timeUnit)) {
         this.filter.timeUnit = TimeUnit.NONE;
       }
       this.timeUnitLabel = 'Granularity :' + this.filter.timeUnit.toString();
@@ -132,7 +134,7 @@ export class TimeUnitSelectComponent extends AbstractComponent implements OnInit
    * @returns {boolean}
    */
   public isSelectedContinuous(item: string): boolean {
-    return !FilterUtil.isDiscontinuousTimeFilter( this.filter )
+    return !FilterUtil.isDiscontinuousTimeFilter(this.filter)
       && this.filter.timeUnit === TimeUnit[item.toUpperCase()];
   } // function - isSelectedContinuous
 
@@ -142,7 +144,7 @@ export class TimeUnitSelectComponent extends AbstractComponent implements OnInit
    * @returns {boolean}
    */
   public isSelectedDiscontinuous(item: { name: string, unit: string, byUnit: string }): boolean {
-    if (FilterUtil.isDiscontinuousTimeFilter( this.filter )) {
+    if (FilterUtil.isDiscontinuousTimeFilter(this.filter)) {
       if (item.byUnit) {
         return this.filter.timeUnit === TimeUnit[item.unit.toUpperCase()]
           && this.filter.byTimeUnit === ByTimeUnit[item.byUnit.toUpperCase()];
@@ -187,8 +189,8 @@ export class TimeUnitSelectResult {
   public byUnit?: ByTimeUnit;
 
   constructor(discontinuous?: boolean, unit?: TimeUnit, byUnit?: ByTimeUnit) {
-    this.unit = ( isNullOrUndefined(unit))  ? TimeUnit.NONE : unit;
-    (isNullOrUndefined(byUnit)) || (this.byUnit = byUnit);
-    (isNullOrUndefined(discontinuous)) || (this.discontinuous = discontinuous);
+    this.unit = (CommonUtil.isNullOrUndefined(unit)) ? TimeUnit.NONE : unit;
+    (CommonUtil.isNullOrUndefined(byUnit)) || (this.byUnit = byUnit);
+    (CommonUtil.isNullOrUndefined(discontinuous)) || (this.discontinuous = discontinuous);
   }
 } // class - TimeUnitSelectResult

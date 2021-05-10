@@ -76,7 +76,7 @@
                         *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
                     <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field"
                           (click)="openFieldSetting($event, field)"><em></em></span>
-                    <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER'+ index, item.fields, i)"><em></em></span>
+                    <span class="ddp-icon-close" (click)="removeField($event, fieldPivot['MAP_LAYER'+ index], item.fields, i)"><em></em></span>
                   </div>
                   <span class="ddp-data" title="{{getDisplayPivotName(field)}}">{{getDisplayPivotName(field)}}</span>
                 </div>

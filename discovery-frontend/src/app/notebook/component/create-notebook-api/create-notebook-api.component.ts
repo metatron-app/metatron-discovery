@@ -15,25 +15,25 @@
 import {
   Component,
   ElementRef,
-  Injector,
   EventEmitter,
+  Injector,
   Input,
-  OnChanges,
+  OnChanges, OnDestroy,
   OnInit,
   Output,
   SimpleChanges
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import { Alert } from '../../../common/util/alert.util';
-import { NotebookService } from '../../service/notebook.service';
-import { isUndefined } from 'util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {Alert} from '@common/util/alert.util';
+import {NotebookService} from '../../service/notebook.service';
+import {isUndefined} from 'util';
 
 @Component({
   selector: 'app-create-notebook-api',
   templateUrl: './create-notebook-api.component.html'
 })
-export class CreateNotebookApiComponent extends AbstractPopupComponent implements OnInit, OnChanges {
+export class CreateNotebookApiComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -98,13 +98,13 @@ export class CreateNotebookApiComponent extends AbstractPopupComponent implement
     super.ngOnInit();
   }
 
-  public ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges(_changes: SimpleChanges) {
     if (this.kernel === 'SPARK') {
       this.selectedType = 'Void';
     }
-    console.info('result', this.result);
+    console.log('result', this.result);
     if (this.result !== null) {
-      console.info('result', this.result);
+      console.log('result', this.result);
       this.argName = this.result.name;
       this.argDescription = this.result.desc;
       this.selectedType = this.result.returnType;
@@ -148,7 +148,7 @@ export class CreateNotebookApiComponent extends AbstractPopupComponent implement
     this.loadingShow();
     if (this.result !== null) {
       this.notebookService.modifyNotebookApi(this.notebookId, param)
-        .then((result) => {
+        .then((_result) => {
           this.loadingHide();
           this.popupService.notiPopup({
             name: 'create-notebook-api-create',
@@ -161,7 +161,7 @@ export class CreateNotebookApiComponent extends AbstractPopupComponent implement
         });
     } else {
       this.notebookService.createNotebookApi(this.notebookId, param)
-        .then((result) => {
+        .then((_result) => {
           this.loadingHide();
 
           this.popupService.notiPopup({

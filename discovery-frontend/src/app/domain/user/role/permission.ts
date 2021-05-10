@@ -12,7 +12,8 @@
  * limitations under the License.
  */
 
-import { Role } from './role';
+import {Role} from './role';
+
 /**
  * Created by LDL on 2017. 6. 29..
  */
@@ -25,6 +26,6 @@ export class Permission {
 }
 
 export enum DomainType {
-  SYSTEM = <any>'SYSTEM',
-  WORKSPACE = <any>'WORKSPACE'
+  SYSTEM = 'SYSTEM',
+  WORKSPACE = 'WORKSPACE'
 }

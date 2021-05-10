@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {Observable, of} from "rxjs";
-import { Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import {Observable, of} from 'rxjs';
+import {Injectable} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
 
 @Injectable()
 export class UnloadConfirmService {
@@ -22,7 +22,8 @@ export class UnloadConfirmService {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  constructor( private translateSvc:TranslateService ) {}
+  constructor(private translateSvc: TranslateService) {
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -33,8 +34,8 @@ export class UnloadConfirmService {
    * @param {string} message
    * @return {Observable<boolean>}
    */
-  public confirm(message?: string):Observable<boolean>  {
-    const confirmation = window.confirm( message || this.translateSvc.instant('msg.comm.ui.beforeunload') );
+  public confirm(message?: string): Observable<boolean> {
+    const confirmation = window.confirm(message || this.translateSvc.instant('msg.comm.ui.beforeunload'));
     return of(confirmation);
   };
 }

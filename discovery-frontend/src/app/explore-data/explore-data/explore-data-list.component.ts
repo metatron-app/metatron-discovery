@@ -12,25 +12,24 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {CommonConstant} from "../../common/constant/common.constant";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {StorageService} from "../../data-storage/service/storage.service";
-import {ConstantService} from "../../shared/datasource-metadata/service/constant.service";
-import {CommonUtil} from "../../common/util/common.util";
-import {Catalog} from "../../domain/catalog/catalog";
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {ExploreDataUtilService, SortOption} from "./service/explore-data-util.service";
-import {isNullOrUndefined} from "util";
-import {ActivatedRoute} from "@angular/router";
-import {Criteria} from "../../domain/datasource/criteria";
-import {PeriodData} from "../../common/value/period.data.value";
+import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Catalog} from '@domain/catalog/catalog';
+import {Criteria} from '@domain/datasource/criteria';
+import {PeriodData} from '@common/value/period.data.value';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {StorageService} from '../../data-storage/service/storage.service';
+import {ConstantService} from '../../shared/datasource-metadata/service/constant.service';
+import {CatalogService} from '../../meta-data-management/catalog/service/catalog.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {ExploreDataModelService} from './service/explore-data-model.service';
+import {SortOption} from './service/explore-data-util.service';
 import ListCriterionKey = Criteria.ListCriterionKey;
 import ListCriterionType = Criteria.ListCriterionType;
 import ListCriterion = Criteria.ListCriterion;
@@ -41,7 +40,7 @@ declare let moment: any;
   selector: 'explore-data-list',
   templateUrl: './explore-data-list.component.html',
 })
-export class ExploreDataListComponent extends AbstractComponent {
+export class ExploreDataListComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   metadataList: Metadata[];
 
@@ -84,12 +83,6 @@ export class ExploreDataListComponent extends AbstractComponent {
   timeFilterCriterion: Criteria.ListCriterion;
   typeFilterCriterion: Criteria.ListCriterion;
 
-  @ViewChild('startPickerInput')
-  private readonly _startPickerInput: ElementRef;
-
-  @ViewChild('endPickerInput')
-  private readonly _endPickerInput: ElementRef;
-
   selectedTag;
   treeHierarchy: Catalog.Tree[];
 
@@ -112,7 +105,6 @@ export class ExploreDataListComponent extends AbstractComponent {
               private exploreDataModelService: ExploreDataModelService,
               private constant: ConstantService,
               private catalogService: CatalogService,
-              private exploreDataUtilService: ExploreDataUtilService,
               protected element: ElementRef,
               protected injector: Injector,
               private _activatedRoute: ActivatedRoute) {
@@ -122,60 +114,56 @@ export class ExploreDataListComponent extends AbstractComponent {
   public ngOnInit() {
     this.selectedDate.type = Criteria.DateTimeType.ALL;
 
-    const criterionForUpdatedFilter: Criteria.ListCriterion = {
+    this.timeFilterCriterion = {
       criterionKey: ListCriterionKey.CREATED_TIME,
       criterionType: ListCriterionType.RANGE_DATETIME,
-      criterionName: "msg.storage.ui.criterion.created-time",
+      criterionName: 'msg.storage.ui.criterion.created-time',
       filters: [
         {
           criterionKey: ListCriterionKey.CREATED_TIME,
-          filterKey: "updatedTimeFrom",
-          filterName: "msg.storage.ui.criterion.created-time",
-          filterSubKey: "updatedTimeTo",
-          filterSubValue: "",
-          filterValue: ""
+          filterKey: 'updatedTimeFrom',
+          filterName: 'msg.storage.ui.criterion.created-time',
+          filterSubKey: 'updatedTimeTo',
+          filterSubValue: '',
+          filterValue: ''
         }
       ]
     };
 
-    this.timeFilterCriterion = criterionForUpdatedFilter;
-
-    const criterionForDataTypeFilter: Criteria.ListCriterion = {
+    this.typeFilterCriterion = {
       criterionKey: ListCriterionKey.SOURCE_TYPE,
       criterionType: ListCriterionType.CHECKBOX,
-      criterionName: "msg.storage.ui.criterion.created-time",
+      criterionName: 'msg.storage.ui.criterion.created-time',
       filters: [
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
-          filterKey: "sourceType",
+          filterKey: 'sourceType',
           filterName: SourceType.ENGINE.toString(),
-          filterValue: "ENGINE"
+          filterValue: 'ENGINE'
         },
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
-          filterKey: "sourceType",
+          filterKey: 'sourceType',
           filterName: SourceType.JDBC.toString(),
-          filterValue: "JDBC"
+          filterValue: 'JDBC'
         },
         {
           criterionKey: ListCriterionKey.SOURCE_TYPE,
-          filterKey: "sourceType",
+          filterKey: 'sourceType',
           filterName: SourceType.STAGEDB.toString(),
-          filterValue: "STAGEDB"
+          filterValue: 'STAGEDB'
         },
       ],
       subCriteria: [
         {
           filters: [
-            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "JDBC", filterValue: "JDBC"},
-            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "ENGINE", filterValue: "ENGINE"},
-            {criterionKey: "SOURCE_TYPE", filterKey: "sourceType", filterName: "STAGEDB", filterValue: "STAGEDB"}
+            {criterionKey: 'SOURCE_TYPE', filterKey: 'sourceType', filterName: 'JDBC', filterValue: 'JDBC'},
+            {criterionKey: 'SOURCE_TYPE', filterKey: 'sourceType', filterName: 'ENGINE', filterValue: 'ENGINE'},
+            {criterionKey: 'SOURCE_TYPE', filterKey: 'sourceType', filterName: 'STAGEDB', filterValue: 'STAGEDB'}
           ]
         } as ListCriterion,
       ]
     };
-
-    this.typeFilterCriterion = criterionForDataTypeFilter;
 
     // Get query param from url
     this.subscriptions.push(
@@ -183,15 +171,15 @@ export class ExploreDataListComponent extends AbstractComponent {
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
-          if (!isNullOrUndefined(params['sourceType'])) {
+          if (!this.isNullOrUndefined(params['sourceType'])) {
             this.selectedSourceTypeFilter = params['sourceType'].split(',');
           }
 
@@ -247,7 +235,7 @@ export class ExploreDataListComponent extends AbstractComponent {
     this.selectedTag = this.exploreDataModelService.selectedTag;
 
     const initial = async () => {
-      if (this.selectedCatalog != undefined && this.selectedCatalog.name != 'unclassified') {
+      if (this.selectedCatalog !== undefined && this.selectedCatalog.name !== 'unclassified') {
         this.treeHierarchy = await this.catalogService.getTreeCatalogs(this.selectedCatalog.id, true);
       }
       this.page.page = 0;
@@ -423,11 +411,11 @@ export class ExploreDataListComponent extends AbstractComponent {
 
     if (this.selectedSourceTypeFilter.length > 0) {
       this.sourceTypeSelectedItemsLabel = this.selectedSourceTypeFilter.map((filter) => {
-        if (filter === "ENGINE") {
+        if (filter === 'ENGINE') {
           return 'msg.storage.li.engine';
-        } else if (filter === "JDBC") {
+        } else if (filter === 'JDBC') {
           return 'msg.storage.li.db';
-        } else if (filter === "STAGEDB") {
+        } else if (filter === 'STAGEDB') {
           return 'msg.storage.li.stagedb';
         }
       });
@@ -444,14 +432,23 @@ export class ExploreDataListComponent extends AbstractComponent {
     const betweenFrom = selectedDate.updatedTimeFrom[0].filterName;
     const betweenTo = selectedDate.updatedTimeTo[0].filterName;
 
-    let startDate, endDate, type, startDateStr, endDateStr, dateType = null;
+    let startDate;
+    let endDate;
+    let type;
+    let startDateStr;
+    let endDateStr;
+    const dateType = null;
 
     const returnFormat = 'YYYY-MM-DDTHH:mm';
 
     // if filter type is between
     if (this.selectedDateFilterType === Criteria.DateTimeType.BETWEEN) {
-      if (betweenFrom) { this.betweenPastTime = betweenFrom; }
-      if (betweenTo) { this.betweenCurrentTime = betweenTo; }
+      if (betweenFrom) {
+        this.betweenPastTime = betweenFrom;
+      }
+      if (betweenTo) {
+        this.betweenCurrentTime = betweenTo;
+      }
 
       // Only set params need to request api according to condition otherwise just leave it null
       // if from and to is all exist
@@ -485,8 +482,8 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
 
     this.selectedDate = {
-      startDate : startDate,
-      endDate : endDate,
+      startDate: startDate,
+      endDate: endDate,
       type: type,
       startDateStr: startDateStr,
       endDateStr: endDateStr,
@@ -576,11 +573,11 @@ export class ExploreDataListComponent extends AbstractComponent {
     }
   }
 
-  private async _initialMetadataList() {
-    this.page.page = 0;
-    this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
-    this.reloadPage();
-  }
+  // private async _initialMetadataList() {
+  //   this.page.page = 0;
+  //   this.page.size = CommonConstant.API_CONSTANT.PAGE_SIZE;
+  //   this.reloadPage();
+  // }
 
   /**
    * Sort column clicked
@@ -607,7 +604,6 @@ export class ExploreDataListComponent extends AbstractComponent {
 
   /**
    * List show click event
-   * @param {MouseEvent} event
    */
   public toggleUpdatedTimeFilter() {
     event.stopPropagation();

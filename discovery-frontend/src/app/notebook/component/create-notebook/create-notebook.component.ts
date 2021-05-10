@@ -12,17 +12,27 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { SubscribeArg } from '../../../common/domain/subscribe-arg';
-import { PopupService } from '../../../common/service/popup.service';
-import { NoteBook } from '../../../domain/notebook/notebook';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {PopupService} from '@common/service/popup.service';
+import {NoteBook} from '@domain/notebook/notebook';
 
 @Component({
   selector: 'app-create-notebook',
   templateUrl: './create-notebook.component.html'
 })
-export class CreateNotebookComponent extends AbstractComponent implements OnInit, OnChanges {
+export class CreateNotebookComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -98,6 +108,7 @@ export class CreateNotebookComponent extends AbstractComponent implements OnInit
 
     // Init
   }
+
   // Destory
   public ngOnDestroy() {
 
@@ -110,7 +121,7 @@ export class CreateNotebookComponent extends AbstractComponent implements OnInit
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public init(workspaceId: string, folderId?: string) {
-    console.info('init', workspaceId, folderId);
+    console.log('init', workspaceId, folderId);
     this.workspaceId = workspaceId;
     // this.workbook = new Workbook();
     this.notebook = new NoteBook();

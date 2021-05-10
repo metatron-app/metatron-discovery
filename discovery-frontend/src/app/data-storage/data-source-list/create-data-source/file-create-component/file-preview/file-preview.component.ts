@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import * as pixelWidth from 'string-pixel-width';
 import {
   Component,
   ElementRef,
@@ -23,30 +25,18 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, Field, FieldRole} from '../../../../../domain/datasource/datasource';
-import {Alert} from '../../../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {DatasourceInfo, Field, FieldRole} from '@domain/datasource/datasource';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../../common/component/grid/grid.option';
-import {GridComponent} from '../../../../../common/component/grid/grid.component';
-import {isNullOrUndefined} from 'util';
-import * as pixelWidth from 'string-pixel-width';
-import * as _ from 'lodash';
-import {
-  DataSourceCreateService,
-  FileDetail,
-  FileResult,
-  Sheet
-} from "../../../../service/data-source-create.service";
-import {Modal} from "../../../../../common/domain/modal";
-import {ConfirmModalComponent} from "../../../../../common/component/modal/confirm/confirm.component";
-import {
-  Granularity,
-  GranularityObject,
-  GranularityService
-} from "../../../../service/granularity.service";
-import {StringUtil} from "../../../../../common/util/string.util";
+import {Granularity, GranularityObject, GranularityService} from '../../../../service/granularity.service';
+import {DataSourceCreateService, FileDetail, FileResult, Sheet} from '../../../../service/data-source-create.service';
 
 @Component({
   selector: 'file-preview',
@@ -145,7 +135,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     // set file result
     this.fileResult = this.sourceData.uploadData.fileResult;
     // 현재 페이지 데이터소스 파일보가 있다면
-    if (this.sourceData.hasOwnProperty('fileData') && !isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
+    if (this.sourceData.hasOwnProperty('fileData') && !this.isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
       // init data
       this._initData(_.cloneDeep(this.sourceData.fileData));
     } else {
@@ -171,13 +161,13 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * 다음화면으로 이동
    */
   public next() {
-    if( this.selectedFileDetailData === undefined ) {
+    if (this.selectedFileDetailData === undefined) {
       return;
     }
     if (this.fileResult) {
       if (this.isCsvFile()) {
-        isNullOrUndefined(this.isValidDelimiter) && (this.isValidDelimiter = false);
-        isNullOrUndefined(this.isValidSeparator) && (this.isValidSeparator = false);
+        this.isNullOrUndefined(this.isValidDelimiter) && (this.isValidDelimiter = false);
+        this.isNullOrUndefined(this.isValidSeparator) && (this.isValidSeparator = false);
       }
       // validation
       if (this.isEnableNext()) {
@@ -186,7 +176,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         // 기존 파일 데이터 삭제후 생성
         this._deleteAndSaveFileData();
 
-        if(this.ingestionStatus === 'append' || this.ingestionStatus === 'newcolumn') {
+        if (this.ingestionStatus === 'append' || this.ingestionStatus === 'newcolumn') {
           this.ingestionPopupShow();
         } else {
           this._nextStep();
@@ -219,14 +209,14 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     this.loadingShow();
     // create datasource
     this.datasourceService.appendDatasource(this.sourceData.datasourceId, this._getIngestionParams())
-      .then((result) => {
+      .then(() => {
         // @TODO 리소스 번들 처리
         Alert.success(`'${this.sourceData.completeData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.reingestion.success'));
         this.loadingHide();
         this.close();
         this.onComplete.emit();
       })
-      .catch((error) => {
+      .catch(() => {
         // loading hide
         this.loadingHide();
         // modal
@@ -381,7 +371,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   }
 
   public get getValidMessage() {
-    if ((_.isNil(this.delimiter) || this.delimiter === '') ||(_.isNil(this.separator) || this.separator === '')) {
+    if ((_.isNil(this.delimiter) || this.delimiter === '') || (_.isNil(this.separator) || this.separator === '')) {
       return this.translateService.instant('msg.common.ui.required');
     } else {
       return this.translateService.instant('msg.storage.ui.schema.valid.desc');
@@ -445,7 +435,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   }
 
   public get getErrorMessage() {
-    if (isNullOrUndefined(this.globalErrorMessage)) {
+    if (this.isNullOrUndefined(this.globalErrorMessage)) {
       return this.isCsvFile() ? this.selectedFileDetailData.errorMessage : this.fileResult.selectedSheet.errorMessage;
     } else {
       return this.globalErrorMessage;
@@ -487,7 +477,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
     // 현재 페이지의 데이터소스 생성정보 저장
     this._saveFileData(this.sourceData);
     // set field list, field data
-    if (!isNullOrUndefined(this.selectedFileDetailData)) {
+    if (!this.isNullOrUndefined(this.selectedFileDetailData)) {
       this.sourceData.fieldList = this.selectedFileDetailData.fields;
       this.sourceData.fieldData = this.selectedFileDetailData.data;
     }
@@ -499,7 +489,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _saveFileData(sourceData: DatasourceInfo) {
-    const fileData = {
+    sourceData['fileData'] = {
       // file result
       fileResult: this.fileResult,
       // file data
@@ -519,7 +509,6 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       isValidDelimiter: this.isValidDelimiter,
       isValidSeparator: this.isValidSeparator,
     };
-    sourceData['fileData'] = fileData;
   }
 
   /**
@@ -549,7 +538,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    */
   private _updateGrid(data: any, fields: Field[]) {
     // headers
-    const headers: header[] = this._getHeaders(fields);
+    const headers: Header[] = this._getHeaders(fields);
     // rows
     const rows: any[] = this._getRows(data);
     // grid 그리기
@@ -562,11 +551,11 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {header[]}
    * @private
    */
-  private _getHeaders(fields: Field[]): header[] {
+  private _getHeaders(fields: Field[]): Header[] {
     return fields.map(
       (field: Field) => {
         /* 70 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 70;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 70;
         return new SlickGridHeader()
           .Id(field.name)
           .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + Field.getSlicedColumnName(field) + '</span>')
@@ -579,14 +568,14 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
-          .Formatter((row, cell, value) => {
+          .Formatter((_row, _cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {
-              return content.slice(0,50);
+              return content.slice(0, 50);
             } else {
               return content;
             }
@@ -614,7 +603,6 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
   }
 
 
-
   /**
    * 데이터가 변경이 일어났는지 확인
    * @return {boolean}
@@ -629,7 +617,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       if ((this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey)
         || this.sourceData.fileData.isFirstHeaderRow !== this.isFirstHeaderRow
         || (this.isExcelFile() && (this.sourceData.fileData.fileResult.selectedSheet && this.fileResult.selectedSheet.sheetName)
-            && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
+          && (this.sourceData.fileData.fileResult.selectedSheet.sheetName !== this.fileResult.selectedSheet.sheetName))
         || (!this.isExcelFile() && (this.sourceData.fileData.separator !== this.separator || this.sourceData.fileData.delimiter !== this.delimiter))) {
         return true;
       }
@@ -698,7 +686,7 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         }
       })
       .catch(error => {
-        if (!isNullOrUndefined(error.message)) {
+        if (!this.isNullOrUndefined(error.message)) {
           this.loadingHide();
           this.globalErrorMessage = error.message;
         } else {
@@ -763,30 +751,30 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _checkReingestionStatus(): void {
-    if(this.sourceData.datasourceId) {
+    if (this.sourceData.datasourceId) {
       this.ingestionStatus = 'overwrite';
 
-      let biggerFieldList = this.selectedFileDetailData.fields;
-      let smallFieldList = this.sourceData.datasource.fields;
+      const biggerFieldList = this.selectedFileDetailData.fields;
+      const smallFieldList = this.sourceData.datasource.fields;
 
-      if(biggerFieldList.length < smallFieldList.length) {
+      if (biggerFieldList.length < smallFieldList.length) {
         return;
       }
 
       this.patches = [];
 
       let fieldCount: number = 0;
-      let seq: number = smallFieldList.length -1;
-      for (let biggerField of biggerFieldList) {
-        let matched : boolean = false;
-        for (let smallField of smallFieldList) {
-            if(smallField.name === biggerField.name) {
-              fieldCount++;
-              matched = true;
-              break;
-            }
+      let seq: number = smallFieldList.length - 1;
+      for (const biggerField of biggerFieldList) {
+        let matched: boolean = false;
+        for (const smallField of smallFieldList) {
+          if (smallField.name === biggerField.name) {
+            fieldCount++;
+            matched = true;
+            break;
+          }
         }
-        if(!matched) {
+        if (!matched) {
           const patch = {
             op: 'add',
             name: biggerField.name,
@@ -801,15 +789,15 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
         }
       }
 
-      const timestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
+      const timestampField = this.sourceData.datasource.fields.find(field => field.role === FieldRole.TIMESTAMP);
       if (!_.isNil(timestampField)) {
-        for(let data of this.selectedFileDetailData.data) {
+        for (const data of this.selectedFileDetailData.data) {
           this.dataList.push(data[timestampField.name]);
         }
       }
 
-      if(fieldCount === smallFieldList.length) {
-        if(fieldCount === biggerFieldList.length){
+      if (fieldCount === smallFieldList.length) {
+        if (fieldCount === biggerFieldList.length) {
           this.ingestionStatus = 'append';
         } else {
           this.ingestionStatus = 'newcolumn';
@@ -839,11 +827,10 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
       ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(this.startIntervalText, this.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.endIntervalText, this.selectedSegmentGranularity)];
     }
 
-    const param = {
+    return {
       ingestionInfo: ingestion,
       patches: this.patches
     };
-    return param;
   }
 
   /**
@@ -851,8 +838,8 @@ export class FilePreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _initGranularityIntervalInfo(): void {
-    this.selectedSegmentGranularity = this._granularityService.granularityList.find(granularityObject => granularityObject.value == Granularity[this.sourceData.datasource.segGranularity.toString()]);
-    this.selectedTimestampField = this.sourceData.datasource.fields.find(field => field.role == FieldRole.TIMESTAMP);
+    this.selectedSegmentGranularity = this._granularityService.granularityList.find(granularityObject => granularityObject.value === Granularity[this.sourceData.datasource.segGranularity.toString()]);
+    this.selectedTimestampField = this.sourceData.datasource.fields.find(field => field.role === FieldRole.TIMESTAMP);
     if (!_.isNil(this.selectedTimestampField)) {
       const info = this._granularityService.getInitializedInterval(this.dataList.sort(), this.selectedTimestampField.format.format, this.selectedSegmentGranularity, this.selectedTimestampField.format.type, this.selectedTimestampField.format.unit);
       // set interval text

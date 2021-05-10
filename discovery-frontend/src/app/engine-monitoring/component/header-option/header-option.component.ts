@@ -12,24 +12,18 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {DruidClusterInformationComponent} from '../druid-cluster-information/druid-cluster-information.component';
 
 @Component({
   selector: '[header-option]',
-  templateUrl: './header-option.component.html',
-  host: { '[class.ddp-ui-header-option]': 'true' }
+  templateUrl: './header-option.component.html'
 })
 export class HeaderOptionComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-ui-header-option';
 
   @ViewChild(DruidClusterInformationComponent)
   private readonly _druidClusterInformationComponent: DruidClusterInformationComponent;

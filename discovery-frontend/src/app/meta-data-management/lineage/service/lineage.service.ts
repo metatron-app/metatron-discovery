@@ -13,8 +13,8 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class LineageService extends AbstractService {
@@ -96,7 +96,7 @@ export class LineageService extends AbstractService {
 
   /**
    * Lineage 삭제
-   * @param {string} tableId
+   * @param {string} edgeId
    * @returns {Promise<any>}
    */
   public deleteLineage(edgeId: string): Promise<any> {

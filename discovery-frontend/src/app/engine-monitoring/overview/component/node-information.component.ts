@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   AfterViewInit,
   Component,
@@ -22,12 +23,11 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {EngineService} from "../../service/engine.service";
-import {Engine} from "../../../domain/engine-monitoring/engine";
-import {CommonUtil} from "../../../common/util/common.util";
-import * as _ from "lodash";
-import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {EngineMonitoringUtil} from '../../util/engine-monitoring.util';
+import {EngineService} from '../../service/engine.service';
 
 declare let echarts: any;
 
@@ -35,7 +35,7 @@ declare let echarts: any;
   selector: 'node-information',
   templateUrl: './node-information.component.html',
   styles: ['.ddp-box-meta {top:80px;}', '.ddp-box-meta .ddp-pop-top {padding-top:40px; padding-bottom:40px}'
-    , '.ddp-box-meta .ddp-pop-top .ddp-ui-title {padding-top:0px;}', '.ddp-box-meta .ddp-pop-top .ddp-label-title {font-size:22px;}'
+    , '.ddp-box-meta .ddp-pop-top .ddp-ui-title {padding-top:0;}', '.ddp-box-meta .ddp-pop-top .ddp-label-title {font-size:22px;}'
     , '.ddp-detail-contents .ddp-view-datadetail .ddp-wrap-graph {padding:20px;}']
 })
 export class NodeInformationComponent extends AbstractPopupComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -72,10 +72,10 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  public onResize(event) {
+  public onResize(_event) {
     if (!_.isNil(this._gcCountChart)) {
       this._gcCountChart.resize();
     }
@@ -122,9 +122,9 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
   private _getGcCount() {
     const queryParam: any =
       {
-        monitoringTarget : {
+        monitoringTarget: {
           metric: Engine.MonitoringTarget.GC_COUNT,
-          host: this.monitoring.hostname+":"+this.monitoring.port
+          host: this.monitoring.hostname + ':' + this.monitoring.port
         }
       };
 
@@ -197,9 +197,9 @@ export class NodeInformationComponent extends AbstractPopupComponent implements 
   private _getMemory() {
     const queryParam: any =
       {
-        monitoringTarget : {
+        monitoringTarget: {
           metric: Engine.MonitoringTarget.MEM,
-          host: this.monitoring.hostname+":"+this.monitoring.port
+          host: this.monitoring.hostname + ':' + this.monitoring.port
         }
       };
 

@@ -1,11 +1,11 @@
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector, Input} from "@angular/core";
-import {MetadataSource, MetadataSourceType} from "../../../domain/meta-data-management/metadata-source";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {StorageService} from "../../../data-storage/service/storage.service";
-import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
-import {Datasource} from "../../../domain/datasource/datasource";
 import * as _ from 'lodash';
+import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Datasource} from '@domain/datasource/datasource';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
+import {MetadataSource, MetadataSourceType} from '@domain/meta-data-management/metadata-source';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {StorageService} from '../../../data-storage/service/storage.service';
 
 @Component({
   selector: 'component-explore-data-information',
@@ -82,5 +82,13 @@ export class ExploreDataInformationComponent extends AbstractComponent {
     if (this.isShowInformation === true) {
       this.isShowInformation = undefined;
     }
+  }
+
+  get dataSource(): Datasource{
+    return <Datasource>this.source.source;
+  }
+
+  get dataConnection(): Dataconnection{
+    return <Dataconnection>this.source.source;
   }
 }

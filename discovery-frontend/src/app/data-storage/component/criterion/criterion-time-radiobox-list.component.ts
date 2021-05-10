@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
-import { PickerSettings } from '../../../domain/common/datepicker.settings';
-import {StringUtil} from "../../../common/util/string.util";
-import {Criteria} from "../../../domain/datasource/criteria";
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PickerSettings} from '@domain/common/datepicker.settings';
+import {Criteria} from '@domain/datasource/criteria';
 
 declare let moment: any;
 declare let $: any;
@@ -26,7 +26,7 @@ declare let $: any;
   selector: 'criterion-time-radiobox-list',
   templateUrl: 'criterion-time-radiobox-list.component.html'
 })
-export class CriterionTimeRadioboxListComponent extends AbstractComponent {
+export class CriterionTimeRadioboxListComponent extends AbstractComponent implements AfterViewInit {
 
   // date
   private _startDate: Date;
@@ -111,12 +111,12 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
       case Criteria.DateTimeType.ALL:
         break;
       case Criteria.DateTimeType.TODAY:
-        this._startDate = moment({ hour: 0 }).format(this.timeFormat);
-        this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        this._startDate = moment({hour: 0}).format(this.timeFormat);
+        this._endDate = moment({hour: 23, minute: 59, seconds: 59}).format(this.timeFormat);
         break;
       case Criteria.DateTimeType.SEVEN_DAYS:
-        this._startDate = moment({ hour: 0 }).subtract(6, 'days').format(this.timeFormat);
-        this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        this._startDate = moment({hour: 0}).subtract(6, 'days').format(this.timeFormat);
+        this._endDate = moment({hour: 23, minute: 59, seconds: 59}).format(this.timeFormat);
         break;
       case Criteria.DateTimeType.BETWEEN:
         this._setDatePickerSettings();
@@ -221,14 +221,14 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
     const startPickerSettings: PickerSettings
       = new DatePickerSettings(
       'ddp-input-calen',
-      (fdate: string, date: Date) => {
+      (_fdate: string, date: Date) => {
         // set picker start date
         this._startPickerDate = date;
         // picker date validation
         this._pickerDateValidation(true);
       },
       // if hide picker
-      (inst, completed: boolean) => {
+      (_inst, completed: boolean) => {
         if (completed === false) {
           this._changeSelectItemEvent.emit(this._getSelectedTimeData());
         }
@@ -236,18 +236,18 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
     );
     // startPickerSettings.position = 'left top';
     this._startPicker = $(this._startPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
-    ( '-' !== startInitialValue ) && ( this._startPicker.selectDate(startInitialValue.toDate()) );
+    ('-' !== startInitialValue) && (this._startPicker.selectDate(startInitialValue.toDate()));
     // end picker create
     const endPickerSettings: PickerSettings
       = new DatePickerSettings(
       'ddp-input-calen',
-      (fdate: string, date: Date) => {
+      (_fdate: string, date: Date) => {
         // set picker end date
         this._endPickerDate = date;
         // picker date validation
         this._pickerDateValidation(false);
       },
-      (inst, completed: boolean) => {
+      (_inst, completed: boolean) => {
         // if hide picker
         if (completed === false) {
           this._changeSelectItemEvent.emit(this._getSelectedTimeData());
@@ -256,7 +256,7 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
     );
     // endPickerSettings.position = 'left top';
     this._endPicker = $(this._endPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
-    ( '-' !== endInitialValue ) && ( this._endPicker.selectDate(endInitialValue.toDate()) );
+    ('-' !== endInitialValue) && (this._endPicker.selectDate(endInitialValue.toDate()));
   }
 
   /**
@@ -273,14 +273,14 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
         this._changeSelectItemEvent.emit(this._getSelectedTimeData());
         break;
       case Criteria.DateTimeType.TODAY:
-        this._startDate = moment({ hour: 0 }).format(this.timeFormat);
-        this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        this._startDate = moment({hour: 0}).format(this.timeFormat);
+        this._endDate = moment({hour: 23, minute: 59, seconds: 59}).format(this.timeFormat);
         // change event emit
         this._changeSelectItemEvent.emit(this._getSelectedTimeData());
         break;
       case Criteria.DateTimeType.SEVEN_DAYS:
-        this._startDate = moment({ hour: 0 }).subtract(6, 'days').format(this.timeFormat);
-        this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        this._startDate = moment({hour: 0}).subtract(6, 'days').format(this.timeFormat);
+        this._endDate = moment({hour: 23, minute: 59, seconds: 59}).format(this.timeFormat);
         // change event emit
         this._changeSelectItemEvent.emit(this._getSelectedTimeData());
         break;
@@ -316,7 +316,7 @@ export class CriterionTimeRadioboxListComponent extends AbstractComponent {
 }
 
 class DatePickerSettings extends PickerSettings {
-  constructor(clz: string, onSelectDate: Function, onHide: Function) {
+  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (inst, completed: boolean) => void) {
     super(clz, onSelectDate, onHide);
     this.minView = 'days';
     this.view = 'days';

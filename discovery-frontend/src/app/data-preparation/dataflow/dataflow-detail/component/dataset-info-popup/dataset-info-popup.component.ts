@@ -12,12 +12,14 @@
  * limitations under the License.
  */
 
-import * as $ from "jquery";
+import * as $ from 'jquery';
+import * as _ from 'lodash';
+import Split from 'split.js'
 import * as pixelWidth from 'string-pixel-width';
 import {isNull, isNullOrUndefined, isUndefined} from 'util';
-import * as _ from 'lodash';
 
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -29,37 +31,37 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../../../common/component/abstract.component';
-import {DsType, ImportType, PrDataset, RsType, Rule} from '../../../../../domain/data-preparation/pr-dataset';
-import {DeleteModalComponent} from '../../../../../common/component/modal/delete/delete.component';
-import {PrDataflow} from '../../../../../domain/data-preparation/pr-dataflow';
-import {Alert} from '../../../../../common/util/alert.util';
-import {Modal} from '../../../../../common/domain/modal';
-import {PreparationAlert} from '../../../../util/preparation-alert.util';
-import {DataflowService} from '../../../service/dataflow.service';
-import {Field} from '../../../../../domain/workbook/configurations/field/field';
-import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
-import {GridComponent} from '../../../../../common/component/grid/grid.component';
-import {GridOption} from 'app/common/component/grid/grid.option';
-import {DatasetService} from '../../../../dataset/service/dataset.service';
-import {StringUtil} from '../../../../../common/util/string.util';
-import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
-import {DataflowModelService} from "../../../service/dataflow.model.service";
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GridOption} from '@common/component/grid/grid.option';
 
-declare let Split;
+import {Field} from '@domain/workbook/configurations/field/field';
+import {PrDataflow} from '@domain/data-preparation/pr-dataflow';
+import {DsType, ImportType, PrDataset, RsType, Rule} from '@domain/data-preparation/pr-dataset';
+
+import {PreparationAlert} from '../../../../util/preparation-alert.util';
+import {PreparationCommonUtil} from '../../../../util/preparation-common.util';
+import {DatasetService} from '../../../../dataset/service/dataset.service';
+import {DataflowModelService} from '../../../service/dataflow.model.service';
+import {DataflowService} from '../../../service/dataflow.service';
 
 @Component({
   selector: 'app-dataset-info-popup',
   templateUrl: './dataset-info-popup.component.html',
 })
-export class DatasetInfoPopupComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class DatasetInfoPopupComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private _split:any;
+  private _split: any;
 
-  private interval : any;
+  private interval: any;
 
   @ViewChild('dsName')
   private dsName: ElementRef;
@@ -71,13 +73,11 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   | Public Variables (INPUT)
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input() // Dataflow information
-  //public dataflow: Dataflow;
   public dataflow: PrDataflow;
 
   // Selected data set - one to show details
   @Input('selectedDataSet')
-  //public selectedDataSet : Dataset;
-  public selectedDataSet : PrDataset;
+  public selectedDataSet: PrDataset;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables (OUTPUT)
@@ -123,29 +123,30 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   // 룰 리스트에서 필요한 변수
   public commandList: any[];
-  public ruleVO: Rule = new Rule;
+  public ruleVO: Rule = new Rule();
 
   // 사용된 dataflow layer show/hide
   public isDataflowsShow: boolean = false;
 
-  public isDatasetNameEdit : boolean = false;
+  public isDatasetNameEdit: boolean = false;
   public isDatasetDescEdit: boolean = false;
 
-  public datasetName : string;
-  public datasetDesc : string;
+  public datasetName: string;
+  public datasetDesc: string;
 
   public changeDetect: ChangeDetectorRef;
 
-  public isBtnOptionOpen : boolean = false;
+  public isBtnOptionOpen: boolean = false;
 
-  public clearGrid : boolean = false;
+  public clearGrid: boolean = false;
 
   public DsType = DsType;
   public ImportType = ImportType;
 
   public prepCommonUtil = PreparationCommonUtil;
 
-  public datasetInformationList : DatasetInformation[] ;
+  public datasetInformationList: DatasetInformation[];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -167,31 +168,31 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.clearGrid = false;
     this.isBtnOptionOpen = false;
     this.commandList = [
-      { command: 'header', alias: 'He'},
-      { command: 'keep', alias: 'Ke'},
-      { command: 'replace', alias: 'Rp'},
-      { command: 'rename', alias: 'Rm'},
-      { command: 'set', alias: 'Se'},
-      { command: 'settype', alias: 'St'},
-      { command: 'countpattern', alias: 'Co'},
-      { command: 'split', alias: 'Sp'},
-      { command: 'derive', alias: 'Dr'},
-      { command: 'delete', alias: 'De'},
-      { command: 'drop', alias: 'Dp'},
-      { command: 'pivot', alias: 'Pv'},
-      { command: 'unpivot', alias: 'Up'},
-      { command: 'join', alias: 'Jo'},
-      { command: 'extract', alias: 'Ex'},
-      { command: 'flatten', alias: 'Fl'},
-      { command: 'merge', alias: 'Me'},
-      { command: 'nest', alias: 'Ne'},
-      { command: 'unnest', alias: 'Un'},
-      { command: 'aggregate', alias: 'Ag'},
-      { command: 'sort', alias: 'So'},
-      { command: 'move', alias: 'Mv'},
-      { command: 'union', alias: 'Ui'},
-      { command: 'window', alias: 'Wn'},
-      { command: 'setformat', alias: 'Sf'}
+      {command: 'header', alias: 'He'},
+      {command: 'keep', alias: 'Ke'},
+      {command: 'replace', alias: 'Rp'},
+      {command: 'rename', alias: 'Rm'},
+      {command: 'set', alias: 'Se'},
+      {command: 'settype', alias: 'St'},
+      {command: 'countpattern', alias: 'Co'},
+      {command: 'split', alias: 'Sp'},
+      {command: 'derive', alias: 'Dr'},
+      {command: 'delete', alias: 'De'},
+      {command: 'drop', alias: 'Dp'},
+      {command: 'pivot', alias: 'Pv'},
+      {command: 'unpivot', alias: 'Up'},
+      {command: 'join', alias: 'Jo'},
+      {command: 'extract', alias: 'Ex'},
+      {command: 'flatten', alias: 'Fl'},
+      {command: 'merge', alias: 'Me'},
+      {command: 'nest', alias: 'Ne'},
+      {command: 'unnest', alias: 'Un'},
+      {command: 'aggregate', alias: 'Ag'},
+      {command: 'sort', alias: 'So'},
+      {command: 'move', alias: 'Mv'},
+      {command: 'union', alias: 'Ui'},
+      {command: 'window', alias: 'Wn'},
+      {command: 'setformat', alias: 'Sf'}
     ];
     if (!isNullOrUndefined(this.selectedDataSet)) {
       this.setDataset(this.selectedDataSet);
@@ -202,12 +203,14 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public ngAfterViewInit() {
-    setTimeout( () => {
-      this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], { sizes: [80, 20], minSize: [300,300], onDragEnd : (() => {
+    setTimeout(() => {
+      this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], {
+        sizes: [80, 20], minSize: [300, 300], onDragEnd: (() => {
           this.gridComponent.resize();
           this.datasetEventHandler.emit('resize');
-        }) });
-    }, 500 );
+        })
+      });
+    }, 500);
   } // function -  ngAfterViewInit
 
   public ngOnDestroy() {
@@ -261,8 +264,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       Alert.success(this.translateService.instant('msg.dp.ui.ds.del.success'));
     }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
   } // function - deleteDataSet
 
@@ -270,14 +273,14 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * get total bytes
    */
   public get getTotalBytes() {
-    if( this.selectedDataSet.importType===ImportType.STAGING_DB && this.selectedDataSet.rsType!==RsType.TABLE ) {
+    if (this.selectedDataSet.importType === ImportType.STAGING_DB && this.selectedDataSet.rsType !== RsType.TABLE) {
       return null;
     } else {
       let size = -1;
-      if(!_.isNil(this.selectedDataSet.totalBytes)) {
+      if (!_.isNil(this.selectedDataSet.totalBytes)) {
         size = this.selectedDataSet.totalBytes;
       }
-      return this.formatBytes(size,1);
+      return this.formatBytes(size, 1);
     }
   }
 
@@ -296,7 +299,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /** get rows */
   public get getRows() {
     let rows: string = `0 row(s)`;
-    if(!_.isNil(this.selectedDataSet.totalLines)) {
+    if (!_.isNil(this.selectedDataSet.totalLines)) {
       if (this.selectedDataSet.totalLines === -1) {
         rows = '(counting)';
       } else {
@@ -310,7 +313,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getHost() {
-    if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcHostname)) {
+    if (this.selectedDataSet.importType === ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcHostname)) {
       return this.selectedDataSet.dcHostname;
     } else {
       return null;
@@ -318,7 +321,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getPort() {
-    if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcPort)) {
+    if (this.selectedDataSet.importType === ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcPort)) {
       return this.selectedDataSet.dcPort;
     } else {
       return null;
@@ -355,7 +358,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    */
   public setDataset(data?: PrDataset) {
     this.loadingShow();
-    if(data) {
+    if (data) {
       this.selectedDataSet = data;
     }
 
@@ -366,7 +369,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.clearExistingInterval();
     this.interval = setInterval(() => {
       this.getDatasetInfo(this.selectedDataSet);
-    },5000);
+    }, 5000);
   }
 
 
@@ -385,7 +388,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * Fetch dataset info from server
    * @param {PrDataset} selectedDatset
    */
-  public getDatasetInfo(selectedDatset : PrDataset) {
+  public getDatasetInfo(selectedDatset: PrDataset) {
     this.loadingShow();
     this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
 
@@ -402,11 +405,11 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
       setTimeout(() => {
 
-        if(this.selectedDataSet.transformRules) {
+        if (this.selectedDataSet.transformRules) {
           this.setRuleList(this.selectedDataSet.transformRules);
         }
 
-        if(this.selectedDataSet.gridResponse) {
+        if (this.selectedDataSet.gridResponse) {
           this.clearGrid = false;
           this.setGridData(this.selectedDataSet.gridResponse);
         } else {
@@ -416,15 +419,15 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         this.getDatasetInformationList(this.selectedDataSet);
         this.loadingHide();
 
-      },0);
+      }, 0);
 
     }).catch((error) => {
 
       this.loadingHide();
       this.clearGrid = true;
       this.clearExistingInterval();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
   }
 
@@ -450,7 +453,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       });
     }
 
-    this.datasetSelectPopupOpen.emit({type: type, dsId : importedDsId });
+    this.datasetSelectPopupOpen.emit({type: type, dsId: importedDsId});
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -476,10 +479,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     // ruleStringInfos
     rules.forEach((rule) => {
 
-      let tempString = rule.ruleString.split('type: ');
+      const tempString = rule.ruleString.split('type: ');
       if (tempString[1] === 'Long') {
         rule.ruleString = tempString[0] + ' type: Integer';
-      } else if(tempString[1] === 'Double') {
+      } else if (tempString[1] === 'Double') {
         rule.ruleString = tempString[0] + ' type: Float';
       }
 
@@ -519,9 +522,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /**
    * get names of sheet
    */
-  public getSheetName() : string {
+  public getSheetName(): string {
 
-    let result = "N/A";
+    let result = 'N/A';
 
     if (this.selectedDataSet.sheetName) {
       result = this.selectedDataSet.sheetName;
@@ -542,7 +545,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.isDatasetDescEdit = false;
     }
 
-    if(this.datasetName !== this.selectedDataSet.dsName) {
+    if (this.datasetName !== this.selectedDataSet.dsName) {
       this.datasetName = this.selectedDataSet.dsName;
     }
 
@@ -562,7 +565,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.isDatasetNameEdit = false;
     }
 
-    if(this.datasetDesc !== this.selectedDataSet.dsDesc) {
+    if (this.datasetDesc !== this.selectedDataSet.dsDesc) {
       this.datasetDesc = this.selectedDataSet.dsDesc;
     }
 
@@ -601,7 +604,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     };
     this.loadingShow();
     this.datasetService.updateDataset(newDataset)
-    //.then((dataset: Dataset) => {
       .then((dataset: PrDataset) => {
         this.isDatasetNameEdit = false;
         this.isDatasetDescEdit = false;
@@ -616,8 +618,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
   } // function - updateDataset
 
@@ -671,16 +673,16 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : '', value : this.getCols()}
+        {name: this.translateService.instant('msg.comm.th.type'), value: dataset.dsType},
+        {name: this.translateService.instant('msg.dp.th.summary'), value: this.getRows},
+        {name: '', value: this.getCols()}
       ];
 
       // FILE
-    }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
+    } else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
 
       // FIXME : use filenameBeforeUpload or storedUri ?
-      let filepath : string = dataset.filenameBeforeUpload;
+      const filepath: string = dataset.filenameBeforeUpload;
 
       this.datasetInformationList = [
         {
@@ -688,24 +690,30 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
           value: PreparationCommonUtil.getDatasetType(dataset)
         },
         {
-          name : this.translateService.instant('msg.dp.th.file'),
-          value : `${filepath}`
+          name: this.translateService.instant('msg.dp.th.file'),
+          value: `${filepath}`
         },
       ];
 
       // EXCEL
-      var re = /.+\.xlsx?$/i;
+      const re = /.+\.xlsx?$/i;
       if (re.test(dataset.filenameBeforeUpload) === true) {
-        this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
+        this.datasetInformationList.push({
+          name: this.translateService.instant('msg.dp.th.sheet'),
+          value: this.getSheetName()
+        })
       }
 
       if (!isNullOrUndefined(this.getTotalBytes)) {
-        this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+        this.datasetInformationList.push({
+          name: this.translateService.instant('msg.comm.detail.size'),
+          value: this.getTotalBytes
+        });
       }
 
       this.datasetInformationList.push(
-        {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : '', value : this.getCols()}
+        {name: this.translateService.instant('msg.dp.th.summary'), value: this.getRows},
+        {name: '', value: this.getCols()}
       )
 
 
@@ -715,34 +723,47 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.datasetInformationList = [
         {
           name: this.translateService.instant('msg.comm.th.type'),
-          value: PreparationCommonUtil.getDatasetType(dataset) }];
+          value: PreparationCommonUtil.getDatasetType(dataset)
+        }];
 
       if (!isNullOrUndefined(this.getDatabase)) {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
+        this.datasetInformationList.push({
+          name: `${this.translateService.instant('msg.dp.th.database')}`,
+          value: `${this.getDatabase}`
+        });
       }
 
       if (dataset.rsType === 'TABLE') {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${this.getTable}` })
+        this.datasetInformationList.push({
+          name: `${this.translateService.instant('msg.lineage.ui.list.search.table')}`,
+          value: `${this.getTable}`
+        })
       } else {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getQueryStmt}` })
+        this.datasetInformationList.push({
+          name: `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`,
+          value: `${this.getQueryStmt}`
+        })
       }
 
       if (dataset.importType === 'STAGING_DB') {
         if (!isNullOrUndefined(this.getTotalBytes)) {
-          this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+          this.datasetInformationList.push({
+            name: this.translateService.instant('msg.comm.detail.size'),
+            value: this.getTotalBytes
+          });
         }
       } else {
         if (this.getPort && this.getHost) {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.getHost}` },
-            { name : `${this.translateService.instant('Port')}`, value : `${this.getPort}` })
+          this.datasetInformationList.push({name: `${this.translateService.instant('Host')}`, value: `${this.getHost}`},
+            {name: `${this.translateService.instant('Port')}`, value: `${this.getPort}`})
         } else {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.getUrl}` });
+          this.datasetInformationList.push({name: `${this.translateService.instant('Url')}`, value: `${this.getUrl}`});
         }
       }
 
       this.datasetInformationList.push(
-        {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : '', value : this.getCols()})
+        {name: this.translateService.instant('msg.dp.th.summary'), value: this.getRows},
+        {name: '', value: this.getCols()})
 
     }
   }
@@ -753,7 +774,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    */
   public getDescriptionWithBR(description: string) {
     if (description) {
-      return description.replace( /\r\n|\n/gi, '<br>' );
+      return description.replace(/\r\n|\n/gi, '<br>');
     } else {
       return this.translateService.instant('msg.groups.ui.create.ph.desc');
     }
@@ -767,16 +788,16 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * @param gridResponse
    */
   private getGridDataFromGridResponse(gridResponse: any) {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
       fields: []
     };
 
-    for(let idx = 0;idx < colCnt; idx++ ) {
+    for (let idx = 0; idx < colCnt; idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -786,8 +807,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for ( let idx = 0; idx < colCnt; idx++ ) {
-        obj[ colNames[idx] ] = row.objCols[idx];
+      for (let idx = 0; idx < colCnt; idx++) {
+        obj[colNames[idx]] = row.objCols[idx];
       }
       gridData.data.push(obj);
     });
@@ -816,8 +837,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   private updateGrid(data: any) {
 
     const maxDataLen: any = {};
-    let fields: Field[] = data.fields;
-    let rows: any[] = data.data.splice(0,50); // preview는 50 rows 까지만
+    const fields: Field[] = data.fields;
+    const rows: any[] = data.data.splice(0, 50); // preview는 50 rows 까지만
     const maxLength = 500;
     if (rows.length > 0) {
       rows.forEach((row: any, idx: number) => {
@@ -842,10 +863,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     }
 
     // 헤더정보 생성
-    const headers: header[] = fields.map((field: Field) => {
+    const headers: Header[] = fields.map((field: Field) => {
 
       /* 72 는 CSS 상의 padding 수치의 합산임 */
-      const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
+      const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 72;
 
       return new SlickGridHeader()
         .Id(field.name)
@@ -861,7 +882,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         .Unselectable(true)
         .Sortable(false)
         .ColumnType(field.type)
-        .Formatter((row, cell, value, columnDef) => {
+        .Formatter((_row, cell, value, columnDef) => {
           const colDescs = (this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colDescs) ? this.selectedDataSet.gridResponse.colDescs[cell] : {};
           value = PreparationCommonUtil.setFieldFormatter(value, columnDef.columnType, colDescs);
 
@@ -893,16 +914,18 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /**
    * get format of bytes
    */
-  private formatBytes(a,b) { // a=크기 , b=소숫점자릿
+  private formatBytes(a, b) { // a=크기 , b=소숫점자릿
 
     if (a === -1) {
-      return "0 Bytes";
+      return '0 Bytes';
     }
 
-    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
-    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
+    const c = 1024;
+    const d = b || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(a) / Math.log(c));
+    return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
   }
-
 
 }
 

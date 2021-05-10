@@ -17,7 +17,7 @@ import { UIChartFormat } from '../ui-option/ui-format';
 import { UIOption } from '../ui-option';
 import * as _ from 'lodash';
 import { UIChartDataLabelDisplayType } from '../define/common';
-import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
+import { GeoField } from '@domain/workbook/configurations/field/geo-field';
 
 /**
  * 수자 포맷 옵션 컨버터
@@ -27,7 +27,7 @@ export class TooltipOptionConverter {
   /**
    * set tooltip previewlist
    */
-  public static setTooltipPreviewList(uiOption: UIOption): Object[] {
+  public static setTooltipPreviewList(uiOption: UIOption): object[] {
 
     // 미리보기 리스트 초기화
     uiOption.toolTip.previewList = [];
@@ -39,7 +39,7 @@ export class TooltipOptionConverter {
     if (axisFormat) format = axisFormat;
 
     // 포멧값이 설정된 숫자값
-    let numValue = FormatOptionConverter.getFormatValue(1000, format);
+    const numValue = FormatOptionConverter.getFormatValue(1000, format);
 
     if (uiOption.toolTip.displayTypes) {
       // displayType에 따라서 미리보기 설정
@@ -104,8 +104,8 @@ export class TooltipOptionConverter {
 
     // value / percent가 있을때 한줄로 나오게 설정
     const filteredDisplayTypes = _.cloneDeep(_.filter(uiOption.toolTip.displayTypes));
-    let categoryValIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE);
-    let categoryPerIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT);
+    const categoryValIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE);
+    const categoryPerIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT);
     if (-1 !== categoryValIdx && -1 !== categoryPerIdx) {
       uiOption.toolTip.previewList[categoryValIdx]['name'] = 'Category Value: ' + numValue + '(100%)';
       uiOption.toolTip.previewList.splice(categoryPerIdx, 1);
@@ -137,10 +137,10 @@ export class TooltipOptionConverter {
     layerItems = layerItems.filter((item) => {
       // map 공간연산 때 count 라는 custom field를 ui에서 생성하기 때문에 우회해야함
       // if(_.isUndefined(item['isCustomField']) || (!_.isUndefined(item['isCustomField']) && item['isCustomField'] === false)) {
-        return ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')));
+        return ('user_expr' === item.field.type || (item.field.logicalType && -1 === item.field.logicalType.toString().indexOf('GEO')));
       // }
     });
-    let groupList = _.groupBy(layerItems, {'type' : 'measure'});
+    const groupList = _.groupBy(layerItems, {type : 'measure'});
     // remove the columns having same name in dimension
     groupList['false'] = _.uniqBy(groupList['false'], 'name');
     layerItems = _.union(groupList['true'], groupList['false']);

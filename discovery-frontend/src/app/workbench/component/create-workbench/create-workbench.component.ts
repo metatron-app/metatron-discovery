@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { PopupService } from '../../../common/service/popup.service';
-import { Workbench } from '../../../domain/workbench/workbench';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {PopupService} from '@common/service/popup.service';
+import {Workbench} from '@domain/workbench/workbench';
 
 @Component({
   selector: 'app-create-workbench',
   templateUrl: './create-workbench.component.html'
 })
-export class CreateWorkbenchComponent extends AbstractComponent implements OnInit, OnChanges {
+export class CreateWorkbenchComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -70,7 +70,7 @@ export class CreateWorkbenchComponent extends AbstractComponent implements OnIni
     this.init();
   }
 
-  public ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges(_changes: SimpleChanges) {
 
   }
 

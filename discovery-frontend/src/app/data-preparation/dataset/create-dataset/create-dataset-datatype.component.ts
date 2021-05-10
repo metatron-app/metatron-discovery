@@ -12,13 +12,10 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, HostListener, Injector, OnDestroy, OnInit
-} from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import { DatasetService } from '../service/dataset.service';
-import {StorageService} from "../../../data-storage/service/storage.service";
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {StorageService} from '../../../data-storage/service/storage.service';
 
 @Component({
   selector: 'app-create-dataset-datatype',
@@ -37,14 +34,13 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public connectionType : string = '';
+  public connectionType: string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(private popupService: PopupService,
-              private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -130,7 +126,7 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
   /**
    * Check if staging db is enabled
    */
-  public isStagingEnabled() : boolean {
+  public isStagingEnabled(): boolean {
     return StorageService.isEnableStageDB;
   }
 

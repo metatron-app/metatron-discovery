@@ -12,31 +12,30 @@
  * limitations under the License.
  */
 
-import { CommonModule } from '../common/common.module';
-import { RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
-import { WorkbenchShareModule } from './workbench-share.module';
-import { WorkbenchComponent } from './workbench.component';
-import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
-import { WorkbenchService } from './service/workbench.service';
-import { DatasourceService } from '../datasource/service/datasource.service';
-import { WidgetService } from '../dashboard/service/widget.service';
-import { PageShareModule } from '../page/page-share.module';
-import { StompService } from '@stomp/ng2-stompjs';
-import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
-import { WorkbenchEditorModule } from './workbench.editor.module';
-import {AnalysisPredictionService} from "../page/component/analysis/service/analysis.prediction.service";
-import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
-import { CodemirrorComponent } from '../workbench/component/editor-workbench/codemirror.component';
-import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
-import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
-import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
-import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
+import {CommonModule} from '@common/common.module';
+import {RouterModule, Routes} from '@angular/router';
+import {NgModule} from '@angular/core';
+import {WorkbenchShareModule} from './workbench-share.module';
+import {WorkbenchComponent} from './workbench.component';
+import {WorkbenchService} from './service/workbench.service';
+import {DatasourceService} from '../datasource/service/datasource.service';
+import {WidgetService} from '../dashboard/service/widget.service';
+import {PageShareModule} from '../page/page-share.module';
+import {StompService} from '@stomp/ng2-stompjs';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {WorkbenchEditorModule} from './workbench.editor.module';
+import {AnalysisPredictionService} from '../page/component/analysis/service/analysis.prediction.service';
+import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
+import {CodemirrorComponent} from './component/editor-workbench/codemirror.component';
+import {MetadataService} from '../meta-data-management/metadata/service/metadata.service';
+import {CanDeactivateGuard} from '@common/gaurd/can.deactivate.guard';
+import {SaveAsHiveTableComponent} from './component/save-as-hive-table/save-as-hive-table.component';
+import {DataSourceCreateModule} from '../data-storage/data-source-list/create-data-source/data-source-create.module';
 
 // 라우트
 const workbenchRoutes: Routes = [
-  { path: ':id', component: WorkbenchComponent, canDeactivate:[CanDeactivateGuard] },
-  { path: ':id/schemabrowser', component: DetailWorkbenchSchemaBrowserComponent}
+  {path: ':id', component: WorkbenchComponent, canDeactivate: [CanDeactivateGuard]},
+  {path: ':id/schemabrowser', component: DetailWorkbenchSchemaBrowserComponent}
 ];
 
 @NgModule({
@@ -45,7 +44,6 @@ const workbenchRoutes: Routes = [
     CommonModule,
     WorkbenchShareModule,
     WorkbenchEditorModule,
-    SplitPaneModule,
     DataSourceCreateModule,
     PageShareModule,
     RouterModule.forChild(workbenchRoutes),

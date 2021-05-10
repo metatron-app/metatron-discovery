@@ -33,24 +33,22 @@ import {
   TriggerType,
   UIChartDataLabelDisplayType
 } from '../option/define/common';
-import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
 import {OptionGenerator} from '../option/util/option-generator';
 import {Legend} from '../option/define/legend';
-import {Field} from '../../../../domain/workbook/configurations/field/field';
+import {Field} from '@domain/workbook/configurations/field/field';
 import {FormatOptionConverter} from '../option/converter/format-option-converter';
 import {ColorOptionConverter} from '../option/converter/color-option-converter';
-import {UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption} from '../option/ui-option';
+import {UIChartColorByDimension, UIChartFormat, UIOption} from '../option/ui-option';
 import {LegendOptionConverter} from '../option/converter/legend-option-converter';
 import {LabelOptionConverter} from '../option/converter/label-option-converter';
-
-declare let echarts: any;
 
 @Component({
   selector: 'network-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class NetworkChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
+export class NetworkChartComponent extends BaseChart<UIOption> implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -118,7 +116,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     //     .debounceTime(DUE_TIME_500_MS)
     //     .filter(() => hasChartObjectAndChartObjectResizeOptionIsTrue())
     //     .subscribe(() => {
-    //       console.info("resize observable");
+    //       console.log("resize observable");
     //       //this.draw()
     //     });
     // };
@@ -140,9 +138,9 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   /**
    * 차트에 설정된 옵션으로 차트를 그린다.
    * - 각 차트에서 Override
-   * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
+   * @param _isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
    */
-  public draw(isKeepRange?: boolean): void {
+  public draw(_isKeepRange?: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Valid 체크
@@ -185,7 +183,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     // 셀렉션 필터 유지
     ////////////////////////////////////////////////////////
 
-    //this.chartOption = this.convertSelectionData();
+    // this.chartOption = this.convertSelectionData();
 
     ////////////////////////////////////////////////////////
     // apply
@@ -218,13 +216,12 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     // TODO: 추후에 네트워크 차트의 선반정보 검사하는 부분을 수정할 예정
     //  - 현재는 최소 그리기 조건에 대한 처리만 되어 있음, 하지만 차트가 그려지지 않아서 오류로 생각하는 경우가 있어서 해당 조건을 원래대로 원복 시킨다
     //  - 최소 그리기 조건 : Source data, Target data, Link data 각각 1개씩인 경우
-    const result = (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) == 1 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) == 0)
-      && (this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.DIMENSION) == 1 && this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.TIMESTAMP) == 0)
-      && ((this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) == 1)
-      && (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0)
-    return result;
+    return (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) === 1 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) === 0)
+      && (this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.DIMENSION) === 1 && this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.TIMESTAMP) === 0)
+      && ((this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) === 1)
+      && (this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(pivot, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(pivot, ShelveType.ROWS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0);
   }
 
   /**
@@ -287,7 +284,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     ////////////////////////////////////////////////////////
 
     // 색상 설정
-    this.chartOption = ColorOptionConverter.convertColor(this.chartOption, this.uiOption, this.fieldOriginInfo, this.fieldInfo, this.pivotInfo, this.drawByType);
+    this.chartOption = ColorOptionConverter.convertColor(this.chartOption, this.uiOption, this.fieldOriginInfo, this.fieldInfo, this.pivotInfo);
 
     ////////////////////////////////////////////////////////
     // 숫자 포맷 옵션 적용
@@ -303,7 +300,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     if (!this.uiOption.dataLabel) {
       this.uiOption.dataLabel = {showValue: true};
     }
-    if (_.eq(typeof this.uiOption.dataLabel.showValue, "undefined")) {
+    if (_.eq(typeof this.uiOption.dataLabel.showValue, 'undefined')) {
       this.uiOption.dataLabel.showValue = true;
     }
 
@@ -331,13 +328,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     let showFl: boolean;
 
     // link value가 있는경우
-    if (-1 !== this.uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE)) {
-
-      showFl = true;
-      // link value가 없는경우
-    } else {
-      showFl = false;
-    }
+    showFl = (-1 !== this.uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE));
 
     this.chartOption.series.forEach((item) => {
 
@@ -351,7 +342,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         } else {
           item.edgeLabel.normal.show = showFl;
           // show만 false로 설정시 source쪽에 숫자가 겹쳐서 나오므로 formatter에 빈값을 설정
-          item.edgeLabel.normal.formatter = "";
+          item.edgeLabel.normal.formatter = '';
         }
 
       }
@@ -368,12 +359,12 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   protected convertSeriesData(): BaseOption {
 
     let sourceField: string = '';
-    let sourceColorField: string = '';
-    let sourceSizeField: string = '';
-
-    let targetField: string = '';
-    let targetColorField: string = '';
-    let targetSizeField: string = '';
+    // let sourceColorField: string = '';
+    // let sourceSizeField: string = '';
+    //
+    // let targetField: string = '';
+    // let targetColorField: string = '';
+    // let targetSizeField: string = '';
     const aggs: string[] = [];
 
     // Source data
@@ -386,38 +377,38 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
           sourceField = fieldName;
         }
 
-        if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.DIMENSION) || _.eq(column.type, ShelveFieldType.TIMESTAMP))) {
-          sourceColorField = fieldName;
-        } else if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.MEASURE) || _.eq(column.type, ShelveFieldType.CALCULATED))) {
-          sourceSizeField = fieldName;
-        }
+        // if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.DIMENSION) || _.eq(column.type, ShelveFieldType.TIMESTAMP))) {
+        //   sourceColorField = fieldName;
+        // } else if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.MEASURE) || _.eq(column.type, ShelveFieldType.CALCULATED))) {
+        //   sourceSizeField = fieldName;
+        // }
 
         aggs.push(fieldName);
       });
 
     // Target data
-    this.pivot.rows
-      .map((row, idx) => {
-
-        const fieldName: string = row.alias ? row.alias : row.fieldAlias ? row.fieldAlias : row.name;
-
-        if (_.eq(idx, 0)) {
-          targetField = fieldName;
-        }
-
-        if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.DIMENSION) || _.eq(row.type, ShelveFieldType.TIMESTAMP))) {
-          targetColorField = fieldName;
-        } else if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.MEASURE) || _.eq(row.type, ShelveFieldType.CALCULATED))) {
-          targetSizeField = fieldName;
-        }
-      });
+    // this.pivot.rows
+    //   .map((row, idx) => {
+    //
+    //     const fieldName: string = row.alias ? row.alias : row.fieldAlias ? row.fieldAlias : row.name;
+    //
+    //     if (_.eq(idx, 0)) {
+    //       targetField = fieldName;
+    //     }
+    //
+    //     if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.DIMENSION) || _.eq(row.type, ShelveFieldType.TIMESTAMP))) {
+    //       targetColorField = fieldName;
+    //     } else if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.MEASURE) || _.eq(row.type, ShelveFieldType.CALCULATED))) {
+    //       targetSizeField = fieldName;
+    //     }
+    //   });
 
     // link 수치 정보
     const agg: Field = this.pivot.aggregations[0];
-    let linkField: string = agg.alias ? agg.alias : agg.fieldAlias ? agg.fieldAlias : agg.name;
+    const linkField: string = agg.alias ? agg.alias : agg.fieldAlias ? agg.fieldAlias : agg.name;
 
     // Legend List
-    let categories: string[] = [];
+    const categories: string[] = [];
     const nodeNameList: string[] = [];
     _.each(this.data.nodes, (node) => {
       categories.push(node.originalName);
@@ -426,7 +417,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       // nodeNameList.push(node.name);
     });
 
-    const format: UIChartFormatItem = !this.uiOption.valueFormat.isAll && this.uiOption.valueFormat.each.length > 0 ? this.uiOption.valueFormat.each[0] : this.uiOption.valueFormat;
+    // const format: UIChartFormatItem = !this.uiOption.valueFormat.isAll && this.uiOption.valueFormat.each.length > 0 ? this.uiOption.valueFormat.each[0] : this.uiOption.valueFormat;
 
     this.chartOption.series = [
       {
@@ -470,7 +461,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         },
         tooltip: {
           trigger: TriggerType.ITEM,
-          formatter: (params, ticket, callback) => {
+          formatter: (params, _ticket, _callback) => {
             return this.getFormatNetworkValueSeriesTooltip(params, this.uiOption.valueFormat, this.uiOption);
           }
         }
@@ -499,7 +490,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     legend.color = colorList;
 
     this.uiOption.fieldList = [sourceField];
-    (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+    (this.uiOption.color as UIChartColorByDimension).targetField = _.last(this.uiOption.fieldList);
 
     // Pivot 정보 생성
     this.pivotInfo = new PivotTableInfo(nodeNameList, [], aggs);
@@ -513,15 +504,15 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   protected setUIData(): any {
 
     // 노드명 가공
-    for (let node of this.data.nodes) {
+    for (const node of this.data.nodes) {
 
       node.originalName = node.name;
       // if fields are multiple (have same name in different nodes), don't put field name
-      node.name = node.name + (node.fields && node.fields.length == 1 ? CHART_STRING_DELIMITER + node.fields[0] : '');
+      node.name = node.name + (node.fields && node.fields.length === 1 ? CHART_STRING_DELIMITER + node.fields[0] : '');
     }
 
     // 링크명 가공
-    for (let link of this.data.links) {
+    for (const link of this.data.links) {
 
       link.originalSource = link.source;
       link.originalTarget = link.target;
@@ -556,11 +547,10 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
    * @param params
    * @param format
    * @param uiOption
-   * @param series
-   * @param uiData
+   * @param _uiData
    * @returns {string}
    */
-  private getFormatNetworkValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, uiData?: any): string {
+  private getFormatNetworkValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, _uiData?: any): string {
 
     if (params.data.value) {
       // UI 데이터 정보가 있을경우
@@ -579,7 +569,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         result = FormatOptionConverter.getTooltipName([params.data.originalTarget], this.pivot.rows, result, true, this.pivot);
       }
       // set node tooltip
-      else if (undefined == params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME)) {
+      else if (undefined === params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME)) {
 
         // set fields
         if (params.data.fields && params.data.fields.length > 0) {
@@ -588,14 +578,14 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
           for (const field of params.data.fields) {
 
             // find column value by field name
-            columnField = _.find(this.pivot.columns, {'alias': field});
+            columnField = _.find(this.pivot.columns, {alias: field});
             result = FormatOptionConverter.getTooltipName([params.data.originalName], (!columnField ? this.pivot.rows : this.pivot.columns), result, true, this.pivot);
           }
         }
       }
       if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE)) {
 
-        let value = FormatOptionConverter.getTooltipValue(this.pivot.aggregations[0].alias, this.pivot.aggregations, format, params.data.value);
+        const value = FormatOptionConverter.getTooltipValue(this.pivot.aggregations[0].alias, this.pivot.aggregations, format, params.data.value);
 
         result.push(value);
       }
@@ -624,7 +614,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     this.chart.on('click', (params) => {
 
       if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
-        let strScript = '(' + this.userCustomFunction + ')';
+        const strScript = '(' + this.userCustomFunction + ')';
         // ( new Function( 'return ' + strScript ) )();
         try {
           if (eval(strScript)({name: 'SelectionEvent', data: params ? params.name : ''})) {
@@ -670,7 +660,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         this.isSelected = isSelectMode;
 
         // get source, target matching params
-        let sourceTarget = this.getSourceTarget(series[params.seriesIndex].data, params);
+        const sourceTarget = this.getSourceTarget(series[params.seriesIndex].data, params);
 
         // when it's link
         if (params.data['originalSource'] && params.data['originalTarget']) {
@@ -683,23 +673,22 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
             if (item.originalTarget === sourceTarget['target'].name && item.linkCnt > 0) return item;
           });
 
-          const sourceCon = (undefined === sourceTarget['source'].selectCnt || 0 === sourceTarget['source'].selectCnt) && 0 == sourceLinkList.length;
-          const targetCon = (undefined === sourceTarget['target'].selectCnt || 0 === sourceTarget['target'].selectCnt) && 0 == targetLinkList.length;
+          const sourceCon = (undefined === sourceTarget['source'].selectCnt || 0 === sourceTarget['source'].selectCnt) && 0 === sourceLinkList.length;
+          const targetCon = (undefined === sourceTarget['target'].selectCnt || 0 === sourceTarget['target'].selectCnt) && 0 === targetLinkList.length;
 
-          if ((ChartSelectMode.SUBTRACT == selectMode && sourceCon) || ChartSelectMode.SUBTRACT !== selectMode) {
+          if ((ChartSelectMode.SUBTRACT === selectMode && sourceCon) || ChartSelectMode.SUBTRACT !== selectMode) {
 
             selectedColValues = [params.data['originalSource']];
             // if fields are multiple, remove in multiple fields
             if (sourceTarget['target'].fields.length > 1 && !sourceTarget['target'].itemStyle) {
-              if (undefined == selectedColValues) selectedColValues = [];
               selectedColValues.push(params.data['originalTarget']);
             }
           }
-          if ((ChartSelectMode.SUBTRACT == selectMode && targetCon) || ChartSelectMode.SUBTRACT !== selectMode) {
+          if ((ChartSelectMode.SUBTRACT === selectMode && targetCon) || ChartSelectMode.SUBTRACT !== selectMode) {
             selectedRowValues = [params.data['originalTarget']];
             // if fields are multiple, remove in multiple fields
             if (sourceTarget['source'].fields.length > 1 && !sourceTarget['source'].itemStyle) {
-              if (undefined == selectedColValues) selectedColValues = [];
+              if (undefined === selectedColValues) selectedColValues = [];
               selectedColValues.push(params.data['originalSource']);
             }
           }
@@ -719,8 +708,8 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
               if (item.originalTarget === params.data.originalName && item.linkCnt > 0) return item;
             });
 
-            const colCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && sourceLinkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
-            const rowCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && targetLinkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
+            const colCondition = (ChartSelectMode.SUBTRACT === selectMode && selectedData.selectCnt === 0 && sourceLinkList.length === 0) || (ChartSelectMode.SUBTRACT !== selectMode);
+            const rowCondition = (ChartSelectMode.SUBTRACT === selectMode && selectedData.selectCnt === 0 && targetLinkList.length === 0) || (ChartSelectMode.SUBTRACT !== selectMode);
 
             // when it's substract mode, only the last data is removed in filter
             const colMatchPivot = colCondition ? this.pivot.columns.filter((item) => {
@@ -780,7 +769,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
       if (!seriesLink.lineStyle) seriesLink.lineStyle = {normal: {}};
       seriesLink.lineStyle.normal['opacity'] = 0.7;
-      seriesLink.linkCnt = undefined == seriesLink.linkCnt ? 1 : seriesLink.linkCnt + 1;
+      seriesLink.linkCnt = undefined === seriesLink.linkCnt ? 1 : seriesLink.linkCnt + 1;
 
       // set other values dimmed
       if (selectedSeries.lineStyle && selectedSeries.lineStyle.normal) selectedSeries.lineStyle.normal.opacity = 0.2;
@@ -818,7 +807,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       if (selectedSeries.lineStyle && selectedSeries.lineStyle.normal) selectedSeries.lineStyle.normal.opacity = 0.2;
 
       // set select count
-      seriesData.selectCnt = undefined == seriesData.selectCnt ? 1 : seriesData.selectCnt + 1;
+      seriesData.selectCnt = undefined === seriesData.selectCnt ? 1 : seriesData.selectCnt + 1;
     }
 
     return option;
@@ -892,7 +881,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       link.linkCnt -= 1;
 
       // set source, target style (itemStyle)
-      let sourceTarget = this.getSourceTarget(selectedSeries.data, params);
+      const sourceTarget = this.getSourceTarget(selectedSeries.data, params);
 
       const source = sourceTarget['source'];
       const target = sourceTarget['target'];
@@ -909,22 +898,22 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
           if ((item.originalSource === target.name || item.originalTarget === target.name) && item.linkCnt > 0) return item;
         });
 
-        if ((undefined === source.selectCnt || 0 === source.selectCnt) && 0 == sourceLinkList.length) delete source.itemStyle;
-        if ((undefined === target.selectCnt || 0 === target.selectCnt) && 0 == targetLinkList.length) delete target.itemStyle;
+        if ((undefined === source.selectCnt || 0 === source.selectCnt) && 0 === sourceLinkList.length) delete source.itemStyle;
+        if ((undefined === target.selectCnt || 0 === target.selectCnt) && 0 === targetLinkList.length) delete target.itemStyle;
       }
 
       link.existSelectData = false;
 
       // when it's last data, init opacity
-      let selectedList = selectedSeries.links.filter((item) => {
+      const selected = selectedSeries.links.filter((item) => {
         return item.linkCnt && 0 !== item.linkCnt;
       });
 
-      let selectedDataList = selectedSeries.data.filter((item) => {
+      const selectedDataList = selectedSeries.data.filter((item) => {
         return item.selectCnt && 0 !== item.selectCnt;
       });
 
-      if ((!selectedList || 0 == selectedList.length) && (!selectedDataList || 0 == selectedDataList.length)) {
+      if ((!selected || 0 === selected.length) && (!selectedDataList || 0 === selectedDataList.length)) {
         selectedSeries.lineStyle.normal['opacity'] = 0.7;
       }
 
@@ -946,16 +935,16 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     }
 
     // when it's last data, init opacity
-    let selectedList = selectedSeries.data.filter((item) => {
+    const selectedList = selectedSeries.data.filter((item) => {
       return item.selectCnt && 0 !== item.selectCnt;
     });
 
     // when it's last data, init opacity
-    let selectedLinkList = selectedSeries.links.filter((item) => {
+    const selectedLinkList = selectedSeries.links.filter((item) => {
       return item.linkCnt && 0 !== item.linkCnt;
     });
 
-    if (!selectedList || 0 == selectedList.length && (!selectedLinkList || 0 == selectedLinkList.length)) {
+    if (!selectedList || 0 === selectedList.length && (!selectedLinkList || 0 === selectedLinkList.length)) {
       selectedSeries.itemStyle.normal['opacity'] = 0.7;
       selectedSeries.lineStyle.normal['opacity'] = 0.7;
     }

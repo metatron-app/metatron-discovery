@@ -16,14 +16,14 @@
  * Created by LDL on 2017. 6. 16..
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { Book } from '../../domain/workspace/book';
-import { Workbook, WorkbookDetailProjections } from '../../domain/workbook/workbook';
-import { CommonUtil } from '../../common/util/common.util';
-import { Page } from '../../domain/common/page';
-import { Comment } from '../../domain/comment/comment';
+import {Book} from '@domain/workspace/book';
+import {Workbook, WorkbookDetailProjections} from '@domain/workbook/workbook';
+import {CommonUtil} from '@common/util/common.util';
+import {Page} from '@domain/common/page';
+import {Comment} from '@domain/comment/comment';
 
 @Injectable()
 export class WorkbookService extends AbstractService {
@@ -37,7 +37,7 @@ export class WorkbookService extends AbstractService {
     return this.post(this.API_URL + 'books', book);
   }
 
-  public createWorkbook2(params: {workspace: string, name: string, type: 'workbook' | 'folder', description?: string, folderId?: string}) {
+  public createWorkbook2(params: { workspace: string, name: string, type: 'workbook' | 'folder', description?: string, folderId?: string }) {
     return this.post(this.API_URL + 'books', params);
   }
 
@@ -78,18 +78,18 @@ export class WorkbookService extends AbstractService {
   }
 
   // 워크북 복사
-  public copyWorkbook(copyId: string, folderId?:string, options?: any): Promise<any>  {
+  public copyWorkbook(copyId: string, folderId?: string, options?: any): Promise<any> {
     let url = this.API_URL + 'books/' + copyId + '/copy';
-    ( folderId ) && ( url += '/' + folderId );
-    (options) && ( url += '?' + CommonUtil.objectToUrlString(options) );
+    (folderId) && (url += '/' + folderId);
+    (options) && (url += '?' + CommonUtil.objectToUrlString(options));
     return this.post(url, null);
   } // function - copyWorkbook
 
   // 워크북 이동
-  public moveWorkbook(copyId: string, folderId?:string, options?: any): Promise<any>  {
+  public moveWorkbook(copyId: string, folderId?: string, options?: any): Promise<any> {
     let url = this.API_URL + 'books/' + copyId + '/move';
-    ( folderId ) && ( url += '/' + folderId );
-    (options) && ( url += '?' + CommonUtil.objectToUrlString(options) );
+    (folderId) && (url += '/' + folderId);
+    (options) && (url += '?' + CommonUtil.objectToUrlString(options));
     return this.post(url, null);
   } // function - moveWorkbook
 

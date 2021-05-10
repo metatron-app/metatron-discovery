@@ -12,16 +12,17 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Catalog} from "../../../domain/catalog/catalog";
-import {CatalogService} from "../../../meta-data-management/catalog/service/catalog.service";
-import {StringUtil} from "../../../common/util/string.util";
 import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Catalog} from '@domain/catalog/catalog';
+import {CatalogService} from '../../../meta-data-management/catalog/service/catalog.service';
 
 @Component({
   selector: 'component-catalog-folder',
-  templateUrl: 'catalog-folder.component.html'
+  templateUrl: 'catalog-folder.component.html',
+  styles: [':host .ddp-txt-search { font-size:13px; color:#666db7; }']
 })
 export class CatalogFolderComponent extends AbstractComponent implements OnInit {
   // data
@@ -63,7 +64,7 @@ export class CatalogFolderComponent extends AbstractComponent implements OnInit 
       // set catalog list in child
       this._setCatalogList(catalogId);
     }
-    this.catalog.isOpened= !this.catalog.isOpened;
+    this.catalog.isOpened = !this.catalog.isOpened;
   }
 
   onClickCatalog(catalog) {

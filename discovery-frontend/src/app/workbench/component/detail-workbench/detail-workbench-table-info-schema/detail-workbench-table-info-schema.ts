@@ -13,35 +13,37 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
   Output
 } from '@angular/core';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { isUndefined } from 'util';
-import { StringUtil } from '../../../../common/util/string.util';
-import { WorkbenchService } from '../../../service/workbench.service';
-import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {isUndefined} from 'util';
+import {StringUtil} from '@common/util/string.util';
+import {WorkbenchService} from '../../../service/workbench.service';
+import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
 
 @Component({
   selector: 'detail-workbench-table-info-schema',
   templateUrl: './detail-workbench-table-info-schema.html',
 })
-export class DetailWorkbenchTableInfoSchema extends AbstractWorkbenchComponent implements OnInit, OnChanges, OnDestroy {
+export class DetailWorkbenchTableInfoSchemaComponent extends AbstractWorkbenchComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * Need for finding top value to locate popup
-   * **/
-  private top: string;
 
   // 컬럼리스트
   private columns: any[] = [];
 
   // params
-  private params:any = {};
+  private params: any = {};
 
   // request reconnect count
   private _getTableDetailReconnectCount: number = 0;
@@ -51,11 +53,6 @@ export class DetailWorkbenchTableInfoSchema extends AbstractWorkbenchComponent i
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public tableName: string;
-
-  @Input('top')
-  set setTop(value: string) {
-    this.top = value;
-  }
 
   @Input('schemaParams')
   public set setParams(params: any) {

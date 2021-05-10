@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
@@ -20,14 +21,15 @@ import {
   Injector,
   Input,
   OnChanges,
+  OnDestroy,
+  OnInit,
   Output,
   SimpleChanges,
   ViewChild
-} from "@angular/core";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {EventBroadcaster} from "../../../common/event/event.broadcaster";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {DataStorageConstant} from "../../constant/data-storage-constant";
+} from '@angular/core';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {StringUtil} from '@common/util/string.util';
 import {
   ConnectionType,
   Field,
@@ -37,17 +39,17 @@ import {
   IngestionRule,
   IngestionRuleType,
   LogicalType
-} from "../../../domain/datasource/datasource";
-import * as _ from 'lodash';
-import {StorageFilterSelectBoxComponent} from "../../data-source-list/component/storage-filter-select-box.component";
-import {Type} from "../../../shared/datasource-metadata/domain/type";
-import {Filter} from "../../../shared/datasource-metadata/domain/filter";
-import {FieldConfigService} from "../../service/field-config.service";
-import {StringUtil} from "../../../common/util/string.util";
-import {DatasourceService} from "../../../datasource/service/datasource.service";
-import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
-import {GranularityService} from "../../service/granularity.service";
-import {AggregationType} from "../../../domain/workbook/configurations/field/measure-field";
+} from '@domain/datasource/datasource';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {Type} from '../../../shared/datasource-metadata/domain/type';
+import {Filter} from '../../../shared/datasource-metadata/domain/filter';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {DataStorageConstant} from '../../constant/data-storage-constant';
+import {GranularityService} from '../../service/granularity.service';
+import {FieldConfigService} from '../../service/field-config.service';
+import {TimeZoneObject, TimezoneService} from '../../service/timezone.service';
+import {StorageFilterSelectBoxComponent} from '../../data-source-list/component/storage-filter-select-box.component';
 
 declare const moment;
 
@@ -55,12 +57,12 @@ declare const moment;
   selector: 'schema-configure-field-detail',
   templateUrl: 'schema-configure-field-detail.component.html'
 })
-export class SchemaConfigureFieldDetailComponent extends AbstractComponent implements OnChanges {
+export class SchemaConfigureFieldDetailComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
-  @ViewChild('geoCoordinateSelectBox')
+  @ViewChild('geoCoordinateSelectBox', {static: true})
   private readonly _geoCoordinateSelectBox: StorageFilterSelectBoxComponent;
 
-  @ViewChild('typeSelectBox')
+  @ViewChild('typeSelectBox', {static: true})
   private readonly _typeSelectBox: StorageFilterSelectBoxComponent;
 
   // current milli seconds
@@ -84,7 +86,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
 
   // unit list
   public readonly formatUnitList = [
-    {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
+    {
+      label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'),
+      value: FieldFormatUnit.MILLISECOND
+    },
     {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND}
   ];
 
@@ -112,8 +117,6 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   // timezone list show flag
   public isShowTimezoneList: boolean;
 
-  @ViewChild('timezoneElement')
-  private readonly TIMEZONE_ELEMENT: ElementRef;
   @ViewChild('timezonePopupElement')
   private readonly TIMEZONE_POPUP_ELEMENT: ElementRef;
   @ViewChild('timestampGuideElement')
@@ -160,10 +163,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     // #1925
     this.closeSelectBoxes();
   }
@@ -239,11 +242,11 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   public getSlicedDataContent(data: string) {
     let content = data;
     // trans to string
-    if (typeof data === "number") {
+    if (typeof data === 'number') {
       content = data + '';
     }
-    if (!_.isNil(content)  && content.length > 50) {
-      return content.slice(0,50);
+    if (!_.isNil(content) && content.length > 50) {
+      return content.slice(0, 50);
     } else {
       return content;
     }
@@ -280,7 +283,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
         return '0';
       case LogicalType.DOUBLE:
       case LogicalType.FLOAT:
-        return  '0.0';
+        return '0.0';
       case LogicalType.LNT:
       case LogicalType.LNG:
         return '0.0';
@@ -307,7 +310,6 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
 
   /**
    * Field Format unit change event
-   * @param {Field} field
    * @param unit
    */
   public onChangeFormatUnitInField(unit: any): void {
@@ -315,7 +317,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       // change unit
       this.selectedField.format.unit = unit.value;
       // change time placeholder
-      this._currentMilliseconds = unit.value === FieldFormatUnit.MILLISECOND ? moment().valueOf() : Math.floor(moment().valueOf()/1000);
+      this._currentMilliseconds = unit.value === FieldFormatUnit.MILLISECOND ? moment().valueOf() : Math.floor(moment().valueOf() / 1000);
       // init replace valid
       this.initIngestionRuleReplaceValid();
     }
@@ -327,10 +329,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   public onClickTimeFormatValidation() {
     this.loadingShow();
     this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.selectedField.format, this.dataList)
-      .then((format: FieldFormat) => {
+      .then((_format: FieldFormat) => {
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch((_error) => {
         this.loadingHide();
       });
   }
@@ -416,10 +418,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
       // if open show flag
       if (this.isShowTimezoneList) {
         $(this.TIMEZONE_POPUP_ELEMENT.nativeElement).css({
-          'position' : 'fixed',
-          'top': $(event.currentTarget).offset().top + 35,
-          'left' : $(event.currentTarget).offset().left,
-          'width' : $(event.currentTarget).outerWidth()
+          position: 'fixed',
+          top: $(event.currentTarget).offset().top + 35,
+          left: $(event.currentTarget).offset().left,
+          width: $(event.currentTarget).outerWidth()
         });
       }
     }
@@ -432,9 +434,9 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
     const $infoLeft = $(this.TIMESTAMP_GUIDE_ELEMENT.nativeElement).offset().left;
     const $infoTop = $(this.TIMESTAMP_GUIDE_ELEMENT.nativeElement).offset().top;
     $(this.TIMESTAMP_GUIDE_ELEMENT.nativeElement).find('.ddp-box-layout4').css({
-      'position' : 'fixed',
-      'left': $infoLeft - 30,
-      'top' :  $infoTop + 19
+      position: 'fixed',
+      left: $infoLeft - 30,
+      top: $infoTop + 19
     });
   }
 
@@ -484,10 +486,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
         this.loadingShow();
         // valid WKT
         this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(this.selectedField.format, this.dataList, type.value)
-          .then((result) => {
+          .then((_result) => {
             this.loadingHide();
           })
-          .catch((error) => {
+          .catch((_error) => {
             this.loadingHide();
           });
       } else if (type.value === Type.Logical.TIMESTAMP) { // if field logical type change to TIMESTAMP
@@ -496,10 +498,10 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
         }
         this.loadingShow();
         this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.selectedField.format, this.dataList, true)
-          .then((format: FieldFormat) => {
+          .then((_format: FieldFormat) => {
             this.loadingHide();
           })
-          .catch((error) => {
+          .catch((_error) => {
             this.loadingHide();
           });
       } else if (type.value === Type.Logical.ARRAY) {
@@ -562,7 +564,6 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
 
   /**
    * ingestion rule validation
-   * @param {Field} field
    */
   public ingestionRuleValidation(): void {
     // if empty replace value
@@ -587,7 +588,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
         this.selectedField.ingestionRule.isValidReplaceValue = true;
         break;
       case LogicalType.TIMESTAMP:
-        if (this.selectedField.format.type != FieldFormatType.UNIX_TIME && StringUtil.isEmpty(this.selectedField.format.format)) {
+        if (this.selectedField.format.type !== FieldFormatType.UNIX_TIME && StringUtil.isEmpty(this.selectedField.format.format)) {
           this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.common.ui.required');
           this.selectedField.ingestionRule.isValidReplaceValue = false;
           return;
@@ -610,7 +611,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
         this.loadingShow();
         // check validation
         this.datasourceService.checkValidationDateTime(params)
-          .then((result: {valid: boolean}) => {
+          .then((result: { valid: boolean }) => {
             // 로딩 hide
             this.loadingHide();
             if (result.valid) {
@@ -620,7 +621,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
               this.selectedField.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.timestamp');
             }
           })
-          .catch((error) => {
+          .catch((_error) => {
             // 로딩 hide
             this.loadingHide();
             this.selectedField.ingestionRule.isValidReplaceValue = false;
@@ -694,7 +695,7 @@ export class SchemaConfigureFieldDetailComponent extends AbstractComponent imple
   private _changeTypeList(): void {
     if (Field.isMeasureField(this.selectedField)) {
       this.typeList = this.constant.getTypeFiltersInMeasure();
-    } else if (Field.isDimensionField(this.selectedField) && Field.isStringBaseType(this.selectedField)){
+    } else if (Field.isDimensionField(this.selectedField) && Field.isStringBaseType(this.selectedField)) {
       this.typeList = this.constant.getTypeFiltersInDimensionIncludeGeoTypes();
     } else {
       this.typeList = this.constant.getTypeFiltersInDimension();

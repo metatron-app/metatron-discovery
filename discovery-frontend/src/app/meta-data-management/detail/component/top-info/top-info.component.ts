@@ -12,18 +12,17 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: '[top-info]',
-  templateUrl: './top-info.component.html',
-  host: {
-    '[class.ddp-box-synch]': 'true',
-    '[class.type-info]': 'true'
-  }
+  templateUrl: './top-info.component.html'
 })
 export class TopInfoComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-box-synch type-info';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

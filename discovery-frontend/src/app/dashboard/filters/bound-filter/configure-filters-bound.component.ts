@@ -13,13 +13,15 @@
  */
 
 import * as _ from 'lodash';
-import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
 import { ElementRef, OnDestroy, OnInit, Injector, Component, ViewChild } from '@angular/core';
-import { BoundFilter } from '../../../domain/workbook/configurations/filter/bound-filter';
-import { Field } from '../../../domain/datasource/datasource';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { Dashboard } from '../../../domain/dashboard/dashboard';
+
+import { Field } from '@domain/datasource/datasource';
+import { Dashboard } from '@domain/dashboard/dashboard';
+import { BoundFilter } from '@domain/workbook/configurations/filter/bound-filter';
+import { CustomField } from '@domain/workbook/configurations/field/custom-field';
+
 import { DatasourceService } from '../../../datasource/service/datasource.service';
+import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
 import { BoundFilterComponent } from './bound-filter.component';
 
 @Component({

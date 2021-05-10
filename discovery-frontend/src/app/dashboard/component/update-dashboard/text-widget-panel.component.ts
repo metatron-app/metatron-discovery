@@ -14,21 +14,25 @@
 
 import {
   Component,
+  DoCheck,
   ElementRef,
+  EventEmitter,
   Injector,
+  Input,
+  KeyValueDiffers,
   OnDestroy,
   OnInit,
-  Input,
-  Output,
-  EventEmitter,
-  DoCheck, KeyValueDiffers
+  Output
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import { DashboardWidgetComponent } from '../dashboard-layout/dashboard.widget.component';
-import { TextWidget } from '../../../domain/dashboard/widget/text-widget';
-import { Dashboard } from '../../../domain/dashboard/dashboard';
-import { DashboardUtil } from '../../util/dashboard.util';
+
+import {AbstractComponent} from '@common/component/abstract.component';
+
+import {Widget} from '@domain/dashboard/widget/widget';
+import {TextWidget} from '@domain/dashboard/widget/text-widget';
+import {Dashboard} from '@domain/dashboard/dashboard';
+
+import {DashboardUtil} from '../../util/dashboard.util';
+import {DashboardWidgetComponent} from '../dashboard-layout/dashboard.widget.component';
 
 @Component({
   selector: 'text-widgets-panel',
@@ -55,7 +59,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    | Public Input&Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input()
-  public dashboard:Dashboard;
+  public dashboard: Dashboard;
 
   @Input()
   public widgetCompsInLayout: DashboardWidgetComponent[] = [];
@@ -75,7 +79,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
-    this._differ = differs.find({}).create();
+    this._differ = this.differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -91,7 +95,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    * Input 값 변경 체크
    */
   public ngDoCheck() {
-    if(this._differ.diff(this.dashboard)) {
+    if (this._differ.diff(this.dashboard)) {
       this.widgets = DashboardUtil.getTextWidgets(this.dashboard);
     }
   } // function - ngDoCheck
@@ -121,8 +125,8 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
   public getWidgetContents(widget: Widget): string {
     if (widget) {
       let strContents: string = widget.configuration['contents'];
-      strContents = strContents.replace(/&(lt|gt);/g, function (strMatch, p1) {
-        return (p1 == 'lt') ? '<' : '>';
+      strContents = strContents.replace(/&(lt|gt);/g, (_strMatch, p1) => {
+        return (p1 === 'lt') ? '<' : '>';
       });
       return strContents.replace(/<\/?[^>]+(>|$)/g, '');
     } else {
@@ -136,7 +140,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    * @param {TextWidget} item : 아이템 정보
    */
   public setDragWidget(elm: ElementRef, item: TextWidget) {
-    this.invokeEvent.emit({ elm: elm.nativeElement, widget: item });
+    this.invokeEvent.emit({elm: elm.nativeElement, widget: item});
   } // function - setDragWidget
 
   /**
@@ -152,7 +156,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    * @param {Widget} item
    */
   public modifyWidget(item: Widget) {
-    this.selectedTextWidget = <TextWidget>item;
+    this.selectedTextWidget = item as TextWidget;
     this.showTextEditor = true;
   } // function - modifyWidget
 
@@ -161,7 +165,7 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    * @param {TextWidget} item
    */
   public deleteWidget(item: TextWidget) {
-    this.changeEvent.emit({ name: 'DELETE', widget: item });
+    this.changeEvent.emit({name: 'DELETE', widget: item});
   } // function - deleteWidget
 
   /**

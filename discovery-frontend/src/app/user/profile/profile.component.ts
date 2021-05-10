@@ -13,26 +13,32 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {FileUploader} from 'ng2-file-upload';
-import {CommonConstant} from '../../common/constant/common.constant';
-import {Alert} from '../../common/util/alert.util';
-import {User} from '../../domain/user/user';
+import {CommonConstant} from '@common/constant/common.constant';
+import {Alert} from '@common/util/alert.util';
+import {User} from '@domain/user/user';
 import {UserService} from '../service/user.service';
 import {isNullOrUndefined, isUndefined} from 'util';
-import {CommonUtil} from '../../common/util/common.util';
-import {StringUtil} from '../../common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
 import {ChangePasswordComponent} from './change-password/change-password.component';
-import {Group} from '../../domain/user/group';
 import {WorkspaceService} from '../../workspace/service/workspace.service';
-import {Workspace} from '../../domain/workspace/workspace';
-import {CookieConstant} from '../../common/constant/cookie.constant';
-import {Modal} from '../../common/domain/modal';
-import {ConfirmModalComponent} from '../../common/component/modal/confirm/confirm.component';
-import {EventBroadcaster} from '../../common/event/event.broadcaster';
+import {Workspace} from '@domain/workspace/workspace';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 
 @Component({
   selector: 'app-profile',
@@ -184,7 +190,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 팝업 show
     this.isShow = true;
     // 팝업시 하단 스크롤 hide
-    $("body").css("overflow", "hidden");
+    $('body').css('overflow', 'hidden');
     // 유저 profile 정보 조회
     this._getProfile(user.id);
   }
@@ -218,7 +224,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // flag
     this.isShow = false;
     // 팝업종료시 하단 스크롤 show
-    $("body").css("overflow", "");
+    $('body').css('overflow', '');
   }
 
 
@@ -501,7 +507,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
    * @param {string} userId
    * @private
    */
-  private _getProfile(userId:string): void {
+  private _getProfile(userId: string): void {
     // 로딩 show
     this.loadingShow();
     this.userService.getUserDetail(userId)
@@ -631,7 +637,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
       modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
-        afterConfirm: function () {
+        afterConfirm: () => {
         }
       };
       this._confirmModalComp.init(modal);

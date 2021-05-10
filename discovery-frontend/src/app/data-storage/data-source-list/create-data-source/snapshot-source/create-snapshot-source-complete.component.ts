@@ -12,29 +12,20 @@
  * limitations under the License.
  */
 
-
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  Output,
-  ViewChild
-} from "@angular/core";
-import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {DatasourceInfo} from "../../../../domain/datasource/datasource";
-import {DatasourceService} from "../../../../datasource/service/datasource.service";
-import {CreateSourceCompleteData, DataSourceCreateService} from "../../../service/data-source-create.service";
-import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
-import {StringUtil} from "../../../../common/util/string.util";
-import {CommonUtil} from "../../../../common/util/common.util";
 import * as _ from 'lodash';
-import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {Alert} from "../../../../common/util/alert.util";
-import {CookieConstant} from "../../../../common/constant/cookie.constant";
-import {Modal} from "../../../../common/domain/modal";
-import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {DatasourceInfo} from '@domain/datasource/datasource';
+import {SsType} from '@domain/data-preparation/pr-snapshot';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {CreateSourceCompleteData, DataSourceCreateService} from '../../../service/data-source-create.service';
 
 /**
  * Creating datasource with Snapshot - complete step
@@ -43,7 +34,7 @@ import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
   selector: 'create-snapshot-source-complete',
   templateUrl: './create-snapshot-source-complete.component.html'
 })
-export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponent {
+export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponent implements OnInit {
 
   @ViewChild(ConfirmModalComponent)
   private _confirmModal: ConfirmModalComponent;
@@ -156,7 +147,7 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
             this.close();
           });
       })
-      .catch((error) => {
+      .catch(() => {
         // loading hide
         this.loadingHide();
         // modal

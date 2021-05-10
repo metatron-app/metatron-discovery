@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { ElementRef, EventEmitter, Injector, Output } from '@angular/core';
+import {ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
 import { AbstractComponent } from './abstract.component';
 
-export class AbstractPopupComponent extends AbstractComponent {
+export class AbstractPopupComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables

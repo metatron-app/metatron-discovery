@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Metadata, SourceType} from "../../../domain/meta-data-management/metadata";
+import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
 
 @Component({
   selector: 'component-metadata-type-box-tag',

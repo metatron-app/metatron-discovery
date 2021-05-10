@@ -87,14 +87,14 @@ export class LabelOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -124,7 +124,7 @@ export class LabelOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
     if( !label.pos ) {
       return chartOption;
     }
@@ -168,7 +168,7 @@ export class LabelOptionConverter {
     }
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -198,14 +198,14 @@ export class LabelOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -231,14 +231,14 @@ export class LabelOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -268,14 +268,14 @@ export class LabelOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -305,14 +305,14 @@ export class LabelOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -344,14 +344,14 @@ export class LabelOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -368,8 +368,8 @@ export class LabelOptionConverter {
         // textColor가 없는경우
         } else {
           if( label.pos ) {
-            if( _.eq(label.pos, DataLabelPosition.CENTER) || String(label.pos).indexOf("INSIDE") != -1 ) {
-              color = "#FFF";
+            if( _.eq(label.pos, DataLabelPosition.CENTER) || String(label.pos).indexOf('INSIDE') !== -1 ) {
+              color = '#FFF';
             }
             else {
               color = null;
@@ -385,7 +385,7 @@ export class LabelOptionConverter {
         }
       }
       else {
-        if (' ' == option.label.normal.color) delete option.label.normal.color;
+        if (' ' === option.label.normal.color) delete option.label.normal.color;
         delete option.label.normal.rich;
       }
     });
@@ -398,7 +398,7 @@ export class LabelOptionConverter {
   /**
    * set datalabel previewlist
    */
-  public static setDataLabelPreviewList(uiOption: UIOption): Object[] {
+  public static setDataLabelPreviewList(uiOption: UIOption): object[] {
 
     // 미리보기 리스트 초기화
     uiOption.dataLabel.previewList = [];
@@ -410,7 +410,7 @@ export class LabelOptionConverter {
     if (axisFormat) format = axisFormat;
 
     // 포멧값이 설정된 숫자값
-    let numValue = FormatOptionConverter.getFormatValue(1000, format);
+    const numValue = FormatOptionConverter.getFormatValue(1000, format);
 
     if (uiOption.dataLabel.displayTypes) {
       // displayType에 따라서 미리보기 설정

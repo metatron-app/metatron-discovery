@@ -43,10 +43,10 @@
 
             <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
             <ul class="ddp-list-express ddp-type2">
-              <li [ngClass]="{'ddp-selected': uiOption.dataType === 'PIVOT'}" (click)="gridViewType('PIVOT');">
+              <li [ngClass]="{'ddp-selected': uiOption.dataType === 'PIVOT'}" (click)="gridViewType(gridType.PIVOT);">
                 <em class="ddp-icon-pivot"></em> {{'msg.page.btn.pivot' | translate}}
               </li>
-              <li [ngClass]="{'ddp-selected': uiOption.dataType === 'MASTER'}" (click)="gridViewType('MASTER');"
+              <li [ngClass]="{'ddp-selected': uiOption.dataType === 'MASTER'}" (click)="gridViewType(gridType.MASTER);"
                 [class.ddp-disabled]="isNoOriginData || uiOption['totalValueStyle'] || uiOption['showCalculatedColumnStyle']">
                 <em class="ddp-icon-original"></em> {{'msg.page.btn.original' | translate}}
 
@@ -106,13 +106,13 @@
                 </div>
                 <div class="ddp-col-6 ddp-txt-right">
                   <ul class="ddp-list-express ddp-tab3 ddp-type">
-                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'TOP'}" (click)="textVAlign('TOP', true);">
+                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'TOP'}" (click)="textVAlign(uiPosition.TOP, true);">
                       <em class="ddp-icon-top"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'MIDDLE'}" (click)="textVAlign('MIDDLE', true);">
+                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'MIDDLE'}" (click)="textVAlign(uiPosition.MIDDLE, true);">
                       <em class="ddp-icon-middle"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'BOTTOM'}" (click)="textVAlign('BOTTOM', true);">
+                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'BOTTOM'}" (click)="textVAlign(uiPosition.BOTTOM, true);">
                       <em class="ddp-icon-bottom"></em>
                     </li>
                   </ul>
@@ -126,13 +126,13 @@
                 </div>
                 <div class="ddp-col-6 ddp-txt-right">
                   <ul class="ddp-list-express ddp-tab3 ddp-type">
-                    <li [ngClass]="{'ddp-selected': 'SMALL' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('SMALL', true)">
+                    <li [ngClass]="{'ddp-selected': 'SMALL' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize(fontSize.SMALL, true)">
                       <em class="ddp-icon-font-s"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': 'NORMAL' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('NORMAL', true)">
+                    <li [ngClass]="{'ddp-selected': 'NORMAL' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize(fontSize.NORMAL, true)">
                       <em class="ddp-icon-font-m"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': 'LARGE' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('LARGE', true)">
+                    <li [ngClass]="{'ddp-selected': 'LARGE' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize(fontSize.LARGE, true)">
                       <em class="ddp-icon-font-l"></em>
                     </li>
                   </ul>
@@ -174,10 +174,10 @@
                 </div>
                 <div class="ddp-col-4 ddp-txt-right">
                   <ul class="ddp-list-express  ddp-type">
-                    <li [ngClass]="{'ddp-selected': uiOption?.headerStyle?.fontStyles && uiOption?.headerStyle?.fontStyles.indexOf('BOLD') != -1}" (click)="gridFontStyle('BOLD', true)">
+                    <li [ngClass]="{'ddp-selected': uiOption?.headerStyle?.fontStyles && uiOption?.headerStyle?.fontStyles.indexOf(uiFontStyle.BOLD) != -1}" (click)="gridFontStyle(uiFontStyle.BOLD, true)">
                       <em class="ddp-icon-font-bold"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': uiOption?.headerStyle?.fontStyles && uiOption?.headerStyle?.fontStyles.indexOf('ITALIC') != -1}" (click)="gridFontStyle('ITALIC', true)">
+                    <li [ngClass]="{'ddp-selected': uiOption?.headerStyle?.fontStyles && uiOption?.headerStyle?.fontStyles.indexOf(uiFontStyle.ITALIC) != -1}" (click)="gridFontStyle(uiFontStyle.ITALIC, true)">
                       <em class="ddp-icon-font-italic"></em>
                     </li>
 
@@ -214,10 +214,10 @@
               <!-- divide - select horizontal/vertical -->
               <div *ngIf="uiOption?.contentStyle?.showHeader" class="ddp-divide2">
                 <ul [class.ddp-disabled]="uiOption.dataType === 'MASTER'" class="ddp-list-express ddp-type2">
-                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout('VERTICAL');">
+                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout(uiOrient.VERTICAL);">
                     <em class="ddp-icon-column-view"></em> {{'msg.page.btn.vertically' | translate}}
                   </li>
-                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'HORIZONTAL'}" (click)="gridLayout('HORIZONTAL');">
+                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'HORIZONTAL'}" (click)="gridLayout(uiOrient.HORIZONTAL);">
                     <em class="ddp-icon-horizontal-view"></em> {{'msg.page.btn.horizontally' | translate}}
                   </li>
                 </ul>
@@ -248,13 +248,13 @@
                 </div>
                 <div class="ddp-col-6 ddp-txt-right">
                   <ul class="ddp-list-express ddp-tab3 ddp-type">
-                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'TOP'}" (click)="textVAlign('TOP', false);">
+                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'TOP'}" (click)="textVAlign(uiPosition.TOP, false);">
                       <em class="ddp-icon-top"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'MIDDLE'}" (click)="textVAlign('MIDDLE', false);">
+                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'MIDDLE'}" (click)="textVAlign(uiPosition.MIDDLE, false);">
                       <em class="ddp-icon-middle"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'BOTTOM'}" (click)="textVAlign('BOTTOM', false);">
+                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'BOTTOM'}" (click)="textVAlign(uiPosition.BOTTOM, false);">
                       <em class="ddp-icon-bottom"></em>
                     </li>
                   </ul>
@@ -267,13 +267,13 @@
                 </div>
                 <div class="ddp-col-6 ddp-txt-right">
                   <ul class="ddp-list-express ddp-tab3 ddp-type">
-                    <li [ngClass]="{'ddp-selected': 'SMALL' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('SMALL', false)">
+                    <li [ngClass]="{'ddp-selected': 'SMALL' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize(fontSize.SMALL, false)">
                       <em class="ddp-icon-font-s"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': 'NORMAL' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('NORMAL', false)">
+                    <li [ngClass]="{'ddp-selected': 'NORMAL' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize(fontSize.NORMAL, false)">
                       <em class="ddp-icon-font-m"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': 'LARGE' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('LARGE', false)">
+                    <li [ngClass]="{'ddp-selected': 'LARGE' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize(fontSize.LARGE, false)">
                       <em class="ddp-icon-font-l"></em>
                     </li>
                   </ul>
@@ -305,10 +305,10 @@
                 </div>
                 <div class="ddp-col-4 ddp-txt-right">
                   <ul class="ddp-list-express  ddp-type">
-                    <li [ngClass]="{'ddp-selected': uiOption.color.colorTarget === 'TEXT'}" (click)="gridColorByMeasure('TEXT');">
+                    <li [ngClass]="{'ddp-selected': uiOption.color.colorTarget === 'TEXT'}" (click)="gridColorByMeasure(cellColorTarget.TEXT);">
                       <em class="ddp-icon-textcolor"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': uiOption.color.colorTarget === 'BACKGROUND'}" (click)="gridColorByMeasure('BACKGROUND');">
+                    <li [ngClass]="{'ddp-selected': uiOption.color.colorTarget === 'BACKGROUND'}" (click)="gridColorByMeasure(cellColorTarget.BACKGROUND);">
                       <em class="ddp-icon-areacolor"></em>
                     </li>
 
@@ -323,10 +323,10 @@
                 </div>
                 <div class="ddp-col-4 ddp-txt-right">
                   <ul class="ddp-list-express  ddp-type">
-                    <li [ngClass]="{'ddp-selected': uiOption?.contentStyle?.fontStyles && uiOption?.contentStyle?.fontStyles.indexOf('BOLD') != -1}" (click)="gridFontStyle('BOLD', false)">
+                    <li [ngClass]="{'ddp-selected': uiOption?.contentStyle?.fontStyles && uiOption?.contentStyle?.fontStyles.indexOf(uiFontStyle.BOLD) != -1}" (click)="gridFontStyle(uiFontStyle.BOLD, false)">
                       <em class="ddp-icon-font-bold"></em>
                     </li>
-                    <li [ngClass]="{'ddp-selected': uiOption?.contentStyle?.fontStyles && uiOption?.contentStyle?.fontStyles.indexOf('ITALIC') != -1}" (click)="gridFontStyle('ITALIC', false)">
+                    <li [ngClass]="{'ddp-selected': uiOption?.contentStyle?.fontStyles && uiOption?.contentStyle?.fontStyles.indexOf(uiFontStyle.ITALIC) != -1}" (click)="gridFontStyle(uiFontStyle.ITALIC, false)">
                       <em class="ddp-icon-font-italic"></em>
                     </li>
 
@@ -402,10 +402,10 @@
         <div class="ddp-divide2">
           <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
           <ul class="ddp-list-express ddp-type2">
-            <li [ngClass]="{'ddp-selected': uiOption.align === 'VERTICAL'}" (click)="barOrientType('VERTICAL');">
+            <li [ngClass]="{'ddp-selected': uiOption.align === 'VERTICAL'}" (click)="barOrientType(uiOrient.VERTICAL);">
               <em class="ddp-icon-vertical"></em> {{'msg.page.li.vertical' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.align === 'HORIZONTAL'}" (click)="barOrientType('HORIZONTAL');">
+            <li [ngClass]="{'ddp-selected': uiOption.align === 'HORIZONTAL'}" (click)="barOrientType(uiOrient.HORIZONTAL);">
               <em class="ddp-icon-horizontal"></em> {{'msg.page.li.horizontal' | translate}}
             </li>
           </ul>
@@ -414,10 +414,10 @@
         <!-- divide -->
         <div class="ddp-divide2" *ngIf="uiOption.type.toString() === 'bar'">
           <ul class="ddp-list-express ddp-type2">
-            <li [ngClass]="{'ddp-selected': uiOption.mark === 'MULTIPLE'}" (click)="barSeriesViewType('MULTIPLE');">
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'MULTIPLE'}" (click)="barSeriesViewType(barMarkType.MULTIPLE);">
               <em class="ddp-icon-multi"></em> {{'msg.page.btn.parallel' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.mark === 'STACKED'}" (click)="barSeriesViewType('STACKED');">
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'STACKED'}" (click)="barSeriesViewType(barMarkType.STACKED);">
               <em class="ddp-icon-stack"></em> {{'msg.page.btn.stacked' | translate}}
             </li>
           </ul>
@@ -436,10 +436,10 @@
 
           <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
           <ul class="ddp-list-express ddp-type2">
-            <li [ngClass]="{'ddp-selected': uiOption.mark === 'LINE'}" (click)="lineSeriesViewType('LINE');">
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'LINE'}" (click)="lineSeriesViewType(lineMarkType.LINE);">
               <em class="ddp-icon-line-type"></em> {{'msg.page.btn.line-style' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.mark === 'AREA'}" (click)="lineSeriesViewType('AREA');">
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'AREA'}" (click)="lineSeriesViewType(lineMarkType.AREA);">
               <em class="ddp-icon-area-type"></em> {{'msg.page.btn.area-style' | translate}}
             </li>
           </ul>
@@ -448,10 +448,10 @@
         <!-- divide -->
         <div class="ddp-divide2">
           <ul class="ddp-list-express ddp-type2">
-            <li [ngClass]="{'ddp-selected': !uiOption.curveStyle || uiOption.curveStyle === 'STRAIGHT'}" (click)="lineSeriesCornerType('STRAIGHT');">
+            <li [ngClass]="{'ddp-selected': !uiOption.curveStyle || uiOption.curveStyle === 'STRAIGHT'}" (click)="lineSeriesCornerType(lineCornerType.STRAIGHT);">
               <em class="ddp-icon-line-straigt"></em> {{'msg.page.btn.corner-straight' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.curveStyle === 'SMOOTH'}" (click)="lineSeriesCornerType('SMOOTH');">
+            <li [ngClass]="{'ddp-selected': uiOption.curveStyle === 'SMOOTH'}" (click)="lineSeriesCornerType(lineCornerType.SMOOTH);">
               <em class="ddp-icon-line-curve"></em> {{'msg.page.btn.corner-round' | translate}}
             </li>
           </ul>
@@ -460,13 +460,13 @@
         <!-- divide -->
         <div class="ddp-divide2">
           <ul class="ddp-list-express ddp-tab3 ddp-type2">
-            <li [ngClass]="{'ddp-selected': 'POINT_LINE' === uiOption.lineStyle}" (click)="showLine('POINT_LINE');">
+            <li [ngClass]="{'ddp-selected': 'POINT_LINE' === uiOption.lineStyle}" (click)="showLine(lineStyle.POINT_LINE);">
               <em class="ddp-icon-link-circle"></em> {{'msg.page.btn.standard' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': 'POINT' === uiOption.lineStyle}" (click)="showLine('POINT');">
+            <li [ngClass]="{'ddp-selected': 'POINT' === uiOption.lineStyle}" (click)="showLine(lineStyle.POINT);">
               <em class="ddp-icon-link-point"></em> {{'msg.page.btn.linking-plots' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': 'LINE' === uiOption.lineStyle}" (click)="showLine('LINE');">
+            <li [ngClass]="{'ddp-selected': 'LINE' === uiOption.lineStyle}" (click)="showLine(lineStyle.LINE);">
               <em class="ddp-icon-link-none"></em> {{'msg.page.btn.line' | translate}}
             </li>
           </ul>
@@ -475,10 +475,10 @@
         <!-- divide -->
         <div class="ddp-divide2">
           <ul class="ddp-list-express ddp-type2">
-            <li [ngClass]="{'ddp-selected': 'NORMAL' === uiOption.lineMode}" (click)="cumulativeMode('NORMAL');">
+            <li [ngClass]="{'ddp-selected': 'NORMAL' === uiOption.lineMode}" (click)="cumulativeMode(lineMode.NORMAL);">
               <em class="ddp-icon-basic-line"></em> {{'msg.page.btn.standard.line' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': 'CUMULATIVE' === uiOption.lineMode}" (click)="cumulativeMode('CUMULATIVE');">
+            <li [ngClass]="{'ddp-selected': 'CUMULATIVE' === uiOption.lineMode}" (click)="cumulativeMode(lineMode.CUMULATIVE);">
               <em class="ddp-icon-accrue"></em> {{'msg.page.btn.accum.line' | translate}}
             </li>
           </ul>
@@ -495,22 +495,22 @@
           <div class="ddp-list-label">{{'msg.page.common.symbol.type' | translate}}</div>
           <!-- express -->
           <ul class="ddp-list-express ddp-tab6 ddp-type2">
-            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'CIRCLE'}" (click)="symbolType('CIRCLE');">
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'CIRCLE'}" (click)="symbolType(pointShape.CIRCLE);">
               <em class="ddp-icon-circle"></em> {{'msg.page.btn.circle' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'RECT'}" (click)="symbolType('RECT');">
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'RECT'}" (click)="symbolType(pointShape.RECT);">
               <em class="ddp-icon-square"></em> {{'msg.page.btn.square' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'TRIANGLE'}" (click)="symbolType('TRIANGLE');">
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'TRIANGLE'}" (click)="symbolType(pointShape.TRIANGLE);">
               <em class="ddp-icon-triangle"></em> {{'msg.page.btn.triangle' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'DIAMOND'}" (click)="symbolType('DIAMOND');">
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'DIAMOND'}" (click)="symbolType(pointShape.DIAMOND);">
               <em class="ddp-icon-diamond"></em> {{'msg.page.btn.diamond' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'PIN'}" (click)="symbolType('PIN');">
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'PIN'}" (click)="symbolType(pointShape.PIN);">
               <em class="ddp-icon-pin"></em> {{'msg.page.btn.pin' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'ARROW'}" (click)="symbolType('ARROW');">
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'ARROW'}" (click)="symbolType(pointShape.ARROW);">
               <em class="ddp-icon-arrow"></em> {{'msg.page.btn.arrow' | translate}}
             </li>
           </ul>
@@ -571,10 +571,10 @@
         <!-- divide -->
         <div class="ddp-divide2">
           <ul class="ddp-list-express ddp-type2">
-            <li [ngClass]="{'ddp-selected': uiOption.markType === 'SECTOR'}" (click)="pieSeriesViewType('SECTOR');">
+            <li [ngClass]="{'ddp-selected': uiOption.markType === 'SECTOR'}" (click)="pieSeriesViewType(pieSeriesType.SECTOR);">
               <em class="ddp-icon-pie1"></em> {{'msg.page.btn.sectoral' | translate}}
             </li>
-            <li [ngClass]="{'ddp-selected': uiOption.markType === 'DONUT'}" (click)="pieSeriesViewType('DONUT');">
+            <li [ngClass]="{'ddp-selected': uiOption.markType === 'DONUT'}" (click)="pieSeriesViewType(pieSeriesType.DONUT);">
               <em class="ddp-icon-pie2"></em> {{'msg.page.btn.donut' | translate}}
             </li>
           </ul>
@@ -714,11 +714,11 @@
           <div class="ddp-divide2">
             <ul class="ddp-list-express ddp-type2">
               <li [class.ddp-selected]="!uiOption?.layout || uiOption?.layout != 'VERTICAL'"
-                  (click)="kpiChangeLayout('HORIZONTAL')">
+                  (click)="kpiChangeLayout(labelLayout.HORIZONTAL)">
                 <em class="ddp-icon-horizontal-view"></em> {{'msg.page.common.kpi.type.horizontal' | translate}}
               </li>
               <li [class.ddp-selected]="uiOption?.layout == 'VERTICAL'"
-                  (click)="kpiChangeLayout('VERTICAL')">
+                  (click)="kpiChangeLayout(labelLayout.VERTICAL)">
                 <em class="ddp-icon-column-view"></em> {{'msg.page.common.kpi.type.vertical' | translate}}
               </li>
             </ul>
@@ -726,11 +726,11 @@
           <div class="ddp-divide2">
             <ul class="ddp-list-express ddp-type2">
               <li [class.ddp-selected]="!uiOption?.chartStyle || uiOption?.chartStyle == 'LINE'"
-                  (click)="kpiChangeStyle('LINE')">
+                  (click)="kpiChangeStyle(labelStyle.LINE)">
                 <em class="ddp-icon-line-chart"></em> {{'msg.page.common.kpi.type.line' | translate}}
               </li>
               <li [class.ddp-selected]="uiOption?.chartStyle == 'SOLID'"
-                  (click)="kpiChangeStyle('SOLID')">
+                  (click)="kpiChangeStyle(labelStyle.SOLID)">
                 <em class="ddp-icon-solid-chart"></em> {{'msg.page.common.kpi.type.solid' | translate}}
               </li>
             </ul>
@@ -748,13 +748,13 @@
               </div>
               <div class="ddp-col-6 ddp-txt-right">
                 <ul class="ddp-list-express ddp-tab3 ddp-type">
-                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'SMALL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('SMALL')">
+                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'SMALL' == uiOption.fontSize?.toString()}" (click)="changeFontSize(fontSize.SMALL)">
                     <em class="ddp-icon-font-s"></em>
                   </li>
-                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'NORMAL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('NORMAL')">
+                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'NORMAL' == uiOption.fontSize?.toString()}" (click)="changeFontSize(fontSize.NORMAL)">
                     <em class="ddp-icon-font-m"></em>
                   </li>
-                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'LARGE' == uiOption.fontSize?.toString()}" (click)="changeFontSize('LARGE')">
+                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'LARGE' == uiOption.fontSize?.toString()}" (click)="changeFontSize(fontSize.LARGE)">
                     <em class="ddp-icon-font-l"></em>
                   </li>
                 </ul>
@@ -763,7 +763,7 @@
             <!-- //폰트크기 -->
             <!-- 레이블 표시 -->
             <div class="ddp-part-check-b">
-              <label (click)="$event.preventDefault(); kpiShowLabel(idx, !uiOption['showLabel']);" class="ddp-label-checkbox ddp-position">
+              <label (click)="$event.preventDefault(); kpiShowLabel(null, !uiOption['showLabel']);" class="ddp-label-checkbox ddp-position">
                 <input [(ngModel)]="uiOption['showLabel']" type="checkbox">
                 <i class="ddp-icon-checkbox"></i>
                 <span class="ddp-txt-checkbox">{{'msg.page.th.show.label' | translate}}</span>
@@ -932,13 +932,13 @@
           </div>
           <div class="ddp-col-6 ddp-txt-right">
             <ul class="ddp-list-express ddp-tab3 ddp-type">
-              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'SMALL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('SMALL')">
+              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'SMALL' == uiOption.fontSize?.toString()}" (click)="changeFontSize(fontSize.SMALL)">
                 <em class="ddp-icon-font-s"></em>
               </li>
-              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'NORMAL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('NORMAL')">
+              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'NORMAL' == uiOption.fontSize?.toString()}" (click)="changeFontSize(fontSize.NORMAL)">
                 <em class="ddp-icon-font-m"></em>
               </li>
-              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'LARGE' == uiOption.fontSize?.toString()}" (click)="changeFontSize('LARGE')">
+              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'LARGE' == uiOption.fontSize?.toString()}" (click)="changeFontSize(fontSize.LARGE)">
                 <em class="ddp-icon-font-l"></em>
               </li>
             </ul>

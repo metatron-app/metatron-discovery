@@ -18,7 +18,7 @@ export abstract class Filter {
    * 멀티 데이터 소스 사용 필터링 필드를 가지고 있는 데이터소스 엔진명 지정
    *
    */
-  public dataSource:string;
+  public dataSource: string;
 
   /**
    *  필터링 대상 필드명
@@ -36,11 +36,11 @@ export abstract class Filter {
   public type: string;
 
   // for UI
-  public ui:{
+  public ui: {
     // masterDsId?:string;                // 필드의 마스터 데이터소스 아이디 ( 조인된 데이터소스의 필드의 경우 )
     // dsId?: string;                     // 필드의 데이터소스 아이디
     filteringSeq?: number,                // 필수/추천 필터의 순서
-    filteringOptions?:FilteringOptions,   // 필터링 옵션
+    filteringOptions?: FilteringOptions,   // 필터링 옵션
     importanceType?: string,              // 중요도 타입 general, recommended, essential, timestamp
     widgetId?: string,
   };
@@ -55,18 +55,18 @@ export abstract class Filter {
  * 필터링 옵션 구조체
  */
 export class FilteringOptions {
-  public allowSelectors:string[] = [];
-  public defaultSelector:string;
-  public type:FilteringOptionType;
+  public allowSelectors: string[] = [];
+  public defaultSelector: string;
+  public type: FilteringOptionType;
 }
 
 /**
  * 필터링 옵션 타입 열거형
  */
 export enum FilteringOptionType {
-  INCLUSION = <any>'INCLUSION',
-  //TODO INTERVAL 추후 지울것
-  INTERVAL = <any>'INTERVAL',
-  TIME = <any>'TIME'
+  INCLUSION = 'INCLUSION',
+  // TODO INTERVAL 추후 지울것
+  INTERVAL = 'INTERVAL',
+  TIME = 'TIME'
 }
 

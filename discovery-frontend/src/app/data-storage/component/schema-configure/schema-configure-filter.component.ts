@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, ViewChild} from "@angular/core";
-import {Filter} from "../../../shared/datasource-metadata/domain/filter";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {EventBroadcaster} from "../../../common/event/event.broadcaster";
-import {DataStorageConstant} from "../../constant/data-storage-constant";
 import * as _ from 'lodash';
-import {StorageFilterSelectBoxComponent} from "../../data-source-list/component/storage-filter-select-box.component";
+import {Component, ElementRef, HostListener, Injector, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Filter} from '../../../shared/datasource-metadata/domain/filter';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {DataStorageConstant} from '../../constant/data-storage-constant';
+import {StorageFilterSelectBoxComponent} from '../../data-source-list/component/storage-filter-select-box.component';
 
 @Component({
   selector: 'schema-configure-filter',
@@ -28,10 +28,10 @@ import {StorageFilterSelectBoxComponent} from "../../data-source-list/component/
 })
 export class SchemaConfigureFilterComponent extends AbstractComponent {
 
-  @ViewChild('roleFilterSelectBox')
+  @ViewChild('roleFilterSelectBox', {static: true})
   private readonly _roleFilterSelectBox: StorageFilterSelectBoxComponent;
 
-  @ViewChild('typeFilterSelectBox')
+  @ViewChild('typeFilterSelectBox', {static: true})
   private readonly _typeFilterSelectBox: StorageFilterSelectBoxComponent;
 
   // filter list
@@ -52,10 +52,10 @@ export class SchemaConfigureFilterComponent extends AbstractComponent {
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  onResize(event) {
+  public onResize(_event) {
     // #1925
     if (this._roleFilterSelectBox && this._roleFilterSelectBox.isListShow) {
       this._roleFilterSelectBox.isListShow = false;

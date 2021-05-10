@@ -1,18 +1,18 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Criteria} from "../../../domain/datasource/criteria";
-import {PeriodData} from "../../../common/value/period.data.value";
-import {PickerSettings} from "../../../domain/common/datepicker.settings";
-import {Subject} from "rxjs";
+import {Subject} from 'rxjs';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Criteria} from '@domain/datasource/criteria';
+import {PeriodData} from '@common/value/period.data.value';
+import {PickerSettings} from '@domain/common/datepicker.settings';
 
 declare let moment: any;
 declare let $: any;
 
 @Component({
   selector: 'component-updated-time-radio-filter',
-  templateUrl: 'updated-time-radio-filter.html'
+  templateUrl: 'updated-time-radio-filter.component.html'
 })
-export class UpdatedTimeRadioFilter extends AbstractComponent{
+export class UpdatedTimeRadioFilterComponent extends AbstractComponent implements OnInit {
   @Input() filterFlags: Subject<{}>;
   @Output() changeSort = new EventEmitter();
 
@@ -25,7 +25,10 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
   sortOptionList = [
     {name: this.translateService.instant('msg.storage.ui.criterion.all'), value: Criteria.DateTimeType.ALL},
     {name: this.translateService.instant('msg.storage.ui.criterion.today'), value: Criteria.DateTimeType.TODAY},
-    {name: this.translateService.instant('msg.storage.ui.criterion.last-7-days'), value: Criteria.DateTimeType.SEVEN_DAYS},
+    {
+      name: this.translateService.instant('msg.storage.ui.criterion.last-7-days'),
+      value: Criteria.DateTimeType.SEVEN_DAYS
+    },
     {name: this.translateService.instant('msg.storage.ui.criterion.between'), value: Criteria.DateTimeType.BETWEEN},
   ];
 
@@ -80,7 +83,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    let filterFlags = {};
+    const filterFlags = {};
 
     Object.keys(FilterTypes).forEach((key) => {
       if (key === FilterTypes.UPDATED_TIME) {
@@ -116,43 +119,41 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     }
 
     if (sortOption.value === Criteria.DateTimeType.TODAY) {
-      this._startDate = moment({ hour: 0 }).format(this.timeFormat);
-      this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+      this._startDate = moment({hour: 0}).format(this.timeFormat);
+      this._endDate = moment({hour: 23, minute: 59, seconds: 59}).format(this.timeFormat);
     } else if (sortOption.value === Criteria.DateTimeType.SEVEN_DAYS) {
-      this._startDate = moment({ hour: 0 }).subtract(6, 'days').format(this.timeFormat);
-      this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+      this._startDate = moment({hour: 0}).subtract(6, 'days').format(this.timeFormat);
+      this._endDate = moment({hour: 23, minute: 59, seconds: 59}).format(this.timeFormat);
     }
 
     // if filterOption is not BETWEEN
     if (!this._startPickerDate && !this._endPickerDate && sortOption.value && sortOption) {
-      let startDateStr:string = null;
-      let endDateStr:string = null;
+      let startDateStr: string;
+      let endDateStr: string;
       const returnFormat = 'YYYY-MM-DDTHH:mm';
 
-      if( this._startDate ) {
+      if (this._startDate) {
         startDateStr = moment(this._startDate).format(returnFormat)
       } else {
         startDateStr = null;
       }
 
-      if( this._endDate ) {
-        endDateStr = moment(this._endDate).add(59,'seconds').format(returnFormat);
+      if (this._endDate) {
+        endDateStr = moment(this._endDate).add(59, 'seconds').format(returnFormat);
       } else {
         endDateStr = null;
       }
 
-      const returnData = {
-        startDate : this._startDate,
-        endDate : this._endDate,
+      this.selectedDate = {
+        startDate: this._startDate,
+        endDate: this._endDate,
         type: sortOption.value.toString(),
         startDateStr: startDateStr,
         endDateStr: endDateStr,
         dateType: null,
       };
 
-      this.selectedDate = returnData;
-
-      if (sortOption.value != 'BETWEEN'){
+      if (sortOption.value !== 'BETWEEN') {
         this.changeSort.emit(this.selectedDate);
 
         this.previousSelectedDate = this.selectedDate;
@@ -199,14 +200,14 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     const startPickerSettings: PickerSettings
       = new DatePickerSettings(
       'ddp-input-calen',
-      (fdate: string, date: Date) => {
+      (_fdate: string, date: Date) => {
         // set picker start date
         this._startPickerDate = date;
         // picker date validation
         this._pickerDateValidation(true);
       },
       // if hide picker
-      (inst, completed: boolean) => {
+      (_inst, completed: boolean) => {
         if (completed === false) {
           this._setSelectedDateFromDatePicker();
         }
@@ -214,19 +215,19 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     );
     // startPickerSettings.position = 'left top';
     this._startPicker = $(this._startPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
-    ( '-' !== startInitialValue ) && ( this._startPicker.selectDate(startInitialValue.toDate()) );
+    ('-' !== startInitialValue) && (this._startPicker.selectDate(startInitialValue.toDate()));
 
-     // end picker create
+    // end picker create
     const endPickerSettings: PickerSettings
       = new DatePickerSettings(
       'ddp-input-calen',
-      (fdate: string, date: Date) => {
+      (_fdate: string, date: Date) => {
         // set picker end date
         this._endPickerDate = date;
         // picker date validation
         this._pickerDateValidation(false);
       },
-      (inst, completed: boolean) => {
+      (_inst, completed: boolean) => {
         // if hide picker
         if (completed === false) {
           this._setSelectedDateFromDatePicker();
@@ -235,7 +236,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
     );
     // endPickerSettings.position = 'left top';
     this._endPicker = $(this._endPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
-    ( '-' !== endInitialValue ) && ( this._endPicker.selectDate(endInitialValue.toDate()) );
+    ('-' !== endInitialValue) && (this._endPicker.selectDate(endInitialValue.toDate()));
   }
 
   /**
@@ -257,38 +258,35 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
    */
   private _setSelectedDateFromDatePicker() {
     if (this._startPickerDate && this._endPickerDate) {
-      let startDateStr:string = null;
-      let endDateStr:string = null;
+      let startDateStr: string;
+      let endDateStr: string;
 
       const returnFormat = 'YYYY-MM-DDTHH:mm';
 
-      if( this._startPickerDate ) {
+      if (this._startPickerDate) {
         startDateStr = moment(this._startPickerDate).format(returnFormat);
         this.startDateStr = moment(this._startPickerDate).format('YYYY-MM-DD:mm');
       } else {
         startDateStr = null;
       }
 
-      if( this._endPickerDate ) {
-        endDateStr = moment(this._endPickerDate).add(59,'seconds').format(returnFormat);
-        this.endDateStr =  moment(this._endPickerDate).format('YYYY-MM-DD:mm');
+      if (this._endPickerDate) {
+        endDateStr = moment(this._endPickerDate).add(59, 'seconds').format(returnFormat);
+        this.endDateStr = moment(this._endPickerDate).format('YYYY-MM-DD:mm');
       } else {
         endDateStr = null;
       }
 
       this.selectedUpdatedTimeOptionName = this.startDateStr + ' ~ ' + this.endDateStr;
 
-
-      const returnData = {
-        startDate : this._startPickerDate,
-        endDate : this._endPickerDate,
+      this.selectedDate = {
+        startDate: this._startPickerDate,
+        endDate: this._endPickerDate,
         type: 'BETWEEN',
         startDateStr: startDateStr,
         endDateStr: endDateStr,
         dateType: null,
       };
-
-      this.selectedDate = returnData;
 
       if (this.pickDateAgain) {
         if (this.pickDateAgainCount === 0) {
@@ -327,7 +325,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
           this.selectedUpdatedTimeOptionName = 'All'
         } else if (this.previousSelectedDate.type === Criteria.DateTimeType.SEVEN_DAYS) {
           this.selectedUpdatedTimeOptionName = 'Last 7 days'
-        } else if (this.previousSelectedDate.type === Criteria.DateTimeType.TODAY){
+        } else if (this.previousSelectedDate.type === Criteria.DateTimeType.TODAY) {
           this.selectedUpdatedTimeOptionName = 'Today'
         }
 
@@ -347,7 +345,7 @@ export class UpdatedTimeRadioFilter extends AbstractComponent{
 }
 
 class DatePickerSettings extends PickerSettings {
-  constructor(clz: string, onSelectDate: Function, onHide: Function) {
+  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (inst, completed: boolean) => void) {
     super(clz, onSelectDate, onHide);
     this.minView = 'days';
     this.view = 'days';

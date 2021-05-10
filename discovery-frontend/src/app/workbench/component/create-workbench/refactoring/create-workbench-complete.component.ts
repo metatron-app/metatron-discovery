@@ -1,21 +1,21 @@
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {CreateWorkbenchModelService} from "./service/create-workbench-model.service";
-import * as _ from "lodash";
-import {StringUtil} from "../../../../common/util/string.util";
-import {CommonUtil} from "../../../../common/util/common.util";
-import {WorkbenchService} from "../../../service/workbench.service";
-import {Alert} from "../../../../common/util/alert.util";
-import {WorkbenchConstant} from "../../../workbench.constant";
-import {StorageService} from "../../../../data-storage/service/storage.service";
-import {ExploreConstant} from "../../../../explore-data/constant/explore.constant";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {CreateWorkbenchModelService} from './service/create-workbench-model.service';
+import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {WorkbenchService} from '../../../service/workbench.service';
+import {Alert} from '@common/util/alert.util';
+import {WorkbenchConstant} from '../../../workbench.constant';
+import {StorageService} from '../../../../data-storage/service/storage.service';
+import {ExploreConstant} from '../../../../explore-data/constant/explore.constant';
 
 
 @Component({
   selector: 'component-workbench-complete',
   templateUrl: 'create-workbench-complete.component.html'
 })
-export class CreateWorkbenchCompleteComponent extends AbstractComponent {
+export class CreateWorkbenchCompleteComponent extends AbstractComponent implements OnInit {
 
   @Input() readonly workspaceId: string;
   @Input() readonly folderId: string;
@@ -113,7 +113,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
   }
 
   private _getCreateWorkbenchParams() {
-    const params: {name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string} = {
+    const params: { name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string } = {
       workspace: `/api/workspaces/${this.workspaceId}`,
       dataConnection: `/api/dataconnections/${this.selectedConnection.id}`,
       name: this.name.trim(),
@@ -160,7 +160,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractComponent {
         Alert.success(`'${this.name}' ` + this.translateService.instant('msg.space.alert.workbench.create.success'));
         // if access from explore
         if (this.isAccessFromExplore) {
-          const params: {id: string, type: 'workbench', schema?: string, table?: string} = {
+          const params: { id: string, type: 'workbench', schema?: string, table?: string } = {
             type: 'workbench',
             id: this.selectedConnection.id,
             schema: this.schemaName,

@@ -12,7 +12,8 @@
  * limitations under the License.
  */
 
-import { Filter } from './filter';
+import {Filter} from './filter';
+
 export abstract class AdvancedFilter extends Filter {
 
 }

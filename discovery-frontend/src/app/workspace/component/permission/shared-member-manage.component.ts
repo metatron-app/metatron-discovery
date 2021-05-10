@@ -13,21 +13,29 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output, Renderer2,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  Renderer2,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { UserService } from '../../../user/service/user.service';
-import { User } from '../../../domain/user/user';
-import { Role } from '../../../domain/user/role/role';
-import { WorkspaceService } from '../../service/workspace.service';
-import { Alert } from '../../../common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {UserService} from '../../../user/service/user.service';
+import {User} from '@domain/user/user';
+import {Role} from '@domain/user/role/role';
+import {WorkspaceService} from '../../service/workspace.service';
+import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
-import { Page } from '../../../domain/common/page';
-import { GroupsService } from '../../../admin/user-management/service/groups.service';
-import { Workspace } from '../../../domain/workspace/workspace';
-import { RoleSet } from '../../../domain/user/role/roleSet';
-import { PermissionService } from '../../../user/service/permission.service';
+import {Page} from '@domain/common/page';
+import {GroupsService} from '../../../admin/user-management/service/groups.service';
+import {Workspace} from '@domain/workspace/workspace';
+import {RoleSet} from '@domain/user/role/roleSet';
+import {PermissionService} from '../../../user/service/permission.service';
 
 @Component({
   selector: 'app-shared-member-manage',
@@ -83,10 +91,10 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
   public memberGroupListPageNum: number = 0;
 
   // 더보기 표시 여부
-  public showMoreAllUser:boolean = false;
-  public showMoreAllGroup:boolean = false;
-  public showMoreWsUser:boolean = false;
-  public showMoreWsGroup:boolean = false;
+  public showMoreAllUser: boolean = false;
+  public showMoreAllGroup: boolean = false;
+  public showMoreWsUser: boolean = false;
+  public showMoreWsGroup: boolean = false;
 
   // 검색어
   public searchText: string = '';
@@ -175,7 +183,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         this.roleSet = result;
         this.defaultRole = result.roles.find(item => item.defaultRole);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(err => reject(err));
     }));
     Promise.all(promise).then(() => {
@@ -238,7 +246,14 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           if (-1 === this.workspaceUsers.findIndex(item => user.username === item.member.username)) {
             this.workspaceUsers.push({
               role: this.defaultRole.name,
-              member: { type: 'user', id: user.id, username: user.username, fullName: user.fullName, email: user.email, imageUrl: user.imageUrl }
+              member: {
+                type: 'user',
+                id: user.id,
+                username: user.username,
+                fullName: user.fullName,
+                email: user.email,
+                imageUrl: user.imageUrl
+              }
             });
           }
         });
@@ -252,7 +267,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           if (-1 === this.workspaceGroups.findIndex(item => group.id === item.member.id)) {
             this.workspaceGroups.push({
               role: this.defaultRole.name,
-              member: { type: 'role', id: group.id, name: group.name }
+              member: {type: 'role', id: group.id, name: group.name}
             });
           }
         });
@@ -267,7 +282,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
    * @param selectedItem
    */
   public setSharedTarget(selectedItem) {
-    let list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
+    const list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
     const memberIds = list.map((m) => m.member.username || m.member.id);
     const targetId = selectedItem.username || selectedItem.id;
     const selectedIdx = memberIds.indexOf(targetId);
@@ -307,7 +322,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
    */
   public checkIsSharedTarget(selectedItem): boolean {
     if (selectedItem) {
-      let list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
+      const list = this.isShowUserTab ? this.workspaceUsers : this.workspaceGroups;
       const memberIds = list.map((m) => m.member.username || m.member.id);
       const targetId = selectedItem.username || selectedItem.id;
       const selectedIdx = memberIds.indexOf(targetId);
@@ -463,10 +478,10 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
    * @private
    */
   private _getAddMembers() {
-    let params = [];
+    const params = [];
 
-    let orgMembers: any[] = this._orgWsUsers.concat(this._orgWsGroups);
-    let updateMembers: any[] = this.workspaceUsers.concat(this.workspaceGroups);
+    const orgMembers: any[] = this._orgWsUsers.concat(this._orgWsGroups);
+    const updateMembers: any[] = this.workspaceUsers.concat(this.workspaceGroups);
 
     // 현재 워크스페이스 멤버
     const originMemberIds = orgMembers.map((item) => item.member.username || item.member.id);
@@ -529,10 +544,10 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         if (data['_embedded']) {
           this.workspaceUsers = this.workspaceUsers.concat(data['_embedded']['members']);
         }
-        this.showMoreWsUser = this._checkShowMore( data.page );
+        this.showMoreWsUser = this._checkShowMore(data.page);
         this._orgWsUsers = _.cloneDeep(this.workspaceUsers);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         reject();
@@ -560,10 +575,10 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         if (data['_embedded']) {
           this.workspaceGroups = this.workspaceGroups.concat(data['_embedded']['members']);
         }
-        this.showMoreWsGroup = this._checkShowMore( data.page );
+        this.showMoreWsGroup = this._checkShowMore(data.page);
         this._orgWsGroups = _.cloneDeep(this.workspaceGroups);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         reject();
@@ -598,9 +613,9 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           this.users = this.users.concat(users['_embedded']['users']);
           this.totalUsers = users.page.totalElements;
         }
-        this.showMoreAllUser = this._checkShowMore( users.page );
+        this.showMoreAllUser = this._checkShowMore(users.page);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         reject();
@@ -634,9 +649,9 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           this.groups = this.groups.concat(groups['_embedded']['groups']);
           this.totalGroups = groups.page.totalElements;
         }
-        this.showMoreAllGroup = this._checkShowMore( groups.page );
+        this.showMoreAllGroup = this._checkShowMore(groups.page);
         this.safelyDetectChanges();
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.group.retrieve.fail'));
         reject();
@@ -665,8 +680,8 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
    * @param pageResult
    * @private
    */
-  private _checkShowMore( pageResult ):boolean {
-    if( 0 === pageResult.totalPages ) {
+  private _checkShowMore(pageResult): boolean {
+    if (0 === pageResult.totalPages) {
       return false;
     } else {
       return pageResult.number < pageResult.totalPages - 1;

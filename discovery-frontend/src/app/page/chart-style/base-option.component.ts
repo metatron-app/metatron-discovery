@@ -12,12 +12,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {UIOption} from '../../common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import {ChartType} from '../../common/component/chart/option/define/common';
-
+import {ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {ChartType} from '@common/component/chart/option/define/common';
 
 const possibleChartObj: any = {
   color: ['bar', 'grid', 'line', 'scatter', 'control', 'pie', 'wordcloud', 'boxplot', 'radar', 'heatmap', 'combine', 'treemap', 'gauge', 'network', 'sankey'],
@@ -176,11 +175,11 @@ export class BaseOptionComponent extends AbstractComponent implements OnInit, On
   /**
    * 첫 글자 대문자 처리
    *
-   * @param string
+   * @param str
    * @returns {string}
    */
-  protected capitalize(string): string {
-    return _.capitalize(string);
+  protected capitalize(str): string {
+    return _.capitalize(str);
   }
 
   /**

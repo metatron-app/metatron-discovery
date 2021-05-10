@@ -13,15 +13,15 @@
  */
 
 import * as _ from 'lodash';
-import { TimeFilter } from './time-filter';
-import { Field } from '../../../datasource/datasource';
+import {TimeFilter} from './time-filter';
+import {Field} from '@domain/datasource/datasource';
 
 export class TimeRangeFilter extends TimeFilter {
 
-  public static EARLIEST_DATETIME:string = 'EARLIEST_DATETIME';
-  public static LATEST_DATETIME:string = 'LATEST_DATETIME';
+  public static EARLIEST_DATETIME: string = 'EARLIEST_DATETIME';
+  public static LATEST_DATETIME: string = 'LATEST_DATETIME';
 
-  public intervals:string[];
+  public intervals: string[];
 
   constructor(field: Field) {
     super(field);

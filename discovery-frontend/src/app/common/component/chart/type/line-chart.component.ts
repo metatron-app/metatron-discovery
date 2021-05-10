@@ -16,7 +16,7 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {
   AxisType,
   CHART_STRING_DELIMITER,
@@ -33,16 +33,20 @@ import {
   ShelveType,
   SymbolType
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
-import { UIChartColorBySeries, UILineChart, UIOption } from '../option/ui-option';
-import { Series } from '../option/define/series';
+import {OptionGenerator} from '../option/util/option-generator';
+import {UIChartColorBySeries, UILineChart} from '../option/ui-option';
+import {Series} from '../option/define/series';
 import * as _ from 'lodash';
-import { Pivot } from '../../../../domain/workbook/configurations/pivot';
-import { BaseOption } from '../option/base-option';
-import { LineChartSplit } from './line-chart.split';
-import { BaseChart } from '../base-chart';
-import { ColorOptionConverter } from '../option/converter/color-option-converter';
-import { AnalysisPredictionService } from '../../../../page/component/analysis/service/analysis.prediction.service';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {BaseOption} from '../option/base-option';
+import {LineChartSplit} from './line-chart.split';
+import {BaseChart} from '../base-chart';
+import {ColorOptionConverter} from '../option/converter/color-option-converter';
+import {AnalysisPredictionService} from '../../../../page/component/analysis/service/analysis.prediction.service';
+import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from '../option/ui-option/ui-axis';
+import {AxisOptionConverter} from '../option/converter/axis-option-converter';
+import {Axis as AxisDefine} from '../option/define/axis';
+import {DataZoomType} from '../option/define/datazoom';
 import optGen = OptionGenerator;
 import Legend = OptionGenerator.Legend;
 import Grid = OptionGenerator.Grid;
@@ -51,22 +55,19 @@ import DataZoom = OptionGenerator.DataZoom;
 import Tooltip = OptionGenerator.Tooltip;
 import Brush = OptionGenerator.Brush;
 import Toolbox = OptionGenerator.Toolbox;
-import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from "../option/ui-option/ui-axis";
-import {AxisOptionConverter} from "../option/converter/axis-option-converter";
-import {Axis as AxisDefine} from "../option/define/axis";
-import {DataZoomType} from '../option/define/datazoom';
 
-const transparentSymbolImage: string = 'image://' + window.location.origin + '/assets/images/icon_transparent_symbol.png';
 
 @Component({
   selector: 'line-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class LineChartComponent extends BaseChart implements OnInit, AfterViewInit {
+export class LineChartComponent extends BaseChart<UILineChart> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private readonly _transparentSymbolImage: string
+    = 'image://' + window.location.origin + '/assets/images/icon_transparent_symbol.png';
 
   // 스플릿 옵션
   private split: LineChartSplit = new LineChartSplit();
@@ -135,7 +136,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   public isValid(shelve: Pivot): boolean {
     return ((this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP)) > 0)
       && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0);
+      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0);
   }
 
   /**
@@ -181,7 +182,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   /**
    * Forecast 변경시
    */
-  public changeForecast() : void {
+  public changeForecast(): void {
 
     this.chartOption = this.predictionLineLineStyleColorBySeries();
     this.draw(true);
@@ -190,7 +191,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   /**
    * Confidence 변경시
    */
-  public changeConfidence() : void {
+  public changeConfidence(): void {
 
     this.chartOption = this.predictionLineAreaStyleColorBySeries();
     this.draw(true);
@@ -232,12 +233,12 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
       return {
         type: SeriesType.LINE,
         name: column.name,
-        data: column.value.map( ( val, idx ) => {
+        data: column.value.map((val, idx) => {
           return {
-            name : column.seriesName ? column.seriesName[idx] : '',
-            value : val,
-            selected : false,
-            itemStyle : optGen.ItemStyle.opacity1()
+            name: column.seriesName ? column.seriesName[idx] : '',
+            value: val,
+            selected: false,
+            itemStyle: optGen.ItemStyle.opacity1()
           }
         }),
         originData: _.cloneDeep(column.value),
@@ -284,7 +285,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   protected additionalLegend(): BaseOption {
 
     // color by dimension일때에는 color by series에 해당되는 부분으로 설정
-    if (this.uiOption.color.type == ChartColorType.DIMENSION) {
+    if (this.uiOption.color.type === ChartColorType.DIMENSION) {
 
       this.chartOption.legend.data = this.chartOption.series.map(item => item.name);
     }
@@ -301,7 +302,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     this.chart.on('datazoom', (param) => {
 
       this.chartOption.dataZoom.map((zoom, index) => {
-        if( _.eq(zoom.type, DataZoomType.SLIDER) ) {
+        if (_.eq(zoom.type, DataZoomType.SLIDER)) {
           this.uiOption.chartZooms[index].start = param.start;
           this.uiOption.chartZooms[index].end = param.end;
         }
@@ -321,9 +322,9 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
 
   /**
    * change dataLabel, tooltip by single series, multi series
-   * @returns {UIOption}
+   * @returns {UILineChart}
    */
-  protected setDataLabel(): UIOption {
+  protected setDataLabel(): UILineChart {
 
     /**
      * check multi series <=> single series
@@ -334,10 +335,10 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
       if (!this.prevPivot) return true;
 
       // prev series is multi(true) or single
-      const prevSeriesMulti: boolean = this.prevPivot.aggregations.length > 1 || this.prevPivot.rows.length > 0 ? true : false;
+      const prevSeriesMulti: boolean = this.prevPivot.aggregations.length > 1 || this.prevPivot.rows.length > 0;
 
       // current series is multi(true) or single
-      const currentSeriesMulti: boolean = this.pivot.aggregations.length > 1 || this.pivot.rows.length > 0 ? true : false;
+      const currentSeriesMulti: boolean = this.pivot.aggregations.length > 1 || this.pivot.rows.length > 0;
 
       // if it's changed
       if (prevSeriesMulti !== currentSeriesMulti) {
@@ -389,11 +390,11 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
 
   /**
    * Min / Max 연산
-   * @param grid
-   * @param result
-   * @param isYAsis
+   * @param _grid
+   * @param _result
+   * @param _isYAxis
    */
-  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
+  protected calculateMinMax(_grid: UIChartAxisGrid, _result: any, _isYAxis: boolean): void {
 
     // 라인차트는 Override 함으로서 데이터 가공처리를 하지 않음
 
@@ -435,7 +436,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     // let seriesList = [];
     // result.data.columns.map((column, index) => {
     //   let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-    //   let name = "";
+    //   let name =  '';
     //   if( nameArr.length > 1 ) {
     //     nameArr.map((temp, index) => {
     //       if( index < nameArr.length - 1 ) {
@@ -480,50 +481,48 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    * 축 교차점 연산
    * @param baseline
    * @param result
-   * @param isYAsis
+   * @param _isYAxis
    */
-  protected calculateBaseline(baseline: number, result: any, isYAsis: boolean): void {
+  protected calculateBaseline(baseline: number, result: any, _isYAxis: boolean): void {
 
     // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
-    result.data.columns.map((column, index) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
-      if( nameArr.length > 1 ) {
-        nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
+    const seriesList = [];
+    result.data.columns.map((column, _index) => {
+      const nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+      let name = '';
+      if (nameArr.length > 1) {
+        nameArr.map((temp, nameIdx) => {
+          if (nameIdx < nameArr.length - 1) {
+            if (nameIdx > 0) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
           }
         });
-      }
-      else {
+      } else {
         name = nameArr[0];
       }
 
       let isAlready = false;
-      seriesList.map((series, index) => {
-        if( series == name ) {
+      seriesList.map((series, _seriesIdx) => {
+        if (series === name) {
           isAlready = true;
           return false;
         }
       });
 
-      if( !isAlready ) {
+      if (!isAlready) {
         seriesList.push(name);
       }
     });
 
     // Value값을 마이너스 처리
-    result.data.columns.map((column, index) => {
-      column.value.map((value, index) => {
-        if( value > 0 ) {
-          column.value[index] = value - baseline;
-        }
-        else {
-          column.value[index] = (Math.abs(value) + Math.abs(baseline)) * -1;
+    result.data.columns.map((column, _index) => {
+      column.value.map((value, valueIdx) => {
+        if (value > 0) {
+          column.value[valueIdx] = value - baseline;
+        } else {
+          column.value[valueIdx] = (Math.abs(value) + Math.abs(baseline)) * -1;
         }
       });
     });
@@ -533,7 +532,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    * 시리즈 데이터 선택 - 차트별 재설정
    * @param seriesData
    */
-  protected selectSeriesData( seriesData ) {
+  protected selectSeriesData(seriesData) {
     seriesData.itemStyle.normal.opacity = 1;
     seriesData.symbolSize = 10;
     seriesData.selected = true;
@@ -543,7 +542,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    * 시리즈 데이터 선택 해제 - 차트별 재설정
    * @param seriesData
    */
-  protected unselectSeriesData( seriesData ) {
+  protected unselectSeriesData(seriesData) {
     seriesData.itemStyle.normal.opacity = 0.2;
     seriesData.symbolSize = 4;
     seriesData.selected = false;
@@ -553,7 +552,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    * 전체 선택 해제 처리 - 차트별 재설정
    * @param seriesData
    */
-  protected clearSelectSeriesData( seriesData ) {
+  protected clearSelectSeriesData(seriesData) {
     seriesData.itemStyle.normal.opacity = 1;
     seriesData.symbolSize = 4;
     seriesData.selectType = false;
@@ -575,43 +574,42 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     ///////////////////////////
 
     // 축에 해당하는 Axis 옵션
-    let axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, axisType);
+    const axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, axisType);
 
     ///////////////////////////
     // 차트 옵션에 적용
     ///////////////////////////
 
     // 축
-    let axis: AxisDefine[] = this.chartOption[axisType];
+    const axis: AxisDefine[] = this.chartOption[axisType];
 
     _.each(axis, (option: AxisDefine, index) => {
 
       // Value축일 경우
-      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
+      if (axisOption[index].label && _.eq((axisOption[index].label as UIChartAxisLabelValue).type, AxisType.VALUE)
         && axisOption[index].grid) {
 
         let min = null;
         let max = null;
-        let calculateMin = null;
-        if( this.originalData.categories || this.originalData.categories.length > 0 ) {
+        // let calculateMin = null;
+        if (this.originalData.categories || this.originalData.categories.length > 0) {
           _.each(this.originalData.columns, (column) => {
             _.each(column.value, (value) => {
-              if( min == null || value < min ) {
+              if (min == null || value < min) {
                 min = value;
               }
-              if( max == null || value > max ) {
+              if (max == null || value > max) {
                 max = value;
               }
             });
           });
-          calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
+          // calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
           // min = min > 0
           //   ? calculateMin >= 0 ? calculateMin : min
           //   : min;
-          max = max;
-        }
-        else {
-          calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
+          // max = max;
+        } else {
+          // calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
           min = this.originalData.info.minValue;
           // min = this.originalData.info.minValue > 0
           //   ? calculateMin >= 0 ? calculateMin : min
@@ -625,13 +623,13 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-          baseline = <number>axisOption[index].baseline;
+        if (axisOption[index].baseline && axisOption[index].baseline !== 0) {
+          baseline = (axisOption[index].baseline as number);
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
-        if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+        if (baseline === 0 && axisOption[index].grid.autoScaled) {
           // // 적용
           // option.min = min > 0
           //   ? Math.ceil(min - ((max - min) * 0.05))
@@ -641,13 +639,11 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
           delete option.min;
           delete option.max;
           option.scale = true;
-        }
-        else {
+        } else {
           delete option.scale;
         }
       }
     });
-
 
     // 차트옵션 반환
     return this.chartOption;
@@ -659,7 +655,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    */
   private convertLineStyle(): BaseOption {
 
-    const lineUIOption = <UILineChart>this.uiOption;
+    const lineUIOption = this.uiOption;
 
     if (this.isAnalysisPredictionLineEmpty()) {
       const series = this.chartOption.series;
@@ -671,8 +667,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
         }).length;
 
         // 포인트가 있는경우 circle로 설정
-        const transparentSymbolImage: string = 'image://' + window.location.origin + '/assets/images/icon_transparent_symbol.png';
-        obj.symbol = obj.data.length === 1 || dataLength === 1 || LineStyle.LINE !== lineUIOption.lineStyle ? 'circle' : transparentSymbolImage;
+        obj.symbol = obj.data.length === 1 || dataLength === 1 || LineStyle.LINE !== lineUIOption.lineStyle ? 'circle' : this._transparentSymbolImage;
 
         // 기존 라인 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
         if (_.isUndefined(obj.lineStyle)) obj.lineStyle = optGen.LineStyle.auto();
@@ -691,7 +686,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    */
   private convertCornerStyle(): BaseOption {
 
-    const lineUIOption = <UILineChart>this.uiOption;
+    const lineUIOption = this.uiOption;
     const series = this.chartOption.series;
 
     series.map((obj) => {
@@ -704,17 +699,17 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   /**
    * color by dimension / series에 따라 fieldInfo를 변경하여 => 범례 설정을 변경
    */
-  private editPivotByColorType(): Pivot{
+  private editPivotByColorType(): Pivot {
 
     const shelve = this.pivot;
 
     // agg 선반에서 설정
     for (let num = shelve.aggregations.length; num--;) {
 
-      let item = shelve.aggregations[num];
+      const item = shelve.aggregations[num];
 
       // 타입이 dimension인
-      if (String(ShelveFieldType.DIMENSION) == item.type) {
+      if (String(ShelveFieldType.DIMENSION) === item.type) {
 
         // 값을 shelve에서 제거
         shelve.aggregations.splice(num, 1);
@@ -734,11 +729,11 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   private convertLineColorByDimension(): BaseOption {
 
     // color by dimension일때에는 색상 설정
-    if (this.uiOption.color.type == ChartColorType.DIMENSION) {
+    if (this.uiOption.color.type === ChartColorType.DIMENSION) {
 
       const option = this.chartOption;
-      let schema = (<UIChartColorBySeries>this.uiOption.color).schema;
-      let codes = _.cloneDeep(ChartColorList[schema]);
+      const schema = (this.uiOption.color as UIChartColorBySeries).schema;
+      const codes = _.cloneDeep(ChartColorList[schema]);
 
       // visualMap 존재한다면 삭제
       if (!_.isUndefined(option.visualMap)) delete option.visualMap;
@@ -782,7 +777,8 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   private predictionLineLineStyleColorBySeries(): BaseOption {
 
     // 라인타입 LineType<Enum> 으로 변환
-    const convertLineTypeEnum: Function = (lineType: string | LineType): string | LineType => {
+    const convertLineTypeEnum: (lineType: string | LineType) => string | LineType
+      = (lineType: string | LineType): string | LineType => {
       if (lineType === 'SOLID') {
         lineType = LineType.SOLID;
       } else if (lineType === 'DASHED') {
@@ -794,7 +790,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     };
 
     // 시리즈
-    let series = this.chartOption.series;
+    const series = this.chartOption.series;
 
     this.analysis.forecast.parameters.forEach((parameter) => {
       series
@@ -816,12 +812,12 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
           }
 
           const lineThickness: number = this.analysis.forecast.style.lineThickness;
-          const lineType: LineType = convertLineTypeEnum(this.analysis.forecast.style.lineType);
+          const lineType: LineType = convertLineTypeEnum(this.analysis.forecast.style.lineType) as LineType;
 
-          const lowerSeries =        series[index + 1];
+          const lowerSeries = series[index + 1];
           const observationsSeries = series[index + 2];
-          const upperSeries =        series[index + 3];
-          const addSeries  =         series[index + 4];
+          const upperSeries = series[index + 3];
+          const addSeries = series[index + 4];
 
           if (_.isUndefined(lowerSeries.lineStyle)) {
             lowerSeries.lineStyle = optGen.LineStyle.auto();
@@ -877,28 +873,30 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
   private predictionLineAreaStyleColorBySeries(): BaseOption {
 
     // 시리즈에 영역 색상 지정
-    const setSeriesAreaStyleColor: Function = (series: Series, color: string): void => {
-      if (_.isUndefined(series.areaStyle)) {
-        series.areaStyle = optGen.AreaStyle.auto();
+    const setSeriesAreaStyleColor: (series: Series, color: string) => void
+      = (seriesData: Series, color: string): void => {
+      if (_.isUndefined(seriesData.areaStyle)) {
+        seriesData.areaStyle = optGen.AreaStyle.auto();
       }
-      series.areaStyle.normal.color = color;
+      seriesData.areaStyle.normal.color = color;
     };
 
     // confidence.style.transparency 값을 나누기 위한 몫
     const transparencyDivisionShare: number = 100;
 
     // Confidence opacity 계산
-    const confidenceOpacityCalculator: Function = (): number => {
+    const confidenceOpacityCalculator: () => number = (): number => {
       return this.analysis.confidence.style.transparency / transparencyDivisionShare;
     };
 
     // 시리즈에 영역 투명도 지정
-    const setSeriesAreaStyleOpacity: Function = (series: Series, opacity: number): void => {
-      series.areaStyle.normal.opacity = opacity;
+    const setSeriesAreaStyleOpacity: (series: Series, opacity: number) => void
+      = (seriesData: Series, opacity: number): void => {
+      seriesData.areaStyle.normal.opacity = opacity;
     };
 
     // 시리즈
-    let series = this.chartOption.series;
+    const series = this.chartOption.series;
 
     this.analysis.forecast.parameters.forEach((parameter) => {
       series
@@ -925,7 +923,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
 
           const lowerSeries = series[index + 1];
           const upperSeries = series[index + 3];
-          const addSeries =   series[index + 4];
+          const addSeries = series[index + 4];
 
           lowerSeries.stack = upperSeries.name;
           upperSeries.stack = upperSeries.name;
@@ -975,7 +973,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
               return value != null;
             }).length;
             // 포인트가 있는경우 circle로 설정
-            obj.symbol = obj.data.length === 1 || dataLength === 1 || LineStyle.LINE !== lineStyle ? 'circle' : transparentSymbolImage;
+            obj.symbol = obj.data.length === 1 || dataLength === 1 || LineStyle.LINE !== lineStyle ? 'circle' : this._transparentSymbolImage;
             // 기존 라인 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
             if (_.isUndefined(obj.lineStyle)) obj.lineStyle = optGen.LineStyle.auto();
             // 라인 표시여부에 따라 불투명도 적용(라인이 있는경우 opacity 1적용)
@@ -995,15 +993,14 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    */
   private exceptPredictionLineColorBySeries(): BaseOption {
 
-    const color = (<UIChartColorBySeries>this.uiOption.color);
-    let schema = color.schema;
-    let list: any = _.cloneDeep(ChartColorList[schema]);
+    const color = this.uiOption.color as UIChartColorBySeries;
+    const schema = color.schema;
+    const list: any = _.cloneDeep(ChartColorList[schema]);
 
     // userCodes가 있는경우 codes대신 userCodes를 설정한다
-    if ((<UIChartColorBySeries>color).mapping) {
-      Object.keys((<UIChartColorBySeries>color).mapping).forEach((key, index) => {
-
-        list[index] = (<UIChartColorBySeries>color).mapping[key];
+    if (color.mapping) {
+      Object.keys(color.mapping).forEach((key, index) => {
+        list[index] = color.mapping[key];
       });
     }
 
@@ -1014,7 +1011,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     if (this.uiOption.color.type !== ChartColorType.MEASURE) delete this.chartOption.visualMap;
 
     // 시리즈
-    let series = this.chartOption.series;
+    const series = this.chartOption.series;
 
     this.analysis.forecast.parameters.forEach((parameter, parameterIdx) => {
       series
@@ -1024,11 +1021,11 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
         .map((obj) => {
           // 시리즈명을 delimiter 로 분리, 현재 시리즈의 측정값 필드명 추출, 라인차트의 dimension때에는 name을 그대로 가져오기
           const aggName = _.last(_.split(obj.name, CHART_STRING_DELIMITER));
-          const mappingInfo = (<UIChartColorBySeries>this.uiOption.color).mapping;
+          const mappingInfo = (this.uiOption.color as UIChartColorBySeries).mapping;
           // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
           if (_.isUndefined(obj.itemStyle)) obj.itemStyle = optGen.ItemStyle.auto();
 
-          if( mappingInfo && mappingInfo[aggName] ) {
+          if (mappingInfo && mappingInfo[aggName]) {
             // 현재 시리즈에 컬러 적용 - border 가 존재한다면 border 에 컬러 적용
             if (!_.isUndefined(obj.itemStyle.normal.borderWidth) && obj.itemStyle.normal.borderWidth > 0) {
               obj.itemStyle.normal.borderColor = mappingInfo[aggName];
@@ -1059,11 +1056,11 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     return this.chartOption;
   }
 
-  /**
-   * 차트 표현 방향에 따른 그리드 위치값 변경
-   * @param option
-   * @param orient
-   */
+  // /**
+  //  * 차트 표현 방향에 따른 그리드 위치값 변경
+  //  * @param option
+  //  * @param orient
+  //  */
   // private gridPosition(orient: Orient): BaseOption {
   //   // 범례 존재여부
   //   const withLegend: boolean = (!_.isUndefined(this.chartOption.legend) && this.chartOption.legend.show) || (!_.isUndefined(this.chartOption.visualMap) && this.chartOption.visualMap.show);
@@ -1085,22 +1082,22 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    * 차트 공통 속성 변경 - 색상( UI를 통한 변경 )
    * @returns {BaseOption}
    */
-   private convertColor(): BaseOption {
+  private convertColor(): BaseOption {
 
-     const color = this.uiOption.color;
+    const color = this.uiOption.color as UIChartColorBySeries;
 
     // 라인차트의 경우 dimension을 series 타입으로 타게함
     switch (color.type) {
       case ChartColorType.SERIES: {
 
-        let schema = (<UIChartColorBySeries>color).schema;
-        let colorCodes = _.cloneDeep(ChartColorList[schema]);
+        const schema = color.schema;
+        const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
         // userCodes가 있는경우 codes대신 userCodes를 설정한다
-        if ((<UIChartColorBySeries>color).mapping) {
-          Object.keys((<UIChartColorBySeries>color).mapping).forEach((key, index) => {
+        if (color.mapping) {
+          Object.keys(color.mapping).forEach((key, index) => {
 
-            colorCodes[index] = (<UIChartColorBySeries>color).mapping[key];
+            colorCodes[index] = color.mapping[key];
           });
         }
 
@@ -1129,7 +1126,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
       case ChartColorType.MEASURE: {
 
         // gradation일때
-        if (this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
+        if (this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT === this.uiOption.color['customMode']) {
 
           this.chartOption = ColorOptionConverter.convertColorByValueGradation(this.chartOption, this.uiOption);
           // 그이외의 경우일떄

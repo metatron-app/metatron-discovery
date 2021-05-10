@@ -12,149 +12,31 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NavigationEnd, NavigationExtras} from '@angular/router';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
-import {Workspace} from '../../../../domain/workspace/workspace';
+import {Workspace} from '@domain/workspace/workspace';
 import {CreateWorkspaceComponent} from '../../../../workspace/component/management/create-workspace.component';
 import {WorkspaceListComponent} from '../../../../workspace/component/management/workspace-list.component';
-import {Book} from '../../../../domain/workspace/book';
-import {CookieConstant} from '../../../../common/constant/cookie.constant';
-import {EventBroadcaster} from '../../../../common/event/event.broadcaster';
-import {SYSTEM_PERMISSION} from '../../../../common/permission/permission';
-import {CommonUtil} from '../../../../common/util/common.util';
-import {Modal} from '../../../../common/domain/modal';
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
-import {BuildInfo} from "../../../../../environments/build.env";
-import {CommonService} from "../../../../common/service/common.service";
-import {Extension} from "../../../../common/domain/extension";
-import {Engine} from '../../../../domain/engine-monitoring/engine';
-import {StringUtil} from "../../../../common/util/string.util";
+import {Book} from '@domain/workspace/book';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {CommonUtil} from '@common/util/common.util';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {BuildInfo} from '@environments/build.env';
+import {CommonService} from '@common/service/common.service';
+import {Extension} from '@common/domain/extension';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-lnb',
   templateUrl: './lnb.component.html',
 })
 export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy {
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public readonly ENGINE_OVERVIEW_MONITORING_STATUS = Engine.MonitoringStatus;
-
-  // 즐겨찾기 플래그
-  private isFavorFl: boolean = false;
-
-  // 공유 워크스페이스 원본 리스트
-  private list: Workspace[] = [];
-
-  // 쿠키정보
-  private cookieInfo: any = {
-    viewType: null,
-    folderId: null,
-    folderHierarchies: null,
-    workspaceId: null
-  };
-
-  // 선택된 워크스페이스
-  private _selectedWorkspace: Workspace;
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 메뉴 권한
-  public permission = {
-    myWorkspace: false,
-    workspace: false,
-    exploreData: true,
-    exploreDataView: true,
-    exploreFavorite: true,
-    management: false,
-    managementDatasource: false,
-    managementMetadata: false,
-    // TODO: 추후에 엔진 모니터링 메뉴에 대한 권한이 있는지 검사하는 로직 추가 필요 ( 임시 작업 )
-    managementEngineMonitoring: false,
-    userAdmin: false,
-    workspaceAdmin: false,
-    lineage: false
-  };
-
-  // lnb 플래그
-  public isShow = false;
-
-  // 개인 워크스페이스
-  public privateWorkspace: Workspace = new Workspace;
-
-  // 공유 워크스페이스 리스트
-  public sharedWorkspace: Workspace[] = [];
-
-  // 폴더 네비게이션 관련
-  public isShowFolderNavi: boolean = false;  // 폴더 네비게이션 표시 여부
-  public folderNavigation: string[] = [];    // 폴더 네비게이션
-  public folderStructure: Book[][] = [];     // 폴더 탐색 구조
-
-  // menu 관리
-  public lnbManager = {
-    // 워크스페이스
-    workspace: {fold: false},
-    // 데이터 탐색
-    exploreData: {
-      fold: true,
-      data: {fold : true},
-      favorite: { fold : true }
-    },
-    // 매니지먼트
-    management: {
-      fold: true,
-      metadata: {fold: true},
-      dataStorage: {fold: true},
-      dataPreparation: {fold: true},
-      dataMonitoring: {fold: true},
-      modelManager: {fold: true},
-      engineMonitoring: { fold: true }
-    },
-    // 어드민
-    administration: {
-      fold: true,
-      users: {fold: true},
-      workspaces: {fold: true}
-    }
-  };
-
-  // Metatron App. 빌드 정보
-  public buildInfo = {
-    appVersion: BuildInfo.METATRON_APP_VERSION
-  };
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Component
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 공유 워크스페이스 생성 modal
-  @ViewChild(CreateWorkspaceComponent)
-  public createWorkspaceComp: CreateWorkspaceComponent;
-
-  // 워크스페이스 리스트 컴포넌트
-  @ViewChild(WorkspaceListComponent)
-  private workspaceListComponent: WorkspaceListComponent;
-
-  @ViewChild(ConfirmModalComponent)
-  private _confirmModalComp: ConfirmModalComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -164,7 +46,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
               private workspaceService: WorkspaceService,
               private commonService: CommonService,
               protected elementRef: ElementRef,
-              protected  injector: Injector) {
+              protected injector: Injector) {
     super(elementRef, injector);
 
     this.router.events.subscribe((val) => {
@@ -219,12 +101,127 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public readonly ENGINE_OVERVIEW_MONITORING_STATUS = Engine.MonitoringStatus;
+
+  // 즐겨찾기 플래그
+  private isFavorFl: boolean = false;
+
+  // 공유 워크스페이스 원본 리스트
+  private list: Workspace[] = [];
+
+  // 쿠키정보
+  private cookieInfo: any = {
+    viewType: null,
+    folderId: null,
+    folderHierarchies: null,
+    workspaceId: null
+  };
+
+  // 선택된 워크스페이스
+  private _selectedWorkspace: Workspace;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Protected Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 메뉴 권한
+  public permission = {
+    myWorkspace: false,
+    workspace: false,
+    exploreData: true,
+    exploreDataView: true,
+    exploreFavorite: true,
+    management: false,
+    managementDatasource: false,
+    managementMetadata: false,
+    // TODO: 추후에 엔진 모니터링 메뉴에 대한 권한이 있는지 검사하는 로직 추가 필요 ( 임시 작업 )
+    managementEngineMonitoring: false,
+    userAdmin: false,
+    workspaceAdmin: false,
+    lineage: false
+  };
+
+  // lnb 플래그
+  public isShow = false;
+
+  // 개인 워크스페이스
+  public privateWorkspace: Workspace = new Workspace();
+
+  // 공유 워크스페이스 리스트
+  public sharedWorkspace: Workspace[] = [];
+
+  // 폴더 네비게이션 관련
+  public isShowFolderNavi: boolean = false;  // 폴더 네비게이션 표시 여부
+  public folderNavigation: string[] = [];    // 폴더 네비게이션
+  public folderStructure: Book[][] = [];     // 폴더 탐색 구조
+
+  // menu 관리
+  public lnbManager = {
+    // 워크스페이스
+    workspace: {fold: false},
+    // 데이터 탐색
+    exploreData: {
+      fold: true,
+      data: {fold: true},
+      favorite: {fold: true}
+    },
+    // 매니지먼트
+    management: {
+      fold: true,
+      metadata: {fold: true},
+      dataStorage: {fold: true},
+      dataPreparation: {fold: true},
+      dataMonitoring: {fold: true},
+      modelManager: {fold: true},
+      engineMonitoring: {fold: true}
+    },
+    // 어드민
+    administration: {
+      fold: true,
+      users: {fold: true},
+      workspaces: {fold: true}
+    }
+  };
+
+  // Metatron App. 빌드 정보
+  public buildInfo = {
+    appVersion: BuildInfo.METATRON_APP_VERSION
+  };
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Component
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 공유 워크스페이스 생성 modal
+  @ViewChild(CreateWorkspaceComponent)
+  public createWorkspaceComp: CreateWorkspaceComponent;
+
+  // 워크스페이스 리스트 컴포넌트
+  @ViewChild(WorkspaceListComponent)
+  private workspaceListComponent: WorkspaceListComponent;
+
+  @ViewChild(ConfirmModalComponent)
+  private _confirmModalComp: ConfirmModalComponent;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  ObjectKeys = Object.keys;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   ngOnInit() {
     super.ngOnInit();
-    let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+    const cookiePermission: string = CommonUtil.getCurrentPermissionString();
     if (cookiePermission && '' !== cookiePermission) {
       this.permission.myWorkspace = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_PRIVATE_WORKSPACE.toString()));
       this.permission.workspace = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.VIEW_WORKSPACE.toString()));
@@ -245,7 +242,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
     // 선택 필터 설정
     this.subscriptions.push(
-      this.broadCaster.on<any>('CM_CLOSE_LNB').subscribe(data => {
+      this.broadCaster.on<any>('CM_CLOSE_LNB').subscribe(() => {
         this._closeLNB();
       })
     );
@@ -256,15 +253,15 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
         const exts: Extension[] = items;
         exts.forEach(ext => {
 
-          if( 'Explore Data' === ext.name ) {
+          if ('Explore Data' === ext.name) {
             this.permission.exploreData = true;
-          } else if('Lineage' === ext.name) {
+          } else if ('Lineage' === ext.name) {
             this.permission.lineage = true;
-          } else if('Engine Monitoring' === ext.name) {
-            //this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
+          } else if ('Engine Monitoring' === ext.name) {
+            // this.permission.managementEngineMonitoring = (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString()));
             this.permission.managementEngineMonitoring = this.extensionPermission(ext);
           } else {
-            if (ext.parent != 'ROOT') {
+            if (ext.parent !== 'ROOT') {
               (this.lnbManager[ext.parent]) || (this.lnbManager[ext.parent] = {});
               this.lnbManager[ext.parent][ext.name] = {fold: true};
             }
@@ -277,11 +274,6 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   ngOnDestroy() {
     super.ngOnDestroy();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  ObjectKeys = Object.keys;
 
   /**
    * Document Click Handler ( input class 제거 )
@@ -348,7 +340,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * Explore Data 하위 메뉴 클릭 이벤트 리스너
    * @param menuName
    */
-  public exploreDataMenuClickListener(menuName:string) {
+  public exploreDataMenuClickListener(menuName: string) {
     this.lnbManager.exploreData.data.fold = true;
     this.lnbManager.exploreData.favorite.fold = true;
     switch (menuName) {
@@ -426,8 +418,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   } // function - adminMenuClickListener
 
-  public rootExtensionMenuClickListener(parent:string, menuName?:string) {
-    if (menuName == undefined && this.getExtensions(parent).length > 0) {
+  public rootExtensionMenuClickListener(parent: string, menuName?: string) {
+    if (menuName === undefined && this.getExtensions(parent).length > 0) {
       menuName = this.getExtensions(parent)[0].name;
     }
     this.getExtensions(parent).forEach(item => {
@@ -483,13 +475,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
-        afterConfirm: function () {
+        afterConfirm: () => {
         }
       };
       this._confirmModalComp.init(modal);
     } else {
       const workspaceId: string = (workspace) ? workspace.id : 'my';
-      let navigateInfo: string[] = [];
+      let navigateInfo: string[];
       if (workspaceId) {
         navigateInfo = ['/workspace', workspaceId];
       } else {
@@ -530,7 +522,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     event.stopPropagation();
     event.preventDefault();
     const objParent = naviItem['parent'];
-    let cookieData = {
+    const cookieData = {
       viewType: this.cookieInfo.viewType ? this.cookieInfo.viewType : 'CARD',
       workspaceId: this._selectedWorkspace.id,
       folderId: ('folder' === objParent.type) ? objParent.id : null,
@@ -652,7 +644,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   }
 
   public moveExtensionFromSubMenu(ext: Extension, parent: Extension) {
-    if(ext.openTarget != undefined && ext.route != undefined){
+    if (ext.openTarget !== undefined && ext.route !== undefined) {
       switch (ext.openTarget) {
         case 'frame' :
           this.move('external/' + parent.parent + '_' + parent.name + '_' + ext.name);
@@ -669,14 +661,14 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   public extensionPermission(ext: Extension): boolean {
     if (ext.permissions && ext.permissions.length > 0) {
-      let cookiePermission: string = CommonUtil.getCurrentPermissionString();
-      return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1 );
+      const cookiePermission: string = CommonUtil.getCurrentPermissionString();
+      return ext.permissions.some(permission => cookiePermission.indexOf(permission) > -1);
     } else {
       return true;
     }
   }
 
-  public getExtensions(parent:string): Extension[] {
+  public getExtensions(parent: string): Extension[] {
     const extensions = CommonService.extensions.filter(item => parent === item.parent);
     if (parent === 'ROOT') {
       return extensions.filter(rootExtension => CommonService.extensions.filter(item => rootExtension.name === item.parent).length > 0);
@@ -685,8 +677,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
   }
 
-  public isExtensionSelected(parent:string, name:string): boolean {
-    return this.lnbManager[parent][name] != undefined && this.lnbManager[parent][name]['fold'] == false;
+  public isExtensionSelected(parent: string, name: string): boolean {
+    return this.lnbManager[parent][name] !== undefined && this.lnbManager[parent][name]['fold'] === false;
   }
 
   /**
@@ -724,14 +716,14 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
     if (StringUtil.isEmpty(workspace)) {
       // 개인 워크스페이스 조회
-      this.workspaceService.getMyWorkspace().then((workspace) => {
+      this.workspaceService.getMyWorkspace().then((wsInfo) => {
         // 개인 워크스페이스 초기화
         this.privateWorkspace = null;
 
-        if (workspace) {
-          this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(workspace), 0, '/');
+        if (wsInfo) {
+          this.cookieService.set(CookieConstant.KEY.MY_WORKSPACE, JSON.stringify(wsInfo), 0, '/');
           // 데이터 저장
-          this.privateWorkspace = workspace;
+          this.privateWorkspace = wsInfo;
 
           // 공유 워크스페이스 조회 호출
           this._getSharedWorkspace();
@@ -799,11 +791,11 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
 
   public popupManual() {
-    const browserLang:string = this.translateService.getBrowserLang();
+    const browserLang: string = this.translateService.getBrowserLang();
     if (browserLang.match(/ko/)) {
-      window.open("https://metatron-app.github.io/metatron-doc-discovery/", "_blank");
+      window.open('https://metatron-app.github.io/metatron-doc-discovery/', '_blank');
     } else {
-      window.open("https://metatron-app.github.io/metatron-doc-discovery/en", "_blank");
+      window.open('https://metatron-app.github.io/metatron-doc-discovery/en', '_blank');
     }
   }
 }

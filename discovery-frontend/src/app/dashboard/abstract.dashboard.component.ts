@@ -1,14 +1,27 @@
-import {AbstractComponent} from "../common/component/abstract.component";
-import {CommonUtil} from "../common/util/common.util";
-import {Datasource} from "../domain/datasource/datasource";
-import {Widget} from "../domain/dashboard/widget/widget";
-import {WidgetShowType} from "../domain/dashboard/dashboard.globalOptions";
-import {Dashboard, DashboardWidgetRelation, LayoutWidgetInfo} from "../domain/dashboard/dashboard";
-import {Filter} from "../domain/workbook/configurations/filter/filter";
-import {FilterWidget, FilterWidgetConfiguration} from "../domain/dashboard/widget/filter-widget";
-import {DashboardUtil} from "./util/dashboard.util";
-import {isNullOrUndefined} from "util";
-import * as _ from "lodash";
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import * as _ from 'lodash';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CommonUtil} from '@common/util/common.util';
+import {Datasource} from '@domain/datasource/datasource';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {WidgetShowType} from '@domain/dashboard/dashboard.globalOptions';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard, DashboardWidgetRelation, LayoutWidgetInfo} from '@domain/dashboard/dashboard';
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {DashboardUtil} from './util/dashboard.util';
 
 export class AbstractDashboardComponent extends AbstractComponent {
 
@@ -34,7 +47,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
           if (-1 === uniqFilterKeyList.indexOf(uniqFilterKey)) {
             const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
             (filterDs) && (filter.dataSource = filterDs.engineName);
-            if (isNullOrUndefined(filter.dataSource)) {
+            if (this.isNullOrUndefined(filter.dataSource)) {
               const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
               (fieldDs) && (filter.dataSource = fieldDs.engineName);
             }
@@ -55,7 +68,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
             const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === conf.filter.dataSource);
             (filterDs) && (conf.filter.dataSource = filterDs.engineName);
 
-            if (isNullOrUndefined(conf.filter.dataSource)) {
+            if (this.isNullOrUndefined(conf.filter.dataSource)) {
               const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === conf.filter.field));
               (fieldDs) && (conf.filter.dataSource = fieldDs.engineName);
             }
@@ -76,10 +89,10 @@ export class AbstractDashboardComponent extends AbstractComponent {
     const filterWidget: FilterWidget = DashboardUtil.getFilterWidgetByFilter(board, filter);
     if (board.configuration.filterRelations && filterWidget) {
       this._findWidgetRelation(filterWidget.id, board.configuration.filterRelations, [],
-        (target: DashboardWidgetRelation, hierarchy: string[]) => {
+        (_target: DashboardWidgetRelation, hierarchy: string[]) => {
           if (0 < hierarchy.length) {
             prevFilter = hierarchy.map(item => {
-              const conf: FilterWidgetConfiguration = (<FilterWidget>DashboardUtil.getWidget(board, item)).configuration;
+              const conf: FilterWidgetConfiguration = (DashboardUtil.getWidget(board, item) as FilterWidget).configuration;
               return DashboardUtil.getBoardFilter(board, conf.filter.dataSource, conf.filter.field);
             });
           }
@@ -175,7 +188,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
   protected _removeWidgetRelation(widgetId: string, items: DashboardWidgetRelation[], board?: Dashboard) {
     if (items) {
       this._findWidgetRelation(widgetId, items, [],
-        (target: DashboardWidgetRelation, hierarchy: string[], list: DashboardWidgetRelation[]) => {
+        (target: DashboardWidgetRelation, _hierarchy: string[], list: DashboardWidgetRelation[]) => {
           const delIdx: number = list.findIndex(item => item.ref === target.ref);
           if (-1 < delIdx) {
             list.splice(delIdx, 1);
@@ -240,9 +253,9 @@ export class AbstractDashboardComponent extends AbstractComponent {
    */
   protected _getAllChildWidgetRelation(targetId: string, items: DashboardWidgetRelation[], callback: HierarchyCallback, board: Dashboard) {
 
-    const getChildItems = (items: DashboardWidgetRelation[], children: string[]) => {
-      if (items && 0 < items.length) {
-        return items.reduce((acc, item) => {
+    const getChildItems = (relItems: DashboardWidgetRelation[], children: string[]) => {
+      if (relItems && 0 < relItems.length) {
+        return relItems.reduce((acc, item) => {
           acc.push(item.ref);
           if (item.children && 0 < item.children.length) {
             acc = getChildItems(item.children, acc);
@@ -255,7 +268,7 @@ export class AbstractDashboardComponent extends AbstractComponent {
     };
 
     this._findWidgetRelation(targetId, items, [],
-      (target: DashboardWidgetRelation, hierarchy: string[]) => {
+      (target: DashboardWidgetRelation, _hierarchy: string[]) => {
         (callback) && (callback(target, getChildItems(target.children, [])));
         return true;
       },

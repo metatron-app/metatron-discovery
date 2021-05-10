@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { AnalysisComponent } from './analysis.component';
-import { CommonModule } from '../../../common/common.module';
-import { AnalysisPredictionModule } from './prediction/analysis-prediction.module';
-import { TrendLineModule } from './trend.line/trend.line.module';
-import { ColorPickerLayerComponent } from './color.picker/color.picker.layer.component';
-import { RangeSliderComponent } from './slider/range-slider.component';
-import { AnalysisClusterComponent } from './cluster/analysis-cluster.component';
-import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {AnalysisComponent} from './analysis.component';
+import {CommonModule} from '@common/common.module';
+import {AnalysisPredictionModule} from './prediction/analysis-prediction.module';
+import {TrendLineModule} from './trend.line/trend.line.module';
+import {ColorPickerLayerComponent} from './color.picker/color.picker.layer.component';
+import {RangeSliderComponent} from './slider/range-slider.component';
+import {AnalysisClusterComponent} from './cluster/analysis-cluster.component';
+import {MapSpatialComponent} from './map-spatial/map-spatial.component';
 
 @NgModule({
   imports: [

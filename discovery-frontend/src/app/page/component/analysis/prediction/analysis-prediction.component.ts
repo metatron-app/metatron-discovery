@@ -29,32 +29,20 @@ import {
   ViewChild
 } from '@angular/core';
 import {RangeSliderComponent} from '../slider/range-slider.component';
-import {Pivot} from '../../../../domain/workbook/configurations/pivot';
-import {
-  ChartColorList,
-  GraphicType,
-  ShelveFieldType,
-  ShelveType
-} from '../../../../common/component/chart/option/define/common';
-import {PageWidgetConfiguration} from '../../../../domain/dashboard/widget/page-widget';
-import {
-  Analysis,
-  analysis,
-  Confidence,
-  Forecast,
-  HyperParameter,
-  Style
-} from '../../value/analysis';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {ChartColorList, GraphicType, ShelveFieldType, ShelveType} from '@common/component/chart/option/define/common';
+import {PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {Analysis, AnalysisConfig, Confidence, Forecast, HyperParameter, Style} from '../../value/analysis';
 import {ColorPickerLayerComponent} from '../color.picker/color.picker.layer.component';
 import * as $ from 'jquery';
-import {SelectComponent} from '../../../../common/component/select/select.component';
-import {Subject} from 'rxjs/Subject';
+import {SelectComponent} from '@common/component/select/select.component';
+import {Subject} from 'rxjs';
 import {Subscription} from 'rxjs/Subscription';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Alert} from '../../../../common/util/alert.util';
-import {UIOption} from '../../../../common/component/chart/option/ui-option';
-import {Field} from '../../../../domain/workbook/configurations/field/field';
-import {UIChartColorBySeries} from '../../../../common/component/chart/option/ui-option/ui-color';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {Field} from '@domain/workbook/configurations/field/field';
+import {UIChartColorBySeries} from '@common/component/chart/option/ui-option/ui-color';
 
 @Component({
   selector: 'analysis-prediction',
@@ -103,47 +91,47 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     HYPHEN: string
   } = {
     // Analysis
-    'ANALYSIS': 'Analysis',
+    ANALYSIS: 'Analysis',
     // 예측선
-    'SUB_MENU': '예측선',
+    SUB_MENU: '예측선',
     // 활성화
-    'ACTIVE': '활성화',
+    ACTIVE: '활성화',
     // 예측선을 사용할 수 있는 차트
-    'ACTIVE_FIRST_DESCRIPTION': '예측선을 사용할 수 있는 차트',
+    ACTIVE_FIRST_DESCRIPTION: '예측선을 사용할 수 있는 차트',
     // 라인차트
-    'ACTIVE_LAST_DESCRIPTION': '날짜/시간 차원값이 있는 선형차트',
+    ACTIVE_LAST_DESCRIPTION: '날짜/시간 차원값이 있는 선형차트',
     // Holt-Winters
-    'ALGORITHM_NAME': 'Holt-Winters',
+    ALGORITHM_NAME: 'Holt-Winters',
     // 예측기간
-    'INTERVAL': '예측기간',
+    INTERVAL: '예측기간',
     // 신뢰구간
-    'SLIDER_TITLE': '신뢰구간',
+    SLIDER_TITLE: '신뢰구간',
     // 고급설정
-    'ANALYSIS_SETTING': '고급설정',
+    ANALYSIS_SETTING: '고급설정',
     // alpha
-    'ALPHA': 'alpha',
+    ALPHA: 'alpha',
     // beta
-    'BETA': 'beta',
+    BETA: 'beta',
     // trend
-    'TREND': 'trend',
+    TREND: 'trend',
     // gamma
-    'GAMMA': 'gamma',
+    GAMMA: 'gamma',
     // additive
-    'GAMMA_ADDITIVE': 'additive',
+    GAMMA_ADDITIVE: 'additive',
     // multiplicative
-    'GAMMA_MULTIPLICATIVE': 'multiplicative',
+    GAMMA_MULTIPLICATIVE: 'multiplicative',
     // seasonal
-    'SEASONAL': 'seasonal',
+    SEASONAL: 'seasonal',
     // Forecast
-    'FORECAST': 'Forecast',
+    FORECAST: 'Forecast',
     // Confidence
-    'CONFIDENCE': 'Confidence',
+    CONFIDENCE: 'Confidence',
     // 투명도
-    'OPACITY': '투명도',
+    OPACITY: '투명도',
     // %
-    'PROCENT': '%',
+    PROCENT: '%',
     // -
-    'HYPHEN': '-'
+    HYPHEN: '-'
   };
 
   private MESSAGE: {
@@ -157,15 +145,15 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED: string;
     VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED: string;
   } = {
-    'ALPHA': '알파',
-    'BETA': '베타',
-    'GAMMA': '감마',
-    'PLEASE_VALUE': '값을 입력해주세요.',
-    'VALUES_ONLY_NUMERIC': '값은 숫자만 입력할 수 있습니다.',
-    'PLEASE_FORECAST_PERIOD': '예측기간을 입력해주세요.',
-    'PLEASE_TRANSPARENCY': '투명도를 입력해주세요.',
-    'VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED': '0 보다 작은 값은 입력할 수 없습니다.',
-    'VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED': '100 보다 큰 값은 입력할 수 없습니다.'
+    ALPHA: '알파',
+    BETA: '베타',
+    GAMMA: '감마',
+    PLEASE_VALUE: '값을 입력해주세요.',
+    VALUES_ONLY_NUMERIC: '값은 숫자만 입력할 수 있습니다.',
+    PLEASE_FORECAST_PERIOD: '예측기간을 입력해주세요.',
+    PLEASE_TRANSPARENCY: '투명도를 입력해주세요.',
+    VALUES_LESS_THAN_0_CAN_NOT_BE_ENTERED: '0 보다 작은 값은 입력할 수 없습니다.',
+    VALUES_GREATER_THAN_100_CAN_NOT_BE_ENTERED: '100 보다 큰 값은 입력할 수 없습니다.'
   };
 
   // ----------------------------------------------
@@ -248,12 +236,6 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   private predictionSlider: RangeSliderComponent;
 
   /**
-   * 패널
-   */
-  @ViewChild('panel')
-  private panel: ElementRef;
-
-  /**
    * ColorPickerLayer Component
    */
   @ViewChild(ColorPickerLayerComponent)
@@ -264,18 +246,6 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    */
   @ViewChild('selectComponent')
   private selectComponent: SelectComponent;
-
-  /**
-   * 라인 타입 셀렉트 박스 컴포넌트
-   */
-  @ViewChild('selectLineTypeComponent')
-  private selectLineTypeComponent: SelectComponent;
-
-  /**
-   * 라인 두께 셀렉트 박스 컴포넌트
-   */
-  @ViewChild('selectLineComponent')
-  private selectLineComponent: SelectComponent;
 
   // ---------------------------------------
   // @Input
@@ -296,9 +266,6 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   // ---------------------------------------
   // @Output
   // ---------------------------------------
-
-  @Output('clickDataPanelNoti')
-  private clickDataPanelNoti = new EventEmitter();
 
   @Output('changeAnalysisPredictionNoti')
   private changeAnalysisPrediction = new EventEmitter();
@@ -345,17 +312,17 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     analysis: Analysis
   } = {
     // 예측선 Disabled 여부
-    'isPredictionLineDisabled': false,
+    isPredictionLineDisabled: false,
     // 예측선 활성화 여부
-    'isPredictionLineActive': false,
+    isPredictionLineActive: false,
     // 고급설정: 활성화 / 비활성화
-    'isAnalysisSettingsActive': true,
+    isAnalysisSettingsActive: true,
     // Forecast 선택여부
-    'isSelectedForecast': true,
+    isSelectedForecast: true,
     // Confidence 선택여부
-    'isSelectedConfidence': true,
+    isSelectedConfidence: true,
     // Analysis - 서버 스펙에 맞는 vo
-    'analysis': null
+    analysis: null
   };
 
   /**
@@ -438,9 +405,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    * @param {ElementRef} element
    * @param {Injector} injector
    */
-  constructor(private element: ElementRef,
+  constructor(protected element: ElementRef,
               protected injector: Injector) {
-
     super(element, injector);
   }
 
@@ -604,7 +570,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
           this.removeAnalysisPredictionLine();
 
           // 예측선 데이터 변경 알림
-          //this.predictionLineDataChangeNotification();
+          // this.predictionLineDataChangeNotification();
 
           return;
         }
@@ -695,8 +661,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       const shelve: Pivot = this.widgetConfiguration.pivot;
 
-      const getFieldTypeCount = (shelve: Pivot, shelveType: ShelveType, fieldType: ShelveFieldType) => {
-        return shelve[shelveType].filter((field) => {
+      const getFieldTypeCount = (shelveInfo: Pivot, shelveType: ShelveType, fieldType: ShelveFieldType) => {
+        return shelveInfo[shelveType].filter((field) => {
           return _.eq(field.type, fieldType);
         }).length;
       };
@@ -710,11 +676,11 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       }
 
       if (this.widgetConfiguration.pivot.columns.length > 1) {
-        return result = false;
+        return false;
       }
 
       if (getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) !== 1) {
-        return result = false;
+        return false;
       }
 
       // if (this.widgetConfiguration.pivot.columns[0].format.unit === TimeUnit.HOUR
@@ -734,11 +700,11 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       }
 
       if (getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) !== 0) {
-        return result = false;
+        return false;
       }
 
       if (getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) !== 0) {
-        return result = false;
+        return false;
       }
 
     }
@@ -753,7 +719,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   /**
    * 고급분석 예측선 데이터 싱크
    */
-  public synchronize(uiOption: UIOption, param?: Object, resultData?: any): void {
+  public synchronize(uiOption: UIOption, param?: object, resultData?: any): void {
 
     // isPredictionLineDisabled값 설정
     if (param) param['isPredictionLineDisabled'] = this.setPredictionLineDisabled(param);
@@ -764,7 +730,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     if (_.isUndefined(this.widgetConfiguration.analysis) || _.isEmpty(this.widgetConfiguration.analysis)) {
 
       // 파라미터의 disabled로 지정된경우 예측선 설정제거
-      if (param && false == param['isPredictionLineDisabled']) {
+      if (param && false === param['isPredictionLineDisabled']) {
         this.data.isPredictionLineDisabled = param['isPredictionLineDisabled'];
         this.data.isPredictionLineActive = param['isPredictionLineDisabled'];
         this.removeAnalysisPredictionLine();
@@ -784,8 +750,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
               hyperParameter.field = agg.alias;
             } else {
               // alias가 없는경우
-              if( agg.ref ) {
-                if(agg.aggregationType)
+              if (agg.ref) {
+                if (agg.aggregationType)
                   hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
                 else
                   hyperParameter.field = agg.ref + '.' + agg.name;
@@ -798,7 +764,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
             hyperParameter.beta = resultData[`${hyperParameter.field}.params`][1];
             hyperParameter.gamma = resultData[`${hyperParameter.field}.params`][2];
 
-            if (-1 == _.findIndex(this.data.analysis.analysis.forecast.parameters, {field: hyperParameter.field})) {
+            if (-1 === _.findIndex(this.data.analysis.analysis.forecast.parameters, {field: hyperParameter.field})) {
               // 고급분석 제외
               this.data.analysis.analysis.forecast.parameters.push(_.cloneDeep(hyperParameter));
             }
@@ -809,7 +775,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       this.data.analysis = null;
       this.data.analysis = new Analysis();
-      this.data.analysis.analysis = new analysis();
+      this.data.analysis.analysis = new AnalysisConfig();
       this.data.analysis.analysis = this.widgetConfiguration.analysis;
 
       // 측정 목록 초기화
@@ -817,18 +783,17 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       const widgetConfigurationPivotAggregations = [];
       this.widgetConfiguration.pivot.aggregations
-        .forEach((agg, index) => {
+        .forEach((agg, _index) => {
 
           // alias 설정
           let alias: string;
           if (agg.alias) {
             // alias가 있는경우
             alias = agg.alias;
-          }
-          else {
+          } else {
             // alias가 없는경우
-            if( agg.ref ) {
-              if(agg.aggregationType)
+            if (agg.ref) {
+              if (agg.aggregationType)
                 alias = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
               else
                 alias = agg.ref + '.' + agg.name;
@@ -838,8 +803,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
           }
 
           const parameter = this.data.analysis.analysis.forecast.parameters
-            .filter((param) => {
-              return param.field === alias;
+            .filter((forecastParam) => {
+              return forecastParam.field === alias;
             });
 
           if (parameter.length === 0) {
@@ -858,8 +823,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       // Forecast parameters 목록을 셀렉트 전용 문자열 목록에 추가해준다
       this.data.analysis.analysis.forecast.parameters
-        .forEach((param) => {
-          this.forecastParameters.push(param.field);
+        .forEach((forecastParam) => {
+          this.forecastParameters.push(forecastParam.field);
         });
 
       const forecastParameterIndex = this.forecastParameters.findIndex((item) => {
@@ -899,14 +864,14 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
       this.originWidgetConfigurationAnalysis = _.cloneDeep(this.widgetConfiguration.analysis);
 
-      let color = this.uiOption.color;
-      let schema = this.uiOption.color['schema'];
-      let codes: any = _.cloneDeep(ChartColorList[schema]);
+      const color = this.uiOption.color;
+      const schema = this.uiOption.color['schema'];
+      const codes: any = _.cloneDeep(ChartColorList[schema]);
       // userCodes가 있는경우 codes대신 userCodes로 설정
-      if ((<UIChartColorBySeries>color).mapping) {
-        Object.keys((<UIChartColorBySeries>color).mapping).forEach((key, index) => {
+      if ((color as UIChartColorBySeries).mapping) {
+        Object.keys((color as UIChartColorBySeries).mapping).forEach((key, index) => {
 
-          codes[index] = (<UIChartColorBySeries>color).mapping[key];
+          codes[index] = (color as UIChartColorBySeries).mapping[key];
         });
       }
 
@@ -921,7 +886,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     }
 
     // 파라미터의 disabled로 지정된경우 예측선 설정제거
-    if (param && false == param['isPredictionLineDisabled']) {
+    if (param && false === param['isPredictionLineDisabled']) {
       this.data.isPredictionLineDisabled = param['isPredictionLineDisabled'];
       this.data.isPredictionLineActive = param['isPredictionLineDisabled'];
       this.removeAnalysisPredictionLine();
@@ -1107,13 +1072,13 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   // ---------------------------------------
   // Alpha text input
   // ---------------------------------------
-  public validateForecastParameterAlpha():Function {
+  public validateForecastParameterAlpha(): (alphaValue: string) => boolean {
     const messages = this.MESSAGE;
-    const isKorLang = ( this.currentLang === 'ko' );
-    return ( alphaValue:string ) => {
+    const isKorLang = (this.currentLang === 'ko');
+    return (alphaValue: string) => {
 
       if (_.isUndefined(alphaValue)) {
-        let msg: string = '';
+        let msg: string;
         if (isKorLang) {
           msg = `${messages.ALPHA} ${messages.PLEASE_VALUE}`;
         } else {
@@ -1123,8 +1088,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
         return false;
       }
 
-      if ('' === alphaValue ) {
-        let msg: string = '';
+      if ('' === alphaValue) {
+        let msg: string;
         if (isKorLang) {
           msg = `${messages.ALPHA} ${messages.PLEASE_VALUE}`;
         } else {
@@ -1156,7 +1121,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    *
    * @param {number} alphaValue
    */
-  public setForecastParameterAlpha(alphaValue:number): void {
+  public setForecastParameterAlpha(alphaValue: number): void {
     this.selectedForecastParameter.alpha = alphaValue;
 
     // 선택되어 있는 Forecast parameter 데이터 업데이트
@@ -1170,13 +1135,13 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   // ---------------------------------------
   // Beta text input
   // ---------------------------------------
-  public validateForecastParameterBeta():Function {
+  public validateForecastParameterBeta(): (betaValue: string) => boolean {
     const messages = this.MESSAGE;
     const isKorLang = (this.currentLang === 'ko');
     return (betaValue: string) => {
 
       if (_.isUndefined(betaValue)) {
-        let msg: string = '';
+        let msg: string;
         if (isKorLang) {
           msg = `${messages.BETA} ${messages.PLEASE_VALUE}`;
         } else {
@@ -1187,7 +1152,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       }
 
       if (betaValue === '') {
-        let msg: string = '';
+        let msg: string;
         if (isKorLang) {
           msg = `${messages.BETA} ${messages.PLEASE_VALUE}`;
         } else {
@@ -1232,12 +1197,12 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   // ---------------------------------------
   // Gamma text input
   // ---------------------------------------
-  public validateForecastParameterGamma():Function {
+  public validateForecastParameterGamma(): (gammaValue: string) => boolean {
     const messages = this.MESSAGE;
     const isKorLang = (this.currentLang === 'ko');
     return (gammaValue: string) => {
       if (_.isUndefined(gammaValue)) {
-        let msg: string = '';
+        let msg: string;
         if (isKorLang) {
           msg = `${messages.GAMMA} ${messages.PLEASE_VALUE}`;
         } else {
@@ -1248,7 +1213,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       }
 
       if (gammaValue === '') {
-        let msg: string = '';
+        let msg: string;
         if (isKorLang) {
           msg = `${messages.GAMMA} ${messages.PLEASE_VALUE}`;
         } else {
@@ -1293,9 +1258,9 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   /**
    * advanced 세팅의 period값 변경시
    */
-  public changeAdvancedPeriod(periodValue:string) {
+  public changeAdvancedPeriod(periodValue: string) {
     if (_.isEmpty(periodValue)) return;
-    this.selectedForecastParameter.period = parseInt(periodValue);
+    this.selectedForecastParameter.period = parseInt(periodValue, 10);
 
     // 예측선 데이터 변경 알림
     this.predictionLineDataChangeNotification();
@@ -1316,7 +1281,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
       this.selectedForecastParameter.multiple = undefined;
     }
 
-    // 선택되어 있는 forecast parameter 의 gamma 체크박스를 체크하면
+      // 선택되어 있는 forecast parameter 의 gamma 체크박스를 체크하면
     // forecast parameter gamma multiple 값 false 로 변경
     else {
       this.selectedForecastParameter.multiple = false;
@@ -1383,7 +1348,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    * 예측선 사용 여부
    */
   public changeUseForecast() {
-    if( this.data.isSelectedForecast ) {
+    if (this.data.isSelectedForecast) {
       this.data.analysis.analysis.forecast.style.lineType = 'SOLID';
       this.data.analysis.analysis.forecast.style.lineThickness = 2.0;
       this.predictionLineForecastDataChangeNotification();
@@ -1429,9 +1394,9 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   /**
    * validation Confidence transparency text input
    */
-  public validateConfidenceTransparency():Function {
+  public validateConfidenceTransparency(): (transparencyValue: number) => boolean {
     const messages = this.MESSAGE;
-    return ( transparencyValue:number ) => {
+    return (transparencyValue: number) => {
       if (_.isUndefined(transparencyValue)) {
         Alert.warning(messages.PLEASE_TRANSPARENCY);
         return false;
@@ -1451,7 +1416,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     };
   } // function - validateConfidenceTransparency
 
-  public setConfidenceTransparency( transparencyValue:number ) {
+  public setConfidenceTransparency(transparencyValue: number) {
     this.data.analysis.analysis.confidence.style.transparency = Number(transparencyValue);
 
     // 예측선 Confidence 데이터 변경 알림
@@ -1462,7 +1427,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    * 투명도 사용 여부 변경
    */
   public changeUseConfidence() {
-    this.setConfidenceTransparency( this.data.isSelectedConfidence ? 10 : 0 );
+    this.setConfidenceTransparency(this.data.isSelectedConfidence ? 10 : 0);
   } // function - changeUseConfidence
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -1543,7 +1508,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    * @param {string} color
    * @param {Function} callBackFn
    */
-  public colorPickerLayerShow(element: HTMLElement, color: string, callBackFn: Function): void {
+  public colorPickerLayerShow(element: HTMLElement, color: string, callBackFn: (colorHex: any) => void): void {
 
     // 컬러 선텍 레이어 좌표 계산
     this.colorPickerLayerOffsetCalculator(element);
@@ -1583,9 +1548,9 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
   /**
    * 컬러 선텍 레이어 컬러 선택에 대한 콜백 이벤트
    *
-   * @param {{data: {className: string; colorHex: string}; fn: Function}} event
+   * @param event
    */
-  public colorPickerLayerSelected(event: { 'data': { 'className': string, 'colorHex': string }, 'fn': Function }): void {
+  public colorPickerLayerSelected(event: { 'data': { 'className': string, 'colorHex': string }, 'fn': (hex) => void }): void {
     event.fn(event.data.colorHex);
   }
 
@@ -1602,12 +1567,12 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
    * @param param
    * @returns {Object}
    */
-  private setPredictionLineDisabled(param: Object): Object {
+  private setPredictionLineDisabled(param: object): boolean {
 
     const pivot: Pivot = param['pivot'];
     const columns: Field[] = pivot['columns'];
 
-    let disabled: Object;
+    let disabled: boolean;
     if (columns && columns.length > 0) {
 
       const field = columns[0];
@@ -1618,7 +1583,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
         disabled = false;
       }
       // continuous , none일때
-      else if (field && field.format && !field.format.discontinuous && field.format.unit && field.format.unit.toString() == 'NONE') {
+      else if (field && field.format && !field.format.discontinuous && field.format.unit && field.format.unit.toString() === 'NONE') {
 
         disabled = false;
       }
@@ -1631,7 +1596,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
         loop: for (const item of pivot.aggregations) {
 
-          if (item.type == 'dimension') {
+          if (item.type === 'dimension') {
             disabled = false;
             break loop;
           }
@@ -1657,7 +1622,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     _analysis.pivot = this.widgetConfiguration.pivot;
     this.data.analysis = _analysis;
 
-    const analysisInAnalysis = new analysis();
+    const analysisInAnalysis = new AnalysisConfig();
 
     analysisInAnalysis.timeUnit = this.widgetConfiguration.pivot.columns[0].format.unit;
     analysisInAnalysis.interval = 12;
@@ -1666,8 +1631,8 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
     analysisInAnalysis.confidence.confidenceInterval = this.DEFAULT_PREDICTION_LINE_SLIDER_FROM;
     analysisInAnalysis.confidence.style = new Style();
 
-    let schema = this.uiOption.color['schema'];
-    let colorCodes = _.cloneDeep(ChartColorList[schema]);
+    const schema = this.uiOption.color['schema'];
+    const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
     analysisInAnalysis.confidence.style.color = colorCodes[0];
     // analysisInAnalysis.confidence.style.color = this.uiOption.color['userCodes'] && this.uiOption.color['userCodes'].length > 0 ? this.uiOption.color['userCodes'][0] : this.uiOption.color['codes'][0];
@@ -1686,12 +1651,11 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
         if (agg.alias) {
           // alias가 있는경우
           hyperParameter.field = agg.alias;
-        }
-        else {
+        } else {
           // alias가 없는경우
-          if( agg.ref ) {
-            //If aggregationType is not defined, it may be aggregated user_defined field.
-            if(agg.aggregationType)
+          if (agg.ref) {
+            // If aggregationType is not defined, it may be aggregated user_defined field.
+            if (agg.aggregationType)
               hyperParameter.field = `${agg.aggregationType + '(' + agg.ref + '.' + agg.name + ')'}`;
             else
               hyperParameter.field = agg.ref + '.' + agg.name;
@@ -1720,7 +1684,7 @@ export class AnalysisPredictionComponent extends AbstractComponent implements On
 
     this.data.analysis = _analysis;
 
-    this.widgetConfiguration.analysis = new analysis();
+    this.widgetConfiguration.analysis = new AnalysisConfig();
     this.widgetConfiguration.analysis = this.data.analysis.analysis;
   }
 

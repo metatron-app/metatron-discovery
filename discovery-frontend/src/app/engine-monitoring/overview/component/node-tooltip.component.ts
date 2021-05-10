@@ -13,8 +13,8 @@
  */
 
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Engine} from "../../../domain/engine-monitoring/engine";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
 
 @Component({
   selector: 'node-tooltip',
@@ -43,10 +43,10 @@ export class NodeTooltipComponent extends AbstractComponent implements OnInit, O
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  public onResize(event) {
+  public onResize(_event) {
     this.isShow = false;
   }
 

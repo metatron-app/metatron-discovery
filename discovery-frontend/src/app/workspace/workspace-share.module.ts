@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
-import { CreateWorkspaceComponent } from './component/management/create-workspace.component';
-import { WorkspaceListComponent } from './component/management/workspace-list.component';
-import { PermissionService } from '../user/service/permission.service';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@common/common.module';
+import {CreateWorkspaceComponent} from './component/management/create-workspace.component';
+import {WorkspaceListComponent} from './component/management/workspace-list.component';
+import {PermissionService} from '../user/service/permission.service';
 
 @NgModule({
   imports: [

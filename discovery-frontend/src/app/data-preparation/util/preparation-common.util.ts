@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import {DsType, FileFormat, ImportType, PrDataset} from '../../domain/data-preparation/pr-dataset';
-import {SsType} from '../../domain/data-preparation/pr-snapshot';
-import {isNullOrUndefined} from "util";
-import * as _ from "lodash";
+import * as _ from 'lodash';
+import {CommonUtil} from '@common/util/common.util';
+import {SsType} from '@domain/data-preparation/pr-snapshot';
+import {DsType, FileFormat, ImportType, PrDataset} from '@domain/data-preparation/pr-dataset';
 
 declare const moment: any;
 
@@ -49,24 +49,24 @@ export class PreparationCommonUtil {
    */
   public static setFieldFormatter(value: any, type: string,
                                   colDescs: { timestampStyle?: string, arrColDesc?: any, mapColDesc?: any }): string {
-    let strFormatVal: string = '';
+    let strFormatVal: string;
     if (colDescs) {
       if ('TIMESTAMP' === type) {
         // 단일 데이터에 대한 타임 스템프 처리
         strFormatVal = PreparationCommonUtil.setTimeStampFormat(value, colDescs.timestampStyle);
       } else {
-        strFormatVal = <string>value;
+        strFormatVal = value as string;
       }
       // ARRAY and MAP are represented as string
     } else {
-      strFormatVal = <string>value;
+      strFormatVal = value as string;
     }
 
     return strFormatVal;
   } // function - _setFieldFormatter
 
 
-  public static removeQuotation(val : string) : string {
+  public static removeQuotation(val: string): string {
     let result = val;
     if (val.startsWith('\'') && val.endsWith('\'')) {
       result = val.substring(1, val.length - 1);
@@ -77,27 +77,28 @@ export class PreparationCommonUtil {
   public static getRuleString(targetStr, regex) {
 
 
-    const gIndex =0;
+    const gIndex = 0;
     let match;
-    const resultMap ={};
-    let startIndex  = -1;
+    const resultMap = {};
+    let startIndex = -1;
     let key = '';
-    while ( match = regex.exec(targetStr)) {
+    // tslint:disable-next-line:no-conditional-assignment
+    while (match = regex.exec(targetStr)) {
 
-      if( key !== '' && !resultMap[key] ){
-        resultMap[key] = targetStr.substring(startIndex, match['index'] ) ;
+      if (key !== '' && !resultMap[key]) {
+        resultMap[key] = targetStr.substring(startIndex, match['index']);
       }
 
       key = match[gIndex];
       startIndex = match['index'] + key.length;
     }
 
-    if( startIndex !== -1 && !resultMap[key]) {
+    if (startIndex !== -1 && !resultMap[key]) {
 
       // let idx = key.indexOf(':');
       // key = key.substring(0,idx).trim();
 
-      resultMap[key] = targetStr.substring(startIndex );
+      resultMap[key] = targetStr.substring(startIndex);
     }
 
     // const resultMap = getRuleString(targetStr, prepRegEx);
@@ -137,7 +138,7 @@ export class PreparationCommonUtil {
           result = `Convert row${rule.rownum} to header`;
           break;
         case 'keep':
-          let row = ruleString.split(': ');
+          const row = ruleString.split(': ');
           result = `Keep rows where ` + row[1];
           break;
         case 'rename':
@@ -165,7 +166,7 @@ export class PreparationCommonUtil {
           } else {
             fomatStr = column;
           }
-          result = `Set ${fomatStr} format to ${ rule.format }`;
+          result = `Set ${fomatStr} format to ${rule.format}`;
           break;
         case 'settype':
 
@@ -178,7 +179,7 @@ export class PreparationCommonUtil {
             columnStr = column;
           }
 
-          result = `Change ${columnStr} to ${ rule.type }`;
+          result = `Change ${columnStr} to ${rule.type}`;
 
           break;
         case 'delete':
@@ -186,7 +187,7 @@ export class PreparationCommonUtil {
           result = `Delete rows where ${deleteCondition[1]}`;
           break;
         case 'set':
-          let rowString = ruleString.split('value: ');
+          const rowString = ruleString.split('value: ');
           result = `Set ${column} to ${rowString[1]}`;
           break;
         case 'split':
@@ -234,7 +235,7 @@ export class PreparationCommonUtil {
           break;
         case 'move':
           result = `Move ${column}`;
-          result += `${rule.before ? ' before ' + rule.before : ' after ' + rule.after }`;
+          result += `${rule.before ? ' before ' + rule.before : ' after ' + rule.after}`;
           break;
         case 'union':
         case 'join':
@@ -268,7 +269,7 @@ export class PreparationCommonUtil {
           if (rule.value.escapedValue) {
             formula = rule.value.escapedValue
           } else {
-            let list = [];
+            const list = [];
             rule.value.value.forEach((item) => {
               list.push(item.substring(1, item.length - 1));
             });
@@ -299,8 +300,8 @@ export class PreparationCommonUtil {
 
       }
       return result;
-    } catch(error) {
-      console.info('error -> ', error);
+    } catch (error) {
+      console.log('error -> ', error);
       return undefined;
     }
   }
@@ -312,7 +313,7 @@ export class PreparationCommonUtil {
    * @param {string} ssType
    * @returns {string}
    */
-  public static getSnapshotType(ssType: SsType) : string {
+  public static getSnapshotType(ssType: SsType): string {
     let result = null;
     if (ssType === SsType.URI) {
       result = 'FILE';
@@ -326,7 +327,7 @@ export class PreparationCommonUtil {
     return result
   } // user friendly snapshot type name
 
-  public static getImportType(importType: ImportType) : string {
+  public static getImportType(importType: ImportType): string {
     let result = null;
     if (importType === ImportType.UPLOAD) {
       result = 'FILE';
@@ -349,11 +350,11 @@ export class PreparationCommonUtil {
    * @returns {string} extension
    * @private
    */
-  public static getExtensionForSnapshot(fileName: string) : string {
+  public static getExtensionForSnapshot(fileName: string): string {
 
     const val = new RegExp(/^.*\.(csv|sql|txt|json)$/).exec(fileName);
 
-    if (isNullOrUndefined(val)) {
+    if (CommonUtil.isNullOrUndefined(val)) {
       return 'csv';
     }
 
@@ -362,23 +363,22 @@ export class PreparationCommonUtil {
   }
 
 
-
   /**
    * returns file extension and file name
    * @param {string} fileName
    * @returns {string[]} [filename, extension]
    * @private
    */
-  public static getFileNameAndExtension(fileName: string) : string[] {
+  public static getFileNameAndExtension(fileName: string): string[] {
 
     const val = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName);
 
     // returns [fileName,'csv'] if regular expression is error
-    if (isNullOrUndefined(val)) {
+    if (CommonUtil.isNullOrUndefined(val)) {
       return [fileName, 'csv']
     }
 
-    return [val[0].split('.' + val[1])[0],val[1]]
+    return [val[0].split('.' + val[1])[0], val[1]]
 
   }
 
@@ -387,15 +387,15 @@ export class PreparationCommonUtil {
    * Returns file format (csv, excel, json)
    * @param fileExtension
    */
-  public static getFileFormat(fileExtension: string) : FileFormat{
-    let fileType : string = fileExtension.toUpperCase();
+  public static getFileFormat(fileExtension: string): FileFormat {
+    const fileType: string = fileExtension.toUpperCase();
 
     const formats = [
-      {extension:'CSV', fileFormat:FileFormat.CSV},
-      {extension:'TXT', fileFormat:FileFormat.TXT},
-      {extension:'JSON', fileFormat:FileFormat.JSON},
-      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
-      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+      {extension: 'CSV', fileFormat: FileFormat.CSV},
+      {extension: 'TXT', fileFormat: FileFormat.TXT},
+      {extension: 'JSON', fileFormat: FileFormat.JSON},
+      {extension: 'XLSX', fileFormat: FileFormat.EXCEL},
+      {extension: 'XLS', fileFormat: FileFormat.EXCEL},
     ];
 
     const idx = _.findIndex(formats, {extension: fileType});
@@ -465,9 +465,9 @@ export class PreparationCommonUtil {
    * 1 -> 01
    * @param num {number}
    */
-  public static padLeft(num : number): string {
-    let z = '0';
-    let n = num + '';
+  public static padLeft(num: number): string {
+    const z = '0';
+    const n = num + '';
     return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
   }
 
@@ -476,7 +476,7 @@ export class PreparationCommonUtil {
    * @param data
    * @returns {any[]}
    */
-  public static getRows(data : any) {
+  public static getRows(data: any) {
     let rows: any[] = data;
     if (data.length > 0 && !data[0].hasOwnProperty('id')) {
       rows = rows.map((row: any, idx: number) => {
@@ -494,7 +494,7 @@ export class PreparationCommonUtil {
    * @param steps(Optional): set number of lines appeared per icon
    * @returns any
    */
-  public static parseChartName(data : any, length?: any, steps?: any) {
+  public static parseChartName(data: any, length?: any, steps?: any) {
 
     if (data !== null && data !== undefined) {
       length = length ? length : 20; // default value of 20, appearing twenty words per line
@@ -535,7 +535,7 @@ export class PreparationCommonUtil {
    * @param length(Optional): set maximum number of words each line
    * @returns any
    */
-  public static parseTooltip(data : any, length?: any) {
+  public static parseTooltip(data: any, length?: any) {
 
     if (data !== null && data !== undefined) {
       length = length ? length : 20; // default at 20, twenty words each line
@@ -571,14 +571,14 @@ export class PreparationCommonUtil {
    * @private
    */
   public static getFileFormatWithExtension(fileExtension: string) {
-    let fileType : string = fileExtension.toUpperCase();
+    const fileType: string = fileExtension.toUpperCase();
 
     const formats = [
-      {extension:'CSV', fileFormat:FileFormat.CSV},
-      {extension:'TXT', fileFormat:FileFormat.TXT},
-      {extension:'JSON', fileFormat:FileFormat.JSON},
-      {extension:'XLSX', fileFormat:FileFormat.EXCEL},
-      {extension:'XLS', fileFormat:FileFormat.EXCEL},
+      {extension: 'CSV', fileFormat: FileFormat.CSV},
+      {extension: 'TXT', fileFormat: FileFormat.TXT},
+      {extension: 'JSON', fileFormat: FileFormat.JSON},
+      {extension: 'XLSX', fileFormat: FileFormat.EXCEL},
+      {extension: 'XLS', fileFormat: FileFormat.EXCEL},
     ];
 
     const idx = _.findIndex(formats, {extension: fileType});
@@ -603,13 +603,13 @@ export class PreparationCommonUtil {
     let name = '';
     if (ds.importType === ImportType.UPLOAD || ds.importType === ImportType.URI) {
       name = this.getFileFormatWithExtension(this.getFileNameAndExtension(ds.filenameBeforeUpload)[1]).toString();
-    }  else if (ds.importType === ImportType.DATABASE) {
+    } else if (ds.importType === ImportType.DATABASE) {
       name = ds['dcImplementor'];
     } else if (ds.importType === ImportType.STAGING_DB) {
       return 'HIVE'
     } else if (ds.importType === ImportType.DRUID) {
       name = 'DRUID'
-    } else if (ds.dsType == DsType.WRANGLED) {
+    } else if (ds.dsType === DsType.WRANGLED) {
       name = 'WRANGLED';
     }
     return name;
@@ -626,7 +626,7 @@ export class PreparationCommonUtil {
    */
   public static getDatasetType(dataset: PrDataset) {
 
-    let result:any = '';
+    let result: any = '';
     const iType: string = this.getImportType(dataset.importType);
 
     if ('FILE' === iType || 'URI' === iType) {

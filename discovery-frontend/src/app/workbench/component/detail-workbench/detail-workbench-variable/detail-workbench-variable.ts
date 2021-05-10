@@ -12,18 +12,15 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Workbench } from '../../../../domain/workbench/workbench';
-import { isUndefined } from 'util';
-import { WorkbenchService } from '../../../service/workbench.service';
-import { CommonConstant } from '../../../../common/constant/common.constant';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Workbench} from '@domain/workbench/workbench';
+import {isUndefined} from 'util';
+import {WorkbenchService} from '../../../service/workbench.service';
+import {CommonConstant} from '@common/constant/common.constant';
 import * as _ from 'lodash';
-import { StringUtil } from '../../../../common/util/string.util';
-import { Alert } from '../../../../common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
 
 /**
  * Global variable in detail workbench
@@ -32,7 +29,7 @@ import { Alert } from '../../../../common/util/alert.util';
   selector: 'detail-workbench-variable',
   templateUrl: './detail-workbench-variable.html',
 })
-export class DetailWorkbenchVariable extends AbstractComponent implements OnInit, OnDestroy {
+export class DetailWorkbenchVariableComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @Input()
   public workbench: Workbench;
@@ -46,8 +43,8 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
 
   // global variable type list
   public typeList: any[] = [
-    { key: 'c', value: this.translateService.instant('msg.bench.ui.calen') },
-    { key: 't', value: this.translateService.instant('msg.bench.ui.text') }
+    {key: 'c', value: this.translateService.instant('msg.bench.ui.calen')},
+    {key: 't', value: this.translateService.instant('msg.bench.ui.text')}
   ];
   // selected global variable type
   public selectedType: any = this.typeList[0];
@@ -70,9 +67,9 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
   private _globalVariableMax: number = 30;
 
   // popup
-  public isConfirmPopup : boolean = false;
+  public isConfirmPopup: boolean = false;
 
-  public globalVariable : any;
+  public globalVariable: any;
 
   // constructor
   constructor(protected workbenchService: WorkbenchService,
@@ -146,7 +143,8 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
         .then(() => {
           // close add panel
           this.addVariableObject.editMode = false
-        }).catch(() => {});
+        }).catch(() => {
+      });
     }
   }
 
@@ -161,7 +159,8 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
       this._updateGlobalVariable(this.variableList)
         .then(() => {
           globalVariable.editMode = false;
-        }).catch(() => {});
+        }).catch(() => {
+      });
     }
   }
 
@@ -255,7 +254,9 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
   public removeSelectedVariable(): void {
     // update global variable
     this._updateGlobalVariable(_.filter(this.variableList, item => item !== this.globalVariable))
-      .then(() => {}).catch(() => {});
+      .then(() => {
+      }).catch(() => {
+    });
     this.isConfirmPopup = false;
   }
 

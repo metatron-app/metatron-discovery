@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { ConnectionType } from './datasource';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {ConnectionType} from './datasource';
 
 export class DatasourceQueryHistory extends AbstractHistoryEntity {
   // id
@@ -51,23 +51,23 @@ export class DatasourceQueryHistory extends AbstractHistoryEntity {
 }
 
 export enum QueryType {
-  CANDIDATE = <any>'CANDIDATE',
-  META = <any>'META',
-  SEARCH = <any>'SEARCH',
-  SUMMARY = <any>'SUMMARY',
-  COVARIANCE = <any>'COVARIANCE',
-  SIMILARITY = <any>'SIMILARITY'
+  CANDIDATE = 'CANDIDATE',
+  META = 'META',
+  SEARCH = 'SEARCH',
+  SUMMARY = 'SUMMARY',
+  COVARIANCE = 'COVARIANCE',
+  SIMILARITY = 'SIMILARITY'
 }
 
 export enum EngineQueryType {
-  TOPN = <any>'TOPN',
-  TIMEBOUNDARY = <any>'TIMEBOUNDARY',
-  SEARCH = <any>'SEARCH',
-  SELECT = <any>'SELECT',
-  SEGMENTMETA = <any>'SEGMENTMETA',
-  SELECTMETA = <any>'SELECTMETA',
-  GROUPBY = <any>'GROUPBY',
-  SUMMARY = <any>'SUMMARY',
-  COVARIANCE = <any>'COVARIANCE',
-  SIMILARITY = <any>'SIMILARITY'
+  TOPN = 'TOPN',
+  TIMEBOUNDARY = 'TIMEBOUNDARY',
+  SEARCH = 'SEARCH',
+  SELECT = 'SELECT',
+  SEGMENTMETA = 'SEGMENTMETA',
+  SELECTMETA = 'SELECTMETA',
+  GROUPBY = 'GROUPBY',
+  SUMMARY = 'SUMMARY',
+  COVARIANCE = 'COVARIANCE',
+  SIMILARITY = 'SIMILARITY'
 }

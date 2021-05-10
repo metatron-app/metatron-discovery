@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AdvancedFilter} from "./advanced-filter";
+import {AdvancedFilter} from './advanced-filter';
 
 export class RegExprFilter extends AdvancedFilter {
 

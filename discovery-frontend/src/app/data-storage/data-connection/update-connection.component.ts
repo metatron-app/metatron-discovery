@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
-import {DataconnectionService} from '../../dataconnection/service/dataconnection.service';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
-import {CommonUtil} from '../../common/util/common.util';
-import {StringUtil} from '../../common/util/string.util';
-import {AuthenticationType, Dataconnection} from '../../domain/dataconnection/dataconnection';
-import {ConnectionComponent} from "../component/connection/connection.component";
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Alert} from "../../common/util/alert.util";
-import {Modal} from "../../common/domain/modal";
 import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Output, ViewChild} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {AuthenticationType, Dataconnection} from '@domain/dataconnection/dataconnection';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {ConnectionComponent} from '../component/connection/connection.component';
+import {SetWorkspacePublishedComponent} from '../component/set-workspace-published/set-workspace-published.component';
 
 @Component({
   selector: 'app-update-connection',
@@ -39,7 +39,7 @@ export class UpdateConnectionComponent extends AbstractComponent {
   private readonly _setWorkspaceComponent: SetWorkspacePublishedComponent;
 
   // connection component
-  @ViewChild(ConnectionComponent)
+  @ViewChild(ConnectionComponent, {static: true})
   private readonly _connectionComponent: ConnectionComponent;
 
   // confirm popup modal
@@ -263,7 +263,7 @@ export class UpdateConnectionComponent extends AbstractComponent {
     this.loadingShow();
     // update connection
     this.connectionService.updateConnection(this._connectionId, this._getUpdateParams())
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.comm.alert.modify.success'));
         // loading hide
@@ -285,7 +285,7 @@ export class UpdateConnectionComponent extends AbstractComponent {
     this.loadingShow();
     // delete connection
     this.connectionService.deleteConnection(this._connectionId)
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.storage.alert.dconn.del.success'));
         // loading hide

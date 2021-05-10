@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PermissionService } from '../../../../user/service/permission.service';
-import { ActivatedRoute } from '@angular/router';
-import { Role, RoleType } from '../../../../domain/user/role/role';
-import { UpdateUserManagementMembersComponent } from '../members/update-member/update-user-management-members.component';
-import { RoleDirectory } from '../../../../domain/user/role/roleDirectory';
-import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
-import { SetMemberGroupContainerComponent } from './set-member-group-container.component';
-import { CommonUtil } from '../../../../common/util/common.util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {PermissionService} from '../../../../user/service/permission.service';
+import {ActivatedRoute} from '@angular/router';
+import {Role, RoleType} from '@domain/user/role/role';
+import {UpdateUserManagementMembersComponent} from '../members/update-member/update-user-management-members.component';
+import {RoleDirectory} from '@domain/user/role/roleDirectory';
+import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
+import {SetMemberGroupContainerComponent} from './set-member-group-container.component';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-detail-user-management-permission',
@@ -40,13 +40,13 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public role: Role = new Role();
-  public members : RoleDirectory[] = [];
-  public groups : RoleDirectory[] = [];
+  public members: RoleDirectory[] = [];
+  public groups: RoleDirectory[] = [];
 
   public simplifiedMemberList = [];
   public simplifiedGroupList = [];
 
-  public defaultTab : number;
+  public defaultTab: number;
   public isSetMemberGroupOpen: boolean = false;
 
   public isMembersDropdownOpen: boolean = false;
@@ -57,7 +57,7 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
   public _setGroupComponent: UpdateUserManagementMembersComponent;
 
   @ViewChild(SetMemberGroupContainerComponent)
-  public _setMemberGroupContainerComponent : SetMemberGroupContainerComponent;
+  public _setMemberGroupContainerComponent: SetMemberGroupContainerComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -110,7 +110,7 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
 
   /**
    * Open / close member drop down
-   * */
+   */
   public openMembersDropdown() {
     this.isMembersDropdownOpen ? this.isMembersDropdownOpen = false : this.isMembersDropdownOpen = true;
   }
@@ -125,7 +125,7 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
   /**
    * Open edit popup
    * @param type {string} members or groups
-   * */
+   */
   public openEditPopup(type: string) {
 
     if (type === 'members') {
@@ -141,14 +141,14 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
 
   /**
    * Close set member and group popup
-   * */
+   */
   public closeSetMemberGroupPopup() {
     this.isSetMemberGroupOpen = false;
   }
 
   /**
    * Get assigned members
-   * */
+   */
   public getAssignedRoleMember() {
 
     this.loadingShow();
@@ -167,42 +167,50 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
 
   /**
    * Get assigned groups
-   * */
+   */
   public getGroups(type: RoleType) {
-    return new Promise<any>((resolve, reject) => {
-      this.permissionService.getAssignedRoleMember(this.role.id, {type : type}).then(result => {
+    return new Promise<any>((resolve) => {
+      this.permissionService.getAssignedRoleMember(this.role.id, {type: type}).then(result => {
         if (result._embedded) {
           this.groups = result._embedded['roleDirectories'];
           this.simplifiedGroupList = [];
           this.groups.map((item) => {
-            this.simplifiedGroupList.push({directoryId : item.directoryId, directoryName:item.directoryName, type : item.type});
+            this.simplifiedGroupList.push({
+              directoryId: item.directoryId,
+              directoryName: item.directoryName,
+              type: item.type
+            });
           });
         } else {
           this.groups = [];
           this.simplifiedGroupList = [];
         }
-        resolve();
+        resolve(null);
       }).catch(err => this.commonExceptionHandler(err));
     });
   }
 
   /**
    * Get assigned members
-   * */
+   */
   public getMembers(type: RoleType) {
-    return new Promise<any>((resolve, reject) => {
-      this.permissionService.getAssignedRoleMember(this.role.id, {type : type}).then(result => {
+    return new Promise<any>((resolve) => {
+      this.permissionService.getAssignedRoleMember(this.role.id, {type: type}).then(result => {
         if (result._embedded) {
           this.members = result._embedded['roleDirectories'];
           this.simplifiedMemberList = [];
           this.members.map((item) => {
-            this.simplifiedMemberList.push({directoryId : item.directoryId, directoryName:item.directoryName, type : item.type });
+            this.simplifiedMemberList.push({
+              directoryId: item.directoryId,
+              directoryName: item.directoryName,
+              type: item.type
+            });
           });
         } else {
           this.members = [];
           this.simplifiedMemberList = [];
         }
-        resolve()
+        resolve(null);
       }).catch(err => this.commonExceptionHandler(err));
     });
   }
@@ -210,9 +218,9 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
 
   /**
    * Get members without first index
-   * */
+   */
   public filteredMembers() {
-    return this.members.filter((item,index) => {
+    return this.members.filter((item, index) => {
       if (index !== 0) {
         return item;
       }
@@ -221,9 +229,9 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
 
   /**
    * Get groups without first index
-   * */
+   */
   public filteredGroups() {
-    return this.groups.filter((item,index) => {
+    return this.groups.filter((item, index) => {
       if (index !== 0) {
         return item;
       }
@@ -251,9 +259,9 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
    * @param {string} role
    * @return {string}
    */
-  public getRoleName(role:string):string {
-    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
-    return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode);
+  public getRoleName(role: string): string {
+    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(role);
+    return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode);
   } // function - getRoleName
 
   /**
@@ -261,9 +269,9 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
    * @param {string} role
    * @return {string}
    */
-  public getRoleDesc(role:string):string {
-    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
-    return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode + '.desc') ;
+  public getRoleDesc(role: string): string {
+    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(role);
+    return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode + '.desc');
   } // function - getRoleDesc
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

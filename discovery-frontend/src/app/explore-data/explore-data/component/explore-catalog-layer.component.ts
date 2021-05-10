@@ -1,5 +1,5 @@
-import {Component, ElementRef, Injector, Input} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
+import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'component-explore-catalog-layer',

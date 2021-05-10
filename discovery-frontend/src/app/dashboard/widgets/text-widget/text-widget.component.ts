@@ -12,19 +12,20 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { AbstractWidgetComponent } from '../abstract-widget.component';
-import { TextWidget } from '../../../domain/dashboard/widget/text-widget';
-import { DomSanitizer } from '@angular/platform-browser';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import * as $ from "jquery";
+import * as $ from 'jquery';
+import {AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {DomSanitizer} from '@angular/platform-browser';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {TextWidget} from '@domain/dashboard/widget/text-widget';
+
+import {AbstractWidgetComponent} from '../abstract-widget.component';
 
 @Component({
   selector: 'text-widget',
   templateUrl: './text-widget.component.html',
   styleUrls: ['./text-widget.component.css']
 })
-export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> implements OnInit, OnDestroy {
+export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -34,6 +35,8 @@ export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> imp
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public widget: TextWidget;
+
+  public isMaximize = false;                // 최대 여부
 
   @Input('widget')
   set setWidget(widget: TextWidget) {
@@ -71,7 +74,7 @@ export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> imp
     setTimeout(() => {
       this._setIsVisibleScrollbar();    // 스크롤바 표시 여부 설정
       this.safelyDetectChanges();
-    }, 1000 );
+    }, 1000);
   }
 
   /**
@@ -92,6 +95,14 @@ export class TextWidgetComponent extends AbstractWidgetComponent<TextWidget> imp
   public setConfiguration(objConfig: any) {
     this.widget.configuration = objConfig;
   } // function - setConfiguration
+
+  /**
+   * 위젯 사이즈 전환
+   */
+  public toggleWidgetSize() {
+    this.isMaximize = !this.isMaximize;
+    this.broadCaster.broadcast('TOGGLE_SIZE', {widgetId: this.widget.id});
+  } // function - toggleWidgetSize
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

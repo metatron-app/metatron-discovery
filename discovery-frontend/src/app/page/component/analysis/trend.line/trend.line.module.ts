@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { TrendLineComponent } from './trend.line.component';
-import { CommonModule } from '../../../../common/common.module';
+import {NgModule} from '@angular/core';
+import {TrendLineComponent} from './trend.line.component';
+import {CommonModule} from '@common/common.module';
 
 @NgModule({
   imports: [

@@ -12,17 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-//import { DatasetHive, DatasetJdbc, DatasetFile } from '../../../domain/data-preparation/dataset';
-import { PrDatasetHive, PrDatasetJdbc, PrDatasetFile } from '../../../domain/data-preparation/pr-dataset';
-
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { PrDatasetHive, PrDatasetJdbc, PrDatasetFile } from '@domain/data-preparation/pr-dataset';
 
 @Component({
   selector: 'app-create-dataset',
   templateUrl: './create-dataset.component.html',
 })
-export class CreateDatasetComponent extends AbstractComponent implements  OnInit {
+export class CreateDatasetComponent extends AbstractComponent implements  OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -67,7 +65,6 @@ export class CreateDatasetComponent extends AbstractComponent implements  OnInit
   public ngOnInit() {
     // Init
     super.ngOnInit();
-
   }
 
   public ngOnDestroy() {

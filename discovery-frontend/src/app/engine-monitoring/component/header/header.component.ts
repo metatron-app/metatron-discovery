@@ -12,32 +12,18 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
-import {Engine} from '../../../domain/engine-monitoring/engine';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {HeaderOptionComponent} from '../header-option/header-option.component';
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: '[header]',
-  templateUrl: './header.component.html',
-  host: {
-    '[class.ddp-layout-top-menu]': 'true',
-    '[class.ddp-clear]': 'true'
-  }
+  templateUrl: './header.component.html'
 })
 export class HeaderComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  @ViewChild(HeaderOptionComponent)
-  private readonly _headerOptionComponent: HeaderOptionComponent;
+  @HostBinding('class')
+  public hostClass: string = 'ddp-layout-top-menu ddp-clear';
 
   @Input()
   public readonly content: Engine.Content;

@@ -1,3 +1,5 @@
+// noinspection TypeScriptValidateJSTypes,JSUnusedAssignment,JSMethodCanBeStatic,JSUnusedLocalSymbols,JSUnusedAssignment
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +15,7 @@
  */
 
 import {
+  AfterContentInit,
   AfterViewInit,
   Component,
   ElementRef,
@@ -20,11 +23,12 @@ import {
   HostListener,
   Injector,
   Input,
+  OnDestroy,
   Output,
   ViewChild,
 } from '@angular/core';
 import {BaseChart, ChartSelectInfo} from '../../base-chart';
-import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {UIMapOption} from '../../option/ui-option/map/ui-map-chart';
 import {
   HeatmapColorList,
@@ -53,18 +57,17 @@ import {BaseOption} from '../../option/base-option';
 import {FormatOptionConverter} from '../../option/converter/format-option-converter';
 import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
 import {Field as AbstractField, Field,} from '../../../../../domain/workbook/configurations/field/field';
-import {Shelf} from '../../../../../domain/workbook/configurations/shelf/shelf';
-import {FieldRole, LogicalType} from '../../../../../domain/datasource/datasource';
-import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
+import {FieldRole, LogicalType} from '@domain/datasource/datasource';
+import {GeoField} from '@domain/workbook/configurations/field/geo-field';
 import {TooltipOptionConverter} from '../../option/converter/tooltip-option-converter';
 import {ChartUtil} from '../../option/util/chart-util';
 import {isNullOrUndefined, isUndefined} from 'util';
 import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
 import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
-import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
-import {CommonConstant} from "../../../../constant/common.constant";
-import {StringUtil} from "../../../../util/string.util";
+import {CommonConstant} from '@common/constant/common.constant';
+import {StringUtil} from '@common/util/string.util';
 
 declare let ol;
 
@@ -72,14 +75,14 @@ declare let ol;
   selector: 'map-chart',
   templateUrl: 'map-chart.component.html'
 })
-export class MapChartComponent extends BaseChart implements AfterViewInit {
+export class MapChartComponent extends BaseChart<UIMapOption> implements AfterViewInit, AfterContentInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Map element
-  @ViewChild('mapArea')
+  @ViewChild('mapArea', {static: true})
   private area: ElementRef;
   private $area: any;
 
@@ -88,7 +91,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private tooltipEl: ElementRef;
 
   // Feature icon element
-  @ViewChild('feature')
+  @ViewChild('feature', {static: true})
   private featureEl: ElementRef;
 
   private _propMapConf = sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG);
@@ -96,7 +99,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
   @Input('needToRemoveMapLayer')
   set removeAllLayer(isChartShow: boolean) {
-    if (isChartShow == false) {
+    if (isChartShow === false) {
       if (this.olmap) {
         this.layerMap.forEach(item => this.olmap.removeLayer(item.layerValue));
         this.layerMap = [];
@@ -211,11 +214,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Component initialize
-  public ngOnInit() {
-    super.ngOnInit();
-  } // function - ngOnInit
-
   // Component destory
   public ngOnDestroy() {
     super.ngOnDestroy();
@@ -270,20 +268,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.$area = $(this.area.nativeElement);
 
     // when cursor moves to another chart, hide tooltip
-    let scope = this;
     $(this.area.nativeElement).on({
-      mouseleave: function () {
-        if (!_.isUndefined(scope.tooltipLayer) && scope.tooltipLayer.length > 0) {
-          scope.tooltipLayer.setPosition(undefined);
+      mouseleave: () => {
+        if (!_.isUndefined(this.tooltipLayer) && this.tooltipLayer.length > 0) {
+          this.tooltipLayer.setPosition(undefined);
         }
       }
     });
 
     // Feature icon element
-    let canvas = this.featureEl.nativeElement;
+    const canvas = this.featureEl.nativeElement;
     canvas.width = 30;
     canvas.height = 20;
-    let context = canvas.getContext('2d');
+    const context = canvas.getContext('2d');
     context.fillStyle = '#7E94DE';
     this.roundRect(context, 0, 0, canvas.width, canvas.height, 4, true, false);
   }
@@ -296,9 +293,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (typeof radius === 'number') {
       radius = {tl: radius, tr: radius, br: radius, bl: radius};
     } else {
-      var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-      for (var side in defaultRadius) {
-        radius[side] = radius[side] || defaultRadius[side];
+      const defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+      for (const side in defaultRadius) {
+        if (side) {
+          radius[side] = radius[side] || defaultRadius[side];
+        }
       }
     }
     context.beginPath();
@@ -327,9 +326,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * Shelf Valid Check
    * 선반 전체 부분을 체크
-   * @param pivot
+   * @param _pivot
+   * @param shelf
    */
-  public isValid(pivot: Pivot, shelf: Shelf): boolean {
+  public isValid(_pivot: Pivot, shelf: Shelf): boolean {
 
     if (!shelf) return false;
 
@@ -337,9 +337,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     if (shelf.layers) {
 
-      for (let index: number = 0; index < shelf.layers.length; index++) {
-        let fields: Field[] = shelf.layers[index].fields;
-        for (let layer of fields) {
+      for (let index: number = 0, nMax = shelf.layers.length; index < nMax; index++) {
+        const fields: Field[] = shelf.layers[index].fields;
+        for (const layer of fields) {
           if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
             valid = true;
           }
@@ -352,7 +352,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * Shelf current field Valid Check
    * 현재 선반의 필드를 체크
-   * @param pivot
    * @param shelf
    * @returns {boolean}
    */
@@ -363,9 +362,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let valid: boolean = false;
 
     for (let layerIndex = 0; shelf.layers.length > layerIndex; layerIndex++) {
-      let fields: Field[] = shelf.layers[layerIndex].fields;
+      const fields: Field[] = shelf.layers[layerIndex].fields;
       if (fields) {
-        for (let layer of fields) {
+        for (const layer of fields) {
           if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
             valid = true;
             break;
@@ -384,7 +383,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   public draw(isKeepRange?: boolean): void {
 
     // point re-size from map point type
-    if (isKeepRange == false && !_.isUndefined(this.uiOption['isChangeStyle']) && this.uiOption['isChangeStyle']) {
+    if (isKeepRange === false && !_.isUndefined(this.uiOption['isChangeStyle']) && this.uiOption['isChangeStyle']) {
       this.changePointSize();
       delete this.uiOption['isChangeStyle'];
       return;
@@ -393,12 +392,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.isResize = false;
 
     // analysis
-    if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] == true
-      && this.getUiMapOption().layerNum == this.getUiMapOption().layers.length - 1) {
+    if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use'])
+      && this.getUiMapOption().analysis['use'] === true
+      && this.getUiMapOption().layerNum === this.getUiMapOption().layers.length - 1) {
       // 공간연산 재실행 여부
-      if (this.drawByType == EventType.MAP_SPATIAL_REANALYSIS) {
+      if (this.drawByType === EventType.MAP_SPATIAL_REANALYSIS) {
         this.layerMap.forEach((item) => {
-          if (item.id == this.getUiMapOption().layerNum) {
+          if (item.id === this.getUiMapOption().layerNum) {
             this.olmap.removeLayer(item.layerValue)
           }
         });
@@ -447,19 +447,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.legendInfo.layer = [];
 
     // Is map creation
-    let isMapCreation: boolean = this.createMap();
+    const isMapCreation: boolean = this.createMap();
 
     for (let layerIndex = 0; layerIndex < this.getUiMapOption().layers.length; layerIndex++) {
 
       // Source
-      let source = new ol.source.Vector({crossOrigin: 'anonymous'});
+      const source = new ol.source.Vector({crossOrigin: 'anonymous'});
 
       // Line & Polygon Source
-      let emptySource = new ol.source.Vector();
+      const emptySource = new ol.source.Vector();
 
       // 데이터가 없는경우 dummy data 추가
-      if (this.data.length != this.getUiMapOption().layers.length && !this.isGeoFieldCheck(this.shelf.layers, layerIndex)) {
-        if (layerIndex == 0) {
+      if (this.data.length !== this.getUiMapOption().layers.length && !this.isGeoFieldCheck(this.shelf.layers, layerIndex)) {
+        if (layerIndex === 0) {
           this.data = _.concat({features: []}, this.data[0]);
         }
       }
@@ -501,7 +501,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * Get map UI option
    */
   public getUiMapOption(): UIMapOption {
-    return <UIMapOption>this.uiOption;
+    return this.uiOption as UIMapOption;
   }
 
   public resize(): void {
@@ -526,9 +526,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * 차트에 옵션 반영
    * - Echart기반 차트가 아닐경우 Override 필요
-   * @param initFl 차트 초기화 여부
+   * @param _initFl 차트 초기화 여부
    */
-  protected apply(initFl: boolean = true): void {
+  protected apply(_initFl: boolean = true): void {
 
   }
 
@@ -585,10 +585,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * 차트 Resize
    *
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     if (this.olmap) {
       this.olmap.updateSize();
 
@@ -604,10 +604,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * 차트가 그려진 후 UI에 필요한 옵션 설정 - 차원값 리스트
    *
-   * @param shelve
    */
   protected setDimensionList(): UIOption {
-    let shelve: any = [];
+    const shelve: any = [];
     for (let layerIndex = 0; this.getUiMapOption().layers.length > layerIndex; layerIndex++) {
       if (this.shelf && !_.isUndefined(this.shelf.layers[layerIndex])) {
         this.shelf.layers[layerIndex].fields.forEach((field) => {
@@ -615,13 +614,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         });
       }
     }
-    // undefined shelf layer can be existed because of adding removing layers
-    if (shelve == null) return;
     // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
-    const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
+    const getShelveReturnString = ((shelveList: any, typeList: ShelveFieldType[]): string[] => {
       const resultList: string[] = [];
-      shelve.map((item) => {
-        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) {
+      shelveList.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 === item.field.logicalType.indexOf('GEO'))) {
           resultList.push(item.name);
         }
       });
@@ -632,14 +629,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.uiOption.fieldList = getShelveReturnString(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
     if (this.uiOption.color) {
       // targetField 설정
-      const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
+      const targetField = (this.uiOption.color as UIChartColorByDimension).targetField;
       // targetField가 있을때
       if (!_.isEmpty(targetField)) {
-        if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+        if (this.uiOption.fieldList.indexOf(targetField) < 0) (this.uiOption.color as UIChartColorByDimension).targetField = _.last(this.uiOption.fieldList);
         // targetField가 없을때
       } else {
         // 마지막 필드를 타겟필드로 잡기
-        (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+        (this.uiOption.color as UIChartColorByDimension).targetField = _.last(this.uiOption.fieldList);
       }
     }
     return this.uiOption;
@@ -648,10 +645,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * 차트가 그려진 후 UI에 필요한 옵션 설정 - 측정값 리스트
    *
-   * @param shelve
    */
   protected setMeasureList(): UIOption {
-    let shelve: any = [];
+    const shelve: any = [];
     for (let layerIndex = 0; this.getUiMapOption().layers.length > layerIndex; layerIndex++) {
       if (this.shelf && !_.isUndefined(this.shelf.layers[layerIndex])) {
         this.shelf.layers[layerIndex].fields.forEach((field) => {
@@ -660,10 +656,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
     }
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
-    const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
-      let resultList: AbstractField[] = [];
-      shelve.map((item) => {
-        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')))) {
+    const getShelveReturnField = ((shelveList: any, typeList: ShelveFieldType[]): AbstractField[] => {
+      const resultList: AbstractField[] = [];
+      shelveList.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 === item.field.logicalType.indexOf('GEO')))) {
           resultList.push(item);
         }
       });
@@ -759,7 +755,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         maxZoom: 20,
         minZoom: 3,
         // minZoom: this.getMinZoom()
-        //extent: [-7435794.111581946, -8766409.899970295, 8688138.383006273, 9314310.518718438]
+        // extent: [-7435794.111581946, -8766409.899970295, 8688138.383006273, 9314310.518718438]
       }),
       layers: [layer],
       target: this.$area[0]
@@ -767,10 +763,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.olmap.un('moveend');
     this.olmap.on('moveend', this.zoomFunction);
 
-    for (let i = 0; i < document.getElementsByClassName('ol-attribution').length; i++) {
-      let element = document.getElementsByClassName('ol-attribution')[i] as HTMLElement;
-      element.style.right = "auto";
-      element.style.left = ".5em";
+    for (let i = 0, nMax = document.getElementsByClassName('ol-attribution').length; i < nMax; i++) {
+      const element = document.getElementsByClassName('ol-attribution')[i] as HTMLElement;
+      element.style.right = 'auto';
+      element.style.left = '.5em';
     }
 
     // Chart resize
@@ -792,13 +788,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Create layer
     ////////////////////////////////////////////////////////
     // Layer
-    let layer: UILayers = this.getUiMapOption().layers[layerIndex];
+    const layer: UILayers = this.getUiMapOption().layers[layerIndex];
     ////////////////////////////////////////////////////////
     // Cluster & Point layer
     ////////////////////////////////////////////////////////
     let field = null;
     _.each(this.shelf.layers[layerIndex].fields, (fieldTemp) => {
-      if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+      if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') !== -1) {
         field = fieldTemp;
         return false;
       }
@@ -806,13 +802,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let isLogicalType = false;
     if (field != null && field.field != null && field.field.logicalType != null) {
       isLogicalType = true;
-      let geomType = field.field.logicalType.toString();
+      const geomType = field.field.logicalType.toString();
 
       if (_.eq(layer.type, MapLayerType.SYMBOL) || _.eq(layer.type, MapLayerType.CLUSTER)) {
-        let symbolLayer = new ol.layer.Vector({
-            source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+        const symbolLayer = new ol.layer.Vector({
+          source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
           style: _.eq(geomType, LogicalType.GEO_POINT) ? this.pointStyleFunction(layerIndex, this.data) : new ol.style.Style()
-          });
+        });
         // set z index (the default value is 0 and higher would be 1)
         // this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
         symbolLayer.setZIndex(4);
@@ -835,7 +831,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Line, Polygon layer
         ////////////////////////////////////////////////////////
         // Create
-        let symbolLayer = new ol.layer.Vector({
+        const symbolLayer = new ol.layer.Vector({
           source: source,
           style: this.mapStyleFunction(layerIndex, this.data)
         });
@@ -860,9 +856,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         ////////////////////////////////////////////////////////
         // Heatmap layer
         ////////////////////////////////////////////////////////
-        let getHeatMapLayerValue: UIHeatmapLayer = <UIHeatmapLayer>layer;
+        const getHeatMapLayerValue: UIHeatmapLayer = layer as UIHeatmapLayer;
         // Create
-        let heatmapLayer = new ol.layer.Heatmap({
+        const heatmapLayer = new ol.layer.Heatmap({
           source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
           // Style
           gradient: HeatmapColorList[getHeatMapLayerValue.color.schema],
@@ -901,7 +897,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Hexgon layer
         ////////////////////////////////////////////////////////
         // Create
-        let hexagonLayer = new ol.layer.Vector({
+        const hexagonLayer = new ol.layer.Vector({
           source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
           style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(layerIndex, this.data) : new ol.style.Style()
         });
@@ -926,11 +922,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
     this.changeDetect.detectChanges();
 
-    let overlayLayerId : string = 'layerId'+ (layerIndex+1);
+    const overlayLayerId: string = 'layerId' + (layerIndex + 1);
 
     // Map data place fit
-    if (((this.drawByType == EventType.CHART_TYPE || this.olmap.getOverlayById(overlayLayerId) == null ) && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
-      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
+    if (((this.drawByType === EventType.CHART_TYPE || this.olmap.getOverlayById(overlayLayerId) == null)
+      && isLogicalType
+      && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) === -1
+      && (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
       // set saved data zoom
@@ -946,43 +944,43 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private createFeature(source, layerIndex): void {
 
-    let data = this.data[layerIndex];
+    const data = this.data[layerIndex];
 
     ////////////////////////////////////////////////////////
     // Generate feature
     ////////////////////////////////////////////////////////
     // Feature list
-    let features = [];
+    const features = [];
     let field = null;
     _.each(this.shelf.layers[layerIndex].fields, (fieldTemp) => {
-      if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+      if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') !== -1) {
         field = fieldTemp;
         return false;
       }
     });
     if (field != null && field.field != null && field.field.logicalType != null) {
-      let geomType = field.field.logicalType.toString();
+      const geomType = field.field.logicalType.toString();
       ////////////////////////////////////////////////////////
       // set field list
       ////////////////////////////////////////////////////////
-      let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[layerIndex].fields);
+      const shelf: GeoField[] = _.cloneDeep(this.shelf.layers[layerIndex].fields);
       this.checkFieldList(shelf, layerIndex);
       // Data set
       for (let i = 0; i < data.features.length; i++) {
         // geo type
-        if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') != -1) {
+        if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') !== -1) {
           // point && heatmap
-          let pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+          const pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
           if (_.eq(geomType, LogicalType.GEO_POINT)) {
             let featureCenter = pointFeature.getGeometry().getCoordinates();
             if (featureCenter.length === 1) {
-              let extent = pointFeature.getGeometry().getExtent();
+              const extent = pointFeature.getGeometry().getExtent();
               featureCenter = ol.extent.getCenter(extent);
               pointFeature.setGeometry(new ol.geom.Point(featureCenter));
             }
             if (this.uiOption.fieldMeasureList.length > 0) {
               const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[layerIndex].color.column, this.shelf.layers[layerIndex].fields, this.getUiMapOption().layers[layerIndex].color.aggregationType);
-              //히트맵 weight 설정
+              // 히트맵 weight 설정
               if (data.valueRange[alias]) {
                 pointFeature.set('weight', pointFeature.getProperties()[alias] / data.valueRange[alias].maxValue);
               }
@@ -992,20 +990,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           pointFeature.set('isClustering', this.getUiMapOption().layers[layerIndex]['clustering']);
           features[i] = pointFeature;
           source.addFeature(features[i]);
-        } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1) {
+        } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') !== -1) {
           // polygon
-          let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+          const polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
           polygonFeature.set('layerNum', layerIndex);
           features[i] = polygonFeature;
           source.addFeature(features[i]);
-        } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
+        } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') !== -1) {
           let line;
-          if( data.features[i].geometry.type.toString().toLowerCase().indexOf('multi') != -1 ){
+          if (data.features[i].geometry.type.toString().toLowerCase().indexOf('multi') !== -1) {
             line = new ol.geom.MultiLineString(data.features[i].geometry.coordinates);
           } else {
             line = new ol.geom.LineString(data.features[i].geometry.coordinates);
           }
-          let lineFeature = new ol.Feature({geometry: line});
+          const lineFeature = new ol.Feature({geometry: line});
           if (!_.isNull(this.getUiMapOption().layers[layerIndex].color.column)) {
             const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[layerIndex].color.column, this.shelf.layers[layerIndex].fields, this.getUiMapOption().layers[layerIndex].color.aggregationType);
             lineFeature.set(alias, data.features[i].properties[alias]);
@@ -1022,44 +1020,40 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * map style function
    */
   private mapStyleFunction = (layerNum, data, selectMode?: ChartSelectMode, dataIndex?: number) => {
-    let scope: any = this;
-    let styleOption: UIMapOption = this.getUiMapOption();
-    let styleLayer: UILayers = styleOption.layers[layerNum];
-    let styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
-    return function (feature, resolution) {
+    const scope: any = this;
+    const styleOption: UIMapOption = this.getUiMapOption();
+    const styleLayer: UILayers = styleOption.layers[layerNum];
+    const styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
+    return (feature, _resolution) => {
       ////////////////////////////////////////////////////////
       // Style options
       ////////////////////////////////////////////////////////
-      let layerType = styleLayer.type;
+      const layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
-      let featureColorType = styleLayer.color.by;
-      let symbolType = null;
+      const featureColorType = styleLayer.color.by;
       let outlineType = null;
       let lineDashType = null;
-      let lineMaxVal = 1; //styleLayer.size.max;
+      let lineMaxVal = 1; // styleLayer.size.max;
       let outlineColor = null;
-      let featureSizeType = null;
       let featureThicknessType = null;
       let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum], styleLayer.color.aggregationType);
 
       if (!_.isUndefined(styleOption['analysis']) && !_.isUndefined(styleOption['analysis']['use']) && styleOption['analysis']['use']) {
-        if ( !isNullOrUndefined(styleLayer.color.aggregationType)) {
-          alias = styleLayer.color.aggregationType + "(" + alias + ")";
+        if (!isNullOrUndefined(styleLayer.color.aggregationType)) {
+          alias = styleLayer.color.aggregationType + '(' + alias + ')';
         }
       }
 
       // Symbol type
       if (_.eq(layerType, MapLayerType.SYMBOL) || _.eq(layerType, MapLayerType.CLUSTER)) {
-        let symbolLayer: UISymbolLayer = <UISymbolLayer>styleLayer;
-        symbolType = symbolLayer.symbol;
+        const symbolLayer: UISymbolLayer = styleLayer as UISymbolLayer;
         outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
         outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
-        featureSizeType = symbolLayer.size.by;
       }
 
       // Line type
       if (_.eq(layerType, MapLayerType.LINE) || _.eq(layerType, MapLayerType.MULTILINESTRING)) {
-        let lineLayer: UILineLayer = <UILineLayer>styleLayer;
+        const lineLayer: UILineLayer = styleLayer as UILineLayer;
         lineDashType = lineLayer.lineStyle;
         featureThicknessType = lineLayer.thickness.by;
         lineMaxVal = lineLayer.thickness.maxValue;
@@ -1067,7 +1061,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // Polygon type
       if (_.eq(layerType, MapLayerType.POLYGON) || _.eq(layerType, MapLayerType.MULTIPOLYGON)) {
-        let polygonLayer: UIPolygonLayer = <UIPolygonLayer>styleLayer;
+        const polygonLayer: UIPolygonLayer = styleLayer as UIPolygonLayer;
         outlineType = polygonLayer.outline ? polygonLayer.outline.thickness : null;
         outlineColor = polygonLayer.outline ? polygonLayer.outline.color : null;
       }
@@ -1079,8 +1073,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       if (_.eq(featureColorType, MapBy.MEASURE)) {
         if (styleLayer.color['ranges']) {
-          for (let range of styleLayer.color['ranges']) {
-            let rangeMax = range.fixMax;
+          for (const range of styleLayer.color['ranges']) {
+            const rangeMax = range.fixMax;
             let rangeMin = range.fixMin;
 
             if (rangeMax === null) {
@@ -1092,7 +1086,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
             } else {
               if (rangeMin === null) {
-                let minValue = styleData.valueRange[alias].minValue;
+                const minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1116,8 +1110,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
           });
 
-          for (let range of ranges) {
-            let rangeMax = range.fixMax;
+          for (const range of ranges) {
+            const rangeMax = range.fixMax;
             let rangeMin = range.fixMin;
 
             if (rangeMax === null) {
@@ -1129,7 +1123,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
             } else {
               if (rangeMin === null) {
-                let minValue = styleData.valueRange[alias].minValue;
+                const minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1139,9 +1133,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 }
               }
 
-              let value = formatValue(feature.getProperties()[alias]);
+              const value = formatValue(feature.getProperties()[alias]);
 
-              if ((rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax)) {
+              if ((rangeMin === 0 && rangeMin === value) || (value >= rangeMin && value <= rangeMax)) {
                 featureColor = range.color;
               }
             }
@@ -1193,11 +1187,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       if (_.eq(layerType, MapLayerType.LINE) || _.eq(layerType, MapLayerType.MULTILINESTRING)) {
         try {
-          let lineLayer: UILineLayer = <UILineLayer>styleLayer;
+          const lineLayer: UILineLayer = styleLayer as UILineLayer;
           const lineAlias = ChartUtil.getFieldAlias(lineLayer.thickness.column, scope.shelf.layers[layerNum], lineLayer.thickness.aggregationType);
 
-          if (!_.eq(lineLayer.thickness.column, "NONE") && _.eq(featureThicknessType, MapBy.MEASURE)) {
-            lineThickness = parseInt(feature.get(lineAlias)) / (styleData.valueRange[lineAlias].maxValue / lineMaxVal);
+          if (!_.eq(lineLayer.thickness.column, 'NONE') && _.eq(featureThicknessType, MapBy.MEASURE)) {
+            lineThickness = parseInt(feature.get(lineAlias), 10) / (styleData.valueRange[lineAlias].maxValue / lineMaxVal);
             if (lineThickness < 1) {
               lineThickness = 1;
             } else if (lineThickness > lineMaxVal) {
@@ -1267,26 +1261,25 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * point style function
    */
   private pointStyleFunction = (layerNum, data, selectMode?: ChartSelectMode, dataIndex?: number) => {
-    let scope: any = this;
-    let styleOption: UIMapOption = this.getUiMapOption();
-    let styleLayer: UILayers = styleOption.layers[layerNum];
-    let styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
-    return function (feature, resolution) {
+    const scope: any = this;
+    const styleOption: UIMapOption = this.getUiMapOption();
+    const styleLayer: UILayers = styleOption.layers[layerNum];
+    const styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
+    return (feature, _resolution) => {
       ////////////////////////////////////////////////////////
       // Style options
       ////////////////////////////////////////////////////////
-      let symbolLayer: UISymbolLayer = <UISymbolLayer>styleLayer;
-      let layerType = styleLayer.type;
+      const symbolLayer: UISymbolLayer = styleLayer as UISymbolLayer;
       let featureColor = styleLayer.color.schema;
-      let featureColorType = styleLayer.color.by;
-      let symbolType = symbolLayer.symbol;
-      let outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
+      const featureColorType = styleLayer.color.by;
+      const symbolType = symbolLayer.symbol;
+      const outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
       let outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
-      let lineMaxVal = 1; //styleLayer.size.max;
-      let featureSizeType = symbolLayer.size.by;
+      const lineMaxVal = 1; // styleLayer.size.max;
+      const featureSizeType = symbolLayer.size.by;
       let style = null;
       let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum].fields, styleLayer.color.aggregationType);
-      if( styleLayer.type == MapLayerType.CLUSTER ){
+      if (styleLayer.type === MapLayerType.CLUSTER) {
         alias = 'count';
       }
       ////////////////////////////////////////////////////////
@@ -1296,19 +1289,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let isClustering: boolean = false;
 
       if (!_.isUndefined(feature.getProperties()) && !_.isUndefined(feature.getProperties()['isClustering']) && !_.isUndefined(feature.getProperties().count)
-        && feature.getProperties()['isClustering'] == true) {
+        && feature.getProperties()['isClustering'] === true) {
         isClustering = true;
         size = feature.getProperties().count;
       }
 
-      if (isClustering == false || size <= 1) {
+      if (isClustering === false || size <= 1) {
         ////////////////////////////////////////////////////////
         // Color
         ////////////////////////////////////////////////////////
         if (_.eq(featureColorType, MapBy.MEASURE)) {
           if (styleLayer.color['ranges']) {
-            for (let range of styleLayer.color['ranges']) {
-              let rangeMax = range.fixMax;
+            for (const range of styleLayer.color['ranges']) {
+              const rangeMax = range.fixMax;
               let rangeMin = range.fixMin;
 
               if (rangeMax === null) {
@@ -1342,8 +1335,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             const formatValue = ((value) => {
               return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
             });
-            for (let range of ranges) {
-              let rangeMax = range.fixMax;
+            for (const range of ranges) {
+              const rangeMax = range.fixMax;
               let rangeMin = range.fixMin;
               if (rangeMax === null) {
                 // if feature value is bigger than max value, set max color
@@ -1352,7 +1345,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 }
               } else {
                 if (rangeMin === null) {
-                  let minValue = styleData.valueRange[alias].minValue;
+                  const minValue = styleData.valueRange[alias].minValue;
 
                   if (minValue >= 0) {
                     rangeMin = 0;
@@ -1362,9 +1355,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                   }
                 }
 
-                let value = formatValue(feature.getProperties()[alias]);
+                const value = formatValue(feature.getProperties()[alias]);
 
-                if ((rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax)) {
+                if ((rangeMin === 0 && rangeMin === value) || (value >= rangeMin && value <= rangeMax)) {
                   featureColor = range.color;
                 }
               }
@@ -1400,7 +1393,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         let featureSize = 5;
         try {
           if (_.eq(featureSizeType, MapBy.MEASURE)) {
-            featureSize = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields)].maxValue / 30);
+            featureSize = parseInt(feature.get(ChartUtil.getFieldAlias(styleLayer.size.column, scope.shelf.layers[layerNum].fields)), 10) / (styleData.valueRange[ChartUtil.getFieldAlias((styleLayer as UISymbolLayer).size.column, scope.shelf.layers[layerNum].fields)].maxValue / 30);
             if (featureSize < 5) {
               featureSize = 5;
             }
@@ -1410,7 +1403,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         let lineThickness = 2;
         try {
           if (_.eq(featureSizeType, MapBy.MEASURE)) {
-            lineThickness = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields)].maxValue / lineMaxVal);
+            lineThickness = parseInt(feature.get(ChartUtil.getFieldAlias(styleLayer.size.column, scope.shelf.layers[layerNum].fields)), 10) / (styleData.valueRange[ChartUtil.getFieldAlias((styleLayer as UISymbolLayer).size.column, scope.shelf.layers[layerNum].fields)].maxValue / lineMaxVal);
             if (lineThickness < 1) {
               lineThickness = 1;
             }
@@ -1461,7 +1454,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         });
 
         // 크기 반경
-        if (symbolType == MapSymbolType.CIRCLE || symbolType == MapSymbolType.SQUARE || symbolType == MapSymbolType.TRIANGLE) {
+        if (symbolType === MapSymbolType.CIRCLE || symbolType === MapSymbolType.SQUARE || symbolType === MapSymbolType.TRIANGLE) {
           if (isNullOrUndefined(styleLayer.pointRadius) || isNaN(styleLayer.pointRadius)
             || isNullOrUndefined(styleLayer['pointRadiusFrom'])) {
             styleLayer.pointRadius = featureSize;
@@ -1470,18 +1463,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             if (!isNullOrUndefined(styleLayer['needToCalPointRadius']) && styleLayer['needToCalPointRadius']
               && !isNullOrUndefined(styleLayer['pointRadiusTo'])) {
               // 처음에는 정의된 값이 없음, color 에서 첫번째 measure min/max 가져옴
-              let maxValue: number = !isNullOrUndefined(styleLayer['size'].maxValue) ? parseFloat(_.cloneDeep(styleLayer['size'].maxValue)) : _.cloneDeep(styleLayer.color.maxValue);
-              let minValue: number = !isNullOrUndefined(styleLayer['size'].minValue) ? parseFloat(_.cloneDeep(styleLayer['size'].minValue)) : _.cloneDeep(styleLayer.color.minValue);
+              let maxValue: number = !isNullOrUndefined(styleLayer['size']['maxValue']) ? parseFloat(_.cloneDeep(styleLayer['size']['maxValue'])) : _.cloneDeep(styleLayer.color.maxValue);
+              const minValue: number = !isNullOrUndefined(styleLayer['size']['minValue']) ? parseFloat(_.cloneDeep(styleLayer['size']['minValue'])) : _.cloneDeep(styleLayer.color.minValue);
               // 마이너스 값은 지도에 표시 할 수 없기 때문에 플러스로 치환
               if (minValue < 0) {
                 maxValue = maxValue + (-minValue);
               }
               if (maxValue > 0 && maxValue < 1) {
                 // 소수점 자리 찾기
-                let countDecimals: number = maxValue.toString().split(".")[1].length;
-                let decimalNum = Math.pow(10, countDecimals);
+                const countDecimals: number = maxValue.toString().split('.')[1].length;
+                const decimalNum = Math.pow(10, countDecimals);
                 maxValue = maxValue * decimalNum;
-              } else if (maxValue == 0) {
+              } else if (maxValue === 0) {
                 maxValue = 1;
               } else if (maxValue < 0) {
                 maxValue = -maxValue;
@@ -1625,7 +1618,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Cluster Style
         // featureColor = '#7E94DE';
 
-        let canvas = scope.featureEl.nativeElement;
+        const canvas = scope.featureEl.nativeElement;
         style = new ol.style.Style({
           image: new ol.style.Icon({
             img: canvas,
@@ -1650,29 +1643,28 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private hexagonStyleFunction = (layerNum, data, selectMode?: ChartSelectMode, dataIndex?: number) => {
 
-    let scope: any = this;
-    let styleOption: UIMapOption = this.getUiMapOption();
-    let styleLayer: UILayers = styleOption.layers[layerNum];
-    let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum].fields, styleLayer.color.aggregationType);
-    let styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
+    const scope: any = this;
+    const styleOption: UIMapOption = this.getUiMapOption();
+    const styleLayer: UILayers = styleOption.layers[layerNum];
+    const alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum].fields, styleLayer.color.aggregationType);
+    const styleData = !_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true ? data[dataIndex] : data[layerNum];
 
-
-    return function (feature, resolution) {
+    return (feature, _resolution) => {
 
       ////////////////////////////////////////////////////////
       // Style options
       ////////////////////////////////////////////////////////
 
-      let layerType = styleLayer.type;
+      // const layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
-      let featureColorType = styleLayer.color.by;
-      let symbolType = null;
-      let outlineType = null;
-      let lineDashType = null;
-      let lineMaxVal = 1; //styleLayer.size.max;
-      let outlineColor = 'black';
-      let featureSizeType = null;
-      let outlineWidth = 1;
+      const featureColorType = styleLayer.color.by;
+      // const symbolType = null;
+      // const outlineType = null;
+      // const lineDashType = null;
+      // const lineMaxVal = 1; // styleLayer.size.max;
+      // let outlineColor = 'black';
+      // const featureSizeType = null;
+      // let outlineWidth = 1;
 
       ////////////////////////////////////////////////////////
       // Color
@@ -1680,8 +1672,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       if (_.eq(featureColorType, MapBy.MEASURE)) {
         if (styleLayer.color['ranges']) {
-          for (let range of styleLayer.color['ranges']) {
-            let rangeMax = range.fixMax;
+          for (const range of styleLayer.color['ranges']) {
+            const rangeMax = range.fixMax;
             let rangeMin = range.fixMin;
 
             if (rangeMax === null) {
@@ -1693,7 +1685,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
             } else {
               if (rangeMin === null) {
-                let minValue = styleData.valueRange[alias].minValue;
+                const minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1716,8 +1708,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
           });
 
-          for (let range of ranges) {
-            let rangeMax = range.fixMax;
+          for (const range of ranges) {
+            const rangeMax = range.fixMax;
             let rangeMin = range.fixMin;
 
             if (rangeMax === null) {
@@ -1729,7 +1721,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
             } else {
               if (rangeMin === null) {
-                let minValue = styleData.valueRange[alias].minValue;
+                const minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1739,9 +1731,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 }
               }
 
-              let value = formatValue(feature.getProperties()[alias]);
+              const value = formatValue(feature.getProperties()[alias]);
 
-              if ((rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax)) {
+              if ((rangeMin === 0 && rangeMin === value) || (value >= rangeMin && value <= rangeMax)) {
                 featureColor = range.color;
               }
             }
@@ -1775,17 +1767,17 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // when select mode or filter param exists, set feature selection style
       if ((filterFl || selectMode) && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
 
-        outlineWidth = 2;
+        // outlineWidth = 2;
 
         // when style is dark
         if (MapLayerStyle.DARK.toString() === styleOption.style) {
           featureColor = SelectionColor.FEATURE_DARK.toString();
-          outlineColor = SelectionColor.OUTLINE_DARK.toString();
+          // outlineColor = SelectionColor.OUTLINE_DARK.toString();
 
           // when style is colored, light
         } else {
           featureColor = SelectionColor.FEATURE_LIGHT.toString();
-          outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
+          // outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
         }
       }
 
@@ -1793,7 +1785,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Creation style
       ////////////////////////////////////////////////////////
 
-      let style = new ol.style.Style({
+      return new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: featureColor,
           width: 1
@@ -1802,8 +1794,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           color: featureColor
         })
       });
-
-      return style;
     }
   }
 
@@ -1815,7 +1805,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (this.getUiMapOption()) {
       return this.getUiMapOption().licenseNotation;
     } else {
-      return "© OpenStreetMap contributors";
+      return '© OpenStreetMap contributors';
     }
   }
 
@@ -1873,8 +1863,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // tooltip 타입 설정
     let tooltipTypeToShow = null;
     // Get feature
-    let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
-      return feature;
+    let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (_feature) => {
+      return _feature;
     });
     // let featureByEvent = event.map.forEachFeatureAtPixel(event.pixel, (feature) => {
     //   return feature;
@@ -1889,13 +1879,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       (!_.isUndefined(feature.getProperties())
         // clustering의 경우 tooltip 안보이게 함
         && !_.isUndefined(feature.getProperties()['isClustering'])
-        && feature.getProperties()['isClustering'] == true
+        && feature.getProperties()['isClustering'] === true
         && !_.isUndefined(feature.getProperties()['count'])
         && feature.getProperties()['count'] > 1)
       ||
       (!_.isUndefined(feature.getProperties()['layerNum'])
         // 비교레이어 영역 layer에 마우스 오버시 tooltip 안보이게 함
-        && feature.getProperties()['layerNum'] == -5)) {
+        && feature.getProperties()['layerNum'] === -5)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
       this.changeDetect.detectChanges();
@@ -1909,7 +1899,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
 
     // get tooltip number from feature
-    let toolTipLayerNum = _.cloneDeep(!isNullOrUndefined(feature.getProperties().layerNum) ? feature.getProperties().layerNum : !isNullOrUndefined(feature.getProperties().features[0].get('layerNum')) ? feature.getProperties().features[0].get('layerNum') : 0);
+    const toolTipLayerNum = _.cloneDeep(!isNullOrUndefined(feature.getProperties().layerNum) ? feature.getProperties().layerNum : !isNullOrUndefined(feature.getProperties().features[0].get('layerNum')) ? feature.getProperties().features[0].get('layerNum') : 0);
 
     // do not set tooltip for HEATMAP
     if (!_.isUndefined(this.getUiMapOption().layers[toolTipLayerNum]) && !_.isUndefined(this.getUiMapOption().layers[toolTipLayerNum].type)
@@ -1923,16 +1913,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Layer num & name
       ////////////////////////////////////////////////////////
       // Cluster check
-      let features = feature.get('features');
+      const features = feature.get('features');
       if (!isNullOrUndefined(features)) {
         if (features.length > 1) {
           return;
         }
         feature = features[0];
       }
-      if (tooltipTypeToShow == null || this.getUiMapOption().layers[toolTipLayerNum].type == MapLayerType.SYMBOL || this.getUiMapOption().layers[toolTipLayerNum].type == MapLayerType.CLUSTER) {
+      if (tooltipTypeToShow == null
+        || this.getUiMapOption().layers[toolTipLayerNum].type === MapLayerType.SYMBOL
+        || this.getUiMapOption().layers[toolTipLayerNum].type === MapLayerType.CLUSTER) {
         // Layer num & name
-        if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
+        if (this.getUiMapOption().toolTip.displayTypes !== undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
           tooltipTypeToShow = this.getUiMapOption().layers[toolTipLayerNum].type;
           this.tooltipInfo.num = toolTipLayerNum + 1;
           this.tooltipInfo.name = this.getUiMapOption().layers[toolTipLayerNum].name;
@@ -1950,12 +1942,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Coordinates (Geo Info)
         ////////////////////////////////////////////////////////
         let coords = [0, 0];
-        let extent = feature.getGeometry().getExtent();
+        const extent = feature.getGeometry().getExtent();
         coords = ol.extent.getCenter(extent);
 
         this.tooltipInfo.coords = [];
 
-        if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[18] !== null) {
+        if (this.getUiMapOption().toolTip.displayTypes !== undefined && this.getUiMapOption().toolTip.displayTypes[18] !== null) {
 
           // Line Type
           if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
@@ -1975,8 +1967,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // let layerFieldList = [];
 
         // Properties (DATA_VALUE)
-        if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[19] !== null) {
-          let aggregationKeys: any[] = [];
+        if (this.getUiMapOption().toolTip.displayTypes !== undefined && this.getUiMapOption().toolTip.displayTypes[19] !== null) {
+          const aggregationKeys: any[] = [];
           // layer 에 올라간 field 값 조회
           let layerItems = [];
           // let itemIndex = 0;
@@ -1996,16 +1988,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           // layer 에 올란간 dimension 와 measure list 조회
           // layerFieldList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
-          for (let key in feature.getProperties()) {
-            _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
-              if (_.eq(field, key)) {
-                if ( this.getUiMapOption().layers[this.getUiMapOption().layerNum].type == MapLayerType.CLUSTER ){
+          for (const key in feature.getProperties()) {
+            if (key) {
+              _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
+                if (_.eq(field, key)) {
+                  if (this.getUiMapOption().layers[this.getUiMapOption().layerNum].type === MapLayerType.CLUSTER) {
+                    return false;
+                  }
+                  aggregationKeys.push({idx: idx, key: key});
                   return false;
                 }
-                aggregationKeys.push({idx: idx, key: key});
-                return false;
-              }
-            });
+              });
+            }
           }
 
           // 공간연산 실행 후 단계구분도(choropleth) 설정을 count로 custom하기 때문에 해당 부분 tooltip에 보여주기 위해 적용
@@ -2021,7 +2015,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             let aggregationKeyNum: number = 0;
             let isAggregationKeyNeedToRemove: boolean = false;
             for (let aggregationKeyIndex = 0; aggregationKeys.length > aggregationKeyIndex; aggregationKeyIndex++) {
-              if (aggregationKeys[aggregationKeyIndex].key == 'count') {
+              if (aggregationKeys[aggregationKeyIndex].key === 'count') {
                 aggregationKeyNum = aggregationKeyIndex;
                 isAggregationKeyNeedToRemove = true;
                 break;
@@ -2035,7 +2029,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
             let tooltipVal = feature.get(aggregationKey.key);
             if (aggregationKey.key !== 'geometry' && aggregationKey.key !== 'weight' && aggregationKey.key !== 'layerNum') {
-              let field = {
+              const field = {
                 name: '',
                 value: ''
               };
@@ -2043,7 +2037,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 field.name = aggregationKey.key;
                 field.value = feature.get(aggregationKey.key).length;
               } else {
-                if (typeof (tooltipVal) === "number") {
+                if (typeof (tooltipVal) === 'number') {
                   tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
                 }
                 field.name = aggregationKey.key;
@@ -2059,12 +2053,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         ////////////////////////////////////////////////////////
 
         // if required values are empty, enable false
-        if (null === this.tooltipInfo.name && 0 === this.tooltipInfo.coords.length && 0 === this.tooltipInfo.fields.length) {
-          this.tooltipInfo.enable = false;
-        } else {
-          // Enable tooltip
-          this.tooltipInfo.enable = true;
-        }
+        this.tooltipInfo.enable = !(null === this.tooltipInfo.name && 0 === this.tooltipInfo.coords.length && 0 === this.tooltipInfo.fields.length);
 
         // Element apply
         this.safelyDetectChanges();
@@ -2079,7 +2068,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           let yOffset = -80;
 
           // tooltip info 에 보여줄 양에 따라 height 구하기
-          let sizeOfToolTipHeight = [];
+          const sizeOfToolTipHeight = [];
           if (!_.isUndefined(this.tooltipInfo.fields) && this.tooltipInfo.fields.length > 0) {
             // column 이름은 있는데, column value가 없을 경우 사이즈 다를 수 있음
             this.tooltipInfo.fields.forEach((field) => {
@@ -2095,10 +2084,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             // height 계산
             yOffset = yOffset - (25 * (sizeOfToolTipHeight.length / 1.2));
           }
-          let offset = [-92, yOffset];
+          const offset = [-92, yOffset];
           this.tooltipLayer.setOffset(offset);
         }
-        let toShowCoords = event.coordinate;
+        const toShowCoords = event.coordinate;
         if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
           // line 일 경우 tooltip coordinator 위치를 살짝 위로 설정
           toShowCoords[toShowCoords.length - 1] = toShowCoords[toShowCoords.length - 1] + 0.0018;
@@ -2110,43 +2099,45 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
   };
 
-  /**
-   * create drag interaction (for selection filter)
-   */
-  private createInteraction(): void {
-
-    // drag style
-    var dragBoxInteraction = new ol.interaction.DragBox({
-      condition: ol.events.condition.shiftKeyOnly,
-      style: new ol.style.Style({
-        stroke: new ol.style.Stroke({
-          color: 'yellow',
-          width: 2
-        })
-      })
-    });
-
-    // TODO need to move on addChartMultiSelectEventListener
-    dragBoxInteraction.on('boxend', function (event) {
-
-      const format = new ol.format.GeoJSON();
-      const geom = event.target.getGeometry();
-
-      // event.target.getMap().getView()
-
-      var feature = new ol.Feature({
-        geometry: geom
-      });
-
-    });
-
-    this.olmap.getInteractions().extend([dragBoxInteraction]);
-  }
+  // /**
+  //  * create drag interaction (for selection filter)
+  //  */
+  // private createInteraction(): void {
+  //
+  //   // drag style
+  //   const dragBoxInteraction = new ol.interaction.DragBox({
+  //     condition: ol.events.condition.shiftKeyOnly,
+  //     style: new ol.style.Style({
+  //       stroke: new ol.style.Stroke({
+  //         color: 'yellow',
+  //         width: 2
+  //       })
+  //     })
+  //   });
+  //
+  //   // TODO need to move on addChartMultiSelectEventListener
+  //   dragBoxInteraction.on('boxend', (event) => {
+  //
+  //     // const format = new ol.format.GeoJSON();
+  //     new ol.format.GeoJSON();
+  //     const geom = event.target.getGeometry();
+  //
+  //     // event.target.getMap().getView()
+  //
+  //     // const feature = new ol.Feature({
+  //     //   geometry: geom
+  //     // });
+  //     new ol.Feature({ geometry: geom });
+  //
+  //   });
+  //
+  //   this.olmap.getInteractions().extend([dragBoxInteraction]);
+  // }
 
   /**
    * Create legend
    */
-  private createLegend(layerIndex: number, isAnalysis : boolean): void {
+  private createLegend(layerIndex: number, isAnalysis: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Enable check
@@ -2169,14 +2160,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
     // Layer info
     ////////////////////////////////////////////////////////
-    let legendInfo: any = {};
+    const legendInfo: any = {};
 
     // Layer
-    let layer: UILayers = this.getUiMapOption().layers[layerIndex];
+    const layer: UILayers = this.getUiMapOption().layers[layerIndex];
 
     // 공간연산을 하게 되면 data 값이 uiOption 또는 layer의 index가 다르기 때문에 아래와 같이 dataIndex 변환
     let dataIndex: number = layerIndex;
-    if ( isAnalysis && _.isUndefined(this.getUiMapOption().analysis && this.getUiMapOption().analysis['use'] === true)) {
+    if (isAnalysis && _.isUndefined(this.getUiMapOption().analysis && this.getUiMapOption().analysis['use'] === true)) {
       dataIndex = this.data.length > -1 ? this.data.length : 0;
     }
 
@@ -2184,9 +2175,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     legendInfo.name = layer.name;
 
     // when layer type is symbol, layer symbol exists, set point type by symbols
-    if ((MapLayerType.SYMBOL === layer.type && (<UISymbolLayer>layer).symbol)
-      || (MapLayerType.CLUSTER === layer.type && (<UISymbolLayer>layer).symbol)) {
-      legendInfo.pointType = (<UISymbolLayer>layer).symbol.toString();
+    if ((MapLayerType.SYMBOL === layer.type && layer.symbol)
+      || (MapLayerType.CLUSTER === layer.type && layer.symbol)) {
+      legendInfo.pointType = layer.symbol.toString();
       // set circle by default
     } else {
       legendInfo.pointType = MapSymbolType.CIRCLE.toString();
@@ -2196,7 +2187,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     legendInfo.color = [];
 
     // convert symbol, tile to point, hexagon
-    let layerType = MapLayerType.SYMBOL === layer.type || MapLayerType.CLUSTER === layer.type ? 'Point' : MapLayerType.TILE === layer.type ? 'Hexagon' : layer.type.toString();
+    const layerType = MapLayerType.SYMBOL === layer.type || MapLayerType.CLUSTER === layer.type ? 'Point' : MapLayerType.TILE === layer.type ? 'Hexagon' : layer.type.toString();
 
     // Layer color type
     legendInfo.type = _.startCase(layerType) + ' Color';
@@ -2205,8 +2196,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Size by measure (Symbol layer only)
     ////////////////////////////////////////////////////////
 
-    if ((MapLayerType.SYMBOL === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE)) || (MapLayerType.CLUSTER === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE))) {
-      legendInfo.radiusColumn = 'By ' + ChartUtil.getFieldAlias((<UISymbolLayer>layer).size.column, this.shelf.layers[layerIndex].fields);
+    if ((MapLayerType.SYMBOL === layer.type && _.eq(layer.size.by, MapBy.MEASURE)) || (MapLayerType.CLUSTER === layer.type && _.eq(layer.size.by, MapBy.MEASURE))) {
+      legendInfo.radiusColumn = 'By ' + ChartUtil.getFieldAlias(layer.size.column, this.shelf.layers[layerIndex].fields);
     }
 
     ////////////////////////////////////////////////////////
@@ -2219,7 +2210,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       if (layer.color.ranges) {
         _.each(layer.color.ranges, (range) => {
-          let colorInfo: any = {};
+          const colorInfo: any = {};
           colorInfo.color = range.color;
           colorInfo.column = range['column'];
           legendInfo.color.push(colorInfo);
@@ -2228,25 +2219,25 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (!_.eq(layer.color.column, MapBy.NONE)) {
           const ranges = this.setDimensionColorRange(layer, this.data[dataIndex], this.getColorList(layer), []);
           _.each(ranges, (range) => {
-            let colorInfo: any = {};
+            const colorInfo: any = {};
             colorInfo.color = range.color;
             colorInfo.column = range['column'];
-            if( colorInfo.column != 'undefined' ){
+            if (colorInfo.column !== 'undefined') {
               legendInfo.color.push(colorInfo);
             }
           });
         } else {
           _.each(this.getUiMapOption().fieldList, (field) => {
-            let colorInfo: any = {};
-            colorInfo.color = "#602663";
+            const colorInfo: any = {};
+            colorInfo.color = '#602663';
             colorInfo.column = field;
             legendInfo.color.push(colorInfo);
           });
         }
       }
     }
-    ////////////////////////////////////////////////////////
-    // Color by measure
+      ////////////////////////////////////////////////////////
+      // Color by measure
     ////////////////////////////////////////////////////////
     else if (_.eq(layer.color.by, MapBy.MEASURE)) {
 
@@ -2261,11 +2252,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           if (minVal === null) minVal = maxVal;
           if (maxVal === null) maxVal = minVal;
 
-          let colorInfo: any = {};
+          const colorInfo: any = {};
           colorInfo.color = range.color;
-          if (index == 0) {
+          if (index === 0) {
             colorInfo.column = ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.getUiMapOption().valueFormat);
-          } else if (index == layer.color.ranges.length - 1) {
+          } else if (index === layer.color.ranges.length - 1) {
             colorInfo.column = ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.getUiMapOption().valueFormat);
           } else {
             colorInfo.column = FormatOptionConverter.getFormatValue(minVal, this.getUiMapOption().valueFormat)
@@ -2286,11 +2277,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             if (minVal === null) minVal = maxVal;
             if (maxVal === null) maxVal = minVal;
 
-            let colorInfo: any = {};
+            const colorInfo: any = {};
             colorInfo.color = range.color;
-            if (index == 0) {
+            if (index === 0) {
               colorInfo.column = ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.getUiMapOption().valueFormat);
-            } else if (index == ranges.length - 1) {
+            } else if (index === ranges.length - 1) {
               colorInfo.column = ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.getUiMapOption().valueFormat);
             } else {
               colorInfo.column = FormatOptionConverter.getFormatValue(minVal, this.getUiMapOption().valueFormat)
@@ -2333,19 +2324,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // }
       }
     }
-    ////////////////////////////////////////////////////////
-    // None
+      ////////////////////////////////////////////////////////
+      // None
     ////////////////////////////////////////////////////////
     else if (_.eq(layer.color.by, MapBy.NONE)) {
 
-      let colorInfo: any = {};
+      const colorInfo: any = {};
       colorInfo.color = layer.color.schema;
       // set heatmap color
       if (_.eq(layer.type, MapLayerType.HEATMAP)) {
         colorInfo.color = HeatmapColorList[layer.color.schema][(HeatmapColorList[layer.color.schema].length - 1)];
       }
       _.each(this.shelf.layers[layerIndex].fields, (field) => {
-        if ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') != -1)) {
+        if ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') !== -1)) {
           colorInfo.column = (isUndefined(field.alias) ? field.fieldAlias : field.alias);
           return false;
         }
@@ -2353,8 +2344,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       legendInfo.color.push(colorInfo);
 
     }
-    ////////////////////////////////////////////////////////
-    // Error
+      ////////////////////////////////////////////////////////
+      // Error
     ////////////////////////////////////////////////////////
     else {
       return;
@@ -2373,19 +2364,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * return ranges of color by dimension
    * @returns {any}
    */
-  private setDimensionColorRange(layer: UILayers, data: any, colorList: any, colorAlterList = []): ColorRange[] {
+  private setDimensionColorRange(layer: UILayers, data: any, colorList: any, _colorAlterList = []): ColorRange[] {
 
-    let rangeList = [];
-    let featureList = [];
-    if( data ) {
+    const rangeList = [];
+    const featureList = [];
+    if (data) {
       _.each(data.features, (feature) => {
         featureList.push(feature.properties)
       });
     }
 
-    let featuresGroup = _.groupBy(featureList, ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, layer.color.aggregationType));
+    const featuresGroup = _.groupBy(featureList, ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, layer.color.aggregationType));
     _.each(Object.keys(featuresGroup), (column, index) => {
-      let color = colorList[index % colorList.length];
+      const color = colorList[index % colorList.length];
       rangeList.push({column: column, color: color});
     });
 
@@ -2404,47 +2395,47 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       if (!_.isUndefined(this.uiOption['analysis']) && !_.isUndefined(this.uiOption['analysis']['use']) && this.uiOption['analysis']['use']) {
         isAnalysisUse = this.uiOption['analysis']['use'];
         analysisAggrColumn = this.uiOption['analysis']['operation']['aggregation']['column'];
-        if (index != this.shelf.layers.length - 1) {
+        if (index !== this.shelf.layers.length - 1) {
           continue;
         }
       }
 
-      let layer: UILayers = uiOption.layers[index];
-      let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[index].fields);
+      const layer: UILayers = uiOption.layers[index];
+      const shelf: GeoField[] = _.cloneDeep(this.shelf.layers[index].fields);
 
       ////////////////////////////////////////////////////////
       // Set geo type
       ////////////////////////////////////////////////////////
 
-      let layerType: MapLayerType = layer.type;
+      const layerType: MapLayerType = layer.type;
 
       let field = null;
       _.each(this.shelf.layers[index].fields, (fieldTemp) => {
-        if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+        if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') !== -1) {
           field = fieldTemp;
           return false;
         }
       });
 
       // Option panel change cancel, not current shelf change
-      if (!this.drawByType || String(this.drawByType) == "" || (EventType.CHANGE_PIVOT == this.drawByType && uiOption.layerNum != index)
+      if (!this.drawByType || String(this.drawByType) === '' || (EventType.CHANGE_PIVOT === this.drawByType && uiOption.layerNum !== index)
         || isNullOrUndefined(field)) {
         continue;
       }
 
-      let geomType = field.field.logicalType.toString();
+      const geomType = field.field.logicalType.toString();
 
       // Set layer type
       if (_.eq(geomType, LogicalType.GEO_LINE) && !_.eq(layerType, MapLayerType.LINE)) {
-        let lineLayer: UILineLayer = <UILineLayer>layer;
+        const lineLayer: UILineLayer = layer as UILineLayer;
         lineLayer.type = MapLayerType.LINE;
         lineLayer.thickness = {
           by: MapBy.NONE,
-          column: "NONE",
+          column: 'NONE',
           maxValue: 10
         };
       } else if (_.eq(geomType, LogicalType.GEO_POLYGON) && !_.eq(layerType, MapLayerType.POLYGON)) {
-        let polygonLayer: UIPolygonLayer = <UIPolygonLayer>layer;
+        const polygonLayer: UIPolygonLayer = layer as UIPolygonLayer;
         polygonLayer.type = MapLayerType.POLYGON;
         polygonLayer.outline
       }
@@ -2453,13 +2444,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Cluster check
       ////////////////////////////////////////////////////////
       if (_.eq(layerType, MapLayerType.SYMBOL)) {
-        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+        const symbolLayer: UISymbolLayer = layer as UISymbolLayer;
         if (_.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null) {
           // default 설정이 off 임
           symbolLayer.clustering = false;
         }
       } else if (_.eq(layerType, MapLayerType.CLUSTER)) {
-        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+        const symbolLayer: UISymbolLayer = layer as UISymbolLayer;
         if (_.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null) {
           symbolLayer.clustering = true;
         }
@@ -2534,31 +2525,31 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let isNone: boolean = true;
       let isDimension: boolean = false;
       let isMeasure: boolean = false;
-      _.each(shelf, (field) => {
+      _.each(shelf, (shelfField) => {
         // analysis aggregation이 count 일 경우
-        if (isAnalysisUse && !_.isUndefined(field['isCustomField']) && field.alias == 'count') {
+        if (isAnalysisUse && !_.isUndefined(shelfField['isCustomField']) && shelfField.alias === 'count') {
           isNone = false;
           isDimension = false;
           isMeasure = true;
         } else {
-          if ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) {
+          if ('user_expr' === shelfField.field.type || (shelfField.field.logicalType && shelfField.field.logicalType.toString().indexOf('GEO') === -1)) {
             isNone = false;
           }
           // when logical type is not geo, type is dimension
-          if (('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION)) {
+          if (('user_expr' === shelfField.field.type || (shelfField.field.logicalType && shelfField.field.logicalType.toString().indexOf('GEO') === -1)) && _.eq(shelfField.type, ShelveFieldType.DIMENSION)) {
             isDimension = true;
           }
-          if (_.eq(field.type, ShelveFieldType.MEASURE)) {
+          if (_.eq(shelfField.type, ShelveFieldType.MEASURE)) {
             isMeasure = true;
           }
         }
       });
 
-      if( layerType == MapLayerType.CLUSTER ){
+      if (layerType === MapLayerType.CLUSTER) {
         isMeasure = true;
         isNone = false;
         isDimension = false;
-        if( layer.color.by == MapBy.NONE ){
+        if (layer.color.by === MapBy.NONE) {
           isMeasure = false;
           isNone = true;
         }
@@ -2575,7 +2566,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // init custom user color setting
       if (!isAnalysisUse) {
-        if(_.isUndefined(layer.color.settingUseFl) || layer.color.settingUseFl == false) {
+        if (_.isUndefined(layer.color.settingUseFl) || layer.color.settingUseFl === false) {
           layer.color.ranges = undefined;
           layer.color['settingUseFl'] = false;
         }
@@ -2586,67 +2577,67 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ///////////////////////////
       if (isNone) {
         layer.color.by = MapBy.NONE;
-        if (layerType == MapLayerType.HEATMAP) {
-          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+        if (layerType === MapLayerType.HEATMAP) {
+          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') === -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
-        } else if (layerType == MapLayerType.SYMBOL) {
-          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') == -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
+        } else if (layerType === MapLayerType.SYMBOL) {
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') === -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
-        } else if (layerType == MapLayerType.TILE) {
-          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+        } else if (layerType === MapLayerType.TILE) {
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') === -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
-        } else if (layerType == MapLayerType.POLYGON) {
-          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
+        } else if (layerType === MapLayerType.POLYGON) {
+          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('#') === -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
           layer.color.schema = layer.color.polygonSchema;
-        } else if (layerType == MapLayerType.CLUSTER) {
-          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('#') == -1 ? layer.color.clusterSchema = '#6344ad' : layer.color.clusterSchema);
+        } else if (layerType === MapLayerType.CLUSTER) {
+          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('#') === -1 ? layer.color.clusterSchema = '#6344ad' : layer.color.clusterSchema);
           layer.color.schema = layer.color.clusterSchema;
         } else {
           layer.color.schema = '#6344ad';
         }
         layer.color.column = null;
         layer.color.aggregationType = null;
-        if ( !_.isUndefined(layer.noneColor) ) {
+        if (!_.isUndefined(layer.noneColor)) {
           layer.color.schema = layer.noneColor;
         }
       }
-      ///////////////////////////
-      // Color by Measure
-      ///////////////////////////
+        ///////////////////////////
+        // Color by Measure
+        ///////////////////////////
       // remove not isDimension => exceptional case select dimension and remove dimension
       else if (isMeasure) {
         layer.color.by = MapBy.MEASURE;
-        if (layerType == MapLayerType.HEATMAP) {
-          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+        if (layerType === MapLayerType.HEATMAP) {
+          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') === -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
-        } else if (layerType == MapLayerType.SYMBOL) {
-          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('VC') == -1 ? layer.color.symbolSchema = 'VC1' : layer.color.symbolSchema);
+        } else if (layerType === MapLayerType.SYMBOL) {
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('VC') === -1 ? layer.color.symbolSchema = 'VC1' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
-        } else if (layerType == MapLayerType.TILE) {
-          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
+        } else if (layerType === MapLayerType.TILE) {
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') === -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
-        } else if (layerType == MapLayerType.POLYGON) {
-          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('VC') == -1 ? layer.color.polygonSchema = 'VC1' : layer.color.polygonSchema);
+        } else if (layerType === MapLayerType.POLYGON) {
+          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('VC') === -1 ? layer.color.polygonSchema = 'VC1' : layer.color.polygonSchema);
           layer.color.schema = layer.color.polygonSchema;
-        } else if (layerType == MapLayerType.CLUSTER) {
-          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('VC') == -1 ? layer.color.clusterSchema = 'VC1' : layer.color.clusterSchema);
+        } else if (layerType === MapLayerType.CLUSTER) {
+          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('VC') === -1 ? layer.color.clusterSchema = 'VC1' : layer.color.clusterSchema);
           layer.color.schema = layer.color.clusterSchema;
         } else {
           layer.color.schema = 'VC1';
         }
-        if(_.isUndefined(layer.color.column) || StringUtil.isEmpty(layer.color.column)) {
+        if (_.isUndefined(layer.color.column) || StringUtil.isEmpty(layer.color.column)) {
           layer.color.column = uiOption.fieldMeasureList[0]['name'];
         }
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
         if (isAnalysisUse) {
           uiOption.fieldMeasureList.forEach((item) => {
-            if (item.name == analysisAggrColumn) {
+            if (item.name === analysisAggrColumn) {
               layer.color.column = item.name;
               layer.color.aggregationType = item.aggregationType;
             }
           });
         }
-        if ( !_.isUndefined(layer.measureColor) ) {
+        if (!_.isUndefined(layer.measureColor)) {
           layer.color.schema = layer.measureColor;
         }
         if (isAnalysisUse) {
@@ -2654,43 +2645,43 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           (this.data.length > 1 ? dataIndex = this.data.length - 1 : dataIndex = 0);
           layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[dataIndex], this.getColorList(layer), index, shelf);
         } else {
-          if(_.isUndefined(layer.color.settingUseFl) || layer.color.settingUseFl == false) {
+          if (_.isUndefined(layer.color.settingUseFl) || layer.color.settingUseFl === false) {
             layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[index], this.getColorList(layer), index, shelf);
           }
         }
       }
-      ///////////////////////////
-      // Color by Dimension
-      ///////////////////////////
+        ///////////////////////////
+        // Color by Dimension
+        ///////////////////////////
       // hexagon && isDimension => init as none
       else if (MapLayerType.TILE === layer.type && isDimension) {
         layer.color.by = MapBy.NONE;
-        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') === -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
         layer.color.column = null;
         layer.color.aggregationType = null;
-        if ( !_.isUndefined(layer.noneColor) ) {
+        if (!_.isUndefined(layer.noneColor)) {
           layer.color.schema = layer.noneColor;
         }
       } else if (isDimension) {
         layer.color.by = MapBy.DIMENSION;
-        if (layerType == MapLayerType.SYMBOL) {
-          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') == -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
+        if (layerType === MapLayerType.SYMBOL) {
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') === -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
-        } else if (layerType == MapLayerType.TILE) {
-          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
+        } else if (layerType === MapLayerType.TILE) {
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') === -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
-        } else if (layerType == MapLayerType.POLYGON) {
-          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('SC') == -1 ? layer.color.polygonSchema = 'SC1' : layer.color.polygonSchema);
+        } else if (layerType === MapLayerType.POLYGON) {
+          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('SC') === -1 ? layer.color.polygonSchema = 'SC1' : layer.color.polygonSchema);
           layer.color.schema = layer.color.polygonSchema;
-        } else if (layerType == MapLayerType.CLUSTER) {
-          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('SC') == -1 ? layer.color.clusterSchema = 'SC1' : layer.color.clusterSchema);
+        } else if (layerType === MapLayerType.CLUSTER) {
+          (_.isUndefined(layer.color.clusterSchema) || layer.color.clusterSchema.indexOf('SC') === -1 ? layer.color.clusterSchema = 'SC1' : layer.color.clusterSchema);
           layer.color.schema = layer.color.clusterSchema;
         } else {
           layer.color.schema = 'SC1';
         }
         layer.color.column = uiOption.fielDimensionList[0]['name'];
         layer.color.aggregationType = null;
-        if ( !_.isUndefined(layer.dimensionColor) ) {
+        if (!_.isUndefined(layer.dimensionColor)) {
           layer.color.schema = layer.dimensionColor;
         }
         if (uiOption.fielDimensionList[0]['format']) layer.color.granularity = uiOption.fielDimensionList[0]['format']['unit'].toString();
@@ -2699,10 +2690,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       // Symbol
       ////////////////////////////////////////////////////////
-      if ((_.eq(layer.type, MapLayerType.SYMBOL)) || (layerType == MapLayerType.CLUSTER)) {
+      if ((_.eq(layer.type, MapLayerType.SYMBOL)) || (layerType === MapLayerType.CLUSTER)) {
 
         // Symbol layer
-        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+        const symbolLayer: UISymbolLayer = layer as UISymbolLayer;
 
         ////////////////////////////////////////////////////////
         // Size
@@ -2714,18 +2705,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (isNone || !isMeasure) {
           symbolLayer.size.by = MapBy.NONE;
         }
-        ///////////////////////////
-        // Size by Measure
+          ///////////////////////////
+          // Size by Measure
         ///////////////////////////
         else if (isMeasure) {
           symbolLayer.size.by = MapBy.MEASURE;
-          if(StringUtil.isEmpty(symbolLayer.size.column) || symbolLayer.size.column === "NONE") {
+          if (StringUtil.isEmpty(symbolLayer.size.column) || symbolLayer.size.column === 'NONE') {
             symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
           }
         }
       }
-      ////////////////////////////////////////////////////////
-      // Heatmap
+        ////////////////////////////////////////////////////////
+        // Heatmap
       ////////////////////////////////////////////////////////
       else if (_.eq(layer.type, MapLayerType.HEATMAP)) {
 
@@ -2740,21 +2731,21 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           this.uiOption.legend.auto = true;
         }
       }
-      ////////////////////////////////////////////////////////
-      // Hexagon
+        ////////////////////////////////////////////////////////
+        // Hexagon
       ////////////////////////////////////////////////////////
       else if (_.eq(layer.type, MapLayerType.TILE)) {
 
         // Hexagon layer
-        let hexagonLayer: UITileLayer = <UITileLayer>layer;
+        // const hexagonLayer: UITileLayer = layer as UITileLayer;
       }
-      ////////////////////////////////////////////////////////
-      // Line
+        ////////////////////////////////////////////////////////
+        // Line
       ////////////////////////////////////////////////////////
       else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.MULTILINESTRING)) {
 
         // line layer
-        let lineLayer: UILineLayer = <UILineLayer>layer;
+        const lineLayer: UILineLayer = layer as UILineLayer;
 
         ///////////////////////////
         // Thickness by None
@@ -2762,16 +2753,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (isNone || !isMeasure) {
           lineLayer.thickness.by = MapBy.NONE;
         }
-        ///////////////////////////
-        // Thickness by Measure
+          ///////////////////////////
+          // Thickness by Measure
         ///////////////////////////
         else if (isMeasure) {
           lineLayer.thickness.by = MapBy.MEASURE;
           lineLayer.thickness.column = this.uiOption.fieldMeasureList[0]['name'];
         }
       }
-      ////////////////////////////////////////////////////////
-      // Polygon
+        ////////////////////////////////////////////////////////
+        // Polygon
       ////////////////////////////////////////////////////////
       else if (_.eq(layer.type, MapLayerType.POLYGON)) {
 
@@ -2781,12 +2772,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Tooltip
       ////////////////////////////////////////////////////////
       if (!uiOption.toolTip.displayColumns) uiOption.toolTip.displayColumns = [];
-      let itemsForTooltip = TooltipOptionConverter.returnTooltipDataValue(shelf);
+      const itemsForTooltip = TooltipOptionConverter.returnTooltipDataValue(shelf);
       if (!isAnalysisUse) {
         // multi layer 를 고려해야 함
-        let fieldsForTooltip = ChartUtil.returnNameFromField(itemsForTooltip);
-        fieldsForTooltip.forEach((field) => {
-          this.uiOption.toolTip.displayColumns.push(field);
+        const fieldsForTooltip = ChartUtil.returnNameFromField(itemsForTooltip);
+        fieldsForTooltip.forEach((tooltipField) => {
+          this.uiOption.toolTip.displayColumns.push(tooltipField);
         });
       } else {
         // 공간연산 실행 시 보여줘야하는 tooltip
@@ -2800,10 +2791,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * @param hex
    * @param alpha
    */
+  // @ts-ignore
   private hexToRgbA(hex, alpha): string {
-    var c;
     if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-      c = hex.substring(1).split('');
+      let c = hex.substring(1).split('');
       if (c.length === 3) {
         c = [c[0], c[0], c[1], c[1], c[2], c[2]];
       }
@@ -2824,36 +2815,36 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // save current chart zoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
-    let mapUIOption = (<UIMapOption>this.uiOption);
+    const mapUIOption = (this.uiOption as UIMapOption);
     // zoom size
     mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
-    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0 || that.isResize) {
+    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize === 0 || that.isResize) {
       this.preZoomSize = mapUIOption.zoomSize;
       this.setUiExtent(event);
       this.isResize = false;
       return;
     }
 
-    let preLowerCorner = mapUIOption.lowerCorner.split(' ');
-    let preUpperCorner = mapUIOption.upperCorner.split(' ');
-    let currentMapExtent = this.olmap.getView().calculateExtent(event.map.getSize());
+    const preLowerCorner = mapUIOption.lowerCorner.split(' ');
+    const preUpperCorner = mapUIOption.upperCorner.split(' ');
+    const currentMapExtent = this.olmap.getView().calculateExtent(event.map.getSize());
 
     // 이전 좌표 및 줌 레벨이 다를 경우에만 다시 호출
-    if ((Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
-      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10))
-      || (that.preZoomSize != mapUIOption.zoomSize)) {
+    if ((Number(preLowerCorner[0]).toFixed(10) !== currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) !== currentMapExtent[1].toFixed(10)
+      && Number(preUpperCorner[0]).toFixed(10) !== currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) !== currentMapExtent[3].toFixed(10))
+      || (that.preZoomSize !== mapUIOption.zoomSize)) {
 
       let isAllChangeCoverage: boolean = false;
       mapUIOption.layers.forEach((layer) => {
-        if (!_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true) {
+        if (!_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] === true) {
           isAllChangeCoverage = true;
         }
       });
 
       // map ui lat, lng
       this.setUiExtent(event);
-      if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage) {
+      if (mapUIOption.upperCorner.indexOf('NaN') !== -1 || mapUIOption.lowerCorner.indexOf('NaN') !== -1 || isAllChangeCoverage) {
         // coverage value reset
         mapUIOption.layers.forEach((layer) => {
           if (isAllChangeCoverage && !_.isUndefined(layer['changeCoverage'])) {
@@ -2878,20 +2869,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private additionalSaveDataZoomRange(): UIChartZoom[] {
 
-    let resultList: UIChartZoom[] = [];
+    const resultList: UIChartZoom[] = [];
 
-    let center = this.olmap.getView().getCenter();
+    const center = this.olmap.getView().getCenter();
 
     resultList.push({startValue: center[0], endValue: center[1], count: this.olmap.getView().getZoom()});
 
     return resultList;
   }
 
-  private getMinZoom() {
-    let width = this.area.nativeElement.clientWidth;
-
-    return Math.ceil(Math.LOG2E * Math.log(width / 256));
-  }
+  // private getMinZoom() {
+  //   const width = this.area.nativeElement.clientWidth;
+  //
+  //   return Math.ceil(Math.LOG2E * Math.log(width / 256));
+  // }
 
   /**
    * Get color list
@@ -2914,24 +2905,24 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private mapSelectionListener = (event) => {
 
-    let scope: any = this;
+    // const scope: any = this;
 
     let selectMode: ChartSelectMode;
     // selection filter data
-    let selectData = [];
+    const selectData = [];
     // all unselected
     let noneDataCnt: boolean = true;
     // layer number
-    let layerNum = 0;
+    // let layerNum = 0;
 
-    let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
-      return feature;
+    let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (PixcelFeature) => {
+      return PixcelFeature;
     });
 
     // when feature exists
     if (feature) {
       // Cluster check
-      let features = feature.get('features');
+      const features = feature.get('features');
       if (!isNullOrUndefined(features)) {
         if (features.length > 1) {
           return;
@@ -2940,7 +2931,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
       // set feature layerNum
-      layerNum = feature.getProperties()['layerNum'];
+      // layerNum = feature.getProperties()['layerNum'];
 
       // set select mode
       if (feature.getProperties()['selection']) {
@@ -2950,53 +2941,54 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
       // get dimensions (except geo) from layer shelf
-      let dimensionLayer = this.originShelf.layers[(<UIMapOption>this.uiOption).layerNum].fields.filter((item) => {
-        if ('dimension' === item.type && ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')))) {
+      const dimensionLayer = this.originShelf.layers[this.uiOption.layerNum].fields.filter((item) => {
+        if ('dimension' === item.type && ('user_expr' === item.field.type || (item.field.logicalType && -1 === item.field.logicalType.toString().indexOf('GEO')))) {
           return item;
         }
       });
 
       // remove others except dimension values
-      let properties = _.cloneDeep(feature.getProperties());
+      const properties = _.cloneDeep(feature.getProperties());
       delete properties['geometry'];
       delete properties['layerNum'];
 
       // set data for seleciton filter
       for (const item of dimensionLayer) {
         for (const key in properties) {
+          if (key) {
+            const alias = ChartUtil.getAlias(item);
+            if (alias === key) {
 
-          let alias = ChartUtil.getAlias(item);
-          if (alias === key) {
+              const dataValue = properties[key];
 
-            const dataValue = properties[key];
+              // when it's add mode
+              if (ChartSelectMode.ADD === selectMode) {
+                feature.set('selection', selectMode);
 
-            // when it's add mode
-            if (ChartSelectMode.ADD === selectMode) {
-              feature.set('selection', selectMode);
+                // set data count
+                if (item['data'] && -1 !== item['data'].indexOf(dataValue)) {
+                  item['dataCnt'][dataValue] = ++item['dataCnt'][dataValue];
+                } else {
 
-              // set data count
-              if (item['data'] && -1 !== item['data'].indexOf(dataValue)) {
-                item['dataCnt'][dataValue] = ++item['dataCnt'][dataValue];
-              } else {
+                  if (!item['dataCnt']) item['dataCnt'] = {};
+                  item['dataCnt'][dataValue] = 1;
+                }
 
-                if (!item['dataCnt']) item['dataCnt'] = {};
-                item['dataCnt'][dataValue] = 1;
-              }
-
-              item['data'] = [dataValue];
-
-              selectData.push(_.cloneDeep(item));
-
-              // when it's substract mode
-            } else {
-              feature.unset('selection');
-
-              item['dataCnt'][dataValue]--;
-
-              // when dataCnt is 0, remove selection filter
-              if (0 == item['dataCnt'][dataValue]) {
                 item['data'] = [dataValue];
+
                 selectData.push(_.cloneDeep(item));
+
+                // when it's substract mode
+              } else {
+                feature.unset('selection');
+
+                item['dataCnt'][dataValue]--;
+
+                // when dataCnt is 0, remove selection filter
+                if (0 === item['dataCnt'][dataValue]) {
+                  item['data'] = [dataValue];
+                  selectData.push(_.cloneDeep(item));
+                }
               }
             }
           }
@@ -3037,6 +3029,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * @param feature
    * @returns {boolean}
    */
+  // @ts-ignore
   private setFeatureSelectionMode(scope: any, feature): boolean {
 
     let filterFl: boolean = false;
@@ -3049,7 +3042,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         _.each(filter.data, (data) => {
 
           // find feature by selected properties
-          let properties = feature.getProperties();
+          const properties = feature.getProperties();
 
           // set selection filter select mode
           if (properties[filter.alias] === data) {
@@ -3070,14 +3063,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private setMinMax() {
 
-    if (this.shelf.layers.length == 0) {
+    if (this.shelf.layers.length === 0) {
       return;
     }
 
     for (let idx = 0; idx < this.shelf.layers.length; idx++) {
-      let uiOption = this.getUiMapOption();
-      let layer: UILayers = uiOption.layers[idx];
-      let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[idx].fields);
+      const uiOption = this.getUiMapOption();
+      const layer: UILayers = uiOption.layers[idx];
+      const shelf: GeoField[] = _.cloneDeep(this.shelf.layers[idx].fields);
 
       let isAnalysisUse: boolean = false;
       if (!_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use']) {
@@ -3087,7 +3080,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let valueRange;
       if (isAnalysisUse) {
 
-        if (idx != this.shelf.layers.length - 1) {
+        if (idx !== this.shelf.layers.length - 1) {
           continue;
         }
 
@@ -3095,7 +3088,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (_.isUndefined(layer.color.aggregationType)) {
           alias = layer.color.column;
         } else {
-          alias = layer.color.aggregationType + "(" + layer.color.column + ")";
+          alias = layer.color.aggregationType + '(' + layer.color.column + ')';
         }
 
         valueRange = _.cloneDeep(this.data[uiOption.analysis['layerNum']]['valueRange'][alias]);
@@ -3110,7 +3103,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
         // symbol 타입 , cluster 사용일 경우
         // if (layer.type == MapLayerType.SYMBOL && layer['clustering']) {
-        if (layer.type == MapLayerType.CLUSTER && layer['clustering']) {
+        if (layer.type === MapLayerType.CLUSTER && layer['clustering']) {
           alias = 'count';
         }
 
@@ -3121,7 +3114,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         if (valueRange) {
           // layer type 이 변경될 경우 변경, 아닐경우 최대 최소 값으로 변경
-          if (this.drawByType == EventType.MAP_CHANGE_OPTION || this.drawByType == EventType.CHANGE_PIVOT) {
+          if (this.drawByType === EventType.MAP_CHANGE_OPTION || this.drawByType === EventType.CHANGE_PIVOT) {
             layer.color.minValue = valueRange.minValue;
             layer.color.maxValue = valueRange.maxValue;
           } else {
@@ -3131,9 +3124,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
       }
 
-      if (layer.type == MapLayerType.CLUSTER && layer['clustering'] && !_.isUndefined(layer.color.ranges) && (_.isUndefined(layer.color.changeRange) || layer.color.changeRange) && !isAnalysisUse ) {
-        let colorList = this.getColorList(layer);
-        let rangeList = uiOption.layers[idx].color.ranges;
+      if (layer.type === MapLayerType.CLUSTER && layer['clustering'] && !_.isUndefined(layer.color.ranges) && (_.isUndefined(layer.color.changeRange) || layer.color.changeRange) && !isAnalysisUse) {
+        const colorList = this.getColorList(layer);
+        const rangeList = uiOption.layers[idx].color.ranges;
         // rangeList 에서의 색상을 색상리스트에 설정
         rangeList.reverse().forEach((item, index) => {
           colorList[index] = item.color;
@@ -3143,19 +3136,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       _.each(shelf, (field) => {
         if (_.eq(field.type, ShelveFieldType.MEASURE)) {
-          if( !_.isUndefined(layer.color.ranges) && _.eq(field.name, layer.color.column) && (_.isUndefined(layer.color.changeRange) || layer.color.changeRange ) ) {
-            let colorList = this.getColorList(layer);
-            let rangeList = uiOption.layers[idx].color.ranges;
+          if (!_.isUndefined(layer.color.ranges) && _.eq(field.name, layer.color.column) && (_.isUndefined(layer.color.changeRange) || layer.color.changeRange)) {
+            const colorList = this.getColorList(layer);
+            const rangeList = uiOption.layers[idx].color.ranges;
             // rangeList 에서의 색상을 색상리스트에 설정
             rangeList.reverse().forEach((item, index) => {
               colorList[index] = item.color;
             });
-            if( isAnalysisUse ){
+            if (isAnalysisUse) {
               // 비교 레이어 영역 설정 여부
-              if(!_.isUndefined(uiOption.analysis['includeCompareLayer']) && uiOption.analysis['includeCompareLayer'] == true) {
+              if (!_.isUndefined(uiOption.analysis['includeCompareLayer']) && uiOption.analysis['includeCompareLayer'] === true) {
                 // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
                 uiOption['layers'][uiOption['layerNum']]['isColorOptionChanged'] = true;
-                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']+1], colorList, idx, shelf, rangeList);
+                layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum'] + 1], colorList, idx, shelf, rangeList);
               } else {
                 layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']], colorList, idx, shelf, rangeList);
               }
@@ -3182,26 +3175,26 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * check field list
    * @param shelf
+   * @param layerIndex
    */
-  private checkFieldList(shelf: any, layerIndex : number) {
+  private checkFieldList(shelf: any, layerIndex: number) {
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
-    const getShelveReturnField = ((shelf: any, typeList: ShelveFieldType[]): AbstractField[] => {
-
-      let uiOption = this.uiOption;
+    const getShelveReturnField = ((innerShelf: any, typeList: ShelveFieldType[]): AbstractField[] => {
+      const uiOption = this.uiOption;
       let analysisCountAlias: string;
       if (!_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use']) {
         if (!_.isUndefined(uiOption['analysis']['operation']['aggregation']) && !_.isUndefined(uiOption['analysis']['operation']['aggregation']['column'])
-          && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
+          && uiOption['analysis']['operation']['aggregation']['column'] === 'count') {
           analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
         }
       }
 
       const resultList: AbstractField[] = [];
-      shelf.map((item) => {
-        if (!_.isUndefined(analysisCountAlias) && analysisCountAlias == item.alias) {
+      innerShelf.map((item) => {
+        if (!_.isUndefined(analysisCountAlias) && analysisCountAlias === item.alias) {
           resultList.push(item);
         } else {
-          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')))) {
+          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 === item.field.logicalType.indexOf('GEO')))) {
             resultList.push(item);
           }
         }
@@ -3209,25 +3202,25 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       return resultList;
     });
 
-    let layerOption = this.getUiMapOption().layers[layerIndex];
+    const layerOption = this.getUiMapOption().layers[layerIndex];
     // cluster 타입일 경우
-    if( layerOption.type.toString() == 'cluster' && layerOption['clustering'] ){
+    if (layerOption.type.toString() === 'cluster' && layerOption['clustering']) {
 
       // 이미 변수가 선언이 되어 있어 강제로 변경
-      let defaultObject : any = {
-        aggregationType : null,
-        alias : 'count',
-        type : 'measure',
-        subRole : 'measure',
-        name : 'count',
-        isCustomField : true,
-        field : {
-          role : FieldRole.MEASURE,
-          logicalType : LogicalType.INTEGER
+      const defaultObject: any = {
+        aggregationType: null,
+        alias: 'count',
+        type: 'measure',
+        subRole: 'measure',
+        name: 'count',
+        isCustomField: true,
+        field: {
+          role: FieldRole.MEASURE,
+          logicalType: LogicalType.INTEGER
         }
       };
       const tempList: any[] = [];
-      tempList.push( defaultObject );
+      tempList.push(defaultObject);
       this.uiOption.fieldMeasureList = tempList;
     } else {
       // 색상지정 기준 필드리스트 설정(measure list)
@@ -3246,7 +3239,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       return;
     }
     this.layerMap.forEach((item, index) => {
-      if (layerNumber == index) {
+      if (layerNumber === index) {
         this.olmap.removeLayer(item.layerValue)
       }
     });
@@ -3257,19 +3250,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * current map ui lat, lng setting
    */
   private setUiExtent(event) {
-    let mapUIOption = (<UIMapOption>this.uiOption);
+    const mapUIOption = this.uiOption as UIMapOption;
     if (event) {
-      let map = event.map;
+      const map = event.map;
       let mapExtent = map.getView().calculateExtent(map.getSize());
 
       // projection 값 체크
       mapExtent = new ol.proj.transformExtent(mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857'));
 
-      let bottomLeft = new ol.proj.toLonLat(new ol.extent.getBottomLeft(mapExtent));
-      let topRight = new ol.proj.toLonLat(new ol.extent.getTopRight(mapExtent));
+      const bottomLeft = new ol.proj.toLonLat(new ol.extent.getBottomLeft(mapExtent));
+      const topRight = new ol.proj.toLonLat(new ol.extent.getTopRight(mapExtent));
 
-      // console.info('left : ', this.wrapLon(bottomLeft[0]), ' bottom : ', bottomLeft[1]);
-      // console.info('right : ', this.wrapLon(topRight[0]), ' top : ', topRight[1]);
+      // console.log('left : ', this.wrapLon(bottomLeft[0]), ' bottom : ', bottomLeft[1]);
+      // console.log('right : ', this.wrapLon(topRight[0]), ' top : ', topRight[1]);
 
       // EPSG 타입 확인
       // 우측 상단
@@ -3287,7 +3280,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * @returns {number}
    */
   private wrapLon(value) {
-    let lon = Math.floor((value + 180) / 360);
+    const lon = Math.floor((value + 180) / 360);
     return value - (lon * 360);
   }
 
@@ -3301,10 +3294,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let valid: boolean = false;
 
-    let fields: Field[] = layers[index].fields;
+    const fields: Field[] = layers[index].fields;
 
     if (fields) {
-      for (let layer of fields) {
+      for (const layer of fields) {
         if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
           valid = true;
         }
@@ -3324,20 +3317,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     this.setMinMax();
 
-    let isMapCreation: boolean = this.createMap();
+    const isMapCreation: boolean = this.createMap();
 
     // reset legend data
     this.legendInfo.layer = [];
 
     for (let dataIndex = 0; dataIndex < this.data.length; dataIndex++) {
 
-      let dataType = _.isUndefined(this.data[dataIndex]['features']) || this.data[dataIndex]['features'].length <= 0 ? null : this.data[dataIndex]['features'][0]['geometry']['type'].toString().toLowerCase();
+      const dataType = _.isUndefined(this.data[dataIndex]['features']) || this.data[dataIndex]['features'].length <= 0 ? null : this.data[dataIndex]['features'][0]['geometry']['type'].toString().toLowerCase();
 
-      if (dataType == 'polygon' && this.getUiMapOption().analysis.includeCompareLayer == true && dataIndex == 0) {
+      if (dataType === 'polygon' && this.getUiMapOption().analysis.includeCompareLayer === true && dataIndex === 0) {
         this.includeCompareLayer(dataIndex, isMapCreation);
       } else {
         // Source
-        let source = new ol.source.Vector({crossOrigin: 'anonymous'});
+        const source = new ol.source.Vector({crossOrigin: 'anonymous'});
         // Creation feature
         this.createAnalysisFeature(source, dataIndex);
         // Creation layer
@@ -3365,12 +3358,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * analysis Feature
    */
   private createAnalysisFeature(source, dataIndex): void {
-    let data = this.data[dataIndex];
+    const data = this.data[dataIndex];
     ////////////////////////////////////////////////////////
     // Generate feature
     ////////////////////////////////////////////////////////
     // Feature list
-    let features = [];
+    const features = [];
 
     // data 에서 geometry 값을 uiOption에 변경 여부
     let isChangedType: boolean = false;
@@ -3381,13 +3374,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // data 에서 geometry 값을 추출, uiOption type에 적용
       if (!isChangedType) {
         const geometryType = data.features[i].geometry.type.toString().toLowerCase();
-        if( geometryType == 'point' ) {
+        if (geometryType === 'point') {
           if (!_.isUndefined(this.getUiMapOption().layers[this.getUiMapOption().layerNum]['clustering']) && this.getUiMapOption().layers[this.getUiMapOption().layerNum]['clustering']) {
             this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.CLUSTER;
           } else {
             this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.SYMBOL;
           }
-        } else if( geometryType == 'multipolygon' ) {
+        } else if (geometryType === 'multipolygon') {
           this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
         } else {
           this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = geometryType;
@@ -3396,26 +3389,26 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
       // geo type
-      if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') != -1) {
+      if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') !== -1) {
         // point
-        let pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+        const pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
         pointFeature.set('layerNum', this.getUiMapOption().layerNum);
         pointFeature.set('isClustering', this.getUiMapOption().layers[this.getUiMapOption().layerNum]['clustering']);
         features[i] = pointFeature;
         source.addFeature(features[i]);
-      } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1 || data.features[i].geometry.type.toString().toLowerCase().indexOf('multipolygon') != -1) {
-        let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+      } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') !== -1 || data.features[i].geometry.type.toString().toLowerCase().indexOf('multipolygon') !== -1) {
+        const polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
         polygonFeature.set('layerNum', this.getUiMapOption().layerNum);
         features[i] = polygonFeature;
         source.addFeature(features[i]);
-      } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
+      } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') !== -1) {
         let line;
-        if( data.features[i].geometry.type.toString().toLowerCase().indexOf('multi') != -1 ){
+        if (data.features[i].geometry.type.toString().toLowerCase().indexOf('multi') !== -1) {
           line = new ol.geom.MultiLineString(data.features[i].geometry.coordinates);
         } else {
           line = new ol.geom.LineString(data.features[i].geometry.coordinates);
         }
-        let lineFeature = new ol.Feature({geometry: line});
+        const lineFeature = new ol.Feature({geometry: line});
         if (!_.isNull(this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.column)) {
           const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.aggregationType);
           lineFeature.set(alias, data.features[i].properties[alias]);
@@ -3435,14 +3428,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Create layer
     ////////////////////////////////////////////////////////
     // Layer
-    let layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
+    const layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
 
     if ((_.eq(layer.type, MapLayerType.SYMBOL)) || (_.eq(layer.type, MapLayerType.CLUSTER))) {
       //////////////////////////
       // Point layer
       //////////////////////////
       // Create
-      let symbolLayer = new ol.layer.Vector({
+      const symbolLayer = new ol.layer.Vector({
         source: source,
         style: this.pointStyleFunction(this.getUiMapOption().layerNum, this.data, null, dataIndex)
       });
@@ -3468,7 +3461,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Line, Polygon layer
       ////////////////////////////////////////////////////////
       // Create
-      let symbolLayer = new ol.layer.Vector({
+      const symbolLayer = new ol.layer.Vector({
         source: source,
         style: this.mapStyleFunction(this.getUiMapOption().layerNum, this.data, null, dataIndex)
       });
@@ -3491,9 +3484,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       // Heatmap layer
       ////////////////////////////////////////////////////////
-      let getHeatMapLayerValue: UIHeatmapLayer = <UIHeatmapLayer>layer;
+      const getHeatMapLayerValue: UIHeatmapLayer = layer as UIHeatmapLayer;
       // Create
-      let heatmapLayer = new ol.layer.Heatmap({
+      const heatmapLayer = new ol.layer.Heatmap({
         source: source,
         // Style
         gradient: HeatmapColorList[getHeatMapLayerValue.color.schema],
@@ -3530,7 +3523,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Hexgon layer
       ////////////////////////////////////////////////////////
       // Create
-      let hexagonLayer = new ol.layer.Vector({
+      const hexagonLayer = new ol.layer.Vector({
         source: source,
         style: this.hexagonStyleFunction(this.getUiMapOption().layerNum, this.data, null, dataIndex)
       });
@@ -3553,7 +3546,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType == EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+    if (this.drawByType === EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) === -1 &&
       (_.isUndefined(this.uiOption['layers'][this.getUiMapOption().layerNum]['changeCoverage']) || this.uiOption['layers'][this.getUiMapOption().layerNum]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -3568,21 +3561,21 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
   private includeCompareLayer(dataIndex, isMapCreation) {
     // Source
-    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
+    const source = new ol.source.Vector({crossOrigin: 'anonymous'});
 
-    let data = this.data[dataIndex];
+    const data = this.data[dataIndex];
 
-    let features = [];
+    const features = [];
 
     for (let i = 0; i < data.features.length; i++) {
       // polygon
-      let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+      const polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
       polygonFeature.set('layerNum', -5);
       features[i] = polygonFeature;
       source.addFeature(features[i]);
     } // end - features for
 
-    let style = new ol.style.Style({
+    const style = new ol.style.Style({
       stroke: new ol.style.Stroke({
         color: 2,
         lineDash: [3, 3]
@@ -3593,7 +3586,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     });
 
     // Create
-    let symbolLayer = new ol.layer.Vector({
+    const symbolLayer = new ol.layer.Vector({
       source: source,
       style: style
     });
@@ -3620,7 +3613,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   public changePointSize() {
     let uiLayerIndex = 0;
     for (let uiOptionForLoopLayerIndex = 0; this.getUiMapOption().layers.length > uiOptionForLoopLayerIndex; uiOptionForLoopLayerIndex++) {
-      if (this.getUiMapOption().layers[uiOptionForLoopLayerIndex]['isChangePointRadius'] == true) {
+      if (this.getUiMapOption().layers[uiOptionForLoopLayerIndex]['isChangePointRadius'] === true) {
         uiLayerIndex = uiOptionForLoopLayerIndex;
         delete this.uiOption['layers'][uiOptionForLoopLayerIndex]['isChangePointRadius'];
       }
@@ -3630,7 +3623,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       uiLayerIndex = this.getUiMapOption().analysis.layerNum;
     }
     for (let olmapForLoopLayerIndex = 0; this.olmap.getLayers().getArray().length > olmapForLoopLayerIndex; olmapForLoopLayerIndex++) {
-      if (this.layerMap[uiLayerIndex].layerValue == this.olmap.getLayers().getArray()[olmapForLoopLayerIndex]) {
+      if (this.layerMap[uiLayerIndex].layerValue === this.olmap.getLayers().getArray()[olmapForLoopLayerIndex]) {
         this.olmap.getLayers().getArray()[olmapForLoopLayerIndex].getSource().getFeatures().forEach(feature => {
           // 공간연산 사용 여부 체크
           if (!_.isUndefined(this.getUiMapOption().analysis) && this.getUiMapOption().analysis['use'] === true) {

@@ -12,21 +12,22 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   Component,
-  ElementRef, EventEmitter,
+  ElementRef,
+  EventEmitter,
   HostListener,
   Injector,
   OnDestroy,
-  OnInit, Output,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {EngineService} from "../../service/engine.service";
-import {Engine} from "../../../domain/engine-monitoring/engine";
-import * as _ from 'lodash';
-import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {EngineMonitoringUtil} from '../../util/engine-monitoring.util';
+import {EngineService} from '../../service/engine.service';
 
 declare let echarts: any;
 declare let moment: any;
@@ -38,7 +39,6 @@ declare let moment: any;
 })
 export class GraphComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  @ViewChild('gcCPU') private _gcCpuChartElmRef: ElementRef;
   @ViewChild('usageMemory') private _usageMemoryChartElmRef: ElementRef;
   @ViewChild('gcCount') private _gcCountChartElmRef: ElementRef;
   @ViewChild('avgQueryTime') private _avgQueryTimeChartElmRef: ElementRef;
@@ -48,25 +48,24 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
 
   public monitoringTarget = Engine.MonitoringTarget;
 
-  public heapMemory:string = '';
-  public queryCount:number = 0;
-  public runningTaskCount:number = 0;
-  public datasourceCount:number = 0;
-  public segmentCount:number = 0;
+  public heapMemory: string = '';
+  public queryCount: number = 0;
+  public runningTaskCount: number = 0;
+  public datasourceCount: number = 0;
+  public segmentCount: number = 0;
 
-  public duration:string;
-  public fromDate:string;
+  public duration: string;
+  public fromDate: string;
 
-  public memoryEmpty:boolean;
-  public gcCountEmpty:boolean;
-  public avgQueryTimeEmpty:boolean;
+  public memoryEmpty: boolean;
+  public gcCountEmpty: boolean;
+  public avgQueryTimeEmpty: boolean;
 
   private _memoryChart: any;
   private _gcCountChart: any;
   private _avgQueryTimeChart: any;
 
-  constructor(private _datasourceSvc: DatasourceService,
-              private _engineSvc: EngineService,
+  constructor(private _engineSvc: EngineService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -82,10 +81,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  public onResize(event) {
+  public onResize(_event) {
     if (!_.isNil(this._gcCountChart)) {
       this._gcCountChart.resize();
     }
@@ -94,7 +93,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     }
   }
 
-  public setDate(duration:string) {
+  public setDate(duration: string) {
     this.duration = duration;
     if ('1HOUR' === duration) {
       this.fromDate = moment().subtract(1, 'hours').utc().format();
@@ -108,7 +107,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
     this._init();
   }
 
-  public showKpiChart(monitoringTarget:Engine.MonitoringTarget) {
+  public showKpiChart(monitoringTarget: Engine.MonitoringTarget) {
     this.changeEvent.emit(monitoringTarget);
   }
 
@@ -139,10 +138,10 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
 
     this._engineSvc.getMemory(queryParam).then((data) => {
       this.memoryEmpty = undefined;
-      const seriesData = data.map( item => {
-        ( 'useMem' === item.name ) && ( this.heapMemory = (typeof item.percentage === "number") ? item.percentage.toFixed(0) + '%' : '0%');
+      const seriesData = data.map(item => {
+        ('useMem' === item.name) && (this.heapMemory = (typeof item.percentage === 'number') ? item.percentage.toFixed(0) + '%' : '0%');
         item['itemStyle'] = {
-          normal:{ color: 'useMem' === item.name ? '#f0f4ff' : '#314673' }
+          normal: {color: 'useMem' === item.name ? '#f0f4ff' : '#314673'}
         }
         return item;
       })
@@ -161,7 +160,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
             fontFamily: 'SpoqaHanSans'
           }
         },
-        'series': [
+        series: [
           {
             type: 'pie',
             name: 'AVG(value)',
@@ -171,7 +170,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
             hoverAnimation: false
           }
         ],
-        label: { normal: { show: false } }
+        label: {normal: {show: false}}
       };
       if (_.isNil(this._memoryChart)) {
         this._memoryChart = echarts.init(this._usageMemoryChartElmRef.nativeElement, 'exntu');
@@ -265,7 +264,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   private _getAvgQueryTime() {
     const queryParam: any =
       {
-        monitoringTarget : {
+        monitoringTarget: {
           metric: Engine.MonitoringTarget.QUERY_TIME,
           includeCount: true
         },
@@ -343,7 +342,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
   private _getQueryCounts() {
     const queryParam: any =
       {
-        monitoringTarget : {
+        monitoringTarget: {
           metric: Engine.MonitoringTarget.QUERY_COUNT,
           includeCount: true
         },
@@ -360,8 +359,8 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
    * @private
    */
   private _getRunningTasks() {
-    this._engineSvc.getRunningTasks().then( result => {
-      if( result ) {
+    this._engineSvc.getRunningTasks().then(result => {
+      if (result) {
         this.runningTaskCount = result.length;
       }
     });
@@ -372,7 +371,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
    * @private
    */
   private _getDatasourceCount() {
-    this._engineSvc.getDatasourceCount().then( result => {
+    this._engineSvc.getDatasourceCount().then(result => {
       this.datasourceCount = result;
     });
   } // function - _getDatasourceCount
@@ -382,7 +381,7 @@ export class GraphComponent extends AbstractComponent implements OnInit, OnDestr
    * @private
    */
   private _getSegmentCount() {
-    this._engineSvc.getSegmentCount().then( result => {
+    this._engineSvc.getSegmentCount().then(result => {
       this.segmentCount = result[0].count;
     });
   } // function - _getSegmentCount

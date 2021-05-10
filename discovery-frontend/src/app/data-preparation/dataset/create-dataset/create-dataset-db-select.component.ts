@@ -12,27 +12,26 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {PopupService} from '../../../common/service/popup.service';
-import {DsType, ImportType, PrDatasetJdbc, QueryInfo, TableInfo,} from '../../../domain/data-preparation/pr-dataset';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
-import {isNullOrUndefined} from 'util';
-import {ConnectionComponent, ConnectionValid} from "../../../data-storage/component/connection/connection.component";
-import {PageResult} from "../../../domain/common/page";
-import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {PopupService} from '@common/service/popup.service';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PageResult} from '@domain/common/page';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
+import {DsType, ImportType, PrDatasetJdbc, QueryInfo, TableInfo,} from '@domain/data-preparation/pr-dataset';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {ConnectionComponent, ConnectionValid} from '../../../data-storage/component/connection/connection.component';
 
 @Component({
   selector: 'app-create-dataset-db-select',
   templateUrl: './create-dataset-db-select.component.html',
   providers: [DataconnectionService]
 })
-export class CreateDatasetDbSelectComponent extends AbstractPopupComponent implements OnInit {
+export class CreateDatasetDbSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(ConnectionComponent)
+  @ViewChild(ConnectionComponent, {static: true})
   private readonly _connectionComponent: ConnectionComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -70,7 +69,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     this.pageResult.size = 20;
 
     // 처음
-    if (isNullOrUndefined(this.datasetJdbc.connectionList)) {
+    if (this.isNullOrUndefined(this.datasetJdbc.connectionList)) {
       this.datasetJdbc.dsType = DsType.IMPORTED;
       this.datasetJdbc.importType = ImportType.DATABASE;
       this._getConnections();
@@ -82,7 +81,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       this._connectionComponent.connectionValidation = ConnectionValid.ENABLE_CONNECTION;
     }
   }
-
 
   public ngOnDestroy() {
     super.ngOnDestroy();
@@ -131,7 +129,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    * @param connection
    */
   public selectConnection(connection) {
-    if (!isNullOrUndefined(connection)) {
+    if (!this.isNullOrUndefined(connection)) {
       this._connectionComponent.init(connection);
     } else {
       this._connectionComponent.init();
@@ -189,13 +187,13 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
   /**
    * When it's scrolled
-   * @param number
+   * @param pageNum
    */
-  public onScrollPage(number) {
+  public onScrollPage(pageNum) {
     // if remain next page
     if (this._isMorePage()) {
       // save pageResult
-      this.pageResult.number = number;
+      this.pageResult.number = pageNum;
       // get more preset list
       this._getConnections();
     }
@@ -235,14 +233,12 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    */
   private _getConnectionPresetListParams(pageResult: PageResult): object {
     return {
-      authenticationType:'MANUAL',
+      authenticationType: 'MANUAL',
       size: pageResult.size,
       page: pageResult.number,
       type: 'jdbc'
     };
   }
-
-
 
   /**
    * Fetch dataset connections
@@ -260,7 +256,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
           // 리스트 추가
           this.connectionList = this.connectionList.concat(data['_embedded'].connections);
 
-          if (this.connectionList.length !== 0 ) {
+          if (this.connectionList.length !== 0) {
 
             // 첫번째 커넥션 등록
             this.datasetJdbc.dcId = this.connectionList[0].id;
@@ -284,7 +280,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       })
       .catch((err) => {
         this.loadingHide();
-        console.info('getConnections err)', err.toString());
+        console.log('getConnections err)', err.toString());
       });
   }
 

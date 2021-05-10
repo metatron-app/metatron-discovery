@@ -12,19 +12,18 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {PeriodComponent} from '../../../../common/component/period/period.component';
-import {PeriodData} from '../../../../common/value/period.data.value';
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../../common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {PeriodData} from '@common/value/period.data.value';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Modal} from '@common/domain/modal';
 import {PermissionService} from '../../../../user/service/permission.service';
-import {RoleSet, RoleSetScope} from '../../../../domain/user/role/roleSet';
-import {Alert} from '../../../../common/util/alert.util';
+import {RoleSet, RoleSetScope} from '@domain/user/role/roleSet';
+import {Alert} from '@common/util/alert.util';
 import {CreatePermissionSchemaComponent} from './create-permission-schema.component';
-import {Page} from '../../../../domain/common/page';
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
+import {Page} from '@domain/common/page';
+import {ActivatedRoute} from '@angular/router';
 
 declare let moment: any;
 
@@ -32,7 +31,7 @@ declare let moment: any;
   selector: 'app-permission-schemas',
   templateUrl: './permission-schemas.component.html'
 })
-export class PermissionSchemasComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class PermissionSchemasComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -103,21 +102,21 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
       this.activatedRoute.queryParams.subscribe(params => {
 
         const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+        (this.isNullOrUndefined(page)) || (this.page.page = page);
 
         const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
+        if (!this.isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
           this.selectedContentSort.key = sortInfo[0];
           this.selectedContentSort.sort = sortInfo[1];
         }
 
         const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
+        (this.isNullOrUndefined(size)) || (this.page.size = size);
 
         // 검색어
         const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchText = searchText);
+        (this.isNullOrUndefined(searchText)) || (this.searchText = searchText);
 
         const from = params['from'];
         const to = params['to'];
@@ -125,12 +124,12 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
         this._filterDate = new PeriodData();
 
         this._filterDate.type = 'ALL';
-        if (!isNullOrUndefined(from)) {
+        if (!this.isNullOrUndefined(from)) {
           this.periodComponent.startDateDefault =
           this._filterDate.startDate = from;
           this._filterDate.startDateStr = decodeURIComponent(from);
         }
-        if (!isNullOrUndefined(to)) {
+        if (!this.isNullOrUndefined(to)) {
           this._filterDate.endDate = to;
           this._filterDate.endDateStr = decodeURIComponent(to);
         }
@@ -452,8 +451,8 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
       .then((result) => {
 
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].roleSets.length === 0))
+          this.isNullOrUndefined(result['_embedded']) ||
+          (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].roleSets.length === 0))
         {
           this.page.page = result.page.number - 1;
           this._getRoleSetList();
@@ -503,7 +502,7 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
 
     // date
     params['type'] = 'ALL';
-    if ((!isNullOrUndefined(this._filterDate)) && this._filterDate.type !== 'ALL') {
+    if ((!this.isNullOrUndefined(this._filterDate)) && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       params['type'] = this._filterDate.type;
       if (this._filterDate.startDateStr) {

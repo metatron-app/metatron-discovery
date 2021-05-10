@@ -1,5 +1,5 @@
-import {Injectable, Injector} from "@angular/core";
-import {PageResult} from "../../../../../domain/common/page";
+import {Injectable} from '@angular/core';
+import {PageResult} from '@domain/common/page';
 
 @Injectable()
 export class CreateWorkbenchModelService {

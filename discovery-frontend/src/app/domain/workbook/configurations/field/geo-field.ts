@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Field } from './field';
+import {Field} from './field';
 
 /**
  * geo field

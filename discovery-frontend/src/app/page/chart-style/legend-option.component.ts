@@ -12,13 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector } from '@angular/core';
-import {BaseOptionComponent} from "./base-option.component";
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {BaseOptionComponent} from './base-option.component';
+
 @Component({
   selector: 'legend-option',
   templateUrl: './legend-option.component.html'
 })
-export class LegendOptionComponent extends BaseOptionComponent {
+export class LegendOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables

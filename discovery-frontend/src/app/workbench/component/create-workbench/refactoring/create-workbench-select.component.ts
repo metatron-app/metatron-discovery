@@ -1,20 +1,20 @@
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {CreateWorkbenchModelService} from "./service/create-workbench-model.service";
-import {WorkspaceService} from "../../../../workspace/service/workspace.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {SortConstant} from "../../../../common/constant/sort.constant";
-import {ConstantService} from "../../../../shared/datasource-metadata/service/constant.service";
-import {WorkbenchConstant} from "../../../workbench.constant";
-import {StorageService} from "../../../../data-storage/service/storage.service";
-import {ImplementorType} from "../../../../domain/dataconnection/dataconnection";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {CreateWorkbenchModelService} from './service/create-workbench-model.service';
+import {WorkspaceService} from '../../../../workspace/service/workspace.service';
+import {StringUtil} from '@common/util/string.util';
+import {SortConstant} from '@common/constant/sort.constant';
+import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
+import {WorkbenchConstant} from '../../../workbench.constant';
+import {StorageService} from '../../../../data-storage/service/storage.service';
+import {ImplementorType} from '@domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'component-workbench-select',
   templateUrl: 'create-workbench-select.component.html'
 })
-export class CreateWorkbenchSelectComponent extends AbstractComponent {
+export class CreateWorkbenchSelectComponent extends AbstractComponent implements OnInit {
 
   @Input() readonly workspaceId: string;
   readonly authenticationTypeList = this.constant.getAuthenticationTypeFilters();
@@ -68,7 +68,7 @@ export class CreateWorkbenchSelectComponent extends AbstractComponent {
   }
 
   isMoreContents(): boolean {
-    return this.pageResult.number < this.pageResult.totalPages -1;
+    return this.pageResult.number < this.pageResult.totalPages - 1;
   }
 
   getConvertedConnectionTypeLabel(implementor) {

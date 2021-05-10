@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractFormatItemComponent} from "../chart-style/format/abstract-format-item.component";
+import {AfterViewInit, Component, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractFormatItemComponent} from '../chart-style/format/abstract-format-item.component';
 
 @Component({
   selector: '[page-pivot-format]',
   templateUrl: './page-pivot-format.component.html'
 })
-export class PagePivotFormatComponent extends AbstractFormatItemComponent implements OnInit, OnDestroy {
+export class PagePivotFormatComponent extends AbstractFormatItemComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -38,10 +38,10 @@ export class PagePivotFormatComponent extends AbstractFormatItemComponent implem
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  public onResize(event) {
+  public onResize(_event) {
     this._setPositionTypeSettingLayer();
   }
 
@@ -61,9 +61,9 @@ export class PagePivotFormatComponent extends AbstractFormatItemComponent implem
   private _setPositionTypeSettingLayer() {
     const docHeight = document.body.clientHeight;
     // 745 - 레이어가 정상적으로 표시되는 최소 사이즈
-    if( 745 > docHeight ) {
+    if (745 > docHeight) {
       const diffHeight = 745 - docHeight;
-      this.elementRef.nativeElement.style.top = ( -1 * ( 20 + diffHeight ) ) + 'px';
+      this.elementRef.nativeElement.style.top = (-1 * (20 + diffHeight)) + 'px';
     } else {
       this.elementRef.nativeElement.style.top = '-20px';
     }

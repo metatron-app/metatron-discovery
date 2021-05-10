@@ -12,13 +12,12 @@
  * limitations under the License.
  */
 
+import {Observable} from 'rxjs/Observable';
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
-import {CommonUtil} from '../../common/util/common.util';
-import {Page} from '../../domain/common/page';
-import {isNullOrUndefined} from "util";
-import {Observable} from "rxjs/Observable";
-import {Criteria} from "../../domain/datasource/criteria";
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {Page} from '@domain/common/page';
+import {Criteria} from '@domain/datasource/criteria';
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -80,7 +79,7 @@ export class DataconnectionService extends AbstractService {
   public getDatabases(connectionId: string, page?:Page, searchName?:string): Promise<any> {
     let url:string = this.API_URL + `connections/${connectionId}/databases`;
     if (page || searchName) {
-      let param:any = {};
+      const param:any = {};
 
       if( page ) {
         param.sort = page.sort;
@@ -126,7 +125,7 @@ export class DataconnectionService extends AbstractService {
   /**
    * Get table list
    * @param dataconnection
-   * @param page
+   * @param param
    * @returns {Promise<any>}
    */
   public getTableListInConnectionQuery(dataconnection: any, param: any): Promise<any> {
@@ -135,10 +134,10 @@ export class DataconnectionService extends AbstractService {
       url += '?' + CommonUtil.objectToUrlString(param);
     }
     const params:any = {};
-    let connInfo: any = {};
+    const connInfo: any = {};
     connInfo.implementor = dataconnection.implementor;
     // connection 정보가 USERINFO 일 경우 제외
-    if( connInfo.authenticationType != 'USERINFO' ) {
+    if( connInfo.authenticationType !== 'USERINFO' ) {
       connInfo.username = dataconnection.username;
       connInfo.password = dataconnection.password;
     }
@@ -152,7 +151,7 @@ export class DataconnectionService extends AbstractService {
     connInfo.url = dataconnection.url;
 
     // properties 속성이 존재 할경우
-    if( !isNullOrUndefined(dataconnection.properties) ){
+    if( !CommonUtil.isNullOrUndefined(dataconnection.properties) ){
       connInfo.properties = dataconnection.properties;
     }
 
@@ -173,7 +172,7 @@ export class DataconnectionService extends AbstractService {
   public getTables(connectionId: string, databaseName: string, page?:Page): Promise<any> {
     let url:string = this.API_URL + `connections/${connectionId}/databases/${databaseName}/tables`;
     if (page) {
-      let param:any = {};
+      const param:any = {};
 
       if( page ) {
         param.sort = page.sort;
@@ -287,7 +286,7 @@ export class DataconnectionService extends AbstractService {
 
   /**
    * Get schema list enabled cancel
-   * @param params
+   * @param param
    * @returns {Observable}
    */
   public getSchemaListWithCancel(param): Observable<any> {
@@ -305,7 +304,7 @@ export class DataconnectionService extends AbstractService {
 
   /**
    * Get table detail data enabled cancel
-   * @param params
+   * @param param
    * @param {boolean} extractColumnName
    * @returns {Observable}
    */
@@ -354,7 +353,7 @@ export class DataconnectionService extends AbstractService {
    * @returns {Promise<any>}
    */
   public isStrictModeForStagingDB(): Promise<any> {
-    //return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+    // return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
     return this.get(this.URL_CONNECTIONS + '/query/hive/partitions/enable');
   }
 

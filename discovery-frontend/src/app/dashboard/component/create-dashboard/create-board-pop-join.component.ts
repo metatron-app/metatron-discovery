@@ -14,25 +14,35 @@
 
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {BoardDataSource, JoinMapping, JoinMappingDataSource, QueryParam} from '../../../domain/dashboard/dashboard';
-import {GridComponent} from '../../../common/component/grid/grid.component';
-import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
-import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
-import {GridOption} from '../../../common/component/grid/grid.option';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {CommonUtil} from '../../../common/util/common.util';
-import {Alert} from '../../../common/util/alert.util';
 import * as $ from 'jquery';
-import {StringUtil} from '../../../common/util/string.util';
-import {CommonConstant} from "../../../common/constant/common.constant";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {CommonUtil} from '@common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {Datasource, Field, FieldRole, LogicalType} from '@domain/datasource/datasource';
+import {BoardDataSource, JoinMapping, JoinMappingDataSource, QueryParam} from '@domain/dashboard/dashboard';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'create-board-pop-join',
   templateUrl: './create-board-pop-join.component.html'
 })
-export class CreateBoardPopJoinComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class CreateBoardPopJoinComponent extends AbstractPopupComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -194,7 +204,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
       this._queryLimit = 100;
       this._queryData(this.editingJoin.left.engineName, this.editingJoin.left.temporary).then(data => {
         this.updateGrid(data[0], this.editingJoin.left.uiFields, 'left');
-        res();
+        res(null);
       }).catch(rej);
     }));
 
@@ -202,7 +212,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
       this._queryLimit = 100;
       this._queryData(this.editingJoin.right.engineName).then(data => {
         this.updateGrid(data[0], this.editingJoin.right.uiFields, 'right');
-        res();
+        res(null);
       }).catch(rej);
     }));
 
@@ -549,7 +559,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
       joinInfo.name = this.editingJoin.right.engineName;
       joinInfo.type = this.editingJoin.joinType;
 
-      let paramJoins: JoinMapping[] = _.cloneDeep(this._joinMappings);
+      const paramJoins: JoinMapping[] = _.cloneDeep(this._joinMappings);
       if (this._joinMapping) {
         // 2-Depth Join
         paramJoins.some((mapping: JoinMapping) => {
@@ -595,7 +605,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
 
         this.safelyDetectChanges();
 
-        (res) && (res());
+        (res) && (res(null));
         (loading) && (this.loadingHide());
 
       }).catch(err => {
@@ -612,7 +622,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
 
 
   /**
-   * 데이터를 조회한다. 
+   * 데이터를 조회한다.
    * @param {JoinMapping[] | string} queryTarget
    * @param {boolean} isTemporary
    * @param {boolean} loading
@@ -677,7 +687,7 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   private updateGrid(data: any, fields: Field[], targetGrid: string = 'main') {
 
     // 헤더정보 생성
-    const headers: header[] = this.getGridFields(fields).map(
+    const headers: Header[] = this.getGridFields(fields).map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
         const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;

@@ -12,11 +12,10 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ClipboardService } from 'ngx-clipboard';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Log } from '../../../../common/domain/modal';
-import { EditorComponent } from '../../../../workbench/component/detail-workbench/datail-workbench-editor/editor.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {ClipboardService} from 'ngx-clipboard';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Log} from '@common/domain/modal';
 
 @Component({
   selector: 'app-log-editor-component',
@@ -27,10 +26,6 @@ export class LogEditorComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 에디터
-  @ViewChild('editor')
-  private editorComponent: EditorComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -51,8 +46,8 @@ export class LogEditorComponent extends AbstractComponent implements OnInit, OnD
   // editor option
   public options: any = {
     printMargin: false,
-    highlightActiveLine :  false,
-    highlightGutterLine :  false
+    highlightActiveLine: false,
+    highlightGutterLine: false
   };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -113,7 +108,7 @@ export class LogEditorComponent extends AbstractComponent implements OnInit, OnD
    * copy clipboard
    */
   public copyToClipboard() {
-    this._clipboardService.copyFromContent( this.log.data );
+    this._clipboardService.copyFromContent(this.log.data);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

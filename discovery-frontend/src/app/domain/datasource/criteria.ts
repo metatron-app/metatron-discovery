@@ -33,7 +33,7 @@ export namespace Criteria {
     RANGE_DATETIME = 'RANGE_DATETIME',
     TEXT = 'TEXT'
   }
-  
+
   export enum ListCriterionKey {
     STATUS = 'STATUS',
     PUBLISH = 'PUBLISH',

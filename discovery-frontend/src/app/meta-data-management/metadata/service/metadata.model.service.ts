@@ -13,9 +13,9 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {Metadata} from '../../../domain/meta-data-management/metadata';
-import {Subject} from "rxjs";
+import {AbstractService} from '@common/service/abstract.service';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {Subject} from 'rxjs';
 
 @Injectable()
 export class MetadataModelService extends AbstractService {
@@ -23,9 +23,6 @@ export class MetadataModelService extends AbstractService {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Dictionary url
-  private URL_METADATA = this.API_URL + 'metadatas';
 
   // 생성시 사용되는 데이터 오브젝트
   private _selectedMetadata: Metadata;

@@ -12,6 +12,10 @@
  * limitations under the License.
  */
 
+import * as pixelWidth from 'string-pixel-width';
+import * as $ from 'jquery';
+import {saveAs} from 'file-saver';
+import {isNull, isUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -23,35 +27,20 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {
-  OriginDsInfo,
-  PrDataSnapshot,
-  SsType,
-  Status
-} from '../../domain/data-preparation/pr-snapshot';
-import {DataSnapshotService} from './service/data-snapshot.service';
-import {PopupService} from '../../common/service/popup.service';
-import {GridComponent} from '../../common/component/grid/grid.component';
-import {header, SlickGridHeader} from '../../common/component/grid/grid.header';
-import {DsType, Field} from '../../domain/data-preparation/pr-dataset';
-import {GridOption} from '../../common/component/grid/grid.option';
-import {Alert} from '../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
+import {PopupService} from '@common/service/popup.service';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {OriginDsInfo, PrDataSnapshot, SsType, Status} from '@domain/data-preparation/pr-snapshot';
+import {ConnectionType, DatasourceInfo, DataSourceType, FieldRole, SourceType} from '@domain/datasource/datasource';
+import {DsType, Field} from '@domain/data-preparation/pr-dataset';
+import {CreateSnapShotData} from '../../data-storage/service/data-source-create.service';
 import {PreparationAlert} from '../util/preparation-alert.util';
-import {isNull, isUndefined} from 'util';
-import {saveAs} from 'file-saver';
-import * as pixelWidth from 'string-pixel-width';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import * as $ from "jquery";
-import {PreparationCommonUtil} from "../util/preparation-common.util";
-import {
-  ConnectionType,
-  DatasourceInfo,
-  DataSourceType,
-  FieldRole,
-  SourceType
-} from "../../domain/datasource/datasource";
-import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
-import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
+import {PreparationCommonUtil} from '../util/preparation-common.util';
+import {DataflowModelService} from '../dataflow/service/dataflow.model.service';
+import {DataSnapshotService} from './service/data-snapshot.service';
 
 declare let moment: any;
 
@@ -67,37 +56,37 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
-  private commandList: {command: string, alias: string}[] = [
-    { command: 'header', alias: 'He'},
-    { command: 'keep', alias: 'Ke'},
-    { command: 'replace', alias: 'Rp'},
-    { command: 'rename', alias: 'Rn'},
-    { command: 'set', alias: 'Se'},
-    { command: 'settype', alias: 'St'},
-    { command: 'countpattern', alias: 'Co'},
-    { command: 'split', alias: 'Sp'},
-    { command: 'derive', alias: 'Dr'},
-    { command: 'delete', alias: 'De'},
-    { command: 'drop', alias: 'Dp'},
-    { command: 'pivot', alias: 'Pv'},
-    { command: 'unpivot', alias: 'Up'},
-    { command: 'join', alias: 'Jo'},
-    { command: 'extract', alias: 'Ex'},
-    { command: 'flatten', alias: 'Fl'},
-    { command: 'merge', alias: 'Me'},
-    { command: 'nest', alias: 'Ne'},
-    { command: 'unnest', alias: 'Un'},
-    { command: 'aggregate', alias: 'Ag'},
-    { command: 'sort', alias: 'So'},
-    { command: 'move', alias: 'Mv'},
-    { command: 'union', alias: 'Ui'},
-    { command: 'window', alias: 'Wn'},
-    { command: 'setformat', alias: 'Sf'}];
+  private commandList: { command: string, alias: string }[] = [
+    {command: 'header', alias: 'He'},
+    {command: 'keep', alias: 'Ke'},
+    {command: 'replace', alias: 'Rp'},
+    {command: 'rename', alias: 'Rn'},
+    {command: 'set', alias: 'Se'},
+    {command: 'settype', alias: 'St'},
+    {command: 'countpattern', alias: 'Co'},
+    {command: 'split', alias: 'Sp'},
+    {command: 'derive', alias: 'Dr'},
+    {command: 'delete', alias: 'De'},
+    {command: 'drop', alias: 'Dp'},
+    {command: 'pivot', alias: 'Pv'},
+    {command: 'unpivot', alias: 'Up'},
+    {command: 'join', alias: 'Jo'},
+    {command: 'extract', alias: 'Ex'},
+    {command: 'flatten', alias: 'Fl'},
+    {command: 'merge', alias: 'Me'},
+    {command: 'nest', alias: 'Ne'},
+    {command: 'unnest', alias: 'Un'},
+    {command: 'aggregate', alias: 'Ag'},
+    {command: 'sort', alias: 'So'},
+    {command: 'move', alias: 'Mv'},
+    {command: 'union', alias: 'Ui'},
+    {command: 'window', alias: 'Wn'},
+    {command: 'setformat', alias: 'Sf'}];
 
-  private isFromDataflow : boolean = false;
+  private isFromDataflow: boolean = false;
 
-  private uiOffset : number = 0;
-  private uiSize : number = 100;
+  private uiOffset: number = 0;
+  private uiSize: number = 100;
 
   @Output()
   public snapshotDetailCloseEvent = new EventEmitter();
@@ -135,16 +124,15 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public offset: number = 0;
   public target: number = 1000;
 
-
   // % 계산
   public missing: string = '0%';
-  public valid:string= '100%';
-  public mismatched:string = '0%';
+  public valid: string = '100%';
+  public mismatched: string = '0%';
 
-  public currentTab : number = 0;
+  public currentTab: number = 0;
 
-  public ruleList : any = [];
-  public isShow : boolean = false;
+  public ruleList: any = [];
+  public isShow: boolean = false;
 
   public progressbarWidth = '100%';
 
@@ -155,7 +143,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public snapshotUriFileFormat: string = '';
 
   public isSsNameEditing: boolean = false;
-  public sSInformationList: {label : String, value : string, isFileUri?: boolean}[] = [];
+  public sSInformationList: { label: string, value: string, isFileUri?: boolean }[] = [];
 
   public ssType = SsType;
 
@@ -187,7 +175,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     super.ngOnDestroy();
     $('body').removeClass('body-hidden');
 
-    if(this.callbackIndex) {
+    if (this.callbackIndex) {
       clearTimeout(this.callbackIndex);
     }
   }
@@ -200,8 +188,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * When popup is opened
    * @param ssId
    * @param isFromDataflow
+   * @param isEnableCreateDatasource
    */
-  public init(ssId : string, isFromDataflow : boolean = false, isEnableCreateDatasource?: boolean) {
+  public init(ssId: string, isFromDataflow: boolean = false, isEnableCreateDatasource?: boolean) {
 
     this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
@@ -224,7 +213,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    */
   public close() {
 
-    if(this.callbackIndex) {
+    if (this.callbackIndex) {
       clearTimeout(this.callbackIndex);
     }
 
@@ -243,7 +232,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.sourceData.snapshotData = new CreateSnapShotData();
     this.sourceData.snapshotData.selectedSnapshot = this.selectedDataSnapshot;
     this.sourceData.fieldList = this.selectedDataSnapshot.gridData.fields;
-    this.sourceData.fieldData = this.selectedDataSnapshot.gridData.data.slice(0,50);
+    this.sourceData.fieldData = this.selectedDataSnapshot.gridData.data.slice(0, 50);
     this.sourceData.type = SourceType.SNAPSHOT;
     this.sourceData.connType = ConnectionType.ENGINE;
     this.sourceData.dsType = DataSourceType.MASTER;
@@ -269,13 +258,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       rows = new Intl.NumberFormat().format(this.selectedDataSnapshot.totalLines);
       return rows + ' row(s)';
     } else {
-      //if (this.selectedDataSnapshot.status === 'FAILED') {
+      // if (this.selectedDataSnapshot.status === 'FAILED') {
       if (this.selectedDataSnapshot.status === Status.FAILED) {
         return 0;
       }
       return '(counting rows)'
     }
-   }
+  }
 
   /**
    * Returns number of columns
@@ -309,13 +298,12 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     return `${this.prepCommonUtil.padLeft(item.elapsedTime.hours)}:${this.prepCommonUtil.padLeft(item.elapsedTime.minutes)}:${this.prepCommonUtil.padLeft(item.elapsedTime.seconds)}.${this.prepCommonUtil.padLeft(item.elapsedTime.milliseconds)}`;
   }
 
-
   /** Jump to selected dataflow */
   public navigateDataflow(dfId) {
 
     if (!this.isFromDataflow) {
       this._savePrevRouterUrl();
-      this.router.navigate(['/management/datapreparation/dataflow',dfId]);
+      this.router.navigate(['/management/datapreparation/dataflow', dfId]);
     } else { // 데이터플로우 화면에서 이동할때
       this.isShow = false;
       this.navigateToDataflow.emit();
@@ -351,17 +339,17 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   /**
    * Tab click event
    * @param tabNumber
-   * */
-  public onTabClick(tabNumber : number) {
+   */
+  public onTabClick(tabNumber: number) {
     this.currentTab = tabNumber;
   }
 
   public getSize() {
     let size = 0;
-    if(Number.isInteger(this.selectedDataSnapshot.totalBytes)) {
+    if (Number.isInteger(this.selectedDataSnapshot.totalBytes)) {
       size = this.selectedDataSnapshot.totalBytes;
     }
-    return this.formatBytes(size,1);
+    return this.formatBytes(size, 1);
   }
 
 
@@ -372,7 +360,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public editSnapshotName() {
     if ((this.ssName.nativeElement.value !== this.selectedDataSnapshot.ssName) && this.ssName.nativeElement.value.trim() !== '') {
       this.loadingShow();
-      this.datasnapshotservice.editSnapshot({ssId: this.ssId, ssName: this.ssName.nativeElement.value}).then((result) => {
+      this.datasnapshotservice.editSnapshot({
+        ssId: this.ssId,
+        ssName: this.ssName.nativeElement.value
+      }).then((result) => {
         this.loadingHide();
         if (result) {
           this.selectedDataSnapshot.ssName = result.ssName;
@@ -409,7 +400,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * @param fileFormat
    */
   public downloadSnapshot(fileFormat: string) {
-    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + "."+ fileFormat;
+    const downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + '.' + fileFormat;
 
     this.datasnapshotservice.downloadSnapshot(this.ssId, fileFormat).subscribe((snapshotFile) => {
       saveAs(snapshotFile, downloadFileName);
@@ -421,31 +412,32 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * Cancel snapshot create process
    * @param param
    */
-  public cancelClick(param:boolean){
-    let elm = $('.ddp-wrap-progress');
+  public cancelClick(param: boolean) {
+    const elm = $('.ddp-wrap-progress');
     if (param) {
-      if(this.selectedDataSnapshot.ruleCntDone == this.selectedDataSnapshot.ruleCntTotal) {
+      if (this.selectedDataSnapshot.ruleCntDone === this.selectedDataSnapshot.ruleCntTotal) {
         Alert.info('Generating completed');
         this.close();
       } else {
-        elm[0].style.display = "none";
-        elm[1].style.display = "";
+        elm[0].style.display = 'none';
+        elm[1].style.display = '';
       }
     } else {
-      elm[0].style.display = "";
-      elm[1].style.display = "none";
+      elm[0].style.display = '';
+      elm[1].style.display = 'none';
     }
   }
 
-
-  /** 처리 중 스냅샷 취소*/
+  /**
+   * 처리 중 스냅샷 취소
+   */
   public cancelSnapshot() {
     this.loadingShow();
     this.datasnapshotservice.cancelSnapshot(this.ssId)
       .then((result) => {
         this.loadingHide();
 
-        if( result.result === 'OK')  {
+        if (result.result === 'OK') {
           Alert.info(this.translateService.instant('msg.dp.alert.snapshot.cancel.success'));
           this.close();
         } else {
@@ -454,10 +446,22 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
   }
+
+  /**
+   * Close snapshot popup with esc button
+   * @param event
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  public onKeydownHandler(event: KeyboardEvent) {
+    if (this.isShow) {
+      event.keyCode === 27 ? this.close() : null;
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -465,12 +469,14 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
-    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
-    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
+  private formatBytes(a, b) { // a=크기 , b=소숫점자릿
+    if (0 === a) return '0 Bytes';
+    const c = 1024;
+    const d = b || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(a) / Math.log(c));
+    return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f]
   }
-
 
   /**
    * Get snapshot information
@@ -487,7 +493,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     if (!this.flag) {
       this.flag = true;
-      this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : PrDataSnapshot) => {
+      this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot: PrDataSnapshot) => {
         this.flag = false;
         this.loadingHide();
 
@@ -496,9 +502,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.isEnableCreateDatasource !== false && (this.isEnableCreateDatasource = snapshot.status === Status.SUCCEEDED);
 
         // set file format
-        if (this.selectedDataSnapshot.ssType ===  SsType.URI){
-          this.snapshotUriFileFormat = this.selectedDataSnapshot.storedUri.slice((this.selectedDataSnapshot.storedUri.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
-          if( this.snapshotUriFileFormat === 'sql' ) {
+        if (this.selectedDataSnapshot.ssType === SsType.URI) {
+          this.snapshotUriFileFormat = this.selectedDataSnapshot.storedUri.slice((this.selectedDataSnapshot.storedUri.lastIndexOf('.') - 1 >>> 0) + 2).toLowerCase();
+          if (this.snapshotUriFileFormat === 'sql') {
             this.isEnableCreateDatasource = false;
           }
         }
@@ -520,7 +526,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
         // if denominator is 0, results in NaN
         if (totalLines !== 0) {
-          this.valid = ((totalLines - missingLines - mismatchedLines ) / totalLines) * 100 + '%';
+          this.valid = ((totalLines - missingLines - mismatchedLines) / totalLines) * 100 + '%';
           this.missing = (missingLines / totalLines) * 100 + '%';
           this.mismatched = (mismatchedLines / totalLines) * 100 + '%';
         }
@@ -536,11 +542,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         }
 
         if (this.selectedDataSnapshot.displayStatus === 'PREPARING') {
-          if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
-          if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
+          if (isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
+          if (isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
 
-          if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
-            this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100  / (this.selectedDataSnapshot.ruleCntTotal + 1)) + "%";
+          if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal) {
+            this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100 / (this.selectedDataSnapshot.ruleCntTotal + 1)) + '%';
           } else {
             this.progressbarWidth = '100%';
           }
@@ -554,7 +560,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         }
 
         if (this.selectedDataSnapshot.displayStatus === 'FAIL') {
-          if(!isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")) {
+          if (!isUndefined(this.selectedDataSnapshot.custom) && 'fail_msg' === this.selectedDataSnapshot.custom.match('fail_msg')) {
             this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
           }
           this._setSnapshotInfo(this.selectedDataSnapshot);
@@ -562,8 +568,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
       }).catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
     }
 
@@ -575,17 +581,17 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * @private
    * returns SUCCESS, PREPARING, FAIL
    */
-  private _findDisplayStatus(status: Status) : string {
+  private _findDisplayStatus(status: Status): string {
 
     if ([Status.SUCCEEDED].indexOf(status) >= 0) {
       return 'SUCCESS';
     }
 
-    if ( [Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING,Status.CANCELING].indexOf(this.selectedDataSnapshot.status) >= 0) {
+    if ([Status.INITIALIZING, Status.RUNNING, Status.WRITING, Status.TABLE_CREATING, Status.CANCELING].indexOf(this.selectedDataSnapshot.status) >= 0) {
       return 'PREPARING';
     }
 
-    if ([Status.FAILED,Status.CANCELED,Status.NOT_AVAILABLE].indexOf(this.selectedDataSnapshot.status) >= 0){
+    if ([Status.FAILED, Status.CANCELED, Status.NOT_AVAILABLE].indexOf(this.selectedDataSnapshot.status) >= 0) {
       return 'FAIL'
     }
 
@@ -631,30 +637,30 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
 
   private getOriginData() {
-    let sourceInfo = this.selectedDataSnapshot.sourceInfo;
+    const sourceInfo = this.selectedDataSnapshot.sourceInfo;
 
-    if( isUndefined(sourceInfo) ) {
+    if (isUndefined(sourceInfo)) {
       this.originDsInfo.dsName = null;
       this.originDsInfo.qryStmt = null;
       this.originDsInfo.storedUri = null;
       this.originDsInfo.createdTime = null;
     } else {
-      if( isUndefined(sourceInfo.origDsName) ) {
+      if (isUndefined(sourceInfo.origDsName)) {
         this.originDsInfo.dsName = null;
       } else {
         this.originDsInfo.dsName = sourceInfo.origDsName;
       }
-      if( isUndefined(sourceInfo.origDsQueryStmt) ) {
+      if (isUndefined(sourceInfo.origDsQueryStmt)) {
         this.originDsInfo.qryStmt = null;
       } else {
         this.originDsInfo.qryStmt = sourceInfo.origDsQueryStmt;
       }
-      if( isUndefined(sourceInfo.origDsStoredUri) ) {
+      if (isUndefined(sourceInfo.origDsStoredUri)) {
         this.originDsInfo.storedUri = null;
       } else {
         this.originDsInfo.storedUri = sourceInfo.origDsStoredUri;
       }
-      if( isUndefined(sourceInfo.origDsCreatedTime) ) {
+      if (isUndefined(sourceInfo.origDsCreatedTime)) {
         this.originDsInfo.createdTime = null;
       } else {
         this.originDsInfo.createdTime = sourceInfo.origDsCreatedTime;
@@ -672,7 +678,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       .then((result) => {
         this.loadingHide();
 
-        if(isUndefined(result.gridResponse)){
+        if (isUndefined(result.gridResponse)) {
           Alert.warning(this.translateService.instant('msg.dp.alert.no.grid'));
           return;
         }
@@ -687,7 +693,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           data: [],
           fields: []
         };
-        for ( let idx = 0; idx < this.colCnt; idx++ ) {
+        for (let idx = 0; idx < this.colCnt; idx++) {
           griddata.fields.push({
             name: colNames[idx],
             type: colTypes[idx].type,
@@ -699,8 +705,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
         result.gridResponse.rows.forEach((row) => {
           const obj = {};
-          for ( let idx = 0; idx < this.colCnt; idx++ ) {
-            obj[ colNames[idx] ] = row.objCols[idx];
+          for (let idx = 0; idx < this.colCnt; idx++) {
+            obj[colNames[idx]] = row.objCols[idx];
           }
           griddata.data.push(obj);
         });
@@ -726,7 +732,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    */
   private updateGrid(data) {
 
-    if( 0 === data.fields.length || 0 === data.data.length ) {
+    if (0 === data.fields.length || 0 === data.data.length) {
       return;
     }
 
@@ -735,15 +741,15 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     let rows: any[];
 
     this.uiOffset = 1;
-    rows = data.data.slice(0, (data.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize : data.data.length) );
+    rows = data.data.slice(0, (data.data.length > this.uiOffset * this.uiSize ? this.uiOffset * this.uiSize : data.data.length));
 
     // Row 생성 및 컬럼별 최대 길이 측정
     if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
       rows = rows.map((row: any, idx: number) => {
         // 컬럼 길이 측정
         fields.forEach((field: Field) => {
-          const colWidth: number = pixelWidth(row[field.name], { size: 12 });
-          if (!maxDataLen[field.name] || ( maxDataLen[field.name] < colWidth )) {
+          const colWidth: number = pixelWidth(row[field.name], {size: 12});
+          if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
             maxDataLen[field.name] = colWidth;
           }
         });
@@ -754,9 +760,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     }
 
     // 헤더정보 생성
-    const headers: header[] = fields.map((field: Field) => {
+    const headers: Header[] = fields.map((field: Field) => {
         /* 72 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 72;
 
         return new SlickGridHeader()
           .Id(field.name)
@@ -771,13 +777,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           .Resizable(true)
           .Unselectable(true)
           .Sortable(false)
-          .Formatter((function (scope) {
-            return function (row, cell, value) {
+          .Formatter(((_scope) => {
+            return (_row, _cell, value) => {
               if (field.type === 'STRING') {
                 value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
                 value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
                 value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
-                let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
+                const tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
                 value = (value) ? value.toString().replace(/\s/gi, tag) : value;
               }
               if (isNull(value)) {
@@ -803,10 +809,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     );
 
     this.gridComponent.grid.onScroll.subscribe(() => {
-      let lastIdx = (this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize: this.selectedDataSnapshot.gridData.data.length);
-      if ( this.gridComponent.grid.getViewport().bottom === lastIdx && this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize ){
+      const lastIdx = (this.selectedDataSnapshot.gridData.data.length > this.uiOffset * this.uiSize ? this.uiOffset * this.uiSize : this.selectedDataSnapshot.gridData.data.length);
+      if (this.gridComponent.grid.getViewport().bottom === lastIdx && this.selectedDataSnapshot.gridData.data.length > this.uiOffset * this.uiSize) {
         this.uiOffset += 1;
-        this.gridComponent.grid.setData(data.data.slice(0,(data.data.length < this.uiOffset*this.uiSize? data.data.length : this.uiOffset*this.uiSize ) ));
+        this.gridComponent.grid.setData(data.data.slice(0, (data.data.length < this.uiOffset * this.uiSize ? data.data.length : this.uiOffset * this.uiSize)));
         this.gridComponent.grid.updateRowCount();
         this.gridComponent.grid.render();
       }
@@ -825,56 +831,67 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     // Staging db
     if (!snapshot.storedUri) {
-      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
-        value : this.prepCommonUtil.getSnapshotType(snapshot.ssType)});
+      this.sSInformationList.push({
+        label: this.translateService.instant('msg.dp.th.ss-type'),
+        value: this.prepCommonUtil.getSnapshotType(snapshot.ssType)
+      });
     }
 
     let sqlType: boolean = false;
     // File type
     if (snapshot.storedUri) {
-      const fileType : string = this.prepCommonUtil.getExtensionForSnapshot(snapshot.storedUri);
-      if( 'sql' === fileType ) { sqlType = true; }
-      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
-        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType.toUpperCase()})`},
-        {label: this.translateService.instant('msg.dp.th.file.uri'),
-          value : snapshot.storedUri, isFileUri: true});
+      const fileType: string = this.prepCommonUtil.getExtensionForSnapshot(snapshot.storedUri);
+      if ('sql' === fileType) {
+        sqlType = true;
+      }
+      this.sSInformationList.push({
+          label: this.translateService.instant('msg.dp.th.ss-type'),
+          value: `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType.toUpperCase()})`
+        },
+        {
+          label: this.translateService.instant('msg.dp.th.file.uri'),
+          value: snapshot.storedUri, isFileUri: true
+        });
     }
 
     // Summary only when snapshot is successful
     if (snapshot.displayStatus !== 'FAIL') {
-      this.sSInformationList.push( {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()}`} );
-      if( sqlType===false ) {
-        this.sSInformationList.push( {label: '', value : `${this.getCols()}`} );
+      this.sSInformationList.push({
+        label: this.translateService.instant('msg.dp.th.summary'),
+        value: `${this.getRows()}`
+      });
+      if (sqlType === false) {
+        this.sSInformationList.push({label: '', value: `${this.getCols()}`});
       }
     }
 
     if (snapshot.totalBytes) {
-      this.sSInformationList.push({label: this.translateService.instant('msg.comm.detail.size'), value : this.getSize()});
+      this.sSInformationList.push({
+        label: this.translateService.instant('msg.comm.detail.size'),
+        value: this.getSize()
+      });
     }
 
     if (snapshot.dbName) {
-      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.database'), value : this.selectedDataSnapshot.dbName});
+      this.sSInformationList.push({
+        label: this.translateService.instant('msg.dp.th.database'),
+        value: this.selectedDataSnapshot.dbName
+      });
     }
 
     if (snapshot.tblName) {
-      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss.table'), value : this.selectedDataSnapshot.tblName});
+      this.sSInformationList.push({
+        label: this.translateService.instant('msg.dp.th.ss.table'),
+        value: this.selectedDataSnapshot.tblName
+      });
     }
 
     this.sSInformationList.push(
-      {label: this.translateService.instant('msg.dp.th.et'), value : this.getElapsedTime(snapshot)},
-      {label: this.translateService.instant('msg.comm.th.created'), value : moment(snapshot.createdTime).format('YYYY-MM-DD HH:mm')});
-  }
-
-
-  /**
-   * Close snapshot popup with esc button
-   * @param event
-   */
-  @HostListener('document:keydown.escape', ['$event'])
-  private _onKeydownHandler(event: KeyboardEvent) {
-    if (this.isShow) {
-      event.keyCode === 27 ? this.close() : null;
-    }
+      {label: this.translateService.instant('msg.dp.th.et'), value: this.getElapsedTime(snapshot)},
+      {
+        label: this.translateService.instant('msg.comm.th.created'),
+        value: moment(snapshot.createdTime).format('YYYY-MM-DD HH:mm')
+      });
   }
 
 } // end of class DataSnapshotDetailComponent

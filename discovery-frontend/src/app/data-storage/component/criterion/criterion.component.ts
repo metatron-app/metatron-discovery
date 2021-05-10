@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {Criteria} from "../../../domain/datasource/criteria";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
 import * as _ from 'lodash';
-import {StringUtil} from "../../../common/util/string.util";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Criteria} from '@domain/datasource/criteria';
 
 declare let moment: any;
 
@@ -25,7 +25,7 @@ declare let moment: any;
   selector: 'component-criterion',
   templateUrl: 'criterion.component.html',
 })
-export class CriterionComponent extends AbstractComponent {
+export class CriterionComponent extends AbstractComponent implements OnInit {
 
   @Input()
   public readonly criterionApiFunc;
@@ -52,7 +52,7 @@ export class CriterionComponent extends AbstractComponent {
 
   /**
    * Init criterion list
-   * @param {{criteria: Criteria.ListCriterion[]; defaultFilters: Criteria.ListFilter[]}} criterionResult
+   * @param criterionResult
    */
   public initCriterionList(criterionResult: Criteria.Criterion): void {
     // set used criterion list
@@ -61,7 +61,7 @@ export class CriterionComponent extends AbstractComponent {
     // if exist extension criterion list in criterion list param
     if (!_.isNil(extensionCriterion)) {
       this._extensionCriterionList = _.cloneDeep(extensionCriterion.subCriteria);
-      
+
       this.changedFilter.emit();
     }
     // if exist default filters
@@ -94,7 +94,7 @@ export class CriterionComponent extends AbstractComponent {
     if (!_.isNil(this.queryParams[Criteria.KEY_EXTENSIONS])) {
       // loop
       this.queryParams[Criteria.KEY_EXTENSIONS].forEach((criterionKey: Criteria.ListCriterionKey) => {
-        const criterion = this._extensionCriterionList.find(criterion => criterion.criterionKey === criterionKey);
+        const criterion = this._extensionCriterionList.find(criterionInfo => criterionInfo.criterionKey === criterionKey);
         // if exist criterion in extension criterion list
         if (!_.isNil(criterion) && this.isNotExistExtensionCriterionInUsedCriterionList(criterion)) {
           // push criterion to used criterion list
@@ -175,7 +175,7 @@ export class CriterionComponent extends AbstractComponent {
 
   /**
    * Change filter
-   * @param {{label: Criteria.ListCriterionKey; value}} data
+   * @param data
    */
   public onChangeFilter(data: {label: Criteria.ListCriterionKey, value}): void {
     const filters = Object.keys(data.value);

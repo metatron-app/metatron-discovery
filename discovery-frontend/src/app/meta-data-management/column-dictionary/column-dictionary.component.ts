@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {isNullOrUndefined, isUndefined} from 'util';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 import {ColumnDictionaryService} from './service/column-dictionary.service';
-import {PeriodComponent} from '../../common/component/period/period.component';
-import {Alert} from '../../common/util/alert.util';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {Alert} from '@common/util/alert.util';
 import {CreateColumnDictionaryComponent} from './create-column-dictionary/create-column-dictionary.component';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
-import {PeriodData} from "../../common/value/period.data.value";
-import {Subscription} from "rxjs";
-import {Criteria} from "../../domain/datasource/criteria";
+import {PeriodData} from '@common/value/period.data.value';
+import {Subscription} from 'rxjs';
+import {Criteria} from '@domain/datasource/criteria';
 import DateTimeType = Criteria.DateTimeType;
 
 declare let moment: any;
@@ -133,7 +133,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
         const from = params['from'];
         const to = params['to'];
 
-        this._selectedDate = new PeriodData;
+        this._selectedDate = new PeriodData();
         this._selectedDate.startDate = from;
         this._selectedDate.endDate = to;
 
@@ -173,7 +173,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
         // alert
         Alert.success(this.translateService.instant(
           'msg.metadata.ui.dictionary.delete.success',
-          { value: modal['dictionaryName'] }
+          {value: modal['dictionaryName']}
           )
         );
 
@@ -272,7 +272,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
 
   /**
    * 캘린더 선택 이벤트
-   * @param event
+   * @param selectedDate
    */
   public onChangeData(selectedDate): void {
     this.selectedType = selectedDate.type;
@@ -280,7 +280,12 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     const betweenFrom = selectedDate.startDate;
     const betweenTo = selectedDate.endDate;
 
-    let startDate, endDate, type, startDateStr, endDateStr, dateType = null;
+    let startDate;
+    let endDate;
+    let type;
+    let startDateStr;
+    let endDateStr;
+    const dateType = null;
 
     const returnFormat = 'YYYY-MM-DDTHH:mm';
 
@@ -361,7 +366,6 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   } // function - reloadPage
 
 
-
   /**
    * After creating column dictionary
    */
@@ -429,8 +433,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
         isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].dictionaries.length === 0))
-      {
+        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].dictionaries.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getColumnDictionaryList();
       }
@@ -464,7 +467,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
       size: this.page.size,
       page: this.page.page,
       sort: this.selectedSort.value,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
     // 검색어
     if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {

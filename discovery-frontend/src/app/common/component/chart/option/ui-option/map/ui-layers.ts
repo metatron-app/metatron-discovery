@@ -12,9 +12,12 @@
  * limitations under the License.
  */
 
-import {MapBy, MapLayerType, MapSymbolType} from '../../define/map/map-common';
-import { ColorRange } from '../ui-color';
-import {MapOutline} from "./ui-outline";
+import {MapLayerSize} from '@common/component/chart/option/ui-option/map/ui-symbol-layer';
+import {MapBy, MapLayerType, MapLineStyle, MapSymbolType} from '../../define/map/map-common';
+import {ColorRange} from '../ui-color';
+import {MapOutline} from './ui-outline';
+
+export type UISymbolLayer = Omit<UILayers, 'size'> & { size: MapLayerSize };
 
 /**
  * map chart layer
@@ -28,29 +31,45 @@ export interface UILayers {
 
   color?: SymbolColor;
 
+  symbol?: string;    // CIRCLE, SQUARE, TRIANGLE
+
+  size?: LayerSize;
+
+  outline?: MapOutline;
+
+  clustering?: boolean;
+
+  coverage?: number;
+
+  // Thickness of line
+  thickness?: UIThickness;
+
+  // line style (solid, dashed, dotted)
+  lineStyle?: MapLineStyle;
+
   ////////////////////////
   ///// UI Spec
   ////////////////////////
 
   // heatMap radius
-  heatMapRadius? : number;
+  heatMapRadius?: number;
 
   // tile radius
-  tileRadius? : number;
+  tileRadius?: number;
 
   // point radius
   pointRadius?: number;
 
-  symbolPointType? : MapSymbolType;
-  symbolOutline? : MapOutline;
+  symbolPointType?: MapSymbolType;
+  symbolOutline?: MapOutline;
 
-  clusterPointType? : MapSymbolType;
-  clusterOutline? : MapOutline;
+  clusterPointType?: MapSymbolType;
+  clusterOutline?: MapOutline;
 
   // color type 관련
-  noneColor? : string;
-  dimensionColor? : string;
-  measureColor? : string;
+  noneColor?: string;
+  dimensionColor?: string;
+  measureColor?: string;
 }
 
 /**
@@ -81,7 +100,7 @@ interface SymbolColor {
   ////////////////////////
 
   // color by dimension custom color setting
-  mapping?: Object
+  mapping?: object;
 
   // color by measure custom color setting
   ranges?: ColorRange[];
@@ -100,20 +119,52 @@ interface SymbolColor {
   settingUseFl: boolean;
 
   // type schema, transparency
-  symbolSchema? : string;
-  symbolTransparency? : number;
+  symbolSchema?: string;
+  symbolTransparency?: number;
 
-  heatMapSchema? : string;
-  heatMapTransparency? : number;
+  heatMapSchema?: string;
+  heatMapTransparency?: number;
 
-  tileSchema? : string;
-  tranTransparency? : number;
+  tileSchema?: string;
+  tranTransparency?: number;
 
-  polygonSchema? : string;
+  polygonSchema?: string;
 
   // cluster => UI Only
   clusterSchema?: string;
   clusterTransparency?: number;
 
-  changeRange? : boolean;
+  changeRange?: boolean;
+}
+
+interface LayerSize {
+  by: string;
+  column: string;
+  min?: number;
+  max?: number;
+}
+
+/**
+ * Thickness of line
+ */
+interface UIThickness {
+
+  // Color specification criteria
+  by?: MapBy;
+
+  // Column Name
+  column?: string;
+
+  // Max value of thickness
+  maxValue?: number;
+
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
+
+  // Column Aggregation type (measure)
+  aggregationType?: string;
+
+  // Column granularity (timestamp)
+  granularity?: string;
 }

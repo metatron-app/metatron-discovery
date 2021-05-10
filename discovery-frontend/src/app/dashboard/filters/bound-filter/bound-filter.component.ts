@@ -15,18 +15,21 @@
 import * as _ from 'lodash';
 import {
   Component,
-  ElementRef, EventEmitter,
+  ElementRef,
+  EventEmitter,
   Injector,
   Input,
-  OnChanges, OnDestroy,
-  OnInit, Output,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
   SimpleChange,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { BoundFilter } from '../../../domain/workbook/configurations/filter/bound-filter';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
 
 declare let $;
 
@@ -39,7 +42,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('rangeSlider')
+  @ViewChild('rangeSlider', {static: true})
   private _rangeSlider: ElementRef;
 
   private _$rangeSlider: any;
@@ -127,7 +130,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
    * 최소값 설정
    * @param {string} inputValue
    */
-  public setMinValue(inputValue:string) {
+  public setMinValue(inputValue: string) {
     if (/^[+-]?\d+(\.\d+)?$/gi.test(inputValue)) {
       let numValue: number = +inputValue;
       // Validation
@@ -147,7 +150,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
    * 최대값 설정
    * @param {string} inputValue
    */
-  public setMaxValue(inputValue:string) {
+  public setMaxValue(inputValue: string) {
     if (/^[+-]?\d+(\.\d+)?$/gi.test(inputValue)) {
       let numValue: number = +inputValue;
       if (numValue < this.filter.minValue) numValue = this.filter.minValue;
@@ -181,7 +184,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
   private _setSlider(from: number, to: number, min?: number, max?: number) {
     if (this._$rangeSlider) {
       const slider = this._$rangeSlider.data('ionRangeSlider');
-      slider.update({ from: from, to: to });
+      slider.update({from: from, to: to});
     } else {
       const scope = this;
       this._$rangeSlider = $(this._rangeSlider.nativeElement);

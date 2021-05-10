@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { CommonUtil } from '../../../common/util/common.util';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class AuditService extends AbstractService {
@@ -30,7 +30,7 @@ export class AuditService extends AbstractService {
    * @param {any} params
    * @returns {Promise<any>}
    */
-  public getDailyJobSuccessRate(params : any): Promise<any> {
+  public getDailyJobSuccessRate(params: any): Promise<any> {
     let url = this.API_URL + 'audits/stats/query/count/date';
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
@@ -42,7 +42,7 @@ export class AuditService extends AbstractService {
    * 해당 기간중 유저별 쿼리 수행 건수
    * @param {any} params
    */
-  public getQueryDistributionByUser(params : any): Promise<any> {
+  public getQueryDistributionByUser(params: any): Promise<any> {
     let url = this.API_URL + 'audits/stats/query/count/user';
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
@@ -132,9 +132,9 @@ export class AuditService extends AbstractService {
    * @param {string} params
    * @returns {Promise<any>}
    */
-  public getQueryListBySort(params : any ): Promise<any> {
+  public getQueryListBySort(params: any): Promise<any> {
 
-    let url = this.API_URL +`audits`;
+    let url = this.API_URL + `audits`;
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
     }

@@ -12,18 +12,10 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef, EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit, Output
-} from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {EngineService} from "../service/engine.service";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
+import * as _ from 'lodash';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-column-datasource',
@@ -34,8 +26,7 @@ export class DatasourceColumnComponent extends AbstractComponent implements OnIn
 
   // noinspection JSUnusedLocalSymbols
   constructor(protected elementRef: ElementRef,
-              protected injector: Injector,
-              private engineService: EngineService) {
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 

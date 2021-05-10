@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnInit } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { Datasource } from '../../../../domain/datasource/datasource';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {NoteBook} from '@domain/notebook/notebook';
+import {Datasource} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-notebook-select',
   templateUrl: './create-notebook-select.component.html'
 })
-export class CreateNotebookSelectComponent extends AbstractPopupComponent implements OnInit {
+export class CreateNotebookSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -87,8 +87,8 @@ export class CreateNotebookSelectComponent extends AbstractPopupComponent implem
       param = 'create-notebook-chart';
     } else if (arg === 'none') {
       param = 'create-notebook-name';
-      console.info(this.notebook);
-      console.info(this.notebook.datasource);
+      console.log(this.notebook);
+      console.log(this.notebook.datasource);
       this.notebook.datasource = new Datasource();
       this.notebook['datasource']['dsType'] = 'NONE';
     }

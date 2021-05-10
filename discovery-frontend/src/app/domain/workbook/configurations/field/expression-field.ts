@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { UserDefinedField } from './user-defined-field';
-import { FieldRole } from '../../../datasource/datasource';
+import {UserDefinedField} from './user-defined-field';
+import {FieldRole} from '@domain/datasource/datasource';
 
-export class ExpressionField extends UserDefinedField{
+export class ExpressionField extends UserDefinedField {
 
   /**
    * Expression

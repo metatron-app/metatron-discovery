@@ -14,6 +14,7 @@
 
 import * as _ from 'lodash';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -25,16 +26,15 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {ConnectionType, Datasource, TemporaryDatasource} from '../../../domain/datasource/datasource';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {CommonUtil} from '@common/util/common.util';
+import {Modal} from '@common/domain/modal';
+import {ConnectionType, Datasource, TemporaryDatasource} from '@domain/datasource/datasource';
+import {BoardDataSource, BoardDataSourceRelation, Dashboard} from '@domain/dashboard/dashboard';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {CreateBoardPopDsSelectComponent} from './create-board-pop-ds-select.component';
-import {BoardDataSource, BoardDataSourceRelation, Dashboard} from '../../../domain/dashboard/dashboard';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
 import {CreateBoardPopRelationComponent} from './create-board-pop-relation.component';
-import {isNullOrUndefined} from 'util';
-import {CommonUtil} from '../../../common/util/common.util';
-import {Modal} from "../../../common/domain/modal";
 
 declare const vis;
 
@@ -43,7 +43,7 @@ declare const vis;
   templateUrl: './create-board-ds-network.component.html',
   styleUrls: ['./create-board-ds-network.component.css']
 })
-export class CreateBoardDsNetworkComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class CreateBoardDsNetworkComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -55,8 +55,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   @ViewChild(CreateBoardPopRelationComponent)
   private _relationPopComp: CreateBoardPopRelationComponent;
 
-  @ViewChild( 'guideLine' )
-  private _guideLine:ElementRef;
+  @ViewChild('guideLine')
+  private _guideLine: ElementRef;
 
   // VIS Data
   private _nodes: any;
@@ -68,7 +68,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   private _boardDataSources: BoardDataSource[] = [];     // 보드 데이터소스 목록
   private _relations: BoardDataSourceRelation[] = [];    // 연계 정보 목록
 
-  private _isAlreadyViewGuide:boolean = false;
+  private _isAlreadyViewGuide: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -91,7 +91,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   public selectedDataSource: BoardDataSource;           // 선택된 데이터소스
   public selectedRelation: BoardDataSourceRelation;     // 데이터소스 연계 정보
 
-  public isShowMultiDsGuide:boolean = false;             // 가이드 표시 여부
+  public isShowMultiDsGuide: boolean = false;             // 가이드 표시 여부
 
   @Input()
   public workspaceId: string;
@@ -100,7 +100,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   public dashboard: Dashboard;
 
   @Output()
-  public onChange: EventEmitter<{isDenyNext?:boolean,isShowButtons?:boolean}> = new EventEmitter();
+  public onChange: EventEmitter<{ isDenyNext?: boolean, isShowButtons?: boolean }> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -125,15 +125,14 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
     // 데이터 소스 변경
     this.subscriptions.push(
-      this.broadCaster.on('CREATE_BOARD_UPDATE_DS').subscribe((data: { dataSource: BoardDataSource, candidateDataSources: Datasource[]}) => {
+      this.broadCaster.on('CREATE_BOARD_UPDATE_DS').subscribe((data: { dataSource: BoardDataSource, candidateDataSources: Datasource[] }) => {
 
         const targetIdx = this._boardDataSources.findIndex(item => item.id === data.dataSource.id);
         (-1 < targetIdx) && (this._boardDataSources[targetIdx] = data.dataSource);
 
         data.candidateDataSources.forEach(ds => {
-          const dataSourceIdx : number = this._dataSources.findIndex(item => item.id === ds.id);
-
-          if( -1 == dataSourceIdx ) {
+          const dataSourceIdx: number = this._dataSources.findIndex(item => item.id === ds.id);
+          if (-1 === dataSourceIdx) {
             this._dataSources.push(ds);
           }
         });
@@ -143,7 +142,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     // 데이터 소스 삭제
     this.subscriptions.push(
       this.broadCaster.on('CREATE_BOARD_REMOVE_DS').subscribe((data: { dataSourceId: string }) => {
-        if( this._relations.some(item =>  (item.ui.source.id === data.dataSourceId || item.ui.target.id === data.dataSourceId) ) ) {
+        if (this._relations.some(item => (item.ui.source.id === data.dataSourceId || item.ui.target.id === data.dataSourceId))) {
           const modal = new Modal();
           modal.name = this.translateService.instant('msg.board.create.confirm.del_ds.main');
           modal.description = this.translateService.instant('msg.board.create.confirm.del_ds.sub');
@@ -201,7 +200,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this.subscriptions.push(
       this.broadCaster.on('CREATE_BOARD_RE_INGESTION').subscribe((data: { dataSource: BoardDataSource }) => {
         this._clearSelection();
-        const targetDs:BoardDataSource = data.dataSource['orgDataSource'];
+        const targetDs: BoardDataSource = data.dataSource['orgDataSource'];
         targetDs.uiFilters = data.dataSource.uiFilters;
         this.candidateIngestionList.push(targetDs);
         this._showDataIngestion();
@@ -226,9 +225,9 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
           const targetDs: Datasource = dataSources.find(ds => item.engineName === ds.engineName || (ds.connType === ConnectionType.LINK && item.engineName.startsWith(ds.engineName + '_')));
           (targetDs) && (item.name = targetDs.name);
 
-          if(targetDs.connType == ConnectionType.LINK && targetDs.engineName != item.engineName) {
+          if (targetDs.connType === ConnectionType.LINK && targetDs.engineName !== item.engineName) {
             targetDs.engineName = item.engineName;
-            targetDs.temporary = targetDs.temporary?targetDs.temporary:new TemporaryDatasource();
+            targetDs.temporary = targetDs.temporary ? targetDs.temporary : new TemporaryDatasource();
           }
 
           this._addDataSource(BoardDataSource.convertDsToMetaDs(targetDs));
@@ -252,14 +251,14 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
         this.isPossibleSettingRel = true;
       } else {
         const foundDs: Datasource = dataSources.find(ds => boardDs.engineName === ds.engineName || (ds.connType === ConnectionType.LINK && boardDs.engineName.startsWith(ds.engineName + '_')));
-        if(foundDs) {
-          if(foundDs.connType == ConnectionType.LINK && foundDs.engineName != boardDs.engineName) {
+        if (foundDs) {
+          if (foundDs.connType === ConnectionType.LINK && foundDs.engineName !== boardDs.engineName) {
             foundDs.engineName = boardDs.engineName;
-            foundDs.temporary = foundDs.temporary?foundDs.temporary:new TemporaryDatasource();
+            foundDs.temporary = foundDs.temporary ? foundDs.temporary : new TemporaryDatasource();
           }
 
-          const newBoardDs : BoardDataSource = BoardDataSource.convertDsToMetaDs(foundDs);
-          if(boardDs.joins && boardDs.joins.length > 0) {
+          const newBoardDs: BoardDataSource = BoardDataSource.convertDsToMetaDs(foundDs);
+          if (boardDs.joins && boardDs.joins.length > 0) {
             newBoardDs.joins = boardDs.joins;
           }
           this._addDataSource(newBoardDs);
@@ -280,11 +279,10 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   /**
    * 차트 Resize
    *
-   * @param event
    */
-  @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
-    $( '.sys-create-board-top-panel' ).css('height', '100%').css('height', '-=1px');
+  @HostListener('window:resize')
+  public onResize() {
+    $('.sys-create-board-top-panel').css('height', '100%').css('height', '-=1px');
   } // function - onResize
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -304,7 +302,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public isInvalidate(): boolean {
     return (0 === this._boardDataSources.length)
-      || this._relations.some(item => isNullOrUndefined(item.ui.sourceField) || isNullOrUndefined(item.ui.targetField));
+      || this._relations.some(item => this.isNullOrUndefined(item.ui.sourceField) || this.isNullOrUndefined(item.ui.targetField));
   } // function - isInvalidate
 
   /**
@@ -332,8 +330,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   /**
    * 가이드 표시 On/Off
    */
-  public toggleGuide(setVisible?:string) {
-    switch( setVisible ) {
+  public toggleGuide(setVisible?: string) {
+    switch (setVisible) {
       case 'SHOW' :
         this.isShowMultiDsGuide = true;
         break;
@@ -353,11 +351,11 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    * Animate guide
    */
   public animateGuide() {
-    if( this.isShowMultiDsGuide ) {
-      localStorage.setItem( 'VIEW_MULTI_DS_GUIDE', 'YES' );
-      const $guideLine = $( this._guideLine.nativeElement );
-      $guideLine.delay( 500 ).animate( { paddingLeft:"270" }, 1000, () => {
-        $guideLine.delay( 500 ).animate( { paddingLeft:"0" }, 1000, () => {
+    if (this.isShowMultiDsGuide) {
+      localStorage.setItem('VIEW_MULTI_DS_GUIDE', 'YES');
+      const $guideLine = $(this._guideLine.nativeElement);
+      $guideLine.delay(500).animate({paddingLeft: '270'}, 1000, () => {
+        $guideLine.delay(500).animate({paddingLeft: '0'}, 1000, () => {
           this.animateGuide();
         });
       });
@@ -371,19 +369,19 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this._network.addEdgeMode();
     this.isRelationEditMode = true;
 
-    const isViewGuide:string = localStorage.getItem( 'VIEW_MULTI_DS_GUIDE' );
-    this._isAlreadyViewGuide = ( 'YES' === isViewGuide );
-    ( this._isAlreadyViewGuide  ) || ( this.toggleGuide( 'SHOW' ) );
+    const isViewGuide: string = localStorage.getItem('VIEW_MULTI_DS_GUIDE');
+    this._isAlreadyViewGuide = ('YES' === isViewGuide);
+    (this._isAlreadyViewGuide) || (this.toggleGuide('SHOW'));
 
     this._clearSelection();
     this.safelyDetectChanges();
 
     // 변경사항 전파
-    this.onChange.emit({isShowButtons:!this.isRelationEditMode});
+    this.onChange.emit({isShowButtons: !this.isRelationEditMode});
 
     // 원래는 calc( 100% - 1px ) 로 적용되어야 하지만.. jquery와 angular 에서 calc를 지원하지 않아..
     // 아래의 방식으로 처리함
-    $( '.sys-create-board-top-panel' ).css('height', '100%').css('height', '-=1px');
+    $('.sys-create-board-top-panel').css('height', '100%').css('height', '-=1px');
   } // function - onEditRelationMode
 
   /**
@@ -391,12 +389,12 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public offEditRelationMode() {
     this.isRelationEditMode = false;
-    ( this._network ) && ( this._network.disableEditMode() );
-    this.toggleGuide( 'HIDE' );
+    (this._network) && (this._network.disableEditMode());
+    this.toggleGuide('HIDE');
     this.safelyDetectChanges();
 
     // 변경사항 전파
-    this.onChange.emit({isShowButtons:!this.isRelationEditMode});
+    this.onChange.emit({isShowButtons: !this.isRelationEditMode});
   } // function - offEditRelationMode
 
   /**
@@ -458,7 +456,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   public zoomInNetwork() {
     let zoom: number = this._network.getScale() + 0.2;
     (2.6 < zoom) && (zoom = 2.6);
-    this._network.moveTo({ scale: zoom });
+    this._network.moveTo({scale: zoom});
   } // function - zoomInNetwork
 
   /**
@@ -467,7 +465,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   public zoomOutNetwork() {
     let zoom: number = this._network.getScale() - 0.2;
     (1 > zoom) && (zoom = 1);
-    this._network.moveTo({ scale: zoom });
+    this._network.moveTo({scale: zoom});
   } // function - zoomOutNetwork
 
   /**
@@ -519,7 +517,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     dataSource['orgDataSource'] = this.ingestionTargetDatasource;
 
     const targetIdx: number = this._dataSources.findIndex(item => item.id === dataSource.id);
-    if( -1 < targetIdx ) {
+    if (-1 < targetIdx) {
       this._dataSources[targetIdx] = tempDatasource.info;
     } else {
       this._dataSources.push(tempDatasource.info);
@@ -572,8 +570,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
         edges: this._edges
       },
       {
-        interaction: { hover: true },
-        manipulation: { enabled: true },
+        interaction: {hover: true},
+        manipulation: {enabled: true},
         nodes: {
           margin: {
             top: 15,
@@ -589,13 +587,13 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
           },
           size: 30,
           shape: 'ellipse',
-          font: { size: 14 },
+          font: {size: 14},
           labelHighlightBold: false,
           color: {
             border: '#fff',
             background: '#fff',
-            highlight: { border: '#666eb2', background: '#f0f4ff' },
-            hover: { border: '#666eb2', background: '#f0f4ff' }
+            highlight: {border: '#666eb2', background: '#f0f4ff'},
+            hover: {border: '#666eb2', background: '#f0f4ff'}
           },
           heightConstraint: {
             minimum: 45
@@ -607,8 +605,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
         },
         edges: {
           width: 40,
-          color: { color: '#d0d1d8', highlight: '#c1cef1', hover: '#b7b9c2', inherit: 'from', opacity: 1.0 },
-          font: { color: '#343434', size: 12 },
+          color: {color: '#d0d1d8', highlight: '#c1cef1', hover: '#b7b9c2', inherit: 'from', opacity: 1.0},
+          font: {color: '#343434', size: 12},
           smooth: false,
           length: 200
         },
@@ -623,7 +621,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
 
     // 초기 스케일 설정
-    this._network.moveTo({ scale: 1.6 });
+    this._network.moveTo({scale: 1.6});
   } // function - _renderNetworkBoard
 
   /**
@@ -654,15 +652,6 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   } // function - _bindEventNetworkBoard
 
   /**
-   * 네트워크 보드에 이벤트를 해제한다.
-   * @private
-   */
-  private _unbindEventNetworkBoard() {
-    this._network.off('click');
-    this._edges.off('*');
-  } // function - _unbindEventNetworkBoard
-
-  /**
    * 네트워크 보드 제거
    * @private
    */
@@ -690,12 +679,12 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
       this._boardDataSources.push(ds);
 
       // 네트워크 노드 추가
-      const isKorean: boolean = this._checkKorean( ds.name );   // 한글 체크
+      const isKorean: boolean = this._checkKorean(ds.name);   // 한글 체크
       if (360 < (isKorean ? 2 * ds.name.length : ds.name.length) * 14) {
         const nodeName: string = isKorean ? ds.name.substr(0, 11) + '...' : ds.name.substr(0, 22) + '...';
-        this._nodes.add({ id: ds.id, label: nodeName, title: ds.name });
+        this._nodes.add({id: ds.id, label: nodeName, title: ds.name});
       } else {
-        this._nodes.add({ id: ds.id, label: ds.name, title: ds.name });
+        this._nodes.add({id: ds.id, label: ds.name, title: ds.name});
       }
 
       if (1 === this._nodes.getIds().length) {
@@ -704,7 +693,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit({isDenyNext:this.isInvalidate()});
+    this.onChange.emit({isDenyNext: this.isInvalidate()});
   } // function - _addDataSource
 
   /**
@@ -716,10 +705,10 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
     // 데이터소스 삭제
     const dsRemoveIdx: number = this._dataSources.findIndex(item => item.id === dataSourceId);
-    ( dsRemoveIdx ) && (this._dataSources.splice(dsRemoveIdx, 1));
+    (dsRemoveIdx) && (this._dataSources.splice(dsRemoveIdx, 1));
 
     // 네트워크 노드 삭제
-    this._nodes.remove({ id: dataSourceId });
+    this._nodes.remove({id: dataSourceId});
 
     // 보드 데이터 소스 삭제
     const removeIdx = this._boardDataSources.findIndex(item => item.id === dataSourceId);
@@ -746,7 +735,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit({isDenyNext:this.isInvalidate()});
+    this.onChange.emit({isDenyNext: this.isInvalidate()});
 
   } // function - _removeDataSource
 
@@ -759,7 +748,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     if (!this.isRelationEditMode) {
       this._clearSelection();
       this.selectedDataSource = this._boardDataSources.find(item => item.id === dsId);
-      this.broadCaster.broadcast('CREATE_BOARD_SELECT_DS', { dataSource: this.selectedDataSource });
+      this.broadCaster.broadcast('CREATE_BOARD_SELECT_DS', {dataSource: this.selectedDataSource});
     }
   } // function - _selectDataSource
 
@@ -769,11 +758,11 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    * @private
    */
   private _addEdgeByRelation(relInfo: BoardDataSourceRelation) {
-    this._edges.add({ id: relInfo.id, from: relInfo.ui.source.id, to: relInfo.ui.target.id });
+    this._edges.add({id: relInfo.id, from: relInfo.ui.source.id, to: relInfo.ui.target.id});
     this._relations.push(relInfo);
 
     // 변경사항 전파
-    this.onChange.emit({isDenyNext:this.isInvalidate()});
+    this.onChange.emit({isDenyNext: this.isInvalidate()});
   } // function - _addEdgeByRelation
 
   /**
@@ -792,7 +781,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
     if (data.from === data.to || isDuplicate) {
       // Self Relation 혹은 같은 Relation 생성을 방지하기 위해서 바로 삭제
-      this._edges.remove({ id: edgeId });
+      this._edges.remove({id: edgeId});
     } else {
       const relInfo: BoardDataSourceRelation = new BoardDataSourceRelation();
       relInfo.id = data.id;
@@ -802,7 +791,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit({isDenyNext:this.isInvalidate()});
+    this.onChange.emit({isDenyNext: this.isInvalidate()});
   } // function - _addRelationByEdgeId
 
   /**
@@ -814,14 +803,14 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this._clearSelection();
 
     // 네트워크 엣지 삭제
-    this._edges.remove({ id: relationId });
+    this._edges.remove({id: relationId});
 
     // 연계정보 삭제
     const removeIdx = this._relations.findIndex(item => item.id === relationId);
     (-1 < removeIdx) && (this._relations.splice(removeIdx, 1));
 
     // 변경사항 전파
-    this.onChange.emit({isDenyNext:this.isInvalidate()});
+    this.onChange.emit({isDenyNext: this.isInvalidate()});
   } // function - _removeRelation
 
   /**
@@ -842,10 +831,10 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
       // 신규 혹은 다른 엣지를 선택한 경우 - 선택
       this._clearSelection();
       const relInfo: BoardDataSourceRelation = this._relations.find(item => item.id === edgeId);
-      this._edges.update({ id: relInfo.id, label: 'delete' });
+      this._edges.update({id: relInfo.id, label: 'delete'});
       this._network.selectNodes([relInfo.ui.source.id, relInfo.ui.target.id]);
       this.selectedRelation = relInfo;
-      this.broadCaster.broadcast('CREATE_BOARD_SELECT_REL', { relation: relInfo });
+      this.broadCaster.broadcast('CREATE_BOARD_SELECT_REL', {relation: relInfo});
     }
   } // function - _selectRelation
 
@@ -854,7 +843,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    * @private
    */
   private _clearSelection() {
-    (this.selectedRelation) && (this._edges.update({ id: this.selectedRelation.id, label: undefined }));
+    (this.selectedRelation) && (this._edges.update({id: this.selectedRelation.id, label: undefined}));
     this.selectedDataSource = undefined;
     this.selectedRelation = undefined;
     this._network.unselectAll();
@@ -866,8 +855,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    * @return {boolean}
    * @private
    */
-  private _checkKorean(objStr):boolean {
-    let isKorean:boolean = false;
+  private _checkKorean(objStr): boolean {
+    let isKorean: boolean = false;
     for (let idx = 0; idx < objStr.length; idx++) {
       if (((objStr.charCodeAt(idx) > 0x3130 && objStr.charCodeAt(idx) < 0x318F) || (objStr.charCodeAt(idx) >= 0xAC00 && objStr.charCodeAt(idx) <= 0xD7A3))) {
         isKorean = true;

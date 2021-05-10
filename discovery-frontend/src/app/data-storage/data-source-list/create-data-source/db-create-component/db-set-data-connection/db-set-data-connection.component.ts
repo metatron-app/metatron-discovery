@@ -12,40 +12,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
-  Output, ViewChild
-} from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import {
-  ConnectionType, DatasourceInfo
-} from '../../../../../domain/datasource/datasource';
-import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
+
 import * as _ from 'lodash';
-import { PageResult } from '../../../../../domain/common/page';
-import { StringUtil } from '../../../../../common/util/string.util';
-import {ConnectionComponent, ConnectionValid} from "../../../../component/connection/connection.component";
-import {CommonUtil} from "../../../../../common/util/common.util";
-import {Dataconnection} from "../../../../../domain/dataconnection/dataconnection";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PageResult} from '@domain/common/page';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
+import {ConnectionType, DatasourceInfo} from '@domain/datasource/datasource';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {ConnectionComponent, ConnectionValid} from '../../../../component/connection/connection.component';
 
 /**
  * Creating datasource with Database - connection step
  */
 @Component({
   selector: 'db-data-connection',
-  templateUrl: './db-set-data-connection.html'
+  templateUrl: './db-set-data-connection.component.html'
 })
-export class DbSetDataConnection extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class DbSetDataConnectionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   // connection component
-  @ViewChild(ConnectionComponent)
+  @ViewChild(ConnectionComponent, {static: true})
   private readonly _connectionComponent: ConnectionComponent;
 
   // create source data
   private _sourceData: DatasourceInfo;
 
   // connection preset list
-  public connectionPresetList: any[] = [{name: this.translateService.instant('msg.storage.ui.user.input'), default: true}];
+  public connectionPresetList: any[] = [{
+    name: this.translateService.instant('msg.storage.ui.user.input'),
+    default: true
+  }];
   // selected connection preset
   public selectedConnectionPreset: any;
 
@@ -142,8 +150,8 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     // 커넥션 있을때만 작동
     return this.selectedConnectionPreset && this.selectedConnectionPreset.id
       ? this.connectionPresetList.findIndex((item) => {
-          return item.id === this.selectedConnectionPreset.id;
-        })
+        return item.id === this.selectedConnectionPreset.id;
+      })
       : 0;
   }
 
@@ -174,13 +182,13 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
 
   /**
    * Preset list scroll event
-   * @param number
+   * @param pageNum
    */
-  public onScrollPage(number): void {
+  public onScrollPage(pageNum): void {
     // if remain next page
     if (this._isMorePage()) {
       // save pageResult
-      this.pageResult.number = number;
+      this.pageResult.number = pageNum;
       // get more preset list
       this._getDataConnectionPresetList();
     }
@@ -197,7 +205,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
 
   /**
    * Is change connection data
-   * @param prevConnection
+   * @param data
    * @returns {boolean}
    * @private
    */
@@ -285,7 +293,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
         // loading hide
         this.loadingHide();
       })
-     .catch(error => this.commonExceptionHandler(error));
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -300,7 +308,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
       .then((connection: Dataconnection) => {
         // loading hide
         this.loadingHide();
-        this._connectionComponent.init( connection);
+        this._connectionComponent.init(connection);
       })
       .catch(error => this.commonExceptionHandler(error));
   }
@@ -325,7 +333,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _saveConnectionData(sourceData: DatasourceInfo) {
-    const connectionData = {
+    sourceData['connectionData'] = {
       connectionPresetList: this.connectionPresetList,
       selectedConnectionPreset: this.selectedConnectionPreset,
       selectedIngestionType: this.selectedIngestionType,
@@ -333,7 +341,6 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
       // input
       connection: this._connectionComponent.getConnectionParams(true),
     };
-    sourceData['connectionData'] = connectionData;
   }
 
   /**
@@ -345,8 +352,8 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     this.selectedConnectionPreset = this.connectionPresetList[0];
     // ingestion 타입 목록
     this.ingestionTypeList = [
-      { label : this.translateService.instant('msg.storage.ui.list.ingested.data'), value : ConnectionType.ENGINE },
-      { label : this.translateService.instant('msg.storage.ui.list.linked.data'), value : ConnectionType.LINK }
+      {label: this.translateService.instant('msg.storage.ui.list.ingested.data'), value: ConnectionType.ENGINE},
+      {label: this.translateService.instant('msg.storage.ui.list.linked.data'), value: ConnectionType.LINK}
     ];
     // 선택한 ingestion 타입 목록
     this.selectedIngestionType = this.ingestionTypeList[0];

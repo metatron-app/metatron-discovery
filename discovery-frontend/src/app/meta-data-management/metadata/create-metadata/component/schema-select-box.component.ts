@@ -13,25 +13,27 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../../common/component/abstract.component";
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   HostListener,
   Injector,
   Input,
+  OnInit,
   Output,
-} from "@angular/core";
+} from '@angular/core';
 import * as _ from 'lodash';
-import {StringUtil} from "../../../../common/util/string.util";
-import {CommonUtil} from "../../../../common/util/common.util";
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'schema-select-box',
   templateUrl: 'schema-select-box.component.html'
 })
-export class SchemaSelectBoxComponent extends AbstractComponent {
+export class SchemaSelectBoxComponent extends AbstractComponent implements OnInit, AfterViewInit {
 
   @Input() readonly isDisableSelect: boolean;
   @Input() readonly isEnableWindowResizeAutoClose: boolean;
@@ -67,16 +69,18 @@ export class SchemaSelectBoxComponent extends AbstractComponent {
 
   ngAfterViewInit() {
     if (this.isEnableAutoShowList && this.isEmptySelectedSchema()) {
-      setTimeout(() => { this.isShowList = true})
+      setTimeout(() => {
+        this.isShowList = true
+      })
     }
   }
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     // #1925
     if (this.isEnableWindowResizeAutoClose && this.isShowList) {
       this.isShowList = false;

@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
-import {PeriodData} from '../../../../common/value/period.data.value';
-import {PeriodComponent} from '../../../../common/component/period/period.component';
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {PeriodData} from '@common/value/period.data.value';
+import {PeriodComponent} from '@common/component/period/period.component';
 import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
-import {Alert} from '../../../../common/util/alert.util';
-import {isNullOrUndefined, isUndefined} from "util";
-import {ActivatedRoute} from "@angular/router";
-import * as _ from "lodash";
+import {Alert} from '@common/util/alert.util';
+import {isUndefined} from 'util';
+import {ActivatedRoute} from '@angular/router';
+import * as _ from 'lodash';
 
 declare let moment: any;
 const defaultSort = 'createdTime,desc';
@@ -29,7 +29,7 @@ const defaultSort = 'createdTime,desc';
   templateUrl: './user-management-approval.component.html'
 })
 
-export class UserManagementApprovalComponent extends AbstractUserManagementComponent {
+export class UserManagementApprovalComponent extends AbstractUserManagementComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -53,34 +53,34 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
   public statusId = 'requested,rejected';
 
   // date
-  public selectedDate : PeriodData;
+  public selectedDate: PeriodData;
 
   // 검색어
-  public searchKeyword : string;
+  public searchKeyword: string;
 
   // Reject modal open/close
-  public isRejectModalOpen : boolean = false;
+  public isRejectModalOpen: boolean = false;
 
   // Approve modal open/close
-  public isApproveModalOpen : boolean = false;
+  public isApproveModalOpen: boolean = false;
 
   // 선택된 유저
-  public selectedUser : string;
+  public selectedUser: string;
 
   // 정렬
   public selectedContentSort: Order = new Order();
 
   // Reject modal 에서 reject reason 을 쓰지 않았을 떄 error msg show / hide
-  public isErrorMsgShow : boolean = false;
+  public isErrorMsgShow: boolean = false;
 
   // Reject modal 에서 거절 사유
-  public rejectReason : string ;
+  public rejectReason: string;
 
   // period component
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
-  public initialPeriodData:PeriodData;
+  public initialPeriodData: PeriodData;
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
@@ -93,7 +93,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
   constructor(protected elementRef: ElementRef,
               private activatedRoute: ActivatedRoute,
               protected injector: Injector,
-              ) {
+  ) {
 
     super(elementRef, injector);
   }
@@ -117,32 +117,32 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
         if (!_.isEmpty(params)) {
 
           const page = params['page'];
-          (isNullOrUndefined(page)) || (this.page.page = page);
+          (this.isNullOrUndefined(page)) || (this.page.page = page);
 
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
           }
 
           const size = params['size'];
-          (isNullOrUndefined(size)) || (this.page.size = size);
+          (this.isNullOrUndefined(size)) || (this.page.size = size);
 
           // Status
           const status = params['status'];
-          (isNullOrUndefined(status)) || (this.statusId = status);
+          (this.isNullOrUndefined(status)) || (this.statusId = status);
 
           // 검색어
           const searchText = params['nameContains'];
-          (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+          (this.isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
 
           const from = params['from'];
           const to = params['to'];
 
           this._filterDate = new PeriodData();
           this._filterDate.type = 'ALL';
-          if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
             this._filterDate.startDate = from;
             this._filterDate.endDate = to;
             this._filterDate.type = params['type'];
@@ -158,13 +158,6 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
         this.getUsers();
       })
     );
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -229,7 +222,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    * status change
    * @param status all, rejected, pending
    */
-  public changeStatus(status? : string) {
+  public changeStatus(status?: string) {
     if (status) {
       // 페이지 초기화
       this.statusId = status;
@@ -252,7 +245,6 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
   } // function - changePag
 
 
-
   /**
    * 검색하기
    * @param event 키보드 이벤트
@@ -260,7 +252,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
   public searchUser(event) {
 
     if (13 === event.keyCode || 27 === event.keyCode) {
-      if ( 27 === event.keyCode ) {
+      if (27 === event.keyCode) {
         this.searchKeyword = '';
       }
       this.reloadPage();
@@ -286,14 +278,14 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    * @param status REJECT or APPROVE
    * @param username
    */
-  public changeUserStatus(status : string, username : string) {
+  public changeUserStatus(status: string, username: string) {
 
-    if ( 'REJECT' === status) {
+    if ('REJECT' === status) {
       this.selectedUser = username;
       this.rejectReason = undefined;
       this.isErrorMsgShow = false;
       this.isRejectModalOpen = true;
-    } else if ( 'APPROVE' === status) {
+    } else if ('APPROVE' === status) {
       this.isApproveModalOpen = true;
       this.selectedUser = username;
     }
@@ -315,18 +307,18 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    */
   public rejectUser() {
 
-    if(isUndefined(this.rejectReason) || this.rejectReason.trim() === '') {
+    if (isUndefined(this.rejectReason) || this.rejectReason.trim() === '') {
       this.isErrorMsgShow = true;
       return;
     } else {
-      let params = {};
+      const params = {};
 
       params['message'] = this.rejectReason;
 
       this.loadingShow();
       this.membersService.rejectUser(this.selectedUser, params).then((result) => {
         this.selectedUser = '';
-        console.info('rejected --> ', result);
+        console.log('rejected --> ', result);
         this.isRejectModalOpen = false;
         this.loadingHide();
         this.reloadPage();
@@ -347,7 +339,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
 
     this.loadingShow();
 
-    this.membersService.approveUser(this.selectedUser).then((result) => {
+    this.membersService.approveUser(this.selectedUser).then(() => {
       this.isApproveModalOpen = false;
       this.loadingHide();
       this.reloadPage();
@@ -365,7 +357,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    * 정렬 바꿈
    * @param key 어떤 컬럼을 정렬 할 지
    */
-  public sortList(key : string) {
+  public sortList(key: string) {
     // 초기화
     this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
     // 정렬 정보 저장
@@ -418,13 +410,13 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
    */
   private setParam(): any {
 
-    let result : Object;
+    let result: object;
 
     // 페이지, 사이즈 설정
-    result =  {
+    result = {
       size: this.page.size,
       page: this.page.page,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
 
     result['status'] = this.statusId;
@@ -446,13 +438,14 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
       result['searchDateBy'] = this.selectedDate.dateType;
       result['type'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
-        result['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        result['from'] = moment(this.selectedDate.startDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
       }
-      result['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      result['to'] = moment(this.selectedDate.endDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
     }
 
     return result;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

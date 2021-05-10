@@ -14,6 +14,7 @@
 
 import * as _ from 'lodash';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Injector,
@@ -21,29 +22,32 @@ import {
   OnDestroy,
   OnInit, ViewChild
 } from '@angular/core';
+
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {PopupService} from '@common/service/popup.service';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+
 import {
   Candidate,
   InclusionFilter,
   InclusionSelectorType, InclusionSortBy
-} from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {SubscribeArg} from '../../../common/domain/subscribe-arg';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {PopupService} from '../../../common/service/popup.service';
+} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {Field} from '@domain/datasource/datasource';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {DIRECTION} from '@domain/workbook/configurations/sort';
+import {FilterWidget} from '@domain/dashboard/widget/filter-widget';
+
+import {FilterUtil} from '../../util/filter.util';
 import {AbstractFilterPanelComponent} from '../abstract-filter-panel.component';
-import {Field} from '../../../domain/datasource/datasource';
-import {StringUtil} from '../../../common/util/string.util';
-import {DIRECTION} from '../../../domain/workbook/configurations/sort';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
-import {FilterWidget} from '../../../domain/dashboard/widget/filter-widget';
-import {FilterUtil} from "../../util/filter.util";
-import {isNullOrUndefined} from 'util';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'inclusion-filter-panel',
   templateUrl: './inclusion-filter-panel.component.html'
 })
-export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<InclusionFilter> implements OnInit, OnChanges, OnDestroy {
+export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<InclusionFilter>
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -79,6 +83,10 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
 
   public isDeSelected: boolean = false;
 
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+  public sortBy = InclusionSortBy;
+  public sortDirection = DIRECTION;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -105,7 +113,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
     // 필터 선택 변경
     this.subscriptions.push(
       this.broadCaster.on<any>('CHANGE_FILTER_SELECTOR').subscribe(data => {
-        this.filter.selector = (<FilterWidget>data.widget).configuration.filter['selector'];
+        this.filter.selector = (data.widget as FilterWidget).configuration.filter['selector'];
       })
     );
 
@@ -162,8 +170,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-
   public get isValidList() {
     return this._candidateList && 0 < this._candidateList.length;
   }
@@ -172,7 +178,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
    * 검색 입력을 비활성 처리 합니다.
    */
   public inactiveSearchInput() {
-    let inputElm = this._inputSearch.nativeElement;
+    const inputElm = this._inputSearch.nativeElement;
     ('' === inputElm.value.trim()) && (this.isSearchFocus = false);
     inputElm.blur();
   } // function - inactiveSearchInput
@@ -228,9 +234,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
     }
 
     // 선택값을 후보값에 넣는다.
-    this.filter.valueList.forEach(item => {
-      if (-1 === this.filter.candidateValues.indexOf(item)) {
-        this.filter.candidateValues.push(item);
+    this.filter.valueList.forEach(valueItem => {
+      if (-1 === this.filter.candidateValues.indexOf(valueItem)) {
+        this.filter.candidateValues.push(valueItem);
       }
     });
 
@@ -249,9 +255,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
 
   /**
    * 값 초기화 (서버에 마지막으로 저장된 값)
-   * @param {InclusionFilter} filter
    */
-  public resetFilter(filter: InclusionFilter) {
+  public resetFilter() {
     this.filter = _.cloneDeep(this.originalFilter);
     this.safelyDetectChanges();
     this.updateFilterEvent.emit(this.filter);
@@ -263,9 +268,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
   public toggleDetailMenu() {
     this.isShowDetailMenu = !this.isShowDetailMenu;
   } // function resetFilter
-
-  public sortBy = InclusionSortBy;
-  public sortDirection = DIRECTION;
 
   /**
    * 후보값을 정렬한다.
@@ -547,7 +549,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
           if (selectedCandidateValues && 0 < selectedCandidateValues.length) {
             // 후보값 추가
             selectedCandidateValues.forEach((selectedItem) => {
-              const item = result.find(item => item.field === selectedItem);
+              const item = result.find(resultItem => resultItem.field === selectedItem);
               if (item) {
                 this._candidateList.push(this._objToCandidate(item, this.field));
               } else {
@@ -557,8 +559,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
             // 후보값에 포함되지 않은 검색값 추가
             if (this.searchText) {
               result.forEach(searchItem => {
-                const item = this._candidateList.find(item => item.name === searchItem.field);
-                if (isNullOrUndefined(item)) {
+                const item = this._candidateList.find(candidateItem => candidateItem.name === searchItem.field);
+                if (this.isNullOrUndefined(item)) {
                   this._candidateList.push(this._objToCandidate(searchItem, this.field));
                 }
               });
@@ -580,15 +582,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
 
         // 조회 목록에서 없는 선택값을 제거한다. ( Filter Hierarchy 기능 )
         if (this.filter.valueList && this.filter.valueList.length > 0) {
-          let isBroadcastChange: boolean = false;
           this.filter.valueList
             = this.filter.valueList.filter(valueItem => {
-            if (this._candidateList.some(candidateItem => candidateItem.name === valueItem)) {
-              return true;
-            } else {
-              isBroadcastChange = true;
-              return false;
-            }
+            return this._candidateList.some(candidateItem => candidateItem.name === valueItem);
           });
         }
 
@@ -598,7 +594,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
         // 위젯 화면 표시
         this.isShowFilter = true;
 
-        if(result == null || result.length == 0) {
+        if(result == null || result.length === 0) {
           this.searchAllMessage = this.translateService.instant('msg.board.filter.ui.search-all.nodata');
         } else {
           this.searchAllMessage = '';

@@ -12,8 +12,19 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnChanges, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Message} from '@stomp/stompjs';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Log, Modal} from '@common/domain/modal';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {LogComponent} from '@common/component/modal/log/log.component';
 import {
   ConnectionType,
   Datasource,
@@ -22,36 +33,22 @@ import {
   FieldRole,
   SourceType,
   Status
-} from '../../../domain/datasource/datasource';
+} from '@domain/datasource/datasource';
+import {Metadata} from '@domain/meta-data-management/metadata';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {Alert} from '../../../common/util/alert.util';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {Log, Modal} from '../../../common/domain/modal';
-import {CommonUtil} from '../../../common/util/common.util';
-import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
-import {ActivatedRoute} from '@angular/router';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {LogComponent} from '../../../common/component/modal/log/log.component';
 import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
-import {Metadata} from '../../../domain/meta-data-management/metadata';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {Message} from '@stomp/stompjs';
-import {CreateSourceCompleteData} from "../../service/data-source-create.service";
+import {CreateSourceCompleteData} from '../../service/data-source-create.service';
 
 @Component({
   selector: 'app-detail-datasource',
   templateUrl: './detail-data-source.component.html',
   providers: [MomentDatePipe],
 })
-export class DetailDataSourceComponent extends AbstractComponent implements OnInit {
+export class DetailDataSourceComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 데이터소스가 수정되었는지 판단
-  private updateFl: boolean = false;
 
   // 현재 데이터소스 아이디
   private datasourceId: string;
@@ -154,13 +151,13 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
           // if datasource status not DISABLED
           if (datasource.status !== Status.DISABLED) {
             // history params
-            let params;
+            let historyParams;
             // if status ENABLED, not create params
             if (datasource.status !== Status.ENABLED) {
-              params = {status: datasource.status === Status.PREPARING ? 'running' : 'failed'};
+              historyParams = {status: datasource.status === Status.PREPARING ? 'running' : 'failed'};
             }
             // get history
-            q.push(this._getDatasourceHistory(this.datasourceId, params)
+            q.push(this._getDatasourceHistory(this.datasourceId, historyParams)
               .then((history) => {
                 // only status PREPARING, FAILED
                 if (datasource.status !== Status.ENABLED) {
@@ -235,7 +232,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     this.loadingShow();
     // get datasource detail data
     this._getDatasourceDetail(this.datasourceId, mode)
-      .then(result => this.loadingHide())
+      .then(() => this.loadingHide())
       .catch(error => this.commonExceptionHandler(error));
   }
 
@@ -258,14 +255,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     }
 
     this.datasourceService.updateDatasource(this.datasourceId, param)
-      .then((result) => {
-        // 플래그 초기화
-        this.updateFl = true;
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.update.success'));
         // 데이터소스 갱신
         this._getDatasourceDetail(this.datasourceId, this.mode)
-          .then(result => this.loadingHide())
+          .then(() => this.loadingHide())
           .catch(error => this.commonExceptionHandler(error));
       })
       .catch((error) => {
@@ -283,7 +278,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     // 로딩 show
     this.loadingShow();
     this.datasourceService.deleteDatasource(this.datasourceId)
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
         // 로딩 hide
@@ -349,11 +344,11 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     this.sourceData.completeData.sourceDescription = this.datasource.description;
     this.sourceData.datasource = this.datasource;
 
-    if (this.datasource.srcType = SourceType.FILE) {
+    if (this.datasource.srcType === SourceType.FILE) {
       this.step = 'file-upload';
-    } else if (this.datasource.srcType = SourceType.JDBC) {
+    } else if (this.datasource.srcType === SourceType.JDBC) {
       this.step = 'db-data-connection';
-    } else if (this.datasource.srcType = SourceType.HIVE) {
+    } else if (this.datasource.srcType === SourceType.HIVE) {
       this.step = 'staging-db-select';
     }
   }
@@ -477,9 +472,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
    */
   private _initView() {
     // datasource
-    this.datasource = new Datasource;
-    // update flag
-    this.updateFl = false;
+    this.datasource = new Datasource();
     // flag
     this.nameFl = false;
     this.moreFl = false;
@@ -606,12 +599,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
           this._showReingestion();
         }, headers);
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
   }
 
   private _showReingestion() {
-    if (this.datasource.status != Status.PREPARING
+    if (this.datasource.status !== Status.PREPARING
       && this.datasource.connType === ConnectionType.ENGINE && this.datasource.srcType === SourceType.FILE) {
       this.isShowReingestion = true;
     }

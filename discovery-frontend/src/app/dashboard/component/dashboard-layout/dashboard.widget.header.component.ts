@@ -11,29 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {
   AfterViewInit,
-  Component, DoCheck, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
+  Component,
+  DoCheck,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Widget} from '../../../domain/dashboard/widget/widget';
-import {PageWidget, PageWidgetConfiguration} from 'app/domain/dashboard/widget/page-widget';
-import {saveAs} from 'file-saver';
-import {Alert} from '../../../common/util/alert.util';
-import {ChartType, FunctionValidator} from '../../../common/component/chart/option/define/common';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
-import {LayoutMode} from '../../../domain/dashboard/dashboard';
-import {FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {
-  InclusionFilter,
-  InclusionSelectorType
-} from '../../../domain/workbook/configurations/filter/inclusion-filter';
+
+import {Alert} from '@common/util/alert.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ChartType, FunctionValidator} from '@common/component/chart/option/define/common';
+
+import {InclusionFilter, InclusionSelectorType} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {PageWidget, PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
+import {LayoutMode} from '@domain/dashboard/dashboard';
+import {Datasource} from '@domain/datasource/datasource';
+import {FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+
 import {DashboardUtil} from '../../util/dashboard.util';
-import {Datasource} from '../../../domain/datasource/datasource';
-import {isNullOrUndefined} from "util";
-import {CommonConstant} from "../../../common/constant/common.constant";
 
 @Component({
   selector: 'dashboard-widget-header',
@@ -113,12 +119,12 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     setTimeout(() => {
 
       if (this.isPageWidget && this.widget) {
-        const pageWidgetConf: PageWidgetConfiguration = (<PageWidgetConfiguration>this.widget.configuration);
+        const pageWidgetConf: PageWidgetConfiguration = this.widget.configuration as PageWidgetConfiguration;
         if (ChartType.MAP === pageWidgetConf.chart.type) {
           if (pageWidgetConf.shelf.layers
             .filter(layer => layer.name !== CommonConstant.MAP_ANALYSIS_LAYER_NAME)
             .some(layer => {
-              return isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
+              return this.isNullOrUndefined(this.widget.dashBoard.dataSources.find(item => item.engineName === layer.ref));
             })) {
             this.isMissingDataSource = true;
           }
@@ -173,7 +179,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     let strName: string = '';
 
     if (this.isPageWidget && this.widget) {
-      const widgetConf: PageWidgetConfiguration = (<PageWidgetConfiguration>this.widget.configuration);
+      const widgetConf: PageWidgetConfiguration = this.widget.configuration as PageWidgetConfiguration;
       if (ChartType.MAP === widgetConf.chart.type && widgetConf.shelf.layers) {
         strName = widgetConf.shelf.layers.reduce((acc, currVal) => {
           const dsInfo: Datasource = this.widget.dashBoard.dataSources.find(item => item.engineName === currVal.ref);
@@ -226,7 +232,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     if (this.isPageWidget && this.widget) {
       const chartConf = this.widget.configuration['chart'];
       return (this._chartFuncValidator.checkUseLegendByTypeString(chartConf.type)
-        && 'grid' !== (<PageWidget>this.widget).mode);
+        && 'grid' !== (this.widget as PageWidget).mode);
     } else {
       return false;
     }
@@ -238,8 +244,8 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    */
   public existChartFilter(): boolean {
     return (this.isPageWidget && this.widget
-      && (<PageWidgetConfiguration>this.widget.configuration).filters
-      && 0 < (<PageWidgetConfiguration>this.widget.configuration).filters.length);
+      && (this.widget.configuration as PageWidgetConfiguration).filters
+      && 0 < (this.widget.configuration as PageWidgetConfiguration).filters.length);
   } // function - existChartFilter
 
   /**
@@ -248,8 +254,8 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    */
   public getChartFilterStr(): string {
     let strFields: string = '';
-    if (this.isPageWidget && this.widget && (<PageWidgetConfiguration>this.widget.configuration).filters) {
-      strFields = (<PageWidgetConfiguration>this.widget.configuration).filters.map(item => item.field).join(',');
+    if (this.isPageWidget && this.widget && (this.widget.configuration as PageWidgetConfiguration).filters) {
+      strFields = (this.widget.configuration as PageWidgetConfiguration).filters.map(item => item.field).join(',');
     }
     return strFields;
   } // function - getChartFilterStr
@@ -258,7 +264,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     if (this.isPageWidget && this.widget) {
       const chartConf = this.widget.configuration['chart'];
       return (this._chartFuncValidator.checkUseMiniMapByTypeString(chartConf.type)
-        && 'grid' !== (<PageWidget>this.widget).mode);
+        && 'grid' !== (this.widget as PageWidget).mode);
     } else {
       return false;
     }
@@ -267,15 +273,15 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   public isRealTimeDashboard(): boolean {
     if (this.isPageWidget && this.widget) {
       const boardConf = this.widget.dashBoard.configuration;
-      return ( boardConf.options.sync && boardConf.options.sync.enabled );
+      return (boardConf.options.sync && boardConf.options.sync.enabled);
     } else {
       return false;
     }
   }
 
-  public isRealTimeWidget():boolean {
+  public isRealTimeWidget(): boolean {
     if (this.isPageWidget && this.widget) {
-      return false !== ( this.widget.configuration as PageWidgetConfiguration ).sync;
+      return false !== (this.widget.configuration as PageWidgetConfiguration).sync;
     } else {
       return false;
     }
@@ -340,7 +346,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 그리드 모드의 차트위젯 여부
    */
   public get isGridModePageWidget() {
-    return (this.widget) ? 'grid' === (<PageWidget>this.widget).mode : false;
+    return (this.widget) ? 'grid' === (this.widget as PageWidget).mode : false;
   } // function - isGridModePageWidget
 
   /**
@@ -358,7 +364,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   public get isDimensionFilterWidget(): boolean {
     return (this.widget
       && 'filter' === this.widget.type
-      && 'include' === (<FilterWidgetConfiguration>this.widget.configuration).filter.type);
+      && 'include' === (this.widget.configuration as FilterWidgetConfiguration).filter.type);
   } // function - isDimensionFilterWidget
 
   /**
@@ -366,9 +372,9 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * @return {boolean}
    */
   public get isListDimensionFilter(): boolean {
-    const filter: Filter = (<FilterWidgetConfiguration>this.widget.configuration).filter;
+    const filter: Filter = (this.widget.configuration as FilterWidgetConfiguration).filter;
     if ('include' === filter.type) {
-      const selector: InclusionSelectorType = (<InclusionFilter>filter).selector;
+      const selector: InclusionSelectorType = (filter as InclusionFilter).selector;
       return -1 < selector.toString().indexOf('LIST');
     } else {
       return false;
@@ -449,7 +455,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    */
   public onChangeWidgetMode(mode: string) {
     if (this.isPageWidget) {
-      (<PageWidget>this.widget).mode = mode;
+      (this.widget as PageWidget).mode = mode;
       this.broadCaster.broadcast('CHANGE_MODE', {widgetId: this.widget.id, mode: mode});
     }
   } // function - onChangeWidgetMode
@@ -466,8 +472,8 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * @param {PageWidget} widget
    * @returns {boolean}
    */
-  public isAvailableGrid(widget: PageWidget) {
-    const chartType = (<PageWidgetConfiguration>widget.configuration).chart.type.toString();
+  public isAvailableGrid(widget: Widget) {
+    const chartType = (widget.configuration as PageWidgetConfiguration).chart.type.toString();
     const invalidChart = ['grid', 'scatter', 'pie'];
     return (-1 === invalidChart.indexOf(chartType));
   } // function - isAvailableGrid
@@ -476,20 +482,20 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * Dimension Filter 의 Selector Type - List 로 변경
    */
   public setSelectorTypeList() {
-    const filter: Filter = (<FilterWidgetConfiguration>this.widget.configuration).filter;
+    const filter: Filter = (this.widget.configuration as FilterWidgetConfiguration).filter;
     if ('include' === filter.type) {
-      let selector: InclusionSelectorType = (<InclusionFilter>filter).selector;
+      const selector: InclusionSelectorType = (filter as InclusionFilter).selector;
       switch (selector) {
         case InclusionSelectorType.SINGLE_LIST :
         case InclusionSelectorType.SINGLE_COMBO :
-          (<InclusionFilter>filter).selector = InclusionSelectorType.SINGLE_LIST;
+          (filter as InclusionFilter).selector = InclusionSelectorType.SINGLE_LIST;
           break;
         case InclusionSelectorType.MULTI_LIST :
         case InclusionSelectorType.MULTI_COMBO :
-          (<InclusionFilter>filter).selector = InclusionSelectorType.MULTI_LIST;
+          (filter as InclusionFilter).selector = InclusionSelectorType.MULTI_LIST;
           break;
       }
-      (<FilterWidgetConfiguration>this.widget.configuration).filter = filter;
+      (this.widget.configuration as FilterWidgetConfiguration).filter = filter;
       this.broadCaster.broadcast('CHANGE_FILTER_SELECTOR', {widget: this.widget, filter: filter});
     }
   } // function - setSelectorTypeList
@@ -498,20 +504,20 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * Dimension Filter 의 Selector Type - Combo 로 변경
    */
   public setSelectorTypeCombo() {
-    const filter: Filter = (<FilterWidgetConfiguration>this.widget.configuration).filter;
+    const filter: Filter = (this.widget.configuration as FilterWidgetConfiguration).filter;
     if ('include' === filter.type) {
-      let selector: InclusionSelectorType = (<InclusionFilter>filter).selector;
+      const selector: InclusionSelectorType = (filter as InclusionFilter).selector;
       switch (selector) {
         case InclusionSelectorType.SINGLE_LIST :
         case InclusionSelectorType.SINGLE_COMBO :
-          (<InclusionFilter>filter).selector = InclusionSelectorType.SINGLE_COMBO;
+          (filter as InclusionFilter).selector = InclusionSelectorType.SINGLE_COMBO;
           break;
         case InclusionSelectorType.MULTI_LIST :
         case InclusionSelectorType.MULTI_COMBO :
-          (<InclusionFilter>filter).selector = InclusionSelectorType.MULTI_COMBO;
+          (filter as InclusionFilter).selector = InclusionSelectorType.MULTI_COMBO;
           break;
       }
-      (<FilterWidgetConfiguration>this.widget.configuration).filter = filter;
+      (this.widget.configuration as FilterWidgetConfiguration).filter = filter;
       this.broadCaster.broadcast('CHANGE_FILTER_SELECTOR', {widget: this.widget, filter: filter});
     }
   } // function - setSelectorTypeCombo

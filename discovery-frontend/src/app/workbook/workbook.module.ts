@@ -12,32 +12,32 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { WorkbookComponent } from './workbook.component';
-import { DashboardModule } from '../dashboard/dashboard.module';
-import { WorkbookService } from './service/workbook.service';
-import { CommonModule } from '../common/common.module';
-import { DndModule } from 'ng2-dnd';
-import { DashboardService } from '../dashboard/service/dashboard.service';
-import { DataPreviewModule } from '../common/data.preview.module';
-import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
-import { PopupInputNameDescComponent } from './component/popup-input-workbook/popup-input-namedesc.component';
-import { DashboardShareModule } from '../dashboard/dashboard-share.module';
-import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
-import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {DragulaModule} from '../../lib/ng2-dragula';
+import {WorkbookComponent} from './workbook.component';
+import {DashboardModule} from '../dashboard/dashboard.module';
+import {WorkbookService} from './service/workbook.service';
+import {CommonModule} from '@common/common.module';
+import {DashboardService} from '../dashboard/service/dashboard.service';
+import {DataPreviewModule} from '@common/data.preview.module';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {PopupInputNameDescComponent} from './component/popup-input-workbook/popup-input-namedesc.component';
+import {DashboardShareModule} from '../dashboard/dashboard-share.module';
+import {CanDeactivateGuard} from '@common/gaurd/can.deactivate.guard';
+import {MetadataService} from '../meta-data-management/metadata/service/metadata.service';
 
 const workbookRoutes: Routes = [
-  { path: ':workbookId', component: WorkbookComponent, canDeactivate:[CanDeactivateGuard] },
-  { path: ':workbookId/:dashboardId', component: WorkbookComponent, canDeactivate:[CanDeactivateGuard] },
-  { path: ':workbookId/old', component: WorkbookComponent,canDeactivate:[CanDeactivateGuard] },
-  { path: ':workbookId/:mode', component: WorkbookComponent,canDeactivate:[CanDeactivateGuard] }
+  {path: ':workbookId', component: WorkbookComponent, canDeactivate: [CanDeactivateGuard]},
+  {path: ':workbookId/:dashboardId', component: WorkbookComponent, canDeactivate: [CanDeactivateGuard]},
+  {path: ':workbookId/old', component: WorkbookComponent, canDeactivate: [CanDeactivateGuard]},
+  {path: ':workbookId/:mode', component: WorkbookComponent, canDeactivate: [CanDeactivateGuard]}
 ];
 
 @NgModule({
   imports: [
     CommonModule,
-    DndModule,
+    DragulaModule,
     DashboardModule,
     DashboardShareModule,
     DataPreviewModule,

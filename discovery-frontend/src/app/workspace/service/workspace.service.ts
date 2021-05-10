@@ -16,17 +16,16 @@
  * Created by LDL on 2017. 6. 16..
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { Workspace, Workspaces } from '../../domain/workspace/workspace';
-import { BookTree } from '../../domain/workspace/book';
-import { CommonUtil } from '../../common/util/common.util';
-import { Page } from '../../domain/common/page';
-import { SYSTEM_PERMISSION } from '../../common/permission/permission';
-import { PermissionService } from '../../user/service/permission.service';
-import { RoleSet } from '../../domain/user/role/roleSet';
-import { saveAs } from 'file-saver';
+import {Workspace, Workspaces} from '@domain/workspace/workspace';
+import {BookTree} from '@domain/workspace/book';
+import {CommonUtil} from '@common/util/common.util';
+import {Page} from '@domain/common/page';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {PermissionService} from '../../user/service/permission.service';
+import {RoleSet} from '@domain/user/role/roleSet';
 
 @Injectable()
 export class WorkspaceService extends AbstractService {
@@ -46,7 +45,7 @@ export class WorkspaceService extends AbstractService {
     if (CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_PRIVATE_WORKSPACE)) {
       // 일반 유저 - 권한이 있는 경우
       let url = this.API_URL + 'workspaces/my';
-      (projection) && ( url = url + '?projection=' + projection );
+      (projection) && (url = url + '?projection=' + projection);
       return this.get(url);
     } else {
       // 게스트 유저 - 권한이 없는 경우
@@ -60,7 +59,7 @@ export class WorkspaceService extends AbstractService {
           let workspace: Workspace = new Workspace();
           if (result && result['_embedded'] && result['_embedded']['workspaces']) {
             const workspaces: Workspace[] = result['_embedded']['workspaces'];
-            ( 0 < workspaces.length ) && ( workspace = workspaces[0] );
+            (0 < workspaces.length) && (workspace = workspaces[0]);
           }
           resolve(workspace);
         }).catch((err) => reject(err));
@@ -205,7 +204,7 @@ export class WorkspaceService extends AbstractService {
    * @param {string} workspaceId
    * @return {Promise<any>}
    */
-  public deleteWorkspace(workspaceId: string): Promise<any> {
+  public deleteWorkspace(workspaceId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.permissionService.getWorkspaceCustomRoleSet(workspaceId).then((wsCustomResult: RoleSet) => {
         if (wsCustomResult) {

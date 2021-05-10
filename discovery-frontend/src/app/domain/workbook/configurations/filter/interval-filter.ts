@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Filter } from './filter';
-import { ByTimeUnit, GranularityType, TimeUnit } from '../field/timestamp-field';
+import {Filter} from './filter';
+import {ByTimeUnit, GranularityType, TimeUnit} from '../field/timestamp-field';
 
 export class IntervalFilter extends Filter {
   /**
@@ -101,38 +101,38 @@ export class IntervalFilter extends Filter {
  * 설정 타입 (기간설정 - RANGE, 최근 기간 설정 - RELATIVE)
  */
 export enum IntervalSelectorType {
-  ALL = <any>'ALL',
-  RANGE = <any>'RANGE',
-  RELATIVE = <any>'RELATIVE'
+  ALL = 'ALL',
+  RANGE = 'RANGE',
+  RELATIVE = 'RELATIVE'
 }
 
 /**
  * 기준 시간 설정시 시간 단위
  */
 export enum IntervalTimeUnit {
-  YEARS = <any>'YEARS',
-  QUARTERS = <any>'QUARTERS',
-  MONTHS = <any>'MONTHS',
-  WEEKS = <any>'WEEKS',
-  DAYS = <any>'DAYS',
-  HOURS = <any>'HOURS',
-  MINUTES = <any>'MINUTES',
-  SECONDS = <any>'SECONDS'
+  YEARS = 'YEARS',
+  QUARTERS = 'QUARTERS',
+  MONTHS = 'MONTHS',
+  WEEKS = 'WEEKS',
+  DAYS = 'DAYS',
+  HOURS = 'HOURS',
+  MINUTES = 'MINUTES',
+  SECONDS = 'SECONDS'
 }
 
 /**
  * Relative 입력 형식
  */
 export enum IntervalRelativeInputType {
-  BUTTON = <any>'BUTTON',
-  INPUT = <any>'INPUT'
+  BUTTON = 'BUTTON',
+  INPUT = 'INPUT'
 }
 
 /**
  * Relative 시점 형식
  */
 export enum IntervalRelativeTimeType {
-  LAST = <any>'LAST',
-  CURRENT = <any>'CURRENT',
-  NEXT = <any>'NEXT'
+  LAST = 'LAST',
+  CURRENT = 'CURRENT',
+  NEXT = 'NEXT'
 }

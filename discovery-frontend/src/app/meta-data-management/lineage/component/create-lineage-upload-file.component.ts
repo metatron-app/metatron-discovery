@@ -12,19 +12,20 @@
 * limitations under the License.
 */
 
-import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Injector, Input, Output, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {PopupService} from '../../../common/service/popup.service';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {isUndefined} from 'util';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {Modal} from '../../../common/domain/modal';
-import * as _ from 'lodash';
-import {Alert} from "../../../common/util/alert.util";
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
 import {LineageService} from '../service/lineage.service';
-
-declare let plupload: any;
 
 @Component({
   selector: 'app-create-lineage-upload-file',
@@ -35,12 +36,6 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @ViewChild('pickfiles')
-  private pickfiles: ElementRef;
-
-  @ViewChild('drop_container')
-  private drop_container: ElementRef;
 
   public unsupportedFileView: boolean = false;
 
@@ -65,7 +60,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor( private popupService: PopupService,
+  constructor(private popupService: PopupService,
               private _lineageService: LineageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -93,19 +88,19 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
   /**
    * File Upload Cancel(Plupload)
    */
-  public cancelUpload(file){
+  public cancelUpload(_file) {
   }
 
   /**
    * File Upload Start(Plupload)
    */
-  public startUpload(){
+  public startUpload() {
   }
 
   /**
    * Disable Drag and Drop in File list area
    */
-  public disableEvent(event:any){
+  public disableEvent(event: any) {
     event.preventDefault();
     event.stopImmediatePropagation();
     event.stopPropagation();
@@ -115,7 +110,7 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
    * Next (confirm file)
    */
   public next() {
-    if(this.lineageData) {
+    if (this.lineageData) {
       this.popupService.notiPopup({
         name: 'confirm-grid',
         data: null
@@ -136,29 +131,30 @@ export class CreateLineageUploadFileComponent extends AbstractPopupComponent imp
     });
   }
 
-  public getLineageData( params : any ) {
+  public getLineageData(params: any) {
     this.loadingShow();
 
     this._lineageService.getLineageFile(params).then((result) => {
       this.loadingHide();
 
-      var headerRow = null;
-      var header = null;
-      var rows = [];
-      var gridResponse = result.gridResponses[0];
-      gridResponse.rows.forEach( (item) => {
-        if(headerRow==null) {
+      let headerRow = null;
+      let header = null;
+      const rows = [];
+      const gridResponse = result.gridResponses[0];
+      gridResponse.rows.forEach((item) => {
+        if (headerRow == null) {
           headerRow = item.objCols;
-          header = item.objCols.filter( (k) => k );
+          header = item.objCols.filter((k) => k);
         } else {
-          var row = {};
-          header.forEach( (k) => {
-            var idx = headerRow.indexOf(k);
+          const row = {};
+          header.forEach((k) => {
+            const idx = headerRow.indexOf(k);
             row[k] = item.objCols[idx];
           });
           rows.push(row);
         }
       });
+
       this.lineageData = {};
       this.lineageData['header'] = header;
       this.lineageData['rows'] = rows;

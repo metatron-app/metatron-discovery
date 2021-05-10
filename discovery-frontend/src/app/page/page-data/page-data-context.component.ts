@@ -12,26 +12,34 @@
  * limitations under the License.
  */
 
-/**
- * Created by juheeko on 20/10/2017.
- */
-import { Component, ElementRef, EventEmitter, HostListener, Injector, Output, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Field, FieldNameAlias, FieldRole, FieldValueAlias, LogicalType } from '../../domain/datasource/datasource';
-import { StringUtil } from '../../common/util/string.util';
-import { PopupValueAliasComponent } from '../page-pivot/popup-value-alias.component';
-import { Alert } from '../../common/util/alert.util';
-import { DatasourceAliasService } from '../../datasource/service/datasource-alias.service';
-import { BoardDataSource } from '../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
-import { isNullOrUndefined, isString } from 'util';
+import {isNullOrUndefined, isString} from 'util';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Field, FieldNameAlias, FieldRole, FieldValueAlias, LogicalType} from '@domain/datasource/datasource';
+import {BoardDataSource} from '@domain/dashboard/dashboard';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {Type} from '../../shared/datasource-metadata/domain/type';
+import {DatasourceAliasService} from '../../datasource/service/datasource-alias.service';
+import {PopupValueAliasComponent} from '../page-pivot/popup-value-alias.component';
 
 @Component({
   selector: 'page-data-context',
   templateUrl: './page-data-context.component.html'
 })
-export class PageDataContextComponent extends AbstractComponent {
+export class PageDataContextComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -71,11 +79,11 @@ export class PageDataContextComponent extends AbstractComponent {
 
   // custom field 팝업열기
   @Output()
-  public openCustomFieldEvent: EventEmitter<Field> = new EventEmitter();
+  public openCustomFieldEvent: EventEmitter<CustomField> = new EventEmitter();
 
   // custom field 삭제하기
   @Output()
-  public deleteCustomFieldEvent: EventEmitter<Field> = new EventEmitter();
+  public deleteCustomFieldEvent: EventEmitter<CustomField> = new EventEmitter();
 
   @Output('changeAlias')
   public changeAliasEvent: EventEmitter<Field> = new EventEmitter();
@@ -113,7 +121,7 @@ export class PageDataContextComponent extends AbstractComponent {
   /**
    * context menu 클릭시
    */
-  @HostListener('click', ['$event'])
+  @HostListener('click')
   public clickListener() {
     if (!this.fix2DepthContext) {
       // 기본 이벤트 제거
@@ -207,14 +215,14 @@ export class PageDataContextComponent extends AbstractComponent {
   public customFieldEmit(selectedField: Field) {
 
     // 상위 컴포넌트로 noti
-    this.openCustomFieldEvent.emit(selectedField);
+    this.openCustomFieldEvent.emit(selectedField as CustomField);
   }
 
   /**
    * 해당 필드를 삭제시 (custom field인 경우)
    */
   public deleteCustomField() {
-    this.deleteCustomFieldEvent.emit(this.selectedField);
+    this.deleteCustomFieldEvent.emit(this.selectedField as CustomField);
   }
 
   /**
@@ -245,7 +253,7 @@ export class PageDataContextComponent extends AbstractComponent {
     this.fix2DepthContext = false;
 
     // validation
-    if( isNullOrUndefined( this.editingFieldAlias ) || '' === this.editingFieldAlias.trim() ) {
+    if (isNullOrUndefined(this.editingFieldAlias) || '' === this.editingFieldAlias.trim()) {
       Alert.info(this.translateService.instant('msg.page.alert.chart.alias.empty.warn'));
       this.editingFieldAlias = null;
       return;
@@ -257,7 +265,7 @@ export class PageDataContextComponent extends AbstractComponent {
       return;
     }
 
-    if( this.editingFieldAlias.toLowerCase() === this.selectedField.name.toLowerCase() ) {
+    if (this.editingFieldAlias.toLowerCase() === this.selectedField.name.toLowerCase()) {
       Alert.info(this.translateService.instant('msg.page.alert.chart.alias.dupfield.warn'));
       this.editingFieldAlias = null;
       return;
@@ -275,7 +283,7 @@ export class PageDataContextComponent extends AbstractComponent {
     // }
 
     // 값이 없다면 Reset 처리
-    if (this.editingFieldAlias.trim() == '') {
+    if (this.editingFieldAlias.trim() === '') {
       this.onAliasReset(null);
       return;
     }
@@ -294,15 +302,15 @@ export class PageDataContextComponent extends AbstractComponent {
   public onAliasReset(event: Event): void {
 
     // 이벤트 캔슬
-    (event) && ( event.stopPropagation() );
+    (event) && (event.stopPropagation());
 
     // 값 적용
     this.selectedField.nameAlias.nameAlias = this.selectedField.name;
     this.editingFieldAlias = '';
     this.fix2DepthContext = false;
 
-    // console.info('>>>>>> this.selectedField.nameAlias', this.selectedField.nameAlias);
-    // console.info('>>>>>> this.selectedField', this.selectedField);
+    // console.log('>>>>>> this.selectedField.nameAlias', this.selectedField.nameAlias);
+    // console.log('>>>>>> this.selectedField', this.selectedField);
 
     // 이벤트 발생
     this._changeAlias(this.editingFieldAlias);
@@ -340,11 +348,11 @@ export class PageDataContextComponent extends AbstractComponent {
    * Get metaData logical type name
    * @return {string}
    */
-  public getMetaDataLogicalTypeName():string {
-    let name:string = '';
-    let metaData = this.selectedField.uiMetaData;
-    if( metaData ) {
-      switch( metaData.type ) {
+  public getMetaDataLogicalTypeName(): string {
+    let name: string = '';
+    const metaData = this.selectedField.uiMetaData;
+    if (metaData) {
+      switch (metaData.type) {
         case Type.Logical.LNT :
           name = 'LATITUDE';
           break;
@@ -385,11 +393,11 @@ export class PageDataContextComponent extends AbstractComponent {
         this.aliasService.deleteAliases(param.id).then(() => this._setResponse());
       } else {
         // 수정
-        this.aliasService.updateAliases(param.id, param).then(item => this._setResponse(<FieldNameAlias>item));
+        this.aliasService.updateAliases(param.id, param).then(item => this._setResponse(item as FieldNameAlias));
       }
     } else {
       // 생성
-      this.aliasService.createAliases(param).then(item => this._setResponse(<FieldNameAlias>item));
+      this.aliasService.createAliases(param).then(item => this._setResponse(item as FieldNameAlias));
     }
 
   } // function - _changeAlias
@@ -400,7 +408,7 @@ export class PageDataContextComponent extends AbstractComponent {
    * @private
    */
   private _setResponse(item?: FieldNameAlias) {
-    let field: Field = _.cloneDeep(this.selectedField);
+    const field: Field = _.cloneDeep(this.selectedField);
     if (item) {
       field.nameAlias = item;
       this.selectedField.nameAlias = item;

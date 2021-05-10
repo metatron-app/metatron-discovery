@@ -309,44 +309,44 @@ export class SlickGridHeader {
     return this;
   }
 
-  build(): header {
-    return new header(this);
+  build(): Header {
+    return new Header(this);
   }
 
 }
 
 export enum GRID_EDIT_TYPE {
-  TEXT = <any>'REJECTED',
-  PERCENT = <any>'EXPIRED',
-  CHECK = <any>'LOCKED'
+  TEXT = 'REJECTED',
+  PERCENT = 'EXPIRED',
+  CHECK = 'LOCKED'
 }
 
-export class header {
+export class Header {
 
-  private asyncPostRender: string;
-  private behavior: string;
-  private cannotTriggerInsert: boolean;
-  private cssClass: string;
-  private defaultSortAsc: boolean;
-  private editor: any;
-  private field: string;
-  private focusable: boolean;
-  private formatter: any;
-  private headerCssClass: string;
-  private id: string;
-  private maxWidth: string;
-  private minWidth: number;
-  private name: string;
-  private rerenderOnResize: boolean;
-  private resizable: boolean;
-  private selectable: boolean;
-  private sortable: boolean;
-  private toolTip: string;
-  private width: number;
-  private validator: any;
-  private unselectable: boolean;
-  private header : HeaderMenu;
-  private columnType : string;
+  public asyncPostRender: string;
+  public behavior: string;
+  public cannotTriggerInsert: boolean;
+  public cssClass: string;
+  public defaultSortAsc: boolean;
+  public editor: any;
+  public field: string;
+  public focusable: boolean;
+  public formatter: any;
+  public headerCssClass: string;
+  public id: string;
+  public maxWidth: string;
+  public minWidth: number;
+  public name: string;
+  public rerenderOnResize: boolean;
+  public resizable: boolean;
+  public selectable: boolean;
+  public sortable: boolean;
+  public toolTip: string;
+  public width: number;
+  public validator: any;
+  public unselectable: boolean;
+  public header : HeaderMenu;
+  public columnType : string;
 
   public setFormatter( formatter:any ) {
     this.formatter = formatter;

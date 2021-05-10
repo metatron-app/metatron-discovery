@@ -14,21 +14,23 @@
 
 import * as _ from 'lodash';
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
-import {ConnectionType, Datasource, Field, FieldRole} from '../../domain/datasource/datasource';
-import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
-import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {ConfigureFiltersInclusionComponent} from './inclusion-filter/configure-filters-inclusion.component';
-import {BoundFilter} from '../../domain/workbook/configurations/filter/bound-filter';
-import {ConfigureFiltersBoundComponent} from './bound-filter/configure-filters-bound.component';
-import {Widget} from '../../domain/dashboard/widget/widget';
-import {StringUtil} from '../../common/util/string.util';
-import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
-import {ConfigureFiltersTimeComponent} from './time-filter/configure-filters-time.component';
+import {StringUtil} from '@common/util/string.util';
+import {CommonConstant} from '@common/constant/common.constant';
+
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {ConnectionType, Datasource, Field, FieldRole} from '@domain/datasource/datasource';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+
 import {FilterUtil} from '../util/filter.util';
-import {CommonConstant} from "../../common/constant/common.constant";
+import {AbstractFilterPopupComponent} from './abstract-filter-popup.component';
+import {ConfigureFiltersInclusionComponent} from './inclusion-filter/configure-filters-inclusion.component';
+import {ConfigureFiltersBoundComponent} from './bound-filter/configure-filters-bound.component';
+import {ConfigureFiltersTimeComponent} from './time-filter/configure-filters-time.component';
 
 @Component({
   selector: 'app-config-filter-update',
@@ -37,13 +39,23 @@ import {CommonConstant} from "../../common/constant/common.constant";
 export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(protected elementRef: ElementRef,
+              protected injector: Injector) {
+    super(elementRef, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('inputSearch')
-  private _inputSearch: ElementRef;
-
-  @ViewChild('inputNewCandidateValue')
-  private _inputNewCandidateValue: ElementRef;
+  // @ViewChild('inputSearch')
+  // private _inputSearch: ElementRef;
+  //
+  // @ViewChild('inputNewCandidateValue')
+  // private _inputNewCandidateValue: ElementRef;
 
   @ViewChild(ConfigureFiltersTimeComponent)
   private _timeComp: ConfigureFiltersTimeComponent;
@@ -57,8 +69,8 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   @ViewChild('ddpTxtSub')
   private _ddpTxtSub: ElementRef;
 
-  // 수정여부
-  private _isEdit: boolean = false;
+  // // 수정여부
+  // private _isEdit: boolean = false;
 
   // 대시보드
   private _dashboard: Dashboard;
@@ -71,7 +83,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public isShowDsTooltip: boolean = false; // 데이터소스 툴팁 표시 여부
   public isShow: boolean = false;         // 컴포넌트 표시 여부
   public isDirectEdit: boolean = false;   // 바로 수정 여부
 
@@ -95,16 +106,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   public done: EventEmitter<Filter> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
-  constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
-    super(elementRef, injector);
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -116,6 +117,26 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Getter / Setter
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public get dimensionTypeIconClass(): string {
+    if (this.targetField) {
+      return Field.getDimensionTypeIconClass(this.targetField as Field);
+    } else {
+      return '';
+    }
+  }
+
+  public get measureTypeIconClass(): string {
+    if (this.targetField) {
+      return Field.getMeasureTypeIconClass(this.targetField as Field);
+    } else {
+      return '';
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -186,9 +207,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
     this.done.emit(filter);
   } // function - emitUpdateFilter
 
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
-
   /**
    * 측정값 여부 반환
    * @return {boolean}
@@ -248,6 +266,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
       }
     }
   } // function - toggleFilterScope
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -268,12 +287,12 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
    * 컴포넌트를 연다.
    * @param {Dashboard} board
    * @param {any} data
-   * @param {boolean} isEdit
+   * @param {boolean} _isEdit
    * @private
    */
-  private _openComponent(board: Dashboard, data: { key: string, filter: Filter }, isEdit: boolean = true) {
+  private _openComponent(board: Dashboard, data: { key: string, filter: Filter }, _isEdit: boolean = true) {
     const targetFilter: Filter = _.cloneDeep(data.filter);
-    this._isEdit = isEdit;
+    // this._isEdit = isEdit;
 
     if (this.widget) {
       targetFilter.ui.widgetId = this._getWidgetId();
@@ -291,24 +310,20 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
     this.safelyDetectChanges();
 
     if ('include' === targetFilter.type) {
-      this._inclusionComp.showComponent(board, <InclusionFilter>targetFilter, this.targetField);
+      this._inclusionComp.showComponent(board, targetFilter as InclusionFilter, this.targetField);
     } else if ('bound' === targetFilter.type) {
-      this._boundComp.showComponent(board, <BoundFilter>targetFilter, this.targetField);
+      this._boundComp.showComponent(board, targetFilter as BoundFilter, this.targetField);
     } else {
-      this._timeComp.showComponent(board, <TimeFilter>targetFilter, this.targetField);
+      this._timeComp.showComponent(board, targetFilter as TimeFilter, this.targetField);
     }
 
-    if(this._ddpTxtSub && this.isEllipsisActive(this._ddpTxtSub)) {
-      $(this._ddpTxtSub.nativeElement).attr("title", this.dataSource.name);
+    if (this._ddpTxtSub && this.isEllipsisActive(this._ddpTxtSub)) {
+      $(this._ddpTxtSub.nativeElement).attr('title', this.dataSource.name);
     }
   } // function - _openComponent
 
-  private isEllipsisActive(el : ElementRef) : boolean {
-    if(el.nativeElement.offsetWidth < el.nativeElement.scrollWidth) {
-      return true;
-    } else {
-      return false;
-    }
+  private isEllipsisActive(el: ElementRef): boolean {
+    return el.nativeElement.offsetWidth < el.nativeElement.scrollWidth;
   }
 
   /**

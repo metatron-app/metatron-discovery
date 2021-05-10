@@ -13,25 +13,20 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {CommonUtil} from "../../../common/util/common.util";
-import {StringUtil} from "../../../common/util/string.util";
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'storage-filter-select-box',
-  templateUrl: 'storage-filter-select-box.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  },
+  templateUrl: 'storage-filter-select-box.component.html'
 })
 export class StorageFilterSelectBoxComponent extends AbstractComponent {
 
   @Output('changedFilter')
   private readonly _changedFilter = new EventEmitter();
 
-  @ViewChild('wrapElement')
-  private readonly WRAP_ELEMENT: ElementRef;
   @ViewChild('listElement')
   private readonly LIST_ELEMENT: ElementRef;
 
@@ -80,6 +75,7 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
    * 컴포넌트 내부  host 클릭이벤트 처리
    * @param {MouseEvent} event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event: MouseEvent) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
@@ -113,10 +109,10 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
       // if open list and is enable floating option
       if (this.isListShow && this.isEnableFloating) {
         $(this.LIST_ELEMENT.nativeElement).css({
-          'position' : 'fixed',
-          'top': $(event.currentTarget).offset().top + 35,
-          'left' : $(event.currentTarget).offset().left,
-          'width' : $(event.currentTarget).outerWidth()
+          position: 'fixed',
+          top: $(event.currentTarget).offset().top + 35,
+          left: $(event.currentTarget).offset().left,
+          width: $(event.currentTarget).outerWidth()
         });
       }
     }

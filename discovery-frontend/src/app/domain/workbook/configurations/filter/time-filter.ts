@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { ByTimeUnit, TimeUnit } from '../field/timestamp-field';
-import { Filter } from './filter';
-import { Field } from '../../../datasource/datasource';
+import {ByTimeUnit, TimeUnit} from '../field/timestamp-field';
+import {Filter} from './filter';
+import {Field} from '@domain/datasource/datasource';
 
 export class TimeFilter extends Filter {
-  public discontinuous?:boolean;
+  public discontinuous?: boolean;
   public timeUnit?: TimeUnit;
   public byTimeUnit?: ByTimeUnit;
 
@@ -43,7 +43,7 @@ export class TimeFilter extends Filter {
     return {
       type: this.type,
       field: this.field,
-      discontinuous : this.discontinuous,
+      discontinuous: this.discontinuous,
       timeUnit: this.timeUnit,
       byTimeUnit: this.byTimeUnit,
     };

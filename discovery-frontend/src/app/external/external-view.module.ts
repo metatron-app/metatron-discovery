@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
+import {CookieService} from 'ng2-cookies';
 import {RouterModule, Routes} from '@angular/router';
 import {NgModule} from '@angular/core';
-import {CookieService} from 'ng2-cookies';
-import {ExternalPageComponent} from "./external-page.component";
-import {CommonService} from "../common/service/common.service";
+import {CommonService} from '@common/service/common.service';
+import {ExternalPageComponent} from './external-page.component';
 
 const embeddedViewRoutes: Routes = [
   {path: ':url', component: ExternalPageComponent}

@@ -12,24 +12,15 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import {ConnectionValid} from "../../../../component/connection/connection.component";
-import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
-import {FileResult, KafkaData} from "../../../../service/data-source-create.service";
-import {DatasourceService} from "../../../../../datasource/service/datasource.service";
-import {StringUtil} from "../../../../../common/util/string.util";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Pluploader} from '@common/component/pluploader/pluploader';
+import {DatasourceInfo} from '@domain/datasource/datasource';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
+import {ConnectionValid} from '../../../../component/connection/connection.component';
+import {FileResult, KafkaData} from '../../../../service/data-source-create.service';
 
 @Component({
   selector: 'stream-select',
@@ -105,7 +96,7 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
   public next() {
     // validation
     if (this.isEnableNext()) {
-      if (this.useKafkaData != this.isUseKafkaScheme) {
+      if (this.useKafkaData !== this.isUseKafkaScheme) {
         this.sourceData.hasOwnProperty('schemaData') && (delete this.sourceData.schemaData);
         this.sourceData.hasOwnProperty('ingestionData') && (delete this.sourceData.ingestionData);
       }
@@ -172,7 +163,7 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
       this.loadingHide();
       this.connectionValidation = ConnectionValid.ENABLE_CONNECTION;
       this.kafkaTopicList = data;
-    }).catch((data) => {
+    }).catch(() => {
       this.loadingHide();
       this.connectionValidation = ConnectionValid.DISABLE_CONNECTION;
     });
@@ -230,7 +221,7 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
   }
 
   public showFileUpload() {
-    return this.isEnableConnection() && (this.isKafkaDataResult == false || this.isUseKafkaScheme == false);
+    return this.isEnableConnection() && (this.isKafkaDataResult === false || this.isUseKafkaScheme === false);
   }
 
   /**
@@ -248,7 +239,7 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
     this.uploadedFile = uploadedFile;
     // response 데이터
     const response: any = JSON.parse(uploadedFile.response);
-    const fileResult = {
+    this.fileResult = {
       fileKey: response.filekey,
       filePath: response.filePath,
       fileSize: uploadedFile.size,
@@ -256,7 +247,6 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
       sheets: undefined,
       selectedSheet: undefined,
     };
-    this.fileResult = fileResult;
     this.safelyDetectChanges();
   }
 
@@ -301,12 +291,11 @@ export class StreamSelectComponent extends AbstractPopupComponent implements OnI
    * @private
    */
   private _saveUploadData(sourceData: DatasourceInfo) {
-    const uploadData = {
+    sourceData.uploadData = {
       uploadedFile: this.uploadedFile,
       // file results
       fileResult: this.fileResult
     };
-    sourceData.uploadData = uploadData;
   }
 
 }

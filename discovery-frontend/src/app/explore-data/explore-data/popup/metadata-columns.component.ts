@@ -1,19 +1,18 @@
-import {Component, ElementRef, Injector, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {MetadataColumn} from "../../../domain/meta-data-management/metadata-column";
-import {CodeTableService} from "../../../meta-data-management/code-table/service/code-table.service";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {Metadata} from "../../../domain/meta-data-management/metadata";
-import {Type} from "../../../shared/datasource-metadata/domain/type";
-import {FieldFormat} from "../../../domain/datasource/datasource";
-import {ExploreDataUtilService, SortOption} from "../service/explore-data-util.service";
+import {Component, ElementRef, Injector, Input, OnInit, ViewChildren} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {FieldFormat} from '@domain/datasource/datasource';
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {Type} from '../../../shared/datasource-metadata/domain/type';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {CodeTableService} from '../../../meta-data-management/code-table/service/code-table.service';
+import {ExploreDataUtilService, SortOption} from '../service/explore-data-util.service';
 
 @Component({
   selector: 'explore-metadata-columns',
   templateUrl: './metadata-columns.component.html',
 })
-export class MetadataColumnsComponent extends AbstractComponent {
+export class MetadataColumnsComponent extends AbstractComponent implements OnInit {
 
   readonly typeList = this.getMetaDataLogicalTypeList();
   public readonly ROLE = Type.Role;
@@ -41,17 +40,16 @@ export class MetadataColumnsComponent extends AbstractComponent {
 
   public columns: MetadataColumn[];
 
-  public codeTableDetailList: {id: number, code: string, value: string}[];
+  public codeTableDetailList: { id: number, code: string, value: string }[];
 
   public isShowCodeTable: boolean = false;
 
   constructor(protected element: ElementRef,
               protected injector: Injector,
-              private constant: ConstantService,
               private _metadataService: MetadataService,
-              private exploreDataUtilService: ExploreDataUtilService,
-              private _codeTableService: CodeTableService) {
-    super(element,injector);
+              private _codeTableService: CodeTableService,
+              public exploreDataUtilService: ExploreDataUtilService) {
+    super(element, injector);
   }
 
   ngOnInit() {
@@ -65,7 +63,7 @@ export class MetadataColumnsComponent extends AbstractComponent {
     return column.type
       ? this.typeList.filter((type) => {
         return type.value === column.type;
-      })[ 0 ].label
+      })[0].label
       : 'Select';
   }
 
@@ -101,8 +99,8 @@ export class MetadataColumnsComponent extends AbstractComponent {
     column.isShowDictionary = true;
     this.safelyDetectChanges();
 
-    const table = this.dictionary[ '_results' ][ index ].nativeElement;
-    const preview = this.dictionaryPreview[ '_results' ][ index ].nativeElement;
+    const table = this.dictionary['_results'][index].nativeElement;
+    const preview = this.dictionaryPreview['_results'][index].nativeElement;
 
     this.changeDetect.detectChanges();
 
@@ -116,7 +114,7 @@ export class MetadataColumnsComponent extends AbstractComponent {
   /**
    * Code Table open detail popup
    * @param column
-   * @param idx
+   * @param index
    */
   public onHoverOpenCodeTable(column, index) {
     if (column['isShowCodeTable']) {
@@ -144,8 +142,8 @@ export class MetadataColumnsComponent extends AbstractComponent {
       this.safelyDetectChanges();
 
       // find popup top (css)
-      const table = this._codeTable[ '_results' ][ index ].nativeElement;
-      const preview = this.codeTablePreview[ '_results' ][ index ].nativeElement;
+      const table = this._codeTable['_results'][index].nativeElement;
+      const preview = this.codeTablePreview['_results'][index].nativeElement;
 
       preview.style.top = (table.getBoundingClientRect().top > (this.$window.outerHeight() / 2))
         ? (table.getBoundingClientRect().top - preview.offsetHeight + 'px')

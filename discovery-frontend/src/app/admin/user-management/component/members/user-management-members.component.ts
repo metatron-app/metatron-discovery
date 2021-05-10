@@ -12,19 +12,18 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { Status, User } from '../../../../domain/user/user';
-import { PeriodData } from '../../../../common/value/period.data.value';
-import { PeriodComponent } from '../../../../common/component/period/period.component';
-import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
-import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
-import { CreateUserManagementMembersComponent } from './create-member/create-user-management-members.component';
-import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../../common/domain/modal';
-import { Alert } from '../../../../common/util/alert.util';
-import { ChangeWorkspaceOwnerModalComponent } from './change-workspace-owner-modal/change-workspace-owner-modal.component';
-import { ActivatedRoute } from "@angular/router";
-import { isNullOrUndefined } from "util";
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {Status, User} from '@domain/user/user';
+import {PeriodData} from '@common/value/period.data.value';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {CreateUserManagementMembersComponent} from './create-member/create-user-management-members.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {ChangeWorkspaceOwnerModalComponent} from './change-workspace-owner-modal/change-workspace-owner-modal.component';
+import {ActivatedRoute} from '@angular/router';
 
 declare let moment: any;
 
@@ -33,7 +32,7 @@ declare let moment: any;
   templateUrl: './user-management-members.component.html',
   providers: [MomentDatePipe]
 })
-export class UserManagementMembersComponent extends AbstractUserManagementComponent {
+export class UserManagementMembersComponent extends AbstractUserManagementComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -70,10 +69,10 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
 
-  public initialPeriodData:PeriodData;
+  public initialPeriodData: PeriodData;
 
   // date
-  public selectedDate : PeriodData;
+  public selectedDate: PeriodData;
 
   // period component
   @ViewChild(PeriodComponent)
@@ -112,13 +111,13 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         // TODO selected type
 
         const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
+        (this.isNullOrUndefined(size)) || (this.page.size = size);
 
         const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+        (this.isNullOrUndefined(page)) || (this.page.page = page);
 
         const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
+        if (!this.isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
           this.selectedContentSort.key = sortInfo[0];
           this.selectedContentSort.sort = sortInfo[1];
@@ -126,11 +125,11 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
 
         // 검색어
         const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
+        (this.isNullOrUndefined(searchText)) || (this.searchKeyword = searchText);
 
         // Status
         const active = params['active'];
-        if (!isNullOrUndefined(active)) {
+        if (!this.isNullOrUndefined(active)) {
           this.statusId = ('true' === active) ? 'ACTIVE' : 'INACTIVE';
         }
 
@@ -138,7 +137,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         this.selectedDate.type = 'ALL';
         const from = params['from'];
         const to = params['to'];
-        if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+        if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
           this.selectedDate.startDate = from;
           this.selectedDate.endDate = to;
           this.selectedDate.startDateStr = decodeURIComponent(from);
@@ -152,13 +151,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         this._getMemberList();
       })
     );
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -207,7 +199,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   /**
    * 사용자의 현재 상태
    * @param {Status} status
-   * @returns {any}
+   * @returns {string}
    */
   public getUserStatus(status: Status) {
     return status === Status.ACTIVATED || status === Status.INITIAL
@@ -223,7 +215,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -278,7 +270,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 이벤트 전파 stop
     event.stopImmediatePropagation();
 
-    if( user.status.toString() === status ) {
+    if (user.status.toString() === status) {
       return;
     }
 
@@ -293,11 +285,11 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     modal.data = 'STATUS';
     // 이미 활성화 상태라면
     if (status === 'LOCKED') {
-      modal.name = this.translateService.instant('msg.mem.ui.inactive.title', {value:user.fullName});
+      modal.name = this.translateService.instant('msg.mem.ui.inactive.title', {value: user.fullName});
       modal.description = this.translateService.instant('msg.mem.ui.inactive.description');
       modal.btnName = this.translateService.instant('msg.mem.ui.inactive');
     } else {
-      modal.name = this.translateService.instant('msg.mem.ui.active.title', {value:user.fullName});
+      modal.name = this.translateService.instant('msg.mem.ui.active.title', {value: user.fullName});
       modal.description = this.translateService.instant('msg.mem.ui.active.description');
       modal.btnName = this.translateService.instant('msg.mem.ui.active');
     }
@@ -336,7 +328,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * @param {KeyboardEvent} event
    */
   public onSearchText(event: KeyboardEvent): void {
-    ( 13 === event.keyCode ) && (this._searchText(event.target['value']));
+    (13 === event.keyCode) && (this._searchText(event.target['value']));
   }
 
   /**
@@ -373,8 +365,6 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // 멤버 조회
     this.reloadPage();
   }
-
-
 
 
   /**
@@ -441,7 +431,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     this.loadingShow();
     // 삭제 요청
     this.membersService.deleteUser(userId)
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.mem.alert.delete.usr.success'));
 
@@ -451,7 +441,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
         // 재조회
         this.reloadPage(false);
       })
-      .catch((error)=> {
+      .catch((error) => {
         // alert
         Alert.error(error);
         // 로딩 hide
@@ -463,6 +453,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * 유저 상태 변경
    * @param {string} userId
    * @param {string} status
+   * @param {string} userName
    * @private
    */
   private _changeUserStatus(userId: string, status: string, userName: string): void {
@@ -470,7 +461,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     this.loadingShow();
     // 상태 변경 요청
     this.membersService.updateUserStatus(userId, status)
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(status === 'LOCKED'
           ? this.translateService.instant('msg.mem.alert.change.usr.status.inactive.success', {value: userName})
@@ -492,7 +483,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
    * ui 초기화
    * @private
    */
-  private _initView():void {
+  private _initView(): void {
     // 페이지 초기화
     this.pageResult.number = 0;
     this.pageResult.size = 20;
@@ -533,9 +524,8 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
 
         // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].users.length === 0))
-        {
+          this.isNullOrUndefined(result['_embedded']) ||
+          (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].users.length === 0)) {
           this.page.page = result.page.number - 1;
           this._getMemberList();
         }
@@ -570,7 +560,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     const params = {
       size: this.page.size,
       page: this.page.page,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {
@@ -578,7 +568,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     }
     // status
     if (this.statusId !== 'ALL') {
-      params['active'] = this.statusId === 'ACTIVE' ? true : false;
+      params['active'] = (this.statusId === 'ACTIVE');
     }
     // 검색어
     if (this.searchKeyword.trim() !== '') {
@@ -587,7 +577,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // date
     params['type'] = 'ALL';
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = "CREATED";
+      params['searchDateBy'] = 'CREATED';
       params['type'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');

@@ -12,21 +12,12 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {Location} from '@angular/common';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
 import {LineageService} from '../service/lineage.service';
 import {ActivatedRoute} from '@angular/router';
-import {LineageEdge} from '../../../domain/meta-data-management/lineage';
-import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
-import {Alert} from '../../../common/util/alert.util';
-import {Modal} from '../../../common/domain/modal';
-import * as _ from 'lodash';
-import {CommonUtil} from '../../../common/util/common.util';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {LinkedColumnDictionaryComponent} from '../../component/linked-column-dictionary/linked-column-dictionary.component';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
+import {LineageEdge} from '@domain/meta-data-management/lineage';
 
 @Component({
   selector: 'app-detail-lineage',
@@ -96,7 +87,7 @@ export class DetailLineageComponent extends AbstractComponent implements OnInit,
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public onClickPrevButton(): void {
     this._location.back();
-    //this.router.navigate(['management/metadata/lineage']).then();
+    // this.router.navigate(['management/metadata/lineage']).then();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -13,21 +13,27 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
   SimpleChanges
 } from '@angular/core';
-import { StringUtil } from '../../../common/util/string.util';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'column-select-box',
-  templateUrl: 'column-select-box.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  },
+  templateUrl: 'column-select-box.component.html'
 })
-export class ColumnSelectBoxComponent extends AbstractComponent implements OnChanges {
+export class ColumnSelectBoxComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   // origin list
   @Input('columnList')
@@ -103,6 +109,7 @@ export class ColumnSelectBoxComponent extends AbstractComponent implements OnCha
    * 컴포넌트 내부  host 클릭이벤트 처리
    * @param event
    */
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
@@ -113,7 +120,7 @@ export class ColumnSelectBoxComponent extends AbstractComponent implements OnCha
 
   /**
    * Column select event
-   * @param item
+   * @param column
    */
   public onSelectColumn(column: any): void {
     // set selected column

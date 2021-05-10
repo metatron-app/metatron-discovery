@@ -13,30 +13,34 @@
  */
 
 import * as _ from 'lodash';
+import {isNullOrUndefined, isObject} from 'util';
+
+import {ElementRef} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {ChartType} from '@common/component/chart/option/define/common';
+import {CommonConstant} from '@common/constant/common.constant';
+import {ChartUtil} from '@common/component/chart/option/util/chart-util';
+import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
+
 import {
   BoardConfiguration,
   BoardDataSource,
   BoardDataSourceRelation,
-  Dashboard, JoinMapping,
+  Dashboard,
+  JoinMapping,
   LayoutWidgetInfo
-} from '../../domain/dashboard/dashboard';
-import {Datasource, Field, FieldFormatType, FieldRole} from '../../domain/datasource/datasource';
-import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Widget} from '../../domain/dashboard/widget/widget';
-import {isNullOrUndefined, isObject} from 'util';
-import {FilterWidget, FilterWidgetConfiguration} from '../../domain/dashboard/widget/filter-widget';
-import {PageWidget} from '../../domain/dashboard/widget/page-widget';
-import {TextWidget} from '../../domain/dashboard/widget/text-widget';
-import {BoardWidgetOptions, WidgetShowType} from '../../domain/dashboard/dashboard.globalOptions';
-import {StringUtil} from '../../common/util/string.util';
-import {CommonUtil} from '../../common/util/common.util';
-import {ChartType} from '../../common/component/chart/option/define/common';
-import {CommonConstant} from "../../common/constant/common.constant";
-import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
-import {FilterUtil} from "./filter.util";
-import {MapLayerType} from "../../common/component/chart/option/define/map/map-common";
-import {ElementRef} from "@angular/core";
+} from '@domain/dashboard/dashboard';
+import {Datasource, Field, FieldFormatType, FieldRole} from '@domain/datasource/datasource';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {PageWidget} from '@domain/dashboard/widget/page-widget';
+import {TextWidget} from '@domain/dashboard/widget/text-widget';
+import {BoardWidgetOptions, WidgetShowType} from '@domain/dashboard/dashboard.globalOptions';
+
+import {FilterUtil} from './filter.util';
 
 export class DashboardUtil {
 
@@ -117,7 +121,7 @@ export class DashboardUtil {
   public static setDataSourceAndRelations(dashboard: Dashboard, boardDsList: BoardDataSource[], relations: BoardDataSourceRelation[]): Dashboard {
 
     // 조인 조건의 유효성 체크
-    let verityJoin = function (joinMappings: JoinMapping[]): boolean {
+    const verityJoin = (joinMappings: JoinMapping[]): boolean => {
       return joinMappings.every(join => {
           // KeyPair가 등록된게 없을 경우
           if (Object.keys(join.keyPair).length === 0) {
@@ -179,29 +183,14 @@ export class DashboardUtil {
   } // function - setDataSourceAndRelations
 
   /**
-   * 이미지 경로 설정
-   * @param {ElementRef} elmRef
-   * @param {string} imageUrl
-   */
-  public getBoardImage(elmRef: ElementRef, imageUrl: string) {
-    if (imageUrl) {
-      const date = Date.now();
-      elmRef.nativeElement.src = '/api/images/load/url?url=' + imageUrl + '/thumbnail?' + date;
-    } else {
-      elmRef.nativeElement.src = '/assets/images/img_board_default2.png';
-      elmRef.nativeElement.style = 'position: relative;top: 50%;left: 50%;width: 34px;height: 28px;margin: -14px 0 0 -17px;';
-    }
-  } // function - getBoardImage
-
-  /**
    * 대시보드 데이터소스 스펙을 서버 스펙으로 변경함
    * @param {BoardDataSource} dataSource
    * @return {BoardDataSource}
    */
   public static convertBoardDataSourceSpecToServer(dataSource: BoardDataSource): BoardDataSource {
     // 불필요 속성 제거
-    let keyMap: string[] = ['type', 'name', 'joins', 'temporary', 'dataSources', 'associations'];
-    for (let key of Object.keys(dataSource)) {
+    const keyMap: string[] = ['type', 'name', 'joins', 'temporary', 'dataSources', 'associations'];
+    for (const key of Object.keys(dataSource)) {
       if (-1 === keyMap.indexOf(key)) {
         delete dataSource[key];
       }
@@ -246,7 +235,7 @@ export class DashboardUtil {
     // cluster를 map-option 에서 type으로 분리를 해서 CLUSTER 로 이용하고 api request 할 때는 symbol로 변경
     if (_.eq(chart.type, ChartType.MAP)) {
       chart.layers.forEach((layer) => {
-        if (layer.clustering && layer.type == MapLayerType.CLUSTER) {
+        if (layer.clustering && layer.type === MapLayerType.CLUSTER) {
           layer.type = MapLayerType.SYMBOL;
         }
       });
@@ -264,7 +253,7 @@ export class DashboardUtil {
    */
   public static isSameDataSource(boardDs: BoardDataSource, dataSource: Datasource): boolean {
     return (boardDs.name === dataSource.name || boardDs.name === dataSource.engineName
-        || (boardDs.temporary && boardDs.id === dataSource.id));
+      || (boardDs.temporary && boardDs.id === dataSource.id));
   } // function - isSameDataSource
 
   /**
@@ -366,7 +355,7 @@ export class DashboardUtil {
     const boardDs: BoardDataSource = board.configuration.dataSource;
     let relDsFilters: Filter[] = [];
     if ('multi' === boardDs.type && boardDs.associations) {
-      const srcDs: BoardDataSource = boardDs.dataSources.find(item => item.engineName === engineName || (item.connType == 'LINK' && item.engineName.startsWith(engineName + '_')))
+      const srcDs: BoardDataSource = boardDs.dataSources.find(item => item.engineName === engineName || (item.connType === 'LINK' && item.engineName.startsWith(engineName + '_')))
 
       relDsFilters = boardDs.associations
         .filter((rel: BoardDataSourceRelation) => (srcDs.engineName === rel.source || srcDs.engineName === rel.target))
@@ -390,7 +379,7 @@ export class DashboardUtil {
           }
           acc = acc.concat(
             totalFilters
-              .filter((item: Filter) => (item.dataSource === relDsEngineName || (relDsType == 'LINK' && relDsEngineName.startsWith(item.dataSource + '_')) && item.field === relField))
+              .filter((item: Filter) => (item.dataSource === relDsEngineName || (relDsType === 'LINK' && relDsEngineName.startsWith(item.dataSource + '_')) && item.field === relField))
               .map((item: Filter) => {
                 item.dataSource = engineName;
                 item.field = srcField;
@@ -472,7 +461,6 @@ export class DashboardUtil {
    * 메인 데이터소스로부터 필드 목록을 얻는다.
    * @param {BoardConfiguration} boardConf
    * @param {string} engineName
-   * @return {T[]}
    */
   public static getFieldsForMainDataSource(boardConf: BoardConfiguration, engineName: string) {
     return (boardConf.fields) ? boardConf.fields.filter(item => {
@@ -674,7 +662,7 @@ export class DashboardUtil {
    * @param {string} fieldName
    * @return {Filter}
    */
-  public static getBoardFilter(board: Dashboard, dataSource:string, fieldName: string): Filter {
+  public static getBoardFilter(board: Dashboard, dataSource: string, fieldName: string): Filter {
     return board.configuration.filters.find(item => item.dataSource === dataSource && item.field === fieldName);
   } // function - getBoardFilter
 
@@ -706,7 +694,7 @@ export class DashboardUtil {
    * @param board
    * @param filter
    */
-  public static isNewFilter(board: Dashboard, filter: Filter):boolean {
+  public static isNewFilter(board: Dashboard, filter: Filter): boolean {
     return -1 === board.configuration.filters.findIndex(item => item.dataSource === filter.dataSource && item.field === filter.field);
   } // function - isNewFilter
 
@@ -733,7 +721,7 @@ export class DashboardUtil {
 
     // for presentation mode
     const targetWidget: FilterWidget
-      = <FilterWidget>board.widgets.find(item => this.isSameFilterAndWidget(board, filter, item));
+      = board.widgets.find(item => this.isSameFilterAndWidget(board, filter, item)) as FilterWidget;
     (targetWidget) && (targetWidget.configuration.filter = filter);
 
     return [board, isNewFilter];
@@ -912,7 +900,7 @@ export class DashboardUtil {
    */
   public static getPageWidgets(board: Dashboard): PageWidget[] {
     if (board && board.widgets && board.widgets.length > 0) {
-      return board.widgets.filter(item => 'page' === item.type).map(item => <PageWidget>item);
+      return board.widgets.filter(item => 'page' === item.type).map(item => item as PageWidget);
     } else {
       return [];
     }
@@ -926,7 +914,7 @@ export class DashboardUtil {
    */
   public static getTextWidgets(board: Dashboard): TextWidget[] {
     if (board && board.widgets && board.widgets.length > 0) {
-      return board.widgets.filter(item => 'text' === item.type).map(item => <TextWidget>item);
+      return board.widgets.filter(item => 'text' === item.type).map(item => item as TextWidget);
     } else {
       return [];
     }
@@ -954,19 +942,19 @@ export class DashboardUtil {
    * @return {FilterWidget}
    */
   public static getFilterWidgetByFilter(board: Dashboard, filter: Filter): FilterWidget {
-    return <FilterWidget>board.widgets.find(item => this.isSameFilterAndWidget(board, filter, item));
+    return board.widgets.find(item => this.isSameFilterAndWidget(board, filter, item)) as FilterWidget;
   } // function - getFilterWidgetByFilter
 
   /**
    * 필터와 위젯이 같은 것인지 판단한다.
-   * @param {Dashboard} board
+   * @param {Dashboard} _board
    * @param {Filter} filter
    * @param {Widget} widget
    * @return {boolean}
    */
-  public static isSameFilterAndWidget(board: Dashboard, filter: Filter, widget: Widget): boolean {
+  public static isSameFilterAndWidget(_board: Dashboard, filter: Filter, widget: Widget): boolean {
     if ('filter' === widget.type) {
-      const filterInWidget: Filter = (<FilterWidgetConfiguration>widget.configuration).filter;
+      const filterInWidget: Filter = (widget.configuration as FilterWidgetConfiguration).filter;
       return (filterInWidget.dataSource === filter.dataSource && filterInWidget.field === filter.field);
     } else {
       return false;
@@ -1012,7 +1000,7 @@ export class DashboardUtil {
         widgets.forEach((widget: Widget) => {
           if ('filter' === widget.type) {
             // FilterWidget : Filter ( dataSource ( id -> engineName ) )
-            const filter: Filter = (<FilterWidget>widget).configuration.filter;
+            const filter: Filter = (widget as FilterWidget).configuration.filter;
             const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
             (filterDs) && (filter.dataSource = filterDs.engineName);
 
@@ -1023,7 +1011,7 @@ export class DashboardUtil {
           } else if ('page' === widget.type) {
             // PageWidget ( fields -> customFields )
             if (widget.configuration['fields']) {
-              (<PageWidget>widget).configuration.customFields = widget.configuration['fields'];
+              (widget as PageWidget).configuration.customFields = widget.configuration['fields'];
             }
           }
         });
@@ -1043,7 +1031,7 @@ export class DashboardUtil {
    * @param data
    */
   public static getChartLimitInfo(widgetId: string, type: ChartType, data: { rows: any[], info: any, columns: any[] }): ChartLimitInfo {
-    let limitInfo: ChartLimitInfo = {
+    const limitInfo: ChartLimitInfo = {
       id: widgetId,
       isShow: false,
       currentCnt: 0,
@@ -1103,6 +1091,21 @@ export class DashboardUtil {
     return idx !== -1 ? fieldIconClasses[idx].class : 'ddp-icon-type-ab'
 
   }
+
+  /**
+   * 이미지 경로 설정
+   * @param {ElementRef} elmRef
+   * @param {string} imageUrl
+   */
+  public getBoardImage(elmRef: ElementRef, imageUrl: string) {
+    if (imageUrl) {
+      const date = Date.now();
+      elmRef.nativeElement.src = '/api/images/load/url?url=' + imageUrl + '/thumbnail?' + date;
+    } else {
+      elmRef.nativeElement.src = '/assets/images/img_board_default2.png';
+      elmRef.nativeElement.style = 'position: relative;top: 50%;left: 50%;width: 34px;height: 28px;margin: -14px 0 0 -17px;';
+    }
+  } // function - getBoardImage
 } // class - DashboardUtil
 
 export class ChartLimitInfo {

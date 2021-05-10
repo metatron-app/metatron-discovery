@@ -12,24 +12,24 @@
  * limitations under the License.
  */
 
-import {Injectable, Injector} from "@angular/core";
-import {AuthenticationType, ImplementorType} from "../../domain/dataconnection/dataconnection";
-import {TranslateService} from "@ngx-translate/core";
+import {Injectable, Injector} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {AuthenticationType, ImplementorType} from '@domain/dataconnection/dataconnection';
 
 @Injectable()
 export class DataConnectionCreateService {
 
   private _translateService: TranslateService;
 
-  public authenticationTypeList: {label: string, value: AuthenticationType}[];
+  public authenticationTypeList: { label: string, value: AuthenticationType }[];
 
   constructor(injector: Injector) {
     this._translateService = injector.get(TranslateService);
     // set authentication type list
     this.authenticationTypeList = [
-      { label: this._translateService.instant('msg.storage.li.connect.always'), value: AuthenticationType.MANUAL },
-      { label: this._translateService.instant('msg.storage.li.connect.account'), value: AuthenticationType.USERINFO },
-      { label: this._translateService.instant('msg.storage.li.connect.id'), value: AuthenticationType.DIALOG }
+      {label: this._translateService.instant('msg.storage.li.connect.always'), value: AuthenticationType.MANUAL},
+      {label: this._translateService.instant('msg.storage.li.connect.account'), value: AuthenticationType.USERINFO},
+      {label: this._translateService.instant('msg.storage.li.connect.id'), value: AuthenticationType.DIALOG}
     ];
   }
 

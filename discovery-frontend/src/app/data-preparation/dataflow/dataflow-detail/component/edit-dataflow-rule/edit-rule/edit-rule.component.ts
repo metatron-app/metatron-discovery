@@ -12,11 +12,9 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-//import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
-import { Field, Rule } from '../../../../../../domain/data-preparation/pr-dataset';
-import { isNullOrUndefined } from 'util';
+import {AfterViewInit, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Field, Rule} from '@domain/data-preparation/pr-dataset';
 
 export abstract class EditRuleComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -32,18 +30,18 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public isShow: boolean = false;
-  public mode : string = 'APPEND';
-  public ruleVO : Rule;
-  public colDescs : any;
+  public mode: string = 'APPEND';
+  public ruleVO: Rule;
+  public colDescs: any;
 
-  public fields : Field[];
+  public fields: Field[];
   public selectedFields: Field[] = [];
-  public forceFormula : string = '';
+  public forceFormula: string = '';
 
   public forceCondition: string = '';
 
   @Output()
-  public onEvent:EventEmitter<any> = new EventEmitter();
+  public onEvent: EventEmitter<any> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -84,10 +82,10 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public init(fields : Field[], selectedFields:Field[], data? : {ruleString?:string, jsonRuleString : any}) {
+  public init(fields: Field[], selectedFields: Field[], data?: { ruleString?: string, jsonRuleString: any }) {
     this.fields = fields;
     this.selectedFields = selectedFields;
-    if( !isNullOrUndefined( data ) ) {
+    if (!this.isNullOrUndefined(data)) {
       this.parsingRuleString(data);
     }
 
@@ -102,9 +100,9 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     this.safelyDetectChanges();
   } // function - init
 
-  public setValue( key:string, value:any ) {
-    Object.keys( this ).some( item => {
-      if( key === item && 'function' !== typeof this[key] ) {
+  public setValue(key: string, value: any) {
+    Object.keys(this).some(item => {
+      if (key === item && 'function' !== typeof this[key]) {
         this[key] = value;
         return true;
       } else {
@@ -121,9 +119,9 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   public doneInputFormula(data: { command: string, formula: string }) {
 
     if (data.command === 'setCondition') {
-      this.setValue( 'forceCondition', data.formula );
+      this.setValue('forceCondition', data.formula);
     } else {
-      this.setValue( 'forceFormula', data.formula );
+      this.setValue('forceFormula', data.formula);
     }
 
   }
@@ -133,10 +131,10 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
    * @param {string} key
    * @returns {string}
    */
-  public getValue( key:string ) : string {
-    let returnValue : string = undefined;
+  public getValue(key: string): string {
+    let returnValue: string = undefined;
 
-    if (!isNullOrUndefined(this[key])) {
+    if (!this.isNullOrUndefined(this[key])) {
       returnValue = this[key];
     }
 
@@ -174,10 +172,9 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
    * @param ruleString
    * @protected
    */
-  protected abstract parsingRuleString(ruleString:any);
+  protected abstract parsingRuleString(ruleString: any);
 
-
-  protected getColumnNamesInArray(fields: Field[], isWrap:boolean = false) :string[] {
+  protected getColumnNamesInArray(fields: Field[], isWrap: boolean = false): string[] {
     return fields.map((item) => {
       if (isWrap) {
         return '`' + item.name + '`'

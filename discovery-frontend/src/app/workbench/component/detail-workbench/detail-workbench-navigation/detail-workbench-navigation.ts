@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import { AbstractComponent } from '@common/component/abstract.component';
 import { isUndefined } from 'util';
 import { WorkbenchService } from '../../../service/workbench.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { StringUtil } from '../../../../common/util/string.util';
-import { CommonConstant } from '../../../../common/constant/common.constant';
+import { Alert } from '@common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { CommonConstant } from '@common/constant/common.constant';
 
 @Component({
   selector: 'detail-workbench-navigation',
   templateUrl: './detail-workbench-navigation.html',
 })
-export class DetailWorkbenchNavigation extends AbstractComponent implements OnInit, OnDestroy {
+export class DetailWorkbenchNavigationComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -86,9 +86,9 @@ export class DetailWorkbenchNavigation extends AbstractComponent implements OnIn
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public goWorkbench(item:any) {
-    console.info(item);
+    console.log(item);
     const temp = 'workbench/' + item.id;
-    console.info('temp', temp);
+    console.log('temp', temp);
     // this.router.navigate([temp]);
     window.location.href = CommonConstant.API_CONSTANT.BASE_URL + temp;
   }
@@ -112,7 +112,7 @@ export class DetailWorkbenchNavigation extends AbstractComponent implements OnIn
   // select box 선택
   public onSelectedFilter(event) {
     this.selectedData = event.name;
-    console.info('onSelectedFilter', this.selectedData);
+    console.log('onSelectedFilter', this.selectedData);
   }
 
   // open filter show/hide

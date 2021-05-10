@@ -1,5 +1,3 @@
-
-
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +12,8 @@
  * limitations under the License.
  */
 
-import {UIChartDataLabelDisplayType, UIPosition, DataLabelPosition} from "../define/common";
+import {UIChartDataLabelDisplayType} from '../define/common';
+
 /**
  * Data Label
  */
@@ -38,6 +37,6 @@ export interface UIChartTooltip {
   ////////////////////////////////////////////
 
   // 미리보기 리스트
-  previewList?: Object[];
+  previewList?: object[];
 
 }

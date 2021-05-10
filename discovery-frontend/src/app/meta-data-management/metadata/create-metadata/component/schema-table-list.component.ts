@@ -13,15 +13,8 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input, OnChanges,
-  Output, SimpleChanges
-} from "@angular/core";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 import * as _ from 'lodash';
 
@@ -72,7 +65,7 @@ export class SchemaTableListComponent extends AbstractComponent implements OnCha
     return this.selectedTable === table;
   }
 
-  onChangeSelectedTable(table: string, event?: MouseEvent): void {
+  onChangeSelectedTable(table: string, _event?: MouseEvent): void {
     if (_.isNil(this.selectedTable) || this.selectedTable !== table) {
       // changed selected table
       this.changedSelectedTable.emit(table);

@@ -12,25 +12,20 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Subscription} from 'rxjs/Subscription';
-import {SubscribeArg} from '../../common/domain/subscribe-arg';
-import {Modal} from '../../common/domain/modal';
-import {PopupService} from '../../common/service/popup.service';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {Modal} from '@common/domain/modal';
+import {PopupService} from '@common/service/popup.service';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import {LineageService} from './service/lineage.service';
-import {LineageEdge} from '../../domain/meta-data-management/lineage';
-import {EditLineagePopup} from './component/edit-lineage-popup.component';
-import {CreateLineageComponent} from './component/create-lineage.component';
-import {PeriodComponent, PeriodType} from '../../common/component/period/period.component';
-import {Alert} from '../../common/util/alert.util';
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
+import {LineageEdge} from '@domain/meta-data-management/lineage';
+import {EditLineagePopupComponent} from './component/edit-lineage-popup.component';
+import {PeriodComponent, PeriodType} from '@common/component/period/period.component';
+import {Alert} from '@common/util/alert.util';
+import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
-import {PeriodData} from "../../common/value/period.data.value";
-
-declare let moment: any;
+import {PeriodData} from '@common/value/period.data.value';
 
 @Component({
   selector: 'app-lineage',
@@ -42,11 +37,8 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild(EditLineagePopup)
-  private editLineagePopup: EditLineagePopup;
-
-  @ViewChild(CreateLineageComponent)
-  private createLineageComp: CreateLineageComponent;
+  @ViewChild(EditLineagePopupComponent)
+  private editLineagePopup: EditLineagePopupComponent;
 
   // 삭제 컴포넌트
   @ViewChild(DeleteModalComponent)
@@ -57,8 +49,6 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   // 검색 파라메터
   private _searchParams: { [key: string]: string };
-
-  private popupSubscription: Subscription;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -81,7 +71,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   public selectedContentSort: Order = new Order();
 
-  public selectedType:PeriodType;
+  public selectedType: PeriodType;
 
   public defaultDate: PeriodData;
 
@@ -110,12 +100,14 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
     this._initView();
 
     // After creating dataset
-    this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-      this.step = data.name;
-      if (this.step === 'complete-lineage-create') {
-        this.reloadPage(true);
-      }
-    });
+    this.subscriptions.push(
+      this.popupService.view$.subscribe((data: SubscribeArg) => {
+        this.step = data.name;
+        if (this.step === 'complete-lineage-create') {
+          this.reloadPage(true);
+        }
+      })
+    );
 
     // Get query param from url
     this.subscriptions.push(
@@ -123,21 +115,21 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
 
-          if (!isNullOrUndefined(params['descContains'])) {
+          if (!this.isNullOrUndefined(params['descContains'])) {
             this.searchText = params['descContains'];
           }
 
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
@@ -235,9 +227,10 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
   /**
    * 리니지 삭제 클릭 이벤트
+   * @param event
    * @param {LineageEdge} lineageEdge
    */
-  public onClickDeleteLineage(event, lineageEdge: LineageEdge ): void {
+  public onClickDeleteLineage(event, lineageEdge: LineageEdge): void {
     event.stopPropagation();
 
     const modal = new Modal();
@@ -358,7 +351,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
   }
 
   public getLineageType(lineage: LineageEdge) {
-    if( lineage.frColName && lineage.toColName ) {
+    if (lineage.frColName && lineage.toColName) {
       return 'column';
     }
     return 'metadata';
@@ -428,9 +421,8 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
 
       // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
       if (this.page.page > 0 &&
-        isNullOrUndefined(result['_embedded']) ||
-        (!isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0))
-      {
+        this.isNullOrUndefined(result['_embedded']) ||
+        (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].lineageedges.length === 0)) {
         this.page.page = result.page.number - 1;
         this._getLineageList();
       }
@@ -463,7 +455,7 @@ export class LineageComponent extends AbstractComponent implements OnInit, OnDes
       page: this.page.page
     };
 
-    if (!isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
+    if (!this.isNullOrUndefined(this.searchText) && this.searchText.trim() !== '') {
       params['descContains'] = this.searchText.trim();
     }
 

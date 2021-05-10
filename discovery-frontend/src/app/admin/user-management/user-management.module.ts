@@ -19,7 +19,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { UserManagementMembersComponent } from './component/members/user-management-members.component';
 import { UserManagementGroupsComponent } from './component/group/user-management-groups.component';
-import { CommonModule } from '../../common/common.module';
+import { CommonModule } from '@common/common.module';
 import { MembersService } from './service/members.service';
 import { UserManagementApprovalComponent } from './component/approval/user-management-approval.component';
 import { UserManagementComponent } from './user-management.component';

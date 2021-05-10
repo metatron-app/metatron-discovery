@@ -13,12 +13,11 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Location} from '@angular/common';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {Alert} from '../../common/util/alert.util';
-import {StringUtil} from '../../common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
 import {MetadataService} from './service/metadata.service';
 import {ActivatedRoute} from '@angular/router';
 import {MetadataModelService} from './service/metadata.model.service';
@@ -26,9 +25,9 @@ import {SelectCatalogComponent} from './component/select-catalog.component';
 import {ChooseCodeTableComponent} from '../component/choose-code-table/choose-code-table.component';
 import {ColumnSchemaComponent} from '../detail/component/column-schema/column-schema.component';
 import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictionary/choose-column-dictionary.component';
-import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
-import {CodeTable} from '../../domain/meta-data-management/code-table';
-import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
 
 @Component({
   selector: 'app-metadata-detail',
@@ -36,15 +35,9 @@ import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
 })
 export class MetadataDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('metadataName')
-  private metadataName: ElementRef;
-
-  @ViewChild('metadataDesc')
-  private metadataDesc: ElementRef;
 
   @ViewChild(SelectCatalogComponent)
   private _selectCatalogComponent: SelectCatalogComponent;
@@ -102,7 +95,6 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(
-    private _location: Location,
     protected element: ElementRef,
     protected metadataService: MetadataService,
     protected activatedRoute: ActivatedRoute,
@@ -114,7 +106,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.activatedRoute.params.subscribe((params) => {
 
       this.selectedMetadataId = params['metadataId'];
-      if( params['tab'] ) {
+      if (params['tab']) {
         this.tab = params['tab'];
         this.metadataLoaded = false;
       }
@@ -147,7 +139,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
    */
   public goBack() {
     this.router.navigate(['management/metadata/metadata']);
-    //this._location.back();
+    // this._location.back();
   } // function - goBack
 
   /**
@@ -241,14 +233,14 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.metadataService.updateMetadata(this.selectedMetadataId, {name: this.name}).then((result: Metadata) => {
       this.metadataModelService.updateMetadataName(result.name);
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
       Alert.error('Failed to modify metadata name');
     });
   } // function - onNameChange
 
   /**
    * 이름 에디터 모드 해제
-   * */
+   */
   public onNameEditCancel(): void {
 
     // 에디트 모드가 아니라면 중지
@@ -307,7 +299,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
       .then((result) => {
         this.showLineageTab = result;
       })
-      .catch(error => {});
+      .catch(_error => {
+      });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

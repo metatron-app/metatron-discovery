@@ -13,15 +13,10 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-//import {Dataset, DsType} from "../../domain/data-preparation/dataset";
-import {PrDataset, DsType} from "../../domain/data-preparation/pr-dataset";
-import {DataflowService} from "../dataflow/service/dataflow.service";
-import {DatasetService} from "../dataset/service/dataset.service";
-import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
-import {PreparationAlert} from "../util/preparation-alert.util";
-import {Page, PageResult} from "../../domain/common/page";
-import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PrDataset} from '@domain/data-preparation/pr-dataset';
+import {Page, PageResult} from '@domain/common/page';
+import {PreparationCommonUtil} from '../util/preparation-common.util';
 
 @Component({
   selector: 'radio-select-dataset',
@@ -48,19 +43,18 @@ export class RadioSelectDatasetComponent extends AbstractComponent implements On
   public getMoreDatasetEvent = new EventEmitter();
 
   @Input() // 선택된 데이터셋 아이디
-  public selectedDatasetId : string = '';
+  public selectedDatasetId: string = '';
 
-  @Input() // 리스트에 보일 데이터셋 리스트 ( imported only)
-  //public importedDatasets : Dataset[] = [];
-  public importedDatasets : PrDataset[] = [];
-
-  @Input()
-  public pageResult : PageResult;
+  @Input() // 리스트에 보일 데이터셋 리스트 ( imported only )
+  public importedDatasets: PrDataset[] = [];
 
   @Input()
-  public page: Page ;
+  public pageResult: PageResult;
 
-  public swappingDatasetId : string;
+  @Input()
+  public page: Page;
+
+  public swappingDatasetId: string;
 
   // 정렬
   public selectedContentSort: Order = new Order();
@@ -140,7 +134,7 @@ export class RadioSelectDatasetComponent extends AbstractComponent implements On
    * 데이터 셋 선택
    * @param dataset
    */
-  public selectDataset(dataset : any) {
+  public selectDataset(dataset: any) {
 
     // 지금 보고있는 데이터면 show 해제
     if (dataset.dsId === this.selectedDatasetId) {
@@ -170,13 +164,13 @@ export class RadioSelectDatasetComponent extends AbstractComponent implements On
   /**
    * 체크박스 선택
    */
-  public check(event,item) {
+  public check(event, item) {
     event.stopPropagation();
     this.swappingDatasetId = item.dsId;
   } // function - check
 
 
-  public getSelectedDataset() : string {
+  public getSelectedDataset(): string {
 
     return this.swappingDatasetId;
   }

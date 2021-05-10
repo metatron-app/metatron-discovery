@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import {Message} from '@stomp/stompjs';
 import {
   ApplicationRef,
   ChangeDetectionStrategy,
@@ -20,7 +21,7 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -28,34 +29,34 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {Workbook} from '../domain/workbook/workbook';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {PopupService} from '@common/service/popup.service';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {ChartSelectInfo} from '@common/component/chart/base-chart';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+
 import {
   BoardDataSource,
   Dashboard,
   DashboardWidgetRelation,
   LayoutMode,
   PresentationDashboard
-} from '../domain/dashboard/dashboard';
-import {Widget} from '../domain/dashboard/widget/widget';
-import {ChartSelectInfo} from '../common/component/chart/base-chart';
-import {SelectionFilterComponent} from './component/selection-filter/selection-filter.component';
-import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
-import {Filter} from '../domain/workbook/configurations/filter/filter';
-import {PopupService} from '../common/service/popup.service';
+} from '@domain/dashboard/dashboard';
+import {Workbook} from '@domain/workbook/workbook';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {FilterWidget} from '@domain/dashboard/widget/filter-widget';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {ConnectionType, Datasource, TempDsStatus, TemporaryDatasource} from '@domain/datasource/datasource';
+
 import {DatasourceService} from '../datasource/service/datasource.service';
-import {ConnectionType, Datasource, TempDsStatus, TemporaryDatasource} from 'app/domain/datasource/datasource';
-import {Modal} from '../common/domain/modal';
-import {ConfirmModalComponent} from '../common/component/modal/confirm/confirm.component';
-import {CommonConstant} from '../common/constant/common.constant';
-import {CookieConstant} from '../common/constant/cookie.constant';
-import {Alert} from '../common/util/alert.util';
 import {WidgetService} from './service/widget.service';
 import {DashboardUtil} from './util/dashboard.util';
-import {EventBroadcaster} from '../common/event/event.broadcaster';
-import {isNullOrUndefined} from "util";
-import {Message} from '@stomp/stompjs';
-import {FilterWidget} from "../domain/dashboard/widget/filter-widget";
-import {InclusionFilter} from "../domain/workbook/configurations/filter/inclusion-filter";
+import {SelectionFilterComponent} from './component/selection-filter/selection-filter.component';
+import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -63,7 +64,7 @@ import {InclusionFilter} from "../domain/workbook/configurations/filter/inclusio
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: ['.ddp-div-table { position: absolute;top: 0;left: 0;right: 0;bottom: 0; }']
 })
-export class DashboardComponent extends DashboardLayoutComponent implements OnInit, OnDestroy {
+export class DashboardComponent extends DashboardLayoutComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | ViewChild Variables
@@ -174,7 +175,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    * Layout 초기 로딩 완료 이벤트 핸들러
    */
   public onLayoutInitialised() {
-    const ptBoardInfo: PresentationDashboard = <PresentationDashboard>this.dashboard;
+    const ptBoardInfo: PresentationDashboard = this.dashboard as PresentationDashboard;
     if (ptBoardInfo) {
       // 임시 로직 -> 후에 돈일대리와 내용 확인 할 것
       if (ptBoardInfo.selectionFilters) {
@@ -199,10 +200,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     const filterWidget: FilterWidget = DashboardUtil.getFilterWidgetByFilter(this.dashboard, filter);
     if (filterWidget) {
       this._getAllChildWidgetRelation(filterWidget.id, this.dashboard.configuration.filterRelations,
-        (target: DashboardWidgetRelation, children: string[]) => {
+        (_target: DashboardWidgetRelation, children: string[]) => {
           children.forEach(childId => {
             const childWidget: FilterWidget = DashboardUtil.getWidget(this.dashboard, childId) as FilterWidget;
-            (<InclusionFilter>childWidget.configuration.filter).valueList = [];
+            (childWidget.configuration.filter as InclusionFilter).valueList = [];
             DashboardUtil.updateBoardFilter(this.dashboard, childWidget.configuration.filter, true);
             // 하위 차트 삭제
           });
@@ -294,7 +295,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         this.showBoardLoading();
         this.checkAndConnectWebSocket(true).then(() => {
           this.changeDetect.markForCheck();
-          // console.info('>>>> before createLinkedDatasourceTemporary' );
+          // console.log('>>>> before createLinkedDatasourceTemporary' );
           const tempDsInfo: TemporaryDatasource = this.expiredDatasource.temporary;
           this.datasourceService.createLinkedDatasourceTemporary(tempDsInfo.dataSourceId, tempDsInfo.filters)
             .then((result: { id: string, progressTopic }) => {
@@ -324,7 +325,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    */
   private _processIngestion(progressTopic: string) {
     try {
-      // console.info('>>>> progressTopic', progressTopic);
+      // console.log('>>>> progressTopic', progressTopic);
       const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
       const subscription = CommonConstant.stomp.watch(progressTopic).subscribe((msg: Message) => {
@@ -346,10 +347,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
           this.ingestionStatus.step = 2;
           this.changeDetect.markForCheck();
         }
-        console.info('response process', data);
+        console.log('response process', data);
       }, headers);
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
   } // function - _processIngestion
 
@@ -398,7 +399,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         linkedDsList.forEach(dsInfo => {
           promises.push(new Promise<any>((res, rej) => {
             const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard, dsInfo);
-            if (isNullOrUndefined(boardDsInfo['temporaryId'])) {
+            if (this.isNullOrUndefined(boardDsInfo['temporaryId'])) {
               rej('INVALID_LINKED_DATASOURCE');
               return;
             }
@@ -431,7 +432,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
                 this.hideBoardLoading();
               }
 
-              res();
+              res(null);
 
             }).catch(err => rej(err));
           }));

@@ -12,31 +12,27 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
   EventEmitter,
   Injector,
+  OnDestroy,
+  OnInit,
   Output,
   Renderer2,
   ViewChild
 } from '@angular/core';
-import {
-  DatasourceInfo,
-  Field,
-  FieldFormat,
-  FieldFormatType,
-} from '../../../domain/datasource/datasource';
-import * as _ from 'lodash';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DatasourceInfo, Field, FieldFormat, FieldFormatType,} from '@domain/datasource/datasource';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {StringUtil} from '../../../common/util/string.util';
-import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {DataStorageConstant} from '../../constant/data-storage-constant';
 import {GranularityObject, GranularityService} from '../../service/granularity.service';
-import {DataStorageConstant} from "../../constant/data-storage-constant";
 
-declare let moment: any;
 /**
  * Ingestion setting component
  */
@@ -44,7 +40,7 @@ declare let moment: any;
   selector: 'ingestion-setting',
   templateUrl: './ingestion-setting.component.html'
 })
-export class IngestionSettingComponent extends AbstractComponent {
+export class IngestionSettingComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   // datasource data
   private _sourceData: DatasourceInfo;
@@ -53,9 +49,9 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _granularityList: GranularityObject[] = this._granularityService.granularityList;
   // scope type list (only engine source type)
   private _scopeTypeList: any[] = [
-    { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
-    { label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL' },
-    { label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW' }
+    {label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL'},
+    {label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL'},
+    {label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW'}
   ];
 
   // format
@@ -193,7 +189,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   public granularityUnit: number;
 
 
-
   // step change
   @Output()
   public prevStep: EventEmitter<any> = new EventEmitter();
@@ -225,6 +220,9 @@ export class IngestionSettingComponent extends AbstractComponent {
   /**
    * Init
    * @param {DatasourceInfo} sourceData
+   * @param {string} createType
+   * @param {Field} selectedTimestampColumn
+   * @param {boolean} isChangedTimestampField
    */
   public init(sourceData: DatasourceInfo, createType: string, selectedTimestampColumn: Field, isChangedTimestampField: boolean = false): void {
     // datasource data
@@ -236,7 +234,7 @@ export class IngestionSettingComponent extends AbstractComponent {
     // ui init
     this._initView();
     // if exist ingestionData
-    if (this._sourceData.hasOwnProperty("ingestionData")) {
+    if (this._sourceData.hasOwnProperty('ingestionData')) {
       this._loadIngestionData(this._sourceData.ingestionData);
       // if changed timestamp field
       if (isChangedTimestampField) {
@@ -641,13 +639,13 @@ export class IngestionSettingComponent extends AbstractComponent {
     }
   };
 
-  public get isReinjestion() : boolean {
+  public get isReinjestion(): boolean {
     return StringUtil.isNotEmpty(this._sourceData.datasourceId);
   }
 
-  public get includGeoType() : boolean {
+  public get includGeoType(): boolean {
     if (Array.isArray(this._sourceData.schemaData.fieldList)) {
-      let fieldList:Array<Field> = this._sourceData.schemaData.fieldList;
+      const fieldList: Array<Field> = this._sourceData.schemaData.fieldList;
       return fieldList.filter(field => Field.isGeoType(field)).length > 0;
     }
     return false;
@@ -660,14 +658,14 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _initView(): void {
     // init roll up type list
     this.rollUpTypeList = [
-      { label: this.translateService.instant('msg.storage.ui.set.true'), value: true },
-      { label: this.translateService.instant('msg.storage.ui.set.false'), value: false },
+      {label: this.translateService.instant('msg.storage.ui.set.true'), value: true},
+      {label: this.translateService.instant('msg.storage.ui.set.false'), value: false},
     ];
     this.selectedRollUpType = this.rollUpTypeList[1];
     // init partition type list
     this.partitionTypeList = [
-      { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },
-      { label: this.translateService.instant('msg.storage.ui.set.enable'), value: 'ENABLE' }
+      {label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE'},
+      {label: this.translateService.instant('msg.storage.ui.set.enable'), value: 'ENABLE'}
     ];
     this.selectedPartitionType = this.partitionTypeList[0];
     // init expiration time list
@@ -675,8 +673,8 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.selectedExpirationTime = this.expirationTimeList[0];
     // init ingestion type list
     this.ingestionTypeList = [
-      { label: this.translateService.instant('msg.storage.th.ingest-once'), value: 'single' },
-      { label: this.translateService.instant('msg.storage.th.ingest-prcdly'), value: 'batch' },
+      {label: this.translateService.instant('msg.storage.th.ingest-once'), value: 'single'},
+      {label: this.translateService.instant('msg.storage.th.ingest-prcdly'), value: 'batch'},
     ];
     this.selectedIngestionType = this.ingestionTypeList[0];
     // init ingestion scope List
@@ -684,33 +682,33 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.selectedIngestionScopeType = this.ingestionScopeTypeList[0];
     // init batch type list
     this.batchTypeList = [
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-minutely'), value: 'MINUTELY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-hourly'), value: 'HOURLY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-daily'), value: 'DAILY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-weekly'), value: 'WEEKLY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-expr'), value: 'EXPR' },
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-minutely'), value: 'MINUTELY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-hourly'), value: 'HOURLY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-daily'), value: 'DAILY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-weekly'), value: 'WEEKLY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-expr'), value: 'EXPR'},
     ];
     // default HOURLY
     this.selectedBatchType = this.batchTypeList[1];
     // init hour list
-    for (let i = 1; i < 24 ; i += 1) {
+    for (let i = 1; i < 24; i += 1) {
       this.hourList.push(i);
     }
     this.selectedHour = this.hourList[0];
     // init minute list
-    for (let i = 10; i < 60 ; i += 10) {
+    for (let i = 10; i < 60; i += 10) {
       this.minuteList.push(i);
     }
     this.selectedMinute = this.minuteList[0];
     // init day list
     this.dateList = [
-      { label: this.translateService.instant('msg.storage.li.dsource.date-mon'), value: 'MON', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-tue'), value: 'TUE', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-wed'), value: 'WED', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-thu'), value: 'THU', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-fri'), value: 'FRI', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-sat'), value: 'SAT', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-sun'), value: 'SUN', checked: true }
+      {label: this.translateService.instant('msg.storage.li.dsource.date-mon'), value: 'MON', checked: true},
+      {label: this.translateService.instant('msg.storage.li.dsource.date-tue'), value: 'TUE', checked: true},
+      {label: this.translateService.instant('msg.storage.li.dsource.date-wed'), value: 'WED', checked: true},
+      {label: this.translateService.instant('msg.storage.li.dsource.date-thu'), value: 'THU', checked: true},
+      {label: this.translateService.instant('msg.storage.li.dsource.date-fri'), value: 'FRI', checked: true},
+      {label: this.translateService.instant('msg.storage.li.dsource.date-sat'), value: 'SAT', checked: true},
+      {label: this.translateService.instant('msg.storage.li.dsource.date-sun'), value: 'SUN', checked: true}
     ];
     // init second list
     this.selectedWeeklyTime = this.selectedDailyTime = this._getCurrentTime();
@@ -785,9 +783,9 @@ export class IngestionSettingComponent extends AbstractComponent {
       this.cronValidation();
     }
     if (this.createType === 'DB' && this.getConnectionType() === 'ENGINE' && (
-        (this.selectedIngestionType.value === 'batch' && (this.isMaxRowOverValue('ingestionPeriodRow', 5000000) || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult)))
-        || (this.selectedIngestionType.value === 'single' && this.selectedIngestionScopeType.value === 'ROW' && this.isMaxRowOverValue('ingestionOnceRow', 10000))
-      )) {
+      (this.selectedIngestionType.value === 'batch' && (this.isMaxRowOverValue('ingestionPeriodRow', 5000000) || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult)))
+      || (this.selectedIngestionType.value === 'single' && this.selectedIngestionScopeType.value === 'ROW' && this.isMaxRowOverValue('ingestionOnceRow', 10000))
+    )) {
       return false;
     }
     // If create type is StagingDB and strict mode
@@ -831,7 +829,7 @@ export class IngestionSettingComponent extends AbstractComponent {
           return {key: item.name, value: '', ph: item.defaultValue, defaultOpt: true};
         });
         this.jobProperties = result.filter(item => item.type === 'JOB').map((item) => {
-          return {key: item.name, value: '', ph: item.defaultValue,  defaultOpt: true};
+          return {key: item.name, value: '', ph: item.defaultValue, defaultOpt: true};
         });
         // in stagingDB
         if (this.createType === 'STAGING') {
@@ -870,11 +868,19 @@ export class IngestionSettingComponent extends AbstractComponent {
     const TIME = 1800;
     for (let i = 1; i < 49; i++) {
       if (i === 1) {
-        expirationTimeList.push({label: this.translateService.instant('msg.storage.li.dsource.expire-minutes',{minute:30}), value: TIME});
-      } else{
-        expirationTimeList.push (i % 2 === 0
-          ? {label: this.translateService.instant('msg.storage.li.dsource.expire-hour',{hour: i / 2}), value: TIME * i}
-          : {label: this.translateService.instant('msg.storage.li.dsource.expire-hour-minutes',{hour: Math.floor(i / 2), minute:30}), value: TIME * i});
+        expirationTimeList.push({
+          label: this.translateService.instant('msg.storage.li.dsource.expire-minutes', {minute: 30}),
+          value: TIME
+        });
+      } else {
+        expirationTimeList.push(i % 2 === 0
+          ? {label: this.translateService.instant('msg.storage.li.dsource.expire-hour', {hour: i / 2}), value: TIME * i}
+          : {
+            label: this.translateService.instant('msg.storage.li.dsource.expire-hour-minutes', {
+              hour: Math.floor(i / 2),
+              minute: 30
+            }), value: TIME * i
+          });
       }
     }
   }
@@ -899,13 +905,13 @@ export class IngestionSettingComponent extends AbstractComponent {
     // result
     const result = [];
     // partition fields
-    for (let i = 0; i < partitionKeyList.length; i++) {
+    for (let i = 0, nMax = partitionKeyList.length; i < nMax; i++) {
       // partition keys
       const partitionKeys = partitionKeyList[i];
       // partition
       const partition = {};
       // loop
-      for (let j = 0; j < partitionKeys.length; j++) {
+      for (let j = 0, nMax2 = partitionKeys.length; j < nMax2; j++) {
         // #619 enable empty value
         // is value empty break for loop
         // if (StringUtil.isEmpty(partitionKeys[j].value)) {
@@ -948,8 +954,8 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _isEnablePartitionKeys(partitionList: any): boolean {
     return _.some(partitionList, (partition) => {
-      return _.some(partition.filter((item, index, array) => {
-        return index !== array.length -1;
+      return _.some(partition.filter((_item, index, array) => {
+        return index !== array.length - 1;
       }), item => StringUtil.isEmpty(item.value));
     });
   }
@@ -959,7 +965,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @param ingestionData
    * @private
    */
-  private _loadIngestionData(ingestionData:any): void {
+  private _loadIngestionData(ingestionData: any): void {
     // query granularity list
     this.queryGranularityList = ingestionData.queryGranularityList;
     // load selected segment granularity
@@ -1044,15 +1050,15 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _saveIngestionData(sourceData: DatasourceInfo): void {
     sourceData['ingestionData'] = {
       // query granularity list
-      queryGranularityList : this.queryGranularityList,
+      queryGranularityList: this.queryGranularityList,
       // save selected segment granularity
-      selectedSegmentGranularity : this.selectedSegmentGranularity,
+      selectedSegmentGranularity: this.selectedSegmentGranularity,
       // save query granularity
-      selectedQueryGranularity : this.selectedQueryGranularity,
+      selectedQueryGranularity: this.selectedQueryGranularity,
       // save selected rollup type
-      selectedRollUpType : this.selectedRollUpType,
+      selectedRollUpType: this.selectedRollUpType,
       // save tuning configuration
-      tuningConfig : this.tuningConfig,
+      tuningConfig: this.tuningConfig,
       // isShowAdvancedSetting
       isShowAdvancedSetting: this.isShowAdvancedSetting,
       // interval text

@@ -14,8 +14,8 @@
 
 import { AbstractComponent } from '../../abstract.component';
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Log } from '../../../domain/modal';
-import { Alert } from '../../../util/alert.util';
+import { Log } from '@common/domain/modal';
+import { Alert } from '@common/util/alert.util';
 import { ClipboardService } from 'ngx-clipboard';
 
 @Component({

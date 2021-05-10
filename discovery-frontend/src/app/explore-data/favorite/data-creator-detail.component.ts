@@ -12,34 +12,30 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   Component,
-  ComponentFactoryResolver, ComponentRef,
+  ComponentFactoryResolver,
+  ComponentRef,
   ElementRef,
   EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  Output, ViewChild, ViewContainerRef
+  Output,
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {ExploreDataUtilService, SortOption} from "../explore-data/service/explore-data-util.service";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {StringUtil} from "../../common/util/string.util";
-import {CommonUtil} from "../../common/util/common.util";
-import {CreateWorkbenchContainerComponent} from "../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CreateWorkbookComponent} from "../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {CookieConstant} from "../../common/constant/cookie.constant";
-import {Alert} from "../../common/util/alert.util";
-import * as _ from 'lodash';
-import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
-import {MetadataContainerComponent} from "../explore-data/popup/metadata-container.component";
-import {Modal} from "../../common/domain/modal";
-import {ActivatedRoute} from "@angular/router";
-import {DataCreator} from "../../domain/meta-data-management/data-creator";
-import {Location} from "@angular/common";
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {MetadataContainerComponent} from '../explore-data/popup/metadata-container.component';
+import {SortOption} from '../explore-data/service/explore-data-util.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
 
 @Component({
   selector: 'app-favorite-creator-detail',
@@ -88,7 +84,6 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
 
   // 생성자
   constructor(
-    private _location: Location,
     protected element: ElementRef,
     private resolver: ComponentFactoryResolver,
     private metadataService: MetadataService,
@@ -173,7 +168,7 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
   } // function - reloadPage
 
   getMetadataListParams() {
-    let params = {
+    const params = {
       size: this.page.size,
       page: this.page.page,
       creatorContains: this.username,
@@ -184,7 +179,6 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
     if (StringUtil.isNotEmpty(this.searchedKeyword)) {
       params[this.searchRange.value] = this.searchedKeyword.trim();
     }
-
 
 
     return params;
@@ -253,7 +247,7 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
   }
 
   public getUserImage(userInfo): string {
-    if( userInfo && userInfo.hasOwnProperty('imageUrl') ) {
+    if (userInfo && userInfo.hasOwnProperty('imageUrl')) {
       return '/api/images/load/url?url=' + userInfo.imageUrl + '/thumbnail';
     } else {
       return this.defaultPhotoSrc;
@@ -312,7 +306,7 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
         recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
           .catch(error => this.commonExceptionHandler(error));
       } else {
-        if (metadataDetail.source.source != undefined) {
+        if (metadataDetail.source.source !== undefined) {
           recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         } else {
@@ -375,7 +369,7 @@ export class DataCreatorDetailComponent extends AbstractComponent implements OnI
         this.metadataContainerEntryRef.destroy();
       });
       // toggle favorite in modal listener
-      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((_) => {
+      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe(() => {
         // modal is shown in list screen
         this.setMetadataList(this.getMetadataListParams()).catch(e => this.commonExceptionHandler(e));
         // modal is shown in main screen

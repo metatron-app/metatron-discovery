@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import {AbstractService} from '../../common/service/abstract.service';
-import {Injectable, Injector} from '@angular/core';
-import {ImplementorType, InputMandatory, JdbcDialect} from "../../domain/dataconnection/dataconnection";
 import * as _ from 'lodash';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
+import {InputMandatory, JdbcDialect} from '@domain/dataconnection/dataconnection';
 
 @Injectable()
 export class StorageService extends AbstractService {
@@ -35,7 +35,7 @@ export class StorageService extends AbstractService {
   public checkEnableStageDB() {
     return new Promise((resolve, reject) => {
       this.get(this.API_URL + `storage/stagedb`).then(result => {
-        StorageService.isEnableStageDB = result ? true : false;
+        StorageService.isEnableStageDB = !!result;
         resolve(result);
       }).catch(error => {
         StorageService.isEnableStageDB = false;

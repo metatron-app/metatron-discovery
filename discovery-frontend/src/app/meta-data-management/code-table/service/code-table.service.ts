@@ -13,8 +13,8 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class CodeTableService extends AbstractService {
@@ -89,6 +89,7 @@ export class CodeTableService extends AbstractService {
    * 코드테이블에 연결된 컬럼 사전 조회
    * @param {string} tableId
    * @param {Object} params
+   * @param {string} projection
    * @returns {Promise<any>}
    */
   public getColumnDictionaryInCodeTable(tableId: string, params: object, projection: string = 'default'): Promise<any> {

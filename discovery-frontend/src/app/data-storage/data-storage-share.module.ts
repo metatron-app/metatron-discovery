@@ -13,10 +13,10 @@
  */
 
 import {NgModule} from '@angular/core';
-import {CommonModule} from "../common/common.module";
-import {ConnectionComponent} from "./component/connection/connection.component";
-import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
-import {DataConnectionCreateService} from "./service/data-connection-create.service";
+import {CommonModule} from '@common/common.module';
+import {ConnectionComponent} from './component/connection/connection.component';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {DataConnectionCreateService} from './service/data-connection-create.service';
 
 @NgModule({
   imports: [

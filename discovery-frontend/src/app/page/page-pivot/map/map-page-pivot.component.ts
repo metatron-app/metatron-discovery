@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
-import {Pivot} from '../../../domain/workbook/configurations/pivot';
-import {Field, FieldPivot, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Field, FieldPivot, FieldRole, LogicalType} from '@domain/datasource/datasource';
 import {
   ChartType,
   EventType,
@@ -22,31 +22,30 @@ import {
   UIFormatCurrencyType,
   UIFormatNumericAliasType,
   UIFormatType
-} from '../../../common/component/chart/option/define/common';
+} from '@common/component/chart/option/define/common';
 
 import * as _ from 'lodash';
-import {UIMapOption} from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import {TimestampField} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {DimensionField} from '../../../domain/workbook/configurations/field/dimension-field';
-import {MeasureField} from '../../../domain/workbook/configurations/field/measure-field';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {TimestampField} from '@domain/workbook/configurations/field/timestamp-field';
+import {DimensionField} from '@domain/workbook/configurations/field/dimension-field';
+import {MeasureField} from '@domain/workbook/configurations/field/measure-field';
 import {PagePivotComponent} from '../page-pivot.component';
-import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {Field as AbstractField} from '../../../domain/workbook/configurations/field/field';
-import * as $ from "jquery";
-import {MapLayerType} from '../../../common/component/chart/option/define/map/map-common';
-import {UIOption} from '../../../common/component/chart/option/ui-option';
-import {Alert} from '../../../common/util/alert.util';
-import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
-import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
-import {isNullOrUndefined} from "util";
-import {CommonConstant} from "../../../common/constant/common.constant";
-import {TooltipOptionConverter} from "../../../common/component/chart/option/converter/tooltip-option-converter";
+import * as $ from 'jquery';
+import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {Alert} from '@common/util/alert.util';
+import {ChartUtil} from '@common/component/chart/option/util/chart-util';
+import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
+import {CommonConstant} from '@common/constant/common.constant';
+import {TooltipOptionConverter} from '@common/component/chart/option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'map-page-pivot',
   templateUrl: './map-page-pivot.component.html'
 })
-export class MapPagePivotComponent extends PagePivotComponent {
+export class MapPagePivotComponent extends PagePivotComponent implements OnInit, OnDestroy {
 
   public shelf: Shelf;
 
@@ -141,7 +140,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // 같은 선반에 동일한 필드가 있을경우
     let cnt: number = 0;
     currentMapLayer.forEach((item) => {
-      if (item.field.dsId == targetField.field.dsId && item.field.name == targetField.field.name) {
+      if (item.field.dsId === targetField.field.dsId && item.field.name === targetField.field.name) {
         cnt++;
       }
       if (cnt > 1) {
@@ -153,14 +152,14 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // prevent other datasource is set on the same shelf
     currentMapLayer.forEach((item) => {
       if ('user_expr' !== targetField.subType && 'user_expr' !== item.field.type
-        && item.field.dataSource != targetField.field.dataSource) {
+        && item.field.dataSource !== targetField.field.dataSource) {
         diffDataSourceFl = true;
         return;
       }
     });
 
     // find geo type from custom fields
-    let geoFields = [];
+    const geoFields = [];
     for (const item of _.cloneDeep(pageDimensions)) {
       if (item.logicalType && -1 !== item.logicalType.toString().indexOf('GEO')) {
         geoFields.push(ChartUtil.getAlias(item));
@@ -225,23 +224,23 @@ export class MapPagePivotComponent extends PagePivotComponent {
     //   fieldPivot = FieldPivot.MAP_LAYER2;
     // }
 
-    let currentMapLayer = this.shelf.layers[this.uiOption.layerNum].fields;
+    const currentMapLayer = this.shelf.layers[this.uiOption.layerNum].fields;
     // check is different database on the same shelf (do not need to loop because database checking)
-    if (!isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
-      && targetField.dataSource != currentMapLayer[0].field.dataSource) {
+    if (!this.isNullOrUndefined(currentMapLayer) && !this.isNullOrUndefined(currentMapLayer[0]) && !this.isNullOrUndefined(currentMapLayer[0]['field'])
+      && targetField.dataSource !== currentMapLayer[0].field.dataSource) {
       this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.filter((field) => {
-        return (field.name != targetField.name && field.ref != targetField.ref)
+        return (field.name !== targetField.name && field.ref !== targetField.ref)
       });
       Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
       return;
     }
 
     // change logical type
-    if (targetField.logicalType == LogicalType.GEO_LINE) {
+    if (targetField.logicalType === LogicalType.GEO_LINE) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.LINE;
-    } else if (targetField.logicalType == LogicalType.GEO_POLYGON) {
+    } else if (targetField.logicalType === LogicalType.GEO_POLYGON) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.POLYGON;
-    } else if (targetField.logicalType == LogicalType.GEO_POINT) {
+    } else if (targetField.logicalType === LogicalType.GEO_POINT) {
       if (!_.isUndefined(this.uiOption.layers[this.uiOption.layerNum]['clustering']) && this.uiOption.layers[this.uiOption.layerNum]['clustering']) {
         this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.CLUSTER;
       } else {
@@ -261,8 +260,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
         (targetField.role === FieldRole.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
 
         // 타입필드로 설정
-        const timeField = new TimestampField();
-        field = timeField;
+        field = new TimestampField();
       } else if (targetField.role === FieldRole.DIMENSION) {
         field = new DimensionField();
       } else if (targetField.role === FieldRole.MEASURE) {
@@ -286,7 +284,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       field.segGranularity = targetField.segGranularity;
       if (!_.isUndefined(targetField.ref)) {
         field.ref = targetField.ref;
-      } else if (targetField.type == 'user_expr') {
+      } else if (targetField.type === 'user_expr') {
         field.ref = 'user_defined';
       }
 
@@ -301,13 +299,10 @@ export class MapPagePivotComponent extends PagePivotComponent {
       // 현재 드래그된 필드
       this.dragField = field;
 
-      let shelves = this.shelf.layers[this.uiOption.layerNum].fields;
+      const shelves = this.shelf.layers[this.uiOption.layerNum].fields;
 
       // remove duplicate list
-      let duplicateFl = this.distinctPivotItems(shelves, field, idx, shelf, targetContainer);
-
-      // if map layer type is point or heatmap, remove duplicate list
-      duplicateFl = this.distinctMeasure(shelves, field, idx);
+      const duplicateFl = this.distinctMeasure(shelves, field, idx);
 
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
       if (!duplicateFl) {
@@ -358,6 +353,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * Datasource Field의 선반 위치정보 수정
    * @param targetField
    * @param targetContainer
+   * @param pivotField
    */
   public changeFieldPivot(targetField: Field, targetContainer: string, pivotField: AbstractField): void {
 
@@ -393,12 +389,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
       if (shelf.length > 0) {
         let targetDsId: string = '';
         shelf.forEach((item) => {
-          if (item.field.logicalType == LogicalType.GEO_POINT || item.field.logicalType == LogicalType.GEO_LINE || item.field.logicalType == LogicalType.GEO_POLYGON) {
+          if (item.field.logicalType === LogicalType.GEO_POINT || item.field.logicalType === LogicalType.GEO_LINE || item.field.logicalType === LogicalType.GEO_POLYGON) {
             targetDsId = item.field.dsId;
           }
         });
-        shelf = _.remove(shelf, function (item) {
-          return item['field']['dsId'] != targetDsId;
+        shelf = _.remove(shelf, (item) => {
+          return item['field']['dsId'] !== targetDsId;
         });
       }
 
@@ -414,7 +410,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
         if (-1 !== timestampIndex) {
 
           // 그리드를 제외한 같은선반에 timestamp가 2개이상 들어가지 못하게 설정
-          let duplicateFieldFl = this.deleteDuplicatedField(targetField, timestampIndex, targetContainer);
+          const duplicateFieldFl = this.deleteDuplicatedField(targetField, timestampIndex, targetContainer);
 
           // 중복이 아닐때에만 해당 선반에 추가
           if (!duplicateFieldFl) {
@@ -465,12 +461,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public addLayer(index: number): void {
     if (this.shelf.layers.length >= 2
-      || isNullOrUndefined(this.shelf.layers[0]) || isNullOrUndefined(this.shelf.layers[0].fields) || this.shelf.layers[0].fields.length <= 0) {
+      || this.isNullOrUndefined(this.shelf.layers[0]) || this.isNullOrUndefined(this.shelf.layers[0].fields) || this.shelf.layers[0].fields.length <= 0) {
       Alert.warning('Please select GEO dimension one or more');
       return;
     } else {
 
-      let layers = {
+      const layers = {
         name: '',
         ref: '',
         // view : {
@@ -491,10 +487,10 @@ export class MapPagePivotComponent extends PagePivotComponent {
       this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
 
       // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
-      let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
+      const addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
 
       // layer name setting
-      addUiOptionLayer.name = this.uiOption.layers[index].name == ('Layer' + (index + 1)) ? 'Layer' + (index + 2) : 'Layer' + (index + 1);
+      addUiOptionLayer.name = this.uiOption.layers[index].name === ('Layer' + (index + 1)) ? 'Layer' + (index + 2) : 'Layer' + (index + 1);
 
       this.uiOption.layers.push(addUiOptionLayer);
 
@@ -508,7 +504,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public removeLayer(index: number): void {
 
-    if (this.shelf.layers.length <= 1 || (!_.isUndefined(this.uiOption['analysis']) && this.uiOption.analysis['use'] == true)) {
+    if (this.shelf.layers.length <= 1 || (!_.isUndefined(this.uiOption['analysis']) && this.uiOption.analysis['use'] === true)) {
       return;
     }
 
@@ -516,10 +512,11 @@ export class MapPagePivotComponent extends PagePivotComponent {
     this.shelf.layers.splice(index, 1);
 
     // 필드의 선반정보 제거
-    for (let idx = 0; idx < this.shelf.layers.length; idx++) {
-      let item = this.shelf.layers[idx].fields;
-      for (let idx2 = 0; idx2 < item.length; idx2++) {
-        item[idx2].field.pivot.splice(item[idx2].field.pivot.indexOf(index), 1);
+    for (let idx = 0, nMax = this.shelf.layers.length; idx < nMax; idx++) {
+      const item = this.shelf.layers[idx].fields;
+      for (let idx2 = 0, nMax2 = item.length; idx2 < nMax2; idx2++) {
+        // item[idx2].field.pivot.splice(item[idx2].field.pivot.indexOf(index),1);
+        item[idx2].field.pivot.splice(item[idx2].field.pivot.indexOf(index as unknown as FieldPivot), 1);
       }
     }
 
@@ -542,13 +539,13 @@ export class MapPagePivotComponent extends PagePivotComponent {
   public isGuide(): boolean {
 
     // before selecting chart, return false
-    if (this.chartType == '') {
+    if (this.chartType === '') {
       return false;
     }
 
     // when geo dimension on shelf, hide guide
-    for (let field of this.shelf.layers[this.uiOption.layerNum].fields) {
-      if (field && field.field && field.field.logicalType && -1 !== field.field.logicalType.toString().indexOf("GEO")) {
+    for (const field of this.shelf.layers[this.uiOption.layerNum].fields) {
+      if (field && field.field && field.field.logicalType && -1 !== field.field.logicalType.toString().indexOf('GEO')) {
         return false;
       }
     }
@@ -574,7 +571,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     this.editingField = field;
 
     // 모든선반에서 같은 field aggregation Type 설정
-    let shelves = this.shelf.layers[this.uiOption.layerNum].fields;
+    const shelves = this.shelf.layers[this.uiOption.layerNum].fields;
 
     // set field setting
     this.fieldSetting(shelves);
@@ -589,6 +586,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
   /**
    * set shelf guide
+   * @param index
    * @param {string} type
    * @returns {boolean}
    */
@@ -596,7 +594,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     if (!this.shelf.layers) return;
 
-    let layers = this.shelf.layers[index];
+    const layers = this.shelf.layers[index];
 
     let returnValue: boolean;
 
@@ -633,15 +631,15 @@ export class MapPagePivotComponent extends PagePivotComponent {
       this.changeDetect.detectChanges();
     }
 
-    let element = this.$element.find('#layer' + this.uiOption.layerNum).find('.ddp-wrap-default');
+    const element = this.$element.find('#layer' + this.uiOption.layerNum).find('.ddp-wrap-default');
 
-    let scope = this;
+    const scope = this;
 
     // 선반의 길이에따라 animation 설정
     element.each(function () {
 
       // animation total width 설정
-      let totalWidth = scope.getShelveTotalWidth($(this));
+      const totalWidth = scope.getShelveTotalWidth($(this));
 
       // total width 설정 (드래그시 아래로 떨어지는걸 방지하기위해서 drag item width인 150을 더해주기)
       $(this).css('width', totalWidth + 150);
@@ -671,7 +669,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // 애니메이션 동작설정 true
     this.animationPause = false;
 
-    let scope = this;
+    const scope = this;
 
     const $wrapDefault = $(event.currentTarget.parentElement.parentElement).find('.ddp-wrap-default');
 
@@ -694,16 +692,16 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // 애니메이션 동작설정 true
     this.animationPause = false;
 
-    let scope = this;
+    const scope = this;
 
     const $currentShelve = $(event.currentTarget.parentElement.parentElement);
 
     const $wrapDefault = $(event.currentTarget.parentElement.parentElement).find('.ddp-wrap-default');
 
-    let totalWidth = this.getShelveTotalWidth($currentShelve);
+    const totalWidth = this.getShelveTotalWidth($currentShelve);
 
     // animation width 설정
-    let moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
+    const moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
 
     // 선반에 animation 설정
     $wrapDefault.animate({marginLeft: -moveWidth - 40}, {
@@ -722,14 +720,15 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * 페이지에서 필드 추가 할때
    * @param {Field} targetField
    * @param {string} targetContainer
+   * @param {AbstractField} _pivotField
    */
-  public addField(targetField: Field, targetContainer: string, pivotField: AbstractField) {
+  public addField(targetField: Field, targetContainer: string, _pivotField: AbstractField) {
     let shelf;
 
     if (targetContainer === 'layer') {
       shelf = this.shelf.layers[this.uiOption.layerNum];
     } else {
-      console.info('정의되지 않은 drop', targetContainer);
+      console.log('정의되지 않은 drop', targetContainer);
       return;
     }
 
@@ -744,25 +743,21 @@ export class MapPagePivotComponent extends PagePivotComponent {
   /**
    * block custom field => true (block), false(not block) - temporary code
    * @param {Field} targetField
+   * @param {UIOption} uiOption
    * @returns {boolean}
    */
   public blockCustomField(targetField: Field, uiOption: UIOption) {
-
     // when chart is map, target field is custom field
-    if (ChartType.MAP === uiOption.type && 'user_expr' === targetField.type) {
-      return true;
-    }
-
-    return false;
+    return ChartType.MAP === uiOption.type && 'user_expr' === targetField.type;
   }
 
   /**
    * 해당 선반에서 중복데이터일때
    * @param field 필드값
    * @param idx   필드 index
-   * @param targetContainer 현재 선택된 선반
+   * @param _targetContainer 현재 선택된 선반
    */
-  protected deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
+  protected deleteDuplicatedField(field: any, idx: number, _targetContainer: string): boolean {
 
     // 열선반에서 해당 선반 중복시 제거
     if (this.checkDuplicatedField(this.shelf.layers[this.uiOption.layerNum].fields, field).length > 1) {
@@ -777,11 +772,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
   /**
    * remove the measure having same name
-   * @param {Field[]} shelves
+   * @param shelf
    * @param field
    * @param {number} idx
-   * @param {Field[]} shelf
-   * @param {string} targetContainer
    * @returns {boolean}
    */
   private distinctMeasure(shelf: AbstractField[], field: any, idx: number): boolean {
@@ -817,8 +810,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param index
    */
   public selectedLayer(index: number) {
-    if (this.uiOption.layerNum != index
-      && (_.isUndefined(this.uiOption.analysis) || (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == false))) {
+    if (this.uiOption.layerNum !== index
+      && (_.isUndefined(this.uiOption.analysis) || (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] === false))) {
       this.uiOption.layerNum = index;
       // this.selectLayerEvent.emit(index);
     }
@@ -831,7 +824,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     this.uiOption = value;
 
-    let layers = {
+    const layers = {
       name: CommonConstant.MAP_ANALYSIS_LAYER_NAME,
       ref: '',
       fields: _.cloneDeep(this.shelf.layers[this.uiOption.analysis.layerNum].fields)
@@ -841,7 +834,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     this.shelf.layers.push(layers);
 
     // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
-    let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
+    const addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
     // layer name setting
     addUiOptionLayer.name = CommonConstant.MAP_ANALYSIS_LAYER_NAME;
 
@@ -851,8 +844,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     // 공간연산에서 choropleth 를 활성화 했을 경우
     // 커스텀 하게 default 값 count 정보 설정
-    if (this.uiOption['analysis']['operation']['choropleth'] == true) {
-      let field: MeasureField = new MeasureField();
+    if (this.uiOption['analysis']['operation']['choropleth'] === true) {
+      const field: MeasureField = new MeasureField();
       // 이미 변수가 선언이 되어 있어 강제로 변경
       field.aggregationType = null;
       field.alias = 'count';
@@ -865,13 +858,13 @@ export class MapPagePivotComponent extends PagePivotComponent {
       this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
 
       // 공간연산 실행 시 layer의 field에 해당 값 적용
-      let uiOption = this.uiOption;
+      const uiOption = this.uiOption;
       this.shelf.layers.forEach((layer) => {
         if (layer.name === CommonConstant.MAP_ANALYSIS_LAYER_NAME) {
           layer.fields.push(_.cloneDeep(field));
-          layer.fields.forEach((field) => {
-            if (uiOption['analysis']['operation']['aggregation']['column'] == field.name && !(!_.isUndefined(field.isCustomField) && field.isCustomField == true)) {
-              field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
+          layer.fields.forEach((fieldInfo) => {
+            if (uiOption['analysis']['operation']['aggregation']['column'] === fieldInfo.name && !(!_.isUndefined(fieldInfo.isCustomField) && fieldInfo.isCustomField === true)) {
+              fieldInfo.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
             }
           });
         }
@@ -885,7 +878,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public removeAnalysis() {
     // Map Chart spatial analysis delete
-    if (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == true) {
+    if (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] === true) {
       this.shelf.layers.pop();
       this.uiOption.layers.pop();
       this.uiOption.layerNum = this.uiOption.layers.length - 1;
@@ -896,7 +889,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       delete this.uiOption.analysis.type;
 
       // Tooltip setting
-      let layerItems = [];
+      const layerItems = [];
       // 공간연산 사용 여부
       for (let layerIndex = 0; this.uiOption.layers.length > layerIndex; layerIndex++) {
         if (this.shelf && !_.isUndefined(this.shelf.layers[layerIndex])) {
@@ -910,7 +903,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
         item['alias'] = ChartUtil.getAlias(item);
       }
       // return shelf list except geo dimension
-      let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
+      const uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
       // tooltip option panel이 첫번째로 열렸는지 여부
       this.uiOption.toolTip['isFirstOpenTooltipOption'] = true;
       this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
@@ -927,27 +920,27 @@ export class MapPagePivotComponent extends PagePivotComponent {
     if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption['layers']) && this.uiOption['layers'].length > 0) {
       for (let layerIndex = 0; this.uiOption['layers'].length > layerIndex; layerIndex++) {
         // 크기 반경 관련 설정
-        if (this.uiOption['layers'][layerIndex]['type'] == MapLayerType.SYMBOL) {
+        if (this.uiOption['layers'][layerIndex]['type'] === MapLayerType.SYMBOL) {
           // 크기 설정
-          if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
+          if (this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusFrom'])) {
             // default size of points are 5 pixel
             this.uiOption.layers[layerIndex]['pointRadiusFrom'] = 5;
             this.uiOption.layers[layerIndex].pointRadius = 5;
           }
-          let hasMeasure = this.shelf.layers[layerIndex].fields.find((field) => {
-            return field.type == 'measure';
+          const hasMeasure = this.shelf.layers[layerIndex].fields.find((field) => {
+            return field.type === 'measure';
           });
           // Measure 값이 없을 경우
           if (this.shelf['layers'][layerIndex].fields.length <= 1
             || (this.shelf['layers'][layerIndex].fields.length > 1
-              && isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
-              && isNullOrUndefined(hasMeasure))) {
+              && this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])
+              && this.isNullOrUndefined(hasMeasure))) {
             delete this.uiOption.layers[layerIndex]['needToCalPointRadius'];
             delete this.uiOption.layers[layerIndex]['pointRadiusTo'];
             delete this.uiOption.layers[layerIndex]['pointRadiusCal'];
             this.uiOption.layers[layerIndex].pointRadius = this.uiOption.layers[layerIndex]['pointRadiusFrom'];
           } else if (this.shelf['layers'][layerIndex].fields.length > 1 && hasMeasure) {
-            if (isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
+            if (this.isNullOrUndefined(this.uiOption.layers[layerIndex]['pointRadiusTo'])) {
               if (this.uiOption.layers[layerIndex]['pointRadiusFrom'] < 100) {
                 this.uiOption.layers[layerIndex]['pointRadiusTo'] = 20;
               } else {
@@ -960,9 +953,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
       }
     }
   }
-
-
-
 
 
 }

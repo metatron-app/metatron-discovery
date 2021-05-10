@@ -1,27 +1,32 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  Output,
-  ViewChild
-} from "@angular/core";
-import {AbstractComponent} from "../../../../../common/component/abstract.component";
-import {CommonConstant} from "../../../../../common/constant/common.constant";
-import {CookieConstant} from "../../../../../common/constant/cookie.constant";
-import {Pluploader} from "../../../../../common/component/pluploader/pluploader";
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Pluploader} from '@common/component/pluploader/pluploader';
 import ErrorCode = Pluploader.ErrorCode;
 
 declare const plupload: any;
-
 
 @Component({
   selector: 'stream-uploader',
   templateUrl: 'stream-uploader.component.html'
 })
-export class StreamUploaderComponent extends AbstractComponent {
+export class StreamUploaderComponent extends AbstractComponent implements OnInit {
 
   @ViewChild('pickfiles')
   private readonly _pickFiles: ElementRef;
@@ -70,9 +75,12 @@ export class StreamUploaderComponent extends AbstractComponent {
    * @return {string}
    */
   public getFileSize(size: number, split: number): string {
-    if(0 === size) return "0 Bytes";
-    let c=1024,d=split||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(size)/Math.log(c));
-    return parseFloat((size/Math.pow(c,f)).toFixed(d))+" "+e[f];
+    if (0 === size) return '0 Bytes';
+    const c = 1024;
+    const d = split || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(size) / Math.log(c));
+    return parseFloat((size / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
   }
 
   /**
@@ -171,23 +179,23 @@ export class StreamUploaderComponent extends AbstractComponent {
       .DropElement(dropElement)
       .Url(CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload?stream')
       .Headers({
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+        Accept: 'application/json, text/plain, */*',
+        Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
       })
       .MultiSelection(false)
       .Filters(new Pluploader.Builder.FileFiltersBuilder()
         .MimeTypes([
-          {title: "files", extensions: "csv,json"}
+          {title: 'files', extensions: 'csv,json'}
         ])
         .MaxFileSize(0)
         .builder()
       )
       .Init({
-        BeforeUpload: (up: Pluploader.Uploader) => {
+        BeforeUpload: (_up: Pluploader.Uploader) => {
 
         },
         // 파일 큐 스택 변경시
-        QueueChanged: (up: Pluploader.Uploader)=>{
+        QueueChanged: (up: Pluploader.Uploader) => {
           // Only one file
           if (up.files.length > 0) {
             // TODO 멀티 업로드시 변경필요
@@ -206,7 +214,7 @@ export class StreamUploaderComponent extends AbstractComponent {
           }
         },
         // 파일 추가시
-        FilesAdded: (up: Pluploader.Uploader, files) => {
+        FilesAdded: (up: Pluploader.Uploader, _files) => {
           // upload started
           this.uploadStarted.emit();
           // set guide message
@@ -217,17 +225,17 @@ export class StreamUploaderComponent extends AbstractComponent {
           up.disableBrowse(true);
         },
         // 프로그레스
-        UploadProgress: (up: Pluploader.Uploader, file: Pluploader.File) => {
+        UploadProgress: (_up: Pluploader.Uploader, file: Pluploader.File) => {
           // set percent
           this.uploadedFile.percent = file.percent;
           this.safelyDetectChanges();
         },
-        FileUploaded: (up, file, result: {response: string, status: number, responseHeaders: string}) => {
+        FileUploaded: (_up, _file, result: { response: string, status: number, responseHeaders: string }) => {
           this.uploadedFile.response = result.response;
           this.uploadedFile.responseHeaders = result.responseHeaders;
         },
         // complete upload
-        UploadComplete: (up, files) => {
+        UploadComplete: (up, _files) => {
           // enable upload
           up.disableBrowse(false);
           if (this.uploadedFile.isCanceled !== true || this.uploadedFile.isFailed) {
@@ -238,7 +246,7 @@ export class StreamUploaderComponent extends AbstractComponent {
           }
         },
         // error
-        Error: (up, err: {code: number, file: Pluploader.File, message: string}) => {
+        Error: (up, err: { code: number, file: Pluploader.File, message: string }) => {
           // enable upload
           up.disableBrowse(false);
           // set file

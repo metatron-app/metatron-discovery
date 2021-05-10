@@ -12,22 +12,22 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { CommonModule } from '../common/common.module';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {CommonModule} from '@common/common.module';
 
-import { NotebookService } from './service/notebook.service';
-import { DatasourceShareModule } from '../datasource/datasource-share.module';
-import { DashboardService } from '../dashboard/service/dashboard.service';
-import { NotebookComponent } from './notebook.component';
-import { NotebookShareModule } from './notebook-share.module';
-import { CreateNotebookModelComponent } from './component/create-notebook-model/create-notebook-model.component';
-import { CreateNotebookApiComponent } from './component/create-notebook-api/create-notebook-api.component';
-import { ResultNotebookApiComponent } from './component/result-notebook-api/result-notebook-api.component';
-import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
+import {NotebookService} from './service/notebook.service';
+import {DatasourceShareModule} from '../datasource/datasource-share.module';
+import {DashboardService} from '../dashboard/service/dashboard.service';
+import {NotebookComponent} from './notebook.component';
+import {NotebookShareModule} from './notebook-share.module';
+import {CreateNotebookModelComponent} from './component/create-notebook-model/create-notebook-model.component';
+import {CreateNotebookApiComponent} from './component/create-notebook-api/create-notebook-api.component';
+import {ResultNotebookApiComponent} from './component/result-notebook-api/result-notebook-api.component';
+import {MetadataService} from '../meta-data-management/metadata/service/metadata.service';
 
 const notebookRoutes: Routes = [
-  { path: ':id' + '/' + ':workspaceId', component: NotebookComponent },
+  {path: ':id' + '/' + ':workspaceId', component: NotebookComponent},
 ];
 
 @NgModule({

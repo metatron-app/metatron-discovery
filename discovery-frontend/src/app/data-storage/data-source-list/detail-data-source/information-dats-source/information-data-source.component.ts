@@ -12,47 +12,40 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import * as moment from 'moment';
 import {
   ChangeDetectorRef,
-  Component, ComponentFactoryResolver, ComponentRef,
+  Component,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild, ViewContainerRef
+  ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {
-  ConnectionType,
-  Datasource,
-  Field,
-  SourceType,
-  Status
-} from '../../../../domain/datasource/datasource';
-import {SetWorkspacePublishedComponent} from '../../../component/set-workspace-published/set-workspace-published.component';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {Modal} from '@common/domain/modal';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Segments} from '@domain/datasource/stats';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {SsType} from '@domain/data-preparation/pr-snapshot';
+import {ConnectionType, Datasource, Field, SourceType, Status} from '@domain/datasource/datasource';
+import {GranularityType} from '@domain/workbook/configurations/field/timestamp-field';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {DataStorageConstant} from '../../../constant/data-storage-constant';
+import {SchedulingService} from '../../../service/scheduling.service';
+import {SetWorkspacePublishedComponent} from '../../../component/set-workspace-published/set-workspace-published.component';
 import {QueryDetailComponent} from './component/query-detail/query-detail.component';
 import {BatchHistoryComponent} from './component/batch-history/batch-history.component';
-import {MomentDatePipe} from '../../../../common/pipe/moment.date.pipe';
-import * as _ from 'lodash';
-import {GranularityType} from '../../../../domain/workbook/configurations/field/timestamp-field';
-import {StringUtil} from '../../../../common/util/string.util';
-import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
-import {Modal} from "../../../../common/domain/modal";
-import {Alert} from "../../../../common/util/alert.util";
 import {IngestionLogComponent} from './component/ingestion-log/ingestion-log.component';
-import {CommonUtil} from '../../../../common/util/common.util';
-import {Metadata} from "../../../../domain/meta-data-management/metadata";
-import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {DataStorageConstant} from "../../../constant/data-storage-constant";
-import * as moment from 'moment';
-import {Segments} from "../../../../domain/datasource/stats";
-import {SchedulingService} from "../../../service/scheduling.service";
-import {ConfirmRefModalComponent} from "../../../../common/component/modal/confirm/confirm-ref.component";
 
 declare let echarts: any;
 
@@ -61,7 +54,7 @@ declare let echarts: any;
   templateUrl: './information-data-source.component.html',
   providers: [MomentDatePipe],
 })
-export class InformationDataSourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class InformationDataSourceComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -101,8 +94,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   private ingestionScopeTypeList: any[];
   // batch types
   private ingestionBatchTypeList: any[];
-  // week date types
-  private dateType: any[];
 
   // 차트 옵션
   private barOption: any;
@@ -139,7 +130,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public historyId: string;
 
   @Output()
-  public confirm = new EventEmitter;
+  public confirm = new EventEmitter();
 
   @Input()
   public timestampColumn: Field;
@@ -180,7 +171,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
-              private resolver: ComponentFactoryResolver,
               private schedulingService: SchedulingService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -367,7 +357,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       case SourceType.HIVE:
         return this.translateService.instant('msg.storage.li.hive');
       case SourceType.REALTIME:
-        return this.translateService.instant('msg.storage.li.stream')+ ` (${this.datasource.ingestion.consumerType})`;
+        return this.translateService.instant('msg.storage.li.stream') + ` (${this.datasource.ingestion.consumerType})`;
       case SourceType.SNAPSHOT:
         return this.translateService.instant('msg.storage.li.ss');
     }
@@ -574,7 +564,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       case Status.ENABLED:
         return 'ddp-enabled';
       case Status.PREPARING:
-        return'ddp-preparing';
+        return 'ddp-preparing';
       case Status.DISABLED:
         return 'ddp-disabled';
       case Status.FAILED:
@@ -590,6 +580,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public getObjectKeys(option: object): string[] {
     return _.keys(option);
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - validation
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -680,7 +671,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     this.loadingShow();
 
     this.datasourceService.synchronizeDatasourceFields(this.datasource.id)
-      .then((result) => {
+      .then(() => {
         this.loadingHide();
         Alert.success(this.translateService.instant('msg.storage.ui.dsource.synchronization.success'));
         this.changeDatasource.emit('information');
@@ -694,15 +685,11 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   public isEnableAdvancedSettings(): boolean {
     // tuningOptions 이나 jobProperties 있고 key가 있을 경우에만 true
-    if ((this.getIngestion.tuningOptions && Object.keys(this.getIngestion.tuningOptions).length)
-      || (this.getIngestion.jobProperties && Object.keys(this.getIngestion.jobProperties).length)) {
-      return true;
-    } else {
-      return false;
-    }
+    return !!((this.getIngestion.tuningOptions && Object.keys(this.getIngestion.tuningOptions).length)
+      || (this.getIngestion.jobProperties && Object.keys(this.getIngestion.jobProperties).length));
   }
 
-  public convertTime(date:string, granularityType:GranularityType): string {
+  public convertTime(date: string, granularityType: GranularityType): string {
     if (granularityType === GranularityType.YEAR) {
       return moment(date).format('YYYY');
     } else if (granularityType === GranularityType.MONTH) {
@@ -716,9 +703,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   public getSchedulingJob() {
-    if (this.datasource.connType === this.dsConnType.ENGINE && this.datasource.srcType === this.dsSrcType.JDBC && this.datasource.ingestion.type != 'single') {
+    if (this.datasource.connType === this.dsConnType.ENGINE && this.datasource.srcType === this.dsSrcType.JDBC && this.datasource.ingestion.type !== 'single') {
       this.schedulingService.getScheduling('ingestion', this.datasource.id).then((data) => {
-        if (!_.isNil(data) && data.length == 1) {
+        if (!_.isNil(data) && data.length === 1) {
           this.schedulingStatus = data[0].status;
           this.changeDetect.detectChanges();
         }
@@ -727,9 +714,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   public pauseSchedulingJob() {
-    this.schedulingService.pauseScheduling('ingestion', this.datasource.id).then((data) => {
+    this.schedulingService.pauseScheduling('ingestion', this.datasource.id).then(() => {
       Alert.success(this.translateService.instant('msg.storage.th.batch.pause.success'));
-    }).catch((error) => {
+    }).catch(() => {
       Alert.error(this.translateService.instant('msg.storage.th.batch.pause.fail'));
     });
     setTimeout(() => {
@@ -738,9 +725,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   public resumeSchedulingJob() {
-    this.schedulingService.resumeScheduling('ingestion', this.datasource.id).then((data) => {
+    this.schedulingService.resumeScheduling('ingestion', this.datasource.id).then(() => {
       Alert.success(this.translateService.instant('msg.storage.th.batch.resume.success'));
-    }).catch((error) => {
+    }).catch(() => {
       Alert.error(this.translateService.instant('msg.storage.th.batch.resume.fail'));
     });
     setTimeout(() => {
@@ -796,7 +783,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     barOption.tooltip.formatter = ((params): any => {
       const segmentsData = timeStats.segments[params[0].dataIndex];
       return this.convertTime(segmentsData.interval.split('/')[0], this.getSegGranularity) + '<br/>' + params[0].marker
-          + segmentsData.rows + ' row counts (' + this.bytesToSize(segmentsData.serializedSize) + ')';
+        + segmentsData.rows + ' row counts (' + this.bytesToSize(segmentsData.serializedSize) + ')';
     });
 
     return barOption;
@@ -910,11 +897,19 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     const TIME = 1800;
     for (let i = 1; i < 49; i++) {
       if (i === 1) {
-        expirationTimeList.push({label: this.translateService.instant('msg.storage.li.dsource.expire-minutes',{minute:30}), value: TIME});
-      } else{
-        expirationTimeList.push (i % 2 === 0
-          ? {label: this.translateService.instant('msg.storage.li.dsource.expire-hour',{hour: i / 2}), value: TIME * i}
-          : {label: this.translateService.instant('msg.storage.li.dsource.expire-hour-minutes',{hour: Math.floor(i / 2), minute:30}), value: TIME * i});
+        expirationTimeList.push({
+          label: this.translateService.instant('msg.storage.li.dsource.expire-minutes', {minute: 30}),
+          value: TIME
+        });
+      } else {
+        expirationTimeList.push(i % 2 === 0
+          ? {label: this.translateService.instant('msg.storage.li.dsource.expire-hour', {hour: i / 2}), value: TIME * i}
+          : {
+            label: this.translateService.instant('msg.storage.li.dsource.expire-hour-minutes', {
+              hour: Math.floor(i / 2),
+              minute: 30
+            }), value: TIME * i
+          });
       }
     }
   }
@@ -925,30 +920,20 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   private initView() {
     // ingestion scope List
     this.ingestionScopeTypeList = [
-      { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
-      { label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL' },
-      { label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW' }
+      {label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL'},
+      {label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL'},
+      {label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW'}
     ];
 
     // ingestion batch type List
     this.ingestionBatchTypeList = [
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-minutely'), value: 'MINUTELY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-hourly'), value: 'HOURLY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-daily'), value: 'DAILY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-weekly'), value: 'WEEKLY' },
-      { label: this.translateService.instant('msg.storage.li.dsource.batch-expr'), value: 'EXPR' },
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-minutely'), value: 'MINUTELY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-hourly'), value: 'HOURLY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-daily'), value: 'DAILY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-weekly'), value: 'WEEKLY'},
+      {label: this.translateService.instant('msg.storage.li.dsource.batch-expr'), value: 'EXPR'},
     ];
 
-    // date type
-    this.dateType = [
-      { label: this.translateService.instant('msg.storage.li.dsource.date-mon'), value: 'MON', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-tue'), value: 'TUE', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-wed'), value: 'WED', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-thu'), value: 'THU', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-fri'), value: 'FRI', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-sat'), value: 'SAT', checked: true },
-      { label: this.translateService.instant('msg.storage.li.dsource.date-sun'), value: 'SUN', checked: true }
-    ];
     // init expiration time list
     this._setExpirationTimeList(this._expirationTimeList);
 
@@ -982,14 +967,14 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         {
           type: 'value',
           splitNumber: 3,
-          splitLine: { show: false },
+          splitLine: {show: false},
         }
       ],
       series: [
         {
           type: 'bar',
           barWidth: '70%',
-          itemStyle: { normal: { color: '#c1cef1' }, emphasis : {color : '#666eb2'}},
+          itemStyle: {normal: {color: '#c1cef1'}, emphasis: {color: '#666eb2'}},
           data: []
         }
       ]

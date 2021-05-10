@@ -17,14 +17,17 @@ import * as $ from 'jquery';
 export class Loading {
 
   // 로딩 element
-  public static $loading: any = $('.ddp-loading');
+  public static $loading: any;
 
+  constructor() {
+    Loading.$loading = $('.ddp-loading');
+  }
 
   /*
   * 로딩 표시
   */
   public static show() {
-    ( 0 === this.$loading.length ) && ( this.$loading = $( '.ddp-loading' ) );
+    (!this.$loading || 0 === this.$loading.length) && (this.$loading = $('.ddp-loading'));
     this.$loading.show();
   }
 

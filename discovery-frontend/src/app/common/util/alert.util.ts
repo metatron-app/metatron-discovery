@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { CommonUtil } from './common.util';
-import { Modal } from '../domain/modal';
+import {CommonUtil} from './common.util';
+import {Modal} from '../domain/modal';
 
 declare let toastr;
 
@@ -38,7 +38,7 @@ export class Alert {
       showDuration: 300,
       hideDuration: 300,
       timeOut: 3000,
-      onCustomAction:null
+      onCustomAction: null
     };
   } // function - _setDefaultOpts
 
@@ -79,7 +79,7 @@ export class Alert {
    * Fail Alert
    * @param {string} message
    */
-  public static fail(message:string): void {
+  public static fail(message: string): void {
     this._setDefaultOpts();
     setTimeout(() => {
       toastr.warning(message, 'Failed');
@@ -89,8 +89,9 @@ export class Alert {
   /**
    * Error Alert
    * @param {string} message
+   * @param {boolean} isShow
    */
-  public static error(message: string, isShow:boolean = false): void {
+  public static error(message: string, isShow: boolean = false): void {
     if (location.href.indexOf('user/login') < 0 || isShow) {
       this._setDefaultOpts();
       setTimeout(() => {

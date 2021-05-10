@@ -12,23 +12,14 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Output,
-  Renderer2
-} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceService} from '../../service/workspace.service';
-import {Alert} from '../../../common/util/alert.util';
-import {PermissionChecker, Workspace} from '../../../domain/workspace/workspace';
-import {Page} from '../../../domain/common/page';
-import {Modal} from "../../../common/domain/modal";
-import {CommonUtil} from "../../../common/util/common.util";
+import {Alert} from '@common/util/alert.util';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
+import {Page} from '@domain/common/page';
+import {Modal} from '@common/domain/modal';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-shared-member',
@@ -60,7 +51,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
 
   // 권한 설정
   public isManageMember: boolean = false;
-  public isGuest:boolean = false;
+  public isGuest: boolean = false;
 
   // 페이지 번호
   public userPageNum: number = 0;
@@ -71,8 +62,8 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
   public totalGroup: number = 0;
 
   // More 버튼 표시 여부
-  public isDisplayBtnUserMore:boolean = false;
-  public isDisplayBtnGroupMore:boolean = false;
+  public isDisplayBtnUserMore: boolean = false;
+  public isDisplayBtnGroupMore: boolean = false;
 
   // 워크스페이스 정보
   public workspace: Workspace;
@@ -123,7 +114,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
     // 워크스페이스 정보 설정
     this.workspace = workspace;
 
-    const checker:PermissionChecker = new PermissionChecker(workspace);
+    const checker: PermissionChecker = new PermissionChecker(workspace);
     this.isManageMember = checker.isManageWorkspace();
     this.isGuest = checker.isWorkspaceGuest();
 
@@ -154,7 +145,10 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
    */
   public toggleWorkspacePublished() {
     this.workspace.published = !this.workspace.published;
-    let confirmTitle, confirmDesc, confirmBtn, alertSuccess;
+    let confirmTitle;
+    let confirmDesc;
+    let confirmBtn;
+    let alertSuccess;
     if (this.workspace.published) {
       confirmTitle = 'msg.space.alert.allow.all.member.title';
       confirmDesc = 'msg.space.alert.allow.all.member.desc';
@@ -168,20 +162,20 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
     }
 
     const modal = new Modal();
-    modal.name = this.translateService.instant(confirmTitle,{value: this.workspace.name});
+    modal.name = this.translateService.instant(confirmTitle, {value: this.workspace.name});
     modal.description = this.translateService.instant(confirmDesc);
     modal.btnName = this.translateService.instant(confirmBtn);
     modal.afterConfirm = () => {
       this.loadingShow();
       this.workspaceService.updateWorkspace(
         this.workspace.id,
-        (<any>{ published: this.workspace.published })
+        ({published: this.workspace.published} as any)
       ).then(() => {
         // 로딩 hide
         this.loadingHide();
         // 수정 알림
         Alert.success(this.translateService.instant(alertSuccess));
-      }).catch((error) => {
+      }).catch((_error) => {
         // 로딩 hide
         this.loadingHide();
         // 수정 알림
@@ -241,7 +235,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
    */
   private _getUsers(workspaceId: string, pageNum: number = 0) {
     return new Promise((resolve) => {
-      ( 0 === pageNum ) && ( this.users = [] );
+      (0 === pageNum) && (this.users = []);
       const param: Page = new Page();
       param.sort = 'memberName,asc';
       param.page = pageNum;
@@ -250,9 +244,9 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
         if (data['_embedded']) {
           this.users = this.users.concat(data['_embedded']['members']);
           this.totalUser = data.page.totalElements;
-          this.isDisplayBtnUserMore = ( data.page.totalPages - 1 > data.page.number );
+          this.isDisplayBtnUserMore = (data.page.totalPages - 1 > data.page.number);
         }
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         // 로딩 hide
@@ -270,7 +264,7 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
    */
   private _getGroups(workspaceId: string, pageNum: number = 0) {
     return new Promise((resolve) => {
-      ( 0 === pageNum ) && ( this.groups = [] );
+      (0 === pageNum) && (this.groups = []);
       const param: Page = new Page();
       param.sort = 'memberName,asc';
       param.page = pageNum;
@@ -279,9 +273,9 @@ export class SharedMemberComponent extends AbstractComponent implements OnInit, 
         if (data['_embedded']) {
           this.groups = this.groups.concat(data['_embedded']['members']);
           this.totalGroup = data.page.totalElements;
-          this.isDisplayBtnGroupMore = ( data.page.totalPages - 1  > data.page.number );
+          this.isDisplayBtnGroupMore = (data.page.totalPages - 1 > data.page.number);
         }
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         // 로딩 hide

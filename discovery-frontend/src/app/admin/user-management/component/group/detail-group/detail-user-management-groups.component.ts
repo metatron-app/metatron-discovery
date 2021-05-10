@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
-import { ActivatedRoute } from '@angular/router';
-import { Modal } from '../../../../../common/domain/modal';
-import { Alert } from '../../../../../common/util/alert.util';
-import { UpdateUserManagementGroupsComponent } from '../update-group/update-user-management-groups.component';
-import { isUndefined } from 'util';
-import { CommonUtil } from '../../../../../common/util/common.util';
-import { Group } from '../../../../../domain/user/group';
-import { GroupMember } from '../../../../../domain/user/group-member';
-import { Location } from "@angular/common";
+import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {ActivatedRoute} from '@angular/router';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {UpdateUserManagementGroupsComponent} from '../update-group/update-user-management-groups.component';
+import {isUndefined} from 'util';
+import {CommonUtil} from '@common/util/common.util';
+import {Group} from '@domain/user/group';
+import {GroupMember} from '@domain/user/group-member';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-group-detail',
@@ -75,7 +75,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
   // 생성자
   constructor(private activatedRoute: ActivatedRoute,
               protected element: ElementRef,
-              private _location:Location,
+              private _location: Location,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -115,11 +115,11 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
    * 권한 목록 조회
    * @return {string}
    */
-  public getPermissions():string {
-    if( this.groupData && this.groupData.roleNames ) {
+  public getPermissions(): string {
+    if (this.groupData && this.groupData.roleNames) {
       return this.groupData.roleNames.map(role => {
-        const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
-        return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode);
+        const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(role);
+        return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode);
       }).join(', ');
     } else {
       return '';
@@ -134,7 +134,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
     this.loadingShow();
     // 삭제 요청
     this.groupsService.deleteGroup(this._groupId)
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.groups.alert.grp.del.success'));
         // 로딩 hide
@@ -200,7 +200,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
       this.loadingShow();
       // 그룹 수정
       this._updateGroup(params)
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.groups.alert.grp.update.success'));
           // flag
@@ -234,7 +234,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
       this.loadingShow();
       // 그룹 수정
       this._updateGroup(params)
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.groups.alert.grp.update.success'));
           // flag
@@ -399,7 +399,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
     // 로딩 show
     this.loadingShow();
 
-    const pageParam = { size : 10000, page : 0 };
+    const pageParam = {size: 10000, page: 0};
 
     // 상세정보 조회
     this.groupsService.getGroupUsers(groupId, pageParam)
@@ -418,7 +418,7 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });

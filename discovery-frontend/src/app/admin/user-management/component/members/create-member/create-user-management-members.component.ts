@@ -14,11 +14,10 @@
 
 import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
 import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
-import {User} from '../../../../../domain/user/user';
 import {isUndefined} from 'util';
-import {StringUtil} from '../../../../../common/util/string.util';
-import {Alert} from '../../../../../common/util/alert.util';
-import {CommonUtil} from '../../../../../common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-create-user-management-members',
@@ -76,30 +75,11 @@ export class CreateUserManagementMembersComponent extends AbstractUserManagement
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * init
-   * @param {User} user
    */
   public init(): void {
     // ui init
@@ -126,7 +106,7 @@ export class CreateUserManagementMembersComponent extends AbstractUserManagement
       this.loadingShow();
       // 사용자에게 확인 이메일 전달
       this.membersService.createUser(this._getCreateUserParams())
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.mem.alert.name.create', {value: this.userName.trim()}));
           // 로딩 hide
@@ -192,7 +172,7 @@ export class CreateUserManagementMembersComponent extends AbstractUserManagement
       return;
     }
     // id 형식 확인
-    if (!StringUtil.isId(this.userId) || CommonUtil.getByte(this.userId.trim()) < 3  || CommonUtil.getByte(this.userId.trim()) > 20) {
+    if (!StringUtil.isId(this.userId) || CommonUtil.getByte(this.userId.trim()) < 3 || CommonUtil.getByte(this.userId.trim()) > 20) {
       this.resultId = false;
       this.idMessage = this.translateService.instant('LOGIN_JOIN_VALID_ID');
       return;
@@ -299,9 +279,6 @@ export class CreateUserManagementMembersComponent extends AbstractUserManagement
         if (result['duplicated']) {
           this.idMessage = this.translateService.instant('LOGIN_JOIN_USE_ID');
         }
-      })
-      .catch((error) => {
-
       });
   }
 
@@ -319,9 +296,6 @@ export class CreateUserManagementMembersComponent extends AbstractUserManagement
         if (result['duplicated']) {
           this.emailMessage = this.translateService.instant('LOGIN_JOIN_USE_EMAIL');
         }
-      })
-      .catch((error) => {
-
       });
   }
 

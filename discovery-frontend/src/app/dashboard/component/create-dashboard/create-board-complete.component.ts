@@ -12,23 +12,22 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit } from '@angular/core';
-import { BoardDataSource, BoardDataSourceRelation, Dashboard, JoinMapping } from '../../../domain/dashboard/dashboard';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { DashboardService } from '../../service/dashboard.service';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { StringUtil } from '../../../common/util/string.util';
-import { BoardGlobalOptions } from '../../../domain/dashboard/dashboard.globalOptions';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { ConnectionType } from '../../../domain/datasource/datasource';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {BoardGlobalOptions} from '@domain/dashboard/dashboard.globalOptions';
+import {ConnectionType} from '@domain/datasource/datasource';
+import {BoardDataSource, BoardDataSourceRelation, Dashboard, JoinMapping} from '@domain/dashboard/dashboard';
+import {DashboardService} from '../../service/dashboard.service';
+import {DashboardUtil} from '../../util/dashboard.util';
 
 @Component({
   selector: 'create-board-complete',
   templateUrl: './create-board-complete.component.html'
 })
-export class CreateBoardCompleteComponent extends AbstractPopupComponent implements OnInit {
+export class CreateBoardCompleteComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -69,8 +68,7 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
-              private dashboardService: DashboardService,
-              private broadCaster: EventBroadcaster) {
+              private dashboardService: DashboardService) {
     super(elementRef, injector);
   }
 
@@ -120,7 +118,7 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
       this.close();
     } else {
       this.unloadConfirmSvc.confirm().subscribe((isClose) => {
-        if(isClose) {
+        if (isClose) {
           this.isShow = false;
           this.close();
         }
@@ -144,8 +142,8 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
       this.dashboard = DashboardUtil.setDataSourceAndRelations(this.dashboard, this._dataSources, this._relations);
 
       // Linked Datasource 설정 추가
-      const linkedDs:BoardDataSource = this._dataSources.find( item => ConnectionType.LINK.toString() === item.connType );
-      if( linkedDs ) {
+      const linkedDs: BoardDataSource = this._dataSources.find(item => ConnectionType.LINK.toString() === item.connType);
+      if (linkedDs) {
         this.dashboard.temporaryId = linkedDs['temporaryId'];
       }
 
@@ -166,10 +164,10 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
           }, []);
 
           dsIds.forEach(id => {
-            this.sendLinkActivityStream(info.id, 'DASHBOARD', id, 'DATASOURCE' );
+            this.sendLinkActivityStream(info.id, 'DASHBOARD', id, 'DATASOURCE');
           });
         })
-        .then((board:Dashboard) => {
+        .then((board: Dashboard) => {
           Alert.success(`'${this.dashboard.name}' ` + this.translateService.instant('msg.board.alert.create.success'));
           this.loadingHide();
           this.router.navigate(['/workbook/' + this._workbookId], {fragment: board.id}).then();

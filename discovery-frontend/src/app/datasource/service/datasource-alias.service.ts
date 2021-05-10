@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { AbstractService } from '../../common/service/abstract.service';
-import { Injectable, Injector } from '@angular/core';
-import { FieldNameAlias, FieldValueAlias } from '../../domain/datasource/datasource';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
+import {FieldNameAlias, FieldValueAlias} from '@domain/datasource/datasource';
 
 @Injectable()
 export class DatasourceAliasService extends AbstractService {
@@ -53,7 +53,7 @@ export class DatasourceAliasService extends AbstractService {
   /**
    * Alias 등록
    */
-  public createAliases(params: any): Promise<FieldNameAlias|FieldValueAlias> {
+  public createAliases(params: any): Promise<FieldNameAlias | FieldValueAlias> {
     const url = this.aliasPath;
     return this.post(url, params);
   }
@@ -61,7 +61,7 @@ export class DatasourceAliasService extends AbstractService {
   /**
    * Alias 수정
    */
-  public updateAliases(aliasId: number, params: any): Promise<FieldNameAlias|FieldValueAlias> {
+  public updateAliases(aliasId: number, params: any): Promise<FieldNameAlias | FieldValueAlias> {
     const url = this.aliasPath + aliasId;
     return this.patch(url, params);
   }

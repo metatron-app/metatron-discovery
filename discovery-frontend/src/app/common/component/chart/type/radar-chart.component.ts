@@ -18,26 +18,27 @@
 
 import {AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy} from '@angular/core';
 import {BaseChart, PivotTableInfo} from '../base-chart';
-import {BaseOption} from "../option/base-option";
+import {BaseOption} from '../option/base-option';
 import {
   ChartType, SymbolType, ShelveType, ShelveFieldType, SeriesType, LineMarkType, FontSize, UIChartDataLabelDisplayType
 } from '../option/define/common';
 import {OptionGenerator} from '../option/util/option-generator';
 import {Position} from '../option/define/common';
-import {Pivot} from "../../../../domain/workbook/configurations/pivot";
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {ColorOptionConverter} from "../option/converter/color-option-converter";
-import {Series} from "../option/define/series";
-import {LabelOptionConverter} from "../option/converter/label-option-converter";
-import {FormatOptionConverter} from "../option/converter/format-option-converter";
+import {ColorOptionConverter} from '../option/converter/color-option-converter';
+import {Series} from '../option/define/series';
+import {LabelOptionConverter} from '../option/converter/label-option-converter';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
 import { UIChartFormat } from '../option/ui-option/ui-format';
 import { UIOption } from '../option/ui-option';
+import {UIRadarChart} from '@common/component/chart/option/ui-option/ui-radar-chart';
 
 @Component({
   selector: 'radar-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy, AfterViewInit {
+export class RadarChartComponent extends BaseChart<UIRadarChart> implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -94,16 +95,16 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
    * - 반드시 각 차트에서 Override
    */
   public isValid(pivot: Pivot): boolean {
-    return (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 1 && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0)
+    return (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) === 1 && this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0)
       && (this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(pivot, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0);
   }
 
   /**
    * 차트에 설정된 옵션으로 차트를 그린다.
    * - 각 차트에서 Override
-   * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
+   * @param _isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
    */
-  public draw(isKeepRange?: boolean): void {
+  public draw(_isKeepRange?: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Valid 체크
@@ -212,8 +213,6 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
   /**
    * 차트 기본설정 정보를 변환한다.
    * - 필요시 각 차트에서 Override
-   * @param chartOption
-   * @param option
    * @returns {BaseOption}
    */
   protected convertBasic(): BaseOption {
@@ -255,14 +254,13 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
     ////////////////////////////////////////////////////////
 
     // 색상 설정
-    let series: Series[] = this.chartOption.series && this.chartOption.series.length > 0 ? this.chartOption.series[0].data : [];
+    const series: Series[] = this.chartOption.series && this.chartOption.series.length > 0 ? this.chartOption.series[0].data : [];
     this.chartOption = ColorOptionConverter.convertColor(
       this.chartOption,
       this.uiOption,
       this.fieldOriginInfo,
       this.fieldInfo,
       this.pivotInfo,
-      this.drawByType,
       series
     );
 
@@ -356,7 +354,7 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
     if( _.isUndefined(this.chartOption.tooltip) ) { this.chartOption.tooltip = {}; }
     this.chartOption.tooltip.formatter = ((params): any => {
 
-      let option = this.chartOption.series[params.seriesIndex];
+      const option = this.chartOption.series[params.seriesIndex];
 
       let uiData = _.cloneDeep(option.uiData);
       // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
@@ -450,7 +448,7 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
 
     if( _.isUndefined(this.chartOption.series) ){ return this.chartOption; }
 
-    let type: LineMarkType = this.uiOption['mark'];
+    const type: LineMarkType = this.uiOption['mark'];
 
     _.each(this.chartOption.series, (obj) => {
       if (_.eq(obj.type, SeriesType.RADAR)) {
@@ -474,7 +472,7 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption };
+    if (_.isUndefined(format)){ return chartOption; }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = FormatOptionConverter.getlabelAxisScaleFormat(uiOption);
@@ -486,10 +484,10 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
-    _.each(series, (option, index) => {
+    _.each(series, (option, _index) => {
 
       if( _.isUndefined(option.label) ) { option.label = { normal: {} }; }
       if( _.isUndefined(option.label.normal) ) { option.label.normal = {} }
@@ -527,7 +525,7 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
 
       // UI 데이터 가공
       let isUiData: boolean = false;
-      let result: string[] = [];
+      const result: string[] = [];
       if( uiData['categoryName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
 
         // value의 index찾기
@@ -540,13 +538,13 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
         isUiData = true;
       }
 
-      let label: string = "";
+      let label: string =  '';
 
       // UI 데이터기반 레이블 반환
       if( isUiData ) {
         for( let num: number = 0 ; num < result.length ; num++ ) {
           if( num > 0 ) {
-            label += "\n";
+            label += '\n';
           }
           if(series.label && series.label.normal && series.label.normal.rich) {
             label += '{align|'+ result[num] +'}';
@@ -571,11 +569,11 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
    * @param params
    * @param format
    * @param uiOption
-   * @param series
+   * @param _series
    * @param uiData
    * @returns {any}
    */
-  private getFormatRadarValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, series?: any, uiData?: any): string {
+  private getFormatRadarValueSeriesTooltip(params: any, format: UIChartFormat, uiOption?: UIOption, _series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
     if( uiData ) {
@@ -586,8 +584,8 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
       // UI 데이터 가공
       let result: string[] = [];
 
-      let categoryNameList = _.filter(this.pivot.aggregations, {type : 'dimension'});
-      let categoryValueList = _.filter(this.pivot.aggregations, {type : 'measure'});
+      const categoryNameList = _.filter(this.pivot.aggregations, {type : 'dimension'});
+      const categoryValueList = _.filter(this.pivot.aggregations, {type : 'measure'});
 
       // name, value를 두개를 선택한 경우
       if( uiData['categoryName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) &&
@@ -603,7 +601,7 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
           result = FormatOptionConverter.getTooltipName([item], categoryNameList, result, true);
 
           // categoryValue 설정
-          let seriesValue = FormatOptionConverter.getTooltipValue(params.name, categoryValueList, format, uiData['value'][index]);
+          const seriesValue = FormatOptionConverter.getTooltipValue(params.name, categoryValueList, format, uiData['value'][index]);
           result.push(seriesValue);
         });
 
@@ -618,9 +616,9 @@ export class RadarChartComponent extends BaseChart implements OnInit, OnDestroy,
         }
         if ( uiData['value'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.VALUE) ) {
 
-          _.each(params.value, (item, index: number) => {
+          _.each(params.value, (item, _index: number) => {
             // categoryValue 설정
-            let seriesValue = FormatOptionConverter.getTooltipValue(params.name, categoryValueList, format, item);
+            const seriesValue = FormatOptionConverter.getTooltipValue(params.name, categoryValueList, format, item);
             result.push(seriesValue);
           });
         }

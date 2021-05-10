@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-import { Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
-import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
-import {DataStorageConstant} from "../../../../../constant/data-storage-constant";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {DatasourceService} from '../../../../../../datasource/service/datasource.service';
+import {DataStorageConstant} from '../../../../../constant/data-storage-constant';
 
 @Component({
   selector: 'ingestion-log-details',
@@ -59,8 +59,7 @@ export class IngestionLogComponent extends AbstractComponent {
    * init
    * @param {string} datasourceId
    * @param {string} historyId
-   * @param {string} progress
-   * @param failResults
+   * @param {string} ingestionProgress
    */
   public init(datasourceId: string, historyId: string, ingestionProgress?) {
     // init view

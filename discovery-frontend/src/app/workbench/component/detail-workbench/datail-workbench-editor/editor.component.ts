@@ -12,10 +12,8 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output
-} from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 declare const ace: any;
 
@@ -66,7 +64,6 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
   private textChange = new EventEmitter();
 
   @Input()
-  private style: any = {};
   private options: any = {};
   private readOnly: boolean = false;
   private autoUpdateContent: boolean = true;
@@ -159,14 +156,13 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
           clearTimeout(this.timeoutSaving);
         }
 
-        this.timeoutSaving = setTimeout(
-          function () {
-            this.text = newVal;
-            this.textChange.emit(newVal);
-            this.textChanged.emit(newVal);
-            this.timeoutSaving = null;
-          },
-          this.durationBeforeCallback);
+        this.timeoutSaving = setTimeout(() => {
+          this.text = newVal;
+          this.textChange.emit(newVal);
+          this.textChanged.emit(newVal);
+          this.timeoutSaving = null;
+        }, this.durationBeforeCallback);
+
       }
     } else if (typeof this.oldText === 'undefined') {
       this.textChanged.emit(newVal);
@@ -182,8 +178,7 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
   public resize(height: number): void {
 
     if (height > 0) {
-      const rows: number = Math.round(( height - 18 ) / this.ROW_DEFAULT_HEIGHT);
-      this.options.maxLines = rows;
+      this.options.maxLines = Math.round((height - 18) / this.ROW_DEFAULT_HEIGHT);
       this.setOptions(this.options || {});
       this.editor = ace.edit(this.el);
       this.getEditor().resize(true);
@@ -296,9 +291,9 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
         if (qend === -1) {
           // 뒤로 조회
           let cnt = 0;
-          console.info('crow', crow);
+          console.log('crow', crow);
           for (let j = crow; j >= 0; j = j - 1) {
-            console.info('j', j);
+            console.log('j', j);
             if (lines[j].indexOf(';') > -1 && cnt === 0) {
               // ; 있으면
               qend = j;
@@ -440,7 +435,7 @@ export class EditorComponent extends AbstractComponent implements AfterViewInit 
    */
   private setCursorDisabled(status: boolean) {
     if (status) {
-      this.getEditor().renderer.$cursorLayer.element.style.opacity=0;
+      this.getEditor().renderer.$cursorLayer.element.style.opacity = 0;
     }
   }
 

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { ShelfType } from '../../../../common/component/chart/option/define/common';
-import { GeoField } from '../field/geo-field';
+import {ShelfType} from '@common/component/chart/option/define/common';
+import {GeoField} from '../field/geo-field';
 
 /**
  * map shelf
@@ -28,7 +28,7 @@ export class Shelf {
 
   constructor() {
     this.type = ShelfType.GEO;
-    let shelfLayers : ShelfLayers = new ShelfLayers();
+    const shelfLayers: ShelfLayers = new ShelfLayers();
     this.layers = [];
     this.layers.push(shelfLayers);
   }
@@ -36,8 +36,8 @@ export class Shelf {
 
 
 export class ShelfLayers {
-  name : string = '';
-  ref : string = '';
-  view? : any;
-  fields : GeoField[] = [];
+  name: string = '';
+  ref: string = '';
+  view?: any;
+  fields: GeoField[] = [];
 }

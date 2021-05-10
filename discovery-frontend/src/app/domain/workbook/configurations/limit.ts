@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Sort } from './sort';
+import {Sort} from './sort';
 
 export class Limit {
   limit: number;

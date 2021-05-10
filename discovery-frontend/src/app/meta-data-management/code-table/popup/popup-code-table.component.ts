@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
 import {
   AfterViewInit,
   Component,
@@ -24,12 +23,13 @@ import {
   OnInit,
   Output
 } from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 import {CodeTableService} from '../service/code-table.service';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
-import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
-import {Modal} from "../../../common/domain/modal";
-import {CommonUtil} from "../../../common/util/common.util";
 
 @Component({
   selector: 'popup-code-table',
@@ -54,7 +54,7 @@ export class PopupCodeTableComponent extends AbstractComponent implements OnInit
   public codeTableId: string;
 
   @Output()
-  public closeEvent:EventEmitter<any> = new EventEmitter();
+  public closeEvent: EventEmitter<any> = new EventEmitter();
 
   // 코드 테이블 상세정보
   public codeTable: CodeTable;
@@ -82,7 +82,7 @@ export class PopupCodeTableComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ngOnInit() {
     super.ngOnInit();
-    $( '.ddp-layout-contents' ).css( 'z-index', 127 );
+    $('.ddp-layout-contents').css('z-index', 127);
   }
 
   public ngAfterViewInit() {
@@ -95,7 +95,7 @@ export class PopupCodeTableComponent extends AbstractComponent implements OnInit
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    $( '.ddp-layout-contents' ).css( 'z-index', '' );
+    $('.ddp-layout-contents').css('z-index', '');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -127,7 +127,7 @@ export class PopupCodeTableComponent extends AbstractComponent implements OnInit
     modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
     modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
     modal.isShowCancel = true;
-    modal.data = { id: this.codeTableId };
+    modal.data = {id: this.codeTableId};
     modal.afterConfirm = () => {
       this.router.navigate(['management/metadata/code-table', this.codeTableId]);
     };

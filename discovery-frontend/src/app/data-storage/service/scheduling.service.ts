@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import {AbstractService} from '../../common/service/abstract.service';
 import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
 
 @Injectable()
 export class SchedulingService extends AbstractService {
@@ -22,15 +22,15 @@ export class SchedulingService extends AbstractService {
     super(injector);
   }
 
-  public getScheduling(group:string, name:string) {
+  public getScheduling(group: string, name: string) {
     return this.get(this.API_URL + `jobs/search/key?group=${group}&name=${name}`);
   }
 
-  public pauseScheduling(group:string, name:string) {
+  public pauseScheduling(group: string, name: string) {
     return this.post(this.API_URL + `jobs/${group}/${name}/pause`, null);
   }
 
-  public resumeScheduling(group:string, name:string) {
+  public resumeScheduling(group: string, name: string) {
     return this.post(this.API_URL + `jobs/${group}/${name}/resume`, null);
   }
 

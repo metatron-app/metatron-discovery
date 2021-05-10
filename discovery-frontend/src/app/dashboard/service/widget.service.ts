@@ -13,19 +13,20 @@
  */
 
 import * as _ from 'lodash';
-import { Injectable } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
-import { AbstractService } from '../../common/service/abstract.service';
-import { Widget } from '../../domain/dashboard/widget/widget';
-import { Observable } from 'rxjs';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
-import { UIOption } from '../../common/component/chart/option/ui-option';
-import { SPEC_VERSION } from '../../common/component/chart/option/define/common';
-import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
-import { FilterUtil } from '../util/filter.util';
-import { isNullOrUndefined } from "util";
-import { CommonConstant } from "../../common/constant/common.constant";
+import {map} from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpHeaders} from '@angular/common/http';
+import {AbstractService} from '@common/service/abstract.service';
+import {Widget} from '@domain/dashboard/widget/widget';
+import {Observable} from 'rxjs';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {SPEC_VERSION} from '@common/component/chart/option/define/common';
+import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
+import {FilterUtil} from '../util/filter.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class WidgetService extends AbstractService {
@@ -34,7 +35,7 @@ export class WidgetService extends AbstractService {
    * MapView 에 대한 설정 정보를 얻습니다.
    */
   public loadPropMapView() {
-    if (isNullOrUndefined(sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG))) {
+    if (CommonUtil.isNullOrUndefined(sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG))) {
       this.get(this.API_URL + `widgets/properties/mapview`).then(data => {
         sessionStorage.setItem(CommonConstant.PROP_MAP_CONFIG, JSON.stringify(data));
       });
@@ -90,7 +91,7 @@ export class WidgetService extends AbstractService {
     if (options && options['configuration'] && _.eq(options['configuration']['type'], 'page')) {
 
       try {
-        let uiOption: UIOption = <UIOption>options['configuration']['chart'];
+        let uiOption: UIOption = options['configuration']['chart'] as UIOption;
 
         if (!uiOption.version || uiOption.version < SPEC_VERSION) {
           // 옵션 초기화
@@ -119,12 +120,12 @@ export class WidgetService extends AbstractService {
    * @param {SearchQueryRequest} query
    * @param {boolean} original
    * @param {boolean} preview
-   * @param {any} param
+   * @param {any} _param
    */
-  public previewConfig(query: SearchQueryRequest, original: boolean, preview:boolean, param: any = null): Promise<any> {
+  public previewConfig(query: SearchQueryRequest, original: boolean, preview: boolean, _param: any = null): Promise<any> {
 
     // 파라미터 가공
-    let config: Object = {
+    const config: object = {
       type: 'page',
       dataSource: query.dataSource,
       fields: query.userFields,
@@ -134,7 +135,7 @@ export class WidgetService extends AbstractService {
     };
 
     // URL
-    let url: string = this.API_URL + `widgets/config/data?original=${original}&preview=${preview}`;
+    const url: string = this.API_URL + `widgets/config/data?original=${original}&preview=${preview}`;
     return this.post(url, config);
   } // function - previewConfig
 
@@ -149,7 +150,7 @@ export class WidgetService extends AbstractService {
   public downloadConfig(query: SearchQueryRequest, original: boolean, maxRowsPerSheet: number, fileType?: string): Observable<any> {
 
     // 파라미터 가공
-    let config: Object = {
+    const config: object = {
       type: 'page',
       dataSource: query.dataSource,
       fields: query.userFields,
@@ -161,26 +162,28 @@ export class WidgetService extends AbstractService {
     const strType: string = ('CSV' === fileType) ? 'application/csv' : 'application/vnd.ms-excel';
 
     // URL
-    let url: string = this.API_URL + 'widgets/config/download?original=' + original + '&maxRowsPerSheet=' + maxRowsPerSheet;
+    const url: string = this.API_URL + 'widgets/config/download?original=' + original + '&maxRowsPerSheet=' + maxRowsPerSheet;
 
     // 헤더
-    let headers = new HttpHeaders({
-      'Accept': strType,
+    const headers = new HttpHeaders({
+      Accept: strType,
       'Content-Type': 'application/json',
-      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
 
     // 옵션
-    let option: Object = {
+    const option: object = {
       headers: headers,
       responseType: 'blob'
     };
 
     // 호출
     return this.http.post(url, config, option)
-      .map((res) => {
-        return new Blob([res], { type: strType })
-      });
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: strType})
+        })
+      );
   } // function - downloadConfig
 
   /**
@@ -191,7 +194,7 @@ export class WidgetService extends AbstractService {
    * @param {any} param
    * @returns {Promise<any>}
    */
-  public previewWidget(widgetId: string, original: boolean, preview:boolean, param: any = null): Promise<any> {
+  public previewWidget(widgetId: string, original: boolean, preview: boolean, param: any = null): Promise<any> {
     const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=${preview}&limit=100000000`;
     return this.post(url, param);
   } // function - previewWidget
@@ -218,23 +221,25 @@ export class WidgetService extends AbstractService {
     const strType: string = ('CSV' === fileType) ? 'application/csv' : 'application/vnd.ms-excel';
 
     // 헤더
-    let headers = new HttpHeaders({
-      'Accept': strType,
+    const headers = new HttpHeaders({
+      Accept: strType,
       'Content-Type': 'application/json',
-      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
 
     // 옵션
-    let option: Object = {
+    const option: object = {
       headers: headers,
       responseType: 'blob'
     };
 
     // 호출
     return this.http.post(url, param, option)
-      .map((res) => {
-        return new Blob([res], { type: strType })
-      });
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: strType})
+        })
+      );
   } // function - downloadWidget
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -248,7 +253,7 @@ export class WidgetService extends AbstractService {
    */
   private _convertSpecToServer(param: any) {
     if (param) {
-      let conf = param.configuration;
+      const conf = param.configuration;
       if (conf && conf.filter) {
         param.configuration.filter = FilterUtil.convertToServerSpecForDashboard(conf.filter);
       }

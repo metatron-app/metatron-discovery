@@ -1,10 +1,10 @@
-import {Injectable, Injector} from '@angular/core';
-import {EngineServiceModule} from './engine-service.module';
-import {AbstractService} from '../../common/service/abstract.service';
-import {Engine} from '../../domain/engine-monitoring/engine';
 import * as _ from 'lodash';
-import {PageResult} from '../../domain/common/page';
-import {Criteria} from "../../domain/datasource/criteria";
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
+import {PageResult} from '@domain/common/page';
+import {Criteria} from '@domain/datasource/criteria';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {EngineServiceModule} from './engine-service.module';
 
 @Injectable({
   providedIn: EngineServiceModule
@@ -75,7 +75,7 @@ export class EngineService extends AbstractService {
   }
 
   public getMemory(params?: object) {
-    return this.post(this.URL_MONITORING + '/memory', params == undefined ? {} : params);
+    return this.post(this.URL_MONITORING + '/memory', params === undefined ? {} : params);
   }
 
   public getInformation(name) {
@@ -95,7 +95,7 @@ export class EngineService extends AbstractService {
   }
 
   public getRunningTasks() {
-    return this.get(this.URL_MONITORING + '/ingestion/tasks/running' );
+    return this.get(this.URL_MONITORING + '/ingestion/tasks/running');
   }
 
   public getTaskList() {
@@ -107,7 +107,7 @@ export class EngineService extends AbstractService {
   }
 
   public getTaskLogById(taskId, offset?) {
-    return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log' + (offset ? '?offset='+offset : ''));
+    return this.get(this.URL_MONITORING + '/ingestion/task/' + taskId + '/log' + (offset ? '?offset=' + offset : ''));
   }
 
   public getTaskLogDownloadById(taskId) {

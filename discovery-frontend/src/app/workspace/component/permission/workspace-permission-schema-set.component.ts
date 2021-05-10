@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { ElementRef, EventEmitter, Injector, Output, OnInit, OnDestroy, ViewChild, Component } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Workspace } from '../../../domain/workspace/workspace';
-import { RoleSet, RoleSetScope } from 'app/domain/user/role/roleSet';
-import { PermissionService } from '../../../user/service/permission.service';
-import { PermissionSchemaComponent } from './permission-schema.component';
-import { PermissionSchemaChangeComponent } from './permission-schema-change.component';
-import { WorkspaceService } from '../../service/workspace.service';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Workspace} from '@domain/workspace/workspace';
+import {RoleSet, RoleSetScope} from 'app/domain/user/role/roleSet';
+import {PermissionService} from '../../../user/service/permission.service';
+import {PermissionSchemaComponent} from './permission-schema.component';
+import {PermissionSchemaChangeComponent} from './permission-schema-change.component';
+import {WorkspaceService} from '../../service/workspace.service';
 
 @Component({
   selector: 'app-workspace-permission-schema-set',
@@ -56,7 +56,7 @@ export class WorkspacePermissionSchemaSetComponent extends AbstractComponent imp
   public workspace: Workspace;
 
   // 퍼미션 수정 가능 여부
-  public isEditMode:boolean = false;
+  public isEditMode: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -105,7 +105,7 @@ export class WorkspacePermissionSchemaSetComponent extends AbstractComponent imp
         this.roleSet = result;
         this.roleSet.scope = wsRoleSet.scope;   // Detail 에서 scope 정보가 없기 때문에 목록에서 나오는 값을 넣어준다.
         // Custom 여부는 어떻게 확인할 수 있는가??
-        this.isEditMode = ( RoleSetScope.PRIVATE === wsRoleSet.scope );
+        this.isEditMode = (RoleSetScope.PRIVATE === wsRoleSet.scope);
         this.loadingHide();
       });
     } else {
@@ -119,7 +119,7 @@ export class WorkspacePermissionSchemaSetComponent extends AbstractComponent imp
           // 롤셋 - 워크스페이스 연결
           this.workspaceService.updateWorkspace(
             this.workspace.id,
-            <any>{ roleSets: ['/api/rolesets/' + result.id] }
+            {roleSets: ['/api/rolesets/' + result.id]} as any
           ).then(() => {
             // 룰셋 상세 조회
             this.permissionService.getRolesetDetail(result.id)

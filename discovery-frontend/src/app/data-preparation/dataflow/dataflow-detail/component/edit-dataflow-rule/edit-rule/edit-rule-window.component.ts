@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import {isNullOrUndefined,isUndefined} from 'util';
 import {
   AfterViewInit,
   Component,
@@ -22,15 +23,14 @@ import {
   ViewChildren,
   QueryList,
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
+import { Alert } from '@common/util/alert.util';
+import { Field } from '@domain/data-preparation/pr-dataset';
+import {WindowRule} from '@domain/data-preparation/prep-rules';
+import {DataflowModelService} from '../../../../service/dataflow.model.service';
 import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import {isNullOrUndefined,isUndefined} from "util";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import {WindowRule} from "../../../../../../domain/data-preparation/prep-rules";
-import {DataflowModelService} from "../../../../service/dataflow.model.service";
 
-interface formula {
+interface Formula {
   id: number;
   value: string
 }
@@ -60,7 +60,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   public defaultIndex : number = 0;
   public sortBy : string;
 
-  public formulas: formula[];
+  public formulas: Formula[];
   public formulaList:string[] = [''];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -108,11 +108,11 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public changeGroupFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeGroupFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
   }
 
-  public changeSortFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeSortFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedSortFields = data.selectedList;
   }
 
@@ -135,11 +135,11 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param {number} index
+   * @param {number} _index
    * @param {string} formula
    * @return {number}
    */
-  public trackByFn(index: number, formula: formula) {
+  public trackByFn(_index: number, formula: Formula) {
     return formula.id;
   } // function - trackByFn
 
@@ -148,17 +148,17 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): {command: string, col: string, ruleString: string, uiRuleString: WindowRule} {
-    
+
     // 수식
     const formulaValueList = this.ruleSuggestInput
                                  .map(el => el.getFormula())
                                  .filter( v => (!isUndefined(v) && v.trim().length > 0) );
-    
+
     if ( !formulaValueList || formulaValueList.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
-    }  
-    
+    }
+
     const value = formulaValueList.join(',');
 
     // 그룹
@@ -241,13 +241,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
     // col
     if (!isNullOrUndefined(data.jsonRuleString.groupBy)) {
-      let groupFields:string[] = data.jsonRuleString.groupBy;
+      const groupFields:string[] = data.jsonRuleString.groupBy;
       this.selectedFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
     // Order
     if (!isNullOrUndefined(data.jsonRuleString.sortBy)) {
-      let orderFields: string[] = data.jsonRuleString.sortBy;
+      const orderFields: string[] = data.jsonRuleString.sortBy;
       this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
@@ -260,7 +260,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     });
 
   } // function - _parsingRuleString
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

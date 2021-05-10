@@ -12,20 +12,19 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {Component, ElementRef, HostBinding, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
 import {EventsService} from './service/events.service';
-import {CommonUtil} from '../../../../../common/util/common.util';
-import {WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
-import Member = Entity.Member;
+import {CommonUtil} from '@common/util/common.util';
+import {WorkspaceAdmin} from '@domain/workspace/workspace';
 
 namespace Entity {
   export enum Role {
-    WATCHER = <any>'Watcher',
-    OWNER = <any>'Owner',
-    MANAGER = <any>'Manager',
-    EDITOR = <any>'Editor'
+    WATCHER = 'Watcher',
+    OWNER = 'Owner',
+    MANAGER = 'Manager',
+    EDITOR = 'Editor'
   }
 
   export class Member {
@@ -78,8 +77,7 @@ namespace Entity {
 
 @Component({
   selector: '[workspace-members-select-box]',
-  templateUrl: './workspace-members-select-box.component.html',
-  host: {'[class.ddp-ui-edit-option]': 'true'},
+  templateUrl: './workspace-members-select-box.component.html'
 })
 export class WorkspaceMembersSelectBoxComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -107,6 +105,9 @@ export class WorkspaceMembersSelectBoxComponent extends AbstractComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-ui-edit-option';
 
   public readonly UUID: string = CommonUtil.getUUID();
 
@@ -173,14 +174,6 @@ export class WorkspaceMembersSelectBoxComponent extends AbstractComponent implem
     );
   }
 
-  public ngAfterViewInit() {
-    super.ngAfterViewInit();
-  }
-
-  public ngOnDestroy() {
-    super.ngOnDestroy();
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -191,14 +184,14 @@ export class WorkspaceMembersSelectBoxComponent extends AbstractComponent implem
       this.translateService.instant('msg.comm.menu.admin.user.modal.change.owner.please.select');
       return;
     }
-    if (checkedMember.label == this._NO_MEMBER) {
+    if (checkedMember.label === this._NO_MEMBER) {
       return this._NO_MEMBER;
     } else {
       return `${checkedMember.value.fullName} (${checkedMember.value.role})`;
     }
   }
 
-  public clickSelectValue(member: Entity.SelectValue<Member>): void {
+  public clickSelectValue(member: Entity.SelectValue<Entity.Member>): void {
     if (member.checked) {
       this.isSelected = false;
       return;

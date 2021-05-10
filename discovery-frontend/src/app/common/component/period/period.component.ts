@@ -13,17 +13,18 @@
  */
 
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnDestroy,
   OnInit,
   Output,
   ViewChild
 } from '@angular/core';
 import {AbstractComponent} from '../abstract.component';
-import {PickerSettings} from '../../../domain/common/datepicker.settings';
+import {PickerSettings} from '@domain/common/datepicker.settings';
 
 declare let moment: any;
 declare let $: any;
@@ -32,7 +33,7 @@ declare let $: any;
   selector: 'component-period',
   templateUrl: './period.component.html'
 })
-export class PeriodComponent extends AbstractComponent implements OnInit {
+export class PeriodComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -185,7 +186,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     const startPickerSettings: PeriodPickerSettings
       = new PeriodPickerSettings(
       'ddp-input-typebasic',
-      (fdate: string, date: Date) => {
+      (_fdate: string, date: Date) => {
         this._startDate = date;
         this.selectedType = PeriodType.NOT;
         this.validation(true);
@@ -200,7 +201,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     const endPickerSettings: PeriodPickerSettings
       = new PeriodPickerSettings(
       'ddp-input-typebasic',
-      (fdate: string, date: Date) => {
+      (_fdate: string, date: Date) => {
         this._endDate = date;
         this.selectedType = PeriodType.NOT;
         this.validation(false);
@@ -307,12 +308,12 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
   /**
    * Returns
    * {
-      startDate : this._startDate,
-      endDate : this._endDate,
-      type: this.selectedType.toString(),
-      startDateStr: startDateStr,
-      endDateStr: endDateStr
-    } this data
+   *    startDate : this._startDate,
+   *    endDate : this._endDate,
+   *    type: this.selectedType.toString(),
+   *    startDateStr: startDateStr,
+   *    endDateStr: endDateStr
+   * } this data
    */
   public getReturnData() {
 
@@ -323,7 +324,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
       startDateStr = null;
     }
 
-    let endDateStr:string = null;
+    let endDateStr:string;
     if( this._endDate) {
       if( this.roundSecond ) {
         endDateStr = moment(this._endDate).add(59,'seconds').format(this.returnFormat);
@@ -395,15 +396,15 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
 }
 
 export enum PeriodType {
-  ALL = <any>'ALL',
-  TODAY = <any>'TODAY',
-  LAST_WEEK = <any>'LAST_WEEK',
-  NOT = <any>'NOT',
-  YEAR = <any>'YEAR'
+  ALL = 'ALL',
+  TODAY = 'TODAY',
+  LAST_WEEK = 'LAST_WEEK',
+  NOT = 'NOT',
+  YEAR = 'YEAR'
 }
 
 class PeriodPickerSettings extends PickerSettings {
-  constructor(clz: string, onSelectDate: Function, onHide: Function, useTimePicker: boolean ) {
+  constructor(clz: string, onSelectDate: (fdate: string, date: Date) => void, onHide: (inst, completed: boolean) => void, useTimePicker: boolean ) {
     super( clz, onSelectDate, onHide );
 
     if( useTimePicker ) {

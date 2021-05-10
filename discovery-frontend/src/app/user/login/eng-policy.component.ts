@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-eng-policy',
@@ -40,7 +40,7 @@ export class EngPolicyComponent extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   constructor(protected elementRef: ElementRef,
-              protected  injector: Injector,
+              protected injector: Injector,
               protected renderer: Renderer2,) {
     super(elementRef, injector);
   }
@@ -65,9 +65,10 @@ export class EngPolicyComponent extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /** close popup */
   public close() {
-    this.renderer.removeStyle(document.body,'overflow');
+    this.renderer.removeStyle(document.body, 'overflow');
     this.closeEvent.emit();
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -12,21 +12,14 @@
 * limitations under the License.
 */
 
-import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Injector, Input, Output, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {PopupService} from '../../../common/service/popup.service';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {isUndefined} from 'util';
-import {GridComponent} from '../../../common/component/grid/grid.component';
-import {GridOption} from '../../../common/component/grid/grid.option';
-import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {Modal} from '../../../common/domain/modal';
-import * as _ from 'lodash';
-import {Alert} from "../../../common/util/alert.util";
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {Alert} from '@common/util/alert.util';
 import {LineageService} from '../service/lineage.service';
-import {LineageEdge} from '../../../domain/meta-data-management/lineage';
 
 @Component({
   selector: 'app-create-lineage-confirm-grid',
@@ -57,7 +50,7 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor( private popupService: PopupService,
+  constructor(private popupService: PopupService,
               private _lineageService: LineageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -73,7 +66,7 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   public ngOnInit() {
     super.ngOnInit();
 
-    if(this.lineageData) {
+    if (this.lineageData) {
       this.updateGrid(this.lineageData);
     }
   }
@@ -102,19 +95,19 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
   }
 
   public complete() {
-    let params = this.lineageData.rows;
-    for(let edge of params) {
-      if(!edge.frMetaId && !edge.frMetaName) {
+    const params = this.lineageData.rows;
+    for (const edge of params) {
+      if (!edge.frMetaId && !edge.frMetaName) {
         Alert.error('frMetaId or frMetaName is required');
         return;
       }
-      if(!edge.toMetaId && !edge.toMetaName) {
+      if (!edge.toMetaId && !edge.toMetaName) {
         Alert.error('toMetaId or toMetaName is required');
         return;
       }
     }
 
-    this._lineageService.createLineages(params).then((result) => {
+    this._lineageService.createLineages(params).then(() => {
       this.loadingHide();
 
       this.popupService.notiPopup({
@@ -147,10 +140,13 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   private updateGrid(data: any) {
-    if(this.gridComponent===undefined || this.gridComponent===null) { return; }
+    if (this.gridComponent === undefined || this.gridComponent === null) {
+      return;
+    }
+
 
     // 헤더정보 생성
-    const headers: header[] = data.header.map((column: any) => {
+    const headers: Header[] = data.header.map((column: any) => {
       return new SlickGridHeader()
         .Id(column)
         .Name('<span style="padding-left:20px;">' + column + '</span>')
@@ -162,19 +158,21 @@ export class CreateLineageConfirmGridComponent extends AbstractPopupComponent im
         .Resizable(true)
         .Unselectable(true)
         .Sortable(false)
-        .Formatter((function (scope) {
-          return function (row, cell, value) {
+        .Formatter(((_scope) => {
+          return (_row, _cell, value) => {
             return value;
           };
         })(this))
         .build();
     });
 
-    let rows: any[] = data.rows.map((values: any, index: number) => {
-      let row : any = {};
+    const rows: any[] = data.rows.map((values: any, index: number) => {
+      const row: any = {};
       row.id = index;
-      for(var key in values) {
-        row[key] = values[key];
+      for (const key in values) {
+        if (key) {
+          row[key] = values[key];
+        }
       }
       return row;
     });

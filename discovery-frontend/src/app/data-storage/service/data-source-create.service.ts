@@ -1,7 +1,6 @@
-import {Injectable, Injector} from "@angular/core";
+import * as _ from 'lodash';
+import {Injectable, Injector} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {StringUtil} from "../../common/util/string.util";
-import {GranularityType} from "../../domain/workbook/configurations/field/timestamp-field";
 import {
   ConnectionType,
   DatasourceInfo,
@@ -12,14 +11,15 @@ import {
   IngestionRuleType,
   LogicalType,
   SourceType
-} from "../../domain/datasource/datasource";
-import {PageResult} from "../../domain/common/page";
-import {GranularityObject, GranularityService} from "./granularity.service";
-import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
-import * as _ from "lodash";
-import {CommonConstant} from "../../common/constant/common.constant";
-import {ConnectionParam} from "./data-connection-create.service";
-import {DataStorageConstant} from "../constant/data-storage-constant";
+} from '@domain/datasource/datasource';
+import {PageResult} from '@domain/common/page';
+import {StringUtil} from '@common/util/string.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {GranularityType} from '@domain/workbook/configurations/field/timestamp-field';
+import {HiveFileFormat, PrDataSnapshot, SsType} from '@domain/data-preparation/pr-snapshot';
+import {DataStorageConstant} from '../constant/data-storage-constant';
+import {ConnectionParam} from './data-connection-create.service';
+import {GranularityObject, GranularityService} from './granularity.service';
 
 @Injectable()
 export class DataSourceCreateService {
@@ -48,19 +48,18 @@ export class DataSourceCreateService {
   /**
    * Get converted partition list
    * @param partitionList
-   * @return {any[]}
    */
   public getConvertedPartitionList(partitionList: any): any[] {
     // result
     const result = [];
     // loop
-    for (let i = 0; i < partitionList.length; i++) {
+    for (let i = 0, nMax = partitionList.length; i < nMax; i++) {
       // partition keys
       const partitionKeys = partitionList[i];
       // partition
       const partition = {};
       // loop
-      for (let j = 0; j < partitionKeys.length; j++) {
+      for (let j = 0, nMax2 = partitionKeys.length; j < nMax2; j++) {
         // #619 enable empty value
         // is value empty break for loop
         // if (StringUtil.isEmpty(partitionKeys[j].value)) {
@@ -79,7 +78,7 @@ export class DataSourceCreateService {
 
   /**
    * Get partition label
-   * @param {any[]} convertedPartitionList
+   * @param convertedPartitionList
    * @return {string}
    */
   public getPartitionLabel(convertedPartitionList: any[]): string {
@@ -243,7 +242,7 @@ export class DataSourceCreateService {
     sourceInfo.ingestionData.tuningConfig.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.tuningOptions = this._toObject(sourceInfo.ingestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
     // if not used current_time TIMESTAMP, set intervals
     if (sourceInfo.schemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
-      result.intervals =  [this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.startIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.endIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity)];
+      result.intervals = [this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.startIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.endIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity)];
     }
     // DB
     if (sourceInfo.type === SourceType.JDBC) {
@@ -286,27 +285,27 @@ export class DataSourceCreateService {
     return !!uri.match(/.csv$/);
   }
 
-  /**
-   * Set file ingestion params
-   * @param {CreateSourceIngestionParams} result
-   * @param {DatasourceInfo} sourceInfo
-   * @private
-   */
-  private _setFileIngestionParams(result: CreateSourceIngestionParams, sourceInfo: DatasourceInfo): void {
-    result.type = 'local';
-    result.removeFirstRow = sourceInfo.fileData.isFirstHeaderRow;
-    result.path = sourceInfo.fileData.fileResult.filePath;
-    const isExcelType: boolean = sourceInfo.fileData.fileResult.sheets && sourceInfo.fileData.fileResult.sheets.length !== 0;
-    result.format = {
-      type: isExcelType ? 'excel' : 'csv'
-    };
-    if (isExcelType) {
-      result.format.delimiter = sourceInfo.fileData.delimiter;
-      result.format.lineSeparator = sourceInfo.fileData.separator;
-    } else {
-      result.format.sheetIndex = sourceInfo.fileData.fileResult.sheets.findIndex(sheet => sheet === sourceInfo.fileData.fileResult.selectedSheet);
-    }
-  }
+  // /**
+  //  * Set file ingestion params
+  //  * @param {CreateSourceIngestionParams} result
+  //  * @param {DatasourceInfo} sourceInfo
+  //  * @private
+  //  */
+  // private _setFileIngestionParams(result: CreateSourceIngestionParams, sourceInfo: DatasourceInfo): void {
+  //   result.type = 'local';
+  //   result.removeFirstRow = sourceInfo.fileData.isFirstHeaderRow;
+  //   result.path = sourceInfo.fileData.fileResult.filePath;
+  //   const isExcelType: boolean = sourceInfo.fileData.fileResult.sheets && sourceInfo.fileData.fileResult.sheets.length !== 0;
+  //   result.format = {
+  //     type: isExcelType ? 'excel' : 'csv'
+  //   };
+  //   if (isExcelType) {
+  //     result.format.delimiter = sourceInfo.fileData.delimiter;
+  //     result.format.lineSeparator = sourceInfo.fileData.separator;
+  //   } else {
+  //     result.format.sheetIndex = sourceInfo.fileData.fileResult.sheets.findIndex(sheet => sheet === sourceInfo.fileData.fileResult.selectedSheet);
+  //   }
+  // }
 
   /**
    * Set staging ingestion params
@@ -372,7 +371,7 @@ export class DataSourceCreateService {
     // timestamp enable
     const isCreateTimestamp = schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
     // fields param
-    let fields = _.cloneDeep(schemaData.fieldList);
+    const fields = _.cloneDeep(schemaData.fieldList);
     // seq number
     let seq = 0;
     // field 설정
@@ -509,7 +508,7 @@ export interface FileDetail {
   charset: string;
   success?: boolean;
   totalRows?: number;
-  isParsable: {valid: boolean, warning?: string};
+  isParsable: { valid: boolean, warning?: string };
   errorMessage?: string;
 }
 
@@ -549,11 +548,11 @@ export interface CreateSourceIngestionParams {
   query?: string;
   database?: string;
   expired?: number;
-  period?: {frequency: string, time?: number, weekDays?: string[], value?: number};
+  period?: { frequency: string, time?: number, weekDays?: string[], value?: number };
   maxLimit?: number;
   range?: number;
-  scope?: any;  //TODO
-  connection?: any;  //TODO
+  scope?: any;  // TODO
+  connection?: any;  // TODO
   connectionUsername?: string;
   connectionPassword?: string;
   // file
@@ -566,7 +565,7 @@ export interface CreateSourceIngestionParams {
   jobProperties?: object;
   partitions?: any[];
   paths?: string[];
-  format?: {type: string, delimiter?: string, lineSeparator?: string, sheetIndex?: number};
+  format?: { type: string, delimiter?: string, lineSeparator?: string, sheetIndex?: number };
 }
 
 export interface CreateConnectionData {
@@ -575,21 +574,6 @@ export interface CreateConnectionData {
   selectedIngestionType;
   pageResult?: PageResult;
   connection: ConnectionParam;
-}
-
-// create data source stagingDB select step data
-class CreateStagingDbData {
-
-}
-
-// create data source file select step data
-class CreateFileData {
-
-}
-
-// create data source DB select step data
-class CreateDatabaseData {
-
 }
 
 // create data source snapshot select step data
@@ -630,12 +614,12 @@ export class CreateSourceConfigureData {
   // search text
   public searchText: string;
   // selected filter type
-  public selectedLogicalTypeFilter: TypeFilterObject ;
+  public selectedLogicalTypeFilter: TypeFilterObject;
   public selectedRoleTypeFilter: TypeFilterObject;
   // field data list in timestamp field
   public timestampFieldData: any;
   // selected action
-  public selectedAction: {selectedType: string, selectedRoleType: TypeFilterObject, selectedLogicalType: TypeFilterObject};
+  public selectedAction: { selectedType: string, selectedRoleType: TypeFilterObject, selectedLogicalType: TypeFilterObject };
 }
 
 // create data source ingestion step data

@@ -12,15 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter,
-  Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Workbook } from '../../../domain/workbook/workbook';
-import { CommonUtil } from '../../../common/util/common.util';
-import { WorkbookService } from '../../service/workbook.service';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonConstant } from '../../../common/constant/common.constant';
-import { Book } from '../../../domain/workspace/book';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Workbook} from '@domain/workbook/workbook';
+import {CommonUtil} from '@common/util/common.util';
+import {WorkbookService} from '../../service/workbook.service';
+import {Alert} from '@common/util/alert.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {Book} from '@domain/workspace/book';
 
 @Component({
   selector: 'app-create-workbook',
@@ -98,7 +97,7 @@ export class CreateWorkbookComponent extends AbstractComponent implements OnInit
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 시작점
-  public init(workspaceId: string, folderId? : string) {
+  public init(workspaceId: string, folderId?: string) {
     this.isShow = true;
     this.workspaceId = workspaceId;
     this.workbook = new Workbook();
@@ -114,7 +113,7 @@ export class CreateWorkbookComponent extends AbstractComponent implements OnInit
   }
 
   // 워크북 생성
-  public createWorkbook () {
+  public createWorkbook() {
 
     this.workbook.name = this.workbook.name ? this.workbook.name.trim() : '';
     if (this.workbook.name == null || this.workbook.name.length === 0) {
@@ -142,12 +141,12 @@ export class CreateWorkbookComponent extends AbstractComponent implements OnInit
     this.workbook.workspace = CommonConstant.API_CONSTANT.API_URL + this.workspaceId;
 
     this.loadingShow();
-    this.workbookService.createWorkbook(this.workbook).then((result:Book) => {
-      this.createComplete.emit({ createDashboardFl: this.createDashboardFl, id: result['id'] });
+    this.workbookService.createWorkbook(this.workbook).then((result: Book) => {
+      this.createComplete.emit({createDashboardFl: this.createDashboardFl, id: result['id']});
       this.loadingHide();
       Alert.success(`'${result.name}’ ` + this.translateService.instant('msg.book.alert.create.workbook.success'));
       this.close();
-    }).catch((error) => {
+    }).catch((_error) => {
       Alert.error(this.translateService.instant('msg.book.alert.create.workbook.fail'));
       this.loadingHide();
     });

@@ -13,23 +13,23 @@
  */
 
 
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {Catalog} from "../../domain/catalog/catalog";
-import {StringUtil} from "../../common/util/string.util";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {CatalogService} from "../../meta-data-management/catalog/service/catalog.service";
-import {Tag} from "../../domain/tag/tag";
 import * as _ from 'lodash';
-import {EventBroadcaster} from "../../common/event/event.broadcaster";
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Tag} from '@domain/tag/tag';
+import {Catalog} from '@domain/catalog/catalog';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {CatalogService} from '../../meta-data-management/catalog/service/catalog.service';
+import {ExploreDataModelService} from './service/explore-data-model.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
 
 @Component({
   selector: 'component-explore-lnb',
   templateUrl: 'explore-data-lnb.component.html'
 })
-export class ExploreDataLnbComponent extends AbstractComponent {
+export class ExploreDataLnbComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   selectedLnbTab: ExploreDataConstant.LnbTab = this.exploreDataModelService.selectedLnbTab;
   selectedCatalog: Catalog.Tree;
@@ -176,18 +176,20 @@ export class ExploreDataLnbComponent extends AbstractComponent {
       this.exploreDataModelService.selectedCatalog = emptyCatalog;
 
       this._changedLnbData();
-    // if reset catalog button in tree hierarchy is clicked
+      // if reset catalog button in tree hierarchy is clicked
     } else if (catalog.name === 'realUndefined') {
       this.selectedCatalog = undefined;
       this.exploreDataModelService.selectedCatalog = undefined;
     } else {
       // undefine or same catalog is selected do nothing
-      if (this.selectedCatalog === undefined || this.selectedCatalog.id !== catalog.id ) {
+      if (this.selectedCatalog === undefined || this.selectedCatalog.id !== catalog.id) {
         this.catalogService.getCatalogDetail(catalog.id).then(async (result) => {
           this.selectedCatalog = result;
           this.exploreDataModelService.selectedCatalog = result;
           this._changedLnbData();
-        }).catch((e) => {this.commonExceptionHandler(e)});
+        }).catch((e) => {
+          this.commonExceptionHandler(e)
+        });
       }
     }
   }
@@ -229,13 +231,11 @@ export class ExploreDataLnbComponent extends AbstractComponent {
   }
 
   private async _setTagList() {
-    const result = await this.metadataService.getMetadataTagList('forTreeView');
-    this.tagList = result;
+    this.tagList = await this.metadataService.getMetadataTagList('forTreeView');
   }
 
   private async _setFavoriteCatalogList() {
-    const result = await this.catalogService.getMyFavoriteCatalogList();
-    this.favoriteCatalogList = result;
+    this.favoriteCatalogList = await this.catalogService.getMyFavoriteCatalogList();
   }
 
   private _setCatalogListUsedSearch(): void {

@@ -12,23 +12,21 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import * as _ from "lodash";
-import {StringUtil} from "../../../common/util/string.util";
-import {ExploreDataConstant} from "../../constant/explore-data-constant";
-import {Metadata} from "../../../domain/meta-data-management/metadata";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {ExploreDataConstant} from '../../constant/explore-data-constant';
 
 @Component({
   selector: 'component-explore-banner',
   templateUrl: 'explore-banner.component.html'
 })
-export class ExploreBannerComponent extends AbstractComponent {
+export class ExploreBannerComponent extends AbstractComponent implements OnInit {
 
   // class
   @Input() readonly bannerClass: string;
   @Input() readonly iconClass: ExploreDataConstant.Metadata.TypeIconClass;
-  @Input() readonly isMain:boolean = false;
+  @Input() readonly isMain: boolean = false;
   // data
   @Input() readonly metadata: Metadata;
   // event
@@ -45,7 +43,7 @@ export class ExploreBannerComponent extends AbstractComponent {
   ngOnInit() {
     super.ngOnInit();
     if (this.metadata.tags) {
-      if (this.metadata.tags.length > 0 && this.metadata.tags.length != 1 ) {
+      if (this.metadata.tags.length > 0 && this.metadata.tags.length !== 1) {
         this.extraTagNumber = this.metadata.tags.length - 1;
       } else {
         this.extraTagNumber = 0;
@@ -56,6 +54,7 @@ export class ExploreBannerComponent extends AbstractComponent {
   onClickBanner() {
     this.clickedBanner.emit();
   }
+
   //
   // onClickTag(tag) {
   //   event.stopImmediatePropagation();

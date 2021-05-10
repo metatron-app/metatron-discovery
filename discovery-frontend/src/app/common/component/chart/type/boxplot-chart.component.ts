@@ -16,23 +16,29 @@
  * Created by Dolkkok on 2017. 8. 14..
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {
-  AxisType, CHART_STRING_DELIMITER, ChartSelectMode, ChartType, LineType, Position, SeriesType,
+  AxisType,
+  CHART_STRING_DELIMITER,
+  ChartType,
+  LineType,
+  Position,
+  SeriesType,
   ShelveFieldType,
-  ShelveType, UIChartDataLabelDisplayType
+  ShelveType,
+  UIChartDataLabelDisplayType
 } from '../option/define/common';
-import { OptionGenerator } from '../option/util/option-generator';
-import { Series } from '../option/define/series';
+import {OptionGenerator} from '../option/util/option-generator';
+import {Series} from '../option/define/series';
 import * as _ from 'lodash';
-
+import {Pivot} from 'app/domain/workbook/configurations/pivot';
+import {BaseChart, PivotTableInfo} from '../base-chart';
+import {BaseOption} from '../option/base-option';
+import {FormatOptionConverter} from '../option/converter/format-option-converter';
+import {UIChartFormat} from '../option/ui-option/ui-format';
+import {AxisOptionConverter} from '../option/converter/axis-option-converter';
 import optGen = OptionGenerator;
-import { Pivot } from 'app/domain/workbook/configurations/pivot';
-import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../base-chart';
-import { BaseOption } from '../option/base-option';
-import { FormatOptionConverter } from '../option/converter/format-option-converter';
-import { UIChartFormat } from '../option/ui-option/ui-format';
-import { AxisOptionConverter } from '../option/converter/axis-option-converter';
+import {UIOption} from '@common/component/chart/option/ui-option';
 
 declare let echarts: any;
 
@@ -40,7 +46,7 @@ declare let echarts: any;
   selector: 'boxplot-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterViewInit {
+export class BoxPlotChartComponent extends BaseChart<UIOption> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -60,7 +66,7 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
 
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -99,12 +105,12 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
    * @param shelve
    */
   public isValid(shelve: Pivot): boolean {
-    return ((this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.TIMESTAMP)) == 1)
-      && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) == 1)
+    return ((this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.TIMESTAMP)) === 1)
+      && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) === 1)
       && ((this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) + this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP)) > 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0);
+      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0);
   }
 
   public draw(isKeepRange?: boolean): void {
@@ -126,10 +132,10 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
    * 시리즈 데이터 선택 - 차트별 재설정
    * @param seriesData
    */
-  protected selectSeriesData( seriesData ) {
-    this.chartOption.series.forEach( seriesItem => {
-      seriesItem.data.forEach( dataItem => {
-        if( dataItem.name === seriesData.name ) {
+  protected selectSeriesData(seriesData) {
+    this.chartOption.series.forEach(seriesItem => {
+      seriesItem.data.forEach(dataItem => {
+        if (dataItem.name === seriesData.name) {
           dataItem.itemStyle.normal.opacity = 1;
           dataItem.selected = true;
           return true;
@@ -143,10 +149,10 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
    * 시리즈 데이터 선택 해제 - 차트별 재설정
    * @param seriesData
    */
-  protected unselectSeriesData( seriesData ) {
-    this.chartOption.series.forEach( seriesItem => {
-      seriesItem.data.forEach( dataItem => {
-        if( dataItem.name === seriesData.name ) {
+  protected unselectSeriesData(seriesData) {
+    this.chartOption.series.forEach(seriesItem => {
+      seriesItem.data.forEach(dataItem => {
+        if (dataItem.name === seriesData.name) {
           dataItem.itemStyle.normal.opacity = 0.2;
           dataItem.selected = false;
           return true;
@@ -186,7 +192,7 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
 
     let boxItem: Series;
     let outlierItem: Series;
-    let columns = this.data.columns;
+    const columns = this.data.columns;
 
     let boxPlotData = columns.map((column) => {
       return column.value;
@@ -197,19 +203,19 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
     boxItem = {
       type: SeriesType.BOXPLOT,
       name: this.fieldInfo.aggs[0],
-      data: boxPlotData.boxData.map( (val,idx) => {
+      data: boxPlotData.boxData.map((val, idx) => {
         return {
-          name : columns[idx].name,
-          value : val,
-          selected : false,
-          itemStyle : OptionGenerator.ItemStyle.opacity1()
+          name: columns[idx].name,
+          value: val,
+          selected: false,
+          itemStyle: OptionGenerator.ItemStyle.opacity1()
         }
       }),
       originData: _.cloneDeep(boxPlotData.boxData),
       hoverAnimation: false,
       itemStyle: {
-        normal: { borderWidth: 1, borderType: LineType.SOLID },
-        emphasis: { borderWidth: 1, borderType: LineType.SOLID }
+        normal: {borderWidth: 1, borderType: LineType.SOLID},
+        emphasis: {borderWidth: 1, borderType: LineType.SOLID}
       },
       tooltip: {
         formatter: (params) => {
@@ -222,12 +228,12 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
       type: SeriesType.SCATTER,
       symbolSize: 8,
       itemStyle: optGen.ItemStyle.auto(),
-      data: boxPlotData.outliers.map( (val,idx) => {
+      data: boxPlotData.outliers.map((val, _idx) => {
         return {
-          name : columns[val[0]].name,
-          value : val,
-          selected : false,
-          itemStyle : OptionGenerator.ItemStyle.opacity1()
+          name: columns[val[0]].name,
+          value: val,
+          selected: false,
+          itemStyle: OptionGenerator.ItemStyle.opacity1()
         }
       }),
       originData: _.cloneDeep(boxPlotData.outliers),
@@ -283,16 +289,16 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
    *
    * @param params
    * @param colValues
-   * @param rowValues
+   * @param _rowValues
    * @returns {any}
    */
-  protected setSelectData(params: any, colValues: string[], rowValues: string[]): any {
+  protected setSelectData(params: any, colValues: string[], _rowValues: string[]): any {
 
-    let returnDataList: any = [];
+    const returnDataList: any = [];
 
     // 선택정보 설정
     let targetValues: string[] = [];
-    _.forEach(this.pivot, (value, key) => {
+    _.forEach(this.pivot, (_value, key) => {
 
       // deep copy
       let deepCopyShelve = _.cloneDeep(this.pivot[key]);
@@ -334,7 +340,7 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
   /**
    * tooltip formatter
    *
-   * @param param
+   * @param params
    * @returns {any}
    */
   private tooltipFormatter(params): any {
@@ -347,42 +353,44 @@ export class BoxPlotChartComponent extends BaseChart implements OnInit, AfterVie
 
     let result: string[] = [];
 
+    let valueList = params.data.length ? params.data : params.data.value;
+
     if (!this.uiOption.toolTip || !this.uiOption.toolTip.displayTypes) {
 
       const nameList = _.split(params.name, CHART_STRING_DELIMITER);
       result = FormatOptionConverter.getTooltipName(nameList, this.pivot.columns, result, true);
 
-      result.push('High: ' + FormatOptionConverter.getFormatValue(params.data[0], format));
-      result.push('3Q: ' + FormatOptionConverter.getFormatValue(params.data[1], format));
-      result.push('Median: ' + FormatOptionConverter.getFormatValue(params.data[2], format));
-      result.push('1Q: ' + FormatOptionConverter.getFormatValue(params.data[3], format));
-      result.push('Low: ' + FormatOptionConverter.getFormatValue(params.data[4], format));
+      result.push('High: ' + FormatOptionConverter.getFormatValue(valueList[0], format));
+      result.push('3Q: ' + FormatOptionConverter.getFormatValue(valueList[1], format));
+      result.push('Median: ' + FormatOptionConverter.getFormatValue(valueList[2], format));
+      result.push('1Q: ' + FormatOptionConverter.getFormatValue(valueList[3], format));
+      result.push('Low: ' + FormatOptionConverter.getFormatValue(valueList[4], format));
     } else {
 
-      if (  -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ) {
+      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
         const nameList = _.split(params.name, CHART_STRING_DELIMITER);
         result = FormatOptionConverter.getTooltipName(nameList, this.pivot.columns, result, true);
       }
-      if (  -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.HIGH_VALUE) ) {
+      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.HIGH_VALUE)) {
 
-        result.push('High: ' + FormatOptionConverter.getFormatValue(params.data[0], format));
+        result.push('High: ' + FormatOptionConverter.getFormatValue(valueList[0], format));
       }
-      if (  -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.THREE_Q_VALUE) ) {
+      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.THREE_Q_VALUE)) {
 
-        result.push('3Q: ' + FormatOptionConverter.getFormatValue(params.data[3], format));
+        result.push('3Q: ' + FormatOptionConverter.getFormatValue(valueList[3], format));
       }
-      if (  -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.MEDIAN_VALUE) ) {
+      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.MEDIAN_VALUE)) {
 
-        result.push('Median: ' + FormatOptionConverter.getFormatValue(params.data[2], format));
+        result.push('Median: ' + FormatOptionConverter.getFormatValue(valueList[2], format));
       }
-      if (  -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.FIRST_Q_VALUE) ) {
+      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.FIRST_Q_VALUE)) {
 
-        result.push('1Q: ' + FormatOptionConverter.getFormatValue(params.data[1], format));
+        result.push('1Q: ' + FormatOptionConverter.getFormatValue(valueList[1], format));
       }
-      if (  -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LOW_VALUE) ) {
+      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LOW_VALUE)) {
 
-        result.push('Low: ' + FormatOptionConverter.getFormatValue(params.data[4], format));
+        result.push('Low: ' + FormatOptionConverter.getFormatValue(valueList[4], format));
       }
     }
 

@@ -12,26 +12,26 @@
  * limitations under the License.
  */
 
-import {Pipe, PipeTransform} from '@angular/core';
 import * as _ from 'lodash';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'tableSort'
 })
 export class TableSortPipe implements PipeTransform {
 
-  transform(list: Array<Object>, property: string, direction: string = 'asc'): Array<Object> {
+  transform(list: Array<object>, property: string, direction: string = 'asc'): Array<object> {
 
     // Check if is not null
     if (!list || !property || !direction) return list;
 
     list = _.cloneDeep(list);
 
-    return list.sort((a: Object, b: Object) => {
-      if (direction == 'desc') {
-        return a[ property ] > b[ property ] ? -1 : a[ property ] < b[ property ] ? 1 : 0;
+    return list.sort((a: object, b: object) => {
+      if (direction === 'desc') {
+        return a[property] > b[property] ? -1 : a[property] < b[property] ? 1 : 0;
       } else {
-        return a[ property ] < b[ property ] ? -1 : a[ property ] > b[ property ] ? 1 : 0;
+        return a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
       }
     })
   }

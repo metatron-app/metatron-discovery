@@ -14,21 +14,20 @@
 
 import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
 import {isUndefined} from 'util';
-import {Alert} from '../common/util/alert.util';
-import {Modal} from '../common/domain/modal';
-import {PopupService} from '../common/service/popup.service';
-import {NotebookModel} from '../domain/model-management/notebookModel';
-import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {PopupService} from '@common/service/popup.service';
+import {NotebookModel} from '@domain/model-management/notebookModel';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
 import {ActivatedRoute} from '@angular/router';
-import {AbstractComponent} from '../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {NotebookService} from './service/notebook.service';
-import {Subscription} from 'rxjs/Subscription';
-import {SubscribeArg} from '../common/domain/subscribe-arg';
-import {NoteBook} from '../domain/notebook/notebook';
-import {UserDetail} from '../domain/common/abstract-history-entity';
-import {CookieConstant} from '../common/constant/cookie.constant';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {NoteBook} from '@domain/notebook/notebook';
+import {UserDetail} from '@domain/common/abstract-history-entity';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {WorkspaceService} from '../workspace/service/workspace.service';
-import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
 
 @Component({
   selector: 'app-notebook',
@@ -39,9 +38,6 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 팝업 서비스
-  private popupSubscription: Subscription;
 
   // 선택된 모델 아이디
   public selectedModelId: string;
@@ -100,12 +96,14 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
 
     this.resultData.createdBy = new UserDetail();
 
-    this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-      this.createApiLayerShow = false;
-      if (data.name === 'create-notebook-api-create') {
-        this.getNotebookApi();
-      }
-    });
+    this.subscriptions.push(
+      this.popupService.view$.subscribe((data: SubscribeArg) => {
+        this.createApiLayerShow = false;
+        if (data.name === 'create-notebook-api-create') {
+          this.getNotebookApi();
+        }
+      })
+    );
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -147,7 +145,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
               this.setNotebookDescription();
 
               // Send statistics data
-              this.sendViewActivityStream( this.selectedModelId, 'NOTEBOOK' );
+              this.sendViewActivityStream(this.selectedModelId, 'NOTEBOOK');
             } else {
               this.loadingHide();
               this.openAccessDeniedConfirm();
@@ -172,7 +170,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
 
   // 닫기
   public close() {
-    this.router.navigate(['/workspace']);
+    this.router.navigate(['/workspace']).then();
   }
 
   // 에러페이지 표현
@@ -249,7 +247,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
         // Alert.success(this.translateService.instant('msg.nbook.alert.update.success'));
         return;
       })
-      .catch((error) => {
+      .catch((_error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.nbook.alert.update.fail'));
         return;
@@ -332,7 +330,7 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
       cookieWorkspace = JSON.parse(cookieWs);
     }
     if (null !== cookieWorkspace) {
-      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]);
+      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
     }
   }
 

@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
+import {CommonUtil} from '@common/util/common.util';
+import {WORKSPACE_PERMISSION} from '@common/permission/permission';
 import {UserProfile} from '../user/user-profile';
-import {Book} from './book';
 import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 import {NotebookConnector} from '../notebook/notebookConnector';
-import {WORKSPACE_PERMISSION} from '../../common/permission/permission';
 import {RoleSet} from '../user/role/roleSet';
 import {WorkspaceMember} from './workspace-member';
-import {CommonUtil} from '../../common/util/common.util';
+import {Book} from './book';
 
 export class Workspace extends AbstractHistoryEntity {
   public id: string;
@@ -86,14 +86,14 @@ export class CountByBookType {
 }
 
 export enum PublicType {
-  PRIVATE = <any>'PRIVATE',
-  SHARED = <any>'SHARED'
+  PRIVATE = 'PRIVATE',
+  SHARED = 'SHARED'
 }
 
 export enum WorkspaceType {
-  DEFAULT = <any>'DEFAULT', // 워크북, 워크벤치, 노트북 지원
-  TYPE_1 = <any>'TYPE_1',   // 워크북, 워크벤치 사용 가능
-  TYPE_2 = <any>'TYPE_2'    // 워크북 지원
+  DEFAULT = 'DEFAULT', // 워크북, 워크벤치, 노트북 지원
+  TYPE_1 = 'TYPE_1',   // 워크북, 워크벤치 사용 가능
+  TYPE_2 = 'TYPE_2'    // 워크북 지원
 }
 
 /**

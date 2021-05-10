@@ -12,22 +12,32 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
-import {Field, FieldFormat} from "../../../../domain/datasource/datasource";
-import {DataStorageConstant} from "../../../constant/data-storage-constant";
-import {ConstantService} from "../../../../shared/datasource-metadata/service/constant.service";
-import {Type} from "../../../../shared/datasource-metadata/domain/type";
-import {StorageFilterSelectBoxComponent} from "../../../data-source-list/component/storage-filter-select-box.component";
-import {DatasourceService} from "../../../../datasource/service/datasource.service";
-import {FieldConfigService} from "../../../service/field-config.service";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field, FieldFormat} from '@domain/datasource/datasource';
+import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
+import {Type} from '../../../../shared/datasource-metadata/domain/type';
+import {DataStorageConstant} from '../../../constant/data-storage-constant';
+import {FieldConfigService} from '../../../service/field-config.service';
+import {StorageFilterSelectBoxComponent} from '../../../data-source-list/component/storage-filter-select-box.component';
 
 @Component({
   selector: 'schema-configure-change-type-popup',
   templateUrl: 'schema-configure-change-type-popup.component.html'
 })
-export class SchemaConfigureChangeTypePopupComponent extends AbstractComponent {
+export class SchemaConfigureChangeTypePopupComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('roleSelectBox')
   private readonly _roleSelectBox: StorageFilterSelectBoxComponent;
@@ -59,7 +69,6 @@ export class SchemaConfigureChangeTypePopupComponent extends AbstractComponent {
 
   constructor(private broadCaster: EventBroadcaster,
               private constant: ConstantService,
-              private datasourceService: DatasourceService,
               private fieldConfigService: FieldConfigService,
               protected element: ElementRef,
               protected injector: Injector) {
@@ -85,18 +94,14 @@ export class SchemaConfigureChangeTypePopupComponent extends AbstractComponent {
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    // remove subscription
-    for (let subscription$ of this.subscriptions) {
-      subscription$.unsubscribe();
-    }
   }
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     // #1925
     if (this._typeSelectBox && this._typeSelectBox.isListShow) {
       this._typeSelectBox.isListShow = false;
@@ -156,11 +161,13 @@ export class SchemaConfigureChangeTypePopupComponent extends AbstractComponent {
         if (this._isGeoSelectedType()) {
           // init format
           field.format = new FieldFormat();
-          callStack.push(this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(field.format, this._getFieldDataList(field), this.selectedType.value).then(() => {}));
+          callStack.push(this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(field.format, this._getFieldDataList(field), this.selectedType.value).then(() => {
+          }));
         } else if (this._isTimestampSelectedType()) {
           // init format
           field.format = new FieldFormat();
-          callStack.push(this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(field.format, this._getFieldDataList(field), true).then((format: FieldFormat) => {}));
+          callStack.push(this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(field.format, this._getFieldDataList(field), true).then((_format: FieldFormat) => {
+          }));
         } else {
           delete field.format;
         }
@@ -222,7 +229,7 @@ export class SchemaConfigureChangeTypePopupComponent extends AbstractComponent {
   private _changeTypeList(): void {
     if (this.selectedRole.value === Type.Role.MEASURE) {
       this.typeList = this.constant.getTypeFiltersInMeasure();
-    } else if (this.selectedRole.value === Type.Role.DIMENSION && this._isStringTypeInAllCheckedField()){
+    } else if (this.selectedRole.value === Type.Role.DIMENSION && this._isStringTypeInAllCheckedField()) {
       this.typeList = this.constant.getTypeFiltersInDimensionIncludeGeoTypes();
     } else {
       this.typeList = this.constant.getTypeFiltersInDimension();

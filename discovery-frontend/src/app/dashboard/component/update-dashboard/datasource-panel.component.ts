@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+
 import {
   Component,
   DoCheck,
@@ -25,19 +27,20 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {Widget} from '../../../domain/dashboard/widget/widget';
-import {Alert} from '../../../common/util/alert.util';
-import {StringUtil} from '../../../common/util/string.util';
-import {FilterUtil} from '../../util/filter.util';
-import * as _ from 'lodash';
-import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
-import {BoardConfiguration, BoardDataSource, Dashboard} from '../../../domain/dashboard/dashboard';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+
+import {Widget} from '@domain/dashboard/widget/widget';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Datasource, Field, FieldRole, LogicalType} from '@domain/datasource/datasource';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '@domain/dashboard/dashboard';
+
 import {PageDataContextComponent} from '../../../page/page-data/page-data-context.component';
+import {FilterUtil} from '../../util/filter.util';
 import {DashboardUtil} from '../../util/dashboard.util';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 
 @Component({
   selector: 'datasource-panel',
@@ -66,9 +69,9 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public boardDs:BoardDataSource;
-  public dsFields:Field[] = [];
-  public dsCustomFields:CustomField[] = [];
+  public boardDs: BoardDataSource;
+  public dsFields: Field[] = [];
+  public dsCustomFields: CustomField[] = [];
 
   // 전체 영역별 필드 목록
   public dimensionFields: (Field | CustomField)[] = [];
@@ -100,8 +103,13 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   public dataSourceList: Datasource[] = [];
   public dataSource: Datasource;
 
-  public isSelectedDimension:boolean = true;
-  public isSelectedMeasure:boolean = true;
+  public isSelectedDimension: boolean = true;
+  public isSelectedMeasure: boolean = true;
+
+  // 외부 static method 정의
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
+  public unescapeCustomColumnExpr = StringUtil.unescapeCustomColumnExpr;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Input&Output Variables
@@ -147,7 +155,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
-    this._differ = differs.find({}).create();
+    this._differ = this.differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -164,7 +172,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    * Input 값 변경 체크
    */
   public ngDoCheck() {
-    if(this._differ.diff(this.dashboard)) {
+    if (this._differ.diff(this.dashboard)) {
       console.log('changes detected');
       // 초기 설정
       this.widgets = DashboardUtil.getPageWidgets(this.dashboard);
@@ -172,7 +180,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this.dataSourceList = DashboardUtil.getMainDataSources(this.dashboard);
 
       // 데이터소스 설정
-      this.selectDataSource( this.dataSourceList[0] );
+      this.selectDataSource(this.dataSourceList[0]);
     }
   } // function - ngDoCheck
 
@@ -191,16 +199,16 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    if( dataSource && dataSource.valid ) {
+    if (dataSource && dataSource.valid) {
       this.dataSource = dataSource;
       const boardConf: BoardConfiguration = this.dashboard.configuration;
 
-      this.boardDs = DashboardUtil.getBoardDataSourceFromDataSource( this.dashboard, dataSource );
+      this.boardDs = DashboardUtil.getBoardDataSourceFromDataSource(this.dashboard, dataSource);
 
-      this.dsFields = _.cloneDeep( DashboardUtil.getFieldsForMainDataSource(boardConf, dataSource.engineName) );
+      this.dsFields = _.cloneDeep(DashboardUtil.getFieldsForMainDataSource(boardConf, dataSource.engineName));
       this._totalFields = this.dsFields;
-      if( boardConf.customFields ) {
-        this.dsCustomFields = boardConf.customFields.filter( filter => filter.dataSource === this.boardDs.engineName );
+      if (boardConf.customFields) {
+        this.dsCustomFields = boardConf.customFields.filter(filter => filter.dataSource === this.boardDs.engineName);
         // this._totalFields = this.dsFields.concat(this.dsCustomFields);
         this._totalFields = this._totalFields.concat(this.dsCustomFields);
       }
@@ -261,8 +269,8 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     this.dimPage--;
 
     // 페이징 목록
-    let start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
-    let end: number = (this.dimPage * this.DIM_PAGE_SIZE);
+    const start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
+    const end: number = (this.dimPage * this.DIM_PAGE_SIZE);
     this.displayDimensions = this.dimensionFields.slice(start, end);
   } // function - prevDimPage
 
@@ -277,8 +285,8 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     this.dimPage++;
 
     // 페이징 목록
-    let start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
-    let end: number = (this.dimPage * this.DIM_PAGE_SIZE);
+    const start: number = (this.dimPage - 1) * this.DIM_PAGE_SIZE;
+    const end: number = (this.dimPage * this.DIM_PAGE_SIZE);
     this.displayDimensions = this.dimensionFields.slice(start, end);
   } // function - nextDimPage
 
@@ -293,8 +301,8 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     this.meaPage--;
 
     // 페이징 목록
-    let start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
-    let end: number = (this.meaPage * this.MEA_PAGE_SIZE);
+    const start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
+    const end: number = (this.meaPage * this.MEA_PAGE_SIZE);
     this.displayMeasures = this.measureFields.slice(start, end);
   } // function - prevMeaPage
 
@@ -309,19 +317,14 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     this.meaPage++;
 
     // 페이징 목록
-    let start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
-    let end: number = (this.meaPage * this.MEA_PAGE_SIZE);
+    const start: number = (this.meaPage - 1) * this.MEA_PAGE_SIZE;
+    const end: number = (this.meaPage * this.MEA_PAGE_SIZE);
     this.displayMeasures = this.measureFields.slice(start, end);
   } // function - nextMeaPage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - List Item
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 외부 static method 정의
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
-  public unescapeCustomColumnExpr = StringUtil.unescapeCustomColumnExpr;
 
   /**
    * 필드 상세정보 ContextMenu
@@ -334,7 +337,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     // 현재 선택된 필드 설정
     this.selectedField = field;
     // 필드 상세 레이어 표시
-    let bdDatasource:BoardDataSource = _.cloneDeep(this.dashboard.configuration.dataSource);
+    let bdDatasource: BoardDataSource = _.cloneDeep(this.dashboard.configuration.dataSource);
     if (bdDatasource.type === 'multi') {
       bdDatasource = this.dashboard.configuration.dataSource.dataSources.find((datasource) => {
         return DashboardUtil.isSameDataSource(datasource, this.dataSource);
@@ -374,7 +377,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       field.useFilter = false;
 
       // 필터 제거
-      const idx = _.findIndex(this.globalFilters, { field: field.name });
+      const idx = _.findIndex(this.globalFilters, {field: field.name});
       if (idx > -1) {
         this.onDeleteFilter.emit(this.globalFilters[idx]);
       }
@@ -422,7 +425,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    * 사용자 정의 필드 팝업 열기 ( 컨텍스트 메뉴로 부터.. )
    * @param customField
    */
-  public openCustomFieldPopupFromContext( customField:CustomField ) {
+  public openCustomFieldPopupFromContext(customField: CustomField) {
     this.customFieldPopupType = customField.role.toString();
     this.selectedCustomField = customField;
     this.isShowCustomFiled = true;
@@ -498,27 +501,27 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this._setUseChart(this._totalFields);
       this._setUseFilter(this._totalFields);
 
-      if( this.dashboard.configuration.dataSource.associations ) {
+      if (this.dashboard.configuration.dataSource.associations) {
         const dsList = this.dashboard.dataSources;
         const currentEngineName = this.dataSource.engineName;
         const associations
           = this.dashboard.configuration.dataSource.associations
-          .filter( item => item.source === currentEngineName || item.target === currentEngineName );
-        if( associations && 0 < associations.length ) {
-          this._totalFields.forEach( field => {
-            associations.forEach( ass => {
-              const colPairKeys:string[] = Object.keys( ass.columnPair );
-              if( currentEngineName === ass.source ) {
-                const pairKey = colPairKeys.find( item => field.name === item );
-                if( pairKey ) {
-                  ( field['assInfo'] ) || ( field['assInfo'] = [] );
-                  field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.target ).name + ' : ' + ass.columnPair[pairKey] );
+          .filter(item => item.source === currentEngineName || item.target === currentEngineName);
+        if (associations && 0 < associations.length) {
+          this._totalFields.forEach(field => {
+            associations.forEach(ass => {
+              const colPairKeys: string[] = Object.keys(ass.columnPair);
+              if (currentEngineName === ass.source) {
+                const pairKey = colPairKeys.find(item => field.name === item);
+                if (pairKey) {
+                  (field['assInfo']) || (field['assInfo'] = []);
+                  field['assInfo'].push(dsList.find(ds => ds.engineName === ass.target).name + ' : ' + ass.columnPair[pairKey]);
                 }
-              } else if( currentEngineName === ass.target ) {
-                const pairItem = colPairKeys.find( item => field.name === ass.columnPair[item] );
-                if( pairItem ) {
-                  ( field['assInfo'] ) || ( field['assInfo'] = [] );
-                  field['assInfo'].push(  dsList.find( ds => ds.engineName === ass.source ).name + ' : ' + pairItem );
+              } else if (currentEngineName === ass.target) {
+                const pairItem = colPairKeys.find(item => field.name === ass.columnPair[item]);
+                if (pairItem) {
+                  (field['assInfo']) || (field['assInfo'] = []);
+                  field['assInfo'].push(dsList.find(ds => ds.engineName === ass.source).name + ' : ' + pairItem);
                 }
               }
             })
@@ -572,24 +575,24 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
       this.widgets.forEach((widget: Widget) => {
 
-      // map - set shelf layers
-      if (undefined !== widget.configuration['chart']['layerNum'] && widget.type === 'page' && widget.configuration && widget.configuration['shelf']) {
+        // map - set shelf layers
+        if (undefined !== widget.configuration['chart']['layerNum'] && widget.type === 'page' && widget.configuration && widget.configuration['shelf']) {
 
-        const pivotConf = widget.configuration['shelf'];
-        const layerNum = widget.configuration['chart']['layerNum'];
-        if (undefined !== layerNum && pivotConf.layers && 0 < pivotConf.layers[layerNum].length) {
-          pivotConf.layers[layerNum].forEach(layer => {
-            let idx: number = totalFields.findIndex(field => field.name === layer.name);
-            if (-1 < idx) {
-              totalFields[idx].useChart = true;
-            }
-          });
-        }
-      } else if (widget.type === 'page' && widget.configuration && widget.configuration['pivot']) {
+          const pivotConf = widget.configuration['shelf'];
+          const layerNum = widget.configuration['chart']['layerNum'];
+          if (undefined !== layerNum && pivotConf.layers && 0 < pivotConf.layers[layerNum].length) {
+            pivotConf.layers[layerNum].forEach(layer => {
+              const idx: number = totalFields.findIndex(field => field.name === layer.name);
+              if (-1 < idx) {
+                totalFields[idx].useChart = true;
+              }
+            });
+          }
+        } else if (widget.type === 'page' && widget.configuration && widget.configuration['pivot']) {
           const pivotConf = widget.configuration['pivot'];
           if (pivotConf.columns && 0 < pivotConf.columns.length) {
             pivotConf.columns.forEach(column => {
-              let idx: number = totalFields.findIndex(field => field.name === column.name);
+              const idx: number = totalFields.findIndex(field => field.name === column.name);
               if (-1 < idx) {
                 totalFields[idx].useChart = true;
               }
@@ -597,7 +600,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
           }
           if (pivotConf.rows && 0 < pivotConf.rows.length) {
             pivotConf.rows.forEach(row => {
-              let idx: number = totalFields.findIndex(field => field.name === row.name);
+              const idx: number = totalFields.findIndex(field => field.name === row.name);
               if (-1 < idx) {
                 totalFields[idx].useChart = true;
               }
@@ -605,7 +608,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
           }
           if (pivotConf.aggregations && 0 < pivotConf.aggregations.length) {
             pivotConf.aggregations.forEach(aggregation => {
-              let idx: number = totalFields.findIndex(field => field.name === aggregation.name);
+              const idx: number = totalFields.findIndex(field => field.name === aggregation.name);
               if (-1 < idx) {
                 totalFields[idx].useChart = true;
               }
@@ -625,17 +628,17 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     totalFields.forEach(field => {
       field.useChartFilter = false;
       field.useFilter = false;
-      field['isCustomMeasure'] = this.isCustomMeasureField(<Field>field);
+      field['isCustomMeasure'] = this.isCustomMeasureField(field as Field);
     });
 
     // 필드로 필터 사용판단
     totalFields.forEach((field) => {
       // 글로벌 필터로 사용하는지
-      let idx = _.findIndex(this.globalFilters, { field: field.name });
+      let idx = _.findIndex(this.globalFilters, {field: field.name});
       if (idx > -1) field.useFilter = true;
 
       // 차트 필터로 사용중인지
-      idx = _.findIndex(this.chartFilters, { field: field.name });
+      idx = _.findIndex(this.chartFilters, {field: field.name});
       if (idx > -1) field.useChartFilter = true;
     });
   } // function - _setUseFilter

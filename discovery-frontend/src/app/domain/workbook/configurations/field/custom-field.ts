@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { Field, FieldRole, IngestionRule, LogicalType } from '../../../datasource/datasource';
-import { UserDefinedField } from './user-defined-field';
+import {Field, FieldRole, IngestionRule, LogicalType} from '@domain/datasource/datasource';
+import {UserDefinedField} from './user-defined-field';
 
 export class CustomField extends UserDefinedField {
 
-  public dataSource:string;
+  public dataSource: string;
 
   // Expression
   public expr: string;
@@ -30,7 +30,7 @@ export class CustomField extends UserDefinedField {
    */
   public dataType: any;
 
-   // Expression이 이미 집계가 된 것인지 여부 확인
+  // Expression이 이미 집계가 된 것인지 여부 확인
   public aggregated: boolean;
 
   // For UI

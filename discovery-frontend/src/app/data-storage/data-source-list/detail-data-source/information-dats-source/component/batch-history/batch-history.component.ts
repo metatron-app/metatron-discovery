@@ -1,4 +1,3 @@
-
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
-import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
-import { IngestionHistory, IngestionStatus } from '../../../../../../domain/datasource/datasource';
-import { MomentDatePipe } from '../../../../../../common/pipe/moment.date.pipe';
-import { CommonUtil } from '../../../../../../common/util/common.util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {IngestionHistory, IngestionStatus} from '@domain/datasource/datasource';
+import {DatasourceService} from '../../../../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'batch-history',
   templateUrl: './batch-history.component.html',
   providers: [MomentDatePipe]
-
 })
 export class BatchHistoryComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -45,6 +43,8 @@ export class BatchHistoryComponent extends AbstractPopupComponent implements OnI
   public batchFl: boolean = false;
 
   public histories: IngestionHistory[];
+
+  public convertMilliseconds: (ms: number) => string = CommonUtil.convertMilliseconds;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -80,7 +80,6 @@ export class BatchHistoryComponent extends AbstractPopupComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * Init
@@ -191,8 +190,8 @@ export class BatchHistoryComponent extends AbstractPopupComponent implements OnI
     this.loadingShow();
 
     const params = {
-      page : this.pageResult.number,
-      size : this.pageResult.size
+      page: this.pageResult.number,
+      size: this.pageResult.size
     };
 
     this.datasourceService.getBatchHistories(datasourceId, params)
@@ -212,7 +211,7 @@ export class BatchHistoryComponent extends AbstractPopupComponent implements OnI
         // 로딩 종료
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 종료
         this.loadingHide();
       });

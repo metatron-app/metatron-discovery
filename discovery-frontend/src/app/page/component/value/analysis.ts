@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
-import { Limit } from '../../../domain/workbook/configurations/limit';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { UserDefinedField } from '../../../domain/workbook/configurations/field/user-defined-field';
-import { SeriesType } from '../../../common/component/chart/option/define/common';
-import { TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
-import { BoardDataSource } from '../../../domain/dashboard/dashboard';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Limit} from '@domain/workbook/configurations/limit';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {UserDefinedField} from '@domain/workbook/configurations/field/user-defined-field';
+import {SeriesType} from '@common/component/chart/option/define/common';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {BoardDataSource} from '@domain/dashboard/dashboard';
 
 export class Analysis {
 
@@ -42,17 +42,16 @@ export class Analysis {
   preview: false;
 
   // Embedded Analysis 관련 설정안에서 사용할 analysis 데이터
-  analysis: analysis;
-
+  analysis: AnalysisConfig;
 
   // map chart analysis spatial
-  type? : string;
+  type?: string;
 
-  mainLayer? : string;
+  mainLayer?: string;
 
-  compareLayer? : string;
+  compareLayer?: string;
 
-  operation? : Operation;
+  operation?: Operation;
 
 }
 
@@ -63,7 +62,7 @@ export class Analysis {
 /**
  * Embedded Analysis 관련 설정안에서 사용할 analysis 데이터
  */
-export class analysis {
+export class AnalysisConfig {
 
   type: string = 'prediction';
 
@@ -277,7 +276,7 @@ export class LineStyle {
  */
 export class Operation {
 
-  type : string;
-  distance : number;
+  type: string;
+  distance: number;
 
 }

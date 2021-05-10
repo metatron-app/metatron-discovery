@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { ChartType, UIChartDataLabelDisplayType } from '../../common/component/chart/option/define/common';
-import { UIOption } from '../../common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
-import { UIChartFormat } from '../../common/component/chart/option/ui-option/ui-format';
-import { LabelBaseOptionComponent } from './labelbase-option.component';
-import { TooltipOptionConverter } from '../../common/component/chart/option/converter/tooltip-option-converter';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {UIChartDataLabelDisplayType} from '@common/component/chart/option/define/common';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {FormatOptionConverter} from '@common/component/chart/option/converter/format-option-converter';
+import {LabelBaseOptionComponent} from './labelbase-option.component';
+import {TooltipOptionConverter} from '@common/component/chart/option/converter/tooltip-option-converter';
+
 @Component({
   selector: 'tooltip-option',
   templateUrl: './tooltip-option.component.html'
 })
-export class TooltipOptionComponent extends LabelBaseOptionComponent {
+export class TooltipOptionComponent extends LabelBaseOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -41,7 +41,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
 
-    if( !uiOption.toolTip ) {
+    if (!uiOption.toolTip) {
       uiOption.toolTip = {};
     }
     // displayTypes가 없는경우 차트에 따라서 기본 displayTypes설정
@@ -57,6 +57,11 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
     // Set
     this.uiOption = uiOption;
   }
+
+  public get uiChartDataLabelDisplayType(): typeof UIChartDataLabelDisplayType{
+    return UIChartDataLabelDisplayType;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -98,21 +103,21 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
   public toggleDisplayType(displayType: string, typeIndex: number): void {
 
     // 값이 없을경우 기화
-    if( !this.uiOption.toolTip.displayTypes ) {
+    if (!this.uiOption.toolTip.displayTypes) {
       this.uiOption.toolTip.displayTypes = [];
     }
 
     // 이미 체크된 상태라면 제거
     let isFind = false;
     _.each(this.uiOption.toolTip.displayTypes, (type, index) => {
-      if( _.eq(type, displayType) ) {
+      if (_.eq(type, displayType)) {
         isFind = true;
         this.uiOption.toolTip.displayTypes[index] = null;
       }
     });
 
     // 체크되지 않은 상태라면 추가
-    if( !isFind ) {
+    if (!isFind) {
       this.uiOption.toolTip.displayTypes[typeIndex] = UIChartDataLabelDisplayType[displayType];
     }
 
@@ -129,7 +134,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
   public apply(): void {
 
     // 옵션 적용
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { toolTip: this.uiOption.toolTip });
+    this.uiOption = (_.extend({}, this.uiOption, {toolTip: this.uiOption.toolTip}) as UIOption);
     this.update();
   }
 

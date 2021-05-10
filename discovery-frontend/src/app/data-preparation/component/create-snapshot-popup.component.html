@@ -123,7 +123,7 @@
                   <input type="text"
                          class="ddp-input-typebasic"
                          [(ngModel)]="snapshot.storedUri"
-                         (ngModelChange)="onChangeStoredUri($event, selection)"
+                         (ngModelChange)="onChangeStoredUri($event)"
                          (keydown)="fileUriKeyDown()">
                   <span class="ddp-data-error" *ngIf="fileUrlErrorMsg !== ''"> {{fileUrlErrorMsg}}</span>
                 </div>
@@ -140,7 +140,7 @@
               [isUpSelect]="false"
               [array]="dbList"
               [isFull]="true"
-              (onSelected)="onSelectedDBName( $event, dbList )">
+              (onSelected)="onSelectedDBName($event)">
             </component-select>
             <!-- //edit option -->
           </div>

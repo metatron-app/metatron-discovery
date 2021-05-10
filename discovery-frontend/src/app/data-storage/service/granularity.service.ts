@@ -15,7 +15,7 @@
 
 import {Injectable, Injector} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {FieldFormatType, FieldFormatUnit} from "../../domain/datasource/datasource";
+import {FieldFormatType, FieldFormatUnit} from '@domain/datasource/datasource';
 
 declare let moment: any;
 
@@ -27,16 +27,16 @@ export class GranularityService {
   private _translateService: TranslateService;
 
   constructor(private injector: Injector) {
-    this._translateService = injector.get(TranslateService);
+    this._translateService = this.injector.get(TranslateService);
     // set granularity list
     this.granularityList = [
-      { label: this._translateService.instant('msg.storage.li.dsource.granularity-none'), value: Granularity.NONE },
-      { label: this._translateService.instant('msg.storage.li.dsource.granularity-second'), value: Granularity.SECOND },
-      { label: this._translateService.instant('msg.storage.li.dsource.granularity-minute'), value: Granularity.MINUTE },
-      { label: this._translateService.instant('msg.storage.li.dsource.granularity-hour'), value: Granularity.HOUR },
-      { label: this._translateService.instant('msg.storage.li.dsource.granularity-day'), value: Granularity.DAY },
-      { label: this._translateService.instant('msg.storage.li.dsource.granularity-month'), value: Granularity.MONTH },
-      { label: this._translateService.instant('msg.storage.li.dsource.granularity-year'), value: Granularity.YEAR }
+      {label: this._translateService.instant('msg.storage.li.dsource.granularity-none'), value: Granularity.NONE},
+      {label: this._translateService.instant('msg.storage.li.dsource.granularity-second'), value: Granularity.SECOND},
+      {label: this._translateService.instant('msg.storage.li.dsource.granularity-minute'), value: Granularity.MINUTE},
+      {label: this._translateService.instant('msg.storage.li.dsource.granularity-hour'), value: Granularity.HOUR},
+      {label: this._translateService.instant('msg.storage.li.dsource.granularity-day'), value: Granularity.DAY},
+      {label: this._translateService.instant('msg.storage.li.dsource.granularity-month'), value: Granularity.MONTH},
+      {label: this._translateService.instant('msg.storage.li.dsource.granularity-year'), value: Granularity.YEAR}
     ];
   }
 
@@ -61,9 +61,8 @@ export class GranularityService {
    * Get initialized granularity
    * @param {string} format
    * @param {number} startNumber
-   * @return {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject}}
    */
-  public getInitializedGranularity(format: string, startNumber: number): {segmentGranularity: GranularityObject, queryGranularity: GranularityObject} {
+  public getInitializedGranularity(format: string, startNumber: number): { segmentGranularity: GranularityObject, queryGranularity: GranularityObject } {
     const result = {
       segmentGranularity: undefined,
       queryGranularity: undefined,
@@ -95,7 +94,7 @@ export class GranularityService {
 
   /**
    * Get initialized interval
-   * @param {any[]} fieldDataList
+   * @param fieldDataList
    * @param {string} format
    * @param {GranularityObject} granularity
    * @param {FieldFormatType} type
@@ -104,7 +103,7 @@ export class GranularityService {
    */
   public getInitializedInterval(fieldDataList: any[], format: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): GranularityIntervalInfo {
     const firstMoment = this._getConvertedMoment(this.getAvailableStartData(fieldDataList, 0), format, type, unit);
-    const endMoment = this._getConvertedMoment(this._getAvailableEndData(fieldDataList, fieldDataList.length-1), format, type, unit);
+    const endMoment = this._getConvertedMoment(this._getAvailableEndData(fieldDataList, fieldDataList.length - 1), format, type, unit);
     // init
     const result: GranularityIntervalInfo = {
       startInterval: this.getInitInterval(firstMoment, granularity),
@@ -163,12 +162,11 @@ export class GranularityService {
 
   /**
    * Get available Start Data
-   * @param {any[]} dataList
-   * @param {number} startNumber
-   * @return {any}
+   * @param dataList
+   * @param startNumber
    */
   public getAvailableStartData(dataList: any[], startNumber: number): any {
-    return dataList[startNumber] || (startNumber === dataList.length -1 ? moment() : this.getAvailableStartData(dataList, startNumber + 1));
+    return dataList[startNumber] || (startNumber === dataList.length - 1 ? moment() : this.getAvailableStartData(dataList, startNumber + 1));
   }
 
   /**
@@ -184,9 +182,8 @@ export class GranularityService {
 
   /**
    * Get available End Data
-   * @param {any[]} dataList
-   * @param {number} startNumber
-   * @return {any}
+   * @param dataList
+   * @param startNumber
    * @private
    */
   private _getAvailableEndData(dataList: any[], startNumber: number): any {
@@ -212,7 +209,6 @@ export class GranularityService {
    * @param {string} format
    * @param {FieldFormatType} type
    * @param {FieldFormatUnit} unit
-   * @return {any}
    * @private
    */
   private _getConvertedMoment(data: any, format: string, type: FieldFormatType, unit: FieldFormatUnit): any {
@@ -297,7 +293,7 @@ export class GranularityService {
 
   /**
    * Get added interval
-   * @param {string} dateTime
+   * @param {string} momentData
    * @param {number} value
    * @param {GranularityObject} granularity
    * @returns {string}
@@ -309,7 +305,7 @@ export class GranularityService {
 
   /**
    *  Get reduced interval
-   * @param {string} dateTime
+   * @param {string} momentData
    * @param {number} value
    * @param {GranularityObject} granularity
    * @returns {string}
@@ -348,10 +344,10 @@ export class GranularityService {
    * Automation granularity
    * @param {string} format
    * @param {number} startNumber
-   * @param {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject}} resultObject
+   * @param resultObject
    * @private
    */
-  private _automationGranularity(format: string, startNumber: number, resultObject: {segmentGranularity: GranularityObject, queryGranularity: GranularityObject}) {
+  private _automationGranularity(format: string, startNumber: number, resultObject: { segmentGranularity: GranularityObject, queryGranularity: GranularityObject }) {
     switch (format.slice(startNumber, startNumber + 1)) {
       case 'Y':
       case 'y':
@@ -411,7 +407,7 @@ export class GranularityService {
 
 export enum Granularity {
   NONE = 'NONE',
-  SECOND ='SECOND',
+  SECOND = 'SECOND',
   MINUTE = 'MINUTE',
   HOUR = 'HOUR',
   DAY = 'DAY',

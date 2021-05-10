@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
@@ -20,9 +21,13 @@ import {
   Injector,
   Output,
   QueryList,
-  Renderer,
+  Renderer2,
   ViewChildren
 } from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   ConnectionType,
   Datasource,
@@ -31,28 +36,19 @@ import {
   FieldFormatType,
   FieldRole,
   LogicalType
-} from '../../../../domain/datasource/datasource';
+} from '@domain/datasource/datasource';
+import {QueryParam} from '@domain/dashboard/dashboard';
+import {AuthenticationType, Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';
 
-import * as _ from 'lodash';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {StringUtil} from "../../../../common/util/string.util";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
-import {AuthenticationType, Dataconnection, ImplementorType} from "../../../../domain/dataconnection/dataconnection";
-import {QueryParam} from "../../../../domain/dashboard/dashboard";
-import {DataconnectionService} from "../../../../dataconnection/service/dataconnection.service";
-import {FieldConfigService} from "../../../service/field-config.service";
-import {ConstantService} from "../../../../shared/datasource-metadata/service/constant.service";
-import {Filter} from "../../../../shared/datasource-metadata/domain/filter";
-import {Type} from "../../../../shared/datasource-metadata/domain/type";
-import {isNullOrUndefined} from "util";
-import {StorageService} from "../../../service/storage.service";
-import {DatetimeValidPopupComponent} from "../../../../shared/datasource-metadata/component/datetime-valid-popup.component";
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {FieldConfigService} from '../../../service/field-config.service';
+import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
+import {Filter} from '../../../../shared/datasource-metadata/domain/filter';
+import {Type} from '../../../../shared/datasource-metadata/domain/type';
+import {StorageService} from '../../../service/storage.service';
+import {DatetimeValidPopupComponent} from '../../../../shared/datasource-metadata/component/datetime-valid-popup.component';
 import Role = Type.Role;
-import {CommonUtil} from "../../../../common/util/common.util";
-import {MetadataColumn} from "../../../../domain/meta-data-management/metadata-column";
-import {clone} from "@turf/turf";
 
 @Component({
   selector: 'edit-config-schema',
@@ -60,9 +56,20 @@ import {clone} from "@turf/turf";
 })
 export class EditConfigSchemaComponent extends AbstractComponent {
 
-  @HostListener('click', ['$event'])
-  public clickListener() {
-    this._hideTypeListPopup();
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private datasourceService: DatasourceService,
+              private fieldConfigService: FieldConfigService,
+              private connectionService: DataconnectionService,
+              private storageService: StorageService,
+              public constant: ConstantService,
+              public renderer: Renderer2,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
   }
 
   @ViewChildren(DatetimeValidPopupComponent)
@@ -96,7 +103,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
 
   // enum variable
   public readonly FIELD_ROLE: any = FieldRole;
-  public readonly LOGICAL_TYPE: any = LogicalType;
   public readonly FIELD_FORMAT_TYPE: any = FieldFormatType;
 
   // error flag
@@ -109,33 +115,31 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   public readonly TYPE_SELECTED_LABEL_ELEMENT = this.UUID + '-type-selected-label-elm';
   public readonly TYPE_SELECTED_ICON_ELEMENT = this.UUID + '-type-selected-icon-elm';
 
-
   @Output()
   public readonly updatedSchema: EventEmitter<any> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChildren('descriptionInputs')
+  private descriptionInputs: QueryList<ElementRef>;
 
-  // 생성자
-  constructor(private datasourceService: DatasourceService,
-              private datasourceCreateService: DataSourceCreateService,
-              private fieldConfigService: FieldConfigService,
-              private connectionService: DataconnectionService,
-              private storageService: StorageService,
-              public constant: ConstantService,
-              public renderer: Renderer,
-              protected element: ElementRef,
-              protected injector: Injector) {
-    super(element, injector);
+  @ViewChildren('descriptionTds')
+  private descriptionTds: QueryList<ElementRef>;
+
+  @ViewChildren('nameInputs')
+  private nameInputs: QueryList<ElementRef>;
+
+  @ViewChildren('nameTds')
+  private nameTds: QueryList<ElementRef>;
+
+  @HostListener('click')
+  public clickListener() {
+    this._hideTypeListPopup();
   }
 
   /**
    * init
    * @param {string} datasourceId
    * @param {Field[]} fields
-   * @param {any[]} roleTypeFilterList
-   * @param {any[]} typeFilterList
+   * @param {any[]} datasource
    */
   public init(datasourceId: string, fields: Field[], datasource: Datasource): void {
     // 데이터소스 아이디
@@ -167,7 +171,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * Set exist error in field list flag
    */
   public setIsExistErrorInFieldListFlag(): void {
-    this.isExistErrorInFieldList = this.fieldList.some(field =>  field.role !== FieldRole.TIMESTAMP && (field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat));
+    this.isExistErrorInFieldList = this.fieldList.some(field => field.role !== FieldRole.TIMESTAMP && (field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat));
   }
 
   /**
@@ -175,12 +179,12 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public save(): void {
     // if not exist error
-    if (!this.fieldList.some(field =>  field.role !== FieldRole.TIMESTAMP && (field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat))) {
+    if (!this.fieldList.some(field => field.role !== FieldRole.TIMESTAMP && (field.logicalType === LogicalType.TIMESTAMP && !field.format.isValidFormat))) {
       // 로딩 show
       this.loadingShow();
       // 필드 업데이트
       this.datasourceService.updateDatasourceFields(this._sourceId, this._getUpdateFieldParams())
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.storage.alert.schema.config.success'));
           // 로딩 hide
@@ -314,11 +318,10 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     }
   }
 
-
   /**
    * logical type 변경 이벤트
-   * @param {Field} field
-   * @param logicalType
+   * @param {Field} targetField
+   * @param typeToChange
    */
   public onChangeLogicalType(targetField: Field, typeToChange): void {
     event.stopPropagation()
@@ -329,7 +332,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       // change logical type
       targetField.logicalType = typeToChange.value;
       // 만약 기존 타입이 GEO 또는 TIMESTAMP 타입이라면
-      if (prevLogicalType ===  LogicalType.GEO_POINT || prevLogicalType === LogicalType.GEO_POLYGON || prevLogicalType === LogicalType.GEO_LINE || prevLogicalType === LogicalType.TIMESTAMP) {
+      if (prevLogicalType === LogicalType.GEO_POINT || prevLogicalType === LogicalType.GEO_POLYGON || prevLogicalType === LogicalType.GEO_LINE || prevLogicalType === LogicalType.TIMESTAMP) {
         // remove format
         targetField.format = null;
         this.setIsExistErrorInFieldListFlag();
@@ -337,24 +340,24 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       // 변경될 타입이 GEO 타입이라면
       if (typeToChange.value === LogicalType.GEO_POINT || typeToChange.value === LogicalType.GEO_POLYGON || typeToChange.value === LogicalType.GEO_LINE) {
         // if not exist format in field
-        if (isNullOrUndefined(targetField.format)) {
+        if (this.isNullOrUndefined(targetField.format)) {
           targetField.format = new FieldFormat();
         }
         // loading show
         this.loadingShow();
         // valid WKT
         this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(targetField.format, this.fieldConfigService.getFieldDataList(targetField, this.fieldDataList), typeToChange.value)
-          .then((result) => {
+          .then(() => {
             this.setIsExistErrorInFieldListFlag();
             // loading hide
             this.loadingHide();
           })
-          .catch((error) => {
+          .catch(() => {
             this.setIsExistErrorInFieldListFlag();
             // loading hide
             this.loadingHide();
           });
-      } else if (typeToChange.value === LogicalType.TIMESTAMP && isNullOrUndefined(targetField.format)) {  // 변경될 타입이 TIMESTAMP 타입이라면
+      } else if (typeToChange.value === LogicalType.TIMESTAMP && this.isNullOrUndefined(targetField.format)) {  // 변경될 타입이 TIMESTAMP 타입이라면
         targetField.format = new FieldFormat();
         //
         this.safelyDetectChanges();
@@ -369,6 +372,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   /**
    * Change type list show flag
    * @param {Field} field
+   * @param {MouseEvent} event
    */
   public onChangeTypeListShowFlag(field: Field, event: MouseEvent): void {
     event.stopPropagation();
@@ -407,7 +411,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         // find field in fieldList
         const targetField = this.fieldList.find(field => field.name === originField.name);
         // if not exist target field (removed field)
-        if (isNullOrUndefined(targetField)) {
+        if (this.isNullOrUndefined(targetField)) {
           // TODO removed field 설정후 result.push
         } else { // if exist target field
           const tempField = _.cloneDeep(targetField);
@@ -422,7 +426,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
           }
           // if changed logical type
           if (originField.logicalType !== tempField.logicalType) {
-            tempField.op  = 'replace';
+            tempField.op = 'replace';
             // if exist format and is not TIMESTAMP or GEO
             if (tempField.hasOwnProperty('format') && tempField.logicalType !== LogicalType.TIMESTAMP && tempField.logicalType !== LogicalType.GEO_POINT && tempField.logicalType !== LogicalType.GEO_LINE && tempField.logicalType !== LogicalType.GEO_POLYGON) {
               // remove format property
@@ -432,7 +436,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
             }
             // if is TIMESTAMP, different format type, unit, format
           } else if (originField.logicalType === tempField.logicalType && tempField.logicalType === LogicalType.TIMESTAMP && (originField.format.type !== tempField.format.type || originField.format.format !== tempField.format.format || originField.format.unit !== tempField.format.unit)) {
-            tempField.op  = 'replace';
+            tempField.op = 'replace';
             tempField.format.removeUIProperties();
           }
           // push result
@@ -442,7 +446,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     });
     // TODO check created field
     // this.fieldList.forEach((field) => {
-    //   if (isNullOrUndefined(this._originFieldList.find(originField => originField.name === field.name))) {
+    //   if (this.isNullOrUndefined(this._originFieldList.find(originField => originField.name === field.name))) {
     //     // TODO created field 설정후 result.push
     //   }
     // });
@@ -498,7 +502,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     if (field.role === FieldRole.MEASURE) {
       this.convertibleTypeList = this.constant.getTypeFiltersInMeasure();
     }
-    // else if (field.role === FieldRole.DIMENSION && field.type === LogicalType.STRING.toString()) {
+      // else if (field.role === FieldRole.DIMENSION && field.type === LogicalType.STRING.toString()) {
     //   this.convertibleTypeList = this.constant.getTypeFiltersInDimensionOnlyBaseTypeString(); }
     else {
       this.convertibleTypeList = this.constant.getTypeFiltersInDimension();
@@ -520,7 +524,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       // not used preset : source.ingestion.connection
       const connection: Dataconnection = datasource.connection || datasource.ingestion.connection;
       this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE)
-        .then((result: {data: any, fields: Field[], totalRows: number}) => {
+        .then((result: { data: any, fields: Field[], totalRows: number }) => {
           // grid data
           this.fieldDataList = result.data;
           // 로딩 hide
@@ -550,43 +554,30 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     }
   }
 
-
-  @ViewChildren('descriptionInputs')
-  private descriptionInputs: QueryList<ElementRef>;
-
-  @ViewChildren('descriptionTds')
-  private descriptionTds: QueryList<ElementRef>;
-
   public focusDescriptionInput(index: number) {
     event.stopPropagation();
     this._hideTypeListPopup();
-    this.descriptionInputs.toArray()[ index ].nativeElement.focus();
-    this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+    this.descriptionInputs.toArray()[index].nativeElement.focus();
+    this.renderer.addClass(this.descriptionTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   public blurDescriptionInput(index: number) {
-    this.renderer.setElementClass(this.descriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
+    this.renderer.removeClass(this.descriptionTds.toArray()[index].nativeElement, 'ddp-selected');
   }
-
-  @ViewChildren('nameInputs')
-  private nameInputs: QueryList<ElementRef>;
-
-  @ViewChildren('nameTds')
-  private nameTds: QueryList<ElementRef>;
 
   public focusNameInput(index: number) {
     event.stopPropagation();
     this._hideTypeListPopup();
-    this.nameInputs.toArray()[ index ].nativeElement.focus();
-    this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+    this.nameInputs.toArray()[index].nativeElement.focus();
+    this.renderer.addClass(this.nameTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   public blurNameInput(index: number) {
-    this.renderer.setElementClass(this.nameTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
+    this.renderer.removeClass(this.nameTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   private _hideTypeListPopup() {
-    if (!isNullOrUndefined(this.filteredFieldList)) {
+    if (!this.isNullOrUndefined(this.filteredFieldList)) {
       this.filteredFieldList.forEach(item => {
         item.isShowTypeList = false;
       })

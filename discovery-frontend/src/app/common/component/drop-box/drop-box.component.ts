@@ -12,23 +12,21 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output } from '@angular/core';
+import {
+  Component, ElementRef, EventEmitter, HostListener,
+  Injector, Input, OnDestroy, OnInit, Output
+} from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
 
 @Component({
   selector: 'component-drop-box',
-  templateUrl: './drop-box.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './drop-box.component.html'
 })
-export class DropBoxComponent extends AbstractComponent implements OnInit {
+export class DropBoxComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -100,7 +98,6 @@ export class DropBoxComponent extends AbstractComponent implements OnInit {
 
   // Destory
   public ngOnDestroy() {
-
     // Destory
     super.ngOnDestroy();
   }
@@ -124,13 +121,13 @@ export class DropBoxComponent extends AbstractComponent implements OnInit {
   }
 
   // 컴포넌트 내부  host 클릭이벤트 처리
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
       // 팝업창 닫기
       this.isShowSelect = false;
     }
-
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

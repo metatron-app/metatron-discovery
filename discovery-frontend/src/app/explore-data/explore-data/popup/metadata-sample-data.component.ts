@@ -1,23 +1,22 @@
+import * as _ from 'lodash';
 import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {TimezoneService} from "../../../data-storage/service/timezone.service";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {MetadataModelService} from "../../../meta-data-management/metadata/service/metadata.model.service";
-import {GridComponent} from "../../../common/component/grid/grid.component";
-import * as _ from "lodash";
-import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
-import {GridOption} from "../../../common/component/grid/grid.option";
-import {Datasource, Field, FieldFormatType, LogicalType} from "../../../domain/datasource/datasource";
-import {Type} from "../../../shared/datasource-metadata/domain/type";
-import {MetadataSource} from "../../../domain/meta-data-management/metadata-source";
-import {Metadata} from "../../../domain/meta-data-management/metadata";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Datasource, Field, FieldFormatType, LogicalType} from '@domain/datasource/datasource';
+import {MetadataSource} from '@domain/meta-data-management/metadata-source';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {Type} from '../../../shared/datasource-metadata/domain/type';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {TimezoneService} from '../../../data-storage/service/timezone.service';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
 
 @Component({
   selector: 'explore-metadata-sample-data',
   templateUrl: './metadata-sample-data.component.html',
 })
-export class MetadataSampleDataComponent extends AbstractComponent {
+export class MetadataSampleDataComponent extends AbstractComponent implements OnInit {
 
   @Input() readonly metadata;
 
@@ -29,7 +28,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
   searchTextKeyword: string;
   // grid data
   fieldList;
-  fieldRowList: {[key: string]: string}[];
+  fieldRowList: { [key: string]: string }[];
   gridDataLimit: number = 50;
   isExistCreatedField: boolean;
 
@@ -39,7 +38,6 @@ export class MetadataSampleDataComponent extends AbstractComponent {
   constructor(private constantService: ConstantService,
               private timezoneService: TimezoneService,
               private metadataService: MetadataService,
-              private metadataModelService: MetadataModelService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -63,7 +61,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
    */
   extendGridHeader(args: any): void {
     // #2172 name -> physicalName, logicalName -> name
-    $(`<div class="slick-data">${_.find(this.fieldList, {'physicalName': args.column.id})['name'] || ''}</div>`).appendTo(args.node);
+    $(`<div class="slick-data">${_.find(this.fieldList, {physicalName: args.column.id})['name'] || ''}</div>`).appendTo(args.node);
   }
 
   private _isCreatedField(field): boolean {
@@ -74,7 +72,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
   private _setMetadataSampleData(): void {
     this.loadingShow();
     this.metadataService.getMetadataSampleData(this.metadata.id, this.gridDataLimit)
-      .then((result: {size: number, data}) => {
+      .then((result: { size: number, data }) => {
         // if exist data
         if (!_.isNil(result.data)) {
           // set isExistCreatedField flag
@@ -97,7 +95,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
   }
 
   private _setFieldList(colNames: string[], colDescs): void {
-    this.fieldList = colDescs.map((col, index) =>  {
+    this.fieldList = colDescs.map((col, index) => {
       return {
         ...col,
         colName: colNames[index]
@@ -160,7 +158,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
   }
 
   private _getTypeFilteredFieldList(fieldList) {
-    if ( this.selectedLogicalTypeFilter.value === Type.Logical.ALL) {
+    if (this.selectedLogicalTypeFilter.value === Type.Logical.ALL) {
       return fieldList;
     } else {
       return fieldList.filter(field => this._getConvertedType(field.type, field.physicalType) === this.selectedLogicalTypeFilter.value);
@@ -187,7 +185,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
    * @returns {header[]}
    * @private
    */
-  private _getGridHeader(fields): header[] {
+  private _getGridHeader(fields): Header[] {
     // if exist created field list
     if (this.isExistCreatedField) {
       // Style
@@ -211,7 +209,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
-          .Formatter((row, cell, value) => {
+          .Formatter((_row, _cell, value) => {
             // if derived expression type or LINK geo type
             if (this._isCreatedField(field) && (field.type === LogicalType.STRING || this.isLinkedSourceType())) {
               return '<div  style="' + defaultStyle + nullStyle + '">' + noPreviewGuideMessage + '</div>';
@@ -248,7 +246,7 @@ export class MetadataSampleDataComponent extends AbstractComponent {
    */
   private _updateGrid(): void {
     // 헤더정보 생성
-    const headers: header[] = this._getGridHeader(this._getFilteredFieldList(this.fieldList));
+    const headers: Header[] = this._getGridHeader(this._getFilteredFieldList(this.fieldList));
     // rows
     let rows: any[] = this.fieldRowList;
     // row and headers가 있을 경우에만 그리드 생성

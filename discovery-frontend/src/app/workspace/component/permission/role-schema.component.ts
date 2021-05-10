@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { Role } from '../../../domain/user/role/role';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {Role} from '@domain/user/role/role';
 import * as _ from 'lodash';
 
 @Component({
@@ -34,16 +34,16 @@ export class RoleSchemaComponent extends AbstractComponent implements OnInit, On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public role:Role;
+  public role: Role;
 
   @Input('role')
-  set setRole( role:Role) {
-    if( role && role.permissions && 0 < role.permissions.length ) {
+  set setRole(role: Role) {
+    if (role && role.permissions && 0 < role.permissions.length) {
       role.permissionNames = role.permissions.map(item => {
-        return <string>(item.name ? item.name : item);
+        return (item.name ? item.name : item) as string;
       });
     }
-    this.role = _.cloneDeep( role );
+    this.role = _.cloneDeep(role);
   } // function - setRole
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

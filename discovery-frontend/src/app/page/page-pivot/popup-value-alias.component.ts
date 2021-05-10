@@ -18,17 +18,19 @@ import {
   EventEmitter,
   HostListener,
   Injector,
+  OnDestroy,
+  OnInit,
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {GridComponent} from '../../common/component/grid/grid.component';
-import {GRID_EDIT_TYPE, header, SlickGridHeader} from '../../common/component/grid/grid.header';
-import {GridOption} from '../../common/component/grid/grid.option';
-import {Field, FieldValueAlias} from '../../domain/datasource/datasource';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GRID_EDIT_TYPE, Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Field, FieldValueAlias} from '@domain/datasource/datasource';
 import {DatasourceAliasService} from '../../datasource/service/datasource-alias.service';
 import {DatasourceService} from '../../datasource/service/datasource.service';
-import {BoardDataSource} from '../../domain/dashboard/dashboard';
+import {BoardDataSource} from '@domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 
@@ -36,7 +38,7 @@ import {DashboardUtil} from '../../dashboard/util/dashboard.util';
   selector: 'popup-value-alias',
   templateUrl: './popup-value-alias.component.html'
 })
-export class PopupValueAliasComponent extends AbstractComponent {
+export class PopupValueAliasComponent extends AbstractComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -127,18 +129,18 @@ export class PopupValueAliasComponent extends AbstractComponent {
       valueAlias.fieldName = field.name;
       this._fieldValueAlias = valueAlias;
       const param = {
-        dataSource : DashboardUtil.getDataSourceForApi(_.cloneDeep(dataSource)),
-        targetField: { alias: field.alias, type: 'dimension', name: field.name }
+        dataSource: DashboardUtil.getDataSourceForApi(_.cloneDeep(dataSource)),
+        targetField: {alias: field.alias, type: 'dimension', name: field.name}
       };
       this.loadingShow();
       this.datasourceService.getCandidate(param).then((result) => {
-        const valueAlias = {};
+        const temp = {};
         if (result && 0 < result.length) {
           result.forEach(item => {
-            valueAlias[item.field] = item.field;
+            temp[item.field] = item.field;
           });
         }
-        this._fieldValueAlias.valueAlias = valueAlias;
+        this._fieldValueAlias.valueAlias = temp;
         // 그리드 설정
         this._setGrid(this._fieldValueAlias);
         this.loadingHide();
@@ -166,15 +168,15 @@ export class PopupValueAliasComponent extends AbstractComponent {
     this.loadingShow();
     if (this._isEdit) {
       this.aliasService.updateAliases(this._fieldValueAlias.id, this._fieldValueAlias).then(item => {
-        this.selectedField.valueAlias = <FieldValueAlias>item;
-        this.changeAliasEvent.emit(<FieldValueAlias>item);
+        this.selectedField.valueAlias = item as FieldValueAlias;
+        this.changeAliasEvent.emit(item as FieldValueAlias);
         this.showFl = false;
         this.loadingHide();
       });
     } else {
       this.aliasService.createAliases(this._fieldValueAlias).then(item => {
-        this.selectedField.valueAlias = <FieldValueAlias>item;
-        this.changeAliasEvent.emit(<FieldValueAlias>item);
+        this.selectedField.valueAlias = item as FieldValueAlias;
+        this.changeAliasEvent.emit(item as FieldValueAlias);
         this.showFl = false;
         this.loadingHide();
       });
@@ -188,8 +190,8 @@ export class PopupValueAliasComponent extends AbstractComponent {
   @HostListener('click', ['$event.target'])
   public clickOther(target) {
     if (this.gridComponent) {
-      const $eventTarget:JQuery = $( target );
-      if( !$eventTarget.hasClass( 'ui-widget-content' ) && 0 === $eventTarget.closest( '.ui-widget-content' ).length ) {
+      const $eventTarget: JQuery = $(target);
+      if (!$eventTarget.hasClass('ui-widget-content') && 0 === $eventTarget.closest('.ui-widget-content').length) {
         this.gridComponent.resetActiveCell();
       }
     }
@@ -219,18 +221,20 @@ export class PopupValueAliasComponent extends AbstractComponent {
 
     // 필드 정보 grid 형식의 데이터로 변환
     const data = [];
-    for (let key in aliasData.valueAlias) {
-      let value = {};
-      value['field'] = key;
-      value['alias'] = aliasData.valueAlias[key];
-      data.push(value);
+    for (const key in aliasData.valueAlias) {
+      if (key) {
+        const value = {};
+        value['field'] = key;
+        value['alias'] = aliasData.valueAlias[key];
+        data.push(value);
+      }
     }
     this._gridData = data;
 
     // header 설정
     const valueMsg = this.translateService.instant('msg.board.datasource.alias.for.value.header.value');
     const forValueMsg = this.translateService.instant('msg.board.datasource.alias.for.value.title');
-    const headers: header[] = [];
+    const headers: Header[] = [];
     headers.push(new SlickGridHeader()
       .Id('field')
       .Name(valueMsg)

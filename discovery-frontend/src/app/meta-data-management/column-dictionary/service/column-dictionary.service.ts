@@ -13,8 +13,8 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class ColumnDictionaryService extends AbstractService {
@@ -79,7 +79,7 @@ export class ColumnDictionaryService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getColumnDictionaryDetail(dictionaryId: string, projection: string = 'forDetailView'): Promise<any> {
-    let url = this.URL_DICTIONARY + `/${dictionaryId}?projection=${projection}`;
+    const url = this.URL_DICTIONARY + `/${dictionaryId}?projection=${projection}`;
     return this.get(url);
   }
 
@@ -114,7 +114,7 @@ export class ColumnDictionaryService extends AbstractService {
   /**
    * 컬럼 사전과 코드테이블 연결
    * @param {string} dictionaryId
-   * @param {string} codeTable
+   * @param {string} codeTableId
    * @returns {Promise<any>}
    */
   public linkCodeTableWithColumnDictionary(dictionaryId: string, codeTableId: string): Promise<any> {

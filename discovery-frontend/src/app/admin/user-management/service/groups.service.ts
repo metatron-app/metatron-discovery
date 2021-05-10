@@ -17,8 +17,8 @@
  */
 import 'rxjs/add/operator/toPromise';
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class GroupsService extends AbstractService {
@@ -57,10 +57,14 @@ export class GroupsService extends AbstractService {
 
   /**
    * 그룹 리스트
-   * @param nameContains username/fullname/email 에 포함된 문자열
-   * @param searchDateBy 생성일(CREATED)/수정일(MODIFIED) 기준 여부
-   * @param from 검색 시작일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
-   * @param to 검색 종료일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+   * @param param
+   * {
+   *  nameContains username/fullname/email 에 포함된 문자열
+   *  searchDateBy 생성일(CREATED)/수정일(MODIFIED) 기준 여부
+   *  from 검색 시작일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+   *  to 검색 종료일자, ISO DATE_TIME(yyyy-MM-ddTHH:mm:dd.SSSZ) 형식
+   * }
+   * @param {string} projection
    * @returns {Promise<any>}
    */
   public getGroupList(param: any, projection: string = 'forListView'): Promise<any> {
@@ -90,7 +94,8 @@ export class GroupsService extends AbstractService {
 
   /**
    * 그룹 수정
-   * @param data 그룹데이터
+   * @param groupId 그룹 아이디
+   * @param params 파라메터
    * @returns {Promise<any>}
    */
   public updateGroup(groupId: string, params: object): Promise<any> {
@@ -149,8 +154,7 @@ export class GroupsService extends AbstractService {
    */
   public getGroupDetail(groupId: string, projection: string = 'forDetailView'): Promise<any> {
     // URL
-    let url: string = this.API_URL + this.path + `/${groupId}`;
-
+    const url: string = this.API_URL + this.path + `/${groupId}`;
     return this.get(url + `?projection=${projection}`);
   }
 

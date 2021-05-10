@@ -12,14 +12,13 @@
  * limitations under the License.
  */
 
-import { ElementRef, OnDestroy, OnInit, Injector, Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { Workspace } from '../../../domain/workspace/workspace';
-import { Alert } from '../../../common/util/alert.util';
-import { Page, PageResult } from 'app/domain/common/page';
-import { WorkspaceService } from '../../service/workspace.service';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { WorkspaceMemberProjection } from '../../../domain/workspace/workspace-member';
-import {isNullOrUndefined} from "util";
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {Workspace} from '@domain/workspace/workspace';
+import {Alert} from '@common/util/alert.util';
+import {Page, PageResult} from 'app/domain/common/page';
+import {WorkspaceService} from '../../service/workspace.service';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {WorkspaceMemberProjection} from '@domain/workspace/workspace-member';
 
 @Component({
   selector: 'app-change-workspace-owner',
@@ -32,8 +31,8 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _workspace: Workspace;
 
-  @ViewChild( 'inputSearch' )
-  private _inputSearch:ElementRef;
+  @ViewChild('inputSearch')
+  private _inputSearch: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
@@ -58,7 +57,7 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
   public isDisplayBtnUserMore: boolean = false;
 
   // 검색어
-  public searchText:string = '';
+  public searchText: string = '';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -97,7 +96,7 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
     $('body').removeClass('body-hidden').addClass('body-hidden');
     this._workspace = workspace;
     this._getUsers(workspace.id).then(() => {
-      this.isNoMember = ( 0 === this.users.length );
+      this.isNoMember = (0 === this.users.length);
       this.isShow = true;
     });
   } // function - init
@@ -114,12 +113,12 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
    * 소유자 변경 후 화면 종료
    */
   public done() {
-    if( !this.isNoMember && !isNullOrUndefined(this.selectedUser) ) {
+    if (!this.isNoMember && !this.isNullOrUndefined(this.selectedUser)) {
       this.loadingShow();
-      if(isNullOrUndefined(this.selectedUser)){
+      if (this.isNullOrUndefined(this.selectedUser)) {
         this.loadingHide();
         Alert.warning(this.translateService.instant('msg.space.ui.ph.owner'));
-      }else{
+      } else {
         this.workspaceService.transferWorkspaceOwner(this._workspace.id, this.selectedUser.member.username).then(() => {
           this.loadingHide();
           this.afterChange.emit(true);
@@ -133,10 +132,10 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
    * 사용자 선택
    * @param {WorkspaceMemberProjection} selectedUser
    */
-  public selectNewOwner(selectedUser:WorkspaceMemberProjection) {
+  public selectNewOwner(selectedUser: WorkspaceMemberProjection) {
     this.selectedUser = selectedUser;
     this.users.forEach(item => {
-      item['checked'] = ( selectedUser.member.username === item.member.username );
+      item['checked'] = (selectedUser.member.username === item.member.username);
     });
   } // function - selectNewOwner
 
@@ -153,7 +152,7 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
    * @param {KeyboardEvent} event
    */
   public searchDataPressKey(event: KeyboardEvent) {
-    ( 13 === event.keyCode ) && ( this.searchData() );
+    (13 === event.keyCode) && (this.searchData());
   } // function - searchDataPressKey
 
   /**
@@ -191,11 +190,11 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
   private _getUsers(workspaceId: string, pageNum: number = 0) {
     return new Promise((resolve) => {
       this.selectedUser = undefined;
-      ( 0 === pageNum ) && ( this.users = [] );
+      (0 === pageNum) && (this.users = []);
       const param: Page = new Page();
       param.sort = 'memberName,asc';
       param.page = pageNum;
-      ( '' !== this.searchText ) && ( param['nameContains'] = this.searchText );
+      ('' !== this.searchText) && (param['nameContains'] = this.searchText);
       this.workspaceService.getWorkspaceUsers(workspaceId, param).then((data) => {
         // 데이터 있다면
         if (data['_embedded']) {
@@ -203,11 +202,11 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
           const pageData: PageResult = data.page;
           this.totalUser = pageData.totalElements;
           this.userPageNum = pageData.number;
-          this.isDisplayBtnUserMore = ( 0 < pageData.totalPages && pageData.totalPages - 1 > pageData.number );
+          this.isDisplayBtnUserMore = (0 < pageData.totalPages && pageData.totalPages - 1 > pageData.number);
         } else {
           this.isDisplayBtnUserMore = false;
         }
-        resolve();
+        resolve(null);
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
         // 로딩 hide

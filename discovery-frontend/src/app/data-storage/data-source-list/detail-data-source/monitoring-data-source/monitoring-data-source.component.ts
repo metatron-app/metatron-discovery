@@ -12,20 +12,27 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { Datasource } from '../../../../domain/datasource/datasource';
-import { DatasourceService } from '../../../../datasource/service/datasource.service';
-import { DatasourceQueryHistory } from '../../../../domain/datasource/datasourceQueryHistory';
-import { Alert } from '../../../../common/util/alert.util';
-import * as _ from 'lodash';
-import { Log } from '../../../../common/domain/modal';
-import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
-import { CommonUtil } from '../../../../common/util/common.util';
-import {PeriodData} from "../../../../common/value/period.data.value";
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {Log} from '@common/domain/modal';
+import {PeriodData} from '@common/value/period.data.value';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Datasource} from '@domain/datasource/datasource';
+import {DatasourceQueryHistory} from '@domain/datasource/datasourceQueryHistory';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
 
 declare let echarts;
 declare let moment;
@@ -36,6 +43,17 @@ declare let moment;
   providers: [MomentDatePipe]
 })
 export class MonitoringDataSourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private datasourceService: DatasourceService,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -60,7 +78,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
   private pieOption: any = {};
 
   // date
-  private selectedDate : PeriodData;
+  private selectedDate: PeriodData;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -93,16 +111,11 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
   @Output()
   public logEvent: EventEmitter<any> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public convertMilliseconds: (ms: number) => string = CommonUtil.convertMilliseconds;
 
-  // 생성자
-  constructor(private datasourceService: DatasourceService,
-              protected element: ElementRef,
-              protected injector: Injector) {
-    super(element, injector);
-  }
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
@@ -126,12 +139,6 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     // Destory
     super.ngOnDestroy();
   }
-
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * 더 조회할 리스트가 있는지 여부
@@ -244,7 +251,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
    * @param {DatasourceQueryHistory} history
    */
   public openLogModal(history: DatasourceQueryHistory) {
-    const log: Log = new Log;
+    const log: Log = new Log();
 
     log.title = 'Query log';
     log.subTitle = [];
@@ -317,9 +324,9 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
       .then(() => {
         this.getQueryLog(id);
       }).catch((error) => {
-        Alert.error(error);
-        // 로딩 hide
-        this.loadingHide();
+      Alert.error(error);
+      // 로딩 hide
+      this.loadingHide();
     });
   }
 
@@ -331,20 +338,20 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     this.pageResult.size = 5;
 
     this.queryTypes = [
-      { label: this.translateService.instant('msg.storage.li.querytypes.all'), value: 'ALL' },
-      { label: this.translateService.instant('msg.storage.li.querytypes.candidate') , value: 'CANDIDATE' },
-      { label: this.translateService.instant('msg.storage.li.querytypes.meta'), value: 'META' },
-      { label: this.translateService.instant('msg.storage.li.querytypes.search'), value: 'SEARCH' },
-      { label: this.translateService.instant('msg.storage.li.querytypes.sum'), value: 'SUMMARY' },
-      { label: this.translateService.instant('msg.storage.li.querytypes.covar'), value: 'COVARIANCE' },
-      { label: this.translateService.instant('msg.storage.li.querytypes.sim'), value: 'SIMILARITY' }
+      {label: this.translateService.instant('msg.storage.li.querytypes.all'), value: 'ALL'},
+      {label: this.translateService.instant('msg.storage.li.querytypes.candidate'), value: 'CANDIDATE'},
+      {label: this.translateService.instant('msg.storage.li.querytypes.meta'), value: 'META'},
+      {label: this.translateService.instant('msg.storage.li.querytypes.search'), value: 'SEARCH'},
+      {label: this.translateService.instant('msg.storage.li.querytypes.sum'), value: 'SUMMARY'},
+      {label: this.translateService.instant('msg.storage.li.querytypes.covar'), value: 'COVARIANCE'},
+      {label: this.translateService.instant('msg.storage.li.querytypes.sim'), value: 'SIMILARITY'}
     ];
     this.selectedQueryType = this.queryTypes[0];
 
     this.resultTypes = [
-      { label: this.translateService.instant('msg.storage.li.resulttypes.all'), value: 'ALL' },
-      { label: this.translateService.instant('msg.storage.li.resulttypes.success'), value: 'SUCCESS' },
-      { label: this.translateService.instant('msg.storage.li.resulttypes.fail'), value: 'FAIL' }
+      {label: this.translateService.instant('msg.storage.li.resulttypes.all'), value: 'ALL'},
+      {label: this.translateService.instant('msg.storage.li.resulttypes.success'), value: 'SUCCESS'},
+      {label: this.translateService.instant('msg.storage.li.resulttypes.fail'), value: 'FAIL'}
     ];
     this.selectedResultType = this.resultTypes[0];
 
@@ -361,8 +368,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
       tooltip: {
         trigger: 'axis'
       },
-      toolbox: {
-      },
+      toolbox: {},
       xAxis: {
         splitLine: {
           show: false
@@ -384,7 +390,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     // pie chart option
     this.pieOption = {
       tooltip: {
-        formatter: "{c} ({d}%)"
+        formatter: '{c} ({d}%)'
       },
       series: {
         type: 'pie',
@@ -471,7 +477,6 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
 
   /**
    * query history 조회시 이용할 params
-   * @returns {{size: number; page: number; sort: string}}
    */
   private getQueryParams() {
     const params = {
@@ -481,7 +486,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     };
     // 성공여부 타입
     if (this.selectedResultType.value !== 'ALL') {
-      params['succeed'] = this.selectedResultType.value === 'SUCCESS' ? true : false;
+      params['succeed'] = (this.selectedResultType.value === 'SUCCESS');
     }
     // 선택한 쿼리 타입
     if (this.selectedQueryType.value !== 'ALL') {
@@ -580,7 +585,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
 
     // series 데이터
     series.forEach((data, index) => {
-      pieOption.series.data.push({ value : data, name: xAxis[index] });
+      pieOption.series.data.push({value: data, name: xAxis[index]});
     });
 
     return pieOption;

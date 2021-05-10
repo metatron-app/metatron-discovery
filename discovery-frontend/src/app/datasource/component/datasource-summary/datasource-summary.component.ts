@@ -15,12 +15,12 @@
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import {Datasource, FieldFormatType, FieldRole, Status} from '../../../domain/datasource/datasource';
-import { DatasourceService } from '../../service/datasource.service';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
+import { AbstractComponent } from '@common/component/abstract.component';
+import { MomentDatePipe } from '@common/pipe/moment.date.pipe';
+import { Metadata } from '@domain/meta-data-management/metadata';
+import {Datasource, FieldFormatType, FieldRole, Status} from '@domain/datasource/datasource';
 import { MetadataService } from '../../../meta-data-management/metadata/service/metadata.service';
-import { Metadata } from '../../../domain/meta-data-management/metadata';
+import { DatasourceService } from '../../service/datasource.service';
 
 @Component({
   selector: 'app-datasource-summary',

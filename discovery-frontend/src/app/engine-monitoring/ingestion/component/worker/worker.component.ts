@@ -12,25 +12,17 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
 import * as _ from 'lodash';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {PageResult} from "../../../../domain/common/page";
-import {EngineService} from "../../../service/engine.service";
-import {CriterionComponent} from "../../../../data-storage/component/criterion/criterion.component";
-import {Criteria} from "../../../../domain/datasource/criteria";
-import {ActivatedRoute} from "@angular/router";
-import {StringUtil} from "../../../../common/util/string.util";
-import {TimezoneService} from "../../../../data-storage/service/timezone.service";
-import {EngineMonitoringUtil} from "../../../util/engine-monitoring.util";
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PageResult} from '@domain/common/page';
+import {Criteria} from '@domain/datasource/criteria';
+import {TimezoneService} from '../../../../data-storage/service/timezone.service';
+import {CriterionComponent} from '../../../../data-storage/component/criterion/criterion.component';
+import {EngineMonitoringUtil} from '../../../util/engine-monitoring.util';
+import {EngineService} from '../../../service/engine.service';
 
 declare let moment: any;
 
@@ -140,7 +132,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
 
   public sortWorkerList(key: string): void {
     // set selected sort
-    if (this.selectedContentSort.key != key) {
+    if (this.selectedContentSort.key !== key) {
       this.selectedContentSort.key = key;
       this.selectedContentSort.sort = 'desc';
     } else {
@@ -178,9 +170,9 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
 
   /**
    * Changed filter
-   * @param searchParams
+   * @param _searchParams
    */
-  public onChangedFilter(searchParams): void {
+  public onChangedFilter(_searchParams): void {
     // reload page
     this.reloadPage(true);
   }
@@ -204,9 +196,9 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
     return _.cloneDeep(this.workerTotalList).filter(item => {
       const matchSearchWord = !filterParam['containsText'] || item.worker.host.indexOf(filterParam['containsText']) > -1 || item.worker.ip.indexOf(filterParam['containsText']) > -1;
       const matchCompletedTime = (_.isNil(filterParam['completedTimeFrom'] && _.isNil(filterParam['completedTimeTo'])))
-        || (filterParam['completedTimeFrom'] == "" && filterParam['completedTimeTo'] == "")
-        || (filterParam['completedTimeFrom'] == "" && moment(item.lastCompletedTaskTime).isSameOrBefore(filterParam['completedTimeTo']))
-        || (filterParam['completedTimeTo'] == "" && moment(item.lastCompletedTaskTime).isSameOrAfter(filterParam['completedTimeFrom']))
+        || (filterParam['completedTimeFrom'] === '' && filterParam['completedTimeTo'] === '')
+        || (filterParam['completedTimeFrom'] === '' && moment(item.lastCompletedTaskTime).isSameOrBefore(filterParam['completedTimeTo']))
+        || (filterParam['completedTimeTo'] === '' && moment(item.lastCompletedTaskTime).isSameOrAfter(filterParam['completedTimeFrom']))
         || moment(item.lastCompletedTaskTime).isBetween(filterParam['completedTimeFrom'], filterParam['completedTimeTo']);
       return matchSearchWord && matchCompletedTime;
     })
@@ -214,9 +206,9 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
 
   private _getWorkerPagingList() {
     let list = this._filteringWorkerList();
-    if (this.selectedContentSort.key != 'default') {
+    if (this.selectedContentSort.key !== 'default') {
       list = list.sort((a, b) => {
-        if(this.selectedContentSort.key === 'host') {
+        if (this.selectedContentSort.key === 'host') {
           return a.worker.host < b.worker.host ? -1 : a.worker.host > b.worker.host ? 1 : 0;
         } else if (this.selectedContentSort.key === 'ip') {
           return a.worker.ip < b.worker.ip ? -1 : a.worker.ip > b.worker.ip ? 1 : 0;
@@ -233,7 +225,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
         }
         return 0;
       });
-      if (this.selectedContentSort.sort == 'desc') {
+      if (this.selectedContentSort.sort === 'desc') {
         list = list.reverse();
       }
     }
@@ -243,12 +235,12 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
     this.pageResult.totalElements = list.length;
     this.pageResult.totalPages = Math.ceil(this.pageResult.totalElements / this.pageResult.size);
 
-    const endSize = (this.page.page+1)*this.pageResult.size < this.pageResult.totalElements ? (this.page.page+1)*this.pageResult.size : this.pageResult.totalElements;
+    const endSize = (this.page.page + 1) * this.pageResult.size < this.pageResult.totalElements ? (this.page.page + 1) * this.pageResult.size : this.pageResult.totalElements;
     this.workerList = list.slice(this.page.page * this.pageResult.size, endSize);
   }
 
   private _getWorkerList() {
-    if (_.isNil(this.workerTotalList) || this.workerTotalList.length == 0) {
+    if (_.isNil(this.workerTotalList) || this.workerTotalList.length === 0) {
       this.engineService.getWorkerList().then((data) => {
         this.workerTotalList = data;
         this._getWorkerPagingList();
@@ -262,7 +254,7 @@ export class WorkerComponent extends AbstractComponent implements OnInit, OnDest
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime(),
+      pseudoParam: (new Date()).getTime(),
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
     const searchParams = this.criterionComponent.getUrlQueryParams();

@@ -13,22 +13,21 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Page} from '../../../../domain/common/page';
-import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {QueryEditor, Workbench} from '../../../../domain/workbench/workbench';
-import {GridComponent} from '../../../../common/component/grid/grid.component';
-import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../common/component/grid/grid.option';
-import {CommonConstant} from '../../../../common/constant/common.constant';
+import {Page} from '@domain/common/page';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {Alert} from '@common/util/alert.util';
+import {Workbench} from '@domain/workbench/workbench';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
 import {WorkbenchService} from '../../../service/workbench.service';
 import {ActivatedRoute} from '@angular/router';
-import {Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
 import {MetadataService} from '../../../../meta-data-management/metadata/service/metadata.service';
 import {isNullOrUndefined, isUndefined} from 'util';
 import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
-import {StringUtil} from '../../../../common/util/string.util';
-import {CommonUtil} from "../../../../common/util/common.util";
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 
 @Component({
@@ -351,15 +350,15 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
   public onSearchDatabaseKeypress(event: KeyboardEvent): void {
     this.searchDatabaseText = this._inputSearch.nativeElement.value;
-    if(13 === event.keyCode) {
+    if (13 === event.keyCode) {
       this._searchDatabase();
-    } else if( 27 === event.keyCode ) {
+    } else if (27 === event.keyCode) {
       this.onSearchDatabaseClear();
     }
   }
 
-  public onSearchDatabaseClear(event?:MouseEvent): void {
-    if( event ) {
+  public onSearchDatabaseClear(event?: MouseEvent): void {
+    if (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
     }
@@ -463,10 +462,10 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.safelyDetectChanges();
 
     const target = $(event.target);
-    let infoLeft: number = target.offset().left;
-    let infoTop: number = target.offset().top;
+    const infoLeft: number = target.offset().left;
+    const infoTop: number = target.offset().top;
     const element = document.getElementById(`connectionInfo`);
-    $(element).css({'left': infoLeft - 30, 'top': infoTop + 17});
+    $(element).css({left: infoLeft - 30, top: infoTop + 17});
 
   } // function - dataConnectionInfoShow
 
@@ -595,7 +594,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
   /**
    *
-   * @param {string} connectionId
+   * @param dataConnection
    * @param {string} databaseName
    * @param {Page} page
    * @param {string} tableName
@@ -708,13 +707,15 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         //
         this.schemaTableMetadataList = [];
 
-        let resultData = [];
+        const resultData = [];
         for (const key in result) {
-          const param = {
-            itemKey: key,
-            item: result[key]
-          };
-          resultData.push(param);
+          if (key) {
+            const param = {
+              itemKey: key,
+              item: result[key]
+            };
+            resultData.push(param);
+          }
         }
 
         //
@@ -723,41 +724,41 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
         // result Data
         for (const key in resultData) {
+          if (key) {
+            const tempData = {
+              label: '',
+              data: tempArr
+            };
 
-          let tempData = {
-            'label': '',
-            'data': tempArr
-          };
+            if (resultData[key]['itemKey'].startsWith('#')) {
 
-          if (resultData[key]['itemKey'].startsWith('#')) {
+              if (key !== '0') {
+                tempData.label = tempLabel.split('#')[1];
+                tempData.data = tempArr;
+                this.schemaTableMetadataList.push(tempData);
 
-            if (key != '0') {
+                tempLabel = '';
+                tempArr = [];
+              }
+
+              // label
+              tempLabel = resultData[key]['itemKey'];
+            } else {
+              // data
+              tempArr.push(resultData[key]);
+            }
+
+            //
+            if (resultData.length - 1 === Number(key)) {
               tempData.label = tempLabel.split('#')[1];
               tempData.data = tempArr;
               this.schemaTableMetadataList.push(tempData);
-
-              tempLabel = '';
-              tempArr = [];
             }
-
-            // label
-            tempLabel = resultData[key]['itemKey'];
-          } else {
-            // data
-            tempArr.push(resultData[key]);
           }
-
-          //
-          if (resultData.length - 1 == Number(key)) {
-            tempData.label = tempLabel.split('#')[1];
-            tempData.data = tempArr;
-            this.schemaTableMetadataList.push(tempData);
-          }
-
         }
 
         //
-        if (this.schemaTableMetadataList.length == 0) {
+        if (this.schemaTableMetadataList.length === 0) {
           this.isMetadataListNoData = true;
         }
 
@@ -856,24 +857,24 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       });
   }
 
-  /**
-   *
-   * @returns {QueryEditor}
-   * @private
-   */
-  private _getQueryEditor(): QueryEditor {
-    const queryEditor: QueryEditor = new QueryEditor();
-    queryEditor.name = this.textList[this.selectedTabNum]['name'];
-    queryEditor.workbench = CommonConstant.API_CONSTANT.API_URL + 'workbenchs/' + this.workbenchId;
-    queryEditor.order = this.selectedTabNum;
-    // query
-    queryEditor.query = 'select * from ' + this.selectedDatabaseName + '.' + this.selectedSchemaTable + ';';
-    // webSocket id
-    queryEditor.webSocketId = this._websocketId;
-    // editor id
-    queryEditor.editorId = this.textList[this.selectedTabNum]['editorId'];
-    return queryEditor;
-  }
+  // /**
+  //  *
+  //  * @returns {QueryEditor}
+  //  * @private
+  //  */
+  // private _getQueryEditor(): QueryEditor {
+  //   const queryEditor: QueryEditor = new QueryEditor();
+  //   queryEditor.name = this.textList[this.selectedTabNum]['name'];
+  //   queryEditor.workbench = CommonConstant.API_CONSTANT.API_URL + 'workbenchs/' + this.workbenchId;
+  //   queryEditor.order = this.selectedTabNum;
+  //   // query
+  //   queryEditor.query = 'select * from ' + this.selectedDatabaseName + '.' + this.selectedSchemaTable + ';';
+  //   // webSocket id
+  //   queryEditor.webSocketId = this._websocketId;
+  //   // editor id
+  //   queryEditor.editorId = this.textList[this.selectedTabNum]['editorId'];
+  //   return queryEditor;
+  // }
 
   /**
    * session storage
@@ -922,7 +923,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
           this.schemaTableList = this.schemaTableList.map((item) => {
             return _.merge(item, _.find(result.map((column) => {
               return {table: column.table, metadataName: column.name}
-            }), {'table': item}));
+            }), {table: item}));
           });
         }
         //
@@ -941,8 +942,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getTableMetaDataDetail(tableName: string): void {
 
     // table array
-    let tableNameArr: string[] = [];
-    if (tableName != '') {
+    const tableNameArr: string[] = [];
+    if (tableName !== '') {
       tableNameArr.push(tableName);
     }
 
@@ -951,7 +952,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         // result   merge
         if (result.length > 0) {
           this.schemaTableColumnList = this.schemaTableColumnList.map((item) => {
-            return _.merge(item, _.find(result[0].columns, {'physicalName': item.columnName}));
+            return _.merge(item, _.find(result[0].columns, {physicalName: item.columnName}));
           });
         }
         //
@@ -975,7 +976,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     const data: any = this.schemaTableColumnList;
     const enableMetaData: boolean = _.some(this.schemaTableColumnList, column => column.name);
     // headers
-    const headers: header[] = [];
+    const headers: Header[] = [];
     // Physical name
     headers.push(this._createSlickGridHeader('physicalName', 'Column Name', 300));
     // Logical name
@@ -986,7 +987,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     headers.push(this._createSlickGridHeader('description', 'Description', 300));
     // rows
     const rows: any[] = [];
-    for (let idx: number = 0; idx < data.length; idx = idx + 1) {
+    for (let idx: number = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
       const row = {};
       // Physical name
       row['physicalName'] = data[idx]['columnName'];
@@ -1016,7 +1017,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     const data: any = this.schemaTableList;
     const enableMetaData: boolean = _.some(this.schemaTableList, table => table.metadataName);
     // headers
-    const headers: header[] = [];
+    const headers: Header[] = [];
     // headers.push(this._createSlickGridHeader('name', 200));
     // headers.push(this._createSlickGridHeader('type', 120));
     // headers.push(this._createSlickGridHeader('comment', 260));
@@ -1027,7 +1028,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
     // rows
     const rows: any[] = [];
-    for (let idx: number = 0; idx < data.length; idx = idx + 1) {
+    for (let idx: number = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
       const row = {};
       row['name'] = data[idx];
       enableMetaData && (row['metadataName'] = data[idx]['metadataName'] || '');
@@ -1070,8 +1071,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // data
     const data: any = this.schemaTableDataList;
     // headers
-    const headers: header[] = [];
-    for (let index: number = 0; index < data.fields.length; index = index + 1) {
+    const headers: Header[] = [];
+    for (let index: number = 0, nMax = data.fields.length; index < nMax; index = index + 1) {
       const temp = data.fields[index].name;
       const columnCnt = temp.length;
       //
@@ -1080,9 +1081,9 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     }
     // rows
     const rows: any[] = [];
-    for (let idx1: number = 0; idx1 < data.data.length; idx1 = idx1 + 1) {
+    for (let idx1: number = 0, nMax1 = data.data.length; idx1 < nMax1; idx1 = idx1 + 1) {
       const row = {};
-      for (let idx2: number = 0; idx2 < data.fields.length; idx2 = idx2 + 1) {
+      for (let idx2: number = 0, nMax2 = data.fields.length; idx2 < nMax2; idx2 = idx2 + 1) {
         const temp = data.fields[idx2].name;
         if (data.fields[idx2].logicalType === 'INTEGER') {
           try {
@@ -1109,7 +1110,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @returns {header}
    * @private
    */
-  private _createSlickGridHeader(field: string, name: string, width: number, iconType?: string): header {
+  private _createSlickGridHeader(field: string, name: string, width: number, iconType?: string): Header {
     return iconType
       ? new SlickGridHeader()
         .Id(field)
@@ -1145,7 +1146,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {number} rowHeight
    * @private
    */
-  private _createGridComponent(gridComponent: GridComponent, headers: header[], rows: any[], rowHeight: number): void {
+  private _createGridComponent(gridComponent: GridComponent, headers: Header[], rows: any[], rowHeight: number): void {
     gridComponent.create(headers, rows, new GridOption()
       .SyncColumnCellResize(true)
       .MultiColumnSort(true)
@@ -1165,7 +1166,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {number} rowHeight
    * @private
    */
-  private _createTableGridComponent(gridComponent: GridComponent, headers: header[], rows: any[], rowHeight: number): void {
+  private _createTableGridComponent(gridComponent: GridComponent, headers: Header[], rows: any[], rowHeight: number): void {
     gridComponent.create(headers, rows, new GridOption()
       .SyncColumnCellResize(true)
       .MultiColumnSort(true)

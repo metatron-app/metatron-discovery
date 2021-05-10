@@ -13,25 +13,27 @@
  */
 
 import {
+  AfterViewInit,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output,
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
-import {ConnectionType, Datasource, Field} from '../../domain/datasource/datasource';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {ConnectionType, Datasource, Field} from '@domain/datasource/datasource';
 import {DashboardUtil} from '../util/dashboard.util';
 import {FilterUtil} from '../util/filter.util';
-import {FilterWidget, FilterWidgetConfiguration} from "../../domain/dashboard/widget/filter-widget";
-import {AbstractDashboardComponent} from "../abstract.dashboard.component";
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {AbstractDashboardComponent} from '../abstract.dashboard.component';
 
-export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent implements OnInit, OnDestroy {
+export abstract class AbstractFilterPanelComponent<T extends Filter> extends AbstractDashboardComponent
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -194,6 +196,11 @@ export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDash
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * 필터 초기화
+   */
+  public abstract resetFilter();
+
+  /**
    * 글로벌 필터를 차트 필터로 변환 (차트에서만)
    * @param {Filter} filter
    */
@@ -216,14 +223,6 @@ export class AbstractFilterPanelComponent<T extends Filter> extends AbstractDash
   public openUpdateFilterPopup(filter: Filter) {
     this.openUpdateFilterPopupEvent.emit(filter);
   } // function - openUpdateFilterPopup
-
-  /**
-   * 필터 초기화
-   * @param {Filter} filter
-   */
-  public resetFilter(filter: Filter) {
-    throw new Error('SubClass should implements changeLock method');
-  } // function resetFilter
 
   /**
    *  필터내용 보이기 감추기

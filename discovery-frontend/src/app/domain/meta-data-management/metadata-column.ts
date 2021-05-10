@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {Type} from '../../shared/datasource-metadata/domain/type';
 import {FieldFormat, FieldFormatType} from '../datasource/datasource';
 import {ColumnDictionary} from './column-dictionary';
 import {CodeTable} from './code-table';
 import {MetadataSource} from './metadata-source';
-import {Type} from '../../shared/datasource-metadata/domain/type';
-import * as _ from 'lodash';
 
 export class MetadataColumn {
   // id
@@ -42,6 +42,14 @@ export class MetadataColumn {
   public popularity: number;
   // 역할
   public role: Type.Role;
+
+  isValidType?: boolean;
+  isValidTimeFormat?: boolean;
+  timeFormatValidMessage?: string;
+  isShowTypeValidPopup?: boolean;
+  isShowTimestampValidPopup: boolean;
+  replaceFl: boolean;
+  checked: boolean;
 
   ////////////////////////////////////////////////////////////////////////////
   // Value to be used only on View
@@ -89,14 +97,6 @@ export class MetadataColumn {
     return _.negate(_.isNil)(metadataColumn)
       && _.negate(_.isNil)(metadataColumn.dictionary);
   }
-
-  isValidType?: boolean;
-  isValidTimeFormat?: boolean;
-  timeFormatValidMessage?: string;
-  isShowTypeValidPopup?: boolean;
-  isShowTimestampValidPopup: boolean;
-  replaceFl: boolean;
-  checked: boolean;
 }
 
 export class LinkedMetaDataColumn extends MetadataColumn {

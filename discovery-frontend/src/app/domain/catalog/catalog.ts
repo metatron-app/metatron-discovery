@@ -9,7 +9,7 @@ export namespace Catalog {
     // Only used UI
     isOpened?: boolean;
   }
-  
+
   export namespace Constant {
     export const CATALOG_ROOT_ID = 'ROOT';
   }

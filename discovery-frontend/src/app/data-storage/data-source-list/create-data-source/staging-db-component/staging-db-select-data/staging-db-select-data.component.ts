@@ -12,20 +12,26 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import {
-  ChangeDetectorRef,
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import { DatasourceInfo, Field } from '../../../../../domain/datasource/datasource';
-import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../../common/component/grid/grid.option';
-import { GridComponent } from '../../../../../common/component/grid/grid.component';
-import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import {isNullOrUndefined} from "util";
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {DatasourceInfo, Field} from '@domain/datasource/datasource';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 
 @Component({
   selector: 'staging-db-select',
@@ -231,7 +237,6 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
   }
 
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -325,7 +330,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
    */
   private updateGrid(data: any, fields: Field[]) {
     // headers
-    const headers: header[] = this.getHeaders(fields);
+    const headers: Header[] = this.getHeaders(fields);
     // rows
     const rows: any[] = this.getRows(data);
     // grid 그리기
@@ -341,7 +346,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
     return fields.map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
 
         return new SlickGridHeader()
           .Id(field.name)
@@ -355,14 +360,14 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
-          .Formatter((row, cell, value) => {
+          .Formatter((_row, _cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {
-              return content.slice(0,50);
+              return content.slice(0, 50);
             } else {
               return content;
             }
@@ -464,7 +469,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      if (!isNullOrUndefined(item.alias)) {
+      if (!this.isNullOrUndefined(item.alias)) {
         item.alias = this._sliceTableName(item.alias);
       }
       return item;
@@ -499,7 +504,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
    */
   private _sliceTableName(key) {
     // return key.replace(this.selectedTable + '.', '');
-    return key.substr(key.indexOf('.')+1);
+    return key.substr(key.indexOf('.') + 1);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -513,7 +518,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
   private setDefaultFileFormat(selectedTableDetail) {
     selectedTableDetail['fileFormat'] = {
       type: 'csv',
-      delimeter: ","
+      delimeter: ','
     };
   }
 
@@ -572,7 +577,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
       database: databaseName,
       type: 'TABLE',
       query: tableName
-      })
+    })
       .then((result) => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
         result['data'] = this._getReplacedDataList(result['data']);
@@ -625,10 +630,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
    * @returns {boolean}
    */
   private isExistFileFormat(): boolean {
-    if (this.selectedTableDetail.hasOwnProperty('fileFormat')) {
-      return true;
-    }
-    return false;
+    return this.selectedTableDetail.hasOwnProperty('fileFormat');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

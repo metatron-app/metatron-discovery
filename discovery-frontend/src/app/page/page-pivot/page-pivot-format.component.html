@@ -19,7 +19,7 @@
 <!-- // 표시 형식 -->
 
 <!-- 소수점 자릿수 설정 -->
-<ng-container *ngIf="selectedType['value'] != 'currency'" [class.ddp-disabled]="selectedType?.value == 'origin'">
+<ng-container *ngIf="checkSelectedType('currency')" [class.ddp-disabled]="selectedType?.value == 'origin'">
   <div class="ddp-ui-layer-title">{{'msg.page.th.decimal.place' | translate}}</div>
   <div class="ddp-input-number">
     <input (keyup)="$event.keyCode == 13 ? onDigitValid() : null"

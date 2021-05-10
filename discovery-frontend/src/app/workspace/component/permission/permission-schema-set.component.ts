@@ -12,20 +12,11 @@
  * limitations under the License.
  */
 
-import {
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Output,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  Component
-} from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { RoleSet } from 'app/domain/user/role/roleSet';
-import { PermissionService } from '../../../user/service/permission.service';
-import { PermissionSchemaComponent } from './permission-schema.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {RoleSet} from 'app/domain/user/role/roleSet';
+import {PermissionService} from '../../../user/service/permission.service';
+import {PermissionSchemaComponent} from './permission-schema.component';
 
 @Component({
   selector: 'app-permission-schema-set',
@@ -56,10 +47,10 @@ export class PermissionSchemaSetComponent extends AbstractComponent implements O
   public roleSet: RoleSet;
 
   // API를 이용하여 직접 RoleSet 관리 여부
-  public useAPI:boolean = true;
+  public useAPI: boolean = true;
 
   // 수정 모드
-  public editMode:boolean = true;
+  public editMode: boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -99,7 +90,7 @@ export class PermissionSchemaSetComponent extends AbstractComponent implements O
    * @param {boolean} editMode
    * @param {boolean} useAPI
    */
-  public init(initialData: RoleSet, editMode:boolean = true, useAPI:boolean = true) {
+  public init(initialData: RoleSet, editMode: boolean = true, useAPI: boolean = true) {
     $('body').removeClass('body-hidden').addClass('body-hidden');
     this.roleSet = initialData;
     this.editMode = editMode;

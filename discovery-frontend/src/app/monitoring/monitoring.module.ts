@@ -12,22 +12,22 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
-import { RouterModule, Routes } from '@angular/router';
-import { WorkbenchEditorModule } from '../workbench/workbench.editor.module';
-import { AuditService } from './audit/service/audit.service';
-import { JobLogModule } from './audit/job-log/job-log.module';
-import { JobLogComponent } from './audit/job-log/job-log.component';
-import { LogStatisticsComponent } from './audit/log-statistics/log-statistics.component';
-import { LogStatisticsDetailComponent } from './audit/log-statistics/log-statistics.detail.component';
-import { JobDetailComponent } from './audit/job-log/component/job-detail/job-detail.component';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@common/common.module';
+import {RouterModule, Routes} from '@angular/router';
+import {WorkbenchEditorModule} from '../workbench/workbench.editor.module';
+import {AuditService} from './audit/service/audit.service';
+import {JobLogModule} from './audit/job-log/job-log.module';
+import {JobLogComponent} from './audit/job-log/job-log.component';
+import {LogStatisticsComponent} from './audit/log-statistics/log-statistics.component';
+import {LogStatisticsDetailComponent} from './audit/log-statistics/log-statistics.detail.component';
+import {JobDetailComponent} from './audit/job-log/component/job-detail/job-detail.component';
 
 const monitoringRoutes: Routes = [
-  { path: '', component: JobLogComponent },
-  { path: 'statistics', component: LogStatisticsComponent },
-  { path: 'audit', component: JobLogComponent },
-  { path: 'audit/:id', component: JobDetailComponent }
+  {path: '', component: JobLogComponent},
+  {path: 'statistics', component: LogStatisticsComponent},
+  {path: 'audit', component: JobLogComponent},
+  {path: 'audit/:id', component: JobDetailComponent}
 ];
 
 @NgModule({
@@ -46,4 +46,5 @@ const monitoringRoutes: Routes = [
     AuditService
   ]
 })
-export class MonitoringModule { }
+export class MonitoringModule {
+}

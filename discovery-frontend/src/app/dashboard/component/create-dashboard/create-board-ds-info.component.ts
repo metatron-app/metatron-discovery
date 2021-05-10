@@ -14,46 +14,47 @@
 
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
+import Split from 'split.js'
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Injector,
-  OnInit,
-  OnDestroy,
   Input,
-  ViewChild,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChange,
   SimpleChanges,
-  SimpleChange, OnChanges
+  ViewChild
 } from '@angular/core';
-import {ConnectionType, Datasource, DataSourceSummary, Field, Status} from '../../../domain/datasource/datasource';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { GridComponent } from '../../../common/component/grid/grid.component';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
 import {
   BoardConfiguration,
   BoardDataSource,
   Dashboard,
-  JoinMapping, JoinMappingDataSource,
+  JoinMapping,
+  JoinMappingDataSource,
   QueryParam
-} from '../../../domain/dashboard/dashboard';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { isNullOrUndefined } from 'util';
-import { Alert } from '../../../common/util/alert.util';
-import { CreateBoardPopJoinComponent } from './create-board-pop-join.component';
-import { CommonUtil } from '../../../common/util/common.util';
-import { FilterUtil } from '../../util/filter.util';
-import { InclusionFilter } from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-
-declare let Split;
+} from '@domain/dashboard/dashboard';
+import {ConnectionType, Datasource, DataSourceSummary, Field, Status} from '@domain/datasource/datasource';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {CreateBoardPopJoinComponent} from './create-board-pop-join.component';
+import {FilterUtil} from '../../util/filter.util';
 
 @Component({
   selector: 'create-board-ds-info',
   templateUrl: './create-board-ds-info.component.html'
 })
-export class CreateBoardDsInfoComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
+export class CreateBoardDsInfoComponent extends AbstractComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -100,6 +101,9 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
   public isShowColTypeLayer: boolean = false;    // 컬럼 타입 레이어 표시 여부
   public isEnableJoin: boolean = false;         // 조인 가능 여부
 
+  public commonUtil = CommonUtil;
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -123,7 +127,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
   public ngOnInit() {
     super.ngOnInit();
 
-    if(this.dataSource.joins && this.dataSource.joins.length > 0) {
+    if (this.dataSource.joins && this.dataSource.joins.length > 0) {
       this.joinMappings = this.dataSource.joins;
     }
 
@@ -171,9 +175,6 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public commonUtil = CommonUtil;
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
 
   /**
    * 차원값의 타입 아이콘 클래스 반환
@@ -181,7 +182,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * @return {string}
    */
   public getTypeClass(logicalType: string): string {
-    if ('STRING' === logicalType || 'TEXT' === logicalType ) {
+    if ('STRING' === logicalType || 'TEXT' === logicalType) {
       return 'ddp-icon-dimension-ab';
     } else if ('LNG' === logicalType || 'LNT' === logicalType) {
       return 'ddp-icon-dimension-local';
@@ -204,7 +205,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
 
     if (dataSource) {
       // 초기값 설정
-      (isNullOrUndefined(dataSource.type)) && (dataSource.type = 'default');
+      (this.isNullOrUndefined(dataSource.type)) && (dataSource.type = 'default');
 
       if (ConnectionType.LINK.toString() === dataSource.connType) {
         this.isLinkedDataSource = true;
@@ -214,7 +215,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
         pseudoDashboard.configuration.dataSource = dataSource;
         pseudoDashboard.configuration.fields = dataSource.uiFields;
 
-        this.essentialFilters = isNullOrUndefined(dataSource.uiFilters)?[]:_.cloneDeep(dataSource.uiFilters);
+        this.essentialFilters = this.isNullOrUndefined(dataSource.uiFilters) ? [] : _.cloneDeep(dataSource.uiFilters);
         FilterUtil.getPanelContentsList(
           this.essentialFilters,
           pseudoDashboard,
@@ -254,7 +255,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * 데이터소스 삭제
    */
   public deleteDataSource() {
-    this.broadCaster.broadcast('CREATE_BOARD_REMOVE_DS', { dataSourceId: this.dataSource.id });
+    this.broadCaster.broadcast('CREATE_BOARD_REMOVE_DS', {dataSourceId: this.dataSource.id});
   } // function - deleteDataSource
 
   /**
@@ -273,7 +274,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * @param {number} inputRowNum
    */
   public setGridRow(inputRowNum: number) {
-    if( Number(inputRowNum) !== this.rowNum ) {
+    if (Number(inputRowNum) !== this.rowNum) {
       // Row 설정
       this.rowNum = Number(inputRowNum);
       // 조회
@@ -290,22 +291,22 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * @param {string} targetDsId
    */
   public showJoinPopup(join?: JoinMapping, targetDsId?: string) {
-    if (isNullOrUndefined(join)) {
+    if (this.isNullOrUndefined(join)) {
       // New Join - 1 Depth
       this._joinPopupComp.addJoin(this.dataSource, this._candidateDataSources, this.joinMappings, this.dataSource);
     } else {
-      if (isNullOrUndefined(targetDsId)) {
+      if (this.isNullOrUndefined(targetDsId)) {
         // New Join - 2 Depth
         const targetDs: Datasource = this._allDataSources.find((ds) => ds.id === join.id);
-        let metads: BoardDataSource = new BoardDataSource();
-        metads.id = targetDs.id;
-        metads.name = targetDs.name;
-        metads.engineName = targetDs.engineName;
-        metads.connType = targetDs.connType.toString();
-        metads.uiFields = targetDs.fields;
+        const metaDs: BoardDataSource = new BoardDataSource();
+        metaDs.id = targetDs.id;
+        metaDs.name = targetDs.name;
+        metaDs.engineName = targetDs.engineName;
+        metaDs.connType = targetDs.connType.toString();
+        metaDs.uiFields = targetDs.fields;
         this._joinPopupComp.addJoin(
           this.dataSource, this._candidateDataSources, this.joinMappings,
-          metads, join
+          metaDs, join
         );
       } else {
         // Edit Join
@@ -323,13 +324,16 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * 조인 변경
    * @param {JoinMappingDataSource[]} joinMappingDataSource
    */
-  public changeJoin(joinMappingDataSource : JoinMappingDataSource) {
+  public changeJoin(joinMappingDataSource: JoinMappingDataSource) {
     const joinMappings: JoinMapping[] = joinMappingDataSource.joinMappings;
     const candidateDataSources: Datasource[] = joinMappingDataSource.candidateDataSources;
 
     this.joinMappings = joinMappings;
     this.dataSource.joins = joinMappings;
-    this.broadCaster.broadcast('CREATE_BOARD_UPDATE_DS', { dataSource: this.dataSource,  candidateDataSources: candidateDataSources });
+    this.broadCaster.broadcast('CREATE_BOARD_UPDATE_DS', {
+      dataSource: this.dataSource,
+      candidateDataSources: candidateDataSources
+    });
   } // function - changeJoin
 
   // noinspection JSMethodCanBeStatic
@@ -350,7 +354,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    * Essential Filter 재설정을 위해 팝업 표시
    */
   public showEssentialFilerPopup() {
-    this.broadCaster.broadcast('CREATE_BOARD_RE_INGESTION', { dataSource: this.dataSource });
+    this.broadCaster.broadcast('CREATE_BOARD_RE_INGESTION', {dataSource: this.dataSource});
   } // function - showEssentialFilerPopup
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -400,10 +404,10 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
   private _updateGrid(data: any, fields: Field[]) {
 
     // 헤더정보 생성
-    const headers: header[] = fields.map(
+    const headers: Header[] = fields.map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
         return new SlickGridHeader()
           .Id(field.name)
           .Name(field.name)
@@ -451,14 +455,14 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
   } // function - _updateGrid
 
   /**
-   * 데이터를 조회한다. 
+   * 데이터를 조회한다.
    * @param {JoinMapping[]} joins
-   * @param {boolean} isTemporary
+   * @param {boolean} _isTemporary
    * @param {boolean} loading
    * @return {Promise<[any , Field[]]>}
    * @private
    */
-  private _queryData(joins: JoinMapping[], isTemporary: boolean = false, loading: boolean = true): Promise<[any, Field[]]> {
+  private _queryData(joins: JoinMapping[], _isTemporary: boolean = false, loading: boolean = true): Promise<[any, Field[]]> {
     return new Promise<any>((res, rej) => {
 
       const params = new QueryParam();
@@ -506,7 +510,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
     const params = {
       size: 100000,
       page: this.page.page,
-      status : Status.ENABLED
+      status: Status.ENABLED
     };
     this.datasourceService.getDatasources(this.workspaceId, params, 'forDetailView').then((data) => {
       this._allDataSources = data['_embedded'].datasources;
@@ -525,7 +529,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
               return accumulator;
             }, {});
             this.colTypes = Object.keys(fieldMap).map(key => {
-              return { type: key, cnt: fieldMap[key] };
+              return {type: key, cnt: fieldMap[key]};
             });
           }
           return false;
@@ -545,7 +549,7 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
 }
 
 enum Tab {
-  PREVIEW = <any>'PREVIEW',
-  JOIN = <any>'JOIN',
-  FILTER = <any>'FILTER'
+  PREVIEW = 'PREVIEW',
+  JOIN = 'JOIN',
+  FILTER = 'FILTER'
 }

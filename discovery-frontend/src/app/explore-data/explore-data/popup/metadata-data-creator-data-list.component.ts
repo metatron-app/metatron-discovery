@@ -12,30 +12,33 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   Component,
-  ComponentFactoryResolver, ComponentRef,
+  ComponentFactoryResolver,
+  ComponentRef,
   ElementRef,
   EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  Output, ViewChild, ViewContainerRef
+  Output,
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Metadata, SourceType} from "../../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../../constant/explore-data-constant";
-import * as _ from "lodash";
-import {Alert} from "../../../common/util/alert.util";
-import {StringUtil} from "../../../common/util/string.util";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {ExploreDataUtilService, SortOption} from "../service/explore-data-util.service";
-import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
-import {Modal} from "../../../common/domain/modal";
-import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {CookieConstant} from "../../../common/constant/cookie.constant";
-import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CommonUtil} from "../../../common/util/common.util";
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {ExploreDataConstant} from '../../constant/explore-data-constant';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {CreateWorkbookComponent} from '../../../workbook/component/create-workbook/refactoring/create-workbook.component';
+import {CreateWorkbenchContainerComponent} from '../../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
+import {ExploreDataUtilService, SortOption} from '../service/explore-data-util.service';
 
 @Component({
   selector: 'app-explore-data-creator-data-list-popup',
@@ -100,7 +103,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     protected element: ElementRef,
     private resolver: ComponentFactoryResolver,
     private metadataService: MetadataService,
-    private exploreDataUtilService: ExploreDataUtilService,
+    public exploreDataUtilService: ExploreDataUtilService,
     protected injector: Injector) {
     super(element, injector);
   }
@@ -124,7 +127,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   getMetadataListParams() {
-    let params = {
+    const params = {
       size: this.page.size,
       page: this.page.page,
       creatorContains: this.creator
@@ -320,7 +323,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
   }
 
   private _showConfirmComponent() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       // show confirm modal
       this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
       const modal: Modal = new Modal();
@@ -395,6 +398,7 @@ export class MetadataDataCreatorDataListComponent extends AbstractComponent impl
     }
 
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

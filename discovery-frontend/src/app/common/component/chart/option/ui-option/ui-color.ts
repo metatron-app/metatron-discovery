@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  ChartColorType, ChartColorList, ChartGradientType, CellColorTarget, GridCellColorList,
-  SymbolType, PointShape, ColorCustomMode, ColorRangeType
-} from '../define/common';
+import {CellColorTarget, ChartColorType, ChartGradientType, ColorCustomMode, ColorRangeType} from '../define/common';
 
 /**
  * color
@@ -24,15 +21,8 @@ export interface UIChartColor {
 
   // 차트 색상 타입
   type: ChartColorType;
-
-}
-
-/**
- * 단색 (사용안하는경우)
- */
-export interface UIChartColorBySingle extends UIChartColor {
-
-  code : string;
+  // 색상 대상 (셀/텍스트)
+  colorTarget?: CellColorTarget;
 }
 
 /**
@@ -50,14 +40,14 @@ export interface UIChartColorByDimension extends UIChartColor {
   showFl?: boolean;
 
   // gauge차트에서의 사용자 지정색상 리스트
-  mapping?: Object;
+  mapping?: object;
 
   /////////////////////////////////
   //// 서버에 미정의된 옵션
   /////////////////////////////////
 
   // gauge차트에서의 사용자 지정색상 mapping을 array로 변경한 값
-  mappingArray?: Object[];
+  mappingArray?: object[];
 
   // color setting 사용여부
   settingUseFl?: boolean;
@@ -72,7 +62,7 @@ export interface UIChartColorBySeries extends UIChartColor {
   schema: string;
 
   // 사용자 지정색상 리스트
-  mapping?: Object;
+  mapping?: object;
 
   /////////////////////////////////
   //// 서버에 미정의된 옵션
@@ -82,7 +72,7 @@ export interface UIChartColorBySeries extends UIChartColor {
   settingUseFl?: boolean;
 
   // mapping을 array로 변경한 값
-  mappingArray?: Object[];
+  mappingArray?: object[];
 
 }
 
@@ -127,7 +117,7 @@ export interface UIChartColorGradationByValue extends UIChartColor {
   /////////////////////////////////
 
   // visualMap용 gradation 저장값
-  visualGradations?: Object[];
+  visualGradations?: object[];
 }
 
 /**
@@ -174,7 +164,7 @@ export interface UIChartColorGradationByCell extends UIChartColor {
   colorTarget?: CellColorTarget;
 
   // visualMap용 gradation 저장값
-  visualGradations?: Object[];
+  visualGradations?: object[];
 }
 
 /**

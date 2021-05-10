@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Output} from "@angular/core";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {StringUtil} from "../../common/util/string.util";
+import {Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {ExploreDataModelService} from './service/explore-data-model.service';
 
 declare let $;
 
@@ -24,7 +24,7 @@ declare let $;
   selector: 'component-explore-search',
   templateUrl: 'explore-data-search.component.html',
 })
-export class ExploreDataSearchComponent extends AbstractComponent {
+export class ExploreDataSearchComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   readonly rangeList = [
     {
@@ -60,11 +60,11 @@ export class ExploreDataSearchComponent extends AbstractComponent {
     super(element, injector);
   }
 
-  ngOnInit() {
+  public ngOnInit() {
     super.ngOnInit();
   }
 
-  ngOnDestroy() {
+  public ngOnDestroy() {
     super.ngOnDestroy();
     this.$layoutContents.removeClass('ddp-scroll');
     this.exploreDataModelService.initialSearchData();
@@ -72,7 +72,7 @@ export class ExploreDataSearchComponent extends AbstractComponent {
 
 
   @HostListener('window:scroll', ['$event'])
-  protected scrollWindow(event) {
+  public scrollWindow(_event) {
     const windowScrollTop = $(window).scrollTop();
     if (windowScrollTop > 0) {
       this.$layoutContents.addClass('ddp-scroll');

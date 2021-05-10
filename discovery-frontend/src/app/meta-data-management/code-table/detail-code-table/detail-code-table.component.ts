@@ -12,21 +12,20 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import * as _ from 'lodash';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Location} from '@angular/common';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {CodeTableService} from '../service/code-table.service';
 import {ActivatedRoute} from '@angular/router';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
-import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
-import {Alert} from '../../../common/util/alert.util';
-import {Modal} from '../../../common/domain/modal';
-import * as _ from 'lodash';
-import {CommonUtil} from '../../../common/util/common.util';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
+import {Modal} from '@common/domain/modal';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 import {LinkedColumnDictionaryComponent} from '../../component/linked-column-dictionary/linked-column-dictionary.component';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
+import {CodeTableService} from '../service/code-table.service';
 
 @Component({
   selector: 'app-detail-code-table',
@@ -137,7 +136,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 제거
-    this._codeTableService.deleteCodeTable(this._codeTableId).then((result) => {
+    this._codeTableService.deleteCodeTable(this._codeTableId).then(() => {
       // alert
       Alert.success(
         this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: this._originCodeTable.name}));
@@ -174,10 +173,10 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    * 이전으로 돌아가기 버튼 클릭 이벤트
    */
   public onClickPrevButton(): void {
-   /**
-    * if using router.navigate, can't conserve previous page's state
-    * However, using _location.back() can conserve.
-    */
+    /**
+     * if using router.navigate, can't conserve previous page's state
+     * However, using _location.back() can conserve.
+     */
     if (this._codeTableService.fromColumnDictionary) {
       this.router.navigate(['management/metadata/code-table']).then();
       this._codeTableService.fromColumnDictionary = false;
@@ -386,14 +385,12 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
 
-    this._codeTableService.updateCodeTable(this._codeTableId, params ? params : this._getUpdateCodeTableParams()).
-    then((result) => {
+    this._codeTableService.updateCodeTable(this._codeTableId, params ? params : this._getUpdateCodeTableParams()).then(() => {
       // alert
       Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
       // 재조회
       this._getDetailCodeTable();
-    }).
-    catch((error) => {
+    }).catch(() => {
       // 로딩 hide
       this.loadingHide();
     });
@@ -407,12 +404,12 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드와 값 업데이트
-    this._codeTableService.updateCodeValueInCodeTable(this._codeTableId, this._getUpdateCodeParams()).then((result) => {
+    this._codeTableService.updateCodeValueInCodeTable(this._codeTableId, this._getUpdateCodeParams()).then(() => {
       // alert
       Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
       // 재조회
       this._getDetailCodeTable();
-    }).catch((error) => {
+    }).catch(() => {
       // 로딩 hide
       this.loadingHide();
     });
@@ -446,7 +443,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
         // 테이블 업데이트
         this._updateCodeTable({name: this.reName.trim()});
       }
-    }).catch((error) => {
+    }).catch(() => {
       // 로딩 hide
       this.loadingHide();
     });
@@ -458,7 +455,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    * @private
    */
   private _codeListValidation(): boolean {
-    for (let i = 0; i < this.codeList.length; i++) {
+    for (let i = 0, nMax = this.codeList.length; i < nMax; i++) {
       // code나 value 둘 중 하나가 비어있으면 validation message 표시
       if (this.codeList[i].code && this.codeList[i].value && this.codeList[i].code.trim() !== '' &&
         this.codeList[i].value.trim() !== '') {
@@ -494,7 +491,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
       this._originCodeList = _.cloneDeep(result['codes']);
       // 연결된 컬럼 사전 목록 조회
       this._getColumnDictionaryList();
-    }).catch((error) => {
+    }).catch(() => {
       // 로딩 hide
       this.loadingHide();
     });
@@ -519,7 +516,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
       this.linkedDictionaryList = result['_embedded'] ? result['_embedded'].dictionaries : [];
       // 로딩 hide
       this.loadingHide();
-    }).catch((error) => {
+    }).catch(() => {
       // 로딩 hide
       this.loadingHide();
     });
@@ -531,11 +528,10 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    * @private
    */
   private _getUpdateCodeTableParams(): object {
-    const params = {
+    return {
       name: this.codeTable.name.trim(),
       description: this.codeTable.description.trim(),
     };
-    return params;
   }
 
   /**

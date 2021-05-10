@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Output } from '@angular/core';
-import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { User } from '../../../../../domain/user/user';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
+import {User} from '@domain/user/user';
 import * as _ from 'lodash';
-import { isUndefined } from 'util';
-import { Alert } from '../../../../../common/util/alert.util';
-import { Group } from '../../../../../domain/user/group';
+import {isUndefined} from 'util';
+import {Alert} from '@common/util/alert.util';
+import {Group} from '@domain/user/group';
 
 @Component({
   selector: 'app-update-user-management-members',
@@ -71,24 +71,6 @@ export class UpdateUserManagementMembersComponent extends AbstractUserManagement
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -130,7 +112,7 @@ export class UpdateUserManagementMembersComponent extends AbstractUserManagement
         // event emit
         this.groupComplete.emit();
       })
-      .catch((error) => {
+      .catch(() => {
         // error alert
         Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
         // 로딩 hide
@@ -219,7 +201,7 @@ export class UpdateUserManagementMembersComponent extends AbstractUserManagement
    */
   public isAllSelectedGroup(): boolean {
     if (this.groupList.length !== 0) {
-      for (let index = 0; index < this.groupList.length; index++) {
+      for (let index = 0, nMax = this.groupList.length; index < nMax; index++) {
         // 조회된 그룹 목록 중 선택목록에 하나라도 없다면 false
         if (_.findIndex(this.selectedGroup, {id: this.groupList[index].id}) === -1) {
           return false;
@@ -423,7 +405,6 @@ export class UpdateUserManagementMembersComponent extends AbstractUserManagement
 
   /**
    * 사용자가 속한 그룹 변경에 이용하는 파라메터
-   * @returns {any}
    * @private
    */
   private _getUpdateParam(): any {

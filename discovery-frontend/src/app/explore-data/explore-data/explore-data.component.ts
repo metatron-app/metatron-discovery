@@ -12,39 +12,39 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {Subscription} from 'rxjs';
 import {
+  AfterViewInit,
   Component,
   ComponentFactoryResolver,
   ComponentRef,
-  ElementRef, HostListener,
+  ElementRef,
+  HostListener,
   Injector,
   OnDestroy,
   OnInit,
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import * as _ from 'lodash';
-import {MetadataContainerComponent} from "./popup/metadata-container.component";
-import {DatasourceService} from "../../datasource/service/datasource.service";
-import {ExploreDataListComponent} from "./explore-data-list.component";
-import {EventBroadcaster} from "../../common/event/event.broadcaster";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {Subscription} from "rxjs";
-import {ExploreDataSearchComponent} from "./explore-data-search.component";
-import {ExploreDataModelService} from "./service/explore-data-model.service";
-import {ExploreDataMainComponent} from "./explore-data-main.component";
-import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
-import {Modal} from "../../common/domain/modal";
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {MetadataContainerComponent} from './popup/metadata-container.component';
+import {ExploreDataListComponent} from './explore-data-list.component';
+import {ExploreDataSearchComponent} from './explore-data-search.component';
+import {ExploreDataModelService} from './service/explore-data-model.service';
+import {ExploreDataMainComponent} from './explore-data-main.component';
 
 @Component({
   selector: 'app-exploredata-view',
   templateUrl: './explore-data.component.html',
   entryComponents: [MetadataContainerComponent, ConfirmRefModalComponent]
 })
-export class ExploreDataComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class ExploreDataComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('component_metadata_detail', {read: ViewContainerRef}) readonly metadataContainerEntry: ViewContainerRef;
   metadataContainerEntryRef: ComponentRef<MetadataContainerComponent>;
@@ -73,7 +73,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   subscription: Subscription;
 
-  readonly $layoutContentsClass = $( '.ddp-layout-contents' );
+  readonly $layoutContentsClass = $('.ddp-layout-contents');
 
   // enum
   readonly EXPLORE_MODE = ExploreMode;
@@ -81,7 +81,6 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // 생성자
   constructor(private metadataService: MetadataService,
               private resolver: ComponentFactoryResolver,
-              private dataSourceService: DatasourceService,
               private broadcaster: EventBroadcaster,
               private exploreDataModelService: ExploreDataModelService,
               protected element: ElementRef,
@@ -89,7 +88,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     super(element, injector);
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize() {
     const height = $('.ddp-ui-contents-list').outerHeight() + 190 + 54;
     this.$layoutContentsClass.css('height', height);
@@ -119,7 +118,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.$layoutContentsClass.addClass( 'ddp-layout-meta');
+    this.$layoutContentsClass.addClass('ddp-layout-meta');
 
     this.originalHeight = this.$layoutContentsClass.outerHeight();
     const height = this.$layoutContentsClass.outerHeight() + 190 + 54;
@@ -130,7 +129,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-    this.$layoutContentsClass.removeClass( 'ddp-layout-meta' );
+    this.$layoutContentsClass.removeClass('ddp-layout-meta');
     this.$layoutContentsClass.css('height', this.originalHeight);
     this.subscription.unsubscribe();
   }
@@ -168,7 +167,7 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
           .catch(error => this.commonExceptionHandler(error));
       } else {
-        if (metadataDetail.source.source != undefined) {
+        if (metadataDetail.source.source !== undefined) {
           recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         } else {
@@ -188,7 +187,11 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
     };
 
     const getRecentlyUsedList = async () => {
-      recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {sort: 'createdTime', size: 5, page: 0}).catch(error => this.commonExceptionHandler(error));
+      recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {
+        sort: 'createdTime',
+        size: 5,
+        page: 0
+      }).catch(error => this.commonExceptionHandler(error));
     };
 
     this.metadataService.getDetailMetaData(metadata.id).then(async (result) => {
@@ -226,48 +229,51 @@ export class ExploreDataComponent extends AbstractComponent implements OnInit, O
         this.metadataContainerEntryRef.destroy();
       });
       // toggle favorite in modal listener
-      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((metadataDetail) => {
+      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((toggleItem) => {
         // modal is shown in list screen
         if (this.mode === ExploreMode.LIST) {
-          const index = this._exploreDataListComponent.metadataList.findIndex((metadata) => {
-            return metadata.id === metadataDetail.id;
+          const index = this._exploreDataListComponent.metadataList.findIndex((listItem) => {
+            return listItem.id === toggleItem.id;
           });
 
           if (index !== -1) {
             this._exploreDataListComponent.metadataList[index].favorite = !this._exploreDataListComponent.metadataList[index].favorite;
           }
           // modal is shown in main screen
-        } else if (this.mode === ExploreMode.MAIN)  {
+        } else if (this.mode === ExploreMode.MAIN) {
           this._exploreDataMainComponent.setMyFavoriteMetadataList().catch(e => this.commonExceptionHandler(e));
         }
       });
-    }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
-  }
-
-  private _showConfirmComponent() {
-    return new Promise((resolve, reject) => {
-      // show confirm modal
-      this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
-      const modal: Modal = new Modal();
-
-      modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
-      modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
-      modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
-      this.confirmModalEntryRef.instance.init(modal);
-      this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
-        // destroy confirm component
-        this.confirmModalEntryRef.destroy();
-      });
-      this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
-        // destroy confirm component
-        this.confirmModalEntryRef.destroy();
-        resolve(result);
-      });
+    }).catch(error => {
+      console.log(error);
+      this.commonExceptionHandler(error)
     });
   }
 
+  // private _showConfirmComponent() {
+  //   return new Promise((resolve, reject) => {
+  //     // show confirm modal
+  //     this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
+  //     const modal: Modal = new Modal();
+  //
+  //     modal.name = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.name');
+  //     modal.description = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.description');
+  //     modal.btnName = this.translateService.instant('msg.storage.alert.metadata.column.code.table.detail.modal.btn');
+  //     this.confirmModalEntryRef.instance.init(modal);
+  //     this.confirmModalEntryRef.instance.cancelEvent.subscribe(() => {
+  //       // destroy confirm component
+  //       this.confirmModalEntryRef.destroy();
+  //     });
+  //     this.confirmModalEntryRef.instance.confirmEvent.subscribe((result) => {
+  //       // destroy confirm component
+  //       this.confirmModalEntryRef.destroy();
+  //       resolve(result);
+  //     });
+  //   });
+  // }
+
   private async _setMetadataSourceTypeCount() {
-    const result: {ENGINE: number, JDBC: number, STAGEDB: number} = await this.metadataService.getMetadataSourceTypeCount();
+    const result: { ENGINE: number, JDBC: number, STAGEDB: number } = await this.metadataService.getMetadataSourceTypeCount();
     if (!_.isNil(result.ENGINE)) {
       this.sourceTypeCount = result.ENGINE;
     }

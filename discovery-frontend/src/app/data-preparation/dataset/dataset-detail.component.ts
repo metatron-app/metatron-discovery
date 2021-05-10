@@ -12,30 +12,30 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {DsType, Field, ImportType, PrDataset, RsType} from '../../domain/data-preparation/pr-dataset';
-import {GridComponent} from '../../common/component/grid/grid.component';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Alert} from '../../common/util/alert.util';
-import {GridOption} from '../../common/component/grid/grid.option';
-import {Modal} from '../../common/domain/modal';
-import {PreparationAlert} from '../util/preparation-alert.util';
-import {header, SlickGridHeader} from '../../common/component/grid/grid.header';
-import {DatasetService} from './service/dataset.service';
-import {DataflowService} from '../dataflow/service/dataflow.service';
-import {StringUtil} from '../../common/util/string.util';
-import {ActivatedRoute} from '@angular/router';
-import {PrDataflow} from '../../domain/data-preparation/pr-dataflow';
-import {CreateSnapshotPopup} from '../component/create-snapshot-popup.component';
-import {SnapshotLoadingComponent} from '../component/snapshot-loading.component';
-import {PreparationCommonUtil} from "../util/preparation-common.util";
-import {Location} from "@angular/common";
-
-import {isNull, isNullOrUndefined} from "util";
-import * as pixelWidth from 'string-pixel-width';
 import {saveAs} from 'file-saver';
-import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
+import * as pixelWidth from 'string-pixel-width';
+import {isNull, isNullOrUndefined} from 'util';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Location} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {DsType, Field, ImportType, PrDataset, RsType} from '@domain/data-preparation/pr-dataset';
+import {PrDataflow} from '@domain/data-preparation/pr-dataflow';
+
+import {PreparationCommonUtil} from '../util/preparation-common.util';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {CreateSnapshotPopupComponent} from '../component/create-snapshot-popup.component';
+import {SnapshotLoadingComponent} from '../component/snapshot-loading.component';
+import {DataflowService} from '../dataflow/service/dataflow.service';
+import {DataflowModelService} from '../dataflow/service/dataflow.model.service';
+import {DatasetService} from './service/dataset.service';
 
 declare let moment: any;
 
@@ -52,8 +52,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
-  @ViewChild(CreateSnapshotPopup)
-  private createSnapshotPopup : CreateSnapshotPopup;
+  @ViewChild(CreateSnapshotPopupComponent)
+  private createSnapshotPopup: CreateSnapshotPopupComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -62,7 +62,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   @Input()
   public dataset: PrDataset;
 
-  public fields : Field[];
+  public fields: Field[];
 
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
@@ -83,18 +83,18 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public datasetName: string = '';
   public datasetDesc: string = '';
 
-  public datasetId : string ='';
+  public datasetId: string = '';
 
-  public datasetInformationList : DatasetInformation[] ;
+  public datasetInformationList: DatasetInformation[];
 
-  public interval : any;
+  public interval: any;
 
   public isSelectDataflowOpen: boolean = false;
 
   public isForLineage: boolean = true;
 
   // dataflow id str
-  public dfStr : string;
+  public dfStr: string;
 
   @ViewChild('dsName')
   private dsName: ElementRef;
@@ -102,7 +102,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   private dsDesc: ElementRef;
 
   @ViewChild(SnapshotLoadingComponent)
-  public snapshotLoadingComponent : SnapshotLoadingComponent;
+  public snapshotLoadingComponent: SnapshotLoadingComponent;
 
   public prepCommonUtil = PreparationCommonUtil;
 
@@ -112,6 +112,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public commandList: Command[];
   public isRequested: boolean = false;
   public ImportType = ImportType;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -119,7 +120,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
               private dataflowService: DataflowService,
               private dataflowModelService: DataflowModelService,
               private activatedRoute: ActivatedRoute,
-              private _location:Location,
+              private _location: Location,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -133,31 +134,31 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     super.ngOnInit();
 
     this.commandList = [
-      { command: 'header', alias: 'He'},
-      { command: 'keep', alias: 'Ke'},
-      { command: 'replace', alias: 'Rp'},
-      { command: 'rename', alias: 'Rn'},
-      { command: 'set', alias: 'Se'},
-      { command: 'settype', alias: 'St'},
-      { command: 'countpattern', alias: 'Co'},
-      { command: 'split', alias: 'Sp'},
-      { command: 'derive', alias: 'Dr'},
-      { command: 'delete', alias: 'De'},
-      { command: 'drop', alias: 'Dp'},
-      { command: 'pivot', alias: 'Pv'},
-      { command: 'unpivot', alias: 'Up'},
-      { command: 'join', alias: 'Jo'},
-      { command: 'extract', alias: 'Ex'},
-      { command: 'flatten', alias: 'Fl'},
-      { command: 'merge', alias: 'Me'},
-      { command: 'nest', alias: 'Ne'},
-      { command: 'unnest', alias: 'Un'},
-      { command: 'aggregate', alias: 'Ag'},
-      { command: 'sort', alias: 'So'},
-      { command: 'move', alias: 'Mv'},
-      { command: 'union', alias: 'Ui'},
-      { command: 'window', alias: 'Wn'},
-      { command: 'setformat', alias: 'Sf'}
+      {command: 'header', alias: 'He'},
+      {command: 'keep', alias: 'Ke'},
+      {command: 'replace', alias: 'Rp'},
+      {command: 'rename', alias: 'Rn'},
+      {command: 'set', alias: 'Se'},
+      {command: 'settype', alias: 'St'},
+      {command: 'countpattern', alias: 'Co'},
+      {command: 'split', alias: 'Sp'},
+      {command: 'derive', alias: 'Dr'},
+      {command: 'delete', alias: 'De'},
+      {command: 'drop', alias: 'Dp'},
+      {command: 'pivot', alias: 'Pv'},
+      {command: 'unpivot', alias: 'Up'},
+      {command: 'join', alias: 'Jo'},
+      {command: 'extract', alias: 'Ex'},
+      {command: 'flatten', alias: 'Fl'},
+      {command: 'merge', alias: 'Me'},
+      {command: 'nest', alias: 'Ne'},
+      {command: 'unnest', alias: 'Un'},
+      {command: 'aggregate', alias: 'Ag'},
+      {command: 'sort', alias: 'So'},
+      {command: 'move', alias: 'Mv'},
+      {command: 'union', alias: 'Ui'},
+      {command: 'window', alias: 'Wn'},
+      {command: 'setformat', alias: 'Sf'}
     ];
 
     // Router에서 파라미터 전달 받기
@@ -165,7 +166,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       if (params['id']) {
         this.datasetId = params['id'];
         this._getDsDetail(true);
-        this.interval = setInterval(()=> {this._getDsDetail();},10000);
+        this.interval = setInterval(() => {
+          this._getDsDetail();
+        }, 10000);
       }
     });
   }
@@ -284,8 +287,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
   } // function - updateDataset
 
@@ -349,43 +352,42 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public makeLineage() {
-    var params = {
-      'dsId': this.dataset.dsId,
-      'dsName': this.dataset.dsName
+    const params = {
+      dsId: this.dataset.dsId,
+      dsName: this.dataset.dsName
     };
 
     this.loadingShow();
     this.datasetService.makeLineage(params)
       .then(result => {
         this.loadingHide();
-        Alert.success(this.translateService.instant('msg.dp.alert.create-lineage.success',{value:result.length}));
+        Alert.success(this.translateService.instant('msg.dp.alert.create-lineage.success', {value: result.length}));
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
   }
 
   /** get total bytes */
   public get getTotalBytes() {
-    if( (this.dataset.importType===ImportType.STAGING_DB &&
-      this.dataset.rsType!==RsType.TABLE)  || this.dataset.importType===ImportType.DATABASE) {
+    if ((this.dataset.importType === ImportType.STAGING_DB &&
+      this.dataset.rsType !== RsType.TABLE) || this.dataset.importType === ImportType.DATABASE) {
       return null
     } else {
       let size = -1;
-      if(Number.isInteger(this.dataset.totalBytes)) {
+      if (Number.isInteger(this.dataset.totalBytes)) {
         size = this.dataset.totalBytes;
       }
-      return this._formatBytes(size,1);
+      return this._formatBytes(size, 1);
     }
   }
-
 
   /** get row count */
   public get getRows() {
     let rows = '0 row(s)';
-    if(!isNullOrUndefined(this.dataset.totalLines) && Number.isInteger(this.dataset.totalLines)) {
+    if (!isNullOrUndefined(this.dataset.totalLines) && Number.isInteger(this.dataset.totalLines)) {
       if (this.dataset.totalLines === -1) {
         rows = '(counting)';
       } else {
@@ -396,14 +398,14 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public get getHost() {
-    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcHostname)) {
+    if (this.dataset.importType === ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcHostname)) {
       return this.dataset.dcHostname;
     }
     return null;
   }
 
   public get getPort() {
-    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcPort)) {
+    if (this.dataset.importType === ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcPort)) {
       return this.dataset.dcPort;
     }
     return null;
@@ -440,23 +442,23 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    */
   public createNewFlow() {
 
-    let today = moment();
-    //let param = new Dataflow();
-    let param = new PrDataflow();
+    const today = moment();
+    // let param = new Dataflow();
+    const param = new PrDataflow();
     param.datasets = [this.dataset['_links'].self.href];
-    param.dfName = `${this.dataset.dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`  ;
+    param.dfName = `${this.dataset.dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`;
     this.loadingShow();
     this.dataflowService.createDataflow(param).then((result) => {
       this.loadingHide();
       if (result.dfId) {
         this.router.navigate(['/management/datapreparation/dataflow', result.dfId]);
-        this.cookieService.set('FIND_WRANGLED',this.datasetId);
-        Alert.success(this.translateService.instant('msg.dp.alert.create-df.success',{value:result.dfName}));
+        this.cookieService.set('FIND_WRANGLED', this.datasetId);
+        Alert.success(this.translateService.instant('msg.dp.alert.create-df.success', {value: result.dfName}));
       }
-    }).catch((error)=>{
+    }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     })
   }
 
@@ -476,7 +478,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   }
 
-
   public closeSelectDataflow() {
     // close popup
     this.isSelectDataflowOpen = false;
@@ -492,68 +493,87 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : this.getRows },
-          {name : '', value : this.dataset.gridResponse.colCnt + ' column(s)' }
-        ]
+      this.datasetInformationList = [{name: this.translateService.instant('msg.comm.th.type'), value: dataset.dsType},
+        {name: this.translateService.instant('msg.dp.th.summary'), value: this.getRows},
+        {name: '', value: this.dataset.gridResponse.colCnt + ' column(s)'}
+      ]
       // FILE
-    }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
-      let filepath : string = dataset.filenameBeforeUpload;
+    } else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
+      const filepath: string = dataset.filenameBeforeUpload;
 
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') ,
-          value : PreparationCommonUtil.getDatasetType(dataset)
+        {
+          name: this.translateService.instant('msg.comm.th.type'),
+          value: PreparationCommonUtil.getDatasetType(dataset)
         },
-        {name : this.translateService.instant('msg.dp.th.file'),
-          value : `${filepath}`
+        {
+          name: this.translateService.instant('msg.dp.th.file'),
+          value: `${filepath}`
         },
       ];
 
       // EXCEL
       if (this._getFileType(dataset.importType, filepath) === 'EXCEL') {
-        this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
+        this.datasetInformationList.push({
+          name: this.translateService.instant('msg.dp.th.sheet'),
+          value: this.getSheetName()
+        })
       }
 
       this.datasetInformationList.push(
-        {name : 'URI', value : this.dataset.storedUri},
-        {name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : this.getRows },
-        {name : '', value : this.dataset.gridResponse.colCnt + ' column(s)' })
+        {name: 'URI', value: this.dataset.storedUri},
+        {name: this.translateService.instant('msg.comm.detail.size'), value: this.getTotalBytes},
+        {name: this.translateService.instant('msg.dp.th.summary'), value: this.getRows},
+        {name: '', value: this.dataset.gridResponse.colCnt + ' column(s)'})
 
 
       // STAGING OR DB
     } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
 
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') ,
-          value : PreparationCommonUtil.getDatasetType(dataset) }];
+        {
+          name: this.translateService.instant('msg.comm.th.type'),
+          value: PreparationCommonUtil.getDatasetType(dataset)
+        }];
 
       if (!isNullOrUndefined(this.getDatabase)) {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
+        this.datasetInformationList.push({
+          name: `${this.translateService.instant('msg.dp.th.database')}`,
+          value: `${this.getDatabase}`
+        });
       }
 
       if (dataset.rsType === 'TABLE') {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${this.getTable}` })
+        this.datasetInformationList.push({
+          name: `${this.translateService.instant('msg.lineage.ui.list.search.table')}`,
+          value: `${this.getTable}`
+        })
       } else {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getQueryStmt}` })
+        this.datasetInformationList.push({
+          name: `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`,
+          value: `${this.getQueryStmt}`
+        })
       }
 
       if (dataset.importType === 'STAGING_DB') {
         if (!isNullOrUndefined(this.getTotalBytes)) {
-          this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+          this.datasetInformationList.push({
+            name: this.translateService.instant('msg.comm.detail.size'),
+            value: this.getTotalBytes
+          });
         }
       } else {
         if (this.getPort && this.getHost) {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.getHost}` },
-            { name : `${this.translateService.instant('Port')}`, value : `${this.getPort}` })
+          this.datasetInformationList.push({name: `${this.translateService.instant('Host')}`, value: `${this.getHost}`},
+            {name: `${this.translateService.instant('Port')}`, value: `${this.getPort}`})
         } else {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.getUrl}` });
+          this.datasetInformationList.push({name: `${this.translateService.instant('Url')}`, value: `${this.getUrl}`});
         }
       }
 
       this.datasetInformationList.push(
-        {name : this.translateService.instant('msg.dp.th.summary'), value : this.getRows },
-        {name : '', value : this.dataset.gridResponse.colCnt + ' column(s)' })
+        {name: this.translateService.instant('msg.dp.th.summary'), value: this.getRows},
+        {name: '', value: this.dataset.gridResponse.colCnt + ' column(s)'})
 
     }
   }
@@ -565,15 +585,15 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * @param {string} fileName
    * @returns {string}
    */
-  private _getFileType(type: ImportType, fileName : string) : string {
+  private _getFileType(type: ImportType, fileName: string): string {
 
     let result = 'CSV';
     if (type === ImportType.UPLOAD) {
-      let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
-      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
-        result =  'EXCEL'
-      }  else if (extension.toUpperCase() === 'JSON') {
-        result =  'JSON'
+      const extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
+      if (extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
+        result = 'EXCEL'
+      } else if (extension.toUpperCase() === 'JSON') {
+        result = 'JSON'
       }
     }
     return result;
@@ -583,10 +603,10 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   /**
    * get names of sheet
    */
-  public getSheetName() : string {
+  public getSheetName(): string {
 
-    let result = "N/A";
-    if(this.dataset.sheetName) {
+    let result = 'N/A';
+    if (this.dataset.sheetName) {
       result = this.dataset.sheetName;
     }
     return result;
@@ -597,7 +617,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * Create snapshot (only wrangled)
    */
   public createSnapshot() {
-    this.createSnapshotPopup.init({id : this.dataset.dsId , name : this.dataset.dsName});
+    this.createSnapshotPopup.init({id: this.dataset.dsId, name: this.dataset.dsName});
   }
 
 
@@ -612,7 +632,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       (this.dataset.dsType === DsType.IMPORTED && this.dataset.importType === ImportType.URI)
     ) {
 
-      let ext = this.prepCommonUtil.getFileFormatWithExtension( this.dataset.filenameBeforeUpload );
+      const ext = this.prepCommonUtil.getFileFormatWithExtension(this.dataset.filenameBeforeUpload);
 
       if (ext.toString().toLowerCase() === 'excel') {
         fileFormat = 'csv';
@@ -646,13 +666,16 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * @param b 소숫점 자릿
    * @private
    */
-  private _formatBytes(a,b) {
-    if (-1 === a)  {
-      return "0 Bytes";
+  private _formatBytes(a, b) {
+    if (-1 === a) {
+      return '0 Bytes';
     }
 
-    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
-    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
+    const c = 1024;
+    const d = b || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(a) / Math.log(c));
+    return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f]
   }
 
 
@@ -668,7 +691,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }
 
     if (!this.isRequested) {
-      this.isRequested  = true;
+      this.isRequested = true;
       this.datasetService.getDatasetDetail(this.datasetId).then((result) => {
         this.isRequested = false;
 
@@ -702,19 +725,19 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         this.interval = undefined;
 
         if (!isNullOrUndefined(this.dataset.totalLines) && this.dataset.totalLines === -1) {
-          this.interval = setInterval(()=> {this._getDsDetail();},3000);
+          this.interval = setInterval(() => {
+            this._getDsDetail();
+          }, 3000);
         }
 
       }).catch((error) => {
         this.loadingHide();
         clearInterval(this.interval);
         this.interval = undefined;
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
     }
-
-
 
 
   } // function - getPreviewData
@@ -725,16 +748,16 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * @returns 그리드 데이터
    */
   private _getGridDataFromGridResponse(gridResponse: any) {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
       fields: []
     };
 
-    for ( let idx = 0; idx < colCnt; idx++ ) {
+    for (let idx = 0; idx < colCnt; idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -744,8 +767,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for ( let idx = 0;idx < colCnt; idx++ ) {
-        obj[ colNames[idx] ] = row.objCols[idx];
+      for (let idx = 0; idx < colCnt; idx++) {
+        obj[colNames[idx]] = row.objCols[idx];
       }
       gridData.data.push(obj);
     });
@@ -761,9 +784,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     const maxDataLen: any = {};
     const fields: Field[] = data.fields;
 
-    let rows: any[] = data.data;
+    const rows: any[] = data.data;
 
-    if( 0 === fields.length ) {
+    if (0 === fields.length) {
       return;
     }
 
@@ -791,10 +814,10 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }
 
     // 헤더정보 생성
-    const headers: header[] = fields.map((field: Field) => {
+    const headers: Header[] = fields.map((field: Field) => {
 
       /* 72 는 CSS 상의 padding 수치의 합산임 */
-      const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
+      const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 72;
 
       return new SlickGridHeader()
         .Id(field.name)
@@ -810,7 +833,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         .Unselectable(true)
         .Sortable(false)
         .ColumnType(field.type)
-        .Formatter(( row, cell, value, columnDef ) => {
+        .Formatter((_row, cell, value, columnDef) => {
           const colDescs = (this.dataset.gridResponse && this.dataset.gridResponse.colDescs) ? this.dataset.gridResponse.colDescs[cell] : {};
           value = PreparationCommonUtil.setFieldFormatter(value, columnDef.columnType, colDescs);
 
@@ -818,7 +841,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
             value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
             value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
             value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
-            let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
+            const tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0">&middot;</span>';
             value = (value) ? value.toString().replace(/\s/gi, tag) : value;
           }
           if (isNull(value)) {
@@ -839,7 +862,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
           .build()
         )
       }
-    },400);
+    }, 400);
   } // function - updateGrid
 
   /**
@@ -856,8 +879,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     // ruleStringInfos
     rules.forEach((rule) => {
 
-      let ruleInfo: Command = new Command();
-      let ruleVO = JSON.parse(rule['jsonRuleString']);
+      const ruleInfo: Command = new Command();
+      const ruleVO = JSON.parse(rule['jsonRuleString']);
       ruleInfo.command = ruleVO['name'];
 
       const idx = commandNames.indexOf(ruleInfo.command);
@@ -890,8 +913,8 @@ class DatasetInformation {
 }
 
 class Command {
-  command : string;
-  alias : string;
+  command: string;
+  alias: string;
   shortRuleString?: string;
   ruleString?: string;
 }

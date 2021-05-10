@@ -16,10 +16,10 @@ import { Widget, WidgetConfiguration } from './widget';
 import { Pivot } from '../../workbook/configurations/pivot';
 import { Shelf } from '../../workbook/configurations/shelf/shelf';
 import { CustomField } from '../../workbook/configurations/field/custom-field';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
+import { UIOption } from '@common/component/chart/option/ui-option';
 import { Limit } from '../../workbook/configurations/limit';
 import { BoardDataSource } from '../dashboard';
-import {Format} from "../../workbook/configurations/format";
+import {Format} from '../../workbook/configurations/format';
 import { Filter } from '../../workbook/configurations/filter/filter';
 
 export class PageWidget extends Widget {

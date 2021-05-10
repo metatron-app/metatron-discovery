@@ -12,9 +12,9 @@
 * limitations under the License.
 */
 
-import {AbstractHistoryEntity, UserDetail} from '../common/abstract-history-entity';
-import { PrDataflow } from './pr-dataflow';
-import {header} from "../../common/component/grid/grid.header";
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {PrDataflow} from './pr-dataflow';
+import {Header} from '@common/component/grid/grid.header';
 
 export class PrDataset extends AbstractHistoryEntity {
 
@@ -51,16 +51,16 @@ export class PrDataset extends AbstractHistoryEntity {
 
   // UI에서만 사용
   public selected?: boolean;
-  public isHover? : boolean;
+  public isHover?: boolean;
   public data?: string;
   public gridData?: any;
   public origin?: boolean;
   public rules?: any[];
   public isCurrentDataflow?: boolean;
-  public nameCnt?:number;
-  public current?:boolean;
+  public nameCnt?: number;
+  public current?: boolean;
   public validCount?: number = 0;
-  public upstreamDsIds?:string[];
+  public upstreamDsIds?: string[];
   public histogram?: any;
   public colTypes?: any;
   public colDescs?: any;
@@ -77,7 +77,7 @@ export class PrDataset extends AbstractHistoryEntity {
   public ruleNo: string;
 
   // add api modify
-  //public connectionInfo: any;
+  // public connectionInfo: any;
 
   // connection Info
   public dcId: string;
@@ -96,45 +96,45 @@ export class Datasets {
 }
 
 export enum DsType {
-  IMPORTED = <any>'IMPORTED',
-  WRANGLED = <any>'WRANGLED',
+  IMPORTED = 'IMPORTED',
+  WRANGLED = 'WRANGLED',
 }
 
 export enum ImportType {
-  UPLOAD = <any>'UPLOAD',
-  URI = <any>'URI',
-  DATABASE = <any>'DATABASE',
-  STAGING_DB = <any>'STAGING_DB',
-  DRUID = <any>'DRUID',
+  UPLOAD = 'UPLOAD',
+  URI = 'URI',
+  DATABASE = 'DATABASE',
+  STAGING_DB = 'STAGING_DB',
+  DRUID = 'DRUID',
 }
 
 export enum StorageType {
-  LOCAL = <any>'LOCAL',
-  HDFS = <any>'HDFS',
-  S3 = <any>'S3',
-  BLOB = <any>'BLOB',
-  FTP = <any>'FTP',
+  LOCAL = 'LOCAL',
+  HDFS = 'HDFS',
+  S3 = 'S3',
+  BLOB = 'BLOB',
+  FTP = 'FTP',
 }
 
 export enum FileFormat {
-  CSV = <any>'CSV',
-  EXCEL = <any>'EXCEL',
-  JSON = <any>'JSON',
-  TXT= <any>'TXT'
+  CSV = 'CSV',
+  EXCEL = 'EXCEL',
+  JSON = 'JSON',
+  TXT = 'TXT'
 }
 
 export enum RsType {
-  TABLE = <any>'TABLE',
-  QUERY = <any>'QUERY',
+  TABLE = 'TABLE',
+  QUERY = 'QUERY',
 }
 
 export class Field {
   public name: string;
   public type: string;
-  public uuid? : string;
-  public logicalType? : string;
-  public isHover? : boolean;
-  public seq? : number;
+  public uuid?: string;
+  public logicalType?: string;
+  public isHover?: boolean;
+  public seq?: number;
   public values?: any[];
 }
 
@@ -146,21 +146,21 @@ export class PrDatasetFile extends PrDataset {
   public sheetInfo: SheetInfo[];
   public fileName: string;
   public fileExtension: string;
-  public selected : boolean = false;
-  public error : any;
+  public selected: boolean = false;
+  public error: any;
 }
 
 export class PrDatasetHive extends PrDataset {
-  public sqlInfo? : QueryInfo;
-  public tableInfo? : TableInfo;
+  public sqlInfo?: QueryInfo;
+  public tableInfo?: TableInfo;
 
   public dataconnection?: any;
 }
 
 export class PrDatasetJdbc extends PrDataset {
   public dcId: string;
-  public sqlInfo? : QueryInfo;
-  public tableInfo? : TableInfo;
+  public sqlInfo?: QueryInfo;
+  public tableInfo?: TableInfo;
 
   public dataconnection: any;
   public connectionList?: any[];
@@ -179,7 +179,7 @@ export class Rule {
   public global: boolean = true;
   public type: any;
   public value: any;
-  public order : any;
+  public order: any;
   public as: string;
   public ignoreCase: boolean = true;
   public limit: string;
@@ -188,7 +188,7 @@ export class Rule {
   public into: string;
   public groupEvery: string;
   public idx: string;
-  public timestamp : string;
+  public timestamp: string;
 
   // ui에서만 사용
   public cols: string[] = [];
@@ -197,15 +197,15 @@ export class Rule {
   public quoteType: string = 'none';
   public beforeOrAfter: string = 'before';
   public colForMove: string = '';
-  public where : string;
-  public pattern : string = '';
+  public where: string;
+  public pattern: string = '';
 
   public isEditMode: boolean;
   public isInsertStep: boolean;
 }
 
 export class QueryInfo {
-  public headers: header[];
+  public headers: Header[];
   public rows: any[];
   public queryStmt: string;
   public valid?: boolean;
@@ -213,7 +213,7 @@ export class QueryInfo {
 }
 
 export class TableInfo {
-  public headers: header[];
+  public headers: Header[];
   public rows: any[];
   public databaseName: string;
   public tableName: string;
@@ -221,11 +221,11 @@ export class TableInfo {
 }
 
 export class SheetInfo {
-  selected : boolean;
-  data : any;
-  fields : any;
-  totalRows? : number;
+  selected: boolean;
+  data: any;
+  fields: any;
+  totalRows?: number;
   valid: boolean;
   sheetName?: string;
-  columnCount? : number;
+  columnCount?: number;
 }

@@ -12,20 +12,21 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { Datasets } from '../../../domain/data-preparation/pr-dataset';
-import { CommonUtil } from '../../../common/util/common.util';
-import {Observable} from "rxjs/Rx";
-import {CookieConstant} from "../../../common/constant/cookie.constant";
-import {HttpHeaders} from "@angular/common/http";
 import * as _ from 'lodash';
+import {map} from 'rxjs/operators';
+import {Observable} from 'rxjs/Observable';
+import {Injectable, Injector} from '@angular/core';
+import {HttpHeaders} from '@angular/common/http';
+import {CommonUtil} from '@common/util/common.util';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {AbstractService} from '@common/service/abstract.service';
+import {Datasets} from '@domain/data-preparation/pr-dataset';
 
 @Injectable()
 export class DatasetService extends AbstractService {
 
   // 데이터플로우에서 데이터셋 생성으로 넘어왔을 경우, 생성 완료 후 다시 데이터플로우도 이동을 위해 필요
-  public dataflowId : string;
+  public dataflowId: string;
 
   constructor(protected injector: Injector) {
     super(injector);
@@ -89,17 +90,17 @@ export class DatasetService extends AbstractService {
    * @param param {storedUri :string, fileType : string, delimiter? : string}
    * @returns {Promise<any>}
    */
-  public getFileGridInfo(param : {storedUri :string, delimiter? : string, quoteChar? :string, manualColumnCount? : number}) {
+  public getFileGridInfo(param: { storedUri: string, delimiter?: string, quoteChar?: string, manualColumnCount?: number }) {
 
     let url = this.API_URL + 'preparationdatasets/file_grid?storedUri=' + encodeURI(param.storedUri);
 
     if (param.delimiter) {
       url += `&delimiterCol=${encodeURI(param.delimiter)}`;
     }
-    if (param.quoteChar!==undefined) {
+    if (param.quoteChar !== undefined) {
       url += `&quoteChar=${encodeURI(param.quoteChar)}`;
     }
-    if (param.manualColumnCount){
+    if (param.manualColumnCount) {
       url += `&manualColumnCount=${param.manualColumnCount}`;
     }
 
@@ -123,7 +124,7 @@ export class DatasetService extends AbstractService {
    * @param dataset
    * @returns {Promise<any>}
    */
-  public updateDataset(dataset: {dsId: string, dsName: string, dsDesc : string}) {
+  public updateDataset(dataset: { dsId: string, dsName: string, dsDesc: string }) {
     return this.patch(this.API_URL + 'preparationdatasets/' + dataset.dsId, dataset);
   }
 
@@ -148,11 +149,11 @@ export class DatasetService extends AbstractService {
   }
 
 
-  public getStagingTableData(schema:string, table:string) {
+  public getStagingTableData(schema: string, table: string) {
 
-    const query = 'select * from '+ table;
+    const query = 'select * from ' + table;
 
-    const path = '/preparationdatasets/staging?sql=' + encodeURIComponent(query) + '&dbname='+schema+'&tblname =' + table + '&size=50';
+    const path = '/preparationdatasets/staging?sql=' + encodeURIComponent(query) + '&dbname=' + schema + '&tblname =' + table + '&size=50';
 
     return this.get(this.API_URL + path);
   } // function - getStagingTableData
@@ -171,7 +172,7 @@ export class DatasetService extends AbstractService {
    * @param param
    * @returns {Promise<any>}
    */
-  public createDataSet(param : any) : Promise<any>  {
+  public createDataSet(param: any): Promise<any> {
     return this.post(this.API_URL + 'preparationdatasets', param);
   }
 
@@ -179,7 +180,7 @@ export class DatasetService extends AbstractService {
    * 1st step of 3-way negotiation for file uploading
    */
   public getFileUploadNegotiation() {
-    let url = this.API_URL + 'preparationdatasets/file_upload';
+    const url = this.API_URL + 'preparationdatasets/file_upload';
     return this.get(url);
   }
 
@@ -193,21 +194,23 @@ export class DatasetService extends AbstractService {
     } else if (fileFormat === 'json') {
       mineType = 'application/json';
     }
-    let headers = new HttpHeaders({
-      'Accept': mineType,
+    const headers = new HttpHeaders({
+      Accept: mineType,
       'Content-Type': 'application/octet-binary',
-      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
 
-    let option: Object = {
+    const option: object = {
       headers: headers,
       responseType: 'blob'
     };
 
-    return this.http.get(this.API_URL + `preparationdatasets/${dsId}/download?fileType=`+fileFormat, option)
-      .map((res) => {
-        return new Blob([res], {type: mineType})
-      });
+    return this.http.get(this.API_URL + `preparationdatasets/${dsId}/download?fileType=` + fileFormat, option)
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: mineType})
+        })
+      );
   }
 
   public makeLineage(params: any) {

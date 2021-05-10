@@ -14,16 +14,18 @@
 
 import * as _ from 'lodash';
 import { Component, ElementRef, Injector, OnInit, OnDestroy, ViewChild } from '@angular/core';
+
+import { Dashboard } from '@domain/dashboard/dashboard';
+import { CustomField } from '@domain/workbook/configurations/field/custom-field';
+import { Field } from '@domain/datasource/datasource';
+import { TimeUnit, ByTimeUnit } from '@domain/workbook/configurations/field/timestamp-field';
+import { TimeFilter } from '@domain/workbook/configurations/filter/time-filter';
+
+import { FilterUtil } from '../../util/filter.util';
 import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
-import { Dashboard } from '../../../domain/dashboard/dashboard';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { Field } from '../../../domain/datasource/datasource';
-import { TimeUnit, ByTimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
 import { TimeListFilterComponent } from './time-list-filter.component';
 import { TimeRelativeFilterComponent } from './time-relative-filter.component';
 import { TimeRangeFilterComponent } from './time-range-filter.component';
-import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
-import { FilterUtil } from '../../util/filter.util';
 
 @Component({
   selector: 'app-config-filter-time',

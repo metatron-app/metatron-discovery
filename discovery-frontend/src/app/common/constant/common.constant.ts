@@ -20,8 +20,7 @@
  * API CONSTANT
  */
 
-import { CookieService } from 'ng2-cookies';
-import { TranslateService } from '@ngx-translate/core';
+import {CookieService} from 'ng2-cookies';
 
 class APIConstant {
 
@@ -51,7 +50,7 @@ class APIConstant {
 
   // Page Size
   public PAGE_SIZE = 20;
-  
+
   // Page Sort
   public PAGE_SORT_MODIFIED_TIME_DESC = 'modifiedTime,desc';
 
@@ -72,10 +71,10 @@ export class CommonConstant {
 
   public static cookieService: CookieService = new CookieService();
 
-  public static COL_NAME_CURRENT_DATETIME:string = 'current_datetime';
+  public static COL_NAME_CURRENT_DATETIME: string = 'current_datetime';
 
-  public static PROP_MAP_CONFIG:string = 'METATRON_PROP_MAP_CONFIG';
+  public static PROP_MAP_CONFIG: string = 'METATRON_PROP_MAP_CONFIG';
 
-  public static MAP_ANALYSIS_LAYER_NAME:string = 'SpatialAnalysisLayer';
+  public static MAP_ANALYSIS_LAYER_NAME: string = 'SpatialAnalysisLayer';
 
 }

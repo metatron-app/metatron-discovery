@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../common/component/abstract.component';
-import {Component, ElementRef, Injector} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
-import {MetadataService} from "./metadata/service/metadata.service";
+import {MetadataService} from './metadata/service/metadata.service';
 
 @Component({
   selector: 'app-meta-data-management',
   templateUrl: './meta-data-management.component.html',
 })
-export class MetaDataManagementComponent extends AbstractComponent {
+export class MetaDataManagementComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -72,7 +72,7 @@ export class MetaDataManagementComponent extends AbstractComponent {
 
         // metadata 리스트 페이지로 redirect
         // TODO 추후 metadata-list로 변경
-        this.router.navigateByUrl('/management/metadata/code-table');
+        this.router.navigateByUrl('/management/metadata/code-table').then();
       }
 
       // 탭 아이디를 설정
@@ -110,7 +110,7 @@ export class MetaDataManagementComponent extends AbstractComponent {
     // 선택된 탭 아이디 설정
     this.tabId = tabId;
     // 페이지 이동
-    this.router.navigateByUrl('/management/metadata/' + tabId);
+    this.router.navigateByUrl('/management/metadata/' + tabId).then();
 
   }
 
@@ -127,7 +127,8 @@ export class MetaDataManagementComponent extends AbstractComponent {
       .then((result) => {
         this.showLineageTab = result;
       })
-      .catch(error => {});
+      .catch(_error => {
+      });
   }
 
 }

@@ -12,24 +12,22 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {Component, ElementRef, HostBinding, Injector, Input} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
-import {PublicType, WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
+import {PublicType, WorkspaceAdmin} from '@domain/workspace/workspace';
 
 @Component({
   selector: '[workspace-detail]',
-  templateUrl: './workspace-detail.component.html',
-  host: {
-    '[class.ddp-ui-top]': 'true',
-    '[class.ddp-clear]': 'true',
-  },
+  templateUrl: './workspace-detail.component.html'
 })
-export class WorkspaceDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class WorkspaceDetailComponent extends AbstractComponent {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @HostBinding('class')
+  public hostClass: string = 'ddp-ui-top ddp-clear';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -50,22 +48,6 @@ export class WorkspaceDetailComponent extends AbstractComponent implements OnIni
     protected elementRef: ElementRef,
     protected injector: Injector) {
     super(elementRef, injector);
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public ngOnInit() {
-    super.ngOnInit();
-  }
-
-  public ngAfterViewInit() {
-    super.ngAfterViewInit();
-  }
-
-  public ngOnDestroy() {
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

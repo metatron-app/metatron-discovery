@@ -12,15 +12,14 @@
 * limitations under the License.
 */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-
+import {Component, ElementRef, Injector, Input, OnChanges, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-create-lineage',
   templateUrl: './create-lineage.component.html',
 })
-export class CreateLineageComponent extends AbstractComponent implements  OnInit {
+export class CreateLineageComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -65,7 +64,7 @@ export class CreateLineageComponent extends AbstractComponent implements  OnInit
   }
 
   public ngOnChanges(changes: any) {
-    if(changes.lineageData) {
+    if (changes.lineageData) {
       console.log(changes.lineageData);
     }
   }

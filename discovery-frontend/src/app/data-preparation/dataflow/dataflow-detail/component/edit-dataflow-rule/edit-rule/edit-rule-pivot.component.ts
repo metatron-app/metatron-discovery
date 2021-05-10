@@ -12,16 +12,25 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { EditRuleComponent } from './edit-rule.component';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import {isUndefined} from "util";
-import {PivotRule} from "../../../../../../domain/data-preparation/prep-rules";
-import {DataflowModelService} from "../../../../service/dataflow.model.service";
+import {isUndefined} from 'util';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren
+} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {PivotRule} from '@domain/data-preparation/prep-rules';
+import {DataflowModelService} from '../../../../service/dataflow.model.service';
+import {EditRuleComponent} from './edit-rule.component';
+import {RuleSuggestInputComponent} from './rule-suggest-input.component';
 
-interface formula {
+interface Formula {
   id: number;
   value: string
 }
@@ -35,7 +44,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChildren(RuleSuggestInputComponent)
-  private ruleSuggestInput : QueryList<RuleSuggestInputComponent>;
+  private ruleSuggestInput: QueryList<RuleSuggestInputComponent>;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -47,15 +56,15 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   public selectedFields: Field[] = [];
   public selectedGroupFields: Field[] = [];
 
-  public formulaList:string[] = [''];
-  public formulas: formula[];
+  public formulaList: string[] = [''];
+  public formulas: Formula[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(
-    private dataflowModelService:DataflowModelService,
+    private dataflowModelService: DataflowModelService,
     protected elementRef: ElementRef,
     protected injector: Injector) {
     super(elementRef, injector);
@@ -70,7 +79,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    */
   public ngOnInit() {
     super.ngOnInit();
-    this.formulas = [ {id:0, value:''} ];
+    this.formulas = [{id: 0, value: ''}];
   } // function - ngOnInit
 
   /**
@@ -105,9 +114,9 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     // 수식
     const formulaValueList = this.ruleSuggestInput
       .map(el => el.getFormula())
-      .filter( v => (!isUndefined(v) && v.trim().length > 0) );
+      .filter(v => (!isUndefined(v) && v.trim().length > 0));
 
-    if ( !formulaValueList || formulaValueList.length === 0) {
+    if (!formulaValueList || formulaValueList.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
     }
@@ -141,11 +150,11 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
-  public changeGroupFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeGroupFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedGroupFields = data.selectedList;
   }
 
@@ -160,22 +169,21 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * 특정 위치의 수식 삭제
    * @param {number} idx
    */
-  public deleteFormula(idx:number) {
-    if(!isUndefined(this.formulas) && this.formulas.length > 1) {
+  public deleteFormula(idx: number) {
+    if (!isUndefined(this.formulas) && this.formulas.length > 1) {
       this.formulas = this.formulas.filter(({id}) => id !== idx);
     }
   } // function - deleteFormula
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param {number} index
+   * @param {number} _index
    * @param {string} formula
    * @return {number}
    */
-  public trackByFn(index: number, formula: formula) {
+  public trackByFn(_index: number, formula: Formula) {
     return formula.id;
   } // function - trackByFn
-
 
   /**
    * When scrolled
@@ -183,6 +191,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   public scrollHandler() {
     this.dataflowModelService.scrollClose.next();
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -191,35 +200,37 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
    * @protected
    */
-  protected afterShowComp() {} // function - afterShowComp
+  protected afterShowComp() {
+  } // function - afterShowComp
 
   /**
    * parse rule string
    * @param data ({ruleString : string, jsonRuleString : PivotRule})
    */
-  protected parsingRuleString(data: {ruleString? : string, jsonRuleString : PivotRule}) {
+  protected parsingRuleString(data: { ruleString?: string, jsonRuleString: PivotRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     // GROUP FIELDS
-    let groupFields:string[] = data.jsonRuleString.group;
-    this.selectedGroupFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const groupFields: string[] = data.jsonRuleString.group;
+    this.selectedGroupFields = groupFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     // EXPRESSION
     this.formulaList = data.jsonRuleString.expression;
     this.formulaList = [];
     this.formulas = [];
     this.formulaList = data.jsonRuleString.expression;
-    this.formulaList.forEach((item,index) => {
-      this.formulas.push({id:index, value: item});
+    this.formulaList.forEach((item, index) => {
+      this.formulas.push({id: index, value: item});
     });
 
   } // function - parsingRuleString
@@ -228,7 +239,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private getFormulaId(): number {
-    return this.formulas.length ? Math.max.apply(Math,this.formulas.map(({ id }) => id)) + 1 : 1;
+    return this.formulas.length ? Math.max.apply(Math, this.formulas.map(({id}) => id)) + 1 : 1;
   }
 
 }

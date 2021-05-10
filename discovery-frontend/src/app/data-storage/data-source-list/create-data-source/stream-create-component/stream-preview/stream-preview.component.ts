@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import * as pixelWidth from 'string-pixel-width';
 import {
   Component,
   ElementRef,
@@ -23,22 +25,14 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
-import {Alert} from '../../../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {DatasourceInfo, Field} from '@domain/datasource/datasource';
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {header, SlickGridHeader} from '../../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../../common/component/grid/grid.option';
-import {GridComponent} from '../../../../../common/component/grid/grid.component';
-import {isNullOrUndefined} from 'util';
-import * as pixelWidth from 'string-pixel-width';
-import * as _ from 'lodash';
-import {
-  DataSourceCreateService,
-  FileDetail,
-  FileResult
-} from "../../../../service/data-source-create.service";
-import {ConfirmModalComponent} from "../../../../../common/component/modal/confirm/confirm.component";
+import {DataSourceCreateService, FileDetail, FileResult} from '../../../../service/data-source-create.service';
 
 @Component({
   selector: 'stream-preview',
@@ -55,9 +49,6 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
 
   @ViewChild(GridComponent)
   private readonly gridComponent: GridComponent;
-
-  @ViewChild(ConfirmModalComponent)
-  private confirmModal: ConfirmModalComponent;
 
   // file results
   public fileResult: FileResult;
@@ -116,7 +107,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
     } else {
       this.fileResult = this.sourceData.uploadData.fileResult;
       // 현재 페이지 데이터소스 파일보가 있다면
-      if (this.sourceData.hasOwnProperty('fileData') && !isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
+      if (this.sourceData.hasOwnProperty('fileData') && !this.isNullOrUndefined(this.sourceData.fileData.selectedFileDetailData)) {
         // init data
         this._initData(_.cloneDeep(this.sourceData.fileData));
       } else {
@@ -149,7 +140,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
 
       this._nextStep();
     } else {
-      if( this.selectedFileDetailData === undefined ) {
+      if (this.selectedFileDetailData === undefined) {
         return;
       }
       if (this.fileResult) {
@@ -213,7 +204,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
   }
 
   public get getErrorMessage() {
-    if (isNullOrUndefined(this.globalErrorMessage)) {
+    if (this.isNullOrUndefined(this.globalErrorMessage)) {
       return this.selectedFileDetailData.errorMessage;
     } else {
       return this.globalErrorMessage;
@@ -254,7 +245,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
     // 현재 페이지의 데이터소스 생성정보 저장
     this._saveFileData(this.sourceData);
     // set field list, field data
-    if (!isNullOrUndefined(this.selectedFileDetailData)) {
+    if (!this.isNullOrUndefined(this.selectedFileDetailData)) {
       this.sourceData.fieldList = this.selectedFileDetailData.fields;
       this.sourceData.fieldData = this.selectedFileDetailData.data;
     }
@@ -266,7 +257,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
    * @private
    */
   private _saveFileData(sourceData: DatasourceInfo) {
-    const fileData = {
+    sourceData['fileData'] = {
       // file result
       fileResult: this.fileResult,
       // file data
@@ -278,7 +269,6 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
       // flag
       isValidFile: this.isValidFile,
     };
-    sourceData['fileData'] = fileData;
   }
 
   /**
@@ -308,7 +298,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
    */
   private _updateGrid(data: any, fields: Field[]) {
     // headers
-    const headers: header[] = this._getHeaders(fields);
+    const headers: Header[] = this._getHeaders(fields);
     // rows
     const rows: any[] = this._getRows(data);
     // grid 그리기
@@ -321,11 +311,11 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
    * @returns {header[]}
    * @private
    */
-  private _getHeaders(fields: Field[]): header[] {
+  private _getHeaders(fields: Field[]): Header[] {
     return fields.map(
       (field: Field) => {
         /* 70 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 70;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 70;
         return new SlickGridHeader()
           .Id(field.name)
           .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + Field.getSlicedColumnName(field) + '</span>')
@@ -338,14 +328,14 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
-          .Formatter((row, cell, value) => {
+          .Formatter((_row, _cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {
-              return content.slice(0,50);
+              return content.slice(0, 50);
             } else {
               return content;
             }
@@ -371,7 +361,6 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
     }
     return rows;
   }
-
 
 
   /**
@@ -437,7 +426,7 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
         }
       })
       .catch(error => {
-        if (!isNullOrUndefined(error.message)) {
+        if (!this.isNullOrUndefined(error.message)) {
           this.loadingHide();
           this.globalErrorMessage = error.message;
         } else {
@@ -452,11 +441,10 @@ export class StreamPreviewComponent extends AbstractPopupComponent implements On
    * @private
    */
   private _getFileParams(): any {
-    const params = {
+    return {
       limit: this.rowNum,
       firstHeaderRow: false
-     };
-    return params;
+    };
   }
 
   /**

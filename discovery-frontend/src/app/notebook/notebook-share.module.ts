@@ -12,23 +12,18 @@
  * limitations under the License.
  */
 
-import { ChartSummaryComponent } from './component/chart-summary/chart-summary.component';
-import { CreateNotebookDashboardComponent } from './component/create-notebook/create-notebook-dashboard/create-notebook-dashboard.component';
-import { CreateNotebookDatasourceComponent } from './component/create-notebook/create-notebook-datasource/create-notebook-datasource.component';
-import { CreateNotebookNameComponent } from './component/create-notebook/create-notebook-name/create-notebook-name.component';
-import { CreateNotebookChartComponent } from './component/create-notebook/create-notebook-chart/create-notebook-chart.component';
-import { CreateNotebookSelectComponent } from './component/create-notebook/create-notebook-select/create-notebook-select.component';
-import { RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
-import { DatasourceShareModule } from '../datasource/datasource-share.module';
-import { NotebookService } from './service/notebook.service';
-import { DashboardService } from '../dashboard/service/dashboard.service';
-import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
-
-const notebookRoutes: Routes = [
-
-];
+import {ChartSummaryComponent} from './component/chart-summary/chart-summary.component';
+import {CreateNotebookDashboardComponent} from './component/create-notebook/create-notebook-dashboard/create-notebook-dashboard.component';
+import {CreateNotebookDatasourceComponent} from './component/create-notebook/create-notebook-datasource/create-notebook-datasource.component';
+import {CreateNotebookNameComponent} from './component/create-notebook/create-notebook-name/create-notebook-name.component';
+import {CreateNotebookChartComponent} from './component/create-notebook/create-notebook-chart/create-notebook-chart.component';
+import {CreateNotebookSelectComponent} from './component/create-notebook/create-notebook-select/create-notebook-select.component';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@common/common.module';
+import {DatasourceShareModule} from '../datasource/datasource-share.module';
+import {NotebookService} from './service/notebook.service';
+import {DashboardService} from '../dashboard/service/dashboard.service';
+import {MetadataService} from '../meta-data-management/metadata/service/metadata.service';
 
 @NgModule({
   imports: [

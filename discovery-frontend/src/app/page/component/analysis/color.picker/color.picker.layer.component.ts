@@ -13,18 +13,25 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
   Output
 } from '@angular/core';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'color-picker-layer',
   templateUrl: './color.picker.layer.component.html'
 })
-export class ColorPickerLayerComponent extends AbstractComponent {
+export class ColorPickerLayerComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constant Variables
@@ -51,11 +58,6 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    * @type {string}
    */
   private selectedColor: object = {};
-
-  /**
-   * Call back function 닫기 이벤트 발생시 같이 보내준다
-   */
-  private callBackFn: Function = () => {};
 
   /**
    * 색상 선택시 리턴되는 값
@@ -138,10 +140,16 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   public colorGroup = [];
 
   /**
-   *
-   * @param $event
+   * Call back function 닫기 이벤트 발생시 같이 보내준다
    */
-  @HostListener('document:click', ['$event.target']) clickedOutside($event) {
+  private callBackFn: (hex) => void = () => {};
+
+  /**
+   *
+   * @param _$event
+   */
+  @HostListener('document:click', ['$event.target'])
+  public clickedOutside(_$event) {
     if (this.isShow) {
       this.hide();
     }
@@ -154,10 +162,10 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   /**
    * constructor
    * @param {ElementRef} elementRef
+   * @param {Injector} injector
    */
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 
@@ -207,18 +215,16 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    * @returns {number}
    */
   public getHeight(): number {
-    const colorPickerLayerHeight: number | undefined = $('#ddpPopColorPicker').height();
-    return colorPickerLayerHeight;
+    return $('#ddpPopColorPicker').height();
   }
 
   /**
    * show
    * @param {string} colorHex
    * @param {Function} callBackFn
-   * @param parameter 색상 선택시 리턴되는 파라미터
+   * @param param
    */
-  public show(colorHex: string = '', callBackFn: Function = () => {
-  }, param?: any): void {
+  public show(colorHex: string = '', callBackFn: (hex) => void = () => {}, param?: any): void {
 
     this.param = param;
 
@@ -241,7 +247,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    * hide
    */
   public hide(): void {
-    this.close.emit({ 'data': _.cloneDeep(this.selectedColor), 'fn': this.callBackFn, 'param' : this.param});
+    this.close.emit({data: _.cloneDeep(this.selectedColor), fn: this.callBackFn, param: this.param});
     this.setIsShow(false);
   }
 
@@ -383,6 +389,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   /**
    * 색상 선택시
    * @param {string} color
+   * @param emitEventUseFl
    */
   public colorSelected(color: string, emitEventUseFl: boolean = true): void {
 
@@ -496,7 +503,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
    * 선택 이벤트 방출
    */
   private onSelected(): void {
-    this.selected.emit({ 'data': _.cloneDeep(this.selectedColor), 'fn': this.callBackFn , 'param': this.param});
+    this.selected.emit({data: _.cloneDeep(this.selectedColor), fn: this.callBackFn, param: this.param});
     this.setIsShow(false);
   }
 
@@ -519,7 +526,7 @@ export class ColorPickerLayerComponent extends AbstractComponent {
   private setSelectedColor(className: string, color: string): void {
 
     if (!_.isEmpty(className) && !_.isEmpty(color)) {
-      this.selectedColor = { 'className': className, 'colorHex': color };
+      this.selectedColor = {className: className, colorHex: color};
     }
   }
 

@@ -12,29 +12,35 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { BaseOptionComponent } from '../base-option.component';
+import {Component, ElementRef, Injector, Input, OnInit} from '@angular/core';
+import {BaseOptionComponent} from '../base-option.component';
 import * as _ from 'lodash';
-import { MapType } from '../../../common/component/chart/option/define/map/map-common';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import {CommonConstant} from "../../../common/constant/common.constant";
+import {MapType} from '@common/component/chart/option/define/map/map-common';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {CommonConstant} from '@common/constant/common.constant';
 
 @Component({
   selector: 'map-common-option',
   templateUrl: './map-common-option.component.html'
 })
-export class MapCommonOptionComponent extends BaseOptionComponent {
+export class MapCommonOptionComponent extends BaseOptionComponent implements OnInit {
 
   @Input('uiOption')
   public uiOption: UIMapOption;
 
   // map service list
-  public mapServiceList = [{name : this.translateService.instant('msg.page.common.map.layer.service.openstreet'), value : MapType.OSM}];
+  public mapServiceList = [{
+    name: this.translateService.instant('msg.page.common.map.layer.service.openstreet'),
+    value: MapType.OSM
+  }];
 
   // map style list
-  public mapStyleList = [{name : this.translateService.instant('msg.page.common.map.layer.map.style.light'), value : 'Light'},
-                         {name : this.translateService.instant('msg.page.common.map.layer.map.style.dark'), value : 'Dark'},
-                         {name : this.translateService.instant('msg.page.common.map.layer.map.style.colored'), value : 'Colored'}];
+  public mapStyleList = [{
+    name: this.translateService.instant('msg.page.common.map.layer.map.style.light'),
+    value: 'Light'
+  },
+    {name: this.translateService.instant('msg.page.common.map.layer.map.style.dark'), value: 'Dark'},
+    {name: this.translateService.instant('msg.page.common.map.layer.map.style.colored'), value: 'Colored'}];
 
 
   constructor(protected elementRef: ElementRef,
@@ -47,19 +53,19 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
   public ngOnInit() {
     super.ngOnInit();
 
-    const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
-    if( propMapConf ) {
-      const objConf = JSON.parse( propMapConf );
-      if( objConf.baseMaps ) {
+    const propMapConf = sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG);
+    if (propMapConf) {
+      const objConf = JSON.parse(propMapConf);
+      if (objConf.baseMaps) {
         this.mapStyleList =
           this.mapStyleList.concat(
-            objConf.baseMaps.map( item => {
-              return { name : item.name, value : item.name };
+            objConf.baseMaps.map(item => {
+              return {name: item.name, value: item.name};
             })
           );
       }
-      if( objConf.defaultBaseMap ) {
-        this.setMapStyle( this.mapStyleList.find( item => this.uiOption.style === item.name ) );
+      if (objConf.defaultBaseMap) {
+        this.setMapStyle(this.mapStyleList.find(item => this.uiOption.style === item.name));
       }
     }
   }
@@ -69,9 +75,9 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    */
   public setLicense() {
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       licenseNotation: this.uiOption.licenseNotation
-    });
+    }) as UIMapOption);
 
     this.update();
   }
@@ -80,11 +86,11 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    * set map style
    * @param data
    */
-  public setMapStyle(data: Object) {
+  public setMapStyle(data: object) {
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       style: data['value']
-    });
+    }) as UIMapOption);
 
     this.update();
   }
@@ -93,11 +99,11 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    * set map service
    * @param data
    */
-  public setMapService(data: Object) {
+  public setMapService(data: object) {
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       map: data['value']
-    });
+    }) as UIMapOption);
 
     this.update();
   }
@@ -107,7 +113,7 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    * @returns {number}
    */
   public findServiceDefaultIndex() {
-    return _.findIndex(this.mapServiceList, {value : this.uiOption.map});
+    return _.findIndex(this.mapServiceList, {value: this.uiOption.map});
   }
 
   /**
@@ -115,7 +121,7 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    * @returns {number}
    */
   public findStyleDefaultIndex() {
-    return _.findIndex(this.mapStyleList, {value : this.uiOption.style});
+    return _.findIndex(this.mapStyleList, {value: this.uiOption.style});
   }
 
 }

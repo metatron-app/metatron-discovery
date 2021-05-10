@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector } from '@angular/core';
-import { BaseOptionComponent } from '../base-option.component';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
+import {Component, ElementRef, Injector} from '@angular/core';
+import {BaseOptionComponent} from '../base-option.component';
+import {UIOption} from '@common/component/chart/option/ui-option';
 import * as _ from 'lodash';
-import { UIPosition } from '../../../common/component/chart/option/define/common';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {UIPosition} from '@common/component/chart/option/define/common';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
 
 @Component({
   selector: 'map-legend-option',
@@ -26,10 +26,16 @@ import { UIMapOption } from '../../../common/component/chart/option/ui-option/ma
 export class MapLegendOptionComponent extends BaseOptionComponent {
 
   // legend position list
-  public legendPositionList: Object[] = [
-    {name: this.translateService.instant('msg.page.ui.legend.legend.position.right.bottom'), value: UIPosition.RIGHT_BOTTOM},
+  public legendPositionList: object[] = [
+    {
+      name: this.translateService.instant('msg.page.ui.legend.legend.position.right.bottom'),
+      value: UIPosition.RIGHT_BOTTOM
+    },
     {name: this.translateService.instant('msg.page.ui.legend.legend.position.right.top'), value: UIPosition.RIGHT_TOP},
-    {name: this.translateService.instant('msg.page.ui.legend.legend.position.left.bottom'), value: UIPosition.LEFT_BOTTOM},
+    {
+      name: this.translateService.instant('msg.page.ui.legend.legend.position.left.bottom'),
+      value: UIPosition.LEFT_BOTTOM
+    },
     {name: this.translateService.instant('msg.page.ui.legend.legend.position.left.top'), value: UIPosition.LEFT_TOP}
   ];
 
@@ -47,7 +53,7 @@ export class MapLegendOptionComponent extends BaseOptionComponent {
 
     this.uiOption.legend.pos = legend['value'];
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { legend : this.uiOption.legend });
+    this.uiOption = (_.extend({}, this.uiOption, {legend: this.uiOption.legend}) as UIOption);
 
     this.update();
   }
@@ -59,7 +65,7 @@ export class MapLegendOptionComponent extends BaseOptionComponent {
 
     this.uiOption.legend.showName = !this.uiOption.legend.showName;
 
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, { legend : this.uiOption.legend });
+    this.uiOption = (_.extend({}, this.uiOption, {legend: this.uiOption.legend}) as UIMapOption);
 
     this.update();
   }

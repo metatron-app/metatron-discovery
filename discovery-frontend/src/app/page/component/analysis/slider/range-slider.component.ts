@@ -14,20 +14,29 @@
 
 import * as _ from 'lodash';
 import {
-  ElementRef, OnChanges, SimpleChanges, Input, EventEmitter, Output, Component, Injector
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges
 } from '@angular/core';
-import { RangeSliderResult } from '../../value/range-slider-result';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Subject, Subscription, of } from "rxjs";
-import { debounceTime, distinctUntilChanged, switchMap } from "rxjs/operators";
+import {RangeSliderResult} from '../../value/range-slider-result';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {of, Subject, Subscription} from 'rxjs';
+import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
 
 declare let $;
 
 @Component({
   selector: 'range-slider-component',
-  template: `<input type="text" value=""/>`
+  template: `<input type="text" value=''/>`
 })
-export class RangeSliderComponent extends AbstractComponent implements OnChanges {
+export class RangeSliderComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -205,7 +214,7 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
   // -----------------------------------------
 
   @Input()
-  public prettify: Function;
+  public prettify: () => void;
 
   // -----------------------------------------
   //
@@ -243,7 +252,7 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
       .pipe(
         debounceTime(200),
         distinctUntilChanged(),
-        switchMap((value) => of<number>(value))
+        switchMap((value) => of(value as number))
       )
       .subscribe(() => {
         this.onChange.emit(this.buildCallback());
@@ -290,7 +299,9 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
       const update = {};
 
       for (const propName in changes) {
-        update[propName] = changes[propName].currentValue;
+        if (propName) {
+          update[propName] = changes[propName].currentValue;
+        }
       }
 
       $(this.inputElem).data('ionRangeSlider').update(update);
@@ -349,7 +360,7 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
 
     this.initialized = true;
 
-    (<any>$(this.inputElem))
+    ($(this.inputElem) as any)
       .ionRangeSlider({
 
         min: scope.min,

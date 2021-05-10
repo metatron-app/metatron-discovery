@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { PopupService } from '../../../../common/service/popup.service';
-import { StringUtil } from '../../../../common/util/string.util';
-import { Alert } from '../../../../common/util/alert.util';
-import { CommonUtil } from '../../../../common/util/common.util';
-import { Workbench } from '../../../../domain/workbench/workbench';
-import { WorkbenchService } from '../../../service/workbench.service';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {PopupService} from '@common/service/popup.service';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Workbench} from '@domain/workbench/workbench';
+import {WorkbenchService} from '../../../service/workbench.service';
 
 @Component({
   selector: 'app-create-workbench-complete',
@@ -113,7 +113,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
       // 로딩 show
       this.loadingShow();
 
-      const params: {name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string} = {
+      const params: { name: string, dataConnection: string, workspace: string, type: 'workbench', folderId?: string, description?: string } = {
         workspace: `/api/workspaces/${this.workspaceId}`,
         dataConnection: `/api/dataconnections/${this.workbench.dataConnection.id}`,
         name: this.name.trim(),
@@ -130,7 +130,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
         params.description = this.description.trim();
       }
 
-      this.workbenchService.createWorkbench(params).then(( data:Workbench ) => {
+      this.workbenchService.createWorkbench(params).then((data: Workbench) => {
 
         // 로딩 hide
         this.loadingHide();
@@ -164,7 +164,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
   }
 
   /**
-   * 커넥션이 default 타입인지 
+   * 커넥션이 default 타입인지
    * @returns {boolean}
    */
   public isDefaultType(): boolean {
@@ -240,7 +240,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
    * 생성 정보 저장
    */
   private saveCreateData(workbench) {
-    const createData = {
+    workbench['createData'] = {
       // 이름
       name: this.name,
       // 설명
@@ -252,6 +252,5 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
       isInvalidDesc: this.isInvalidDesc,
       errMsgDesc: this.errMsgDesc
     };
-    workbench['createData'] = createData;
   }
 }

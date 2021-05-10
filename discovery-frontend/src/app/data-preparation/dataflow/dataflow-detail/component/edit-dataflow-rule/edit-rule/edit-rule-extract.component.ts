@@ -12,18 +12,17 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import {isNullOrUndefined} from "util";
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import {ExtractRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {ExtractRule} from '@domain/data-preparation/prep-rules';
+import {EditRuleComponent} from './edit-rule.component';
 
 @Component({
-  selector : 'edit-rule-extract',
-  templateUrl : './edit-rule-extract.component.html'
+  selector: 'edit-rule-extract',
+  templateUrl: './edit-rule-extract.component.html'
 })
 export class EditRuleExtractComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -41,14 +40,14 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   public selectedFields: Field[] = [];
 
   // 상태 저장용 T/F
-  public isFocus:boolean = false;         // Input Focus 여부
-  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+  public isFocus: boolean = false;         // Input Focus 여부
+  public isTooltipShow: boolean = false;   // Tooltip Show/Hide
 
   // Rule 에 대한 입력 값들
-  public pattern:string = '';
-  public limit:number;
-  public ignore:string = '';
-  public isIgnoreCase:boolean = false;
+  public pattern: string = '';
+  public limit: number;
+  public ignore: string = '';
+  public isIgnoreCase: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -104,11 +103,11 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
     // pattern
     let clonedPattern = this.pattern;
-    if (isNullOrUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
+    if (this.isNullOrUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
+    const patternResult: [boolean, string] = StringUtil.checkSingleQuote(clonedPattern, {isWrapQuote: !StringUtil.checkRegExp(clonedPattern)});
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
       return undefined;
@@ -116,7 +115,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
     clonedPattern = patternResult[1];
 
     // limit
-    if (isNullOrUndefined(this.limit) ) {
+    if (this.isNullOrUndefined(this.limit)) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
       return undefined;
     }
@@ -127,7 +126,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
-      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
+      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), {isWrapQuote: true});
       if (checkIgnore[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
         return undefined;
@@ -137,12 +136,12 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
     }
 
     return {
-      command : 'extract',
+      command: 'extract',
       ruleString: ruleString,
       uiRuleString: {
         name: 'extract',
         col: this.getColumnNamesInArray(this.selectedFields),
-        pattern : this.pattern,
+        pattern: this.pattern,
         limit: this.limit,
         ignore: this.ignore,
         ignoreCase: this.isIgnoreCase,
@@ -159,7 +158,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * Change fields
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -167,8 +166,8 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * 패턴 정보 레이어 표시
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
     this.isFocus = isShow;
   } // function - showHidePatternLayer
 
@@ -180,7 +179,8 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
@@ -194,11 +194,11 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * Parse rule string
    * @param data ({jsonRuleString : any})
    */
-  protected parsingRuleString(data: {jsonRuleString : ExtractRule}) {
+  protected parsingRuleString(data: { jsonRuleString: ExtractRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     // NUMBER OF MATCHES
     this.limit = data.jsonRuleString.limit;

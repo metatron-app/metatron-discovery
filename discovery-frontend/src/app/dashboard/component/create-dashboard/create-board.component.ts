@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { CreateBoardDsNetworkComponent } from './create-board-ds-network.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { CreateBoardCompleteComponent } from './create-board-complete.component';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {CreateBoardDsNetworkComponent} from './create-board-ds-network.component';
+import {CreateBoardCompleteComponent} from './create-board-complete.component';
 
 @Component({
   selector: 'app-create-board',
@@ -37,7 +37,7 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(CreateBoardDsNetworkComponent)
+  @ViewChild(CreateBoardDsNetworkComponent, {static: true})
   public networkBoardComp: CreateBoardDsNetworkComponent;
 
   @Input()
@@ -121,6 +121,7 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
    * Next 가능 여부 체크
    * @param {{isDenyNext?: boolean, isShowButtons?: boolean}} data
    */
+
   public checkAllowNext(data: { isDenyNext?: boolean, isShowButtons?: boolean }) {
     (data.hasOwnProperty('isDenyNext')) && (this.isDenyNext = data.isDenyNext);
     (data.hasOwnProperty('isShowButtons')) && (this.isShowButtons = data.isShowButtons);

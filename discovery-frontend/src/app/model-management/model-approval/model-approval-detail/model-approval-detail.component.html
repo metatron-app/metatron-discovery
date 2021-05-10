@@ -1,205 +1,205 @@
-<!--
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+<!--&lt;!&ndash;-->
+<!--  ~ Licensed under the Apache License, Version 2.0 (the "License");-->
+<!--  ~ you may not use this file except in compliance with the License.-->
+<!--  ~ You may obtain a copy of the License at-->
+<!--  ~-->
+<!--  ~      http://www.apache.org/licenses/LICENSE-2.0-->
+<!--  ~-->
+<!--  ~ Unless required by applicable law or agreed to in writing, software-->
+<!--  ~ distributed under the License is distributed on an "AS IS" BASIS,-->
+<!--  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.-->
+<!--  ~ See the License for the specific language governing permissions and-->
+<!--  ~ limitations under the License.-->
+<!--  &ndash;&gt;-->
 
-<div class="ddp-type-contents2" *ngIf="resultData">
-  <div class="ddp-top-flow">
-    <!-- navi wrap -->
-    <div class="ddp-wrap-navi">
-      <a href="javascript:" class="ddp-btn-back" (click)="close()"></a>
-      <!-- navi -->
-      <div class="ddp-ui-naviarea">
-        <!-- name -->
-        <!-- 클릭시 ddp-selected 추가 -->
-        <div class="ddp-box-navi">
-          <div class="ddp-wrap-naviname">
-            <span class="ddp-data-naviname">{{resultData.name}}
-              <!--<em class="ddp-icon-edit2"></em>-->
-            </span>
-          </div>
-          <!--<input type="text" class="ddp-input-navi" placeholder="ew Dashboard 01">-->
-        </div>
-        <!-- //name -->
+<!--<div class="ddp-type-contents2" *ngIf="resultData">-->
+<!--  <div class="ddp-top-flow">-->
+<!--    &lt;!&ndash; navi wrap &ndash;&gt;-->
+<!--    <div class="ddp-wrap-navi">-->
+<!--      <a href="javascript:" class="ddp-btn-back" (click)="close()"></a>-->
+<!--      &lt;!&ndash; navi &ndash;&gt;-->
+<!--      <div class="ddp-ui-naviarea">-->
+<!--        &lt;!&ndash; name &ndash;&gt;-->
+<!--        &lt;!&ndash; 클릭시 ddp-selected 추가 &ndash;&gt;-->
+<!--        <div class="ddp-box-navi">-->
+<!--          <div class="ddp-wrap-naviname">-->
+<!--            <span class="ddp-data-naviname">{{resultData.name}}-->
+<!--              &lt;!&ndash;<em class="ddp-icon-edit2"></em>&ndash;&gt;-->
+<!--            </span>-->
+<!--          </div>-->
+<!--          &lt;!&ndash;<input type="text" class="ddp-input-navi" placeholder="ew Dashboard 01">&ndash;&gt;-->
+<!--        </div>-->
+<!--        &lt;!&ndash; //name &ndash;&gt;-->
 
-        <!-- description -->
-        <!-- 클릭시 ddp-selected 추가 -->
-        <div class="ddp-box-navidet" [title]="resultData.description">
-          <div class="ddp-wrap-navidet">
-            <span class="ddp-data-navidet">{{resultData.description}}
-              <!--<em class="ddp-icon-edit2"></em>-->
-            </span>
-          </div>
-          <!--<textarea type="text" class="ddp-input-navi" placeholder="">escription description des</textarea>-->
-        </div>
-        <!-- //description -->
-      </div>
-      <!-- //navi -->
+<!--        &lt;!&ndash; description &ndash;&gt;-->
+<!--        &lt;!&ndash; 클릭시 ddp-selected 추가 &ndash;&gt;-->
+<!--        <div class="ddp-box-navidet" [title]="resultData.description">-->
+<!--          <div class="ddp-wrap-navidet">-->
+<!--            <span class="ddp-data-navidet">{{resultData.description}}-->
+<!--              &lt;!&ndash;<em class="ddp-icon-edit2"></em>&ndash;&gt;-->
+<!--            </span>-->
+<!--          </div>-->
+<!--          &lt;!&ndash;<textarea type="text" class="ddp-input-navi" placeholder="">escription description des</textarea>&ndash;&gt;-->
+<!--        </div>-->
+<!--        &lt;!&ndash; //description &ndash;&gt;-->
+<!--      </div>-->
+<!--      &lt;!&ndash; //navi &ndash;&gt;-->
 
-    </div>
-    <div class="ddp-data-form">
-      <a href="javascript:" [class.ddp-selected]="isOptionShow" class="ddp-btn-info" (click)="isOptionShow=!isOptionShow;$event.stopPropagation()"><em class="ddp-icon-myinfo"></em></a>
-      <div class="ddp-data-box" *ngIf="isOptionShow" (clickOutside)="isOptionShow=false">
-        <span class="ddp-data-by">{{resultData.createdTime | mdate : 'YYYY-MM-DD HH:mm' }} by {{resultData.createdBy.fullName}}</span>
-        <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,resultData.id)"><em class="ddp-icon-delete"></em>Delete this model</a>
-      </div>
-    </div>
-  </div>
+<!--    </div>-->
+<!--    <div class="ddp-data-form">-->
+<!--      <a href="javascript:" [class.ddp-selected]="isOptionShow" class="ddp-btn-info" (click)="isOptionShow=!isOptionShow;$event.stopPropagation()"><em class="ddp-icon-myinfo"></em></a>-->
+<!--      <div class="ddp-data-box" *ngIf="isOptionShow" (clickOutside)="isOptionShow=false">-->
+<!--        <span class="ddp-data-by">{{resultData.createdTime | mdate : 'YYYY-MM-DD HH:mm' }} by {{resultData.createdBy.fullName}}</span>-->
+<!--        <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,resultData.id)"><em class="ddp-icon-delete"></em>Delete this model</a>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
 
-  <!-- 상세 -->
-  <div class="ddp-wrap-datadetail">
+<!--  &lt;!&ndash; 상세 &ndash;&gt;-->
+<!--  <div class="ddp-wrap-datadetail">-->
 
-    <table class="ddp-table-detail">
-      <colgroup>
-        <col width="133px">
-        <col width="*">
-      </colgroup>
-      <tbody>
-      <tr>
-        <th>
-          Status
-        </th>
-        <td>
-          <label class="ddp-label-radio ddp-inline" >
-            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType ==='APPROVAL'" checked (click)="setApproval('APPROVAL')">
-            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType !=='APPROVAL'" (click)="setApproval('APPROVAL')">
-            <i class="ddp-icon-radio "></i>
-            <span class="ddp-txt-radio">Approved</span>
-          </label>
-          <label class="ddp-label-radio ddp-inline" >
-            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType ==='REJECT'" checked (click)="setApproval('REJECT')">
-            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType !=='REJECT'" (click)="setApproval('REJECT')">
-            <i class="ddp-icon-radio "></i>
-            <span class="ddp-txt-radio">Rejected</span>
-          </label>
-          <label class="ddp-label-radio ddp-inline" >
-            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType ==='PENDING'" checked [attr.disabled]="true">
-            <input type="radio" name="modelApprovalDetail" [attr.disabled]="true">
-            <i class="ddp-icon-radio "></i>
-            <span class="ddp-txt-radio">Pending</span>
-          </label>
-        </td>
-      </tr>
+<!--    <table class="ddp-table-detail">-->
+<!--      <colgroup>-->
+<!--        <col width="133px">-->
+<!--        <col width="*">-->
+<!--      </colgroup>-->
+<!--      <tbody>-->
+<!--      <tr>-->
+<!--        <th>-->
+<!--          Status-->
+<!--        </th>-->
+<!--        <td>-->
+<!--          <label class="ddp-label-radio ddp-inline" >-->
+<!--            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType ==='APPROVAL'" checked (click)="setApproval('APPROVAL')">-->
+<!--            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType !=='APPROVAL'" (click)="setApproval('APPROVAL')">-->
+<!--            <i class="ddp-icon-radio "></i>-->
+<!--            <span class="ddp-txt-radio">Approved</span>-->
+<!--          </label>-->
+<!--          <label class="ddp-label-radio ddp-inline" >-->
+<!--            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType ==='REJECT'" checked (click)="setApproval('REJECT')">-->
+<!--            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType !=='REJECT'" (click)="setApproval('REJECT')">-->
+<!--            <i class="ddp-icon-radio "></i>-->
+<!--            <span class="ddp-txt-radio">Rejected</span>-->
+<!--          </label>-->
+<!--          <label class="ddp-label-radio ddp-inline" >-->
+<!--            <input type="radio" name="modelApprovalDetail" *ngIf="resultData.statusType ==='PENDING'" checked [attr.disabled]="true">-->
+<!--            <input type="radio" name="modelApprovalDetail" [attr.disabled]="true">-->
+<!--            <i class="ddp-icon-radio "></i>-->
+<!--            <span class="ddp-txt-radio">Pending</span>-->
+<!--          </label>-->
+<!--        </td>-->
+<!--      </tr>-->
 
-      </tbody>
-    </table>
-
-
-    <table class="ddp-table-detail">
-      <colgroup>
-        <col width="133px">
-        <col width="*">
-        <col width="133px">
-        <col width="*">
-      </colgroup>
-      <tbody>
-      <tr>
-        <th>
-          Data type
-        </th>
-        <td>
-          {{resultData['notebook'].dsType}}
-        </td>
-        <th>
-          Request Date
-        </th>
-        <td>
-          {{resultData['notebook'].createdTime | date:'yyyy-MM-dd'}}
-        </td>
-      </tr>
-      <tr>
-        <th>
-          Data source
-        </th>
-        <td>
-          {{resultData['notebook'].dsName}}
-        </td>
-        <th>
-          Requester
-        </th>
-        <td>
-          {{resultData['notebook'].createdBy.fullName}}({{resultData['notebook'].createdBy.email}})
-        </td>
-      </tr>
-      <tr>
-        <th>
-          Develop language
-        </th>
-        <td colspan="3">
-          <span class="ddp-data-lang-r" *ngIf="resultData['notebook'].kernelType=='R'">R</span>
-          <span class="ddp-data-lang-python" *ngIf="resultData['notebook'].kernelType=='PYTHON'">PYTHON</span>
-        </td>
-      </tr>
-      <tr>
-        <th>
-          Format Type
-        </th>
-        <td>
-          {{resultData['notebook'].connectorType}}
-        </td>
-      </tr>
-      <tr>
-        <th>
-          Code
-        </th>
-        <td colspan="3">
-          <a href="javascript:" class="ddp-link-detail" (click)="popupWindow();">Detail<em class="ddp-icon-window"></em></a>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+<!--      </tbody>-->
+<!--    </table>-->
 
 
-    <table class="ddp-table-detail">
-      <colgroup>
-        <col width="133px">
-        <col width="*">
-      </colgroup>
-      <tbody>
-      <tr>
-        <th>
-          History
-        </th>
-        <td>
-          <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="runTest()">Run a model</a>
+<!--    <table class="ddp-table-detail">-->
+<!--      <colgroup>-->
+<!--        <col width="133px">-->
+<!--        <col width="*">-->
+<!--        <col width="133px">-->
+<!--        <col width="*">-->
+<!--      </colgroup>-->
+<!--      <tbody>-->
+<!--      <tr>-->
+<!--        <th>-->
+<!--          Data type-->
+<!--        </th>-->
+<!--        <td>-->
+<!--          {{getResultOfNotebook('dsType')}}-->
+<!--        </td>-->
+<!--        <th>-->
+<!--          Request Date-->
+<!--        </th>-->
+<!--        <td>-->
+<!--          {{getResultOfNotebook('createdTime') | date:'yyyy-MM-dd'}}-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th>-->
+<!--          Data source-->
+<!--        </th>-->
+<!--        <td>-->
+<!--          {{getResultOfNotebook('dsName')}}-->
+<!--        </td>-->
+<!--        <th>-->
+<!--          Requester-->
+<!--        </th>-->
+<!--        <td>-->
+<!--          {{getResultOfNotebook('createdBy').fullName}}({{getResultOfNotebook('createdBy').email}})-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th>-->
+<!--          Develop language-->
+<!--        </th>-->
+<!--        <td colspan="3">-->
+<!--          <span class="ddp-data-lang-r" *ngIf="getResultOfNotebook('kernelType')=='R'">R</span>-->
+<!--          <span class="ddp-data-lang-python" *ngIf="getResultOfNotebook('kernelType')=='PYTHON'">PYTHON</span>-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th>-->
+<!--          Format Type-->
+<!--        </th>-->
+<!--        <td>-->
+<!--          {{getResultOfNotebook('connectorType')}}-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th>-->
+<!--          Code-->
+<!--        </th>-->
+<!--        <td colspan="3">-->
+<!--          <a href="javascript:" class="ddp-link-detail" (click)="popupWindow();">Detail<em class="ddp-icon-window"></em></a>-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      </tbody>-->
+<!--    </table>-->
 
-          <ul class="ddp-list-detail ddp-list-model" *ngIf="resultData.histories" >
-            <li *ngFor="let item of resultData.histories; let i = index">
-              <span class="ddp-data-no">{{i + 1}}</span>
-              <!-- 플로우 설명 이름 -->
-              <div class="ddp-wrap-detailname">
-                <span class="ddp-data-detailname">Takes  {{item.elapsedTime/1000}} seconds</span> <span class="ddp-data-summary"></span>
-              </div>
-              <!-- //플로우 설명 이름 -->
-              <!-- data -->
-              <div class="ddp-wrap-detailinfo">
-                <div class="ddp-data-history">
-                  <a href="javascript:" class="ddp-data-success" *ngIf="item.success" (click)="showResult()">Success</a>
-                  <a href="javascript:" class="ddp-link-fail" (click)="showError(item.errorLog)" *ngIf="!item.success">Fail<em class="ddp-icon-go"></em></a>
-                </div>
 
-                <div class="ddp-data-by2">
-                  <em class="ddp-icon-by">Run on</em> {{item.createdTime | date:'yyyy-MM-dd'}} <em class="ddp-icon-by">by</em> {{item.createdBy}}
-                </div>
-              </div>
-              <!-- //data -->
-            </li>
-          </ul>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-  <!-- //상세 -->
-</div>
-<app-delete-modal (deleteConfirm)="deleteNotebookModel()"></app-delete-modal>
-<app-model-approval-result *ngIf="resultLayer === true" [result]="resultLayerData" (closeResultEvent)="approvalResultClose($event)"></app-model-approval-result>
+<!--    <table class="ddp-table-detail">-->
+<!--      <colgroup>-->
+<!--        <col width="133px">-->
+<!--        <col width="*">-->
+<!--      </colgroup>-->
+<!--      <tbody>-->
+<!--      <tr>-->
+<!--        <th>-->
+<!--          History-->
+<!--        </th>-->
+<!--        <td>-->
+<!--          <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="runTest()">Run a model</a>-->
+
+<!--          <ul class="ddp-list-detail ddp-list-model" *ngIf="resultData.histories" >-->
+<!--            <li *ngFor="let item of resultData.histories; let i = index">-->
+<!--              <span class="ddp-data-no">{{i + 1}}</span>-->
+<!--              &lt;!&ndash; 플로우 설명 이름 &ndash;&gt;-->
+<!--              <div class="ddp-wrap-detailname">-->
+<!--                <span class="ddp-data-detailname">Takes  {{item.elapsedTime/1000}} seconds</span> <span class="ddp-data-summary"></span>-->
+<!--              </div>-->
+<!--              &lt;!&ndash; //플로우 설명 이름 &ndash;&gt;-->
+<!--              &lt;!&ndash; data &ndash;&gt;-->
+<!--              <div class="ddp-wrap-detailinfo">-->
+<!--                <div class="ddp-data-history">-->
+<!--                  <a href="javascript:" class="ddp-data-success" *ngIf="item.success" (click)="showResult()">Success</a>-->
+<!--                  <a href="javascript:" class="ddp-link-fail" (click)="showError(item.errorLog)" *ngIf="!item.success">Fail<em class="ddp-icon-go"></em></a>-->
+<!--                </div>-->
+
+<!--                <div class="ddp-data-by2">-->
+<!--                  <em class="ddp-icon-by">Run on</em> {{item.createdTime | date:'yyyy-MM-dd'}} <em class="ddp-icon-by">by</em> {{item.createdBy}}-->
+<!--                </div>-->
+<!--              </div>-->
+<!--              &lt;!&ndash; //data &ndash;&gt;-->
+<!--            </li>-->
+<!--          </ul>-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      </tbody>-->
+<!--    </table>-->
+<!--  </div>-->
+<!--  &lt;!&ndash; //상세 &ndash;&gt;-->
+<!--</div>-->
+<!--<app-delete-modal (deleteConfirm)="deleteNotebookModel()"></app-delete-modal>-->
+<!--<app-model-approval-result *ngIf="resultLayer === true" [result]="resultLayerData" (closeResultEvent)="approvalResultClose($event)"></app-model-approval-result>-->

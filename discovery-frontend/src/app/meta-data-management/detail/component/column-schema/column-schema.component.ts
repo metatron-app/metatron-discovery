@@ -15,41 +15,41 @@
 import {
   Component,
   ElementRef,
-  EventEmitter, HostListener,
+  EventEmitter,
+  HostListener,
   Injector,
   Input,
   OnDestroy,
   OnInit,
   Output,
   QueryList,
-  Renderer,
+  Renderer2,
   ViewChildren
 } from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {ConnectionType, Datasource, FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConnectionType, Datasource, FieldFormat, FieldFormatType} from '@domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
-import {MetadataColumn} from '../../../../domain/meta-data-management/metadata-column';
-import {CodeTable} from '../../../../domain/meta-data-management/code-table';
-import {ColumnDictionary} from '../../../../domain/meta-data-management/column-dictionary';
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 import {CodeTableService} from '../../../code-table/service/code-table.service';
-import {CodeValuePair} from '../../../../domain/meta-data-management/code-value-pair';
+import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
 import {ColumnDictionaryService} from '../../../column-dictionary/service/column-dictionary.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {CommonUtil} from '../../../../common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
 import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
 import {Type} from '../../../../shared/datasource-metadata/domain/type';
 import {Filter} from '../../../../shared/datasource-metadata/domain/filter';
-import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
-import {QueryParam} from '../../../../domain/dashboard/dashboard';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {QueryParam} from '@domain/dashboard/dashboard';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
-import {AuthenticationType, Dataconnection, ImplementorType} from '../../../../domain/dataconnection/dataconnection';
-import {StringUtil} from '../../../../common/util/string.util';
+import {AuthenticationType, Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';
+import {StringUtil} from '@common/util/string.util';
 import {StorageService} from '../../../../data-storage/service/storage.service';
-import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {Metadata} from '@domain/meta-data-management/metadata';
 import {DatetimeValidPopupComponent} from '../../../../shared/datasource-metadata/component/datetime-valid-popup.component';
-import {isNullOrUndefined} from "util";
 
 class Order {
   key: string = 'physicalName';
@@ -61,6 +61,21 @@ class Order {
   templateUrl: './column-schema.component.html'
 })
 export class ColumnSchemaComponent extends AbstractComponent implements OnInit, OnDestroy {
+
+  constructor(
+    protected element: ElementRef,
+    protected injector: Injector,
+    public renderer: Renderer2,
+    public metaDataModelService: MetadataModelService,
+    public constantService: ConstantService,
+    private _columnDictionaryService: ColumnDictionaryService,
+    private _codeTableService: CodeTableService,
+    private _metaDataService: MetadataService,
+    private _datasourceService: DatasourceService,
+    private _storageService: StorageService,
+    private _dataconnectionService: DataconnectionService) {
+    super(element, injector);
+  }
 
   public readonly UUID = CommonUtil.getUUID();
   public readonly ROLE = Type.Role;
@@ -136,14 +151,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   @ViewChildren('dictionary')
   private readonly dictionary: ElementRef;
 
-  /**
-   * Logical Type Layer
-   */
-  @ViewChildren('logicalType')
-  private readonly _logicalType: ElementRef;
-  @ViewChildren('logicalTypeList')
-  private readonly _logicalTypeList: ElementRef;
-
   @ViewChildren(DatetimeValidPopupComponent)
   private readonly _datetimePopupComponentList: QueryList<DatetimeValidPopupComponent>;
 
@@ -151,16 +158,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   private readonly _chooseCodeTableEvent = new EventEmitter();
   @Output('chooseDictionaryEvent')
   private readonly _chooseDictionaryEvent = new EventEmitter();
-
-  @HostListener('click', ['$event'])
-  public clickListener() {
-    this._hideTypeListPopup();
-  }
-
-  /**
-   * Field List Original
-   */
-  private _originColumnList: MetadataColumn[];
 
   /**
    * Current Selected Columns
@@ -172,19 +169,21 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    */
   private _codeTableDetailList: CodeTable[];
 
-  constructor(
-    protected element: ElementRef,
-    protected injector: Injector,
-    public renderer: Renderer,
-    public metaDataModelService: MetadataModelService,
-    public constantService: ConstantService,
-    private _columnDictionaryService: ColumnDictionaryService,
-    private _codeTableService: CodeTableService,
-    private _metaDataService: MetadataService,
-    private _datasourceService: DatasourceService,
-    private _storageService: StorageService,
-    private _dataconnectionService: DataconnectionService) {
-    super(element, injector);
+  @ViewChildren('metadataColumnSchemaDescriptionInputs')
+  private metadataColumnSchemaDescriptionInputs: QueryList<ElementRef>;
+
+  @ViewChildren('metadataColumnSchemaDescriptionTds')
+  private metadataColumnSchemaDescriptionTds: QueryList<ElementRef>;
+
+  @ViewChildren('metadataColumnSchemaNameInputs')
+  private metadataColumnSchemaNameInputs: QueryList<ElementRef>;
+
+  @ViewChildren('metadataColumnSchemaNameTds')
+  private metadataColumnSchemaNameTds: QueryList<ElementRef>;
+
+  @HostListener('click')
+  public clickListener() {
+    this._hideTypeListPopup();
   }
 
   public ngOnInit() {
@@ -325,13 +324,13 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
         const $selectOptionTop = $(typeElement).offset().top;
         const $selectOptionLeft = $(typeElement).offset().left;
         $selectOptionPop.css({
-          'position': 'fixed',
-          'left': $selectOptionLeft,
-          'top': $selectOptionTop + 23
+          position: 'fixed',
+          left: $selectOptionLeft,
+          top: $selectOptionTop + 23
         });
         if ($selectOptionTop > $(window).outerHeight() / 2) {
           $selectOptionPop.css({
-            'top': $selectOptionTop - $selectOptionPop.outerHeight() - 5
+            top: $selectOptionTop - $selectOptionPop.outerHeight() - 5
           });
         }
       }
@@ -637,7 +636,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
           return true;
         }
 
-        let isMetadataColumnRoleIsSameSelectedRole = column.role === this.selectedRole.value;
+        const isMetadataColumnRoleIsSameSelectedRole = column.role === this.selectedRole.value;
         if (_.eq(isMetadataColumnRoleIsSameSelectedRole, false)
           && this.selectedRole.value === Type.Role.DIMENSION
           && column.role === Type.Role.TIMESTAMP) {
@@ -726,9 +725,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     } else if (this.isMetadataSourceTypeIsJdbc()) {
       return new Promise((resolve, reject) => {
         return this._dataconnectionService.getTableDataForHive({
-          'type': 'TABLE',
-          'query': this.metaDataModelService.getMetadata().source.table,
-          'database': this.metaDataModelService.getMetadata().source.schema
+          type: 'TABLE',
+          query: this.metaDataModelService.getMetadata().source.table,
+          database: this.metaDataModelService.getMetadata().source.schema
         })
           .then(result => resolve(result.data))
           .catch(error => reject(error))
@@ -736,9 +735,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     } else if (this.isMetadataSourceTypeIsStaging()) {
       return new Promise((resolve, reject) => {
         return this._dataconnectionService.getTableDataForHive({
-          'type': 'TABLE',
-          'query': this.metaDataModelService.getMetadata().source.table,
-          'database': this.metaDataModelService.getMetadata().source.schema
+          type: 'TABLE',
+          query: this.metaDataModelService.getMetadata().source.table,
+          database: this.metaDataModelService.getMetadata().source.schema
         })
           .then(result => resolve(result.data))
           .catch(error => reject(error))
@@ -786,9 +785,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return params;
   }
 
-  private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
-    dictionary && this.router.navigate(['management/metadata/column-dictionary', dictionary.id]);
-  }
+  // private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
+  //   dictionary && this.router.navigate(['management/metadata/column-dictionary', dictionary.id]);
+  // }
 
   // private _gotoCodeTableDetailView(codeTable: CodeTable) {
   //   this.router.navigate(['management/metadata/code-table', codeTable.id]);
@@ -839,8 +838,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
           });
           this._hideCurrentTime(result);
           this.columnList = _.orderBy(result.filter((metadataColumn: MetadataColumn) => MetadataColumn.isCurrentDatetime(metadataColumn) === false), this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
-          this._saveColumnDataOriginal();
-          resolve();
+          resolve(null);
         })
         .catch(error => reject(error))
     });
@@ -848,13 +846,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   private _hideCurrentTime(result) {
     this.columnList = result.filter((metadataColumn: MetadataColumn) => MetadataColumn.isCurrentDatetime(metadataColumn) === false);
-  }
-
-  /**
-   * Saving column data original
-   */
-  private _saveColumnDataOriginal() {
-    this._originColumnList = _.cloneDeep(this.columnList);
   }
 
   /**
@@ -992,7 +983,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
         // 데이터소스 타입 메타데이터이고 && 컬럼의 role이 timestamp라면 ? 컬럼 딕셔너리를 추가했을때
         // 타입과 포멧이 변경되면 안됨. stay as timestamp
-        console.info('selected type ==>', this._selectedColumn);
+        console.log('selected type ==>', this._selectedColumn);
         if (!(this._selectedColumn.role === Type.Role.TIMESTAMP && this.isMetadataSourceTypeIsEngine())) {
           // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
           this._selectedColumn.type = result.logicalType || null;
@@ -1093,12 +1084,6 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return Metadata.isSourceTypeIsStaging(this.metaDataModelService.getMetadata().sourceType);
   }
 
-  @ViewChildren('metadataColumnSchemaDescriptionInputs')
-  private metadataColumnSchemaDescriptionInputs: QueryList<ElementRef>;
-
-  @ViewChildren('metadataColumnSchemaDescriptionTds')
-  private metadataColumnSchemaDescriptionTds: QueryList<ElementRef>;
-
   public focusMetadataColumnSchemaDescriptionInput(index: number, metadataColumn: MetadataColumn) {
 
     if (this.isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn)) {
@@ -1106,30 +1091,24 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     }
 
     this.metadataColumnSchemaDescriptionInputs.toArray()[index].nativeElement.focus();
-    this.renderer.setElementClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected', true);
+    this.renderer.addClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   public blurMetadataColumnSchemaDescriptionInput(index: number) {
-    this.renderer.setElementClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected', false);
+    this.renderer.removeClass(this.metadataColumnSchemaDescriptionTds.toArray()[index].nativeElement, 'ddp-selected');
   }
-
-  @ViewChildren('metadataColumnSchemaNameInputs')
-  private metadataColumnSchemaNameInputs: QueryList<ElementRef>;
-
-  @ViewChildren('metadataColumnSchemaNameTds')
-  private metadataColumnSchemaNameTds: QueryList<ElementRef>;
 
   public focusMetadataColumnSchemaNameInput(index: number) {
     this.metadataColumnSchemaNameInputs.toArray()[index].nativeElement.focus();
-    this.renderer.setElementClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected', true);
+    this.renderer.addClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   public blurMetadataColumnSchemaNameInput(index: number) {
-    this.renderer.setElementClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected', false);
+    this.renderer.removeClass(this.metadataColumnSchemaNameTds.toArray()[index].nativeElement, 'ddp-selected');
   }
 
   private _hideTypeListPopup() {
-    if (!isNullOrUndefined(this.getColumns())) {
+    if (!this.isNullOrUndefined(this.getColumns())) {
       this.getColumns().forEach(item => {
         item['typeListFl'] = false;
         item['codeTableShowFl'] = false;

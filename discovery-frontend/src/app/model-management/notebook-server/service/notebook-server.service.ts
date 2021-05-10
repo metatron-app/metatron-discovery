@@ -13,10 +13,10 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {Page} from '../../../domain/common/page';
-import {CommonUtil} from '../../../common/util/common.util';
-import {NoteBook} from '../../../domain/notebook/notebook';
+import {AbstractService} from '@common/service/abstract.service';
+import {Page} from '@domain/common/page';
+import {CommonUtil} from '@common/util/common.util';
+import {NoteBook} from '@domain/notebook/notebook';
 
 @Injectable()
 export class NotebookServerService extends AbstractService {
@@ -35,7 +35,7 @@ export class NotebookServerService extends AbstractService {
    * @param {Object} options
    * @returns {Promise<any>}
    */
-  public getNotebookServerTypeList(searchName: string, type: string, page: Page, projection: string = 'default', options?: Object): Promise<any> {
+  public getNotebookServerTypeList(searchName: string, type: string, page: Page, projection: string = 'default', options?: object): Promise<any> {
     let url = this.API_URL + `connectors/search/nametype?name=` + encodeURIComponent(searchName) + `&type=` + type + `&projection=${projection}`;
 
     url += '&' + CommonUtil.objectToUrlString(page);
@@ -54,7 +54,7 @@ export class NotebookServerService extends AbstractService {
    * @param params
    */
   public getNotebookList(isAll: boolean, params: any) {
-    let url = this.API_URL + `connectors/search/` + (isAll? 'name' : 'nametype');
+    let url = this.API_URL + `connectors/search/` + (isAll ? 'name' : 'nametype');
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
     }

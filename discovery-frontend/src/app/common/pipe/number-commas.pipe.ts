@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import { Injectable, Pipe, PipeTransform } from '@angular/core';
-import { CommonUtil } from '../util/common.util';
+import {Injectable, Pipe, PipeTransform} from '@angular/core';
+import {CommonUtil} from '../util/common.util';
 
 @Pipe({
   name: 'numberCommas'
 })
 @Injectable()
 export class NumberCommasPipe implements PipeTransform {
-  transform(num: any, args?: any): string {
+  transform(num: any, _args?: any): string {
     return CommonUtil.numberWithCommas(num);
   }
 

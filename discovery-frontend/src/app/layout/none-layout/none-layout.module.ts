@@ -12,17 +12,18 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
-import { NoneLayoutComponent } from './none-layout.component';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule, Routes} from '@angular/router';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {NoneLayoutComponent} from './none-layout.component';
 
 const layoutRoutes: Routes = [
-  { path: '', component: NoneLayoutComponent, children: [
-      { path: '',      redirectTo: '/user/login', pathMatch: 'full' },
-      { path: 'login', loadChildren: 'app/user/user.module#UserModule' },
-  ],
+  {
+    path: '', component: NoneLayoutComponent, children: [
+      {path: '', redirectTo: '/user/login', pathMatch: 'full'},
+      {path: 'login', loadChildren: 'app/user/user.module#UserModule'},
+    ],
   },
 ];
 

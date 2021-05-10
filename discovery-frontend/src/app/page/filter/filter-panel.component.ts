@@ -17,24 +17,37 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
-  Output, SimpleChange, SimpleChanges
+  Output,
+  SimpleChange,
+  SimpleChanges
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { Dashboard } from '../../domain/dashboard/dashboard';
-import { Field } from '../../domain/datasource/datasource';
-import { InclusionFilter } from '../../domain/workbook/configurations/filter/inclusion-filter';
-import { DatasourceService } from '../../datasource/service/datasource.service';
-import { FilterUtil } from '../../dashboard/util/filter.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {Field} from '@domain/datasource/datasource';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {DatasourceService} from '../../datasource/service/datasource.service';
+import {FilterUtil} from '../../dashboard/util/filter.util';
 
 @Component({
   selector: 'page-filter-panel',
   templateUrl: './filter-panel.component.html'
 })
-export class PageFilterPanel extends AbstractComponent implements OnInit, OnDestroy {
+export class PageFilterPanelComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private datasourceService: DatasourceService,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
+    super(elementRef, injector);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -74,15 +87,11 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
   public changeGlobalToChartEvent: EventEmitter<Filter> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
+   | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
-  constructor(private datasourceService: DatasourceService,
-              protected elementRef: ElementRef,
-              protected injector: Injector) {
-    super(elementRef, injector);
-  }
+  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
+  public filterUtil = FilterUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
@@ -124,13 +133,6 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
-  public getMeasureTypeIconClass = Field.getMeasureTypeIconClass;
-  public filterUtil = FilterUtil;
-
   /**
    * 필터 목록을 강제로 설정하기 위해 사용
    * @param {Filter[]} boardFilters
@@ -155,11 +157,11 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param index
+   * @param _index
    * @param {Filter} filter
    * @return {string}
    */
-  public trackByFn(index, filter: Filter) {
+  public trackByFn(_index, filter: Filter) {
     return filter.field;
   } // function - trackByFn
 

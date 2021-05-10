@@ -12,32 +12,37 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
-import { StringUtil } from '../../../../common/util/string.util';
-import {isNullOrUndefined} from 'util';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'detail-workbench-dataconnection-info',
-  templateUrl: './detail-workbench-dataconnection-info.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './detail-workbench-dataconnection-info.html'
 })
-export class DetailWorkbenchDataconnectionInfo extends AbstractComponent implements OnInit, OnDestroy {
+export class DetailWorkbenchDataconnectionInfoComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public dataconnection:Dataconnection;
+  public dataconnection: Dataconnection;
 
   @Output()
   public showLayer: EventEmitter<string> = new EventEmitter();
@@ -61,9 +66,9 @@ export class DetailWorkbenchDataconnectionInfo extends AbstractComponent impleme
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public ngOnInit(): void {
-    console.info('dataconnection', this.dataconnection);
+    console.log('dataconnection', this.dataconnection);
     // 권한 정보가 없을 경우
-    if( isNullOrUndefined(this.dataconnection.authenticationType)  ){
+    if (this.isNullOrUndefined(this.dataconnection.authenticationType)) {
       this.dataconnection.authenticationType = 'MANUAL';
     }
   }
@@ -79,6 +84,7 @@ export class DetailWorkbenchDataconnectionInfo extends AbstractComponent impleme
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 컴포넌트 내부  host 클릭이벤트 처리
+  @HostListener('document:click', ['$event'])
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {

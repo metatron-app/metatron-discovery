@@ -18,13 +18,13 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnDestroy,
+  OnInit,
   Output,
-  QueryList,
-  ViewChild,
-  ViewChildren
+  ViewChild
 } from '@angular/core';
 import {UIChartColorByValue, UIOption} from '../../common/component/chart/option/ui-option';
-import {Pivot} from '../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {
   AnnotationPosition,
   AxisLabelType,
@@ -42,109 +42,44 @@ import {
   LineMode,
   LineStyle,
   PieSeriesViewType,
-  PointShape, ShelveFieldType,
+  PointShape,
+  ShelveFieldType,
   SymbolType,
   UIChartDataLabelDisplayType,
   UIFontStyle,
   UIOrient,
   UIPosition,
   WaterfallBarColor,
-} from '../../common/component/chart/option/define/common';
-import {Modal} from '../../common/domain/modal';
+} from '@common/component/chart/option/define/common';
+import {Modal} from '@common/domain/modal';
 import * as _ from 'lodash';
-import {Alert} from '../../common/util/alert.util';
-import {SelectComponent} from '../../common/component/select/select.component';
-import {TimeUnit} from '../../domain/workbook/configurations/field/timestamp-field';
+import {Alert} from '@common/util/alert.util';
+import {SelectComponent} from '@common/component/select/select.component';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {BaseOptionComponent} from './base-option.component';
-import {UIBarChart} from '../../common/component/chart/option/ui-option/ui-bar-chart';
-import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
-import {Annotation, UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
+import {UIBarChart} from '@common/component/chart/option/ui-option/ui-bar-chart';
+import {UILineChart} from '@common/component/chart/option/ui-option/ui-line-chart';
+import {Annotation, UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
 import {
   UILabelAnnotation,
   UILabelChart,
   UILabelChartSeries,
   UILabelIcon,
   UILabelSecondaryIndicator
-} from '../../common/component/chart/option/ui-option/ui-label-chart';
-import {
-  UIChartColorByCell,
-  UIChartColorGradationByValue
-} from '../../common/component/chart/option/ui-option/ui-color';
-import {UIChartDataLabel} from '../../common/component/chart/option/ui-option/ui-datalabel';
-import {ColorPickerComponent} from '../../common/component/color-picker/color.picker.component';
-import {ColorPicker} from '../../common/component/color-picker/colorpicker';
-import {BarColor, UIWaterfallChart} from '../../common/component/chart/option/ui-option/ui-waterfall-chart';
-import {isNullOrUndefined} from "util";
-import {OptionGenerator} from "../../common/component/chart/option/util/option-generator";
-import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
-import {UIChartTooltip} from "../../common/component/chart/option/ui-option/ui-tooltip";
+} from '@common/component/chart/option/ui-option/ui-label-chart';
+import {UIChartColorByCell, UIChartColorGradationByValue} from '@common/component/chart/option/ui-option/ui-color';
+import {UIChartDataLabel} from '@common/component/chart/option/ui-option/ui-datalabel';
+import {ColorPickerComponent} from '@common/component/color-picker/color.picker.component';
+import {ColorPicker} from '@common/component/color-picker/colorpicker';
+import {BarColor, UIWaterfallChart} from '@common/component/chart/option/ui-option/ui-waterfall-chart';
+import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
+import {ChartUtil} from '@common/component/chart/option/util/chart-util';
 
 @Component({
   selector: 'common-option',
   templateUrl: './common-option.component.html'
 })
-export class CommonOptionComponent extends BaseOptionComponent {
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @ViewChild('iconTargetListComp')
-  private iconTargetListComp: SelectComponent;
-
-  @ViewChild('textTargetListComp')
-  private textTargetListComp: SelectComponent;
-
-  @ViewChildren('iconType')
-  private iconTypeComp: QueryList<SelectComponent>;
-
-  @ViewChild('direction')
-  private directionComp: SelectComponent;
-
-  // @ViewChild('period')
-  // private periodComp: SelectComponent;
-
-  // 본문 폰트 색상 color picker element
-  @ViewChild('contentFontcolorPicker')
-  private contentFontcolorPicker: ColorPickerComponent;
-
-  // 헤더 폰트 색상 color picker element
-  @ViewChild('fontColorPicker')
-  private fontColorPicker: ColorPickerComponent;
-
-  // 헤더 배경 색상 color picker element
-  @ViewChild('backgroundColorPicker')
-  private backgroundColorPicker: ColorPickerComponent;
-
-  // color picker 리턴값
-  private contentFontColorPickerEle: any;
-  private fontColorPickerEle: any;
-  private backgroundColorPickerEle: any;
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public chartUtil = ChartUtil;
-
-  // 그리드 원본보기 불가
-  public isNoOriginData: boolean;
-
-  // Barchart - 병렬 / 중첩에 따라서 선반의 위치 변경 noti
-  @Output()
-  public changeAxisByStack: EventEmitter<BarMarkType> = new EventEmitter();
-
-  // 확인팝업 띄우기
-  @Output()
-  public showConfirmPopup: EventEmitter<Modal> = new EventEmitter();
-
-  // Pivot 정보
-  public pivot: Pivot;
-  public pivotTemp: Pivot;
-
-  public limitPlaceHolder:number;
+export class CommonOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
 
   // 차트정보
   @Input('uiOption')
@@ -154,8 +89,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
 
     // limit값이 체크되고 size값이 없는경우 기본값 설정
-    this._setLimit( uiOption.limit );
-    this.limitPlaceHolder = OptionGenerator.defaultLimit( this.uiOption.type );
+    this._setLimit(uiOption.limit);
+    this.limitPlaceHolder = OptionGenerator.defaultLimit(this.uiOption.type);
 
     // Pivot 설정
     if (_.isUndefined(this.pivot)) {
@@ -165,17 +100,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // 폰트크기 기본설정
     if (!this.uiOption.fontSize) this.uiOption.fontSize = FontSize.NORMAL;
 
-    if (ChartType.GRID == this.uiOption.type) {
+    if (ChartType.GRID === this.uiOption.type) {
       // gridChart의 기본 colorTarget 설정
-      if (!(<UIChartColorByCell>uiOption.color).colorTarget) (<UIChartColorByCell>uiOption.color).colorTarget = CellColorTarget.TEXT;
+      if (!(uiOption.color as UIChartColorByCell).colorTarget) (uiOption.color as UIChartColorByCell).colorTarget = CellColorTarget.TEXT;
 
       this.changeDetect.detectChanges();
       // 헤더 폰트 색상
-      this.fontColorPickerEle = this.initColorPicker(this.fontColorPickerEle, this.fontColorPicker, (<UIGridChart>this.uiOption).headerStyle.fontColor);
+      this.fontColorPickerEle = this.initColorPicker(this.fontColorPickerEle, this.fontColorPicker, (this.uiOption as UIGridChart).headerStyle.fontColor);
       // 헤더 배경 색상
-      this.backgroundColorPickerEle = this.initColorPicker(this.backgroundColorPickerEle, this.backgroundColorPicker, (<UIGridChart>this.uiOption).headerStyle.backgroundColor);
+      this.backgroundColorPickerEle = this.initColorPicker(this.backgroundColorPickerEle, this.backgroundColorPicker, (this.uiOption as UIGridChart).headerStyle.backgroundColor);
       // 본문의 폰트 색상 설정
-      this.contentFontColorPickerEle = this.initColorPicker(this.contentFontColorPickerEle, this.contentFontcolorPicker, (<UIGridChart>this.uiOption).contentStyle.fontColor);
+      this.contentFontColorPickerEle = this.initColorPicker(this.contentFontColorPickerEle, this.contentFontcolorPicker, (this.uiOption as UIGridChart).contentStyle.fontColor);
     }
 
   }
@@ -198,7 +133,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // Set
     this.pivot = pivot;
 
-    if (ChartType.GRID == this.uiOption.type) {
+    if (ChartType.GRID === this.uiOption.type) {
       // 교차선반에서 aggregated값 찾기
       this.isNoOriginData = false;
       for (const item of this.pivot.aggregations) {
@@ -209,18 +144,18 @@ export class CommonOptionComponent extends BaseOptionComponent {
       }
 
       // isNoOriginData가 true일때 원본보기상태이면 피봇상태로 재설정
-      if (this.isNoOriginData && GridViewType.MASTER == this.uiOption['dataType']) {
-        let dataType = GridViewType.PIVOT;
-        this.uiOption = <UIOption>_.extend({}, this.uiOption, {dataType});
+      if (this.isNoOriginData && GridViewType.MASTER === this.uiOption['dataType']) {
+        const dataType = GridViewType.PIVOT;
+        this.uiOption = (_.extend({}, this.uiOption, {dataType}) as UIOption);
         this.isNoOriginData = false;
         this.update();
       }
     }
 
     // KPI 차트 옵션추가
-    if (this.uiOption.type == ChartType.LABEL) {
+    if (this.uiOption.type === ChartType.LABEL) {
 
-      const option: UILabelChart = <UILabelChart>this.uiOption;
+      const option: UILabelChart = this.uiOption as UILabelChart;
 
       if (option.series) {
 
@@ -228,20 +163,20 @@ export class CommonOptionComponent extends BaseOptionComponent {
         const isTextAll: boolean = this.kpiIsTextAll();
         this.kpiIconTargetList = [];
         this.kpiIconTargetList.push({name: this.translateService.instant('msg.comm.ui.list.all'), value: ''});
-        let series: UILabelChartSeries[] = [];
-        let icons: UILabelIcon[] = [];
-        let annotations: UILabelAnnotation[] = [];
-        let secondaryIndicators: UILabelSecondaryIndicator[] = [];
+        const series: UILabelChartSeries[] = [];
+        const icons: UILabelIcon[] = [];
+        const annotations: UILabelAnnotation[] = [];
+        const secondaryIndicators: UILabelSecondaryIndicator[] = [];
 
         const setFieldName = ((item, shelveFieldType?: ShelveFieldType): string => {
           // shelveFieldType이 있는경우 해당타입일때만 데이터 리턴
           if (!shelveFieldType || (shelveFieldType && item.type === shelveFieldType)) {
-            let fieldName = !_.isEmpty(item.alias) ? item.alias : item.name;
+            let fieldName: string;
             if (item['alias'] && item['alias'] !== item.name) {
               fieldName = item['alias'];
             } else {
               // aggregation type과 함께 alias 설정
-              const alias: string = item['fieldAlias'] ? item['fieldAlias'] : ( item['logicalName'] ? item['logicalName'] : item['name'] );
+              const alias: string = item['fieldAlias'] ? item['fieldAlias'] : (item['logicalName'] ? item['logicalName'] : item['name']);
               fieldName = item.aggregationType ? item.aggregationType + `(${alias})` : `${alias}`;
             }
             return fieldName;
@@ -250,7 +185,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
         const aggs = this.pivot.aggregations.map((aggregation) => {
           return setFieldName(aggregation, ShelveFieldType.MEASURE);
-        }).filter((item)=> {return typeof item !== 'undefined'});
+        }).filter((item) => {
+          return typeof item !== 'undefined'
+        });
 
         for (let num: number = 0; num < this.pivot.aggregations.length; num++) {
 
@@ -259,16 +196,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
           //////////////////////////////////////////
           const field: any = this.pivot.aggregations[num];
           let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
-          let displayName: any = aggs[num];
-          if( field.aggregationType && field.aggregationType != "" ) {
-            alias = field.aggregationType +"("+ alias +")";
+          const displayName: any = aggs[num];
+          if (field.aggregationType && field.aggregationType !== '') {
+            alias = field.aggregationType + '(' + alias + ')';
           }
 
           /////////////////////
           // Pivot이 추가되었을때 처리
           /////////////////////
 
-          //if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
+          // if( option.series.length <= num || option.series.length !== this.pivot.aggregations.length ) {
           if (option.series.length <= num) {
             if (num > 0) {
               option.series[num] = {
@@ -298,8 +235,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
                 emphasized: option.secondaryIndicators[0].emphasized
 
               };
-            }
-            else {
+            } else {
               option.series[num] = {};
               option.icons[num] = {};
               option.annotations[num] = {};
@@ -384,31 +320,219 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
         this.changeDetect.detectChanges();
         if (!isIconAll) {
-          //this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+          // this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
           this.iconTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
         }
-        if( isTextAll ) {
-          if( option.annotations && 0 < option.annotations.length && option.annotations[0].show ) {
+        if (isTextAll) {
+          if (option.annotations && 0 < option.annotations.length && option.annotations[0].show) {
             this.kpiText = option.annotations[0].description;
-          }
-          else {
-            this.kpiText = "";
+          } else {
+            this.kpiText = '';
           }
           this.kpiTextTemp = this.kpiText;
         } else {
-          //this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+          // this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
           this.textTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
 
           if (option.annotations[0].show) {
-            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description : "";
-          }
-          else {
-            this.kpiText = "";
+            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description : '';
+          } else {
+            this.kpiText = '';
           }
           this.kpiTextTemp = this.kpiText;
         }
       }
     }
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(protected elementRef: ElementRef,
+              protected injector: Injector) {
+
+    super(elementRef, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @ViewChild('iconTargetListComp')
+  private iconTargetListComp: SelectComponent;
+
+  @ViewChild('textTargetListComp')
+  private textTargetListComp: SelectComponent;
+
+  // @ViewChild('period')
+  // private periodComp: SelectComponent;
+
+  // 본문 폰트 색상 color picker element
+  @ViewChild('contentFontcolorPicker')
+  private contentFontcolorPicker: ColorPickerComponent;
+
+  // 헤더 폰트 색상 color picker element
+  @ViewChild('fontColorPicker')
+  private fontColorPicker: ColorPickerComponent;
+
+  // 헤더 배경 색상 color picker element
+  @ViewChild('backgroundColorPicker')
+  private backgroundColorPicker: ColorPickerComponent;
+
+  // color picker 리턴값
+  private contentFontColorPickerEle: any;
+  private fontColorPickerEle: any;
+  private backgroundColorPickerEle: any;
+
+  private _prevLimit: number;
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Protected Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public chartUtil = ChartUtil;
+
+  // 그리드 원본보기 불가
+  public isNoOriginData: boolean;
+
+  // Barchart - 병렬 / 중첩에 따라서 선반의 위치 변경 noti
+  @Output()
+  public changeAxisByStack: EventEmitter<BarMarkType> = new EventEmitter();
+
+  // 확인팝업 띄우기
+  @Output()
+  public showConfirmPopup: EventEmitter<Modal> = new EventEmitter();
+
+  // Pivot 정보
+  public pivot: Pivot;
+  public pivotTemp: Pivot;
+
+  public limitPlaceHolder: number;
+
+  // KPI: 아이콘 목록
+  public kpiIconList: object[] = [
+    {name: this.translateService.instant('msg.page.li.icon.user'), value: 'USER'},
+    {name: this.translateService.instant('msg.page.li.icon.visits'), value: 'HITS'},
+    {name: this.translateService.instant('msg.page.li.icon.time'), value: 'TIME'},
+    {name: this.translateService.instant('msg.page.li.icon.views'), value: 'VIEW'}
+  ];
+
+  // KPI: 추가 차트 표시 옵션
+  public kpiDirectionList: object[] = [
+    {name: this.translateService.instant('msg.page.li.kpi.horizontal'), value: 'HORIZONTAL'},
+    {name: this.translateService.instant('msg.page.li.kpi.vertical'), value: 'VERTICAL'}
+  ];
+
+  // KPI: 비교기간 목록
+  public kpiPeriodList: object[] = [
+    {name: this.translateService.instant('msg.page.li.previous.year'), value: TimeUnit.YEAR},
+    {name: this.translateService.instant('msg.page.li.previous.quarter'), value: TimeUnit.QUARTER},
+    {name: this.translateService.instant('msg.page.li.previous.month'), value: TimeUnit.MONTH},
+    {name: this.translateService.instant('msg.page.li.previous.day'), value: TimeUnit.DAY}
+  ];
+
+  // KPI: 아이콘/설명 관련
+  public kpiIconTargetList: object[] = [
+    {name: this.translateService.instant('msg.comm.ui.list.all'), value: ''}
+  ];
+  public kpiIconTarget: object = this.kpiIconTargetList[0];
+  public kpiTextTarget: object = this.kpiIconTargetList[0];
+  public kpiText: string = '';
+  public kpiTextTemp: string = '';
+
+  // 기본 limit값
+  public DEFAULT_LIMIT: number = 1000;
+
+  // grid position 리스트
+  public remarkPositionList: object[] = [
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.top.right'),
+      value: AnnotationPosition.TOP_RIGHT
+    },
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.top.left'),
+      value: AnnotationPosition.TOP_LEFT
+    },
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.right'),
+      value: AnnotationPosition.BOTTOM_RIGHT
+    },
+    {
+      name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.left'),
+      value: AnnotationPosition.BOTTOM_LEFT
+    }
+  ];
+
+  // grid 가로정렬 리스트
+  public hAlignList: object[] = [
+    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.default'), value: UIPosition.AUTO},
+    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.left'), value: UIPosition.LEFT},
+    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.center'), value: UIPosition.CENTER},
+    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.right'), value: UIPosition.RIGHT},
+  ];
+
+  public get uiFontStyle(): typeof UIFontStyle {
+    return UIFontStyle;
+  }
+
+  public get uiPosition(): typeof UIPosition {
+    return UIPosition;
+  }
+
+  public get fontSize(): typeof FontSize {
+    return FontSize;
+  }
+
+  public get uiOrient(): typeof UIOrient {
+    return UIOrient;
+  }
+
+  public get cellColorTarget(): typeof CellColorTarget {
+    return CellColorTarget;
+  }
+
+  public get barMarkType(): typeof BarMarkType {
+    return BarMarkType;
+  }
+
+  public get lineMarkType(): typeof LineMarkType {
+    return LineMarkType;
+  }
+
+  public get lineCornerType(): typeof LineCornerType {
+    return LineCornerType;
+  }
+
+  public get lineStyle(): typeof LineStyle {
+    return LineStyle;
+  }
+
+  public get lineMode(): typeof LineMode {
+    return LineMode;
+  }
+
+  public get pointShape(): typeof PointShape {
+    return PointShape;
+  }
+
+  public get pieSeriesType(): typeof PieSeriesViewType {
+    return PieSeriesViewType;
+  }
+
+  public get labelStyle(): typeof LabelStyle {
+    return LabelStyle;
+  }
+
+  public get labelLayout(): typeof LabelLayoutType {
+    return LabelLayoutType;
+  }
+
+  public get gridType(): typeof GridViewType {
+    return GridViewType;
   }
 
   /**
@@ -434,66 +558,6 @@ export class CommonOptionComponent extends BaseOptionComponent {
     return colorPickerEle;
   }
 
-  // KPI: 아이콘 목록
-  public kpiIconList: Object[] = [
-    {name: this.translateService.instant('msg.page.li.icon.user'), value: 'USER'},
-    {name: this.translateService.instant('msg.page.li.icon.visits'), value: 'HITS'},
-    {name: this.translateService.instant('msg.page.li.icon.time'), value: 'TIME'},
-    {name: this.translateService.instant('msg.page.li.icon.views'), value: 'VIEW'}
-  ];
-
-  // KPI: 추가 차트 표시 옵션
-  public kpiDirectionList: Object[] = [
-    {name: this.translateService.instant('msg.page.li.kpi.horizontal'), value: 'HORIZONTAL'},
-    {name: this.translateService.instant('msg.page.li.kpi.vertical'), value: 'VERTICAL'}
-  ];
-
-  // KPI: 비교기간 목록
-  public kpiPeriodList: Object[] = [
-    {name: this.translateService.instant('msg.page.li.previous.year'), value: TimeUnit.YEAR},
-    {name: this.translateService.instant('msg.page.li.previous.quarter'), value: TimeUnit.QUARTER},
-    {name: this.translateService.instant('msg.page.li.previous.month'), value: TimeUnit.MONTH},
-    {name: this.translateService.instant('msg.page.li.previous.day'), value: TimeUnit.DAY}
-  ];
-
-  // KPI: 아이콘/설명 관련
-  public kpiIconTargetList: Object[] = [
-    {name: this.translateService.instant('msg.comm.ui.list.all'), value: ''}
-  ];
-  public kpiIconTarget: Object = this.kpiIconTargetList[0];
-  public kpiTextTarget: Object = this.kpiIconTargetList[0];
-  public kpiText: string = "";
-  public kpiTextTemp: string = "";
-
-  // 기본 limit값
-  public DEFAULT_LIMIT: number = 1000;
-
-  // grid position 리스트
-  public remarkPositionList: Object[] = [
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.top.right'), value: AnnotationPosition.TOP_RIGHT},
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.top.left'), value: AnnotationPosition.TOP_LEFT},
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.right'), value: AnnotationPosition.BOTTOM_RIGHT},
-    {name: this.translateService.instant('msg.page.common.grid.enter.position.bottom.left'), value: AnnotationPosition.BOTTOM_LEFT}
-  ];
-
-  // grid 가로정렬 리스트
-  public hAlignList: Object[] = [
-    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.default'), value: UIPosition.AUTO},
-    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.left'), value: UIPosition.LEFT},
-    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.center'), value: UIPosition.CENTER},
-    {name: this.translateService.instant('msg.page.chart.datalabel.text.align.right'), value: UIPosition.RIGHT},
-  ];
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
-  constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
-
-    super(elementRef, injector);
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -513,7 +577,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
+   | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
@@ -521,36 +585,36 @@ export class CommonOptionComponent extends BaseOptionComponent {
    *
    * @param type
    */
-  protected barOrientType(type: UIOrient): void {
+  public barOrientType(type: UIOrient): void {
 
-    let align = _.cloneDeep((<UIBarChart>this.uiOption).align);
+    let align = _.cloneDeep((this.uiOption as UIBarChart).align);
 
     if (_.eq(align, type)) return;
 
     // 차트표시방향에 따라 dataLabel position값 설정
-    let dataLabel = this.setDataLabelByOrient();
+    const dataLabel = this.setDataLabelByOrient();
 
     // 가로형인경우 rotation 사용x
-    if (UIOrient.HORIZONTAL == type) dataLabel.enableRotation = false;
+    if (UIOrient.HORIZONTAL === type) dataLabel.enableRotation = false;
 
     // chartZooms가 1개인경우 현재타입의 반대타입으로 dataZoom 타입 설정
-    if (this.uiOption.chartZooms && this.uiOption.chartZooms.length == 1) {
+    if (this.uiOption.chartZooms && this.uiOption.chartZooms.length === 1) {
       this.uiOption.chartZooms[0].orient = UIOrient.HORIZONTAL === type ? UIOrient.VERTICAL : UIOrient.HORIZONTAL;
     }
 
     align = type;
 
-    const row = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.ROW);
+    const row = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.ROW);
     })[0];
-    const subRow = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.SUBROW);
+    const subRow = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.SUBROW);
     })[0];
-    const column = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.COLUMN);
+    const column = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.COLUMN);
     })[0];
-    const subColumn = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
-      return _.eq(axis.mode, AxisLabelType.SUBCOLUMN);
+    const subColumn = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axisInfo) => {
+      return _.eq(axisInfo.mode, AxisLabelType.SUBCOLUMN);
     })[0];
 
     // xAxis
@@ -609,7 +673,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     const yAxisLabel = _.cloneDeep(yAxis.label);
 
     // horizontal인경우
-    if (UIOrient.HORIZONTAL == type) {
+    if (UIOrient.HORIZONTAL === type) {
 
       // x축 value, y축 category 설정
       xAxis.label = yAxisLabel;
@@ -622,15 +686,15 @@ export class CommonOptionComponent extends BaseOptionComponent {
       yAxis.label = xAxisLabel;
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       align: align,
       xAxis: xAxis,
       yAxis: yAxis,
       dataLabel: dataLabel
-    });
+    }) as UIOption);
 
     // subAxis
-    if( this.uiOption.secondaryAxis ) {
+    if (this.uiOption.secondaryAxis) {
       axis = _.cloneDeep(this.uiOption.secondaryAxis);
       switch (axis.mode) {
         case AxisLabelType.ROW :
@@ -654,15 +718,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
           axis.customName = subRow.customName;
           break;
       }
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: axis });
+      this.uiOption = (_.extend({}, this.uiOption, {secondaryAxis: axis}) as UIOption);
     }
 
     this.update();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * Bar - 차트 시리즈 표현 타입
@@ -671,8 +731,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public barSeriesViewType(seriesType: BarMarkType): void {
 
     // ranges가 있는경우 병렬 / 중첩상태를 변경시
-    if (seriesType !== (<UIBarChart>this.uiOption).mark &&
-      (<UIChartColorByValue>this.uiOption.color).ranges && (<UIChartColorByValue>this.uiOption.color).ranges.length > 0) {
+    if (seriesType !== (this.uiOption as UIBarChart).mark &&
+      (this.uiOption.color as UIChartColorByValue).ranges && (this.uiOption.color as UIChartColorByValue).ranges.length > 0) {
 
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.page.chart.color.measure.range.grid.original.description');
@@ -696,11 +756,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public changeBarSeriesViewType(mark: BarMarkType) {
 
     // 같은타입으로 재선택시 return (사용자 색상설정이 초기화되므로)
-    if (this.uiOption['mark'] == mark) {
+    if (this.uiOption['mark'] === mark) {
       return;
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {mark});
+    this.uiOption = (_.extend({}, this.uiOption, {mark}) as UIOption);
 
     // 시리즈관련 리스트 제거
     const spliceSeriesTypeList = ((seriesTypeList, dataLabel: any): any => {
@@ -720,7 +780,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     });
 
     // 병렬형으로 변경시 데이터라벨, 툴팁의 SERIES관련설정은 제거
-    if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes && BarMarkType.MULTIPLE == mark) {
+    if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes && BarMarkType.MULTIPLE === mark) {
 
       const seriesTypeList = [UIChartDataLabelDisplayType.SERIES_NAME, UIChartDataLabelDisplayType.SERIES_VALUE, UIChartDataLabelDisplayType.SERIES_PERCENT];
 
@@ -761,7 +821,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public lineSeriesViewType(mark: LineMarkType): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {mark});
+    this.uiOption = (_.extend({}, this.uiOption, {mark}) as UIOption);
     this.update();
   }
 
@@ -771,7 +831,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public lineSeriesCornerType(curveStyle: LineCornerType): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {curveStyle});
+    this.uiOption = (_.extend({}, this.uiOption, {curveStyle}) as UIOption);
     this.update();
   }
 
@@ -782,7 +842,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public showLine(lineStyle: LineStyle): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {lineStyle});
+    this.uiOption = (_.extend({}, this.uiOption, {lineStyle}) as UIOption);
     this.update();
   }
 
@@ -793,8 +853,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public cumulativeMode(lineMode: LineMode): void {
 
-    const uiLineMode = (<UILineChart>this.uiOption).lineMode;
-    const ranges = (<UIChartColorByValue>this.uiOption.color).ranges;
+    const uiLineMode = (this.uiOption as UILineChart).lineMode;
+    const ranges = (this.uiOption.color as UIChartColorByValue).ranges;
 
     // 같은 타입일때 return (사용자 색상설정이 초기화되므로)
     if (_.eq(uiLineMode, lineMode)) {
@@ -823,7 +883,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeCumulative(lineMode: LineMode): void {
 
-    (<UILineChart>this.uiOption).lineMode = lineMode;
+    (this.uiOption as UILineChart).lineMode = lineMode;
     this.update({resultFormatOptions: {lineMode: lineMode}, type: 'cumulativeMode'});
   }
 
@@ -847,20 +907,20 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param hAlign
    * @param headerFl
    */
-  public textAlign(hAlign: Object, headerFl: boolean): void {
+  public textAlign(hAlign: object, headerFl: boolean): void {
 
     // 헤더일때
     if (headerFl) {
 
-      const headerStyle = _.cloneDeep((<UIGridChart>this.uiOption).headerStyle);
+      const headerStyle = _.cloneDeep((this.uiOption as UIGridChart).headerStyle);
       headerStyle.hAlign = hAlign['value'];
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {headerStyle});
+      this.uiOption = (_.extend({}, this.uiOption, {headerStyle}) as UIOption);
 
       // 본문일때
     } else {
-      const contentStyle = _.cloneDeep((<UIGridChart>this.uiOption).contentStyle);
+      const contentStyle = _.cloneDeep((this.uiOption as UIGridChart).contentStyle);
       contentStyle.hAlign = hAlign['value'];
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {contentStyle});
+      this.uiOption = (_.extend({}, this.uiOption, {contentStyle}) as UIOption);
     }
 
     this.update();
@@ -876,14 +936,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // 헤더일때
     if (headerFl) {
 
-      const headerStyle = _.cloneDeep((<UIGridChart>this.uiOption).headerStyle);
+      const headerStyle = _.cloneDeep((this.uiOption as UIGridChart).headerStyle);
       headerStyle.vAlign = vAlign;
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {headerStyle});
+      this.uiOption = (_.extend({}, this.uiOption, {headerStyle}) as UIOption);
       // 본문일때
     } else {
-      const contentStyle = _.cloneDeep((<UIGridChart>this.uiOption).contentStyle);
+      const contentStyle = _.cloneDeep((this.uiOption as UIGridChart).contentStyle);
       contentStyle.vAlign = vAlign;
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {contentStyle});
+      this.uiOption = (_.extend({}, this.uiOption, {contentStyle}) as UIOption);
     }
 
     this.update();
@@ -904,11 +964,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
     //   return;
     // }
 
-    const dataType = (<UIGridChart>this.uiOption).dataType;
-    const ranges = (<UIChartColorByValue>this.uiOption.color).ranges;
+    const dataType = (this.uiOption as UIGridChart).dataType;
+    const ranges = (this.uiOption.color as UIChartColorByValue).ranges;
 
     // 피봇, 원본 타입이 변경되지 않은경우
-    if (gridType == dataType) return;
+    if (gridType === dataType) return;
 
     // 사용자 색상설정되고, 피봇 - 원본이 변경된경우
     if (ranges && ranges.length > 0 && gridType !== dataType) {
@@ -936,12 +996,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     // 원본보기인경우 show head column을 true로 설정
     if (GridViewType.MASTER) {
-      (<UIGridChart>this.uiOption).measureLayout = UIOrient.VERTICAL;
-      (<UIGridChart>this.uiOption).contentStyle = (<UIGridChart>this.uiOption).contentStyle ? (<UIGridChart>this.uiOption).contentStyle : {};
-      (<UIGridChart>this.uiOption).contentStyle.showHeader = false;
+      (this.uiOption as UIGridChart).measureLayout = UIOrient.VERTICAL;
+      (this.uiOption as UIGridChart).contentStyle = (this.uiOption as UIGridChart).contentStyle ? (this.uiOption as UIGridChart).contentStyle : {};
+      (this.uiOption as UIGridChart).contentStyle.showHeader = false;
     } else {
-      if( 'origin' === (<UIGridChart>this.uiOption).valueFormat.type ) {
-        (<UIGridChart>this.uiOption).valueFormat.type = 'number';
+      if ('origin' === (this.uiOption as UIGridChart).valueFormat.type) {
+        (this.uiOption as UIGridChart).valueFormat.type = 'number';
       }
     }
 
@@ -953,17 +1013,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /**
    * Grid -  layout
    *
-   * @param {Orient} orient
+   * @param {UIOrient} measureLayout
    */
   public gridLayout(measureLayout: UIOrient): void {
 
     // TODO 원본 데이터일때 가로보기 기능이 불가함
-    if (_.eq(measureLayout, UIOrient.HORIZONTAL) && _.eq((<UIGridChart>this.uiOption).dataType, GridViewType.MASTER)) {
+    if (_.eq(measureLayout, UIOrient.HORIZONTAL) && _.eq((this.uiOption as UIGridChart).dataType, GridViewType.MASTER)) {
       Alert.info(this.translateService.instant('msg.page.alert.original.view.error'));
       return;
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {measureLayout});
+    this.uiOption = (_.extend({}, this.uiOption, {measureLayout}) as UIOption);
 
     this.update();
   }
@@ -973,7 +1033,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param pointTransparency
    */
   public symbolFill(pointTransparency: number): void {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {pointTransparency});
+    this.uiOption = (_.extend({}, this.uiOption, {pointTransparency}) as UIOption);
 
     this.update();
   }
@@ -985,14 +1045,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public symbolType(pointShape: PointShape): void {
 
     // ranges값이 있는경우
-    if ((<UIChartColorByValue>this.uiOption.color).ranges && (<UIChartColorByValue>this.uiOption.color).ranges.length > 0) {
+    if ((this.uiOption.color as UIChartColorByValue).ranges && (this.uiOption.color as UIChartColorByValue).ranges.length > 0) {
 
       // 선택된 symbol값으로 변경
-      (<UIChartColorByValue>this.uiOption.color).ranges.forEach((item) => {
+      (this.uiOption.color as UIChartColorByValue).ranges.forEach((item) => {
         item.symbol = SymbolType[String(pointShape)];
       })
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {pointShape});
+    this.uiOption = (_.extend({}, this.uiOption, {pointShape}) as UIOption);
 
     this.update();
   }
@@ -1003,7 +1063,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public pieSeriesViewType(markType: PieSeriesViewType): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {markType});
+    this.uiOption = (_.extend({}, this.uiOption, {markType}) as UIOption);
     this.update();
   }
 
@@ -1014,7 +1074,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     if (maxCategory < 0) return;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {maxCategory});
+    this.uiOption = (_.extend({}, this.uiOption, {maxCategory}) as UIOption);
     this.update();
   }
 
@@ -1028,10 +1088,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // bar series일때
     if (String(ChartType.BAR) === chartType) {
 
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {barMarkType: markType});
+      this.uiOption = (_.extend({}, this.uiOption, {barMarkType: markType}) as UIOption);
       // line series일때
     } else {
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {lineMarkType: markType});
+      this.uiOption = (_.extend({}, this.uiOption, {lineMarkType: markType}) as UIOption);
     }
 
     this.update();
@@ -1046,7 +1106,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // const series = _.cloneDeep(this.uiOption.series);
     // series.convertType = SeriesConvertType.MARK;
     // (<UILineChartPresentation>series).mark = type;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {mark});
+    this.uiOption = (_.extend({}, this.uiOption, {mark}) as UIOption);
 
     this.update();
   }
@@ -1059,9 +1119,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * KPI - 차트 유형: 가로/세로
    */
   public kpiChangeLayout(layout: LabelLayoutType): void {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     option.layout = layout;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {layout: option.layout});
+    this.uiOption = (_.extend({}, this.uiOption, {layout: option.layout}) as UIOption);
     this.update();
   }
 
@@ -1070,21 +1130,21 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param style
    */
   public kpiChangeStyle(style: LabelStyle): void {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     option.chartStyle = style;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {chartStyle: option.chartStyle});
+    this.uiOption = (_.extend({}, this.uiOption, {chartStyle: option.chartStyle}) as UIOption);
     this.update();
   }
 
   /**
    * KPI - Label 표시 여부
-   *
+   * @param _idx
    * @param show
    */
-  public kpiShowLabel(idx: number, show: boolean): void {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+  public kpiShowLabel(_idx: number, show: boolean): void {
+    const option: UILabelChart = this.uiOption as UILabelChart;
     option.showLabel = show;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {showLabel: option.showLabel});
+    this.uiOption = (_.extend({}, this.uiOption, {showLabel: option.showLabel}) as UIOption);
     this.update();
   }
 
@@ -1093,19 +1153,18 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiChangeColor(): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
-    let isColor: boolean = !option.positiveNegativeColor;
+    const option: UILabelChart = this.uiOption as UILabelChart;
+    const isColor: boolean = !option.positiveNegativeColor;
 
     if (isColor) {
       option.positiveNegativeColor = {
         positiveColor: '#08b496',
         negativeColor: '#eb5f53'
       };
-    }
-    else {
+    } else {
       delete option.positiveNegativeColor;
     }
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {positiveNegativeColor: option.positiveNegativeColor});
+    this.uiOption = (_.extend({}, this.uiOption, {positiveNegativeColor: option.positiveNegativeColor}) as UIOption);
     this.update();
   }
 
@@ -1114,9 +1173,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param color
    */
   public kpiChangePositiveColor(color: string): void {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     option.positiveNegativeColor.positiveColor = color;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {positiveNegativeColor: option.positiveNegativeColor});
+    this.uiOption = (_.extend({}, this.uiOption, {positiveNegativeColor: option.positiveNegativeColor}) as UIOption);
     this.update();
   }
 
@@ -1125,9 +1184,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param color
    */
   public kpiChangeNegativeColor(color: string): void {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     option.positiveNegativeColor.negativeColor = color;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {positiveNegativeColor: option.positiveNegativeColor});
+    this.uiOption = (_.extend({}, this.uiOption, {positiveNegativeColor: option.positiveNegativeColor}) as UIOption);
     this.update();
   }
 
@@ -1136,12 +1195,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiChangeIcon(): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
-    let showIcon: boolean = !option.icons[0].show;
+    const option: UILabelChart = this.uiOption as UILabelChart;
+    const showIcon: boolean = !option.icons[0].show;
     _.each(option.icons, (series) => {
       series.show = showIcon;
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {icons: option.icons});
+    this.uiOption = (_.extend({}, this.uiOption, {icons: option.icons}) as UIOption);
     this.update();
   }
 
@@ -1151,14 +1210,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiChangeIconType(iconType: string): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.icons, (series) => {
-      if (this.kpiIconTarget['value'] == '' || this.kpiIconTarget['value'] == series.seriesName) {
+      if (this.kpiIconTarget['value'] === '' || this.kpiIconTarget['value'] === series.seriesName) {
         series.show = true;
         series.iconType = iconType;
       }
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {icons: option.icons});
+    this.uiOption = (_.extend({}, this.uiOption, {icons: option.icons}) as UIOption);
     this.update();
   }
 
@@ -1167,17 +1226,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @returns {boolean}
    */
   public kpiIsIconAll(): boolean {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
-    let iconType: string = "";
+    const option: UILabelChart = this.uiOption as UILabelChart;
+    let iconType: string = '';
     let isAll: boolean = true;
     _.each(option.icons, (series) => {
-      const labelSeries: UILabelIcon = (<UILabelIcon>series);
+      const labelSeries: UILabelIcon = (series as UILabelIcon);
       if (!_.isUndefined(labelSeries.show)) {
-        let seriesIconType: string = labelSeries.iconType;
-        if (iconType == "") {
+        const seriesIconType: string = labelSeries.iconType;
+        if (iconType === '') {
           iconType = seriesIconType;
-        }
-        else if (iconType != seriesIconType) {
+        } else if (iconType !== seriesIconType) {
           isAll = false;
         }
       }
@@ -1190,17 +1248,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiGetIconTargetIndex(): number {
 
-    let isAll: boolean = this.kpiIsIconAll();
+    const isAll: boolean = this.kpiIsIconAll();
     return isAll ? 0 : 1;
   }
 
   /**
    * KPI - 아이콘 대상 변경
    */
-  public kpiChangeIconTarget(target: Object): void {
+  public kpiChangeIconTarget(target: object): void {
     this.kpiIconTarget = target;
-    if (this.kpiIconTarget['value'] == '') {
-      const option: UILabelChart = <UILabelChart>this.uiOption;
+    if (this.kpiIconTarget['value'] === '') {
+      const option: UILabelChart = this.uiOption as UILabelChart;
       this.kpiChangeIconType(option.icons[0].iconType);
     }
   }
@@ -1211,20 +1269,19 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiGetIconSelected(iconType: string): boolean {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
-    if (this.kpiIconTarget['value'] == '') {
-      if (iconType == option.icons[0].iconType
-        || (iconType == 'USER' && !option.icons[0].iconType)) {
+    const option: UILabelChart = this.uiOption as UILabelChart;
+    if (this.kpiIconTarget['value'] === '') {
+      if (iconType === option.icons[0].iconType
+        || (iconType === 'USER' && !option.icons[0].iconType)) {
         return true;
       }
       return false;
-    }
-    else {
-      const labelSeries: UILabelIcon[] = (<UILabelIcon[]>option.icons);
-      for (let num = 0; num < labelSeries.length; num++) {
-        if (labelSeries[num].seriesName == this.kpiIconTarget['value']) {
-          if (iconType == labelSeries[num].iconType
-            || (iconType == 'USER' && !labelSeries[num].iconType)) {
+    } else {
+      const labelSeries: UILabelIcon[] = (option.icons as UILabelIcon[]);
+      for (let num = 0, nMax = labelSeries.length; num < nMax; num++) {
+        if (labelSeries[num].seriesName === this.kpiIconTarget['value']) {
+          if (iconType === labelSeries[num].iconType
+            || (iconType === 'USER' && !labelSeries[num].iconType)) {
             return true;
           }
           return false;
@@ -1238,23 +1295,22 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public kpiChangeText(): void {
 
-    const option: UILabelChart = <UILabelChart>this.uiOption;
-    let show: boolean = !option.annotations[0].show;
+    const option: UILabelChart = this.uiOption as UILabelChart;
+    const show: boolean = !option.annotations[0].show;
     if (show) {
-      this.kpiText = "";
+      this.kpiText = '';
       this.kpiTextTemp = this.kpiText;
     }
     _.each(option.annotations, (series) => {
       if (show) {
-        series.description = "";
+        series.description = '';
         series.show = true;
-      }
-      else {
+      } else {
         delete series.description;
         series.show = false;
       }
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {annotations: option.annotations});
+    this.uiOption = (_.extend({}, this.uiOption, {annotations: option.annotations}) as UIOption);
     this.update();
   }
 
@@ -1263,17 +1319,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @returns {boolean}
    */
   public kpiIsTextAll(): boolean {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     let text: string;
     let isAll: boolean = true;
     _.each(option.annotations, (series) => {
-      const labelSeries: UILabelAnnotation = (<UILabelAnnotation>series);
+      const labelSeries: UILabelAnnotation = (series as UILabelAnnotation);
       if (!_.isUndefined(labelSeries.show)) {
-        let seriesText: string = labelSeries.description;
+        const seriesText: string = labelSeries.description;
         if (_.isUndefined(text)) {
           text = seriesText;
-        }
-        else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
+        } else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
           isAll = false;
         }
       }
@@ -1286,18 +1341,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @returns {boolean}
    */
   public kpiTextIndex(): number {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     let text: string;
     let index: number = 0;
-    _.each(option.annotations, (series, index) => {
-      const labelSeries: UILabelAnnotation = (<UILabelAnnotation>series);
+    _.each(option.annotations, (series, annIdx) => {
+      const labelSeries: UILabelAnnotation = (series as UILabelAnnotation);
       if (!_.isUndefined(labelSeries.show)) {
-        let seriesText: string = labelSeries.description;
+        const seriesText: string = labelSeries.description;
         if (_.isUndefined(text)) {
           text = seriesText;
-        }
-        else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
-          index = index;
+        } else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
+          index = annIdx;
         }
       }
     });
@@ -1317,18 +1371,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /**
    * KPI - 설명 대상 변경
    */
-  public kpiChangeTextTarget(target: Object): void {
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+  public kpiChangeTextTarget(target: object): void {
+    const option: UILabelChart = this.uiOption as UILabelChart;
     this.kpiTextTarget = target;
-    if (this.kpiTextTarget['value'] == '') {
-      this.kpiText = option.annotations[0].description ? option.annotations[0].description : "";
+    if (this.kpiTextTarget['value'] === '') {
+      this.kpiText = option.annotations[0].description ? option.annotations[0].description : '';
       this.kpiTextTemp = this.kpiText;
-    }
-    else {
-      const labelSeries: UILabelAnnotation[] = (<UILabelAnnotation[]>option.annotations);
-      for (let num = 0; num < labelSeries.length; num++) {
-        if (labelSeries[num].seriesName == this.kpiTextTarget['value']) {
-          this.kpiText = labelSeries[num].description ? labelSeries[num].description : "";
+    } else {
+      const labelSeries: UILabelAnnotation[] = (option.annotations as UILabelAnnotation[]);
+      for (let num = 0, nMax = labelSeries.length; num < nMax; num++) {
+        if (labelSeries[num].seriesName === this.kpiTextTarget['value']) {
+          this.kpiText = labelSeries[num].description ? labelSeries[num].description : '';
           this.kpiTextTemp = this.kpiText;
           break;
         }
@@ -1343,13 +1396,13 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public kpiApplyText(): void {
 
     this.kpiText = this.kpiTextTemp;
-    const option: UILabelChart = <UILabelChart>this.uiOption;
+    const option: UILabelChart = this.uiOption as UILabelChart;
     _.each(option.annotations, (series) => {
-      if (this.kpiTextTarget['value'] == '' || this.kpiTextTarget['value'] == series.seriesName) {
+      if (this.kpiTextTarget['value'] === '' || this.kpiTextTarget['value'] === series.seriesName) {
         series.description = this.kpiText;
       }
     });
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {annotations: option.annotations});
+    this.uiOption = (_.extend({}, this.uiOption, {annotations: option.annotations}) as UIOption);
     this.update();
   }
 
@@ -1363,12 +1416,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public showValueColumn(show: boolean): void {
 
-    (<UIGridChart>this.uiOption).contentStyle = (<UIGridChart>this.uiOption).contentStyle ? (<UIGridChart>this.uiOption).contentStyle : {};
-    (<UIGridChart>this.uiOption).contentStyle.showHeader = show;
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {contentStyle: (<UIGridChart>this.uiOption).contentStyle});
+    (this.uiOption as UIGridChart).contentStyle = (this.uiOption as UIGridChart).contentStyle ? (this.uiOption as UIGridChart).contentStyle : {};
+    (this.uiOption as UIGridChart).contentStyle.showHeader = show;
+    this.uiOption = (_.extend({}, this.uiOption, {contentStyle: (this.uiOption as UIGridChart).contentStyle}) as UIOption);
 
     // 원본보기인경우 show value column false일때 alert 표시하고 off되지않게 설정
-    // if (GridViewType.MASTER == (<UIGridChart>this.uiOption).dataType && (<UIGridChart>this.uiOption).dataType && !show) {
+    // if (GridViewType.MASTER === (<UIGridChart>this.uiOption).dataType && (<UIGridChart>this.uiOption).dataType && !show) {
     //
     //   this.changeDetect.detectChanges();
     //
@@ -1386,9 +1439,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param {number} limit
    * @param {boolean} isLimitCheck
    */
-  public onLimitChange(limit: number, isLimitCheck?:boolean): void {
+  public onLimitChange(limit: number, isLimitCheck?: boolean): void {
 
-    if( !isNullOrUndefined(isLimitCheck) ) {
+    if (!this.isNullOrUndefined(isLimitCheck)) {
       this.uiOption.limitCheck = isLimitCheck;
     }
 
@@ -1396,6 +1449,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     // limit값이 null인경우 limitCheck값 false로 설정
     if (_.isNull(limit)) this.uiOption.limitCheck = false;
+
+    if (2 > limit) {
+      this.uiOption.limit = this._prevLimit;
+      this.safelyDetectChanges();
+      return;
+    }
 
     this._setLimit(limit);
     this.update({});
@@ -1406,7 +1465,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public addAnnotation(): void {
 
-    const uiOption = (<UIGridChart>this.uiOption);
+    const uiOption = (this.uiOption as UIGridChart);
 
     // annotation 최초설정시
     if (!uiOption.annotation) {
@@ -1420,7 +1479,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
       uiOption.annotation = null;
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {annotation: uiOption.annotation});
+    this.uiOption = (_.extend({}, this.uiOption, {annotation: uiOption.annotation}) as UIOption);
 
     this.update();
   }
@@ -1432,10 +1491,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     if (!param.label || _.isEmpty(param.label)) return;
 
-    const annotation = _.cloneDeep((<UIGridChart>this.uiOption).annotation);
+    const annotation = _.cloneDeep((this.uiOption as UIGridChart).annotation);
     annotation.label = param.label;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {annotation: annotation});
+    this.uiOption = (_.extend({}, this.uiOption, {annotation: annotation}) as UIOption);
     this.update();
   }
 
@@ -1444,9 +1503,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changePosition(position: any): void {
 
-    const annotation = _.cloneDeep((<UIGridChart>this.uiOption).annotation);
+    const annotation = _.cloneDeep((this.uiOption as UIGridChart).annotation);
     annotation.pos = position['value'];
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {annotation: annotation});
+    this.uiOption = (_.extend({}, this.uiOption, {annotation: annotation}) as UIOption);
     this.update();
   }
 
@@ -1457,7 +1516,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public getPositionIndex(): number {
 
     return _.findIndex(this.remarkPositionList, (item) => {
-      return item['value'] == this.uiOption['annotation']['pos']
+      return item['value'] === this.uiOption['annotation']['pos']
     });
   }
 
@@ -1466,7 +1525,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeFontSize(fontSize: FontSize): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {fontSize: fontSize});
+    this.uiOption = (_.extend({}, this.uiOption, {fontSize: fontSize}) as UIOption);
 
     this.update();
   }
@@ -1481,12 +1540,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
     // 헤더의 폰트사이즈 변경시
     if (headerFl) {
 
-      (<UIGridChart>this.uiOption).headerStyle.fontSize = fontSize;
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {headerStyle: (<UIGridChart>this.uiOption).headerStyle});
+      (this.uiOption as UIGridChart).headerStyle.fontSize = fontSize;
+      this.uiOption = (_.extend({}, this.uiOption, {headerStyle: (this.uiOption as UIGridChart).headerStyle}) as UIOption);
       // 본문의 폰트사이즈 변경시
     } else {
-      (<UIGridChart>this.uiOption).contentStyle.fontSize = fontSize;
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {contentStyle: (<UIGridChart>this.uiOption).contentStyle});
+      (this.uiOption as UIGridChart).contentStyle.fontSize = fontSize;
+      this.uiOption = (_.extend({}, this.uiOption, {contentStyle: (this.uiOption as UIGridChart).contentStyle}) as UIOption);
     }
 
     this.update();
@@ -1497,16 +1556,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public gridColorByMeasure(target: CellColorTarget): void {
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+    this.uiOption = (_.extend({}, this.uiOption, {
       color: {
         type: this.uiOption.color.type,
         colorTarget: target,
-        schema: (<UIChartColorByCell>this.uiOption.color).schema,
-        ranges: (<UIChartColorByValue>this.uiOption.color).ranges,
-        visualGradations: (<UIChartColorGradationByValue>this.uiOption.color).visualGradations,
-        customMode: (<UIChartColorByValue>this.uiOption.color).customMode
+        schema: (this.uiOption.color as UIChartColorByCell).schema,
+        ranges: (this.uiOption.color as UIChartColorByValue).ranges,
+        visualGradations: (this.uiOption.color as UIChartColorGradationByValue).visualGradations,
+        customMode: (this.uiOption.color as UIChartColorByValue).customMode
       }
-    });
+    }) as UIOption);
 
     this.update();
   }
@@ -1520,11 +1579,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     // 헤더에 설정시
     if (headerFl) {
-      let headerStyle = _.cloneDeep((<UIGridChart>this.uiOption).headerStyle);
+      const headerStyle = _.cloneDeep((this.uiOption as UIGridChart).headerStyle);
       if (!headerStyle.fontStyles) headerStyle.fontStyles = [];
 
       // 없는경우 리스트에 추가
-      if (-1 == headerStyle.fontStyles.indexOf(fontStyle)) {
+      if (-1 === headerStyle.fontStyles.indexOf(fontStyle)) {
         headerStyle.fontStyles.push(fontStyle);
 
         // 이미존재하는경우 리스트에서 제거
@@ -1532,16 +1591,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
         headerStyle.fontStyles.splice(headerStyle.fontStyles.indexOf(fontStyle), 1);
       }
 
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {headerStyle: headerStyle});
+      this.uiOption = (_.extend({}, this.uiOption, {headerStyle: headerStyle}) as UIOption);
       // 본문에 설정시
     } else {
 
-      let contentStyle = _.cloneDeep((<UIGridChart>this.uiOption).contentStyle);
+      const contentStyle = _.cloneDeep((this.uiOption as UIGridChart).contentStyle);
 
       if (!contentStyle.fontStyles) contentStyle.fontStyles = [];
 
       // 없는경우 리스트에 추가
-      if (-1 == contentStyle.fontStyles.indexOf(fontStyle)) {
+      if (-1 === contentStyle.fontStyles.indexOf(fontStyle)) {
         contentStyle.fontStyles.push(fontStyle);
 
         // 이미존재하는경우 리스트에서 제거
@@ -1549,7 +1608,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
         contentStyle.fontStyles.splice(contentStyle.fontStyles.indexOf(fontStyle), 1);
       }
 
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {contentStyle: contentStyle});
+      this.uiOption = (_.extend({}, this.uiOption, {contentStyle: contentStyle}) as UIOption);
     }
 
     this.update();
@@ -1560,11 +1619,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeShowHeader(showHeader: boolean): void {
 
-    let headerStyle = _.cloneDeep((<UIGridChart>this.uiOption).headerStyle);
+    const headerStyle = _.cloneDeep((this.uiOption as UIGridChart).headerStyle);
 
     headerStyle.showHeader = showHeader;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {headerStyle: headerStyle});
+    this.uiOption = (_.extend({}, this.uiOption, {headerStyle: headerStyle}) as UIOption);
 
     this.update();
   }
@@ -1574,9 +1633,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeContentFontColor(fontColor: any): void {
 
-    (<UIGridChart>this.uiOption).contentStyle.fontColor = fontColor;
+    (this.uiOption as UIGridChart).contentStyle.fontColor = fontColor;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {contentStyle: (<UIGridChart>this.uiOption).contentStyle});
+    this.uiOption = (_.extend({}, this.uiOption, {contentStyle: (this.uiOption as UIGridChart).contentStyle}) as UIOption);
     this.update();
   }
 
@@ -1586,9 +1645,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeHeaderFontColor(fontColor: any): void {
 
-    (<UIGridChart>this.uiOption).headerStyle.fontColor = fontColor;
+    (this.uiOption as UIGridChart).headerStyle.fontColor = fontColor;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {headerStyle: (<UIGridChart>this.uiOption).headerStyle});
+    this.uiOption = (_.extend({}, this.uiOption, {headerStyle: (this.uiOption as UIGridChart).headerStyle}) as UIOption);
     this.update();
   }
 
@@ -1598,9 +1657,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeHeaderBackgroundColor(fontColor: any): void {
 
-    (<UIGridChart>this.uiOption).headerStyle.backgroundColor = fontColor;
+    (this.uiOption as UIGridChart).headerStyle.backgroundColor = fontColor;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {headerStyle: (<UIGridChart>this.uiOption).headerStyle});
+    this.uiOption = (_.extend({}, this.uiOption, {headerStyle: (this.uiOption as UIGridChart).headerStyle}) as UIOption);
     this.update();
   }
 
@@ -1609,7 +1668,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public showWaterfallBarColor(): void {
 
-    let barColor = (<UIWaterfallChart>this.uiOption).barColor;
+    let barColor = (this.uiOption as UIWaterfallChart).barColor;
 
     // barColor가 있는경우
     if (barColor) {
@@ -1617,14 +1676,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
       barColor = null;
     } else {
 
-      let color: BarColor = {};
+      const color: BarColor = {};
       color.positive = WaterfallBarColor.POSITIVE.toString();
       color.negative = WaterfallBarColor.NEGATIVE.toString();
 
       barColor = color;
     }
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {barColor: barColor});
+    this.uiOption = (_.extend({}, this.uiOption, {barColor: barColor}) as UIOption);
     this.update();
   }
 
@@ -1634,11 +1693,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeWaterfallPositiveColor(color: any): void {
 
-    let barColor = (<UIWaterfallChart>this.uiOption).barColor;
+    const barColor = (this.uiOption as UIWaterfallChart).barColor;
 
     barColor.positive = color;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {barColor: barColor});
+    this.uiOption = (_.extend({}, this.uiOption, {barColor: barColor}) as UIOption);
     this.update();
   }
 
@@ -1648,11 +1707,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
    */
   public changeWaterfallNegativeColor(color: any): void {
 
-    let barColor = (<UIWaterfallChart>this.uiOption).barColor;
+    const barColor = (this.uiOption as UIWaterfallChart).barColor;
 
     barColor.negative = color;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {barColor: barColor});
+    this.uiOption = (_.extend({}, this.uiOption, {barColor: barColor}) as UIOption);
     this.update();
   }
 
@@ -1664,13 +1723,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * @param limit
    * @private
    */
-  private _setLimit( limit:number ) {
+  private _setLimit(limit: number) {
     // limit값이 체크되고 size값이 없는경우 기본값 설정
     if (this.uiOption.limitCheck) {
-      this.uiOption.limit = ( limit ) ? limit : OptionGenerator.defaultLimit( this.uiOption.type );
+      this.uiOption.limit = (limit) ? limit : OptionGenerator.defaultLimit(this.uiOption.type);
     } else {
       this.uiOption.limit = undefined;
     }
+    this._prevLimit = this.uiOption.limit;
     this.safelyDetectChanges();
   } // function - _setLimit
 

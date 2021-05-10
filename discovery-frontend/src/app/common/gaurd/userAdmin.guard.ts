@@ -12,19 +12,20 @@
  * limitations under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs';
-import { SYSTEM_PERMISSION } from '../permission/permission';
-import { CommonUtil } from '../util/common.util';
+import {Injectable} from '@angular/core';
+import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from '@angular/router';
+import {Observable} from 'rxjs';
+import {SYSTEM_PERMISSION} from '../permission/permission';
+import {CommonUtil} from '../util/common.util';
 
 @Injectable()
 export class UserAdminGuard implements CanActivate {
-  constructor() {}
+  constructor() {
+  }
 
-  canActivate(next: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+  canActivate(_next: ActivatedRouteSnapshot,
+              _state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     // 로그인 사용자 판별 후 권한 체크
-    return CommonUtil.isValidPermissions([SYSTEM_PERMISSION.MANAGE_SYSTEM,SYSTEM_PERMISSION.MANAGE_USER]);
+    return CommonUtil.isValidPermissions([SYSTEM_PERMISSION.MANAGE_SYSTEM, SYSTEM_PERMISSION.MANAGE_USER]);
   }
 }

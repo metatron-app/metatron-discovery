@@ -1,21 +1,21 @@
-import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {DatasourceInfo} from "../../../../domain/datasource/datasource";
+import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {CommonConstant} from '@common/constant/common.constant';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo} from '@domain/datasource/datasource';
+import {PrDataSnapshot, SsType} from '@domain/data-preparation/pr-snapshot';
 import {
   CreateSnapShotData,
   DataSourceCreateService,
   TypeFilterObject
-} from "../../../service/data-source-create.service";
-import * as _ from 'lodash';
-import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
-import {CommonConstant} from "../../../../common/constant/common.constant";
-import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
+} from '../../../service/data-source-create.service';
+import {DataSnapshotService} from '../../../../data-preparation/data-snapshot/service/data-snapshot.service';
 
 @Component({
   selector: 'create-snapshot-source-select',
   templateUrl: './create-snapshot-source-select.component.html'
 })
-export class CreateSnapshotSourceSelectComponent extends AbstractPopupComponent {
+export class CreateSnapshotSourceSelectComponent extends AbstractPopupComponent implements OnInit {
 
   @Input('step')
   private _step: string;

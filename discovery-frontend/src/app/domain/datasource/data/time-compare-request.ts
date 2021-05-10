@@ -13,7 +13,7 @@
  */
 
 import {Field} from '../../workbook/configurations/field/field';
-import {SearchQueryRequest} from "./search-query-request";
+import {SearchQueryRequest} from './search-query-request';
 
 export class TimeCompareRequest extends SearchQueryRequest {
 

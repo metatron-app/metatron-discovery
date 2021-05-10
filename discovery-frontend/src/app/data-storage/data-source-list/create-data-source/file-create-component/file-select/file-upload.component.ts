@@ -12,20 +12,11 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import {FileResult, Sheet,} from "../../../../service/data-source-create.service";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo} from '@domain/datasource/datasource';
+import {FileResult, Sheet,} from '../../../../service/data-source-create.service';
 
 @Component({
   selector: 'file-upload',
@@ -160,7 +151,16 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
    */
   private _getConvertSheets(sheets: object): Sheet[] {
     return Object.keys(sheets).map(key => {
-      return sheets[key].valid ? {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning} : {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning, errorMessage: this.translateService.instant(`msg.storage.ui.file.result.${sheets[key].warning}`)};
+      return sheets[key].valid ? {
+        sheetName: key,
+        valid: sheets[key].valid,
+        warning: sheets[key].warning
+      } : {
+        sheetName: key,
+        valid: sheets[key].valid,
+        warning: sheets[key].warning,
+        errorMessage: this.translateService.instant(`msg.storage.ui.file.result.${sheets[key].warning}`)
+      };
     });
   }
 
@@ -199,12 +199,11 @@ export class FileUploadComponent extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _saveUploadData(sourceData: DatasourceInfo) {
-    const uploadData = {
+    sourceData.uploadData = {
       uploadedFile: this.uploadedFile,
       // file results
       fileResult: this.fileResult
     };
-    sourceData.uploadData = uploadData;
   }
 
   /**

@@ -160,7 +160,7 @@
             <em class="ddp-icon-status-inprogress" *ngIf="item.displayStatus === 'PREPARING'"></em>
           </td>
           <td>
-            <span *ngIf="getElapsedDay() > 0">{{getElapsedDay(item) + '일'}}</span>
+            <span *ngIf="getElapsedDay(item) > 0">{{getElapsedDay(item) + '일'}}</span>
             {{getElapsedTime(item)}}
           </td>
           <td class="ddp-data-last">

@@ -12,18 +12,11 @@
  * limitations under the License.
  */
 
-/**
- * Created by paige on 2017. 7. 17..
- */
-
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
-import 'rxjs/add/operator/toPromise';
-import { NoteBook } from '../../domain/notebook/notebook';
-import { Page } from '../../domain/common/page';
-import { CommonUtil } from '../../common/util/common.util';
-import { NotebookModel } from '../../domain/model-management/notebookModel';
-import { CookieConstant } from '../../common/constant/cookie.constant';
+import {Injectable, Injector} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {NoteBook} from '@domain/notebook/notebook';
+import {NotebookModel} from '@domain/model-management/notebookModel';
 
 @Injectable()
 export class NotebookService extends AbstractService {
@@ -83,7 +76,6 @@ export class NotebookService extends AbstractService {
     return this.get(url + '?projection=' + projection);
   }
 
-
   // 노트북 모델 요청
   public setNotebookModelRequest(notebookModel: NotebookModel, workspaceId: string, notebookId: string) {
     const params = {
@@ -129,7 +121,7 @@ export class NotebookService extends AbstractService {
 
   // 노트북 실행
   public runNotebookApi(param: any) {
-    console.info('param', param);
+    console.log('param', param);
     if (param.returnType.toString() === 'HTML') {
       return this.getHTML(param.url);
     } else if (param.returnType.toString() === 'JSON') {

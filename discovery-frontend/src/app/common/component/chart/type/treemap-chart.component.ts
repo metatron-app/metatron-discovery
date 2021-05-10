@@ -16,14 +16,13 @@
  * Created by Dolkkok on 2017. 9. 5..
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {
-  CHART_STRING_DELIMITER,
   ChartColorList,
   ChartColorType,
   ChartSelectMode,
   ChartType,
-  ColorCustomMode,
+  ColorCustomMode, Position,
   SeriesType,
   ShelveFieldType,
   ShelveType,
@@ -32,7 +31,7 @@ import {
 } from '../option/define/common';
 import {OptionGenerator} from '../option/util/option-generator';
 import * as _ from 'lodash';
-import {Pivot} from '../../../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {BaseOption} from '../option/base-option';
 import {BaseChart, ChartSelectInfo, PivotTableInfo} from '../base-chart';
 import {UIChartFormat} from '../option/ui-option/ui-format';
@@ -40,8 +39,8 @@ import {UIChartColorBySeries, UIOption} from '../option/ui-option';
 import {FormatOptionConverter} from '../option/converter/format-option-converter';
 import {Series} from '../option/define/series';
 import {UIChartDataLabel} from '../option/ui-option/ui-datalabel';
-import {Field} from '../../../../domain/workbook/configurations/field/field';
-import {UIChartColor, UIChartColorByValue, UIChartColorGradationByValue} from '../option/ui-option/ui-color';
+import {Field} from '@domain/workbook/configurations/field/field';
+import {UIChartColor} from '../option/ui-option/ui-color';
 import {ColorOptionConverter} from '../option/converter/color-option-converter';
 import Tooltip = OptionGenerator.Tooltip;
 
@@ -49,7 +48,7 @@ import Tooltip = OptionGenerator.Tooltip;
   selector: 'treemap-chart',
   template: '<div class="chartCanvas" style="width: 100%; height: 100%; display: block;"></div>'
 })
-export class TreeMapChartComponent extends BaseChart implements OnInit, AfterViewInit {
+export class TreeMapChartComponent extends BaseChart<UIOption> implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -109,11 +108,11 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
    * @param shelve
    */
   public isValid(shelve: Pivot): boolean {
-    return (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) == 1 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) == 0)
-      && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) == 1)
-      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) == 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED) == 0)
-      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0)
+    return (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.DIMENSION) === 1 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.TIMESTAMP) === 0)
+      && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) === 1)
+      && (this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.COLUMNS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.MEASURE) === 0 && this.getFieldTypeCount(shelve, ShelveType.ROWS, ShelveFieldType.CALCULATED) === 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) === 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) === 0)
   }
 
   /**
@@ -141,7 +140,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     this.chart.on('click', (params) => {
 
       if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
-        let strScript = '(' + this.userCustomFunction + ')';
+        const strScript = '(' + this.userCustomFunction + ')';
         // ( new Function( 'return ' + strScript ) )();
         try {
           if (eval(strScript)({name: 'SelectionEvent', data: params ? params.name : ''})) {
@@ -230,7 +229,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   protected convertSeriesData(): BaseOption {
 
     // data가 1개 이상인경우 children으로 묶어주기
-    let value = this.data.columns[0].value;
+    const value = this.data.columns[0].value;
 
     // 시리즈 설정
     this.chartOption.series = [{
@@ -285,7 +284,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     if (!label) return this.chartOption;
 
@@ -294,7 +293,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     if (!label.hAlign) label.hAlign = UIPosition.CENTER;
     if (!label.vAlign) label.vAlign = UIPosition.CENTER;
@@ -335,7 +334,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         option.label = {normal: {}}
       }
 
-      option.label.normal.position = <any>align;
+      option.label.normal.position = align as Position;
     });
 
     // 반환
@@ -351,7 +350,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
 
     this.chartOption.tooltip.formatter = ((params): any => {
 
-      let option = this.chartOption.series[params.seriesIndex];
+      const option = this.chartOption.series[params.seriesIndex];
 
       let uiData = _.cloneDeep(option.uiData);
       // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
@@ -395,7 +394,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
     _.each(series, (option) => {
@@ -440,7 +439,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
 
       // UI 데이터 가공
       let isUiData: boolean = false;
-      let result: string[] = [];
+      const result: string[] = [];
       if (-1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
         result.push(params.name);
@@ -458,13 +457,13 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         isUiData = true;
       }
 
-      let label: string = "";
+      let label: string = '';
 
       // UI 데이터기반 레이블 반환
       if (isUiData) {
         for (let num: number = 0; num < result.length; num++) {
           if (num > 0) {
-            label += "\n";
+            label += '\n';
           }
           if (series.label && series.label.normal && series.label.normal.rich) {
             label += '{align|' + result[num] + '}';
@@ -487,13 +486,14 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
   /**
    * 트리맵의 포멧툴팁 설정
    * @param params
-   * @param format
    * @param uiOption
-   * @param series
+   * @param fieldInfo
+   * @param format
+   * @param _series
    * @param uiData
    * @returns {any}
    */
-  private getFormatTreemapValueTooltip(params: any, uiOption: UIOption, fieldInfo: PivotTableInfo, format: UIChartFormat, series?: any, uiData?: any): string {
+  private getFormatTreemapValueTooltip(params: any, uiOption: UIOption, fieldInfo: PivotTableInfo, format: UIChartFormat, _series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
     if (uiData) {
@@ -508,7 +508,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         let pivotTarget: Field[] = [];
 
         // 1depth의 경우 columns에서 선반 target 설정
-        if (1 == params.data.depth) {
+        if (1 === params.data.depth) {
           pivotTarget = this.pivot.columns;
 
           // 2depth이후의 경우 rows에서 선반 target 설정
@@ -520,12 +520,12 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
       }
       if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
-        let seriesValueName = this.pivot.aggregations[0].alias;
+        const seriesValueName = this.pivot.aggregations[0].alias;
         let seriesValue = FormatOptionConverter.getTooltipValue(seriesValueName, this.pivot.aggregations, format, params.value);
 
         // series percent가 있는경우
         if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
-          let value = Math.floor(Number(params.data.percentage) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
+          const value = Math.floor(Number(params.data.percentage) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
 
           seriesValue += ' (' + value + '%)';
         }
@@ -536,9 +536,9 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
       if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
 
         // series value가 선택된지 않은경우
-        if (-1 == uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
+        if (-1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
-          let seriesValueName = this.pivot.aggregations[0].alias;
+          const seriesValueName = this.pivot.aggregations[0].alias;
           let seriesValue = FormatOptionConverter.getTooltipValue(seriesValueName, this.pivot.aggregations, format, params.data.percentage);
 
           seriesValue += '%';
@@ -547,7 +547,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
         }
       }
 
-      return result.join("<br/>");
+      return result.join('<br/>');
     }
 
     return FormatOptionConverter.noUIDataFormatTooltip(uiOption, params, format, fieldInfo);
@@ -575,14 +575,14 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
           1
         ];
 
-        let levels = [];
+        const levels = [];
 
         for (let index = 0; index <= depthValue; index++) {
           levels.push({colorAlpha: colorAlpha, visualMin: 0});
         }
 
-        let schema = (<UIChartColorBySeries>this.uiOption.color).schema;
-        let codes = _.cloneDeep(ChartColorList[schema]);
+        const schema = (this.uiOption.color as UIChartColorBySeries).schema;
+        const codes = _.cloneDeep(ChartColorList[schema]);
 
         // series안에 depth의 개수만큼 levels리스트에 colorAlpha 적용
         _.each(chartOption.series, (option) => {
@@ -603,7 +603,7 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
       case ChartColorType.MEASURE: {
 
         // gradation일때
-        if (uiOption.color['customMode'] && ColorCustomMode.GRADIENT == uiOption.color['customMode']) {
+        if (uiOption.color['customMode'] && ColorCustomMode.GRADIENT === uiOption.color['customMode']) {
 
           chartOption = ColorOptionConverter.convertColorByValueGradation(chartOption, uiOption);
           // 그이외의 경우일떄

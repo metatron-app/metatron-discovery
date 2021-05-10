@@ -13,13 +13,13 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {ColumnDictionaryService} from '../service/column-dictionary.service';
-import {Alert} from '../../../common/util/alert.util';
-import {CommonUtil} from '../../../common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {FieldFormat, FieldFormatType} from '@domain/datasource/datasource';
 import {ChooseCodeTableComponent} from '../../component/choose-code-table/choose-code-table.component';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
-import {FieldFormat, FieldFormatType} from '../../../domain/datasource/datasource';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {ColumnDictionaryService} from '../service/column-dictionary.service';
 
 @Component({
   selector: 'app-create-column-dictionary',
@@ -159,9 +159,9 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
    */
   public onClickDone(): void {
     // validation 체크 & 논리명 중복되는지 확인 후 컬럼 사전 생성
-    if( this._doneValidation() ) {
-      this.doneLogicNameValidation().then( isOk => {
-        ( isOk ) && (this._createColumnDictionary());
+    if (this._doneValidation()) {
+      this.doneLogicNameValidation().then(isOk => {
+        (isOk) && (this._createColumnDictionary());
       });
     }
   }
@@ -226,7 +226,7 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     this.selectedCodeTable = codeTable;
   }
 
-  public doneLogicNameValidation():Promise<boolean> {
+  public doneLogicNameValidation(): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       // 논리명 비어있는지 확인
       if (this.logicalName.trim() === '') {
@@ -265,7 +265,7 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     });
   }
 
-  public doneColNameValidation():boolean {
+  public doneColNameValidation(): boolean {
     // 컬럼명 비어있는지 확인
     if (this.columnName.trim() === '') {
       // message
@@ -285,7 +285,7 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     return true;
   }
 
-  public doneShortNameValidation():boolean {
+  public doneShortNameValidation(): boolean {
     // 약어가 자리수 계산
     if (CommonUtil.getByte(this.shortName.trim()) > 150) {
       // message
@@ -297,7 +297,7 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     return true;
   }
 
-  public doneDescValidation():boolean {
+  public doneDescValidation(): boolean {
     // 설명 자리수 계산
     if (CommonUtil.getByte(this.description.trim()) > 150) {
       // message

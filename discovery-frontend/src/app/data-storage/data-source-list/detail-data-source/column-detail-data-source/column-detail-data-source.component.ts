@@ -12,31 +12,43 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {isUndefined} from 'util';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
   ViewChild,
   ViewChildren
 } from '@angular/core';
-import { Stats } from '../../../../domain/datasource/stats';
-import { DatasourceService } from '../../../../datasource/service/datasource.service';
-import * as _ from 'lodash';
-import { Covariance } from '../../../../domain/datasource/covariance';
+import {StringUtil} from '@common/util/string.util';
 import {
   ConnectionType,
   Datasource,
   Field,
   FieldFormat,
-  FieldFormatType, FieldRole, LogicalType
-} from '../../../../domain/datasource/datasource';
-import { Metadata } from '../../../../domain/meta-data-management/metadata';
-import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
-import { isUndefined } from 'util';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
-import { EditConfigSchemaComponent } from './edit-config-schema.component';
-import {TimezoneService} from "../../../service/timezone.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
+  FieldFormatType,
+  FieldRole,
+  LogicalType
+} from '@domain/datasource/datasource';
+import {Stats} from '@domain/datasource/stats';
+import {Covariance} from '@domain/datasource/covariance';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {MetadataColumn} from '@domain/meta-data-management/metadata-column';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {DataSourceCreateService, TypeFilterObject} from '../../../service/data-source-create.service';
+import {TimezoneService} from '../../../service/timezone.service';
+import {EditFilterDataSourceComponent} from '../edit-filter-data-source.component';
+import {EditConfigSchemaComponent} from './edit-config-schema.component';
 
 declare let echarts: any;
 
@@ -47,7 +59,7 @@ declare let echarts: any;
   selector: 'column-detail-datasource',
   templateUrl: './column-detail-data-source.component.html'
 })
-export class ColumnDetailDataSourceComponent extends AbstractComponent implements OnChanges {
+export class ColumnDetailDataSourceComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('histogram')
   private _histogram: ElementRef;
@@ -255,8 +267,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     if (list && list.length > 10) {
       list = list.sort((a, b) => {
         return a.count > b.count ? -1 : a.count < b.count ? 1 : 0;
-      }).slice(0,9);
-      list.push({value:this.translateService.instant('msg.storage.ui.dsource.detail.column.etc')});
+      }).slice(0, 9);
+      list.push({value: this.translateService.instant('msg.storage.ui.dsource.detail.column.etc')});
     }
     return list;
   }
@@ -323,7 +335,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   /**
    * Role type filter change event
-   * @param type
+   * @param filter
    */
   public onChangeRoleTypeFilter(filter: TypeFilterObject): void {
     if (this.selectedRoleTypeFilter.value !== filter.value) {
@@ -336,7 +348,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   /**
    * Type filter change event
-   * @param type
+   * @param filter
    */
   public onChangeLogicalTypeFilter(filter: TypeFilterObject): void {
     if (this.selectedLogicalTypeFilter.value !== filter.value) {
@@ -384,7 +396,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
         this.loadingShow();
         // get stats data
         this._getFieldStats(field, engineName)
-          .then((stats) => {
+          .then(() => {
             // loading hide
             this.loadingHide();
             // update histogram chart
@@ -397,7 +409,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       }
 
       // if role is MEASURE and field name not existed in covarianceData
-      if (field.role === FieldRole.MEASURE && field.type != 'ARRAY' && field.type != 'HASHED_MAP' && !this.covarianceData.hasOwnProperty(field.name)) {
+      if (field.role === FieldRole.MEASURE && field.type !== 'ARRAY' && field.type !== 'HASHED_MAP' && !this.covarianceData.hasOwnProperty(field.name)) {
         // loading show
         this.loadingShow();
         // get covariance data
@@ -476,14 +488,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
         {
           type: 'value',
           splitNumber: 3,
-          splitLine: { show: false },
+          splitLine: {show: false},
         }
       ],
       series: [
         {
           type: 'bar',
           barWidth: '70%',
-          itemStyle: { normal: { color: '#c1cef1' }, emphasis : {color : '#666eb2'}},
+          itemStyle: {normal: {color: '#c1cef1'}, emphasis: {color: '#666eb2'}},
           data: []
         }
       ]
@@ -535,7 +547,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @private
    */
   private _setMetaDataField(field: Field): void {
-    const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {'physicalName': field.name});
+    const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {physicalName: field.name});
     // code table
     field['codeTable'] = fieldMetaData.codeTable;
     // dictionary
@@ -547,7 +559,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @private
    */
   private _updateFilteredColumnList(): void {
-    this.filteredColumnList =  this.datasource.fields.filter(field => (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
+    this.filteredColumnList = this.datasource.fields.filter(field => (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
       && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : (this.selectedLogicalTypeFilter.value === LogicalType.USER_DEFINED && field.logicalType === LogicalType.STRING ? true : this.selectedLogicalTypeFilter.value === field.logicalType))
       && (StringUtil.isEmpty(this.searchTextKeyword) ? true : field.name.toUpperCase().includes(this.searchTextKeyword.toUpperCase().trim())));
   }
@@ -572,11 +584,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       };
       // modify field to leave only name and type properties
       params.fields = params.fields.map((field) => {
-        const temp = {
+        return {
           name: field.name,
           type: field.role.toLowerCase()
         };
-        return temp;
       });
       // get stats data
       this.datasourceService.getFieldStats(params)
@@ -746,22 +757,22 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     }
   }
 
-  /**
-   * Get min max value
-   * @param {any[]} array
-   * @returns {{minValue: any; maxValue: any}}
-   * @private
-   */
-  private _getMinMaxValue(array: any[]) {
-    const min = Math.min.apply(null, array.map((item) => {
-      return item.value;
-    }));
-    const max = Math.max.apply(null, array.map((item) => {
-      return item.value;
-    }));
-
-    return { minValue: min, maxValue: max };
-  }
+  // /**
+  //  * Get min max value
+  //  * @param {any[]} array
+  //  * @returns {{minValue: any; maxValue: any}}
+  //  * @private
+  //  */
+  // private _getMinMaxValue(array: any[]) {
+  //   const min = Math.min.apply(null, array.map((item) => {
+  //     return item.value;
+  //   }));
+  //   const max = Math.max.apply(null, array.map((item) => {
+  //     return item.value;
+  //   }));
+  //
+  //   return {minValue: min, maxValue: max};
+  // }
 
 
   /**
@@ -909,11 +920,11 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       if (!_.isNil(pmf)) {
         pmf = this._getPmfList(pmf);
         // data
-        barOption.series[0].data = pmf.map((item, index) => {
+        barOption.series[0].data = pmf.map((item, _index) => {
           return item * count;
         });
         // xAxis
-        barOption.xAxis[0].data = pmf.map((item, index) => {
+        barOption.xAxis[0].data = pmf.map((_item, index) => {
           return index + 1;
         });
       }

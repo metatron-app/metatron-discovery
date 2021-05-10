@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../abstract.component';
-import { Modal } from '../../../domain/modal';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../../abstract.component';
+import {Modal} from '@common/domain/modal';
 
 @Component({
   selector: 'app-confirm-modal',
@@ -35,7 +35,7 @@ export class ConfirmModalComponent extends AbstractComponent implements OnInit, 
   public modal: Modal;
 
   // 변경 이벤트
-  @Output() public confirm =  new EventEmitter();
+  @Output() public confirm = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -73,6 +73,10 @@ export class ConfirmModalComponent extends AbstractComponent implements OnInit, 
     this.modal = modal;
   }
 
+  public close() {
+    this.isShow = false;
+  }
+
   // 데이터생성화면으로 이동 확인
   public done() {
     this.isShow = false;
@@ -87,8 +91,5 @@ export class ConfirmModalComponent extends AbstractComponent implements OnInit, 
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private close() {
-    this.isShow = false;
-  }
 
 }

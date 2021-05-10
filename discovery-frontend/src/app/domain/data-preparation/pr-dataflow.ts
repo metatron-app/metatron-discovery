@@ -12,11 +12,12 @@
 * limitations under the License.
 */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { PrDataset } from './pr-dataset';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {PrDataset} from './pr-dataset';
+
 /**
-* Created by paige on 18/7/17.
-*/
+ * Created by paige on 18/7/17.
+ */
 export class PrDataflow extends AbstractHistoryEntity {
 
   public dfId: string;
@@ -44,6 +45,7 @@ export class Upstream {
 
 export class Upstreams {
   private upstreams: Upstream[];
+
   public getList() {
     return this.upstreams;
   }

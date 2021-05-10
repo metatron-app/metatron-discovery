@@ -1,12 +1,12 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {StringUtil} from "../../../../common/util/string.util";
-import * as _ from "lodash";
-import {CommonUtil} from "../../../../common/util/common.util";
-import {Book} from "../../../../domain/workspace/book";
-import {Alert} from "../../../../common/util/alert.util";
-import {WorkbookService} from "../../../service/workbook.service";
-import {ExploreConstant} from "../../../../explore-data/constant/explore.constant";
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {StringUtil} from '@common/util/string.util';
+import * as _ from 'lodash';
+import {CommonUtil} from '@common/util/common.util';
+import {Book} from '@domain/workspace/book';
+import {Alert} from '@common/util/alert.util';
+import {WorkbookService} from '../../../service/workbook.service';
+import {ExploreConstant} from '../../../../explore-data/constant/explore.constant';
 
 @Component({
   selector: 'component-create-workbook',
@@ -100,7 +100,7 @@ export class CreateWorkbookComponent extends AbstractComponent {
   }
 
   private _getCreateWorkbookParams() {
-    const params: {workspace: string, name: string, type: 'workbook' | 'folder', description?: string, folderId?: string} = {
+    const params: { workspace: string, name: string, type: 'workbook' | 'folder', description?: string, folderId?: string } = {
       workspace: `/api/workspaces/${this.workspaceId}`,
       name: this.name.trim(),
       type: 'workbook'
@@ -140,12 +140,12 @@ export class CreateWorkbookComponent extends AbstractComponent {
 
   private _createWorkBook(): void {
     this.loadingShow();
-    this.workbookService.createWorkbook2(this._getCreateWorkbookParams()).then((result:Book) => {
+    this.workbookService.createWorkbook2(this._getCreateWorkbookParams()).then((result: Book) => {
       // this.createComplete.emit({ createDashboardFl: this.createDashboardFl, id: result['id'] });
       this.loadingHide();
       Alert.success(`'${result.name}’ ` + this.translateService.instant('msg.book.alert.create.workbook.success'));
       if (this.isAccessFromExplore) {
-        const params: {id: string, type: 'workbook'} = {
+        const params: { id: string, type: 'workbook' } = {
           type: 'workbook',
           id: this.sourceId,
         };
@@ -156,7 +156,7 @@ export class CreateWorkbookComponent extends AbstractComponent {
       this.completedPopup.emit(result.id);
       // close
       this.closePopup();
-    }).catch((error) => {
+    }).catch((_error) => {
       Alert.error(this.translateService.instant('msg.book.alert.create.workbook.fail'));
       this.loadingHide();
     });

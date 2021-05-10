@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Alert } from '../../../../../common/util/alert.util';
-import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
 import * as _ from 'lodash';
+import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
+import { Alert } from '@common/util/alert.util';
+import { EventBroadcaster } from '@common/event/event.broadcaster';
+import { AbstractComponent } from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-rule-context-menu',
@@ -96,7 +96,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     }
 
     // Check if settype rule should be disabled or not
-    let indexArray = [];
+    const indexArray = [];
     data.selectedColumnIds.forEach((item) => {
       if (-1 !== data.fields.indexOf(item) ) {
         indexArray.push(data.fields.indexOf(item));
@@ -210,7 +210,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
 
   public changeUUIDtoNames(items : string[]) : string[] {
 
-    let result : string[] = [];
+    const result : string[] = [];
     items.forEach((item) => {
       result.push(this.contextInfo.gridResponse.colNames[this.contextInfo.fields.indexOf(item)]);
     });
@@ -284,7 +284,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               rule['more'] = { command : 'derive', col: []};
               break;
             case 'duplicate':
-              let newCol = `${this.contextInfo.columnName}_1`;
+              const newCol = `${this.contextInfo.columnName}_1`;
               rule.ruleString = `derive value: ${selCol} as: \`${newCol}\``;
               rule.uiRuleString = {name: 'derive', expression: this.contextInfo.columnName ,newCol: newCol, isBuilder: true };
               break;
@@ -299,7 +299,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           break;
         case 'clean':
           rule.ruleString = `delete row: `;
-          let res = [];
+          const res = [];
           switch(command.value) {
 
             case 'direct-mismatch':
@@ -460,7 +460,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     const colType: string = this.contextInfo.columnType;
     let result = '';
     if (this.isColumnSelect) {
-      let list = [];
+      const list = [];
       this.histogramData.forEach((item) => {
         if ('matched' === item) {
           list.push(`!ismismatched(\`${colName}\`,'${colType}') && !isNull(\`${colName}\`)`)
@@ -473,12 +473,12 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       result = list.join(' && ');
     } else if (colType === 'DOUBLE' || colType === 'LONG') {
       this.histogramData.forEach((item,index) => {
-        let idx = this.labelsForNumbers.indexOf(item);
+        const idx = this.labelsForNumbers.indexOf(item);
         result += this.histogramData.length-1 !== index ? `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]} || ` : `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]}`;
       })
     } else if (colType === 'TIMESTAMP') {
       this.histogramData.forEach((item,index) => {
-        let idx = this.labelsForNumbers.indexOf(item);
+        const idx = this.labelsForNumbers.indexOf(item);
         result += this.histogramData.length-1 !== index ? `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
       });
     } else {
@@ -499,7 +499,6 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     return rule;
   }
 
-
   /**
    * Make keep or delete param
    * @param command
@@ -511,7 +510,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     const colType: string = this.contextInfo.columnType;
     let result = '';
     if (this.isColumnSelect) {
-      let list = [];
+      const list = [];
       this.histogramData.forEach((item) => {
         if ('matched' === item) {
           list.push(`!ismismatched(\`${colName}\`,'${colType}') && !isNull(\`${colName}\`)`)
@@ -524,12 +523,12 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       result = list.join(' && ');
     } else if (colType === 'DOUBLE' || colType === 'LONG') {
       this.histogramData.forEach((item,index) => {
-        let idx = this.labelsForNumbers.indexOf(item);
+        const idx = this.labelsForNumbers.indexOf(item);
         result += this.histogramData.length-1 !== index ? `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]} || ` : `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]}`;
       })
     } else if (colType === 'TIMESTAMP') {
       this.histogramData.forEach((item,index) => {
-        let idx = this.labelsForNumbers.indexOf(item);
+        const idx = this.labelsForNumbers.indexOf(item);
         result += this.histogramData.length-1 !== index ? `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
       });
     } else {

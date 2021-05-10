@@ -12,22 +12,22 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { Alert } from '../../../../common/util/alert.util';
-import { PopupService } from '../../../../common/service/popup.service';
-import { WorkspaceService } from '../../../../workspace/service/workspace.service';
-import { Book } from '../../../../domain/workspace/book';
-import { DashboardService } from '../../../../dashboard/service/dashboard.service';
-import { NotebookService } from '../../../service/notebook.service';
-import { Datasource } from '../../../../domain/datasource/datasource';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {NoteBook} from '@domain/notebook/notebook';
+import {Alert} from '@common/util/alert.util';
+import {PopupService} from '@common/service/popup.service';
+import {WorkspaceService} from '../../../../workspace/service/workspace.service';
+import {Book} from '@domain/workspace/book';
+import {DashboardService} from '../../../../dashboard/service/dashboard.service';
+import {NotebookService} from '../../../service/notebook.service';
+import {Datasource} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-notebook-dashboard',
   templateUrl: './create-notebook-dashboard.component.html'
 })
-export class CreateNotebookDashboardComponent extends AbstractPopupComponent implements OnInit, OnChanges {
+export class CreateNotebookDashboardComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -137,65 +137,12 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
     });
   }
 
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
-  /** 워크스페이스 조회 */
-  protected getWorkspace() {
-
-    // 로딩 show
-    this.loadingShow();
-
-    this.workspaceService.getWorkSpace(this.workspaceId)
-      .then((workspace) => {
-
-        // 데이터 있을 때
-        if (workspace['_embedded'] && workspace['_embedded']['books']) {
-          this.books = workspace['_embedded']['books'];
-          // 폴더 데이터
-          this.getRootAndSubBooks();
-        } else {
-          this.books = [];
-        }
-
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
-        // 로딩 hide
-        this.loadingHide();
-      });
-  }
-
-  /** 워크북 조회 api */
-  protected getNotebookDashboard(workspaceId: string, bookId: string) {
-    // 로딩 show
-    this.loadingShow();
-    this.workspaceService.getWorkbooks(workspaceId, bookId, 'forTreeView')
-      .then((workbooks) => {
-        this.loadingHide();
-        console.info('workbooks', workbooks);
-        // this.bookTree = workbooks;
-        // this.node.push(this.bookTree);
-        this.node.push(workbooks);
-      })
-      .catch((error) => {
-        Alert.error(this.translateService.instant('msg.nbook.alert.workbook.retrieve.fail'));
-        // 로딩 hide
-        this.loadingHide();
-      });
-  }
-
   // 대시 보드 Detail 구하기
-  protected showDashboardDetail(dashboardId:string) {
+  public showDashboardDetail(dashboardId: string) {
     this.loadingShow();
     this.dashboardService.getDashboard(dashboardId)
       .then((data) => {
-        console.info('dashboardDetail', data);
+        console.log('dashboardDetail', data);
         this.loadingHide();
         this.selectedBoardId = data.id;
         if (data.dataSources.length > 0) {
@@ -207,28 +154,12 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
       .catch((error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.nbook.alert.dashboard.retrieve.fail'));
-        console.info('dashboardDetail', error);
+        console.log('dashboardDetail', error);
       });
   }
 
-  /** 루트 폴더와 분리 */
-  protected getRootAndSubBooks() {
-    // types에 존재하는 타입만 필터링
-    const types = ['folder', 'workbook', 'board'];
-    this.rootBooks = this.books.filter((book) => {
-      return book.folderId === 'ROOT' && (types.indexOf(book.type) > -1);
-    });
-
-    // 전체 뎁스에 넣기
-    this.node.push(this.rootBooks);
-
-    this.subBooks = this.books.filter((book) => {
-      return book.folderId !== 'ROOT' && (types.indexOf(book.type) > -1);
-    });
-  }
-
   /** 내부 폴더 조회 */
-  protected hasSubBooks(book: Book) {
+  public hasSubBooks(book: Book) {
     // 해당 북을 던지면 내부에 일치하는 아이디가 있는지 판단하여 내부 컨텐츠가 존재함을 표시
     const types = ['page', 'board'];
     // 워크보드 내 대시보드가 없다면
@@ -245,8 +176,8 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
   }
 
   /** 클릭시 내부 컨텐츠 show */
-  protected showBooks(book: Book, index: number) {
-    console.info('showbooks', book, index);
+  public showBooks(book: Book, index: number) {
+    console.log('showbooks', book, index);
     this.selectedDatasourceId = '';
     this.selectedBoardId = '';
     // 뎁스 자르기
@@ -272,9 +203,77 @@ export class CreateNotebookDashboardComponent extends AbstractPopupComponent imp
   }
 
   /** 데이터소스 요약페이지 닫았을때 발생 이벤트 */
-  protected onCloseSummary() {
+  public onCloseSummary() {
     this.selectedDatasourceId = '';
     this.selectedBoardId;
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /** 워크스페이스 조회 */
+  protected getWorkspace() {
+
+    // 로딩 show
+    this.loadingShow();
+
+    this.workspaceService.getWorkSpace(this.workspaceId)
+      .then((workspace) => {
+
+        // 데이터 있을 때
+        if (workspace['_embedded'] && workspace['_embedded']['books']) {
+          this.books = workspace['_embedded']['books'];
+          // 폴더 데이터
+          this.getRootAndSubBooks();
+        } else {
+          this.books = [];
+        }
+
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch((_error) => {
+        Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
+        // 로딩 hide
+        this.loadingHide();
+      });
+  }
+
+  /** 워크북 조회 api */
+  protected getNotebookDashboard(workspaceId: string, bookId: string) {
+    // 로딩 show
+    this.loadingShow();
+    this.workspaceService.getWorkbooks(workspaceId, bookId, 'forTreeView')
+      .then((workbooks) => {
+        this.loadingHide();
+        console.log('workbooks', workbooks);
+        // this.bookTree = workbooks;
+        // this.node.push(this.bookTree);
+        this.node.push(workbooks);
+      })
+      .catch((_error) => {
+        Alert.error(this.translateService.instant('msg.nbook.alert.workbook.retrieve.fail'));
+        // 로딩 hide
+        this.loadingHide();
+      });
+  }
+
+
+  /** 루트 폴더와 분리 */
+  protected getRootAndSubBooks() {
+    // types에 존재하는 타입만 필터링
+    const types = ['folder', 'workbook', 'board'];
+    this.rootBooks = this.books.filter((book) => {
+      return book.folderId === 'ROOT' && (types.indexOf(book.type) > -1);
+    });
+
+    // 전체 뎁스에 넣기
+    this.node.push(this.rootBooks);
+
+    this.subBooks = this.books.filter((book) => {
+      return book.folderId !== 'ROOT' && (types.indexOf(book.type) > -1);
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

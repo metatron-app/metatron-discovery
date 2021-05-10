@@ -12,20 +12,17 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Output
-} from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
 
 declare const gradX: any;
 declare const gradx: any;
-declare const $: any;
 
 @Component({
   selector: 'gradation-generator',
   templateUrl: './gradation-generator.component.html'
 })
-export class GradationGeneratorComponent extends AbstractComponent {
+export class GradationGeneratorComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constant Variables
@@ -37,7 +34,7 @@ export class GradationGeneratorComponent extends AbstractComponent {
 
   // gradation 변경 이벤트 발생시
   @Output('changeGradation')
-  private changeGradation: EventEmitter<Object> = new EventEmitter();
+  private changeGradation: EventEmitter<object> = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -47,10 +44,10 @@ export class GradationGeneratorComponent extends AbstractComponent {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // slider list
-  public sliderList: Object[];
+  public sliderList: object[];
 
   // visualMap에 설정되는 slider list
-  public displaySliders: Object[];
+  public displaySliders: object[];
 
   public gradxObj: any;
 
@@ -98,7 +95,7 @@ export class GradationGeneratorComponent extends AbstractComponent {
    * @param data
    * @param initFl 최초설정여부
    */
-  public init(sliders: any, data: any, initFl?: boolean): Object {
+  public init(sliders: any, data: any, initFl?: boolean): object {
 
     this.sliderList = sliders;
 
@@ -113,18 +110,23 @@ export class GradationGeneratorComponent extends AbstractComponent {
       separateValue: data.separateValue,
       type: 'linear',
       code_shown: false,
-      change : (sliders, values, displaySliders, currentValue) => {
+      change: (sliderList, _values, displaySliders, currentValue) => {
 
         // visualMap에 설정되는 리스트
         this.displaySliders = displaySliders;
 
         // 변경된 sliders값을 설정
-        this.sliderList = sliders;
+        this.sliderList = sliderList;
 
         // change emit을 사용하는경우에만
         if (!initFl) {
           // 변경된 sliderList emit
-          this.changeGradation.emit({ranges: this.sliderList, visualGradations: this.displaySliders, currentValue: currentValue, currentSliderIndex: gradx.sliders.indexOf(gradx.get_current_slider(gradx.current_slider_id))});
+          this.changeGradation.emit({
+            ranges: this.sliderList,
+            visualGradations: this.displaySliders,
+            currentValue: currentValue,
+            currentSliderIndex: gradx.sliders.indexOf(gradx.get_current_slider(gradx.current_slider_id))
+          });
         } else {
           initFl = false;
         }
@@ -136,16 +138,16 @@ export class GradationGeneratorComponent extends AbstractComponent {
 
   /**
    * 해당 슬라이더의 색상을 변경
+   * @param sliderId
    * @param rgbColor
    */
   public changeGradationColor(sliderId: string, rgbColor: string): void {
-
     gradx.set_slider_id_color(sliderId, rgbColor);
   }
 
   /**
    * 해당 index에 해당하는 위치앞의 색상의 범위를 추가
-   * @param position
+   * @param index
    */
   public addNewRangeIndex(index: number): void {
 

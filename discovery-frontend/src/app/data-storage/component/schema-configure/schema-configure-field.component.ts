@@ -12,39 +12,34 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, Injector, Input, ViewChild} from "@angular/core";
-import {EventBroadcaster} from "../../../common/event/event.broadcaster";
-import {DataStorageConstant} from "../../constant/data-storage-constant";
-import {Filter} from "../../../shared/datasource-metadata/domain/filter";
-import {Type} from "../../../shared/datasource-metadata/domain/type";
-import {
-  ConnectionType,
-  Field,
-  FieldFormat,
-  FieldFormatType
-} from "../../../domain/datasource/datasource";
-import {StringUtil} from "../../../common/util/string.util";
-import {ConstantService} from "../../../shared/datasource-metadata/service/constant.service";
-import {SchemaConfigureDeletePopupComponent} from "./check-action-layer/schema-configure-delete-popup.component";
-import {SchemaConfigureChangeTypePopupComponent} from "./check-action-layer/schema-configure-change-type-popup.component";
-import {SchemaConfigureTimestampComponent} from "./schema-configure-timestamp.component";
-import {FieldConfigService} from "../../service/field-config.service";
-import * as _ from "lodash";
+import * as _ from 'lodash';
+import {AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConnectionType, Field, FieldFormat, FieldFormatType} from '@domain/datasource/datasource';
+import {ConstantService} from '../../../shared/datasource-metadata/service/constant.service';
+import {Filter} from '../../../shared/datasource-metadata/domain/filter';
+import {Type} from '../../../shared/datasource-metadata/domain/type';
+import {DataStorageConstant} from '../../constant/data-storage-constant';
+import {FieldConfigService} from '../../service/field-config.service';
+import {SchemaConfigureDeletePopupComponent} from './check-action-layer/schema-configure-delete-popup.component';
+import {SchemaConfigureChangeTypePopupComponent} from './check-action-layer/schema-configure-change-type-popup.component';
+import {SchemaConfigureTimestampComponent} from './schema-configure-timestamp.component';
 
 @Component({
   selector: 'schema-configure-field',
   templateUrl: 'schema-configure-field.component.html'
 })
-export class SchemaConfigureFieldComponent extends AbstractComponent {
+export class SchemaConfigureFieldComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild(SchemaConfigureChangeTypePopupComponent)
+  @ViewChild(SchemaConfigureChangeTypePopupComponent, {static: true})
   private readonly _changeTypePopupComponent: SchemaConfigureChangeTypePopupComponent;
 
-  @ViewChild(SchemaConfigureDeletePopupComponent)
+  @ViewChild(SchemaConfigureDeletePopupComponent, {static: true})
   private readonly _deletePopupComponent: SchemaConfigureDeletePopupComponent;
 
-  @ViewChild(SchemaConfigureTimestampComponent)
+  @ViewChild(SchemaConfigureTimestampComponent, {static: true})
   private readonly _timestampComponent: SchemaConfigureTimestampComponent;
 
   @Input()
@@ -82,7 +77,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
     // set subscription event
     this.subscriptions.push(
       // changed filter
-      this.broadCaster.on(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_FIELD_LIST_FILTER).subscribe((data: {key: DataStorageConstant.Datasource.FilterKey, value}) => {
+      this.broadCaster.on(DataStorageConstant.Datasource.BroadcastKey.DATASOURCE_CHANGED_FIELD_LIST_FILTER).subscribe((data: { key: DataStorageConstant.Datasource.FilterKey, value }) => {
         // set selected filter
         if (data.key === DataStorageConstant.Datasource.FilterKey.ROLE) {
           this.selectedRoleFilter = _.cloneDeep(data.value);
@@ -102,7 +97,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
         this.onSelectField(field);
         // if GEO type crated field
         if (Field.isGeoType(field)) {
-         this._setCratedFieldData(field);
+          this._setCratedFieldData(field);
         }
         // broadcast changed field list
         this._broadCastChangedFieldList();
@@ -128,10 +123,6 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    // remove subscription
-    for (let subscription$ of this.subscriptions) {
-      subscription$.unsubscribe();
-    }
   }
 
   ngAfterViewInit() {
@@ -158,7 +149,10 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    * @param {boolean} isAddOriginalNameProperty
    */
   public initFieldList(fieldList: Field[], isAddOriginalNameProperty?: boolean): void {
-    this.fieldList = isAddOriginalNameProperty ? _.cloneDeep(fieldList).map(field => ({...field, originalName: field.name})) :  _.cloneDeep(fieldList);
+    this.fieldList = isAddOriginalNameProperty ? _.cloneDeep(fieldList).map(field => ({
+      ...field,
+      originalName: field.name
+    })) : _.cloneDeep(fieldList);
   }
 
   /**
@@ -189,7 +183,8 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
       if (Field.isTimestampTypeField(field)) {
         // init format
         field.format = new FieldFormat();
-        callStack.push(this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(field.format, this._getFieldDataList(field), true).then((format: FieldFormat) => {}));
+        callStack.push(this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(field.format, this._getFieldDataList(field), true).then((_format: FieldFormat) => {
+        }));
       }
     });
     // if not empty callStack
@@ -361,7 +356,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    */
   public onAllCheckFilteredFieldList(): void {
     if (this.isAllCheckedFilteredFieldList()) {
-      this.filteredFieldList.forEach(field =>  {
+      this.filteredFieldList.forEach(field => {
         // if enable check
         if (!this.isDisableCheck(field)) {
           Field.setUndoCheckField(field);
@@ -513,25 +508,25 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
 
   public isExistErrorFieldInFieldList(fieldList: Field[]): boolean {
     // loop
-    return fieldList.reduce((acc, field) => {
+    return fieldList.reduce((_acc, field) => {
       // if field is TIMESTAMP, format type is DATE_TIME, not check time format
       if (Field.isTimestampTypeField(field) && field.format.isDateTime() && !field.format.isValidFormat) {
         if (_.isNil(field.format.formatValidMessage)) {
           field.format.formatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
         }
-        acc = true;
+        return true;
       }
       // if exist ingestion rule, ingestion rule type is REPLACE, not check replace value
       if (!Field.isEmptyIngestionRule(field) && field.ingestionRule.isReplaceType() && !field.ingestionRule.isValidReplaceValue) {
         if (_.isNil(field.ingestionRule.replaceValidationMessage)) {
           field.ingestionRule.replaceValidationMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
         }
-        acc = true;
+        return true;
       }
       if (this.isGeoFormatError(field)) {
-        acc = true;
+        return true;
       }
-      return acc;
+      return false;
     }, false);
   }
 
@@ -611,7 +606,7 @@ export class SchemaConfigureFieldComponent extends AbstractComponent {
    * @private
    */
   private _isDuplicatedName(field: Field, name: string): boolean {
-    return this.fieldList.some(originField => !this.isRemovedField(originField) && originField !== field &&  originField.name.toUpperCase() === name.toUpperCase());
+    return this.fieldList.some(originField => !this.isRemovedField(originField) && originField !== field && originField.name.toUpperCase() === name.toUpperCase());
   }
 
   /**

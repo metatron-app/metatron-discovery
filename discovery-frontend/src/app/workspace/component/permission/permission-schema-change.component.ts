@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Workspace } from '../../../domain/workspace/workspace';
-import { RoleSet, RoleSetScope } from '../../../domain/user/role/roleSet';
-import { PermissionService } from '../../../user/service/permission.service';
-import { Role } from '../../../domain/user/role/role';
-import { WorkspaceService } from '../../service/workspace.service';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { PermissionSchemaSetComponent } from './permission-schema-set.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Workspace} from '@domain/workspace/workspace';
+import {RoleSet, RoleSetScope} from '@domain/user/role/roleSet';
+import {PermissionService} from '../../../user/service/permission.service';
+import {Role} from '@domain/user/role/role';
+import {WorkspaceService} from '../../service/workspace.service';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {PermissionSchemaSetComponent} from './permission-schema-set.component';
 import * as _ from 'lodash';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { SYSTEM_PERMISSION } from '../../../common/permission/permission';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
 
 @Component({
   selector: 'app-permission-schema-change',
@@ -59,7 +59,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
   public selectedRoleSetInfo: RoleSet;      // RoleSet 선택 정보
   public selectedRoleSetDetail: RoleSet;    // 선택된 RoleSet 상세 정보
 
-  public isPermSchemaEditMode:boolean = false;  // 퍼미션 스키마 수정 가능 여부
+  public isPermSchemaEditMode: boolean = false;  // 퍼미션 스키마 수정 가능 여부
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Component
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -140,7 +140,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
    * @return {string}
    */
   public getRoleSetName(roleSet: RoleSet) {
-    return ( RoleSetScope.PRIVATE === roleSet.scope ) ? this.translateService.instant('msg.permission.ui.custom-schema') : roleSet.name;
+    return (RoleSetScope.PRIVATE === roleSet.scope) ? this.translateService.instant('msg.permission.ui.custom-schema') : roleSet.name;
   } // function - getRoleSetName
 
   /**
@@ -169,7 +169,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
           if (wsCustomResult) {
             // 기존 Private RoleSet이 존재할 경우
             this.permissionService.getRolesetDetail(wsCustomResult.id).then(itemResult => {
-              let customRoleSet: RoleSet = itemResult;
+              const customRoleSet: RoleSet = itemResult;
               customRoleSet.scope = RoleSetScope.PRIVATE;
               this.selectedRoleSetDetail = customRoleSet;
               this.isPermSchemaEditMode = true;
@@ -208,7 +208,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
   public afterUpdatePermissionRoles(roleSet: RoleSet) {
     this.permissionService.getRolesetDetail(roleSet.id).then(result => {
       if (result) {
-        let customRoleSet: RoleSet = result;
+        const customRoleSet: RoleSet = result;
         customRoleSet.scope = RoleSetScope.PRIVATE;
         this.selectedRoleSetDetail = customRoleSet;
         this.isPermSchemaEditMode = true;
@@ -250,7 +250,7 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
           }
           this.roleSetList = roleSetList;
         }
-        resolve();
+        resolve(null);
         this.loadingHide();
       }).catch(err => {
         this.commonExceptionHandler(err);
@@ -267,12 +267,12 @@ export class PermissionSchemaChangeComponent extends AbstractComponent implement
     try {
       this.loadingShow();
       // Role 변환 Mapper 설정
-      let changeRoleMapper = {};
+      const changeRoleMapper = {};
       this.currentRoleSet.roles.forEach((item: Role) => {
         if (item['newRole']) {
           changeRoleMapper[item.name] = item['newRole']['name'];
         } else {
-          throw '모든 Role은 변경할 Role을 지정해주어야 합니다.';
+          throw new Error('모든 Role은 변경할 Role을 지정해주어야 합니다.');
         }
       });
       // RoleSet 변경 호출

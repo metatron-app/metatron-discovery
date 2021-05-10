@@ -1,8 +1,99 @@
 {
-  "extends": "tslint-config-airbnb",
+  "extends": "tslint:recommended",
   "rules": {
-    "max-line-length": [],
+    "array-type": false,
+    "arrow-parens": false,
+    "deprecation": {
+      "severity": "warning"
+    },
+    "component-class-suffix": true,
+    "contextual-lifecycle": true,
+    "directive-class-suffix": true,
+    "directive-selector": false,
+    "component-selector": [
+      true,
+      "element",
+      "app",
+      "kebab-case",
+      "ngx"
+    ],
+    "import-blacklist": [
+      true,
+      "rxjs/Rx"
+    ],
+    "interface-name": false,
+    "max-classes-per-file": false,
+    "max-line-length": [
+      false
+    ],
+    "member-access": false,
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "static-field",
+          "instance-field",
+          "static-method",
+          "instance-method"
+        ]
+      }
+    ],
+    "no-bitwise": false,
+    "no-consecutive-blank-lines": false,
+    "no-console": [
+      true,
+      "debug",
+      "info",
+      "time",
+      "timeEnd",
+      "trace"
+    ],
+    "no-eval" : false,
+    "no-empty": false,
+    "no-non-null-assertion": true,
+    "no-redundant-jsdoc": false,
+    "no-switch-case-fall-through": true,
+    "no-use-before-declare": true,
+    "no-var-requires": false,
+    "object-literal-key-quotes": [
+      true,
+      "as-needed"
+    ],
+    "object-literal-sort-keys": false,
+    "object-literal-shorthand" : false,
+    "ordered-imports": false,
+    "quotemark": [
+      true,
+      "single"
+    ],
     "trailing-comma": false,
-    "no-var-self": false
-  }
+    "no-conflicting-lifecycle": true,
+    "no-host-metadata-property": true,
+    "no-input-rename": false,
+    "no-inputs-metadata-property": true,
+    "no-output-native": false,
+    "no-output-on-prefix": false,
+    "no-output-rename": false,
+    "no-outputs-metadata-property": true,
+    "no-unused-expression" : false,
+    "template-banana-in-box": true,
+    "template-no-negated-async": true,
+    "triple-equals": false,
+    "use-lifecycle-interface": true,
+    "use-pipe-transform-interface": true,
+    "no-unnecessary-initializer": false,
+    "no-namespace": false,
+    "no-string-literal": false,
+    "variable-name": {
+      "options": [
+        "ban-keywords",
+        "check-format",
+        "allow-leading-underscore",
+        "allow-pascal-case"
+      ]
+    }
+  },
+  "rulesDirectory": [
+    "codelyzer"
+  ]
 }

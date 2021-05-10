@@ -17,25 +17,25 @@ import {LayoutComponent} from './layout/layout.component';
 import {RouterModule, Routes} from '@angular/router';
 import {GnbComponent} from './component/gnb/gnb.component';
 import {LNBComponent} from './component/lnb/lnb.component';
-import {CommonModule} from '../../common/common.module';
+import {CommonModule} from '@common/common.module';
 import {CookieService} from 'ng2-cookies';
 import {UserService} from '../../user/service/user.service';
 import {WorkspaceService} from '../../workspace/service/workspace.service';
 import {ClickOutsideModule} from 'ng-click-outside';
 import {WorkspaceShareModule} from '../../workspace/workspace-share.module';
-import {DatasourceManagementGuard} from '../../common/gaurd/datasource-management.guard';
+import {DatasourceManagementGuard} from '@common/gaurd/datasource-management.guard';
 import {ProfileComponent} from '../../user/profile/profile.component';
-import {FileModule} from '../../common/file.module';
+import {FileModule} from '@common/file.module';
 import {ChangePasswordComponent} from '../../user/profile/change-password/change-password.component';
 import {MembersService} from '../../admin/user-management/service/members.service';
-import {MetadataManagementGuard} from '../../common/gaurd/metadata-management.guard';
-import {CommonService} from "../../common/service/common.service";
-import {StagedbEnabledGuard} from '../../common/gaurd/stagedb-enabled.guard';
+import {MetadataManagementGuard} from '@common/gaurd/metadata-management.guard';
+import {CommonService} from '@common/service/common.service';
+import {StagedbEnabledGuard} from '@common/gaurd/stagedb-enabled.guard';
 import {StorageService} from '../../data-storage/service/storage.service';
-import {ConnectionListGuard} from "../../common/gaurd/connection-list.guard";
-import {LNBLogoComponent} from "./component/logo/lnb-logo.component";
-import {AccessHistoryComponent} from "../../user/access-history/access-history.component";
-import {ActivityService} from "../../user/service/activity.service";
+import {ConnectionListGuard} from '@common/gaurd/connection-list.guard';
+import {LNBLogoComponent} from './component/logo/lnb-logo.component';
+import {AccessHistoryComponent} from '../../user/access-history/access-history.component';
+import {ActivityService} from '../../user/service/activity.service';
 
 const layoutRoutes: Routes = [
   {
@@ -78,11 +78,7 @@ const layoutRoutes: Routes = [
         canActivate: [DatasourceManagementGuard]
       },
       {path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule'},
-      {path: 'external', loadChildren: 'app/external/external-view.module#ExternalViewModule'},
-      {
-        path: 'samplecomponent',
-        loadChildren: 'app/sample-component/sample-component.module#SampleComponentModule'
-      }
+      {path: 'external', loadChildren: 'app/external/external-view.module#ExternalViewModule'}
     ]
   }
 ];
@@ -92,7 +88,7 @@ const layoutRoutes: Routes = [
     CommonModule,
     ClickOutsideModule,
     WorkspaceShareModule,
-    //TODO common 으로 올릴것인지 확인
+    // TODO common 으로 올릴것인지 확인
     FileModule,
     RouterModule.forChild(layoutRoutes)
   ],
@@ -106,7 +102,7 @@ const layoutRoutes: Routes = [
     AccessHistoryComponent
   ],
   exports: [
-   LNBComponent
+    LNBComponent
   ],
   providers: [
     CookieService,

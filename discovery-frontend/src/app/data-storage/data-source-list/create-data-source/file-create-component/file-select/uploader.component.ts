@@ -1,15 +1,38 @@
-import {Component, ElementRef, Renderer2, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../../../common/component/abstract.component";
-import {CommonConstant} from "../../../../../common/constant/common.constant";
-import {CookieConstant} from "../../../../../common/constant/cookie.constant";
-import * as _ from 'lodash';
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+import * as _ from 'lodash';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnInit,
+  Output,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'uploader',
   templateUrl: 'uploader.component.html'
 })
-export class UploaderComponent extends AbstractComponent {
+export class UploaderComponent extends AbstractComponent implements OnInit {
 
   @ViewChild('pickfiles')
   private readonly _pickFiles: ElementRef;
@@ -40,7 +63,7 @@ export class UploaderComponent extends AbstractComponent {
     this.safelyDetectChanges();
 
     this.renderer.listen(this._pickFiles.nativeElement, 'change', (event) => {
-      let files = event.target.files;
+      const files = event.target.files;
       this.addFiles(files);
     });
     this.renderer.listen(this._dropContainer.nativeElement, 'dragover', (event) => {
@@ -48,7 +71,7 @@ export class UploaderComponent extends AbstractComponent {
     });
     this.renderer.listen(this._dropContainer.nativeElement, 'drop', (event) => {
       this.disableEvent(event);
-      let files = event.dataTransfer.files;
+      const files = event.dataTransfer.files;
       this.addFiles(files);
     });
 
@@ -58,10 +81,10 @@ export class UploaderComponent extends AbstractComponent {
   public addFiles(files) {
     console.log('FilesAdded', files);
 
-    if(!files || 0===files.length) {
+    if (!files || 0 === files.length) {
       return;
     }
-    let file = files[0]; // one file is allowed only
+    const file = files[0]; // one file is allowed only
 
     // upload started
     this.uploadStarted.emit();
@@ -72,7 +95,7 @@ export class UploaderComponent extends AbstractComponent {
   }
 
   public uploadFile(file) {
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append('file', file, file.name);
 
     this.uploadedFile = file;
@@ -83,33 +106,33 @@ export class UploaderComponent extends AbstractComponent {
     this.safelyDetectChanges();
 
     this.xhr = new XMLHttpRequest();
-    this.xhr.open("POST", CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload');
+    this.xhr.open('POST', CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload');
     this.xhr.setRequestHeader('Accept', 'application/json, text/plain, */*');
-    this.xhr.setRequestHeader('Authorization', this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) );
+    this.xhr.setRequestHeader('Authorization', this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN));
 
-    let that = this;
-    this.xhr.onprogress = function(e) {
+    const that = this;
+    this.xhr.onprogress = (e) => {
       file.percent = ((e.loaded / file.size) * 100).toFixed(2);
       that.uploadedFile.percent = file.percent;
       that.safelyDetectChanges();
     };
-    this.xhr.onabort = function(e) {
+    this.xhr.onabort = () => {
       that.uploadedFile.isUploading = false;
       that.uploadedFile.isFailed = false;
       that.uploadedFile.isComplete = false;
       that.uploadedFile.isCanceled = true;
     };
-    this.xhr.onloadstart = function(e) {
+    this.xhr.onloadstart = () => {
       file.percent = 0.00;
       that.uploadedFile.percent = file.percent;
       that.uploadGuideMessage = that.translateService.instant('msg.storage.ui.file.uploading');
       that.safelyDetectChanges();
     };
-    this.xhr.onload = function(e) {
+    this.xhr.onload = function () {
       that.uploadedFile.response = this.response;
-      var jsonResponse = JSON.parse(this.response);
+      const jsonResponse = JSON.parse(this.response);
 
-      if( this.status===200 ) {
+      if (this.status === 200) {
         file.percent = 100.00;
         that.uploadedFile.percent = file.percent;
 
@@ -132,7 +155,7 @@ export class UploaderComponent extends AbstractComponent {
         that.uploadStarted.emit();
       }
     };
-    this.xhr.onloadend = function(e) {
+    this.xhr.onloadend = function () {
       this.xhr = null;
     };
     this.xhr.send(formData);
@@ -154,9 +177,12 @@ export class UploaderComponent extends AbstractComponent {
    * @return {string}
    */
   public getFileSize(size: number, split: number): string {
-    if(0 === size) return "0 Bytes";
-    let c=1024,d=split||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(size)/Math.log(c));
-    return parseFloat((size/Math.pow(c,f)).toFixed(d))+" "+e[f];
+    if (0 === size) return '0 Bytes';
+    const c = 1024;
+    const d = split || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(size) / Math.log(c));
+    return parseFloat((size / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
   }
 
   /**
@@ -220,16 +246,16 @@ export class UploaderComponent extends AbstractComponent {
 
   /**
    * Upload cancel
-   * @param {any} file
+   * @param {any} _file
    */
-  public cancelUpload(file: any): void {
+  public cancelUpload(_file: any): void {
     if (this.isFileUploading()) {
       // stop uploader
       // set upload cancel
       this.uploadedFile.isUploading = false;
       this.uploadedFile.isCanceled = true;
       // remove file
-      if(this.xhr) {
+      if (this.xhr) {
         this.xhr.abort();
       }
       // restart

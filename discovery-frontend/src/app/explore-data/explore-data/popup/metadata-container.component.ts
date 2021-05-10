@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import {
   Component,
   ComponentFactoryResolver,
@@ -5,30 +6,30 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
+  OnDestroy,
+  OnInit,
   Output,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import {Metadata} from "../../../domain/meta-data-management/metadata";
-import {CommonUtil} from "../../../common/util/common.util";
-import {SYSTEM_PERMISSION} from "../../../common/permission/permission";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import * as _ from 'lodash';
-import {CreateWorkbenchContainerComponent} from "../../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CookieConstant} from "../../../common/constant/cookie.constant";
-import {CreateWorkbookComponent} from "../../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {Modal} from "../../../common/domain/modal";
-import {ConfirmRefModalComponent} from "../../../common/component/modal/confirm/confirm-ref.component";
-import {Alert} from "../../../common/util/alert.util";
-import {DataCreator} from "../../../domain/meta-data-management/data-creator";
+import {CommonUtil} from '@common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {CreateWorkbenchContainerComponent} from '../../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
+import {CreateWorkbookComponent} from '../../../workbook/component/create-workbook/refactoring/create-workbook.component';
 
 @Component({
   selector: 'explore-metadata-container',
   templateUrl: './metadata-container.component.html',
   entryComponents: [CreateWorkbenchContainerComponent, CreateWorkbookComponent, ConfirmRefModalComponent]
 })
-export class MetadataContainerComponent extends AbstractComponent {
+export class MetadataContainerComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   metadataId: string;
   metadataDetailData: Metadata;
@@ -137,7 +138,7 @@ export class MetadataContainerComponent extends AbstractComponent {
    * Returns True is current user is manager
    */
   public isManagerAuth() {
-    let cookiePermission: string = CommonUtil.getCurrentPermissionString();
+    const cookiePermission: string = CommonUtil.getCurrentPermissionString();
     return (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_DATASOURCE.toString())) || (-1 < cookiePermission.indexOf(SYSTEM_PERMISSION.MANAGE_METADATA.toString()));
   }
 
@@ -154,7 +155,7 @@ export class MetadataContainerComponent extends AbstractComponent {
   }
 
   private _showConfirmComponent() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       // show confirm modal
       this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
       const modal: Modal = new Modal();
@@ -226,11 +227,6 @@ export class MetadataContainerComponent extends AbstractComponent {
 
 class MetadataTab {
   id: number;
-  label: string;
-  value: string;
-}
-
-class MetadataInformation {
   label: string;
   value: string;
 }

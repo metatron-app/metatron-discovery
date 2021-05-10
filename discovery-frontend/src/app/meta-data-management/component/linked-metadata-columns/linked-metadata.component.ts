@@ -12,11 +12,10 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {LinkedMetaDataColumn} from '@domain/meta-data-management/metadata-column';
 
 @Component({
   selector: 'app-linked-metadata',
@@ -30,10 +29,6 @@ export class LinkedMetadataComponent extends AbstractComponent implements OnInit
 
   // 컬럼 사전 아이디
   private _dictionaryId: string;
-
-  // 이동 확인 팝업 모달 컴포넌트
-  @ViewChild(ConfirmModalComponent)
-  private _confirmModalComp: ConfirmModalComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -194,18 +189,16 @@ export class LinkedMetadataComponent extends AbstractComponent implements OnInit
     // 로딩 show
     this.loadingShow();
     // 컬럼 목록 조회
-    this._columnDictionaryService.getMetadataInColumnDictionary(this._dictionaryId, this._getMetadataListParams()).
-      then((result) => {
-        // 전달 받은 page number가 0 이면 연결된 메타데이터 컬럼 목록 초기화
-        this.pageResult.number === 0 && (this.metaDataList = []);
-        // page
-        this.pageResult = result['page'];
-        // 연결된 메타데이터 컬럼 목록
-        this.metaDataList = result['_embedded'] ? this.metaDataList.concat(result['_embedded'].metacolumns) : [];
-        // 로딩 hide
-        this.loadingHide();
-      }).
-      catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getMetadataInColumnDictionary(this._dictionaryId, this._getMetadataListParams()).then((result) => {
+      // 전달 받은 page number가 0 이면 연결된 메타데이터 컬럼 목록 초기화
+      this.pageResult.number === 0 && (this.metaDataList = []);
+      // page
+      this.pageResult = result['page'];
+      // 연결된 메타데이터 컬럼 목록
+      this.metaDataList = result['_embedded'] ? this.metaDataList.concat(result['_embedded'].metacolumns) : [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -225,13 +218,11 @@ export class LinkedMetadataComponent extends AbstractComponent implements OnInit
    * @private
    */
   private _getMetadataListParams(): object {
-    const params = {
+    return {
       size: this.pageResult.size,
       page: this.pageResult.number,
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
-
-    return params;
   }
 
 }

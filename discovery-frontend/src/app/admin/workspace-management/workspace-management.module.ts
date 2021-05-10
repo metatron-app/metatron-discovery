@@ -14,8 +14,9 @@
  */
 
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '../../common/common.module';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@common/common.module';
+import { WorkspaceAdminGuard } from '@common/gaurd/workspaceAdmin.guard';
 import {
   WorkspacesManagementComponent
 } from './component/workspaces-management.component';
@@ -27,7 +28,6 @@ import {
 } from './component/workspaces/detail-workspace/component/linked-resources/detail-workspace-linked-resources.component';
 import { SharedWorkspacesComponent } from './component/workspaces/shared-workspaces.component';
 import { PermissionSchemasComponent } from './component/workspace-permission-schemas/permission-schemas.component';
-import { WorkspaceAdminGuard } from '../../common/gaurd/workspaceAdmin.guard';
 import { DetailPermissionSchemaComponent } from './component/workspace-permission-schemas/detail-permission-schema.component';
 import { CreatePermissionSchemaComponent } from './component/workspace-permission-schemas/create-permission-schema.component';
 import { ResourcesViewComponent } from './component/workspaces/detail-workspace/component/viewer/resources-view.component';

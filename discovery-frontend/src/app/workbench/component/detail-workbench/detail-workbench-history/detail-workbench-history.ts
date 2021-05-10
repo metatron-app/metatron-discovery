@@ -13,20 +13,26 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
   Output
 } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { WorkbenchService } from '../../../service/workbench.service';
-import { isUndefined } from 'util';
-import { Alert } from '../../../../common/util/alert.util';
-import { StringUtil } from '../../../../common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {WorkbenchService} from '../../../service/workbench.service';
+import {isUndefined} from 'util';
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'detail-workbench-history',
   templateUrl: './detail-workbench-history.html',
 })
-export class DetailWorkbenchHistory extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
+export class DetailWorkbenchHistoryComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -65,7 +71,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   public completeSearchText: string = '';
 
   // 검색 영역 활성화
-  public isSearchText : boolean = false;
+  public isSearchText: boolean = false;
 
   // get filteredHistories() {
   //   // if(_.isEmpty(this.histories)) {
@@ -114,7 +120,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
   public ngOnChanges(): void {
 
-    if( this.deleteHistory ){
+    if (this.deleteHistory) {
       this.deleteAll();
       this.completeSearchText = '';
     } else {
@@ -150,7 +156,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
       this.completeSearchText = this.searchText;
 
       this.loadingShow();
-      this.workbenchService.getQueryHistories(this.editorId, this.searchText,'forListView', this.page)
+      this.workbenchService.getQueryHistories(this.editorId, this.searchText, 'forListView', this.page)
         .then((data) => {
           this.loadingHide();
           this.pageResult = data['page'];
@@ -158,20 +164,20 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
             this.histories = this.histories.concat(data['_embedded'].queryhistories);
 
             // ms 변환 상위 2단계 까지만 표현
-            for (let idx = 0; idx < this.histories.length; idx++) {
-              let queryTime : number = this.histories[idx]['queryTimeTaken'];
+            for (let idx = 0, nMax = this.histories.length; idx < nMax; idx++) {
+              const queryTime: number = this.histories[idx]['queryTimeTaken'];
 
-              let milliseconds = Math.floor((queryTime % 1000) / 100);
-              let seconds = Math.floor((queryTime / 1000) % 60);
-              let minutes = Math.floor((queryTime / (1000 * 60)) % 60);
-              let hours = Math.floor((queryTime / (1000 * 60 * 60)) % 24);
-              if( hours >= 1 ) {
+              const milliseconds = Math.floor((queryTime % 1000) / 100);
+              const seconds = Math.floor((queryTime / 1000) % 60);
+              const minutes = Math.floor((queryTime / (1000 * 60)) % 60);
+              const hours = Math.floor((queryTime / (1000 * 60 * 60)) % 24);
+              if (hours >= 1) {
                 this.histories[idx]['queryTimeTakenFormatted'] = hours + 'h ' + minutes + 'm';
-              } else if( minutes >= 1 && hours < 1 ) {
+              } else if (minutes >= 1 && hours < 1) {
                 this.histories[idx]['queryTimeTakenFormatted'] = minutes + 'm ' + seconds + 's';
-              } else if( seconds >= 1 && minutes < 1 ) {
+              } else if (seconds >= 1 && minutes < 1) {
                 this.histories[idx]['queryTimeTakenFormatted'] = seconds + 's ' + milliseconds + 'ms';
-              } else if( milliseconds >= 1 && seconds < 1  ) {
+              } else if (milliseconds >= 1 && seconds < 1) {
                 this.histories[idx]['queryTimeTakenFormatted'] = queryTime + 'ms';
               }
             }
@@ -192,7 +198,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
   public deleteAll() {
     this.workbenchService.deleteQueryHistoryAll(this.editorId)
-      .then((result) => {
+      .then((_result) => {
         this.page.page = 0;
         this.getQueryHistories();
 
@@ -205,7 +211,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
   public setTableSql(item) {
 
-    if( item.queryResultStatus == 'SUCCESS' ){
+    if (item.queryResultStatus === 'SUCCESS') {
       // 성공일 경우 에디터에 삽입
       this.sqlIntoEditorEvent.emit('\n' + item.query + ';');
     } else {
@@ -225,26 +231,26 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   /**
    * 검색창 열기
    */
-  public openSearchArea(){
+  public openSearchArea() {
 
     this.isSearchText = true;
     const searchElement = $('.ddp-type-search');
     searchElement.animate({
-      left:'10px'
-    },200);
+      left: '10px'
+    }, 200);
 
   }
 
   /**
    * 검색창 닫기
    */
-  public closeSearchArea(){
+  public closeSearchArea() {
 
     this.isSearchText = false;
     const searchElement = $('.ddp-type-search');
     searchElement.animate({
-      left:'200px'
-    },200);
+      left: '200px'
+    }, 200);
 
   }
 

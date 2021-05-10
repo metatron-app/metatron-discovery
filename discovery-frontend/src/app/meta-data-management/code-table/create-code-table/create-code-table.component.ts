@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
-import {CodeTableService} from '../service/code-table.service';
-import {Alert} from '../../../common/util/alert.util';
 import * as _ from 'lodash';
-import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
-import {CommonUtil} from '../../../common/util/common.util';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CodeValuePair} from '@domain/meta-data-management/code-value-pair';
+import {CodeTableService} from '../service/code-table.service';
 
 @Component({
   selector: 'app-create-code-table',
@@ -267,7 +267,7 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
         // 테이블 생성
         this._createCodeTable();
       }
-    }).catch((error) => {
+    }).catch(() => {
       // 로딩 hide
       this.loadingHide();
     });
@@ -288,7 +288,7 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
       // close
       this.createComplete.emit(result.id);
       this.onClickCancel();
-    }).catch((error) => {
+    }).catch(() => {
       // 로딩 hide
       this.loadingHide();
     });
@@ -300,7 +300,7 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
    * @private
    */
   private _codeListValidation(): boolean {
-    for (let i = 0; i < this.codeTableList.length; i++) {
+    for (let i = 0, nMax = this.codeTableList.length; i < nMax; i++) {
       // code나 value 둘 중 하나가 비어있으면 validation message 표시
       if (this.codeTableList[i].code && this.codeTableList[i].value && this.codeTableList[i].code.trim() !== '' &&
         this.codeTableList[i].value.trim() !== '') {
@@ -319,12 +319,11 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
    * @private
    */
   private _getCreateCodeTableParams(): object {
-    const params = {
+    return {
       name: this.tableName.trim(),
       description: this.tableDescription.trim(),
       codes: this._getCodesParams(),
     };
-    return params;
   }
 
   /**

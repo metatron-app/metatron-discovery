@@ -12,14 +12,9 @@
  * limitations under the License.
  */
 
-import {
-  UIChartColor,
-  UIChartColorByDimension,
-  UIChartColorBySeries,
-  UIChartColorByValue,
-  UIOption
-} from '../ui-option';
-import { PivotTableInfo } from '../../base-chart';
+import * as _ from 'lodash'
+import {UIChartColor, UIChartColorByDimension, UIChartColorBySeries, UIChartColorByValue, UIOption} from '../ui-option';
+import {PivotTableInfo} from '../../base-chart';
 import {
   AxisLabelType,
   AxisType,
@@ -30,23 +25,21 @@ import {
   ChartType,
   ColorCustomMode,
   ColorRangeType,
-  EventType,
   VisualMapDimension
 } from '../define/common';
-import { BaseOption } from '../base-option';
-import * as _ from 'lodash'
-import { OptionGenerator } from '../util/option-generator';
-import { VisualMapType } from '../define/visualmap';
-import { Series } from '../define/series';
-import { UIScatterChart } from '../ui-option/ui-scatter-chart';
-import { ColorRange } from '../ui-option/ui-color';
-import { FormatOptionConverter } from './format-option-converter';
+import {BaseOption} from '../base-option';
+import {CommonUtil} from '@common/util/common.util';
+import {OptionGenerator} from '../util/option-generator';
+import {VisualMapType} from '../define/visualmap';
+import {Series} from '../define/series';
+import {UIScatterChart} from '../ui-option/ui-scatter-chart';
+import {ColorRange} from '../ui-option/ui-color';
+import {FormatOptionConverter} from './format-option-converter';
+import {UIMapOption} from '../ui-option/map/ui-map-chart';
+import {ChartUtil} from '../util/chart-util';
+import {GeoField} from '@domain/workbook/configurations/field/geo-field';
+import {MapLayerType} from '../define/map/map-common';
 import UI = OptionGenerator.UI;
-import {isNullOrUndefined} from "util";
-import { UIMapOption } from '../ui-option/map/ui-map-chart';
-import { ChartUtil } from '../util/chart-util';
-import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
-import {MapLayerType} from "../define/map/map-common";
 
 /**
  * 색상 패널 converter
@@ -64,20 +57,16 @@ export class ColorOptionConverter {
    * @param {PivotTableInfo} fieldOriginInfo
    * @param {PivotTableInfo} fieldInfo
    * @param {PivotTableInfo} pivotInfo
-   * @param {EventType} drawByType
    * @param {Series[]} series
-   * @param data
    * @returns {BaseOption}
    */
   public static convertColor(
-      option: BaseOption,
-      uiOption: UIOption,
-      fieldOriginInfo: PivotTableInfo,
-      fieldInfo: PivotTableInfo,
-      pivotInfo: PivotTableInfo,
-      drawByType?: EventType,
-      series?: Series[],
-      data?: any): BaseOption {
+    option: BaseOption,
+    uiOption: UIOption,
+    fieldOriginInfo: PivotTableInfo,
+    fieldInfo: PivotTableInfo,
+    pivotInfo: PivotTableInfo,
+    series?: Series[]): BaseOption {
 
     const color: UIChartColor = uiOption.color;
 
@@ -92,14 +81,14 @@ export class ColorOptionConverter {
       }
       case ChartColorType.SERIES: {
 
-        let schema = (<UIChartColorBySeries>color).schema;
-        let colorCodes = _.cloneDeep(ChartColorList[schema]);
+        const schema = (color as UIChartColorBySeries).schema;
+        const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
         // userCodes가 있는경우 codes대신 userCodes를 설정한다
-        if ((<UIChartColorBySeries>color).mapping) {
-          Object.keys((<UIChartColorBySeries>color).mapping).forEach((key, index) => {
+        if ((color as UIChartColorBySeries).mapping) {
+          Object.keys((color as UIChartColorBySeries).mapping).forEach((key, index) => {
 
-            colorCodes[index] = (<UIChartColorBySeries>color).mapping[key];
+            colorCodes[index] = (color as UIChartColorBySeries).mapping[key];
           });
         }
 
@@ -109,10 +98,10 @@ export class ColorOptionConverter {
       case ChartColorType.MEASURE: {
 
         // gradation일때
-        if (uiOption.color['customMode'] && ColorCustomMode.GRADIENT == uiOption.color['customMode']) {
+        if (uiOption.color['customMode'] && ColorCustomMode.GRADIENT === uiOption.color['customMode']) {
 
           option = this.convertColorByValueGradation(option, uiOption);
-        // 그이외의 경우일떄
+          // 그이외의 경우일떄
         } else {
           option = this.convertColorByValue(option, uiOption);
         }
@@ -128,7 +117,7 @@ export class ColorOptionConverter {
    */
   public static convertColorBySeries(option: BaseOption, fieldInfo: PivotTableInfo, codes: ChartColorList | string[], series?: Series[]): BaseOption {
 
-    if( !series ) {
+    if (!series) {
       series = option.series;
     }
 
@@ -158,9 +147,9 @@ export class ColorOptionConverter {
   public static convertColorByDimension(
     option: BaseOption, fieldOriginInfo: PivotTableInfo, fieldInfo: PivotTableInfo, pivotInfo: PivotTableInfo, uiOption: UIOption): BaseOption {
 
-    const schema = (<UIChartColorByDimension>uiOption.color).schema;
+    const schema = (uiOption.color as UIChartColorByDimension).schema;
     const codes = _.cloneDeep(ChartColorList[schema]);
-    const targetField = (<UIChartColorByDimension>uiOption.color).targetField;
+    const targetField = (uiOption.color as UIChartColorByDimension).targetField;
 
     const series = option.series;
 
@@ -185,7 +174,7 @@ export class ColorOptionConverter {
       }
     });
 
-    if( isNullOrUndefined( pivotType ) || isNullOrUndefined( paramType ) ) {
+    if (CommonUtil.isNullOrUndefined(pivotType) || CommonUtil.isNullOrUndefined(paramType)) {
       _.forEach(fieldInfo, (value, key) => {
         if (_.indexOf(value, targetField) > -1) {
           fieldIdx = _.indexOf(value, targetField);
@@ -257,15 +246,15 @@ export class ColorOptionConverter {
    */
   public static convertColorByValue(option: BaseOption, uiOption: UIOption): BaseOption {
 
-    const ranges = (<UIChartColorByValue>uiOption.color).ranges;
-    const schema = (<UIChartColorByDimension>uiOption.color).schema;
+    const ranges = (uiOption.color as UIChartColorByValue).ranges;
+    const schema = (uiOption.color as UIChartColorByDimension).schema;
     const codes = _.cloneDeep(ChartColorList[schema]);
 
     // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
     if (_.isUndefined(option.visualMap)) option.visualMap = OptionGenerator.VisualMap.continuousVisualMap();
 
     // get axis baseline
-    const valueAxis = !uiOption.yAxis ? null : AxisLabelType.COLUMN == uiOption.yAxis.mode ? uiOption.yAxis : uiOption.xAxis;
+    const valueAxis = !uiOption.yAxis ? null : AxisLabelType.COLUMN === uiOption.yAxis.mode ? uiOption.yAxis : uiOption.xAxis;
 
     // the chart which doesn't have format
     if (uiOption.type === ChartType.WORDCLOUD) {
@@ -275,41 +264,41 @@ export class ColorOptionConverter {
     }
 
     // 색상 리스트 적용
-    option.visualMap.color = <any>codes;
+    option.visualMap.color = codes;
 
     // ranges값이 있는경우 option.visualMap타입을 piecewise로 변경
     if (ranges && ranges.length > 0) {
 
-      let rangeList = <any>_.cloneDeep(ranges);
+      const rangeList = _.cloneDeep(ranges) as any;
 
       // set label for showing decimal number
       for (const item of rangeList) {
 
         if (null == item.lte) {
           // check decimal value is not null
-          let itemGtVal = uiOption.valueFormat!=null
-                              ?FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.gt;
+          const itemGtVal = uiOption.valueFormat != null
+            ? FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) : item.gt;
           item.label = '> ' + itemGtVal;
         } else if (null == item.gt) {
           // check decimal value is not null
-          let itemLteVal = uiOption.valueFormat!=null
-                              ?FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.lte;
+          const itemLteVal = uiOption.valueFormat != null
+            ? FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) : item.lte;
           item.label = '≤ ' + itemLteVal;
         } else {
           // check decimal value is not null
-          let itemGtVal = uiOption.valueFormat!=null
-                            ?FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.gt;
-          let itemLteVal = uiOption.valueFormat!=null
-                            ?FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.lte;
+          const itemGtVal = uiOption.valueFormat != null
+            ? FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) : item.gt;
+          const itemLteVal = uiOption.valueFormat != null
+            ? FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) : item.lte;
           item.label = itemGtVal + ' - ' + itemLteVal;
         }
 
         // deduct baseline value in range
         if (valueAxis && null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
-          item.fixMin = null == item.fixMin ? null : item.fixMin - <number>valueAxis.baseline;
-          item.fixMax = null == item.fixMax ? null : item.fixMax - <number>valueAxis.baseline;
-          item.gt = null == item.gt ? null : item.gt - <number>valueAxis.baseline;
-          item.lte = null == item.lte ? null : item.lte - <number>valueAxis.baseline;
+          item.fixMin = null == item.fixMin ? null : item.fixMin - (valueAxis.baseline as number);
+          item.fixMax = null == item.fixMax ? null : item.fixMax - (valueAxis.baseline as number);
+          item.gt = null == item.gt ? null : item.gt - (valueAxis.baseline as number);
+          item.lte = null == item.lte ? null : item.lte - (valueAxis.baseline as number);
         }
       }
 
@@ -343,13 +332,15 @@ export class ColorOptionConverter {
     let codes = uiOption.color['visualGradations'] ? _.cloneDeep(uiOption.color['visualGradations']) : _.cloneDeep(uiOption.color['ranges']);
 
     // color값만 뽑아내기
-    codes = codes.map((item) => {return item.color}).reverse();
+    codes = codes.map((item) => {
+      return item.color
+    }).reverse();
 
     // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
     if (_.isUndefined(option.visualMap)) option.visualMap = OptionGenerator.VisualMap.continuousVisualMap();
 
     // 색상 리스트 적용
-    option.visualMap.color = <any>codes;
+    option.visualMap.color = codes;
 
     option.visualMap.itemHeight = '300%';
     // continuous visualMap으로설정
@@ -357,8 +348,8 @@ export class ColorOptionConverter {
     option.visualMap.type = VisualMapType.CONTINUOUS;
 
     // 범위지정
-    option.visualMap.min = option.dataInfo.minValue >= 0 ? 0 : parseInt(option.dataInfo.minValue.toFixed(0));
-    option.visualMap.max = parseInt(option.dataInfo.maxValue.toFixed(0));
+    option.visualMap.min = option.dataInfo.minValue >= 0 ? 0 : parseInt(option.dataInfo.minValue.toFixed(0), 10);
+    option.visualMap.max = parseInt(option.dataInfo.maxValue.toFixed(0), 10);
 
     // 수치를 표현하는 축의 인덱스로 대상 차원 지정
     if (!_.isUndefined(option.xAxis) && !_.isUndefined(option.yAxis)) {
@@ -382,39 +373,39 @@ export class ColorOptionConverter {
   public static setMeasureColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
 
     // return value
-    let rangeList = [];
+    const rangeList = [];
 
-    let rowsListLength = data.rows.length;
+    // const rowsListLength = data.rows.length;
 
     // 차트타입에 따라서 range리스트 계산하는 rows리스트의 값을 다르게 설정
     switch (uiOption.type) {
 
       // 그리드차트의경우 행 / 열의 length를 합하여 비교
       case ChartType.GRID:
-        let gridRowsListLength = 0;
+        // let gridRowsListLength = 0;
         // when rows are not empty
         if (data.rows.length > 0 && !_.isEmpty(data.rows[0])) {
 
-          gridRowsListLength += data.rows.length;
+          // gridRowsListLength += data.rows.length;
         }
 
         // when columns are not empty
         if (data.columns.length > 0 && -1 !== data.columns[0].name.indexOf(CHART_STRING_DELIMITER)) {
 
-          gridRowsListLength += data.columns.length;
+          // gridRowsListLength += data.columns.length;
 
-        // chart_string_delimiter 데이터가 없는경우 => original일때
+          // chart_string_delimiter 데이터가 없는경우 => original일때
         } else {
-          gridRowsListLength += data.columns[0].value.length;
+          // gridRowsListLength += data.columns[0].value.length;
         }
 
-        rowsListLength = gridRowsListLength;
+        // rowsListLength = gridRowsListLength;
         break;
 
       // pie, wordcloud의 경우 columns의 value length로 설정
       case ChartType.PIE:
       case ChartType.WORDCLOUD:
-        rowsListLength = data.columns[0].value.length;
+        // rowsListLength = data.columns[0].value.length;
 
         if (uiOption.type === ChartType.WORDCLOUD) {
           // set 2 decimal (wordcloud doesn't have format)
@@ -423,15 +414,15 @@ export class ColorOptionConverter {
         }
         break;
       case ChartType.HEATMAP:
-        rowsListLength = data.columns.length + data.rows.length;
+        // rowsListLength = data.columns.length + data.rows.length;
         break;
       // gauge차트는 dimension에 따라서 개수가 다르므로 가장 많은 데이터를 가져온다
       case ChartType.GAUGE:
-        rowsListLength = (<any>_.max(data.columns)).length;
+        // rowsListLength = (<any>_.max(data.columns)).length;
     }
 
     // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
-    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+    const colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
     // less than 0, set minValue
     const minValue = uiOption.minValue >= 0 ? 0 : _.cloneDeep(uiOption.minValue);
@@ -442,41 +433,41 @@ export class ColorOptionConverter {
     let maxValue = _.cloneDeep(uiOption.maxValue);
 
     let shape;
-    if ((<UIScatterChart>uiOption).pointShape) {
-      shape = (<UIScatterChart>uiOption).pointShape.toString().toLowerCase();
+    if ((uiOption as UIScatterChart).pointShape) {
+      shape = (uiOption as UIScatterChart).pointShape.toString().toLowerCase();
     }
 
     // set decimal value
     const formatValue = ((value) => {
       // check decimal value is needed
-      return uiOption.validate!=null
-        ?parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal))
-        :value;
+      return uiOption.validate != null
+        ? parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal))
+        : value;
     });
 
     // decimal min value
-    let formatMinValue = formatValue(uiOption.minValue);
+    const formatMinValue = formatValue(uiOption.minValue);
     // decimal max value
-    let formatMaxValue = formatValue(uiOption.maxValue);
+    const formatMaxValue = formatValue(uiOption.maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {
 
-      let color = colorList[index];
+      const color = colorList[index];
 
       // set the biggest value in min(gt)
-      if (colorListLength == index) {
+      if (colorListLength === index) {
 
         rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
 
       } else {
         // if it's the last value, set null in min(gt)
-        let min = 0 == index ? null : formatValue(maxValue - addValue);
+        let min = 0 === index ? null : formatValue(maxValue - addValue);
 
         // if value if lower than minValue, set it as minValue
         if (min < uiOption.minValue && min < 0) min = _.cloneDeep(formatMinValue);
 
-          rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
 
         maxValue = min;
       }
@@ -491,48 +482,46 @@ export class ColorOptionConverter {
    */
   public static setMapMeasureColorRange(uiOption: UIMapOption, data: any, colorList: any, layerIndex: number, layers: GeoField[], colorAlterList = []): ColorRange[] {
     // return value
-    let rangeList = [];
+    const rangeList = [];
 
     // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
-    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+    const colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
     let alias = ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers, uiOption.layers[layerIndex].color.aggregationType);
 
-    if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
-      if( uiOption['analysis']['operation']['choropleth']
-        && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
+    if (!_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use']) {
+      if (uiOption['analysis']['operation']['choropleth']
+        && uiOption['analysis']['operation']['aggregation']['column'] === 'count') {
         alias = uiOption['analysis']['operation']['aggregation']['column'];
       }
     } else {
       // symbol 타입 , cluster 사용일 경우
-      if( uiOption.layers[layerIndex].type == MapLayerType.CLUSTER && uiOption.layers[layerIndex]['clustering'] ){
+      if (uiOption.layers[layerIndex].type === MapLayerType.CLUSTER && uiOption.layers[layerIndex]['clustering']) {
         alias = 'count';
       }
     }
 
     let minValue = 0;
     let maxValue = 0;
-    if( !_.isUndefined( data.valueRange[alias] ) ){
+    if (!_.isUndefined(data.valueRange[alias])) {
       // less than 0, set minValue
       minValue = _.cloneDeep(data.valueRange[alias].minValue);
       maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
     }
 
     // map 챠트에서 aggregation 타입이 변경 될 경우 min / max 값을 변경해야함
-    if(!_.isUndefined(uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) && uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) {
+    if (!_.isUndefined(uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) && uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) {
       delete uiOption.layers[uiOption.layerNum]['isColorOptionChanged'];
       uiOption.layers[layerIndex].color.minValue = minValue;
       uiOption.layers[layerIndex].color.maxValue = maxValue;
     } else {
       // uiOption.minValue = minValue;
-      ( _.isUndefined(uiOption.layers[layerIndex].color.minValue) || uiOption.layers[layerIndex].color.minValue > minValue ? uiOption.layers[layerIndex].color.minValue = minValue : minValue = uiOption.layers[layerIndex].color.minValue);
-      ( _.isUndefined(uiOption.layers[layerIndex].color.maxValue) || uiOption.layers[layerIndex].color.maxValue < maxValue ? uiOption.layers[layerIndex].color.maxValue = maxValue : maxValue = uiOption.layers[layerIndex].color.maxValue);
+      (_.isUndefined(uiOption.layers[layerIndex].color.minValue) || uiOption.layers[layerIndex].color.minValue > minValue ? uiOption.layers[layerIndex].color.minValue = minValue : minValue = uiOption.layers[layerIndex].color.minValue);
+      (_.isUndefined(uiOption.layers[layerIndex].color.maxValue) || uiOption.layers[layerIndex].color.maxValue < maxValue ? uiOption.layers[layerIndex].color.maxValue = maxValue : maxValue = uiOption.layers[layerIndex].color.maxValue);
     }
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
     const addValue = (maxValue - minValue) / (colorListLength);
-
-    let shape;
 
     // set decimal value
     const formatValue = ((value) => {
@@ -540,29 +529,29 @@ export class ColorOptionConverter {
     });
 
     // decimal min value
-    let formatMinValue = formatValue(minValue);
+    const formatMinValue = formatValue(minValue);
     // decimal max value
-    let formatMaxValue = formatValue(maxValue);
+    const formatMaxValue = formatValue(maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {
 
-      let color = colorList[index];
+      const color = colorList[index];
 
       // set the biggest value in min(gt)
       if (colorListLength === index) {
 
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, null));
       } else {
 
         // if it's the last value, set null in min(gt)
-        let min = 0 == index ? null : formatValue(maxValue - addValue);
+        let min = 0 === index ? null : formatValue(maxValue - addValue);
 
         // if value if lower than minValue, set it as minValue
         // if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
         if (min < minValue && min < 0) min = _.cloneDeep(formatMinValue);
 
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), null));
 
         maxValue = min;
       }
@@ -570,6 +559,7 @@ export class ColorOptionConverter {
 
     return rangeList;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

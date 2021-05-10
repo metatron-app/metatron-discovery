@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
 // app.metatron.discovery.domain.dataconnection
 export class Dataconnection extends AbstractHistoryEntity {
   public id: string;
   public name: string;
-  public connectionInformation:JdbcDialect;
+  public connectionInformation: JdbcDialect;
   public description: string;
   public type: string;
   public hostname: string;
@@ -26,7 +26,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public options: string;
   public username: string;
   public password: string;
-  public sid:string;
+  public sid: string;
   public url: string;
   public connectUrl: string;
   public implementor: ImplementorType;
@@ -42,7 +42,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public dataSources: any[];
   public workbenches: any[];
 
-  public authenticationType:any; // detail-workbench-dataconnection-info 에서 오류 발생으로 임시 추가함
+  public authenticationType: any; // detail-workbench-dataconnection-info 에서 오류 발생으로 임시 추가함
 
   // workbench 일경우 추가됨
   public published: boolean;
@@ -51,7 +51,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public linkedWorkspaces: number;
 
   // for UI
-  public num:number;
+  public num: number;
 }
 
 // app.metatron.discovery.extension.dataconnection.jdbc.dialect
@@ -99,7 +99,7 @@ export enum ImplementorType {
   POSTGRESQL = 'POSTGRESQL',
   MSSQL = 'MSSQL',
   PRESTO = 'PRESTO',
-  PHOENIX ='PHOENIX',
+  PHOENIX = 'PHOENIX',
   NVACCEL = 'NVACCEL',
   STAGE = 'STAGE',
   DRUID = 'DRUID',
@@ -123,7 +123,7 @@ export enum Scope {
 
 // TODO 추후 DataStorageConstant.Dataconnection.Authentiacation 변경 요구
 export enum AuthenticationType {
-  USERINFO = <any>'USERINFO',
-  MANUAL = <any>'MANUAL',
-  DIALOG = <any>'DIALOG'
+  USERINFO = 'USERINFO',
+  MANUAL = 'MANUAL',
+  DIALOG = 'DIALOG'
 }

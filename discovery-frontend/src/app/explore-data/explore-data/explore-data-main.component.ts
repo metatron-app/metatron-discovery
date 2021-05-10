@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {EventBroadcaster} from "../../common/event/event.broadcaster";
-import {DataCreator} from "../../domain/meta-data-management/data-creator";
+import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
 
 @Component({
   selector: 'explore-data-main',
   templateUrl: './explore-data-main.component.html',
 })
-export class ExploreDataMainComponent extends AbstractComponent {
+export class ExploreDataMainComponent extends AbstractComponent implements OnInit {
 
   popularMetadataShowStartIndex = 0;
   popularMetadataCarouselScreenIndex = [];
@@ -120,7 +120,7 @@ export class ExploreDataMainComponent extends AbstractComponent {
 
   /**
    * When click carousel right button
-    */
+   */
   onClickCarouselRight(): void {
     if (this.popularMetadataShowStartIndex + 5 < this.popularMetadataList.length) {
       this.popularMetadataShowStartIndex += 5;
@@ -154,7 +154,11 @@ export class ExploreDataMainComponent extends AbstractComponent {
   }
 
   public async setMyFavoriteMetadataList() {
-    const result = await this._metadataService.getMetadataListByMyFavorite({size: 4, page: 0, sort: 'createdTime,desc'});
+    const result = await this._metadataService.getMetadataListByMyFavorite({
+      size: 4,
+      page: 0,
+      sort: 'createdTime,desc'
+    });
     if (!_.isNil(result._embedded)) {
       this.favoriteMetadataList = result._embedded.metadatas;
       this.favoriteMetadataTotalCount = result.page.totalElements;

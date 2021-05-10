@@ -13,32 +13,32 @@
  */
 
 export class Task {
-  created_time: string;
+  createdTime: string;
   datasource: string;
   duration: number;
   location: string;
   rank: number;
   status: TaskStatus;
-  task_id: string;
+  taskId: string;
   type: TaskType;
-  queue_insertion_time: string;
+  queueInsertionTime: string;
   host: string;
 }
 
 export enum TaskStatus {
-  ALL = <any>'ALL',
-  PENDING = <any>'PENDING',
-  WAITING = <any>'WAITING',
-  RUNNING = <any>'RUNNING',
-  SUCCESS = <any>'SUCCESS',
-  FAILED = <any>'FAILED'
+  ALL = 'ALL',
+  PENDING = 'PENDING',
+  WAITING = 'WAITING',
+  RUNNING = 'RUNNING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED'
 }
 
 export enum TaskType {
-  ALL = <any>'ALL',
-  INDEX = <any>'index',
-  KAFKA = <any>'index_kafka',
-  HADOOP = <any>'index_hadoop'
+  ALL = 'ALL',
+  INDEX = 'index',
+  KAFKA = 'index_kafka',
+  HADOOP = 'index_hadoop'
 }
 
 // ONLY USE UI

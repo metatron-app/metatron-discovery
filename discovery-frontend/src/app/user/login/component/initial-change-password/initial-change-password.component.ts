@@ -12,18 +12,12 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import {
-  Component,
-  ElementRef, EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit, Output, ViewChild
-} from '@angular/core';
-import { UserService } from '../../../service/user.service';
-import { isUndefined } from 'util';
-import { StringUtil } from '../../../../common/util/string.util';
-import { Alert } from '../../../../common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {UserService} from '../../../service/user.service';
+import {isUndefined} from 'util';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'app-initial-change-password',
@@ -113,7 +107,7 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
    * init
    * @param {string} userId
    */
-  public init(userId: string, status: string): void {
+  public init(userId: string, _status: string): void {
     // ui init
     this._initView();
     // 유저 아이디
@@ -156,7 +150,7 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
       initialPassword: this.password
     }
     this.userService.validatePassword(param)
-      .then((result) => {
+      .then(() => {
         this.resultPassword = true;
       }).catch((error) => {
       this.loadingHide();
@@ -164,7 +158,7 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
       if (error.code === 'UR0008') {
         this.passwordMessage = this.translateService.instant('msg.comm.alert.profile.password.match.not');
       } else if (StringUtil.isNotEmpty(error.code)) {
-        this.passwordMessage = this.translateService.instant('login.ui.fail.'+error.code);
+        this.passwordMessage = this.translateService.instant('login.ui.fail.' + error.code);
       }
       return;
     });
@@ -189,13 +183,13 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
       password: this.newPassword
     }
     this.userService.validatePassword(param)
-      .then((result) => {
+      .then(() => {
         this.resultNewPassword = true;
       }).catch((error) => {
       this.loadingHide();
       this.resultNewPassword = false;
       if (StringUtil.isNotEmpty(error.code)) {
-        this.newPasswordMessage = this.translateService.instant('login.ui.fail.'+error.code);
+        this.newPasswordMessage = this.translateService.instant('login.ui.fail.' + error.code);
       }
       return;
     });
@@ -278,9 +272,9 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
     // 새로 변경할 패스워드 결과 확인
     this.resultRePassword = undefined;
 
-    setTimeout(()=>{
+    setTimeout(() => {
       this._pwElm.nativeElement.focus();
-    },0);
+    }, 0);
   }
 
   /**
@@ -321,7 +315,7 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
       confirmPassword: this.rePassword
     };
     this.userService.updateInitialUser(this._userId, param)
-      .then((result) => {
+      .then(() => {
         // 로딩 hide
         this.loadingHide();
         // success alert
@@ -329,7 +323,7 @@ export class InitialChangePasswordComponent extends AbstractComponent implements
         // close
         this.closeChangePassword();
       })
-      .catch((err) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
         // error alert

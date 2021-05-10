@@ -12,22 +12,19 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
-import {
-  AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild
-} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { DataflowService } from '../../../../service/dataflow.service';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { isNullOrUndefined } from "util";
-import { PrepSelectBoxCustomComponent } from '../../../../../util/prep-select-box-custom.component';
-import {SetFormatRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {SetFormatRule} from '@domain/data-preparation/prep-rules';
+import {DataflowService} from '../../../../service/dataflow.service';
+import {PrepSelectBoxCustomComponent} from '../../../../../util/prep-select-box-custom.component';
+import {EditRuleComponent} from './edit-rule.component';
 
 @Component({
-  selector : 'edit-rule-setformat',
-  templateUrl : './edit-rule-setformat.component.html'
+  selector: 'edit-rule-setformat',
+  templateUrl: './edit-rule-setformat.component.html'
 })
 export class EditRuleSetformatComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -42,21 +39,21 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
-  public timestampFormats : any = [] ;
-  public dsId : string = '';
-  public isGetTimestampRunning : boolean = false;
+  public timestampFormats: any = [];
+  public dsId: string = '';
+  public isGetTimestampRunning: boolean = false;
 
   // 상태 저장용 T/F
-  public isFocus:boolean = false;         // Input Focus 여부
-  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+  public isFocus: boolean = false;         // Input Focus 여부
+  public isTooltipShow: boolean = false;   // Tooltip Show/Hide
 
-  public selectedTimestamp : string = '';
+  public selectedTimestamp: string = '';
   public customTimestamp: string; // custom format
 
   private tempTimetampValue: string = '';
 
-  public defaultIndex : number = -1;
-  public colTypes : any = [];
+  public defaultIndex: number = -1;
+  public colTypes: any = [];
 
   @ViewChild(PrepSelectBoxCustomComponent)
   protected _custom: PrepSelectBoxCustomComponent;
@@ -116,24 +113,24 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   private getTimestampFormats() {
     if (!this.isGetTimestampRunning) {
       this.isGetTimestampRunning = true;
-      let cols = this.selectedFields.map((item) => {
+      const cols = this.selectedFields.map((item) => {
         return item.name
       });
 
       this.tempTimetampValue = this.selectedTimestamp;
 
-      this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames : cols} ).then((result) => {
+      this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames: cols}).then((result) => {
 
-        let keyList = [];
-        for (let key in result) {
+        const keyList = [];
+        for (const key in result) {
           if (result.hasOwnProperty(key)) {
             keyList.push(key);
           }
         }
         this.timestampFormats = [];
-        for (let i in result[keyList[0]]) {
+        for (const i in result[keyList[0]]) {
           if (result[keyList[0]].hasOwnProperty(i)) {
-            this.timestampFormats.push({ value: i, isHover: false, matchValue: result[keyList[0]][i] })
+            this.timestampFormats.push({value: i, isHover: false, matchValue: result[keyList[0]][i]})
           }
         }
 
@@ -141,8 +138,10 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
         this.selectedTimestamp = this.tempTimetampValue;
         if (cols.length > 0 || '' !== this.tempTimetampValue) {
           if ('' === this.tempTimetampValue && this.selectedFields[0]) {
-            let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
-            if(idx !== undefined && idx >= 0) {this.selectedTimestamp = this.colTypes[idx].timestampStyle;}
+            const idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
+            if (idx !== undefined && idx >= 0) {
+              this.selectedTimestamp = this.colTypes[idx].timestampStyle;
+            }
           }
         }
         this.isGetTimestampRunning = false;
@@ -158,12 +157,11 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    */
   private setSelectedTimestamp() {
     let tempnum: number = -1;
-    if(this.selectedTimestamp !==null && this.selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(this.selectedTimestamp)) {
+    if (this.selectedTimestamp !== null && this.selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(this.selectedTimestamp)) {
       tempnum = this._timestampValueArray().indexOf(this.tempTimetampValue);
     }
     this._custom.setSelectedItem(this.timestampFormats, this.selectedTimestamp, tempnum);
   }
-
 
 
   /**
@@ -187,8 +185,8 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       + this.getColumnNamesInArray(this.selectedFields, true).toString()
       + ' format: ';
 
-    let val: any = this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp;
-    let check = StringUtil.checkSingleQuote(val, { isPairQuote: false, isWrapQuote: true });
+    let val: any = this.selectedTimestamp === 'Custom format' ? this.customTimestamp : this.selectedTimestamp;
+    const check = StringUtil.checkSingleQuote(val, {isPairQuote: false, isWrapQuote: true});
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
       return undefined;
@@ -198,12 +196,12 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     ruleString += val;
 
     return {
-      command : 'setformat',
+      command: 'setformat',
       ruleString: ruleString,
       uiRuleString: {
-        name : 'setformat',
-        col : this.getColumnNamesInArray(this.selectedFields),
-        format: this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp,
+        name: 'setformat',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        format: this.selectedTimestamp === 'Custom format' ? this.customTimestamp : this.selectedTimestamp,
         isBuilder: true
       }
     };
@@ -217,7 +215,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * When selected column is changed
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
     this.selectedTimestamp = '';
 
@@ -234,8 +232,8 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * 패턴 정보 레이어 표시
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
     this.isFocus = isShow;
   } // function - showHidePatternLayer
 
@@ -271,14 +269,14 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule string parse
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {jsonRuleString : SetFormatRule}) {
+  protected parsingRuleString(data: { jsonRuleString: SetFormatRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     // FORMAT
-    if (!isNullOrUndefined(data.jsonRuleString.format)) {
+    if (!this.isNullOrUndefined(data.jsonRuleString.format)) {
       this.selectedTimestamp = data.jsonRuleString.format;
       this.getTimestampFormats();
     }
@@ -306,6 +304,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       return item.value;
     });
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

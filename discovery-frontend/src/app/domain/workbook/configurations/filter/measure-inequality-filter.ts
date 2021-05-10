@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { AdvancedFilter } from './advanced-filter';
-import { AggregationType } from '../field/measure-field';
+import {AdvancedFilter} from './advanced-filter';
+import {AggregationType} from '../field/measure-field';
 
-export class MeasureInequalityFilter extends AdvancedFilter{
+export class MeasureInequalityFilter extends AdvancedFilter {
   /**
    *  집계 타입
    */
@@ -40,9 +40,9 @@ export class MeasureInequalityFilter extends AdvancedFilter{
 }
 
 export enum InequalityType {
-  EQUAL_TO = <any>'EQUAL_TO',
-  GREATER_THAN = <any>'GREATER_THAN',
-  LESS_THAN = <any>'LESS_THAN',
-  EQUAL_GREATER_THAN = <any>'EQUAL_GREATER_THAN',
-  EQUAL_LESS_THAN = <any>'EQUAL_LESS_THAN',
+  EQUAL_TO = 'EQUAL_TO',
+  GREATER_THAN = 'GREATER_THAN',
+  LESS_THAN = 'LESS_THAN',
+  EQUAL_GREATER_THAN = 'EQUAL_GREATER_THAN',
+  EQUAL_LESS_THAN = 'EQUAL_LESS_THAN',
 }

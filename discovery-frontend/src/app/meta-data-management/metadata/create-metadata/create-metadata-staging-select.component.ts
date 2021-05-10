@@ -13,22 +13,31 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {MetadataConstant} from "../../metadata.constant";
-import {MetadataEntity} from "../metadata.entity";
-import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import * as _ from "lodash";
-import {isNullOrUndefined} from "util";
-import {SchemaTableListComponent} from "./component/schema-table-list.component";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {MetadataConstant} from '../../metadata.constant';
+import {MetadataEntity} from '../metadata.entity';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import * as _ from 'lodash';
+import {SchemaTableListComponent} from './component/schema-table-list.component';
+import {SchemaTablePreviewComponent} from './component/schema-table-preview.component';
 import SchemaInfo = MetadataEntity.SchemaInfo;
-import {SchemaTablePreviewComponent} from "./component/schema-table-preview.component";
 
 @Component({
   selector: 'create-metadata-staging-select',
   templateUrl: 'create-metadata-staging-select.component.html'
 })
-export class CreateMetadataStagingSelectComponent extends AbstractComponent {
+export class CreateMetadataStagingSelectComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild(SchemaTableListComponent)
   private readonly _tableListComponent: SchemaTableListComponent;
@@ -45,7 +54,7 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
   selectedSchema: string;
   tableList: string[];
   selectedTable: string;
-  selectedTableDetailData: {data, fields};
+  selectedTableDetailData: { data, fields };
 
   // loading part flag
   isLoading: boolean;
@@ -68,7 +77,7 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    for (let $subscriptions of this.subscriptions) {
+    for (const $subscriptions of this.subscriptions) {
       $subscriptions.unsubscribe();
     }
   }
@@ -128,12 +137,12 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
     const sub = this.connectionService.getSchemaListForHiveWithCancel().subscribe(
       res => {
         this.schemaList = res['databases'];
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
       err => {
         this.commonExceptionHandler(err);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
     );
@@ -151,12 +160,12 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
       res => {
         // set table list
         this.tableList = res['tables'];
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
       err => {
         this.commonExceptionHandler(err);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
     );
@@ -173,7 +182,11 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
     // init preview
     this._initialTablePreview();
     // get detail data
-    const sub = this.connectionService.getTableDetailDataForHiveWithCancel( {type: 'TABLE', database: this.selectedSchema, query: this.selectedTable}).subscribe(
+    const sub = this.connectionService.getTableDetailDataForHiveWithCancel({
+      type: 'TABLE',
+      database: this.selectedSchema,
+      query: this.selectedTable
+    }).subscribe(
       res => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
         res['data'] = this._getReplacedDataList(res['data']);
@@ -181,12 +194,12 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
         // set detail data
         this.selectedTableDetailData = res;
         this._tablePreviewComponent.changeTableData(this.selectedTable, this.selectedTableDetailData);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
       err => {
         this.commonExceptionHandler(err);
-        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.subscriptions = this.subscriptions.filter(_item => !this.subscriptions.includes(sub));
         this.isLoading = false;
       },
     );
@@ -203,7 +216,7 @@ export class CreateMetadataStagingSelectComponent extends AbstractComponent {
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      if (!isNullOrUndefined(item.alias)) {
+      if (!this.isNullOrUndefined(item.alias)) {
         item.alias = this._sliceTableName(item.alias);
       }
       return item;

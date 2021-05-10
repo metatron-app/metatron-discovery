@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AdvancedFilter } from './advanced-filter';
+import {AdvancedFilter} from './advanced-filter';
 
 export class WildCardFilter extends AdvancedFilter {
   /**
@@ -30,12 +30,13 @@ export class WildCardFilter extends AdvancedFilter {
     this.type = 'wildcard';
   }
 }
+
 /**
  * 포함 조건 타입 정의
  */
 
 export enum ContainsType {
-  BEFORE = <any>'BEFORE',
-  AFTER = <any>'AFTER',
-  BOTH = <any>'BOTH'
+  BEFORE = 'BEFORE',
+  AFTER = 'AFTER',
+  BOTH = 'BOTH'
 }

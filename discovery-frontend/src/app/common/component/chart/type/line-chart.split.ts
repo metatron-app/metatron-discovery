@@ -14,10 +14,10 @@
  */
 
 import * as _ from 'lodash';
-import {BaseOption} from "../option/base-option";
-import {UIOption, UISplit} from "../option/ui-option";
-import {CHART_STRING_DELIMITER, ShelveFieldType} from "../option/define/common";
-import {Pivot} from "../../../../domain/workbook/configurations/pivot";
+import {BaseOption} from '../option/base-option';
+import {UIOption, UISplit} from '../option/ui-option';
+import {CHART_STRING_DELIMITER, ShelveFieldType} from '../option/define/common';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 
 declare let echarts: any;
 
@@ -55,13 +55,8 @@ export class LineChartSplit {
    * Split옵션이 있는지 확인한다.
    */
   public isSplit(uiOption: UIOption): boolean {
-
     // Split옵션이 있는지 확인한다.
-    if( uiOption.split ) {
-      return true;
-    }
-
-    return false;
+    return !!uiOption.split;
   }
 
   /**
@@ -77,40 +72,38 @@ export class LineChartSplit {
     // Split 정보
     const split: UISplit = uiOption.split;
     // 데이터 목록
-    let list: number[] = []; //data.columns[0].value;
+    // const list: number[] = []; // data.columns[0].value;
     // 가로 개수
-    let width: number = split.column;
+    const width: number = split.column;
     // 세로 개수
-    let height: number = split.row;
+    const height: number = split.row;
     // 그리드
-    let grids = [];
+    const grids = [];
     // X축
-    let xAxes = [];
+    const xAxes = [];
     // Y축
-    let yAxes = [];
+    const yAxes = [];
     // 시리즈
-    let series = [];
+    const series = [];
     // 차트별 제목
-    let titles = [];
+    const titles = [];
     // Split 개수
     let count = 0;
     // 컬럼개수
-    let columnCount: number = data.columns.length;
+    const columnCount: number = data.columns.length;
     //////////////////////////////////////////////
     // Split by dimension일경우
     //////////////////////////////////////////////
     // Measure명
-    let measureName: string = "";
-    // Measure가 여러개일경우 첫번째 Measure에 해당하는 Column 정보만 정제한다.
-    let refineColumns: Object[] = [];
+    let measureName: string =  '';
     // Split by의 aggregation에서의 index를 구한다.
     let splitByIndex: number = 0;
-    let splitSeriesIndex: number[] = []; // Split내의 시리즈 목록
+    const splitSeriesIndex: number[] = []; // Split내의 시리즈 목록
     let aggregationDimensionCount: number = 0;
     // 시리즈 목록
     let seriesList = [];
     // Split내의 시리즈 목록
-    let splitSeriesList = {};
+    const splitSeriesList = {};
 
     for( let num = 0 ; num < columnCount ; num++ ) {
 
@@ -131,15 +124,15 @@ export class LineChartSplit {
       });
 
       // 시리즈 데이터
-      let seriesdata = [];
+      const seriesdata = [];
 
       // 교차에 등록된 Dimension Count
-      let dimensionCount: number = 0;
-      _.each(pivot.aggregations, (item) => {
-        if( !_.eq(item.type, ShelveFieldType.MEASURE) ) {
-          dimensionCount++;
-        }
-      });
+      // let dimensionCount: number = 0;
+      // _.each(pivot.aggregations, (item) => {
+      //   if( !_.eq(item.type, ShelveFieldType.MEASURE) ) {
+      //     dimensionCount++;
+      //   }
+      // });
 
       // 데이터 세팅
       // Measure 시리즈일경우
@@ -151,7 +144,7 @@ export class LineChartSplit {
         ////////////////////////////////////////
 
         // Measure 목록
-        let refineColumns: Object[] = [];
+        const refineColumns: object[] = [];
         _.each(pivot.aggregations, (item) => {
           if(  _.eq(item.type, ShelveFieldType.MEASURE) ) {
             refineColumns.push({name: item.alias, value: []});
@@ -170,12 +163,12 @@ export class LineChartSplit {
             const columnNameList = _.split(column.name, CHART_STRING_DELIMITER);
 
             _.each(columnNameList, (item) => {
-              if( item.indexOf(measure['name']) != -1 ) {
+              if( item.indexOf(measure['name']) !== -1 ) {
 
                 _.each(column.value, (value, index) => {
                   measure['value'][index] = measure['value'][index] ? measure['value'][index] + value : value;
                 });
-                console.info(refineColumns);
+                console.log(refineColumns);
                 return false;
               }
             });
@@ -194,11 +187,11 @@ export class LineChartSplit {
           // 쪼개져서 내려온 Row를 X축 데이터랑 비교해서 합침
           data.rows.map((row, rowIndex) => {
             const rowNameList = _.split(row, CHART_STRING_DELIMITER);
-            if (xAxis == rowNameList[0]) {
+            if (xAxis === rowNameList[0]) {
 
               // 컬럼에서 Row랑 같은 Index의 Value를 합침
               refineColumns[count]['value'].map((value, valueIndex) => {
-                if (rowIndex == valueIndex) {
+                if (rowIndex === valueIndex) {
                   seriesdata[xAxisIndex] += value;
                 }
               });
@@ -208,7 +201,8 @@ export class LineChartSplit {
       }
       else {
 
-        if( num == 0 ) {
+        const refineColumns: object[] = [];
+        if( num === 0 ) {
 
           ////////////////////////////////////////
           // Split by가 Dimension이지만
@@ -216,7 +210,7 @@ export class LineChartSplit {
           ////////////////////////////////////////
 
           // Measure명
-          //let measureName: string = "";
+          // let measureName: string =  '';
           _.each(pivot.aggregations, (item) => {
             if (_.eq(item.type, ShelveFieldType.MEASURE)) {
               measureName = item.alias;
@@ -225,18 +219,17 @@ export class LineChartSplit {
           });
 
           // Measure가 여러개일경우 첫번째 Measure에 해당하는 Column 정보만 정제한다.
-          //let refineColumns: Object[] = [];
-          data.columns.map((column, columnIndex) => {
+          data.columns.map((column, _columnIndex) => {
             const columnNameList = _.split(column.name, CHART_STRING_DELIMITER);
             let measureIndex = -1;
-            _.each(columnNameList, (item, index) => {
-              if (item.indexOf(measureName) != -1) {
-                measureIndex = index;
+            _.each(columnNameList, (item, colNameIdx) => {
+              if (item.indexOf(measureName) !== -1) {
+                measureIndex = colNameIdx;
                 return false;
               }
             });
 
-            if (measureIndex != -1) {
+            if (measureIndex !== -1) {
               refineColumns.push(column);
             }
           });
@@ -248,16 +241,16 @@ export class LineChartSplit {
 
 
           // Split by의 aggregation에서의 index를 구한다.
-          //let splitByIndex: number = 0;
-          //let splitSeriesIndex: number[] = []; // Split내의 시리즈 목록
-          //let aggregationDimensionCount: number = 0;
-          _.each(pivot.aggregations, (item, index) => {
+          // let splitByIndex: number = 0;
+          // let splitSeriesIndex: number[] = []; // Split내의 시리즈 목록
+          // let aggregationDimensionCount: number = 0;
+          _.each(pivot.aggregations, (item, _index) => {
             if (!_.eq(item.type, ShelveFieldType.MEASURE)) {
 
               // 이름이 같은 Dimension을 찾았을경우
-              if (item.alias.indexOf(split.by) != -1) {
+              if (item.alias.indexOf(split.by) !== -1) {
                 splitByIndex = aggregationDimensionCount;
-                //return false;
+                // return false;
               }
               else {
                 splitSeriesIndex.push(aggregationDimensionCount);
@@ -269,7 +262,7 @@ export class LineChartSplit {
           });
 
           // 시리즈 목록
-          //let seriesList = [];
+          // let seriesList = [];
           refineColumns.map((column) => {
             const columnNameList = _.split(column['name'], CHART_STRING_DELIMITER);
             if (columnNameList.length >= 1) {
@@ -279,44 +272,43 @@ export class LineChartSplit {
           });
 
           // Split내의 시리즈 목록
-          //let splitSeriesList = {};
+          // let splitSeriesList = {};
           // 교차선반에 Dimension이 추가로 더 있을경우 시리즈 분리를 위해 수집한다.
           if (aggregationDimensionCount > 1) {
-            _.each(seriesList, (series, index) => {
-              splitSeriesList[series] = [];
-              let splitSeries = splitSeriesList[series];
+            _.each(seriesList, (seriesName, _index) => {
+              splitSeriesList[seriesName] = [];
+              const splitSeries = splitSeriesList[seriesName];
 
               refineColumns.map((column) => {
                 const columnNameList = _.split(column['name'], CHART_STRING_DELIMITER);
-                if (columnNameList[splitByIndex] == series) {
+                if (columnNameList[splitByIndex] === seriesName) {
 
                   _.each(splitSeriesIndex, (seriesIndex, index) => {
 
-                    if (index == 0) {
-                      splitSeries.push("");
+                    if (index === 0) {
+                      splitSeries.push( '');
                     }
                     else {
-                      splitSeriesList[series][splitSeries.length - 1] += "-";
+                      splitSeriesList[seriesName][splitSeries.length - 1] += '-';
                     }
-                    splitSeriesList[series][splitSeries.length - 1] += columnNameList[seriesIndex];
+                    splitSeriesList[seriesName][splitSeries.length - 1] += columnNameList[seriesIndex];
                   });
                 }
               });
             });
           }
-        } //if( num == 0 ) {
+        } // if( num == 0 ) {
 
         // Count가 Series 개수를 초과하면 중지
         // if( count >= seriesList.length ) {
-        if( (count >= seriesList.length && aggregationDimensionCount == 0)
+        if( (count >= seriesList.length && aggregationDimensionCount === 0)
           || (aggregationDimensionCount >= 1 && count >= refineColumns.length) ) {
-
-          console.info("중지");
+          console.log('중지');
           break;
         }
 
         // 컬럼개수 업데이트
-        //columnCount = seriesList.length;
+        // columnCount = seriesList.length;
 
         // 데이터 합계 계산
         xAxisData.map((xAxis, xAxisIndex) => {
@@ -326,15 +318,15 @@ export class LineChartSplit {
           // 쪼개져서 내려온 Row를 X축 데이터랑 비교해서 합침
           data.rows.map((row, rowIndex) => {
             const rowNameList = _.split(row, CHART_STRING_DELIMITER);
-            if (xAxis == rowNameList[0]) {
+            if (xAxis === rowNameList[0]) {
 
               // 시리즈
-              refineColumns.map((column, columnIndex) => {
-                if( column['name'].indexOf(seriesList[count]) != -1 ) {
+              refineColumns.map((column, _columnIndex) => {
+                if( column['name'].indexOf(seriesList[count]) !== -1 ) {
 
                   // 컬럼에서 Row랑 같은 Index의 Value를 합침
                   column['value'].map((value, valueIndex) => {
-                    if (rowIndex == valueIndex) {
+                    if (rowIndex === valueIndex) {
                       seriesdata[xAxisIndex] += value;
                     }
                   });
@@ -411,7 +403,7 @@ export class LineChartSplit {
     ////////////////////////////////////////
 
     // // Measure명
-    // let measureName: string = "";
+    // let measureName: string =  '';
     // // Measure가 여러개일경우 첫번째 Measure에 해당하는 Column 정보만 정제한다.
     // let refineColumns: Object[] = [];
     // // Split by의 aggregation에서의 index를 구한다.
@@ -422,10 +414,10 @@ export class LineChartSplit {
     // let seriesList = [];
     // // Split내의 시리즈 목록
     // let splitSeriesList = {};
-    console.info(series);
-    console.info(seriesList);
-    console.info(splitSeriesList);
-    console.info(refineColumns);
+    console.log(series);
+    console.log(seriesList);
+    console.log(splitSeriesList);
+    // console.log(refineColumns);
 
     // 시리즈 목록을 루프돌며 Split 시리즈를 설정한다.
     if( aggregationDimensionCount > 1 ) {
@@ -433,14 +425,14 @@ export class LineChartSplit {
         let seriesCount: number = 0;
         _.each(series, (item, index) => { // 시리즈 설정정보 목록
           const columnNameList = _.split(item.name, CHART_STRING_DELIMITER);
-          if (columnNameList[splitByIndex] == seriesName) {
+          if (columnNameList[splitByIndex] === seriesName) {
 
             // 그리드의 시리즈 Index를 기록
-            grids[index]["seriesIndex"] = seriesNameIndex;
+            grids[index]['seriesIndex'] = seriesNameIndex;
 
             // 스플릿 시리즈중 첫번째 데이터일 경우
-            if( seriesCount == 0 ) {
-              console.info(index);
+            if( seriesCount === 0 ) {
+              console.log(index);
 
               xAxes[index].show = seriesNameIndex >= (columnCount - width) || seriesNameIndex >= (width * height) - width;
               yAxes[index].show = true;
@@ -460,10 +452,10 @@ export class LineChartSplit {
       });
     }
 
-    console.info(series);
-    console.info(seriesList);
-    console.info(splitSeriesList);
-    console.info(refineColumns);
+    console.log(series);
+    console.log(seriesList);
+    console.log(splitSeriesList);
+    // console.log(refineColumns);
 
     ////////////////////////////////////////
     // Y축 - Min / Max 설정
@@ -492,7 +484,7 @@ export class LineChartSplit {
       });
 
       // Y축 Interval
-      let interval: number = Math.ceil(maxValue / 5);
+      const interval: number = Math.ceil(maxValue / 5);
 
       // Min / Max / interval 설정
       _.each(yAxes, (item) => {
@@ -509,15 +501,15 @@ export class LineChartSplit {
     // 레이아웃 위치 설정
     ////////////////////////////////////////
 
-    echarts.util.each(grids, function (grid, idx) {
+    echarts.util.each(grids, (grid, idx) => {
 
-      if( typeof grid["seriesIndex"] != "undefined" ) {
-        idx = grid["seriesIndex"];
+      if( typeof grid['seriesIndex'] !== 'undefined' ) {
+        idx = grid['seriesIndex'];
       }
 
       // TODO: 레이아웃 개수별로 간격 조절필요함
       // 가로 간격
-      let marginLeft: number = 10;
+      const marginLeft: number = 10;
 
       grid.left = ((idx % width) / width * 100 + marginLeft) + '%';
       grid.top = (Math.floor(idx / width) / height * 100 + 2) + '%';
@@ -527,13 +519,13 @@ export class LineChartSplit {
       titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
       titles[idx].top = parseFloat(grid.top) + '%';
 
-      // console.info("=====================");
-      // console.info("idx : "+ idx);
-      // console.info("grid.left",grid.left);
-      // console.info("grid.top",grid.top);
-      // console.info("grid.width",grid.width);
-      // console.info("grid.height",grid.height);
-      // console.info("=====================");
+      // console.log("=====================");
+      // console.log("idx : "+ idx);
+      // console.log("grid.left",grid.left);
+      // console.log("grid.top",grid.top);
+      // console.log("grid.width",grid.width);
+      // console.log("grid.height",grid.height);
+      // console.log("=====================");
     });
 
     // 최종 Split 주입

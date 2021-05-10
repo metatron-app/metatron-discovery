@@ -13,24 +13,22 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute} from '@angular/router';
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {AuditService} from '../service/audit.service';
-import {Alert} from '../../../common/util/alert.util';
-import {Audit} from '../../../domain/audit/audit';
-import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {CommonUtil} from '../../../common/util/common.util';
-import {PeriodData} from "../../../common/value/period.data.value";
-import {PeriodComponent} from "../../../common/component/period/period.component";
+import {Alert} from '@common/util/alert.util';
+import {Audit} from '@domain/audit/audit';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CommonUtil} from '@common/util/common.util';
+import {PeriodData} from '@common/value/period.data.value';
+import {PeriodComponent} from '@common/component/period/period.component';
 
-import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
 
 declare let moment: any;
-
 
 @Component({
   selector: 'app-job-log',
@@ -77,12 +75,12 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   // 팝업 모드
   public mode: string;
 
-  public selectedElapsedTime : any;
+  public selectedElapsedTime: any;
 
   public CommonUtil = CommonUtil;
 
   @ViewChild('elapsedTime')
-  public elapsedTime : ElementRef;
+  public elapsedTime: ElementRef;
 
   public logTypeDefaultIndex: number = 0;
 
@@ -115,21 +113,21 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
         if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
+          if (!this.isNullOrUndefined(params['size'])) {
             this.page.size = params['size'];
           }
 
-          if (!isNullOrUndefined(params['page'])) {
+          if (!this.isNullOrUndefined(params['page'])) {
             this.page.page = params['page'];
           }
 
-          if (!isNullOrUndefined(params['searchKeyword'])) {
+          if (!this.isNullOrUndefined(params['searchKeyword'])) {
             this.searchText = params['searchKeyword'];
           }
 
           // status
           let index = 0;
-          if (!isNullOrUndefined(params['status'])) {
+          if (!this.isNullOrUndefined(params['status'])) {
             index = this.statusTypes.findIndex((item) => {
               return item.value.toLowerCase() === params['status'].toLowerCase()
             });
@@ -138,7 +136,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
           // log type
           let idx = 0;
-          if (!isNullOrUndefined(params['type'])) {
+          if (!this.isNullOrUndefined(params['type'])) {
             idx = this.types.findIndex((item) => {
               return item.value.toLowerCase() === params['type'].toLowerCase()
             });
@@ -148,15 +146,15 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
           // sort
           const sort = params['sort'];
-          if (!isNullOrUndefined(sort)) {
+          if (!this.isNullOrUndefined(sort)) {
             const sortInfo = decodeURIComponent(sort).split(',');
             this.selectedContentSort.key = sortInfo[0];
             this.selectedContentSort.sort = sortInfo[1];
           }
 
           // elapsed time
-          if (!isNullOrUndefined(params['elapsedTime'])) {
-            const sec = ["10", "30", "60"];
+          if (!this.isNullOrUndefined(params['elapsedTime'])) {
+            const sec = ['10', '30', '60'];
             this.selectedElapsedTime = Number(params['elapsedTime']);
             if (sec.indexOf(params['elapsedTime']) === -1) {
               this.elapsedTime.nativeElement.value = this.selectedElapsedTime;
@@ -170,7 +168,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
           const to = params['to'];
           this.selectedDate = new PeriodData();
           this.selectedDate.type = 'ALL';
-          if (!isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+          if (!this.isNullOrUndefined(from) && !this.isNullOrUndefined(to)) {
             this.selectedDate.startDate = from;
             this.selectedDate.endDate = to;
             this.selectedDate.dateType = 'CREATED';
@@ -228,7 +226,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    */
   public auditDetailOpen(id: string) {
     // 페이지 이동
-    this.router.navigateByUrl('/management/monitoring/audit/' + id);
+    this.router.navigateByUrl('/management/monitoring/audit/' + id).then();
   }
 
 
@@ -281,7 +279,6 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    * @param {string} key
    */
   public sort(key: string) {
-
     // 초기화
     this.selectedContentSort.sort = this.selectedContentSort.key !== key ? 'default' : this.selectedContentSort.sort;
 
@@ -338,9 +335,9 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    * On click of elapsed time
    * @param time
    */
-  public onClickElapsedTime(time?: string|number) {
+  public onClickElapsedTime(time?: string | number) {
 
-    if(time) {
+    if (time) {
 
       this.elapsedTime.nativeElement.value = '';
       this.selectedElapsedTime = time;
@@ -368,7 +365,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
     if (this.searchText) {
       params = {
-        searchKeyword : this.searchText
+        searchKeyword: this.searchText
       }
     }
     // status
@@ -406,7 +403,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
       downloadCsvForm.submit();
     } catch (e) {
       // 재현이 되지 않음.
-      console.info('Download error : ' + e);
+      console.log('Download error : ' + e);
     }
   }
 
@@ -432,19 +429,19 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   private initView() {
 
     this.types = [
-      { label: 'All', value: 'all' },
-      { label: 'Workbench Query', value: 'QUERY' },
-      { label : 'Workbench Others', value : 'JOB'}
+      {label: 'All', value: 'all'},
+      {label: 'Workbench Query', value: 'QUERY'},
+      {label: 'Workbench Others', value: 'JOB'}
 
     ];
     this.selectedType = this.types[0];
 
     this.statusTypes = [
-      { label: 'All', value: 'all' },
-      { label: 'Success', value: 'SUCCESS' },
-      { label: 'Running', value: 'RUNNING' },
-      { label: 'Cancelled', value: 'CANCELLED' },
-      { label: 'Fail', value: 'FAIL' }
+      {label: 'All', value: 'all'},
+      {label: 'Success', value: 'SUCCESS'},
+      {label: 'Running', value: 'RUNNING'},
+      {label: 'Cancelled', value: 'CANCELLED'},
+      {label: 'Fail', value: 'FAIL'}
     ];
     this.selectedStatus = this.statusTypes[0];
     this.selectedElapsedTime = 'ALL';
@@ -455,11 +452,11 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
    * audit list request params
    * @returns {page: number; size: number}
    */
-  private getAuditRequestParams() : any{
+  private getAuditRequestParams(): any {
     const params = {
       page: this.page.page,
       size: this.page.size,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
     // 이름
     if (this.searchText !== '') {
@@ -475,7 +472,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     }
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
-      params['dateType']= this.selectedDate.type;
+      params['dateType'] = this.selectedDate.type;
       if (this.selectedDate.startDateStr) {
         params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
@@ -524,7 +521,6 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
         this.loadingHide();
       });
   }
-
 
 
 }

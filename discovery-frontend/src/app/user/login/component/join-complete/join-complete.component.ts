@@ -12,9 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { UserService } from '../../../service/user.service';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'app-join-complete',
@@ -24,9 +23,8 @@ export class JoinCompleteComponent extends AbstractComponent implements OnInit, 
 
   public isShow = false;
 
-  constructor(private userService: UserService,
-              protected elementRef: ElementRef,
-              protected  injector: Injector) {
+  constructor(protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 

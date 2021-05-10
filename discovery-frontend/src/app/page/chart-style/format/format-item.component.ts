@@ -19,7 +19,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import {AbstractFormatItemComponent} from "./abstract-format-item.component";
+import {AbstractFormatItemComponent} from './abstract-format-item.component';
 
 @Component({
   selector: '[format-item]',

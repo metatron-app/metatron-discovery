@@ -12,8 +12,10 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
-  Component, ComponentFactoryResolver,
+  Component,
+  ComponentFactoryResolver,
   ComponentRef,
   ElementRef,
   Injector,
@@ -22,22 +24,21 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {ActivatedRoute} from "@angular/router";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {Metadata, SourceType} from "../../domain/meta-data-management/metadata";
-import {CommonUtil} from "../../common/util/common.util";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {SortOption} from "../explore-data/service/explore-data-util.service";
-import {CreateWorkbenchContainerComponent} from "../../workbench/component/create-workbench/refactoring/create-workbench-container.component";
-import {CreateWorkbookComponent} from "../../workbook/component/create-workbook/refactoring/create-workbook.component";
-import {ConfirmRefModalComponent} from "../../common/component/modal/confirm/confirm-ref.component";
-import {Modal} from "../../common/domain/modal";
-import {CookieConstant} from "../../common/constant/cookie.constant";
-import {Alert} from "../../common/util/alert.util";
-import {MetadataContainerComponent} from "../explore-data/popup/metadata-container.component";
+import {ActivatedRoute} from '@angular/router';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConfirmRefModalComponent} from '@common/component/modal/confirm/confirm-ref.component';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CreateWorkbenchContainerComponent} from '../../workbench/component/create-workbench/refactoring/create-workbench-container.component';
+import {CreateWorkbookComponent} from '../../workbook/component/create-workbook/refactoring/create-workbook.component';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
+import {SortOption} from '../explore-data/service/explore-data-util.service';
+import {MetadataContainerComponent} from '../explore-data/popup/metadata-container.component';
 
 @Component({
   selector: 'app-exploredata-favorite-data',
@@ -327,7 +328,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
         recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.id, this.page.page, this.page.size, this.page.sort)
           .catch(error => this.commonExceptionHandler(error));
       } else {
-        if (metadataDetail.source.source != undefined) {
+        if (metadataDetail.source.source !== undefined) {
           recentlyQueriesForDatabase = await this.metadataService.getRecentlyQueriesInMetadataDetailForDatabase(metadataDetail.source.source.id, this.page.page, this.page.size, this.page.sort)
             .catch(error => this.commonExceptionHandler(error));
         } else {
@@ -347,7 +348,11 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     };
 
     const getRecentlyUsedList = async () => {
-      recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {sort: 'modifiedTime', size: 5, page: 0}).catch(error => this.commonExceptionHandler(error));
+      recentlyUsedList = await this.metadataService.getRecentlyUsedInMetadataDetail(metadata.id, {
+        sort: 'modifiedTime',
+        size: 5,
+        page: 0
+      }).catch(error => this.commonExceptionHandler(error));
     };
 
     this.metadataService.getDetailMetaData(metadata.id).then(async (result) => {
@@ -386,13 +391,16 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
         this.metadataContainerEntryRef.destroy();
       });
       // toggle favorite in modal listener
-      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe((_) => {
+      this.metadataContainerEntryRef.instance.onToggleFavorite.subscribe(() => {
         // modal is shown in list screen
         this.getMetadataList(this.getMetadataListParams()).catch(e => this.commonExceptionHandler(e));
-          // modal is shown in main screen
+        // modal is shown in main screen
       });
 
-    }).catch(error => {console.log(error); this.commonExceptionHandler(error)});
+    }).catch(error => {
+      console.log(error);
+      this.commonExceptionHandler(error)
+    });
   }
 
   isNotEmptySearchKeyword(): boolean {
@@ -478,7 +486,7 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
   }
 
   private _showConfirmComponent() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       // show confirm modal
       this.confirmModalEntryRef = this.confirmModalEntry.createComponent(this.resolver.resolveComponentFactory(ConfirmRefModalComponent));
       const modal: Modal = new Modal();
@@ -525,35 +533,35 @@ export class FavoriteDataComponent extends AbstractComponent implements OnInit, 
     });
   }
 
-   private async _showCreateWorkbenchComponent(metadataDetail: Metadata) {
-     if (metadataDetail.source.source !== undefined) {
-       this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
+  private async _showCreateWorkbenchComponent(metadataDetail: Metadata) {
+    if (metadataDetail.source.source !== undefined) {
+      this.createWorkbenchEntryRef = this.createWorkbenchEntry.createComponent(this.resolver.resolveComponentFactory(CreateWorkbenchContainerComponent));
 
-       // const metadataDetail = await this.metadataService.getDetailMetaData(metadata.id).catch(e => this.commonExceptionHandler(e));
+      // const metadataDetail = await this.metadataService.getDetailMetaData(metadata.id).catch(e => this.commonExceptionHandler(e));
 
-       const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
 
-       // set data in component
-       this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
-       this.createWorkbenchEntryRef.instance.setConnectionInModel(metadataDetail.source.source);
-       this.createWorkbenchEntryRef.instance.setSchemaName(metadataDetail.source.schema);
-       this.createWorkbenchEntryRef.instance.setTableName(metadataDetail.source.table);
-       this.createWorkbenchEntryRef.instance.accessFromExplore();
-       this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
-         this.createWorkbenchEntryRef.destroy();
-       });
-       this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
-         if (_.isNil(workbenchId)) {
-           // link to workspace
-           this.router.navigateByUrl('/workspace').then();
-         } else {
-           // link to workspace
-           this.router.navigateByUrl('/workbench/' + workbenchId).then();
-         }
-       });
-     } else {
-       Alert.error(this.translateService.instant('msg.explore.alert.error.cannot.make.workbench'))
-     }
+      // set data in component
+      this.createWorkbenchEntryRef.instance.setWorkspaceId(workspace.id);
+      this.createWorkbenchEntryRef.instance.setConnectionInModel(metadataDetail.source.source);
+      this.createWorkbenchEntryRef.instance.setSchemaName(metadataDetail.source.schema);
+      this.createWorkbenchEntryRef.instance.setTableName(metadataDetail.source.table);
+      this.createWorkbenchEntryRef.instance.accessFromExplore();
+      this.createWorkbenchEntryRef.instance.closedPopup.subscribe(() => {
+        this.createWorkbenchEntryRef.destroy();
+      });
+      this.createWorkbenchEntryRef.instance.completedPopup.subscribe((workbenchId: string) => {
+        if (_.isNil(workbenchId)) {
+          // link to workspace
+          this.router.navigateByUrl('/workspace').then();
+        } else {
+          // link to workspace
+          this.router.navigateByUrl('/workbench/' + workbenchId).then();
+        }
+      });
+    } else {
+      Alert.error(this.translateService.instant('msg.explore.alert.error.cannot.make.workbench'))
+    }
 
   }
 

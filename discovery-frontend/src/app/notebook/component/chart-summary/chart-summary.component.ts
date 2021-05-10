@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { NotebookService } from '../../service/notebook.service';
-import { Alert } from '../../../common/util/alert.util';
-import { isUndefined } from 'util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {NotebookService} from '../../service/notebook.service';
+import {Alert} from '@common/util/alert.util';
+import {isUndefined} from 'util';
 
 @Component({
   selector: 'app-chart-summary',
   templateUrl: './chart-summary.component.html'
 })
-export class ChartSummaryComponent extends AbstractComponent implements OnInit {
+export class ChartSummaryComponent extends AbstractComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -32,13 +32,13 @@ export class ChartSummaryComponent extends AbstractComponent implements OnInit {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // chart summary
-  protected chartSummary: any = {};
+  public chartSummary: any = {};
 
   // columns
-  protected columns: any[] = [];
+  public columns: any[] = [];
 
   // rows
-  protected rows: any[] = [];
+  public rows: any[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
@@ -94,29 +94,7 @@ export class ChartSummaryComponent extends AbstractComponent implements OnInit {
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  protected getChartSummary(chartId: string) {
-    this.loadingShow();
-    this.notebookService.getChartDetail(chartId)
-      .then((data) => {
-        this.loadingHide();
-        this.chartSummary = data;
-        if (!isUndefined(data.configuration)) {
-          this.columns = data.configuration.pivot.columns;
-          this.rows = data.configuration.pivot.rows;
-        }
-      })
-      .catch((error) => {
-        this.loadingHide();
-        Alert.error(this.translateService.instant('msg.nbook.alert.chart.retrieve.fail'));
-        console.info('dashboardDetail', error);
-      });
-  }
-
-  protected getIconClass(itemType: string): string {
+  public getIconClass(itemType: string): string {
     let result = '';
     switch (itemType.toUpperCase()) {
       case 'TIMESTAMP':
@@ -159,9 +137,32 @@ export class ChartSummaryComponent extends AbstractComponent implements OnInit {
     return result;
   }
 
-  protected closeBtn() {
+  public closeBtn() {
     this.closeEvent.emit('');
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  protected getChartSummary(chartId: string) {
+    this.loadingShow();
+    this.notebookService.getChartDetail(chartId)
+      .then((data) => {
+        this.loadingHide();
+        this.chartSummary = data;
+        if (!isUndefined(data.configuration)) {
+          this.columns = data.configuration.pivot.columns;
+          this.rows = data.configuration.pivot.rows;
+        }
+      })
+      .catch((error) => {
+        this.loadingHide();
+        Alert.error(this.translateService.instant('msg.nbook.alert.chart.retrieve.fail'));
+        console.log('dashboardDetail', error);
+      });
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

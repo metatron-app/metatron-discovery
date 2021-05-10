@@ -16,9 +16,9 @@
  * Created by Dolkkok on 2017. 7. 17..
  */
 
-import {ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AfterViewInit, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractComponent} from '../abstract.component';
-import {Pivot} from '../../../domain/workbook/configurations/pivot';
+import {Pivot} from '@domain/workbook/configurations/pivot';
 import {
   UIChartColor,
   UIChartColorByDimension,
@@ -45,7 +45,6 @@ import {
   ColorRangeType,
   DataZoomRangeType,
   EventType,
-  SeriesType,
   ShelveFieldType,
   ShelveType,
   UIChartDataLabelDisplayType
@@ -63,20 +62,19 @@ import {FormatOptionConverter} from './option/converter/format-option-converter'
 import {CommonOptionConverter} from './option/converter/common-option-converter';
 import {ToolOptionConverter} from './option/converter/tool-option-converter';
 import {LegendOptionConverter} from './option/converter/legend-option-converter';
-import {analysis} from '../../../page/component/value/analysis';
+import {AnalysisConfig} from '../../../page/component/value/analysis';
 import {ColorRange} from './option/ui-option/ui-color';
-import {UIScatterChart} from './option/ui-option/ui-scatter-chart';
-import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
+import {UIChartAxisGrid} from './option/ui-option/ui-axis';
 import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
-import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
+import {Theme} from '../../value/user.setting.value';
 import UI = OptionGenerator.UI;
-import {Theme} from "../../value/user.setting.value";
 
 declare let echarts: any;
 
-export abstract class BaseChart extends AbstractComponent implements OnInit, OnDestroy {
+export abstract class BaseChart<T extends UIOption> extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -120,7 +118,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   protected params: any;
 
   // UI 옵션 별 호출하는 함수 관리
-  protected convertInfo: Object;
+  protected convertInfo: object;
 
   // 차트 데이터 선택 여부
   protected isSelected: boolean;
@@ -181,7 +179,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   public chart: any;
 
   // 외부 UI 에서 관리하는 차트 옵션
-  public uiOption: UIOption;
+  public uiOption: T;
 
   // E-Chart 내부 옵션
   public chartOption: BaseOption;
@@ -205,7 +203,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   public userCustomFunction;
 
   // 고급분석
-  public analysis: analysis = null;
+  public analysis: AnalysisConfig = null;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Getter & Setter
@@ -213,7 +211,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   // UI Option Setter
   @Input('uiOption')
-  set setUIOption(value: UIOption) {
+  set setUIOption(value: T) {
 
     // Set
     this.uiOption = value;
@@ -248,7 +246,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       return;
     }
 
-    //데이터 타입이  Object일 경우 => 맵 차트
+    // 데이터 타입이  Object일 경우 => 맵 차트
     if (result.data instanceof Object && result.data.totalFeatures > 0) {
 
       // Set
@@ -291,18 +289,16 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 서버 데이터가 비어있을 경우
     if (!(result.data instanceof Array)
       && ((!result.data.columns || !result.data.rows)
-        || (result.data.columns.length == 0 && result.data.rows.length == 0))
+        || (result.data.columns.length === 0 && result.data.rows.length === 0))
       && ((!result.data.nodes || !result.data.links)
-        || (result.data.nodes.length == 0 && result.data.links.length == 0))) {
+        || (result.data.nodes.length === 0 && result.data.links.length === 0))) {
 
       // No Data 이벤트 발생
       this.noData.emit();
       return;
     }
     // 서버 데이터가 비어있을 경우 => 네트워크 차트
-    else if (result.data instanceof Array
-      && result.data.length == 0) {
-
+    else if (result.data instanceof Array && result.data.length === 0) {
       // No Data 이벤트 발생
       this.noData.emit();
       return;
@@ -330,10 +326,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if (!_.isUndefined(this.uiOption.yAxis.baseline)
-        && !isNaN(<number>this.uiOption.yAxis.baseline)
-        && this.uiOption.yAxis.baseline != 0) {
+        && !isNaN(this.uiOption.yAxis.baseline as number)
+        && this.uiOption.yAxis.baseline !== 0) {
 
-        this.calculateBaseline(<number>this.uiOption.yAxis.baseline, result, true);
+        this.calculateBaseline(this.uiOption.yAxis.baseline as number, result, true);
       }
 
       // Min/Max 변경
@@ -350,10 +346,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if (!_.isUndefined(this.uiOption.xAxis.baseline)
-        && !isNaN(<number>this.uiOption.xAxis.baseline)
-        && this.uiOption.xAxis.baseline != 0) {
+        && !isNaN(this.uiOption.xAxis.baseline as number)
+        && this.uiOption.xAxis.baseline !== 0) {
 
-        this.calculateBaseline(<number>this.uiOption.xAxis.baseline, result, false);
+        this.calculateBaseline(this.uiOption.xAxis.baseline as number, result, false);
       }
 
       // Min/Max 변경
@@ -398,7 +394,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.drawByType = null;
   }
 
-  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
+  protected calculateMinMax(grid: UIChartAxisGrid, result: any, _isYAxis: boolean): void {
 
     // 축범위 자동설정일 경우
     if (grid.autoScaled) {
@@ -407,10 +403,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         let max = null;
         _.each(result.data.categories, (category) => {
           _.each(category.value, (value) => {
-            if (min == null || value < min) {
+            if (min === null || value < min) {
               min = value;
             }
-            if (max == null || value > max) {
+            if (max === null || value > max) {
               max = value;
             }
           });
@@ -428,20 +424,20 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     // Min / Max값이 없다면 수행취소
-    if (((_.isUndefined(grid.min) || grid.min == 0)
-      && (_.isUndefined(grid.max) || grid.max == 0))) {
+    if (((_.isUndefined(grid.min) || grid.min === 0)
+      && (_.isUndefined(grid.max) || grid.max === 0))) {
       return;
     }
 
     // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
-    result.data.columns.map((column, index) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
+    const seriesList = [];
+    result.data.columns.map((column, _index) => {
+      const nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+      let name = '';
       if (nameArr.length > 1) {
-        nameArr.map((temp, index) => {
-          if (index < nameArr.length - 1) {
-            if (index > 0) {
+        nameArr.map((temp, nameIdx) => {
+          if (nameIdx < nameArr.length - 1) {
+            if (nameIdx > 0) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
@@ -452,8 +448,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
 
       let isAlready = false;
-      seriesList.map((series, index) => {
-        if (series == name) {
+      seriesList.map((series, _seriesIdx) => {
+        if (series === name) {
           isAlready = true;
           return false;
         }
@@ -465,24 +461,24 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     });
 
     // Min/Max 처리
-    if (!result.data.categories || result.data.categories.length == 0) {
-      result.data.columns.map((column, index) => {
-        column.value.map((value, index) => {
+    if (!result.data.categories || result.data.categories.length === 0) {
+      result.data.columns.map((column, _colIdx) => {
+        column.value.map((value, colValIdx) => {
           if (value < grid.min) {
-            column.value[index] = grid.min;
+            column.value[colValIdx] = grid.min;
           } else if (value > grid.max) {
-            column.value[index] = grid.max;
+            column.value[colValIdx] = grid.max;
           }
         });
       });
     } else {
 
-      _.each(result.data.categories, (category, categoryIndex) => {
-        let totalValue = [];
-        let seriesValue = [];
-        result.data.columns.map((column, index) => {
+      _.each(result.data.categories, (category, _categoryIdx) => {
+        const totalValue = [];
+        const seriesValue = [];
+        result.data.columns.map((column, _colIdx) => {
 
-          if (column.name.indexOf(category.name) == -1) {
+          if (column.name.indexOf(category.name) === -1) {
             return true;
           }
 
@@ -498,7 +494,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
               if (seriesValue[index] <= 0) {
                 column.value[index] = grid.max;
               } else {
-                column.value[index] = (<number>grid.max) - totalValue[index];
+                column.value[index] = (grid.max as number) - totalValue[index];
               }
             } else if (totalValue[index] + value < grid.min) {
               column.value[index] = 0;
@@ -515,10 +511,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         // Min값보다 작다면
         _.each(totalValue, (value, valueIndex) => {
           if (value < grid.min) {
-            result.data.columns.map((column, index) => {
-              column.value.map((value, index) => {
-                if (index == valueIndex) {
-                  column.value[index] = 0;
+            result.data.columns.map((column, _colIdx) => {
+              column.value.map((_value, colValIdx) => {
+                if (colValIdx === valueIndex) {
+                  column.value[colValIdx] = 0;
                 }
               });
             });
@@ -528,17 +524,17 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
   }
 
-  protected calculateBaseline(baseline: number, result: any, isYAsis: boolean): void {
+  protected calculateBaseline(baseline: number, result: any, _isYAxis: boolean): void {
 
     // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
-    result.data.columns.map((column, index) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
+    const seriesList = [];
+    result.data.columns.map((column, _index) => {
+      const nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+      let name = '';
       if (nameArr.length > 1) {
-        nameArr.map((temp, index) => {
-          if (index < nameArr.length - 1) {
-            if (index > 0) {
+        nameArr.map((temp, nameIdx) => {
+          if (nameIdx < nameArr.length - 1) {
+            if (nameIdx > 0) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
@@ -549,8 +545,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
 
       let isAlready = false;
-      seriesList.map((series, index) => {
-        if (series == name) {
+      seriesList.map((series, _seriesIdx) => {
+        if (series === name) {
           isAlready = true;
           return false;
         }
@@ -562,39 +558,39 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     });
 
     // Value값을 마이너스 처리
-    if (!result.data.categories || result.data.categories.length == 0) {
-      result.data.columns.map((column, index) => {
-        column.value.map((value, index) => {
+    if (!result.data.categories || result.data.categories.length === 0) {
+      result.data.columns.map((column, _colIdx) => {
+        column.value.map((value, valIdx) => {
           if (value > 0) {
-            column.value[index] = value - baseline;
+            column.value[valIdx] = value - baseline;
           } else {
-            column.value[index] = (Math.abs(value) + Math.abs(baseline)) * -1;
+            column.value[valIdx] = (Math.abs(value) + Math.abs(baseline)) * -1;
           }
         });
       });
     } else {
-      let categoryVal = [];
-      let categoryPer = [];
+      const categoryVal = [];
+      const categoryPer = [];
       for (let num = 0; num < result.data.categories.length; num++) {
 
-        let category = result.data.categories[num];
+        const category = result.data.categories[num];
         for (let num2 = 0; num2 < category.value.length; num2++) {
 
-          let value = category.value[num2];
-          let index = (num * category.value.length) + num2;
-          let baselineGap = Math.abs(value - baseline);
-          let baselinePer = baselineGap / Math.abs(value);
+          const value = category.value[num2];
+          const index = (num * category.value.length) + num2;
+          const baselineGap = Math.abs(value - baseline);
+          const baselinePer = baselineGap / Math.abs(value);
           categoryVal[index] = value;
           categoryPer[index] = baselinePer;
         }
       }
 
-      result.data.columns.map((column, index) => {
-        column.value.map((value, index) => {
-          if (categoryVal[index] < baseline) {
-            column.value[index] = (Math.abs(value) * categoryPer[index]) * -1;
+      result.data.columns.map((column, _colIdx) => {
+        column.value.map((value, valIdx) => {
+          if (categoryVal[valIdx] < baseline) {
+            column.value[valIdx] = (Math.abs(value) * categoryPer[valIdx]) * -1;
           } else {
-            column.value[index] = Math.abs(value) * categoryPer[index];
+            column.value[valIdx] = Math.abs(value) * categoryPer[valIdx];
           }
 
         });
@@ -609,7 +605,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     const addAllValues = ((columns: any, type: any): any => {
 
-      let list = [];
+      const list = [];
       columns.forEach((item) => {
         if (!item[type]) return;
         item[type].forEach((value, index) => {
@@ -629,7 +625,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
           // 해당 dataIndex걸로 넣어주면됨
           // 단일 series인 경우
-          if (!this.data.categories || (this.data.categories && this.data.categories.length == 0)) {
+          if (!this.data.categories || (this.data.categories && this.data.categories.length === 0)) {
 
             data.categoryValue = addAllValues(_.cloneDeep(this.originalData.columns), 'value');
             data.categoryPercent = addAllValues(_.cloneDeep(this.data.columns), 'percentage');
@@ -664,7 +660,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 해당 dataIndex걸로 넣어주면됨
       // 단일 series인 경우
-      if (!copyOfData.categories || (copyOfData.categories && copyOfData.categories.length == 0)) {
+      if (!copyOfData.categories || (copyOfData.categories && copyOfData.categories.length === 0)) {
         data.categoryValue = addAllValues(copyOfOriginalData.columns, 'value');
         data.categoryPercent = addAllValues(copyOfData.columns, 'percentage');
         data.seriesName = copyOfData.rows;
@@ -694,7 +690,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(
+  protected constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
 
@@ -707,8 +703,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
 
     // Resize
@@ -718,7 +712,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         debounceTime(500)
       );
 
-    const windowResizeSubscribe = resizeEvent$.subscribe((data) => {
+    const windowResizeSubscribe = resizeEvent$.subscribe(() => {
       try {
         if (this.chart && this.chart.resize) {
           this.chart.resize();
@@ -745,7 +739,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-
     // Chart Instance 생성
     this.chart = this.echarts.init(this.$element.find('.chartCanvas')[0], 'exntu');
 
@@ -909,7 +902,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * - 반드시 각 차트에서 Override
    */
   protected initOption(): BaseOption {
-    throw new Error("initOption is not Override");
+    throw new Error('initOption is not Override');
   }
 
 
@@ -1004,8 +997,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // X축 명칭
-    let xAxisName = this.uiOption.xAxis.customName ? this.uiOption.xAxis.customName : _.join(this.fieldInfo.cols, CHART_STRING_DELIMITER);
-    this.chartOption.xAxis[0].name = xAxisName;
+    this.chartOption.xAxis[0].name = this.uiOption.xAxis.customName ? this.uiOption.xAxis.customName : _.join(this.fieldInfo.cols, CHART_STRING_DELIMITER);
     this.chartOption.xAxis[0].axisName = _.join(this.fieldInfo.cols, CHART_STRING_DELIMITER);
 
     ////////////////////////////////////////////////////////
@@ -1066,8 +1058,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /**
    * Y축 정보를 변환한다.
    * - 필요시 각 차트에서 Override
-   * @param chartOption
-   * @param option
    * @returns {BaseOption}
    */
   protected convertYAxis(): BaseOption {
@@ -1123,8 +1113,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // Y축 명칭
-    let yAxisName = this.uiOption.yAxis.customName ? this.uiOption.yAxis.customName : _.join(this.fieldInfo.aggs, CHART_STRING_DELIMITER);
-    this.chartOption.yAxis[0].name = yAxisName;
+    this.chartOption.yAxis[0].name = this.uiOption.yAxis.customName ? this.uiOption.yAxis.customName : _.join(this.fieldInfo.aggs, CHART_STRING_DELIMITER);
     this.chartOption.yAxis[0].axisName = _.join(this.fieldInfo.aggs, CHART_STRING_DELIMITER);
 
     ////////////////////////////////////////////////////////
@@ -1157,8 +1146,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /**
    * 그리드(배치) 정보를 변환한다.
    * - 필요시 각 차트에서 Override
-   * @param chartOption
-   * @param option
    * @returns {BaseOption}
    */
   protected convertGrid(): BaseOption {
@@ -1213,7 +1200,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // 색상 설정
-    this.chartOption = ColorOptionConverter.convertColor(this.chartOption, this.uiOption, this.fieldOriginInfo, this.fieldInfo, this.pivotInfo, this.drawByType, null, this.data);
+    this.chartOption = ColorOptionConverter.convertColor(this.chartOption, this.uiOption, this.fieldOriginInfo, this.fieldInfo, this.pivotInfo, null);
 
     ////////////////////////////////////////////////////////
     // 숫자 포맷 옵션 적용
@@ -1252,7 +1239,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * @returns {BaseOption}
    */
   protected convertSeriesData(): BaseOption {
-    throw new Error("convertSeriesData is not Override");
+    throw new Error('convertSeriesData is not Override');
   }
 
   /**
@@ -1417,7 +1404,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
-      let strScript = '(' + this.userCustomFunction + ')';
+      const strScript = '(' + this.userCustomFunction + ')';
       // ( new Function( 'return ' + strScript ) )();
       try {
         this.chartOption = eval(strScript)({name: 'InitWidgetEvent', data: this.chartOption});
@@ -1519,18 +1506,18 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // color by series인 경우
-    if (this.uiOption.color.type == ChartColorType.SERIES) {
+    if (this.uiOption.color.type === ChartColorType.SERIES) {
 
       this.chartOption.legend.data = this.fieldInfo.aggs;
 
-      let schema = (<UIChartColorBySeries>this.uiOption.color).schema;
-      let colorCodes = _.cloneDeep(ChartColorList[schema]);
+      const schema = (this.uiOption.color as UIChartColorBySeries).schema;
+      const colorCodes = _.cloneDeep(ChartColorList[schema]);
 
       // userCodes가 있는경우 codes대신 userCodes를 설정한다
-      if ((<UIChartColorBySeries>this.uiOption.color).mapping) {
-        Object.keys((<UIChartColorBySeries>this.uiOption.color).mapping).forEach((key, index) => {
+      if ((this.uiOption.color as UIChartColorBySeries).mapping) {
+        Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key, index) => {
 
-          colorCodes[index] = (<UIChartColorBySeries>this.uiOption.color).mapping[key];
+          colorCodes[index] = (this.uiOption.color as UIChartColorBySeries).mapping[key];
         });
       }
 
@@ -1568,7 +1555,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         }
 
         this.chartOption.legend.data = legendData;
-        this.chartOption.legend.color = <any>ChartColorList[this.uiOption.color['schema']];
+        this.chartOption.legend.color = ChartColorList[this.uiOption.color['schema']];
       }
     }
 
@@ -1611,7 +1598,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     if (0 < this.chartOption.series.length) {
 
-      //if (!_.isUndefined(this.chartOption.brush)) this.convertMouseMode(this.mouseMode, this.brushType);
+      // if (!_.isUndefined(this.chartOption.brush)) this.convertMouseMode(this.mouseMode, this.brushType);
 
       // Resize
       if (!_.isUndefined(this.chart)) {
@@ -1655,11 +1642,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /**
    * 선반정보를 기반으로 차트를 구성하는 필드정보 설정
    *
-   * @param data
    */
   protected setFieldInfo(): void {
 
-    let shelve: any = this.pivot;
+    const shelve: any = this.pivot;
 
     // time 필드 존재 여부
     this.existTimeField = false;
@@ -1728,9 +1714,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // data columns 값이 있는경우
     if (this.data.columns) {
 
-      this.data.columns.map((column, index) => {
+      this.data.columns.map((column, _index) => {
         const seriesName: string = column.name;
-        const measureName = _.last(_.split(seriesName, CHART_STRING_DELIMITER));
+        // const measureName = _.last(_.split(seriesName, CHART_STRING_DELIMITER));
         // pivot rows 설정
         const rowNameList = _.split(seriesName, CHART_STRING_DELIMITER);
         if (rowNameList.length > 1) {
@@ -1752,7 +1738,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     return pivot[shelveType].filter((field) => {
 
       // dimension인 timestamp 데이터일때 type을 timestamp로 타입값 수정
-      if (ShelveFieldType.DIMENSION == field.type && field.format && field.format.unit) field.type = ShelveFieldType.TIMESTAMP;
+      if (ShelveFieldType.DIMENSION === field.type && field.format && field.format.unit) field.type = ShelveFieldType.TIMESTAMP;
 
       return _.eq(field.type, fieldType);
     }).length;
@@ -1762,18 +1748,17 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /**
    * 차트가 그려진 후 UI에 필요한 옵션 설정 - 차원값 리스트
    *
-   * @param shelve
    */
-  protected setDimensionList(): UIOption {
+  protected setDimensionList(): T {
 
-    let shelve: any = this.pivot;
+    const shelve: any = this.pivot;
 
     if (shelve) {
       // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
-      const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
+      const getShelveReturnString = ((shelveInfo: any, typeList: ShelveFieldType[]): string[] => {
         const resultList: string[] = [];
-        _.forEach(shelve, (value, key) => {
-          shelve[key].map((item) => {
+        _.forEach(shelveInfo, (_value, key) => {
+          shelveInfo[key].map((item) => {
             if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
               resultList.push(item.name);
             }
@@ -1787,17 +1772,17 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       if (this.uiOption.color) {
         // targetField 설정
-        const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
+        const targetField = (this.uiOption.color as UIChartColorByDimension).targetField;
 
         // targetField가 있을때
         if (!_.isEmpty(targetField)) {
-          if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+          if (this.uiOption.fieldList.indexOf(targetField) < 0) (this.uiOption.color as UIChartColorByDimension).targetField = _.last(this.uiOption.fieldList);
 
           // targetField가 없을때
         } else {
 
           // 마지막 필드를 타겟필드로 잡기
-          (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+          (this.uiOption.color as UIChartColorByDimension).targetField = _.last(this.uiOption.fieldList);
         }
       }
     }
@@ -1808,18 +1793,17 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /**
    * 차트가 그려진 후 UI에 필요한 옵션 설정 - 측정값 리스트
    *
-   * @param shelve
    */
-  protected setMeasureList(): UIOption {
+  protected setMeasureList(): T {
 
-    let shelve: any = this.pivot;
+    const shelve: any = this.pivot;
 
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
-    const getShelveReturnField = ((originList: AbstractField[], shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
+    const getShelveReturnField = ((shelveInfo: any, typeList: ShelveFieldType[]): AbstractField[] => {
       const resultList: AbstractField[] = [];
-      _.forEach(shelve, (value, key) => {
-        shelve[key].map((item) => {
-          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')))) {
+      _.forEach(shelveInfo, (_value, key) => {
+        shelveInfo[key].map((item) => {
+          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 === item.field.logicalType.indexOf('GEO')))) {
             resultList.push(item);
           }
         });
@@ -1827,9 +1811,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       return resultList;
     });
     // 색상지정 기준 필드리스트 설정(measure list)
-    this.uiOption.fieldMeasureList = getShelveReturnField(this.uiOption.fieldMeasureList, shelve, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+    this.uiOption.fieldMeasureList = getShelveReturnField(shelve, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
     // 색상지정 기준 필드리스트 설정(dimension list)
-    this.uiOption.fielDimensionList = getShelveReturnField(this.uiOption.fielDimensionList, shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+    this.uiOption.fielDimensionList = getShelveReturnField(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
 
     return this.uiOption;
   }
@@ -1898,21 +1882,21 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     /*
         // color by measure일때 eventType이 있는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
-        if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type) {
+        if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE === this.uiOption.color.type) {
           delete (<UIChartColorByValue>this.uiOption.color).ranges;
           delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
           delete (<UIChartColorByValue>this.uiOption.color).customMode;
 
-          const colorList = <any>ChartColorList[this.uiOption.color['schema']];
+          const colorList = ChartColorList[this.uiOption.color['schema']];
 
           // ranges가 초기화
           this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
         }
     */
 
-    if (!_.isEmpty(this.drawByType) && this.uiOption.color && (<UIChartColorByValue>this.uiOption.color).customMode) {
+    if (!_.isEmpty(this.drawByType) && this.uiOption.color && (this.uiOption.color as UIChartColorByValue).customMode) {
       let colorList = [];
-      const colrObj: UIChartColorByValue = <UIChartColorByValue>this.uiOption.color;
+      const colrObj: UIChartColorByValue = this.uiOption.color as UIChartColorByValue;
       switch (colrObj.customMode) {
         case ColorCustomMode.SECTION:
           colorList = colrObj.ranges.map(item => item.color).reverse();
@@ -1921,7 +1905,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         case ColorCustomMode.GRADIENT :
           const prevMaxVal: number = colrObj.ranges[colrObj.ranges.length - 1]['value'];
           const currMaxVal: number = this.uiOption.maxValue;
-          const resetRange: Function = (item) => {
+          const resetRange: (item: ColorRange) => ColorRange = (item) => {
             if (item['value']) {
               if (item['value'] < prevMaxVal) {
                 item['value'] = Math.round(currMaxVal * (item['value'] / prevMaxVal));
@@ -1936,10 +1920,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
           break;
         default:
           // ranges 초기화
-          delete (<UIChartColorByValue>this.uiOption.color).ranges;
-          delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
-          delete (<UIChartColorByValue>this.uiOption.color).customMode;
-          colorList = <any>ChartColorList[this.uiOption.color['schema']];
+          delete (this.uiOption.color as UIChartColorByValue).ranges;
+          delete (this.uiOption.color as UIChartColorGradationByValue).visualGradations;
+          delete (this.uiOption.color as UIChartColorByValue).customMode;
+          colorList = ChartColorList[this.uiOption.color['schema']];
           this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
       }
     }
@@ -2042,7 +2026,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 현재 차트 시리즈 리스트
     const series = option.series;
 
-    const selectSameSeries: Function = (seriesData) => {
+    const selectSameSeries: (data) => void = (seriesData) => {
       series.forEach(seriesItem => {
         seriesItem.data.some(dataItem => {
           if (dataItem.name === seriesData.name) {
@@ -2053,7 +2037,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         });
       });
     };
-    const unselectSameSeries: Function = (seriesData) => {
+    const unselectSameSeries: (data) => void = (seriesData) => {
       series.forEach(seriesItem => {
         seriesItem.data.some(dataItem => {
           if (dataItem.name === seriesData.name) {
@@ -2106,7 +2090,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     const series = option.series;
 
     // 선택한 데이터
-    const unselectSameSeries: Function = (seriesData) => {
+    const unselectSameSeries: (data) => void = (seriesData) => {
       series.forEach(seriesItem => {
         seriesItem.data.some(dataItem => {
           if (dataItem.name === seriesData.name) {
@@ -2142,15 +2126,14 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * @param params
    * @param colValues
    * @param rowValues
-   * @returns {any}
    */
   protected setSelectData(params: any, colValues: string[], rowValues: string[]): any {
 
-    let returnDataList: any = [];
+    const returnDataList: any = [];
 
     // 선택정보 설정
     let targetValues: string[] = [];
-    _.forEach(this.pivot, (value, key) => {
+    _.forEach(this.pivot, (_value, key) => {
 
       // deep copy
       let deepCopyShelve = _.cloneDeep(this.pivot[key]);
@@ -2190,46 +2173,47 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected setMapping(): UIChartColor {
 
-    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length == 0) return this.uiOption.color;
+    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length === 0) return this.uiOption.color;
 
     // mapping값이 없거나, 선반값이 변경된경우 mapping값 초기화
-    if (!(<UIChartColorBySeries>this.uiOption.color).mapping || EventType.CHANGE_PIVOT == this.drawByType) {
-      (<UIChartColorBySeries>this.uiOption.color).mapping = {};
+    if (!(this.uiOption.color as UIChartColorBySeries).mapping || EventType.CHANGE_PIVOT === this.drawByType) {
+      (this.uiOption.color as UIChartColorBySeries).mapping = {};
     }
 
     // color mapping값 설정
-    if ((<UIChartColorBySeries>this.uiOption.color).schema) {
+    if ((this.uiOption.color as UIChartColorBySeries).schema) {
 
       // mapping값이 제거된경우 이후 색상값을 초기화
       let colorChangedFl: boolean = false;
 
       // fieldMeasureList에서 제거된 값 제거
-      for (let key in (<UIChartColorBySeries>this.uiOption.color).mapping) {
+      for (const key in (this.uiOption.color as UIChartColorBySeries).mapping) {
+        if (key) {
+          const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: key});
 
-        const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: key});
-
-        // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
-        if (-1 == index || colorChangedFl) {
-          delete (<UIChartColorBySeries>this.uiOption.color).mapping[key];
-          colorChangedFl = true;
+          // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
+          if (-1 === index || colorChangedFl) {
+            delete (this.uiOption.color as UIChartColorBySeries).mapping[key];
+            colorChangedFl = true;
+          }
         }
       }
 
       this.uiOption.fieldMeasureList.forEach((item, index) => {
         // 해당 alias값이 없을때에만 기본색상설정
-        if ((<UIChartColorBySeries>this.uiOption.color).schema && !(<UIChartColorBySeries>this.uiOption.color).mapping[item.alias]) {
-          (<UIChartColorBySeries>this.uiOption.color).mapping[item.alias] = ChartColorList[(<UIChartColorBySeries>this.uiOption.color).schema][index];
+        if ((this.uiOption.color as UIChartColorBySeries).schema && !(this.uiOption.color as UIChartColorBySeries).mapping[item.alias]) {
+          (this.uiOption.color as UIChartColorBySeries).mapping[item.alias] = ChartColorList[(this.uiOption.color as UIChartColorBySeries).schema][index];
         }
       });
 
       // mapping map array로 변경
-      (<UIChartColorBySeries>this.uiOption.color).mappingArray = [];
+      (this.uiOption.color as UIChartColorBySeries).mappingArray = [];
 
-      Object.keys((<UIChartColorBySeries>this.uiOption.color).mapping).forEach((key) => {
+      Object.keys((this.uiOption.color as UIChartColorBySeries).mapping).forEach((key) => {
 
-        (<UIChartColorBySeries>this.uiOption.color).mappingArray.push({
+        (this.uiOption.color as UIChartColorBySeries).mappingArray.push({
           alias: key,
-          color: (<UIChartColorBySeries>this.uiOption.color).mapping[key]
+          color: (this.uiOption.color as UIChartColorBySeries).mapping[key]
         });
       });
     }
@@ -2239,15 +2223,15 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   /**
    * color by measure의 range값 리턴
-   * @returns {any}
+   * @returns {ColorRange[]}
    */
   protected setMeasureColorRange(schema): ColorRange[] {
 
     // 리턴값
-    let rangeList = [];
+    const rangeList = [];
 
     // 해당 schema에 해당하는 색상 리스트 설정
-    const colorList = <any>ChartColorList[schema];
+    const colorList = ChartColorList[schema];
 
     let rowsListLength = this.data.rows.length;
 
@@ -2290,7 +2274,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     // data.rows length가 colorList보다 작은경우 범위설정을 5개대신 rows개수로 설정
-    let colorListLength = colorList.length > rowsListLength ? rowsListLength - 1 : colorList.length - 1;
+    const colorListLength = colorList.length > rowsListLength ? rowsListLength - 1 : colorList.length - 1;
 
     // 차이값 설정
     const addValue = (this.uiOption.maxValue - this.uiOption.minValue) / colorListLength;
@@ -2298,26 +2282,29 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     let maxValue = _.cloneDeep(this.uiOption.maxValue);
 
     let shape;
-    if ((<UIScatterChart>this.uiOption).pointShape) {
-      shape = (<UIScatterChart>this.uiOption).pointShape.toString().toLowerCase();
+    // if ((<UIScatterChart>this.uiOption).pointShape) {
+    //   shape = (<UIScatterChart>this.uiOption).pointShape.toString().toLowerCase();
+    // }
+    if (this.uiOption['pointShape']) {
+      shape = this.uiOption['pointShape'].toString().toLowerCase();
     }
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {
 
-      let color = colorList[index];
+      const color = colorList[index];
 
       // set the biggest value in min(gt)
-      if (colorListLength == index) {
+      if (colorListLength === index) {
 
         rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, parseFloat(maxValue.toFixed(1)), null, parseFloat(maxValue.toFixed(1)), null, shape));
 
       } else {
         // if it's the last value, set null in min(gt)
-        var min = 0 == index ? null : parseFloat((maxValue - addValue).toFixed(1));
+        let min = 0 === index ? null : parseFloat((maxValue - addValue).toFixed(1));
 
         // if value if lower than minValue, set it as minValue
-        if (min < this.uiOption.minValue && min < 0) min = _.cloneDeep(parseInt(this.uiOption.minValue.toFixed(1)));
+        if (min < this.uiOption.minValue && min < 0) min = _.cloneDeep(parseInt(this.uiOption.minValue.toFixed(1), 10));
 
         rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, parseFloat(maxValue.toFixed(1)), min, parseFloat(maxValue.toFixed(1)), shape));
 
@@ -2336,8 +2323,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * 선반정보를 기반으로 차트를 그릴수 있는지 여부를 체크
    * - 반드시 각 차트에서 Override
    */
-  public isValid(pivot: Pivot, shelf?: Shelf): boolean {
-    throw new Error("isValid is not Override");
+  public isValid(_pivot: Pivot, _shelf?: Shelf): boolean {
+    throw new Error('isValid is not Override');
   }
 
   /**
@@ -2349,7 +2336,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       return;
     }
     if (!_.isEmpty(this.chart._chartsViews)) {
-      this.chart.getOption().dataZoom.map((obj, idx) => {
+      this.chart.getOption().dataZoom.map((obj, _idx) => {
         if (_.eq(obj.type, DataZoomType.SLIDER)) {
           resultList.push({
             auto: obj.show,
@@ -2438,7 +2425,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         });
         break;
       default:
-        console.info(type);
+        console.log(type);
     }
     this.mouseMode = type;
   }
@@ -2467,7 +2454,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
 
       if (this.userCustomFunction && '' !== this.userCustomFunction && -1 < this.userCustomFunction.indexOf('main')) {
-        let strScript = '(' + this.userCustomFunction + ')';
+        const strScript = '(' + this.userCustomFunction + ')';
         // ( new Function( 'return ' + strScript ) )();
         try {
           if (eval(strScript)({name: 'SelectionEvent', data: params ? params.name : ''})) {
@@ -2584,7 +2571,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       const setData = ((colIdxList, fields: Field[], shelveData: string[], dataAlter?: Field[], shelveAlterData?: string[]) => {
 
-        let returnList = [];
+        const returnList = [];
 
         colIdxList.forEach((colIdx) => {
           const dataName = !_.isEmpty(shelveData) ? shelveData[colIdx] : shelveAlterData[colIdx];
@@ -2658,7 +2645,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
 
         if (_.eq(this.uiOption.color.type, ChartColorType.DIMENSION)) {
-          const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
+          const targetField = (this.uiOption.color as UIChartColorByDimension).targetField;
           // 열/행/교차 여부 및 몇번째 필드인지 확인
           _.forEach(this.fieldOriginInfo, (value, key) => {
             if (_.indexOf(value, targetField) > -1) {
@@ -2782,12 +2769,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 변경하려는 DataZoom index - 따로 지정하지 않으면 0으로 설정
     const dataZoomIdx = _.isUndefined(idx) ? 0 : idx;
     // 축 단위 개수
-    let colCount = !_.isUndefined(option.xAxis[0].data) ? option.xAxis[0].data.length : option.yAxis[0].data.length;
+    const colCount = !_.isUndefined(option.xAxis[0].data) ? option.xAxis[0].data.length : option.yAxis[0].data.length;
 
     // 종료지정 설정 (상위 n개)
     let startValue = 0;
     let endValue = count - 1;
-    const isStackMode = _.eq(series[0].type, SeriesType.BAR) && !_.isUndefined(series[0].stack);
+    // const isStackMode = _.eq(series[0].type, SeriesType.BAR) && !_.isUndefined(series[0].stack);
     const seriesLength = series.length;
 
     // 기준 개수가 넘어갈 경우 경우는 n% 로 범위 변경
@@ -2827,7 +2814,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * dataLabel, tooltip 중첩에 따라서 설정
    * - 필요시 각 차트에서 Override
    */
-  protected setDataLabel(): UIOption {
+  protected setDataLabel(): T {
     return this.uiOption;
   }
 
@@ -2849,7 +2836,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
             series.areaStyle = lastDrawSeries.areaStyle;
             series.existSelectData = lastDrawSeries.existSelectData;
             _.each(series.data, (seriesData, index) => {
-              let lastSeriesData = lastDrawSeries.data[index];
+              const lastSeriesData = lastDrawSeries.data[index];
               if (lastSeriesData && isNaN(lastSeriesData)) {
                 if (seriesData && isNaN(seriesData)) {
                   seriesData.itemStyle = lastSeriesData.itemStyle;
@@ -2873,12 +2860,11 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   /**
    * set datalabel when chart has axis
-   * @param {Pivot} prevPivot
-   * @param {boolean} prevPivotCondition - prev pivot has multi series(true) single series(false)
-   * @param {boolean} pivotCondition - pivot has multi series(true) single series(false)
+   * @param {Pivot} _prevPivot
+   * @param checkChangeSeries
    * @returns {UIOption}
    */
-  protected setAxisDataLabel(prevPivot: Pivot, checkChangeSeries: boolean): UIOption {
+  protected setAxisDataLabel(_prevPivot: Pivot, checkChangeSeries: boolean): T {
 
     if (!this.pivot || !this.pivot.aggregations || !this.pivot.rows) return this.uiOption;
 
@@ -2937,10 +2923,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     if ((EventType.CHANGE_PIVOT === this.drawByType && checkChangeSeries) || EventType.CHART_TYPE === this.drawByType) {
 
       // set datalabel display types
-      let datalabelDisplayTypes = setDefaultDisplayTypes(this.uiOption.dataLabel);
+      const datalabelDisplayTypes = setDefaultDisplayTypes(this.uiOption.dataLabel);
 
       // set tooltip display types
-      let tooltipDisplayTypes = setDefaultDisplayTypes(this.uiOption.toolTip);
+      const tooltipDisplayTypes = setDefaultDisplayTypes(this.uiOption.toolTip);
 
       // set default datalabel value
       if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes) {

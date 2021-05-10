@@ -25,6 +25,24 @@
         </div>
         <!-- // 툴팁 -->
       </div>
+
+      <!-- 확대/축소 버튼 -->
+      <div class="ddp-box-btn2">
+        <em [ngClass]="{'ddp-icon-widget-downsize': isMaximize, 'ddp-icon-widget-full': !isMaximize}"
+            (click)="toggleWidgetSize()"></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info" *ngIf="isMaximize">
+          <em class="ddp-icon-view-down"></em>
+          {{ 'msg.comm.ui.contraction' | translate }}
+        </div>
+        <div class="ddp-ui-tooltip-info" *ngIf="!isMaximize">
+          <em class="ddp-icon-view-down"></em>
+          {{ 'msg.comm.ui.expansion' | translate }}
+        </div>
+        <!-- //툴팁 -->
+      </div>
+      <!-- 확대/축소 버튼 -->
+
     </div>
   </div>
   <!-- // Top Control -->

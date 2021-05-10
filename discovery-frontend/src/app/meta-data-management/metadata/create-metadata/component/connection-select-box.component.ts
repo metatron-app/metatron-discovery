@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output} from "@angular/core";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output} from '@angular/core';
 import * as _ from 'lodash';
 
 @Component({
@@ -47,10 +47,10 @@ export class ConnectionSelectBoxComponent extends AbstractComponent {
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     // #1925
     if (this.isEnableWindowResizeAutoClose && this.isShowList) {
       this.isShowList = false;

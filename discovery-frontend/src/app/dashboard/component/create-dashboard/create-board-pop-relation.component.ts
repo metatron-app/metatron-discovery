@@ -13,17 +13,26 @@
  */
 
 import * as pixelWidth from 'string-pixel-width';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { BoardDataSource, BoardDataSourceRelation, QueryParam } from '../../../domain/dashboard/dashboard';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { Field } from '../../../domain/datasource/datasource';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { isNullOrUndefined } from 'util';
 import * as $ from 'jquery';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/datasource/datasource';
+import {BoardDataSource, BoardDataSourceRelation, QueryParam} from '@domain/dashboard/dashboard';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'create-board-pop-relation',
@@ -32,7 +41,7 @@ import * as $ from 'jquery';
     '.ddp-list-selectbox2 li.sys-focus-item { background-color: #f6f6f7 !important; }'
   ]
 })
-export class CreateBoardPopRelationComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class CreateBoardPopRelationComponent extends AbstractPopupComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -174,9 +183,9 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    * @param {any[]} list
    * @return {boolean}
    */
-  public isContainsSearchText( searchText:string, list:any[] ):boolean {
-    if( list ) {
-      return list.some( item => -1 < item.name.toLowerCase().indexOf( searchText.toLowerCase() ) );
+  public isContainsSearchText(searchText: string, list: any[]): boolean {
+    if (list) {
+      return list.some(item => -1 < item.name.toLowerCase().indexOf(searchText.toLowerCase()));
     } else {
       return false;
     }
@@ -188,8 +197,8 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    * @param {string} highlightText
    * @return {string}
    */
-  public highlightText( sourceText:string, highlightText:string ):string {
-    if( sourceText ) {
+  public highlightText(sourceText: string, highlightText: string): string {
+    if (sourceText) {
       return sourceText.replace(new RegExp('(' + highlightText + ')', 'gi'), '<span class="ddp-txt-search">$1</span>');
     } else {
       return sourceText;
@@ -201,7 +210,7 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    * @return {boolean}
    */
   public isValid(): boolean {
-    return !isNullOrUndefined(this.relation.ui.sourceField) && !isNullOrUndefined(this.relation.ui.targetField);
+    return !this.isNullOrUndefined(this.relation.ui.sourceField) && !this.isNullOrUndefined(this.relation.ui.targetField);
   } // function - isValid
 
   /**
@@ -210,9 +219,9 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
   public completeRelation() {
     if (this.isValid()) {
       if ('ADD' === this._mode) {
-        this.broadCaster.broadcast('CREATE_BOARD_CREATE_REL', { relation: this.relation });
+        this.broadCaster.broadcast('CREATE_BOARD_CREATE_REL', {relation: this.relation});
       } else if ('EDIT' === this._mode) {
-        this.broadCaster.broadcast('CREATE_BOARD_UPDATE_REL', { relation: this.relation });
+        this.broadCaster.broadcast('CREATE_BOARD_UPDATE_REL', {relation: this.relation});
       }
       this._closeComponent();
     }
@@ -553,7 +562,7 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
   } // function - _initializeComponent
 
   /**
-   * 데이터를 조회한다. 
+   * 데이터를 조회한다.
    * @param {string} dsName
    * @param {boolean} isTemporary
    * @param {boolean} loading
@@ -600,10 +609,10 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
   private updateGrid(data: any, fields: Field[], targetGrid: string = 'main'): GridComponent {
 
     // 헤더정보 생성
-    const headers: header[] = fields.map(
+    const headers: Header[] = fields.map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
         return new SlickGridHeader()
           .Id(field.name)
           .Name(field.name)
@@ -616,7 +625,7 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
           .Resizable(true)
           .Unselectable(false)
           .Sortable(false)
-          .Formatter((row, cell, value, columnDef) => {
+          .Formatter((_row, _cell, value, columnDef) => {
             if (columnDef.select) {
               return '<div style=\'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px;\'>'
                 + ((value) ? value : '&nbsp;')

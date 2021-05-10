@@ -12,13 +12,11 @@
  * limitations under the License.
  */
 
-import {MomentDatePipe} from "app/common/pipe/moment.date.pipe";
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from "@angular/core";
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {DataflowService} from "../dataflow/service/dataflow.service";
-//import {Dataflow, Dataflows} from "../../domain/data-preparation/dataflow";
-import {PrDataflow, Dataflows} from "../../domain/data-preparation/pr-dataflow";
-import {isNullOrUndefined} from "util";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PrDataflow, Dataflows} from '@domain/data-preparation/pr-dataflow';
+import {DataflowService} from '../dataflow/service/dataflow.service';
 
 @Component({
   selector: 'app-add-dataset-dataflow',
@@ -41,7 +39,7 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
 
   @Input('dfStr')
   public set setDfStr(dfStr) {
-    if (!isNullOrUndefined(dfStr)) {
+    if (!this.isNullOrUndefined(dfStr)) {
       this.dataflowIds = dfStr.split(',');
     }
   }
@@ -60,7 +58,6 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
 
   public dataflowIds : string[];
 
-  //public dataflows : Dataflow[];
   public dataflows : PrDataflow[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -110,7 +107,7 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
     // first get dataflow info -> need dataset ids in this dataflow
     this.dataflowService.getDataflow(this.selectedDataflowId).then((result) => {
 
-      console.info('result ==> ', result );
+      console.log('result ==> ', result );
       if (result.datasets && result.datasets.length > 0) {
         dsIds = result.datasets.map((item) => {
           return item.dsId;
@@ -122,20 +119,18 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
       dsIds.push(this.datasetId);
 
       // update dataflow with dataset ids
-      this.dataflowService.updateDataSets(this.selectedDataflowId, { dsIds : dsIds }).then((result) => {
-
-        console.info('result ==> ', result );
+      this.dataflowService.updateDataSets(this.selectedDataflowId, { dsIds : dsIds }).then((_result) => {
         this.router.navigate(['/management/datapreparation/dataflow', this.selectedDataflowId]);
         this.cookieService.set('FIND_WRANGLED',this.datasetId);
 
       }).catch((error) => {
         this.loadingHide();
-        console.info('error -> ', error);
+        console.log('error -> ', error);
       });
 
     }).catch((error => {
       this.loadingHide();
-      console.info('error -> ', error);
+      console.log('error -> ', error);
     }));
 
 
@@ -165,14 +160,14 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
         this.dataflows = this.dataflows.concat(result['_embedded']['preparationdataflows']);
         this.page.page += 1;
 
-        if (!isNullOrUndefined(this.dataflowIds)) {
+        if (!this.isNullOrUndefined(this.dataflowIds)) {
           this.dataflows = this.dataflows.filter((item) => {
             return -1 === this.dataflowIds.indexOf(item.dfId)
           })
         }
       }
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
     })
   }
 
@@ -185,7 +180,6 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
     return result;
   }
 
-  //public selectDataflow(dataflow:Dataflow) {
   public selectDataflow(dataflow:PrDataflow) {
     this.selectedDataflowId = dataflow.dfId;
   }

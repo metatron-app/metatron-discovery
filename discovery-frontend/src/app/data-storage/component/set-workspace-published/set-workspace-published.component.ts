@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { WorkspaceService } from '../../../workspace/service/workspace.service';
-import { Page, PageResult } from '../../../domain/common/page';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../common/util/alert.util';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PageResult} from '@domain/common/page';
+import {WorkspaceService} from '../../../workspace/service/workspace.service';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 
 @Component({
   selector: 'app-set-workspace-published',
@@ -143,7 +143,7 @@ export class SetWorkspacePublishedComponent extends AbstractComponent implements
         return workspace.publicType === 'SHARED';
       }).length;
     } else if (this.mode === 'update' && this.publicWorkspaces.count) {
-      count +=  this.publicWorkspaces.count.linked;
+      count += this.publicWorkspaces.count.linked;
     }
 
     return count;
@@ -333,13 +333,9 @@ export class SetWorkspacePublishedComponent extends AbstractComponent implements
    * @param workspaceType
    */
   public onCheckedWorkspace(workspace, workspaceType) {
-    // workspace id
-    const workspaceId = workspace.id;
-
-    let index;
     // 생성 모드일경우 addWorkspace 만 사용
     if (this.mode === 'create') {
-      this.onCheckWorkspaceInCreateMode(workspace, workspaceType);
+      this.onCheckWorkspaceInCreateMode(workspace);
     } else {
       this.onCheckWorkspaceInUpdateMode(workspace, workspaceType);
     }
@@ -635,7 +631,7 @@ export class SetWorkspacePublishedComponent extends AbstractComponent implements
    * 생성모드 일때 체크박스 클릭 이벤트
    * @param workspace
    */
-  private onCheckWorkspaceInCreateMode(workspace, workspaceType) {
+  private onCheckWorkspaceInCreateMode(workspace) {
     const index = this.getFindIndexWorkspace(this.addWorkspaces, workspace.id);
     index === -1 ? this.addWorkspaces.push(workspace) : this.addWorkspaces.splice(index, 1);
   }
@@ -847,7 +843,7 @@ export class SetWorkspacePublishedComponent extends AbstractComponent implements
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch(() => {
         // 로딩 hide
         this.loadingHide();
       });

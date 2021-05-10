@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { CommonUtil } from '../../common/util/common.util';
+import {CommonUtil} from '@common/util/common.util';
 
 @Injectable()
 export class ActivityService extends AbstractService {

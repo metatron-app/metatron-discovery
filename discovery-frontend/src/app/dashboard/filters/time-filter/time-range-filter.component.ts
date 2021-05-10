@@ -14,27 +14,30 @@
 
 import * as _ from 'lodash';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Injector,
-  OnInit,
-  OnDestroy,
   Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
   SimpleChange,
-  SimpleChanges,
-  EventEmitter, Output
+  SimpleChanges
 } from '@angular/core';
-import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {Dashboard} from '../../../domain/dashboard/dashboard';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {TimeRange, TimeRangeData} from '../component/time-range.component';
 
 @Component({
   selector: 'app-time-range-filter',
   templateUrl: './time-range-filter.component.html'
 })
-export class TimeRangeFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
+export class TimeRangeFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -67,7 +70,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   public dashboard: Dashboard;            // 대시보드
 
   @Input('mode')
-  public mode: string = 'CHANGE';          // 화면 모드
+  public mode: 'CHANGE' | 'WIDGET' | 'PANEL' = 'CHANGE';          // 화면 모드
 
   // 필터 변경 이벤트
   @Output()
@@ -134,7 +137,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @param {boolean} isBroadcast
    */
   public setData(filter: TimeRangeFilter, isBroadcast: boolean = false) {
-    if( !this._isRunningCandidate ) {
+    if (!this._isRunningCandidate) {
       this._isRunningCandidate = true;
       this.loadingShow();
       const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);
@@ -263,9 +266,9 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
 
   /**
    * 기간셋을 삭제할 경우
-   * @param {TimeRangeFilter} filter
+   * @param {TimeRangeFilter} _filter
    */
-  public deleteIntervalRange(filter: TimeRangeFilter) {
+  public deleteIntervalRange(_filter: TimeRangeFilter) {
     (this.timeRangeList.length > 1) && (this.timeRangeList.pop());
     this.isLatestTime = false;
 
@@ -305,7 +308,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   private _broadcastChange() {
     const filterData: TimeRangeFilter = this.getData();
     // 결과 값이 다를 경우만 이벤트 전달하여 차트 갱신
-    if (this.lastIntervals != filterData.intervals.join('')) {
+    if (this.lastIntervals !== filterData.intervals.join('')) {
       this.lastIntervals = filterData.intervals.join('');
       this.changeEvent.emit(filterData);
     }

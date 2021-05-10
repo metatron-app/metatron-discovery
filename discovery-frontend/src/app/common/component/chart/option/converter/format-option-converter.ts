@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import {BaseOption} from "../base-option";
-import {UIChartColorByDimension, UIOption} from "../ui-option";
+import {BaseOption} from '../base-option';
+import {UIChartColorByDimension, UIOption} from '../ui-option';
 import * as _ from 'lodash';
-import {Series} from "../define/series";
+import {Series} from '../define/series';
 import {
   AxisType,
   CHART_STRING_DELIMITER,
@@ -29,12 +29,12 @@ import {
   UIFormatSymbolPosition,
   UIFormatType
 } from '../define/common';
-import {PivotTableInfo} from "../../base-chart";
-import {UIChartFormat, UIChartFormatItem} from "../ui-option/ui-format";
+import {PivotTableInfo} from '../../base-chart';
+import {UIChartFormat, UIChartFormatItem} from '../ui-option/ui-format';
 import {UIChartDataLabel} from '../ui-option/ui-datalabel';
 import {UIChartAxis, UIChartAxisLabelValue} from '../ui-option/ui-axis';
-import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
-import {Field} from '../../../../../domain/workbook/configurations/field/field';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Field} from '@domain/workbook/configurations/field/field';
 
 /**
  * 수자 포맷 옵션 컨버터
@@ -49,6 +49,7 @@ export class FormatOptionConverter {
    * Series: 포맷에 해당하는 옵션을 모두 적용한다.
    * @param chartOption
    * @param uiOption
+   * @param pivot
    * @returns {BaseOption}
    */
   public static convertFormatSeries(chartOption: BaseOption, uiOption: UIOption, pivot: Pivot): BaseOption {
@@ -58,7 +59,7 @@ export class FormatOptionConverter {
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption };
+    if (_.isUndefined(format)){ return chartOption; }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = this.getlabelAxisScaleFormat(uiOption);
@@ -70,10 +71,10 @@ export class FormatOptionConverter {
     ///////////////////////////
 
     // 시리즈
-    let series: Series[] = chartOption.series;
+    const series: Series[] = chartOption.series;
 
     // 적용
-    _.each(series, (option, index) => {
+    _.each(series, (option) => {
 
       if( _.isUndefined(option.label) ) { option.label = { normal: {} }; }
       if( _.isUndefined(option.label.normal) ) { option.label.normal = {} }
@@ -97,6 +98,8 @@ export class FormatOptionConverter {
    * Tooltip: 포맷에 해당하는 옵션을 모두 적용한다.
    * @param chartOption
    * @param uiOption
+   * @param fieldInfo
+   * @param pivot
    * @returns {BaseOption}
    */
   public static convertFormatTooltip(chartOption: BaseOption, uiOption: UIOption, fieldInfo: PivotTableInfo, pivot: Pivot): BaseOption {
@@ -106,7 +109,7 @@ export class FormatOptionConverter {
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption };
+    if (_.isUndefined(format)){ return chartOption; }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = this.getlabelAxisScaleFormatTooltip(uiOption);
@@ -121,7 +124,7 @@ export class FormatOptionConverter {
     if( _.isUndefined(chartOption.tooltip) ) { chartOption.tooltip = {}; }
     chartOption.tooltip.formatter = ((params): any => {
 
-      let option = chartOption.series[params.seriesIndex];
+      const option = chartOption.series[params.seriesIndex];
 
       let uiData = _.cloneDeep(option.uiData);
       // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
@@ -138,7 +141,8 @@ export class FormatOptionConverter {
    * 포맷 옵션에 해당하는 값으로 변환한다.
    * @param value
    * @param format
-   * @returns {any}
+   * @param baseline
+   * @returns {string}
    */
   public static getFormatValue(value: any, format: UIChartFormatItem, baseline?: number): string {
     if (value === 'Infinity' || value === '-Infinity' || value === 'NaN') {
@@ -148,10 +152,10 @@ export class FormatOptionConverter {
     if (!format) return;
 
     // 기준선값이 존재할경우
-    if( !_.isUndefined(baseline) && !isNaN(baseline) && baseline != 0 ) {
+    if( !_.isUndefined(baseline) && !isNaN(baseline) && baseline !== 0 ) {
 
       // 원래 Value에서 기준선값만큼 더해준다
-      //value += value >= 0 ? baseline : baseline * -1;
+      // value += value >= 0 ? baseline : baseline * -1;
       value += baseline;
     }
 
@@ -159,7 +163,7 @@ export class FormatOptionConverter {
     const originalValue = _.cloneDeep(value);
 
     // 수치표기 약어설정
-    if(format.abbr && format.type != String(UIFormatType.EXPONENT10)) {
+    if(format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
           value = Math.abs(value) > 1000000000
@@ -183,20 +187,20 @@ export class FormatOptionConverter {
     }
 
     // 퍼센트
-    else if (!customSymbol && format.type == String(UIFormatType.PERCENT)) {
+    else if (!customSymbol && format.type === String(UIFormatType.PERCENT)) {
       value = value * 100;
     }
 
     // 소수점 자리수
-    if (format.type != String(UIFormatType.EXPONENT10)) {
-      //value = Number(value).toFixed(format.decimal);
+    if (format.type !== String(UIFormatType.EXPONENT10)) {
+      // value = Number(value).toFixed(format.decimal);
       value = Math.round(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
     }
 
     // 천단위 표시여부
     if (format.type !== 'exponent10' && format.useThousandsSep) {
 
-      let arrSplitFloatPoint = String( value ).split( '.' );
+      const arrSplitFloatPoint = String( value ).split( '.' );
 
       // Decimal Separation
       let floatValue = '';
@@ -205,7 +209,7 @@ export class FormatOptionConverter {
       }
 
       // Thousand units
-      value = arrSplitFloatPoint[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      value = arrSplitFloatPoint[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
       // Append Decimal
       if( '' !== floatValue ) {
@@ -214,32 +218,32 @@ export class FormatOptionConverter {
     }
 
     // Add decimal zero
-    if (value && format.type != String(UIFormatType.EXPONENT10) && format.decimal > 0) {
-      let stringValue: string = String(value);
-      if( stringValue.indexOf(".") == -1 ) {
-        value += ".";
+    if (value && format.type !== String(UIFormatType.EXPONENT10) && format.decimal > 0) {
+      const stringValue: string = String(value);
+      if( stringValue.indexOf('.') === -1 ) {
+        value += '.';
         for( let num: number = 0 ; num < format.decimal ; num++ ) {
-          value += "0";
+          value += '0';
         }
       }
       else {
-        for( let num: number = stringValue.split(".")[1].length ; num < format.decimal ; num++ ) {
-          value += "0";
+        for( let num: number = stringValue.split('.')[1].length ; num < format.decimal ; num++ ) {
+          value += '0';
         }
       }
     }
 
     // 수치표기 약어설정
-    if(format.abbr && format.type != String(UIFormatType.EXPONENT10)) {
+    if(format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
           value += Math.abs(originalValue) > 1000000000
-            ? "B"
+            ? 'B'
             : Math.abs(originalValue) > 1000000
-              ? "M"
+              ? 'M'
               : Math.abs(originalValue) > 1000
-                ? "K"
-                : "";
+                ? 'K'
+                : '';
           break;
         case String(UIFormatNumericAliasType.KILO) :
           value += 'K';
@@ -257,7 +261,7 @@ export class FormatOptionConverter {
     // const customSymbolVal = customSymbol ? _.trim(customSymbol.value) : '';
 
     // 통화
-    if (0 === customSymbolVal.length && format.type == String(UIFormatType.CURRENCY)) {
+    if (0 === customSymbolVal.length && format.type === String(UIFormatType.CURRENCY)) {
       switch (format.sign) {
         case String(UIFormatCurrencyType.KRW) :
           value = '₩ ' + value;
@@ -282,19 +286,19 @@ export class FormatOptionConverter {
     }
 
     // 퍼센트
-    else if (0 === customSymbolVal.length && format.type == String(UIFormatType.PERCENT)) {
+    else if (0 === customSymbolVal.length && format.type === String(UIFormatType.PERCENT)) {
       value = value + '%';
     }
 
     // 지수
-    else if (format.type == String(UIFormatType.EXPONENT10)) {
+    else if (format.type === String(UIFormatType.EXPONENT10)) {
       value = Number(value).toExponential(format.decimal);
     }
 
     // 사용자 기호 , value값이 빈값이 아닐때
     if( customSymbolVal.length > 0) {
       // front / back에 따라서 customsymbol 설정
-      value = UIFormatSymbolPosition.BEFORE == customSymbol.pos ? customSymbolVal + value : value + customSymbolVal;
+      value = UIFormatSymbolPosition.BEFORE === customSymbol.pos ? customSymbolVal + value : value + customSymbolVal;
     }
 
     return value;
@@ -304,7 +308,11 @@ export class FormatOptionConverter {
    * Series: 포맷을 변경한다.
    * @param params
    * @param format
-   * @returns {any}
+   * @param pivot
+   * @param uiOption
+   * @param series
+   * @param uiData
+   * @returns {string}
    */
   public static getFormatValueSeries(params: any, format: UIChartFormat, pivot: Pivot, uiOption?: UIOption, series?: any, uiData?: any): string {
 
@@ -321,11 +329,11 @@ export class FormatOptionConverter {
         // string인 경우
         if (typeof uiData['categoryName'] === 'string') {
 
-          let categoryList = _.split(uiData['categoryName'], CHART_STRING_DELIMITER);
+          const categoryList = _.split(uiData['categoryName'], CHART_STRING_DELIMITER);
           result = this.getTooltipName(categoryList, pivot.columns, result);
         // 리스트인경우
         } else {
-          let categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
+          const categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
 
           // category Name List 설정
           result = this.getTooltipName(categoryList, pivot.columns, result);
@@ -345,20 +353,19 @@ export class FormatOptionConverter {
       // 해당 dataIndex 데이터애로 뿌려줌
       if( uiData['seriesName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
 
-        let seriesName = '';
-        let seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
+        const seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
 
         // multi series일때
         if (seriesNameList.length > 1) {
 
-          let pivotList = _.cloneDeep(pivot.rows);
+          const pivotList = _.cloneDeep(pivot.rows);
           // category Name List 설정
           result = this.getTooltipName(seriesNameList, pivotList, result, false, pivot, ShelveType.ROWS);
 
           // aggregations의 measure가 2개이상인경우
         } else if (pivot.aggregations.length > 1) {
 
-          let pivotList = _.cloneDeep(pivot.aggregations);
+          const pivotList = _.cloneDeep(pivot.aggregations);
           // category Name List 설정
           result = this.getTooltipName(seriesNameList, pivotList, result, false, pivot, ShelveType.AGGREGATIONS);
 
@@ -371,7 +378,7 @@ export class FormatOptionConverter {
             result = this.getTooltipName(_.split(uiData['categoryName'], CHART_STRING_DELIMITER), pivot.columns, result);
             // 리스트인경우
           } else {
-            let categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
+            const categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
 
             // category Name List 설정
             result = this.getTooltipName(categoryList, pivot.columns, result);
@@ -410,13 +417,13 @@ export class FormatOptionConverter {
         isUiData = true;
       }
 
-      let label: string = "";
+      let label: string = '';
 
       // UI 데이터기반 레이블 반환
       if( isUiData ) {
         for( let num: number = 0 ; num < result.length ; num++ ) {
           if( num > 0 ) {
-            label += "\n";
+            label += '\n';
           }
           if(series.label && series.label.normal && series.label.normal.rich) {
             label += '{align|'+ result[num] +'}';
@@ -441,7 +448,7 @@ export class FormatOptionConverter {
    * uiData가 없는경우 리턴되는 포멧
    * @param params
    * @param format
-   * @returns {any}
+   * @returns {string}
    */
   public static noUIDataFormat(params: any, format: UIChartFormat): string {
 
@@ -471,11 +478,11 @@ export class FormatOptionConverter {
       else if( format && !format.isAll ) {
 
         // 포멧에 해당하는지 여부
-        for( let eachFormat of format.each ) {
-          if( params.seriesName == eachFormat.name
-            || params.seriesName == (eachFormat.aggregationType +'('+ eachFormat.name +')')
-            || params.name == eachFormat.name
-            || params.name == (eachFormat.aggregationType +'('+ eachFormat.name +')') ){
+        for( const eachFormat of format.each ) {
+          if( params.seriesName === eachFormat.name
+            || params.seriesName === (eachFormat.aggregationType +'('+ eachFormat.name +')')
+            || params.name === eachFormat.name
+            || params.name === (eachFormat.aggregationType +'('+ eachFormat.name +')') ){
 
             // 포맷 적용
             value = this.getFormatValue(value, eachFormat);
@@ -495,8 +502,8 @@ export class FormatOptionConverter {
 
   /**
    * 데이터라벨의 축포멧 설정값을 가져온다
-   * @param chartOption
    * @param uiOption
+   * @param axisType
    */
   public static getlabelAxisScaleFormat(uiOption: UIOption, axisType?: AxisType): UIChartFormat {
 
@@ -504,7 +511,7 @@ export class FormatOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let label: UIChartDataLabel = uiOption.dataLabel;
+    const label: UIChartDataLabel = uiOption.dataLabel;
 
     // label값이 없거나 useDefaultFormat가 true인 경우
     if (!label || typeof label.useDefaultFormat === 'undefined' || true === label.useDefaultFormat) return null;
@@ -512,20 +519,20 @@ export class FormatOptionConverter {
     let valueAxis: UIChartAxis;
 
     // value값인 축값을 가져온다
-    if ((uiOption.xAxis && ChartAxisLabelType.VALUE == uiOption.xAxis.label.type && !axisType) ||
-        (axisType && axisType == AxisType.X)) {
+    if ((uiOption.xAxis && ChartAxisLabelType.VALUE === uiOption.xAxis.label.type && !axisType) ||
+        (axisType && axisType === AxisType.X)) {
 
       valueAxis = uiOption.xAxis;
     }
 
-    if (uiOption.yAxis && ChartAxisLabelType.VALUE == uiOption.yAxis.label.type && !axisType ||
-        (axisType && axisType == AxisType.Y)) {
+    if (uiOption.yAxis && ChartAxisLabelType.VALUE === uiOption.yAxis.label.type && !axisType ||
+        (axisType && axisType === AxisType.Y)) {
 
       valueAxis = uiOption.yAxis;
     }
 
     // 축의 format, 축의 format이 없는경우 기존 format으로 설정
-    const axisFormat = (<UIChartAxisLabelValue>valueAxis.label) ? (<UIChartAxisLabelValue>valueAxis.label).format : null;
+    const axisFormat = (valueAxis.label) ? (valueAxis.label as UIChartAxisLabelValue).format : null;
 
     if (!valueAxis || !axisFormat) return null;
 
@@ -535,8 +542,8 @@ export class FormatOptionConverter {
 
   /**
    * 툴팁의 축포멧 설정값을 가져온다
-   * @param chartOption
    * @param uiOption
+   * @param axisType
    */
   public static getlabelAxisScaleFormatTooltip(uiOption: UIOption, axisType?: AxisType): UIChartFormat {
 
@@ -544,7 +551,7 @@ export class FormatOptionConverter {
     // UI 옵션에서 값 추출
     ///////////////////////////
 
-    let toolTip: UIChartDataLabel = uiOption.toolTip;
+    const toolTip: UIChartDataLabel = uiOption.toolTip;
 
     // label값이 없거나 useDefaultFormat가 true인 경우
     if (!toolTip || typeof toolTip.useDefaultFormat === 'undefined' || true === toolTip.useDefaultFormat) return null;
@@ -552,20 +559,20 @@ export class FormatOptionConverter {
     let valueAxis: UIChartAxis;
 
     // value값인 축값을 가져온다
-    if ((uiOption.xAxis && ChartAxisLabelType.VALUE == uiOption.xAxis.label.type && !axisType) ||
-      (axisType && axisType == AxisType.X)) {
+    if ((uiOption.xAxis && ChartAxisLabelType.VALUE === uiOption.xAxis.label.type && !axisType) ||
+      (axisType && axisType === AxisType.X)) {
 
       valueAxis = uiOption.xAxis;
     }
 
-    if (uiOption.yAxis && ChartAxisLabelType.VALUE == uiOption.yAxis.label.type && !axisType ||
-      (axisType && axisType == AxisType.Y)) {
+    if (uiOption.yAxis && ChartAxisLabelType.VALUE === uiOption.yAxis.label.type && !axisType ||
+      (axisType && axisType === AxisType.Y)) {
 
       valueAxis = uiOption.yAxis;
     }
 
     // 축의 format, 축의 format이 없는경우 기존 format으로 설정
-    const axisFormat = (<UIChartAxisLabelValue>valueAxis.label) ? (<UIChartAxisLabelValue>valueAxis.label).format : null;
+    const axisFormat = (valueAxis.label) ? (valueAxis.label as UIChartAxisLabelValue).format : null;
 
     if (!valueAxis || !axisFormat) return null;
 
@@ -581,18 +588,17 @@ export class FormatOptionConverter {
    * @param pivot
    * @param titleUseFl ex) 타이틀명 : 데이터명 => 타이틀명 사용여부
    * @param pivotType 선반타입
-   * @returns {any}
    */
   public static getTooltipName(categoryList: any, targetPivotList: Field[], result: any, titleUseFl?: boolean, pivot?: Pivot, pivotType?: ShelveType): any {
 
     categoryList.forEach((item, index) => {
 
       // 열 / 행 / 교차 타겟
-      let targetPivot = pivotType && ShelveType.AGGREGATIONS == pivotType ? _.find(targetPivotList, {alias: item}) : targetPivotList[index];
+      const targetPivot = pivotType && ShelveType.AGGREGATIONS === pivotType ? _.find(targetPivotList, {alias: item}) : targetPivotList[index];
 
       if (!targetPivot) return result;
 
-      if ('timestamp' == targetPivot.type) {
+      if ('timestamp' === targetPivot.type) {
 
         let resultData: string = '';
 
@@ -602,7 +608,7 @@ export class FormatOptionConverter {
 
           const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
 
-          let defaultAlias = targetPivot.granularity + '(' + name + ')';
+          const defaultAlias = targetPivot.granularity + '(' + name + ')';
 
           if (defaultAlias === targetPivot.alias) {
             resultData = granularity + ' of ' + name + ' : ';
@@ -614,7 +620,7 @@ export class FormatOptionConverter {
         resultData += item;
         result.push(resultData);
       }
-      else if ('measure' == targetPivot.type) {
+      else if ('measure' === targetPivot.type) {
 
         // measure인 경우 aggregation length가 2개이상인경우
         if (pivot && pivot.aggregations.length > 1) {
@@ -625,12 +631,12 @@ export class FormatOptionConverter {
             aggregationType += targetPivot.aggregationType.toString().slice(1, targetPivot.aggregationType.toString().length).toLowerCase();
 
             // Avg인 경우 Average로 치환
-            if ('Avg' == aggregationType) aggregationType = 'Average';
+            if ('Avg' === aggregationType) aggregationType = 'Average';
           }
 
           const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
 
-          let defaultAlias = targetPivot.aggregationType + '(' + name + ')';
+          const defaultAlias = targetPivot.aggregationType + '(' + name + ')';
 
           if (defaultAlias === targetPivot.alias) {
             result.push((aggregationType ? aggregationType+ ' of ' : '') + name);
@@ -653,7 +659,7 @@ export class FormatOptionConverter {
   }
 
   /**
-   * 툴팁에서 value값을 설정
+   * 툴팁에서 value 값을 설정
    * @param aliasValue
    * @param aggregations
    * @param format
@@ -663,24 +669,24 @@ export class FormatOptionConverter {
    */
   public static getTooltipValue(aliasValue: string, aggregations: Field[], format: UIChartFormat, value: number, seriesName?: string): string {
 
-    let seriesValue = '';
+    let seriesValue: string;
 
     let aggValue = _.find(aggregations, {alias : aliasValue});
     // 해당 value값으로 찾을 수 없는경우 seriesName으로 찾기
     if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias : seriesName});
 
     // priority of fiedAlias is higher, set fieldAlias
-    let aggValueName = aggValue.fieldAlias ? aggValue.fieldAlias : aggValue.name;
+    const aggValueName = aggValue.fieldAlias ? aggValue.fieldAlias : aggValue.name;
 
-    let defaultAlias = aggValue.aggregationType + '(' + aggValueName + ')';
+    const defaultAlias = aggValue.aggregationType + '(' + aggValueName + ')';
     // when alias is not changed
     if (defaultAlias === aggValue.alias) {
-      let aggregationType = "";
+      let aggregationType = '';
       if( aggValue.aggregationType ) {
         aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
         aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
         // Avg인 경우 Average로 치환
-        if ('Avg' == aggregationType) aggregationType = 'Average';
+        if ('Avg' === aggregationType) aggregationType = 'Average';
         aggregationType += ' of ';
       }
 
@@ -697,10 +703,15 @@ export class FormatOptionConverter {
   /**
    * Tooltip: 포맷을 변경한다.
    * @param params
+   * @param uiOption
+   * @param fieldInfo
    * @param format
-   * @returns {any}
+   * @param pivot
+   * @param _series
+   * @param uiData
+   * @returns {string}
    */
-  public static getFormatValueTooltip(params: any, uiOption: UIOption, fieldInfo: PivotTableInfo, format: UIChartFormat, pivot: Pivot, series?: any, uiData?: any): string {
+  public static getFormatValueTooltip(params: any, uiOption: UIOption, fieldInfo: PivotTableInfo, format: UIChartFormat, pivot: Pivot, _series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
     if( uiData ) {
@@ -719,7 +730,7 @@ export class FormatOptionConverter {
           result = this.getTooltipName([uiData['categoryName']], pivot.columns, result, true);
         // 리스트인경우
         } else {
-          let categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
+          const categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
 
           // category Name List 설정
           result = this.getTooltipName(categoryList, pivot.columns, result, true);
@@ -727,9 +738,9 @@ export class FormatOptionConverter {
       }
       if( uiData['categoryValue'] && uiData['categoryValue'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE) ){
 
-        let splitValue = _.split(uiData.name, CHART_STRING_DELIMITER);
-        let name = splitValue[splitValue.length - 1];
-        let seriesName = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitValue[splitValue.length - 1] : uiData.name;
+        const splitValue = _.split(uiData.name, CHART_STRING_DELIMITER);
+        const name = splitValue[splitValue.length - 1];
+        const seriesName = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitValue[splitValue.length - 1] : uiData.name;
 
         let categoryValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, uiData['categoryValue'][params.dataIndex], seriesName);
 
@@ -748,16 +759,16 @@ export class FormatOptionConverter {
       if( uiData['categoryPercent'] && uiData['categoryPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT) ){
 
         // category value가 선택된지 않은경우
-        if (-1 == uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
+        if (-1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
 
           let value = uiData['categoryPercent'][params.dataIndex];
           value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
 
-          let splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
-          let name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
+          const splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
+          const name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
 
           // categoryPercent 일 경우 format type 을 number 로 변경 후 호출
-          let formatType = _.cloneDeep(format.type);
+          const formatType = _.cloneDeep(format.type);
           format.type = 'number';
           let categoryValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
           categoryValue += '%';
@@ -769,21 +780,19 @@ export class FormatOptionConverter {
       // 해당 dataIndex 데이터애로 뿌려줌
       if( uiData['seriesName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
 
-        let seriesName = '';
-
-        let seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
+        const seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
 
         // multi series일때
         if (seriesNameList.length > 1) {
 
-          let pivotList = _.cloneDeep(pivot.rows);
+          const pivotList = _.cloneDeep(pivot.rows);
           // category Name List 설정
           result = this.getTooltipName(seriesNameList, pivotList, result, true, pivot, ShelveType.ROWS);
 
         // aggregations의 measure가 2개이상인경우
         } else if (pivot.aggregations.length > 1) {
 
-          let pivotList = _.cloneDeep(pivot.aggregations);
+          const pivotList = _.cloneDeep(pivot.aggregations);
           // category Name List 설정
           result = this.getTooltipName(seriesNameList, pivotList, result, true, pivot, ShelveType.AGGREGATIONS);
 
@@ -797,7 +806,7 @@ export class FormatOptionConverter {
             result = this.getTooltipName([uiData['categoryName']], pivot.columns, result, true);
             // 리스트인경우
           } else {
-            let categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
+            const categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
 
             // category Name List 설정
             result = this.getTooltipName(categoryList, pivot.columns, result, true);
@@ -806,8 +815,8 @@ export class FormatOptionConverter {
       }
       if( uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
 
-        let splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
-        let name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
+        const splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
+        const name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
 
         const value = typeof uiData['seriesValue'][params.dataIndex] === 'undefined' ? uiData['seriesValue'] : uiData['seriesValue'][params.dataIndex];
 
@@ -815,10 +824,10 @@ export class FormatOptionConverter {
 
         // series percent가 있는경우
         if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
-          let value = uiData['seriesPercent'][params.dataIndex];
-          value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
+          let seriesPercentVal = uiData['seriesPercent'][params.dataIndex];
+          seriesPercentVal = (Math.floor(Number(seriesPercentVal) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
 
-          seriesValue += ' (' + value + '%)';
+          seriesValue += ' (' + seriesPercentVal + '%)';
         }
 
         result.push(seriesValue);
@@ -826,13 +835,13 @@ export class FormatOptionConverter {
       if( uiData['seriesPercent'] && uiData['seriesPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
 
         // series value가 선택된지 않은경우
-        if (-1 == uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
+        if (-1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
           let value = uiData['seriesPercent'][params.dataIndex];
           value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
 
-          let splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
-          let name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
+          const splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
+          const name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
 
           let seriesPercent = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
 
@@ -853,7 +862,7 @@ export class FormatOptionConverter {
    */
   public static setDisplayTypes(chartType: ChartType, pivot?: Pivot): UIChartDataLabelDisplayType[] {
 
-    let displayTypes = [];
+    const displayTypes = [];
 
     switch (chartType) {
 
@@ -880,6 +889,9 @@ export class FormatOptionConverter {
       case ChartType.HEATMAP:
       case ChartType.GAUGE:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
+        displayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
+        displayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
+        break;
       case ChartType.TREEMAP:
       case ChartType.PIE:
         displayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
@@ -907,10 +919,15 @@ export class FormatOptionConverter {
       case ChartType.RADAR:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
         displayTypes[8] = UIChartDataLabelDisplayType.VALUE;
+        displayTypes[17] = UIChartDataLabelDisplayType.LAYER_NAME;
+        displayTypes[18] = UIChartDataLabelDisplayType.LOCATION_INFO;
+        displayTypes[19] = UIChartDataLabelDisplayType.DATA_VALUE;
+        break;
       case ChartType.MAP:
         displayTypes[17] = UIChartDataLabelDisplayType.LAYER_NAME;
         displayTypes[18] = UIChartDataLabelDisplayType.LOCATION_INFO;
         displayTypes[19] = UIChartDataLabelDisplayType.DATA_VALUE;
+        break;
     }
 
     return displayTypes;
@@ -918,16 +935,18 @@ export class FormatOptionConverter {
 
   /**
    * uiData가 없는경우 리턴되는 포멧
+   * @param uiOption
    * @param params
    * @param format
-   * @returns {any}
+   * @param fieldInfo
+   * @returns {string}
    */
   public static noUIDataFormatTooltip(uiOption: UIOption, params: any, format: UIChartFormat, fieldInfo: PivotTableInfo): string {
 
     // Variable
     // let format: UIChartFormat = uiOption.valueFormat;
-    let colorType: ChartColorType = uiOption.color.type;
-    let targetField: string = (<UIChartColorByDimension>uiOption.color).targetField;
+    const colorType: ChartColorType = uiOption.color.type;
+    const targetField: string = (uiOption.color as UIChartColorByDimension).targetField;
 
     // 기준선 일때
     if (params.componentType === 'markLine') {
@@ -959,11 +978,11 @@ export class FormatOptionConverter {
       else if( format && !format.isAll ) {
 
         // 포멧에 해당하는지 여부
-        for( let eachFormat of format.each ) {
-          if( params.seriesName == eachFormat.name
-            || params.seriesName == (eachFormat.aggregationType +'('+ eachFormat.name +')')
-            || params.name == eachFormat.name
-            || params.name == (eachFormat.aggregationType +'('+ eachFormat.name +')') ){
+        for( const eachFormat of format.each ) {
+          if( params.seriesName === eachFormat.name
+            || params.seriesName === (eachFormat.aggregationType +'('+ eachFormat.name +')')
+            || params.name === eachFormat.name
+            || params.name === (eachFormat.aggregationType +'('+ eachFormat.name +')') ){
 
             // 포맷 적용
             value = this.getFormatValue(value, eachFormat);
@@ -1024,6 +1043,7 @@ export class FormatOptionConverter {
    * convert value to deciaml value with thousand comma
    * @param value
    * @param {number} decimal
+   * @param {boolean} useThousandsSep
    * @returns {string}
    */
   public static getDecimalValue(value: any, decimal: number, useThousandsSep: boolean): string {
@@ -1041,8 +1061,7 @@ export class FormatOptionConverter {
   /**
    * convert decimal value with thousand comma to number value
    * @param value
-   * @param {number} decimal
-   * @returns {string}
+   * @returns {number}
    */
   public static getNumberValue(value: any): number {
 

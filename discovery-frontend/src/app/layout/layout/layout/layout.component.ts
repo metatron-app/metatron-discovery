@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import {Alert} from "../../../common/util/alert.util";
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Alert} from '@common/util/alert.util';
 
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
 })
-export class LayoutComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class LayoutComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(private broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
-              protected  injector: Injector) {
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 

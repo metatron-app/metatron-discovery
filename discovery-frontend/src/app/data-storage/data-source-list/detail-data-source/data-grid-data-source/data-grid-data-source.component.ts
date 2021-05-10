@@ -12,9 +12,13 @@
  * limitations under the License.
  */
 
-import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
-import {GridComponent} from '../../../../common/component/grid/grid.component';
+import * as _ from 'lodash';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
 import {
   ConnectionType,
   Datasource,
@@ -23,33 +27,23 @@ import {
   FieldFormatType,
   FieldRole,
   LogicalType
-} from '../../../../domain/datasource/datasource';
-import {QueryParam} from '../../../../domain/dashboard/dashboard';
-import * as _ from 'lodash';
+} from '@domain/datasource/datasource';
+import {QueryParam} from '@domain/dashboard/dashboard';
+import {Metadata} from '@domain/meta-data-management/metadata';
+import {AuthenticationType, Dataconnection, ImplementorType} from '@domain/dataconnection/dataconnection';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
-import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
-import {GridOption} from '../../../../common/component/grid/grid.option';
-import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
-import {Metadata} from '../../../../domain/meta-data-management/metadata';
-import {isNullOrUndefined} from 'util';
-import {
-  AuthenticationType,
-  Dataconnection,
-  ImplementorType,
-  JdbcDialect
-} from '../../../../domain/dataconnection/dataconnection';
-import {TimezoneService} from "../../../service/timezone.service";
-import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
-import {StringUtil} from "../../../../common/util/string.util";
-import {StorageService} from "../../../service/storage.service";
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {StorageService} from '../../../service/storage.service';
+import {TimezoneService} from '../../../service/timezone.service';
+import {DataSourceCreateService, TypeFilterObject} from '../../../service/data-source-create.service';
 
 @Component({
   selector: 'data-grid-datasource',
   templateUrl: './data-grid-data-source.component.html'
 })
-export class DataGridDataSourceComponent extends AbstractPopupComponent implements OnInit {
+export class DataGridDataSourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  @ViewChild("main")
+  @ViewChild('main')
   private _gridComponent: GridComponent;
 
   // grid data
@@ -110,7 +104,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     this._setDerivedFieldList(this.fields);
     // set field data list
     this._setFieldDataList(this.datasource)
-      .then(result => this._updateGrid(this._gridData, this.fields))
+      .then(() => this._updateGrid(this._gridData, this.fields))
       .catch(error => this.commonExceptionHandler(error));
   }
 
@@ -137,7 +131,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @param args
    */
   public extendGridHeader(args: any): void {
-    $(`<div class="slick-data">${_.find(this.fields, {'name': args.column.id}).logicalName || ''}</div>`).appendTo(args.node);
+    $(`<div class="slick-data">${_.find(this.fields, {name: args.column.id}).logicalName || ''}</div>`).appendTo(args.node);
   }
 
   /**
@@ -197,7 +191,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       this.rowNum = event.target['value'];
       // set field data list
       this._setFieldDataList(this.datasource)
-        .then(result => this._updateGrid(this._gridData, this.fields))
+        .then(() => this._updateGrid(this._gridData, this.fields))
         .catch(error => this.commonExceptionHandler(error));
     }
   }
@@ -221,7 +215,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    */
   private _updateGrid(data: any, fields: any): void {
     // 헤더정보 생성
-    const headers: header[] = this._getGridHeader(this._getFilteredFieldList(fields));
+    const headers: Header[] = this._getGridHeader(this._getFilteredFieldList(fields));
     // rows
     let rows: any[] = data;
     // row and headers가 있을 경우에만 그리드 생성
@@ -233,28 +227,28 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         });
       }
 
-      ( this.rowNum > rows.length ) && ( this.rowNum = rows.length );
+      (this.rowNum > rows.length) && (this.rowNum = rows.length);
       // dom 이 모두 로드되었을때 작동
       this.changeDetect.detectChanges();
       // 그리드 생성
-      isNullOrUndefined(this.metaData)
+      this.isNullOrUndefined(this.metaData)
         ? this._gridComponent.create(headers, rows, new GridOption()
-        .SyncColumnCellResize(true)
-        .MultiColumnSort(true)
-        .RowHeight(32)
-        .build())
+          .SyncColumnCellResize(true)
+          .MultiColumnSort(true)
+          .RowHeight(32)
+          .build())
         : this._gridComponent.create(headers, rows, new GridOption()
-        .SyncColumnCellResize(true)
-        .MultiColumnSort(true)
-        .RowHeight(32)
-        .ShowHeaderRow(true)
-        .HeaderRowHeight(32)
-        .ExplicitInitialization(true)
-        .build());
+          .SyncColumnCellResize(true)
+          .MultiColumnSort(true)
+          .RowHeight(32)
+          .ShowHeaderRow(true)
+          .HeaderRowHeight(32)
+          .ExplicitInitialization(true)
+          .build());
       // search
       this._gridComponent.search(this.searchTextKeyword || '');
       // ExplicitInitialization 을 true 로 줬기 떄문에 init해줘야 한다.
-      !isNullOrUndefined(this.metaData) && this._gridComponent.grid.init();
+      !this.isNullOrUndefined(this.metaData) && this._gridComponent.grid.init();
     } else {
       this._gridComponent.destroy();
     }
@@ -262,12 +256,12 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
 
   /**
    * Get filtered field list
-   * @param {Field[]} field
+   * @param {Field[]} fields
    * @return {Field[]}
    * @private
    */
-  private _getFilteredFieldList(field: Field[]): Field[] {
-    return field.filter(field => (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
+  private _getFilteredFieldList(fields: Field[]): Field[] {
+    return fields.filter(field => (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
       && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : this.selectedLogicalTypeFilter.value === field.logicalType));
   }
 
@@ -291,7 +285,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @returns {header[]}
    * @private
    */
-  private _getGridHeader(fields: Field[]): header[] {
+  private _getGridHeader(fields: Field[]): Header[] {
     // if exist derived field list
     if (this.derivedFieldList.length > 0) {
       // Style
@@ -314,7 +308,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
-          .Formatter((row, cell, value) => {
+          .Formatter((_row, _cell, value) => {
             // if derived expression type or LINK geo type
             if (field.derived && (field.logicalType === LogicalType.STRING || this.datasource.connType === ConnectionType.LINK)) {
               return '<div  style="' + defaultStyle + nullStyle + '">' + noPreviewGuideMessage + '</div>';
@@ -423,7 +417,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         // not used preset : source.ingestion.connection
         const connection: Dataconnection = datasource.connection || datasource.ingestion.connection;
         this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE, this.rowNum < 1 ? 100 : this.rowNum)
-          .then((result: {data: any, fields: Field[], totalRows: number}) => {
+          .then((result: { data: any, fields: Field[], totalRows: number }) => {
             // grid data
             this._gridData = result.data;
             // if row num different data length

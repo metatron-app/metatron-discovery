@@ -25,18 +25,17 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {CommonCode} from '@domain/code/common-code';
+import {Field, FieldRole} from '@domain/datasource/datasource';
+import {BoardDataSource} from '@domain/dashboard/dashboard';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {DashboardService} from '../../service/dashboard.service';
-import {CommonCode} from '../../../domain/code/common-code';
-import {Field, FieldRole} from '../../../domain/datasource/datasource';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Alert} from '../../../common/util/alert.util';
-import {BoardDataSource} from '../../../domain/dashboard/dashboard';
-import {StringUtil} from '../../../common/util/string.util';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../common/domain/modal';
-import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
 import {DashboardUtil} from '../../util/dashboard.util';
-import {isNullOrUndefined} from "util";
 
 declare let $: any;
 
@@ -336,7 +335,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     this.orderingFields = [];
     this.orderingFields = this.orderingFields.concat(this.fields).concat(this.customFields);
 
-    if (this.orderingMode != 'DATA') {
+    if (this.orderingMode !== 'DATA') {
       this.orderingFields = this.orderingFields.sort((a:Field, b:Field) => {
         if (this.orderingMode === 'AZ') {
           return a.name > b.name ? 1 : -1;
@@ -402,10 +401,10 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
         acceptSpaceBar: true,
         displayTpl: '<li><a href="javascript:"><em class="${class}"></em>${name}</a></li>',
         callbacks: {
-          matcher: this.matcherCallback, //Find matched string for autocompletion
-          filter: this.filterCallback, //Find matched list for query
-          sorter: this.sorterCallback, //Sort result
-          highlighter: this.highlighterCallback, //Display highlight format
+          matcher: this.matcherCallback, // Find matched string for autocompletion
+          filter: this.filterCallback, // Find matched list for query
+          sorter: this.sorterCallback, // Sort result
+          highlighter: this.highlighterCallback, // Display highlight format
           beforeInsert: this.beforeInsertCallback,
           afterInsert: this.afterInsertCallback
         }
@@ -424,8 +423,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       return '<span >' + value + '( <span id="focusElement"></span> )</span>';
     } else {
       const color = (data.role === FieldRole.DIMENSION)?'#5fd7a5':'#439fe5';
-      const user_defined_prefix = (data.type == 'user_expr')?'user_defined.':'';
-      return '<span style="color:' + color + '">[' + user_defined_prefix + ((value.startsWith('['))?value.substring(1):value) + ']</span>';
+      const userDefinedPrefix = (data.type === 'user_expr')?'user_defined.':'';
+      return '<span style="color:' + color + '">[' + userDefinedPrefix + ((value.startsWith('['))?value.substring(1):value) + ']</span>';
     }
   }
 
@@ -455,8 +454,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    * @param searchKey search key field name
    */
   public filterCallback(query, data, searchKey) {
-    var _results, i, item, len;
-    _results = [];
+    let item;
+    const _results = [];
 
     if(query.startsWith('['))
       query = query.substring(1);
@@ -464,9 +463,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     if(query.startsWith('user_defined.'))
       query = query.substring(13);
 
-    for (i = 0, len = data.length; i < len; i++) {
+    for (let i = 0, len = data.length; i < len; i++) {
       item = data[i];
-      if (~new String(item[searchKey]).toLowerCase().indexOf(query.toLowerCase())) {
+      if (~String(item[searchKey]).toLowerCase().indexOf(query.toLowerCase())) {
         _results.push(item);
       }
     }
@@ -477,23 +476,22 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    * override default matcher callback of atwho function
    * @param flag
    * @param subtext
-   * @param should_startWithSpace
+   * @param shouldStartWithSpace
    * @param acceptSpaceBar
    */
-  public matcherCallback(flag, subtext, should_startWithSpace, acceptSpaceBar) {
-    var _a, _y, match, regexp, space;
-    flag = flag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+  public matcherCallback(flag, subtext, shouldStartWithSpace, acceptSpaceBar) {
+    flag = flag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 
-    if (should_startWithSpace) {
+    if (shouldStartWithSpace) {
       flag = '(?:^|\\s+)' + flag;
     }
-    _a = decodeURI("%C3%80");
-    _y = decodeURI("%C3%BF");
-    space = acceptSpaceBar ? "\ " : "";
+    const _a = decodeURI('%C3%80');
+    const _y = decodeURI('%C3%BF');
+    const space = acceptSpaceBar ? '\ ' :  '';
 
     // 앞에 대괄호 오는 케이스 추가
-    regexp = new RegExp(flag + "(\\[?[A-Za-z" + _a + "-" + _y + "0-9_" + space + "\'\.]*)$|" + flag + "([^\\x00-\\xff]*)$", 'gi');
-    match = regexp.exec(subtext);
+    const regexp = new RegExp(flag + '(\\[?[A-Za-z' + _a + '-' + _y + '0-9_' + space + '\'\.]*)$|' + flag + '([^\\x00-\\xff]*)$', 'gi');
+    const match = regexp.exec(subtext);
 
     if (match) {
       return match[2] ? match[2] : match[1];
@@ -509,25 +507,25 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    * @param searchKey
    */
   public sorterCallback(query, items, searchKey) {
-    var _results, i, item, len;
     if (!query) {
       return items;
     }
-    _results = [];
+    const _results = [];
     if(query.startsWith('['))
       query = query.substring(1);
 
     if(query.startsWith('user_defined.'))
       query = query.substring(13);
 
-    for (i = 0, len = items.length; i < len; i++) {
+    let item;
+    for (let i = 0, len = items.length; i < len; i++) {
       item = items[i];
-      item.atwho_order = new String(item[searchKey]).toLowerCase().indexOf(query.toLowerCase());
+      item.atwho_order = String(item[searchKey]).toLowerCase().indexOf(query.toLowerCase());
       if (item.atwho_order > -1) {
         _results.push(item);
       }
     }
-    return _results.sort(function(a, b) {
+    return _results.sort((a, b) => {
       return a.atwho_order - b.atwho_order;
     });
   }
@@ -538,7 +536,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    * @param query
    */
   public highlighterCallback(li, query) {
-    var regexp;
+
     if (!query) {
       return li;
     }
@@ -549,8 +547,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     if(query.startsWith('user_defined.'))
       query = query.substring(13);
 
-    regexp = new RegExp(">\\s*([^\<]*?)(" + query.replace("+", "\\+") + ")([^\<]*)\\s*<", 'ig');
-    return li.replace(regexp, function(str, $1, $2, $3) {
+    const regexp = new RegExp('>\\s*([^\<]*?)(' + query.replace('+', '\\+') + ')([^\<]*)\\s*<', 'ig');
+    return li.replace(regexp, (_str, $1, $2, $3) => {
       return '> ' + $1 + '<strong>' + $2 + '</strong>' + $3 + ' <';
     });
   }
@@ -606,7 +604,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public done() {
 
     // callFuncSuccess가 아닐때 columnName이 없을때 return
-    if ('S' !== this.isCalFuncSuccess || !this.columnName || '' == this.columnName.trim() || this.isReservedFieldName(this.columnName)) {
+    if ('S' !== this.isCalFuncSuccess || !this.columnName || '' === this.columnName.trim() || this.isReservedFieldName(this.columnName)) {
       return;
     }
 
@@ -718,10 +716,10 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       expr = StringUtil.trim(expr);
 
       const cloneDs:BoardDataSource = _.cloneDeep( this.dataSource );
-      if( !isNullOrUndefined(cloneDs.engineName) ) {
+      if( !this.isNullOrUndefined(cloneDs.engineName) ) {
         cloneDs.name = cloneDs.engineName;
       }
-      const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs), "userFields": this.customFields };
+      const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs), userFields: this.customFields };
       this.dashboardService.validate(param).then((result: any) => {
         this.aggregated = result.aggregated;
         this.isCalFuncSuccess = 'S';
@@ -799,11 +797,11 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    * @param field Element of field list. Its type is Field or CustomField.
    */
   public findNameForIcon(field:any) {
-    if(field.type == 'user_expr'){
+    if(field.type === 'user_expr'){
       if(field.isTimestamp)
         return 'TIMESTAMP';
 
-      //If field is user-defined field, the type of field is Long or String
+      // If field is user-defined field, the type of field is Long or String
       return (field.role === FieldRole.DIMENSION)?'LONG':'STRING';
     }else{
       if (field.type === 'USER_DEFINED' || field.type === 'TEXT' ) {
@@ -830,7 +828,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   public getSyntaxHtml(commonCode: CommonCode): string {
     let html = '<span class="ddp-ui-det-title">Syntax</span>';
-    let syntaxList: string[] = _.split(commonCode.syntax, this.expressionStringDelimiter);
+    const syntaxList: string[] = _.split(commonCode.syntax, this.expressionStringDelimiter);
     html += syntaxList[0];
     if (syntaxList.length > 1) {
       for( let num: number = 1 ; num < syntaxList.length ; num++ ) {
@@ -842,9 +840,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     if (StringUtil.isEmpty(commonCode.param)) {
       return html;
     } else {
-      let paramList: string[] = _.split((this.translateService.currentLang === 'ko' ? commonCode.param : commonCode.paramEn), this.expressionStringDelimiter);
+      const paramList: string[] = _.split((this.translateService.currentLang === 'ko' ? commonCode.param : commonCode.paramEn), this.expressionStringDelimiter);
       html += '<ul class="ddp-list-det">';
-      for( let num: number = 0 ; num < paramList.length ; num++ ) {
+      for( let num: number = 0, nMax = paramList.length; num < nMax; num++ ) {
         html += '<li>';
         html += paramList[num];
         html += '</li>';
@@ -856,8 +854,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
   public getExampleHtml(commonCode: CommonCode): string {
     let html = '<span class="ddp-ui-det-title">Example</span>';
-    let exampleList: string[] = _.split((this.translateService.currentLang === 'ko' ? commonCode.example : commonCode.exampleEn), this.expressionStringDelimiter);
-    for( let num: number = 0 ; num < exampleList.length ; num++ ) {
+    const exampleList: string[] = _.split((this.translateService.currentLang === 'ko' ? commonCode.example : commonCode.exampleEn), this.expressionStringDelimiter);
+    for( let num: number = 0, nMax = exampleList.length ; num < nMax ; num++ ) {
       html += '<div class="ddp-txt-list">';
       html += exampleList[num];
       html += '</div>';
@@ -942,7 +940,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
 
 
 enum ColumnType {
-  DIMENSION = <any>'DIMENSION',
-  MEASURE = <any>'MEASURE',
-  PARAMETER = <any>'PARAMETER'
+  DIMENSION = 'DIMENSION',
+  MEASURE = 'MEASURE',
+  PARAMETER = 'PARAMETER'
 }

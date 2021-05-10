@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {EngineServiceModule} from './engine-service.module';
 import {Subject} from 'rxjs';
-import {Engine} from '../../domain/engine-monitoring/engine';
+import {Engine} from '@domain/engine-monitoring/engine';
 
 @Injectable({
   providedIn: EngineServiceModule
@@ -15,7 +15,7 @@ export class StateService {
   }
 
   public changeTab(current: Engine.Content, next: Engine.ContentType) {
-    this.changeTabSubject.next({ current, next });
+    this.changeTabSubject.next({current, next});
   }
 
 }

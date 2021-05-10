@@ -13,26 +13,30 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter,
-  Injector, Input, OnInit, Output, ViewChild
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
-import { CommonUtil } from '../../common/util/common.util';
-import {StringUtil} from "../../common/util/string.util";
-import {isNullOrUndefined, isUndefined} from "util";
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'prep-select-box-custom',
   templateUrl: './prep-select-box-custom.component.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  },
   styles: [
     '.ddp-list-selectbox li.sys-focus-item { background-color: #f6f6f7 !important; }'
   ]
 })
-export class PrepSelectBoxCustomComponent extends AbstractComponent implements OnInit {
+export class PrepSelectBoxCustomComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -71,17 +75,17 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   @Output() public onSelected = new EventEmitter();
 
   // select box 길이 full length 여부
-  @Input() public isFull : boolean = false;
+  @Input() public isFull: boolean = false;
 
   // 옵션이 왼쪽으로 길어지는 여부
-  @Input() public isOptionToLeft:boolean = false;
+  @Input() public isOptionToLeft: boolean = false;
 
   // 키보드 조작 가능 여부
   @Input()
   public isAllowKeyboardManipulation: boolean = false;
 
   @Input()
-  public isSearchAllowed : boolean = false;
+  public isSearchAllowed: boolean = false;
 
   @Input()
   public isWritable: boolean = false;
@@ -116,7 +120,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
 
     let arrayList = this.array;
 
-    let isSearchTextEmpty: boolean = false;
+    let isSearchTextEmpty: boolean;
 
     // 검색어가 있는지 체크
     isSearchTextEmpty = StringUtil.isNotEmpty(this.searchText);
@@ -124,16 +128,17 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     // 검색어가 있다면
     if (isSearchTextEmpty && arrayList !== undefined) {
       arrayList = arrayList.filter((item) => {
-        if (!isNullOrUndefined(this.viewKey)) {
-          return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
+        if (!this.isNullOrUndefined(this.viewKey)) {
+          return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) === 0;
         } else {
-          return item.toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
+          return item.toLowerCase().indexOf(this.searchText.toLowerCase()) === 0;
         }
 
       });
     }
     return arrayList;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -161,12 +166,12 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
 
     // Close select box when a command list or other select box is clicked
     this.subscriptions.push(
-      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean, detail : string }) => {
-        if(data.hasOwnProperty('detail') && data.detail == this._FIELD_COMBO_ID){
+      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id: string, isShow: boolean, detail: string }) => {
+        if (data.hasOwnProperty('detail') && data.detail === this._FIELD_COMBO_ID) {
           // return;
-        }else{
+        } else {
           this.isShowSelectList = false;
-          $('#selecterUl').css('display','none');
+          $('#selecterUl').css('display', 'none');
         }
 
       })
@@ -188,6 +193,21 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * Click inside component
+   * @param event
+   */
+  @HostListener('document:click', ['$event'])
+  public onClickHost(event) {
+    // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this._searchTextElement.nativeElement.blur();
+      // 팝업창 닫기
+      this.isShowSelectList = false;
+      $('#selecterUl').css('display', 'none');
+    }
+  }
+
+  /**
    * When an item is clicked from select box
    * @param item
    */
@@ -196,26 +216,15 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     this.selectedItem = item;
     this.safelyDetectChanges();
 
-    if(this.selectedItem == null || this.selectedItem == undefined) {this.searchText = ''} else{this.searchText = this.selectedItem['value'];}
+    if (this.selectedItem === undefined || this.selectedItem == null) {
+      this.searchText = ''
+    } else {
+      this.searchText = this.selectedItem['value'];
+    }
     item.value = this.searchText;
     this.onSelected.emit(item);     // emit event
 
     this.setFocusTimer();
-  }
-
-
-  /**
-   * Click inside component
-   * @param event
-   */
-  public onClickHost(event) {
-    // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      this._searchTextElement.nativeElement.blur();
-      // 팝업창 닫기
-      this.isShowSelectList = false;
-      $('#selecterUl').css('display','none');
-    }
   }
 
   /**
@@ -237,10 +246,13 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    */
   private setFocusTimer(): void {
     let textlength: number = 0;
-    if(this.searchText !== null && this.searchText !== undefined && this.searchText !=='') {
+    if (this.searchText !== null && this.searchText !== undefined && this.searchText !== '') {
       textlength = this.searchText.length;
     }
-    setTimeout(() => {this._searchTextElement.nativeElement.focus(); this._searchTextElement.nativeElement.setSelectionRange(textlength,textlength)}, 100);
+    setTimeout(() => {
+      this._searchTextElement.nativeElement.focus();
+      this._searchTextElement.nativeElement.setSelectionRange(textlength, textlength)
+    }, 100);
   }
 
 
@@ -248,13 +260,21 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * show pattern info tooltip
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    if(isShow) {
-      $('#selecterUl').css('display','block');
-      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow, detail: this._FIELD_COMBO_ID} );
-    }else {
-      $('#selecterUl').css('display','none');
-      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow, detail: this._FIELD_COMBO_ID} );
+  public showHidePatternLayer(isShow: boolean) {
+    if (isShow) {
+      $('#selecterUl').css('display', 'block');
+      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {
+        id: 'toggleList',
+        isShow: isShow,
+        detail: this._FIELD_COMBO_ID
+      });
+    } else {
+      $('#selecterUl').css('display', 'none');
+      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {
+        id: 'toggleList',
+        isShow: isShow,
+        detail: this._FIELD_COMBO_ID
+      });
     }
   } // function - showHidePatternLayer
 
@@ -301,10 +321,10 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       case 13 :
         // Enter
         // LIST Enter Event
-        if($currFocusItem.length > 0) {
+        if ($currFocusItem.length > 0) {
           $currFocusItem.trigger('click');
           $currFocusItem.removeClass('sys-focus-item');
-        }else{
+        } else {
           // LIST 이외의 Enter Event
           const item: any = {};
           item.value = this.searchText;
@@ -322,12 +342,12 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * @param {KeyboardEvent} event
    */
   public changeSearchText(event): void {
-    if(event.keyCode !== 13 && event.keyCode !== 38 && event.keyCode !== 40) {
+    if (event.keyCode !== 13 && event.keyCode !== 38 && event.keyCode !== 40) {
       $('#selecterUl').find('.sys-focus-item').removeClass('sys-focus-item');
       const item: any = {};
       item.value = this.searchText;
       this.onSelected.emit(item)
-    };
+    }
   }
 
 
@@ -372,16 +392,16 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       }
     }
 
-    if(this.selectedItem == undefined || this.selectedItem == null) {
+    if (this.selectedItem === undefined || this.selectedItem == null) {
       this.searchText = this.customTimestamp;
       this.selectedItem = {};
       this.selectedItem.value = this.customTimestamp;
-    } else{
+    } else {
       this.searchText = this.selectedItem['value'];
     }
 
-    this.isShowSelectList= false;
-    $('#selecterUl').css('display','none');
+    this.isShowSelectList = false;
+    $('#selecterUl').css('display', 'none');
   }
 
 }

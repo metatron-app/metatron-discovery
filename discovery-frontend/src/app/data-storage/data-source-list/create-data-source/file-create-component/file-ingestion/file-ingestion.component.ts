@@ -25,10 +25,10 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo} from '../../../../../domain/datasource/datasource';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo} from '@domain/datasource/datasource';
+import {DataStorageConstant} from '../../../../constant/data-storage-constant';
 import {IngestionSettingComponent} from '../../../component/ingestion-setting.component';
-import {DataStorageConstant} from "../../../../constant/data-storage-constant";
 
 /**
  * Creating datasource with File - ingestion step
@@ -43,7 +43,7 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
   @Input('sourceData')
   private _sourceData: DatasourceInfo;
 
-  @ViewChild(IngestionSettingComponent)
+  @ViewChild(IngestionSettingComponent, {static: true})
   private _ingestionSettingComponent: IngestionSettingComponent;
 
   @Input('step')
@@ -82,7 +82,7 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
       this._ingestionSettingComponent.init(
         this._sourceData,
         'FILE',
-        this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null :  this._sourceData.schemaData.selectedTimestampField,
+        this._sourceData.schemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT ? null : this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );
       // remove changed flag

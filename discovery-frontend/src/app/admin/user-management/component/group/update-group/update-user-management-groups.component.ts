@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Output } from '@angular/core';
-import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Action, User } from '../../../../../domain/user/user';
-import { Alert } from '../../../../../common/util/alert.util';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
+import {Action, User} from '@domain/user/user';
+import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
-import { isUndefined } from 'util';
-import { Group } from '../../../../../domain/user/group';
-import { GroupMember } from '../../../../../domain/user/group-member';
+import {isUndefined} from 'util';
+import {Group} from '@domain/user/group';
+import {GroupMember} from '@domain/user/group-member';
 
 @Component({
   selector: 'app-update-user-management-groups',
@@ -74,24 +74,6 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -134,7 +116,7 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
     // 멤버 수정
     // 기존 리스트에서 없는 데이터는 remove로 설정 생성된 데이터는 add로 설정
     this.groupsService.updateGroupUsers(this._groupData.id, this._getUpdateParam())
-      .then((result) => {
+      .then(() => {
         // success alert
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
         // 현재 팝업 닫기
@@ -144,7 +126,7 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
         // 상위 컴포넌트로 noti
         this.memberComplete.emit();
       })
-      .catch((error) => {
+      .catch(() => {
         // error alert
         Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
         // loading hide
@@ -246,7 +228,7 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
    */
   public isAllSelectedMember(): boolean {
     if (this.memberList.length !== 0) {
-      for (let index = 0; index < this.memberList.length; index++) {
+      for (let index = 0, nMax = this.memberList.length; index < nMax; index++) {
         // 조회된 멤버 목록 중 선택목록에 하나라도 없다면 false
         // if (_.findIndex(this.selectedMember, {id: this.memberList[index].id}) === -1) {
         if (_.findIndex(this.selectedMember, {username: this.memberList[index].username}) === -1) {
@@ -451,7 +433,6 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
 
   /**
    * 사용자가 속한 멤버 변경에 이용하는 파라메터
-   * @returns {any}
    * @private
    */
   private _getUpdateParam(): any {

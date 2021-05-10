@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { ScrollLoadingGridComponent } from './scroll-loading-grid.component';
+import * as _ from 'lodash';
+import {ScrollLoadingGridComponent} from './scroll-loading-grid.component';
 
 declare const Slick: any;
-import * as _ from 'lodash';
 
 export class ScrollLoadingGridModel {
 
@@ -28,10 +28,10 @@ export class ScrollLoadingGridModel {
   private _orgData: any[] = [];
 
   // 데이터 로딩 중 여부
-  private _isLoadingData:boolean = false;
+  private _isLoadingData: boolean = false;
 
   // 현재 페이지
-  private _currentPage:number = 0;
+  private _currentPage: number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -40,7 +40,7 @@ export class ScrollLoadingGridModel {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public data: any = { length: 0 };
+  public data: any = {length: 0};
 
   // events
   public onDataLoading = new Slick.Event();
@@ -53,17 +53,17 @@ export class ScrollLoadingGridModel {
    * @param {number} pageSize
    * @returns {Promise<any>}
    */
-  public loadData: Function;
+  public loadData: (ruleIndex: number, startIdx: number, pageSize: number) => Promise<any>;
 
   /**
    * 조회 성공
    */
-  public loadSuccess: Function;
+  public loadSuccess: (data) => any;
 
   /**
    * 조회 실퍠
    */
-  public loadFail: Function;
+  public loadFail: (error) => void;
 
 
   public totalRowCnt: number = 0;
@@ -75,11 +75,13 @@ export class ScrollLoadingGridModel {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(loadData: Function, loadSuccess: Function, data?: any[]) {
+  constructor(loadData: (ruleIndex: number, startIdx: number, pageSize: number) => Promise<any>,
+              loadSuccess: (data) => any,
+              data?: any[]) {
     this.loadData = loadData;
     this.loadSuccess = loadSuccess;
     if (data) {
-      this._orgData = _.cloneDeep( data );
+      this._orgData = _.cloneDeep(data);
       data.forEach((item: any, idx: number) => {
         // 아이디 중복나지 않도록 처리
         item[ScrollLoadingGridComponent.ID_PROPERTY] = idx + 1;
@@ -108,27 +110,25 @@ export class ScrollLoadingGridModel {
    *  ruleIndex
    */
   public setRuleIndex(ruleIndex: number): void {
-    if(ruleIndex == null || ruleIndex == undefined){
+    if (ruleIndex == null || ruleIndex === undefined) {
       this.ruleIndex = null;
-    }else{
+    } else {
       this.ruleIndex = ruleIndex;
     }
-
   }
 
   /**
    *  pageInfo
    */
   public getPageInfo(): any {
-    const pageInfo:any = {};
+    const pageInfo: any = {};
     let lastPageNumber: number = Math.floor(this.totalRowCnt / this._pageSize) - 1;
-    if(this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber + 1;
+    if (this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber + 1;
     // lastPageNumber =  lastPageNumber - 1;
 
     pageInfo.currentPage = this._currentPage;
-    pageInfo.totalRowCnt =  this.totalRowCnt;
-    pageInfo.lastPage = false;
-    if(lastPageNumber <= this._currentPage){pageInfo.lastPage = true;}
+    pageInfo.totalRowCnt = this.totalRowCnt;
+    pageInfo.lastPage = ( lastPageNumber <= this._currentPage );
     pageInfo.lastPageNumber = lastPageNumber;
     pageInfo.pageSize = this._pageSize;
     pageInfo.ruleIndex = this.ruleIndex;
@@ -139,11 +139,11 @@ export class ScrollLoadingGridModel {
   /**
    *  setExternalData
    */
-  public setExternalData(data:any, currentPage:number): void {
+  public setExternalData(data: any, currentPage: number): void {
     const result = this.loadSuccess(data);
     if (result) {
       this.totalRowCnt = data.totalRowCnt;
-      let currLength: number = this.data.length;
+      const currLength: number = this.data.length;
 
       // 검색을 위한 원본 데이터 목록 저장
       this._orgData = this._orgData.concat(result);
@@ -173,17 +173,12 @@ export class ScrollLoadingGridModel {
             acc[currIndex] = currVal;
             acc.length = acc.length + 1;
             return acc;
-          }, { length: 0 });
+          }, {length: 0});
 
-      this.onDataLoaded.notify({ from: 0, to: this.data.length });
+      this.onDataLoaded.notify({from: 0, to: this.data.length});
     }
 
   }
-
-
-
-
-
 
   /**
    * 검색
@@ -200,9 +195,9 @@ export class ScrollLoadingGridModel {
             acc[currIndex] = currVal;
             acc.length = acc.length + 1;
             return acc;
-          }, { length: 0 });
+          }, {length: 0});
 
-      this.onDataLoaded.notify({ from: 0, to: this.data.length });
+      this.onDataLoaded.notify({from: 0, to: this.data.length});
     }
 
   } // function - search
@@ -214,29 +209,29 @@ export class ScrollLoadingGridModel {
    */
   public ensureData(from, to) {
 
-    if( this._isLoadingData ) {
+    if (this._isLoadingData) {
       return;
     }
-    // console.info(from + ':this.totalRowCnt:'+ this.totalRowCnt);
+    // console.log(from + ':this.totalRowCnt:'+ this.totalRowCnt);
     let lastPageNumber: number = Math.floor(this.totalRowCnt / this._pageSize);
-    if(this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber +1;
+    if (this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber + 1;
 
     // 페이지 지정 ( to 에 20을 더한 것은 그만큼 미리 부르기 위한 것임 )
-    const viewPortBottom:number = (isNaN(to) || ( to + 20 ) < 0) ? 0 : ( to + 20 );
-    let nextPage: number = Math.floor( viewPortBottom / this._pageSize);
+    const viewPortBottom: number = (isNaN(to) || (to + 20) < 0) ? 0 : (to + 20);
+    const nextPage: number = Math.floor(viewPortBottom / this._pageSize);
 
-    if( lastPageNumber <= nextPage ) {
+    if (lastPageNumber <= nextPage) {
       return;
     }
 
-    if( this._currentPage >= nextPage ) {
+    if (this._currentPage >= nextPage) {
       return;
     }
 
     const startIdx: number = nextPage * this._pageSize;
     if (this.data.length <= startIdx) {
       this._isLoadingData = true;
-      this.onDataLoading.notify({ from: from, to: to });
+      this.onDataLoading.notify({from: from, to: to});
       this.loadData(this.ruleIndex, startIdx, this._pageSize)
         .then((data) => {
           const result = this.loadSuccess(data);
@@ -245,7 +240,7 @@ export class ScrollLoadingGridModel {
             this.totalRowCnt = data.totalRowCnt;
             // this.ruleIndex = data.ruleCurIdx;
 
-            let currLength: number = this.data.length;
+            const currLength: number = this.data.length;
 
             // 검색을 위한 원본 데이터 목록 저장
             this._orgData = this._orgData.concat(result);
@@ -261,7 +256,7 @@ export class ScrollLoadingGridModel {
             this._currentPage = nextPage;
 
           }
-          this.onDataLoaded.notify({ from: startIdx, to: (startIdx + this._pageSize) });
+          this.onDataLoaded.notify({from: startIdx, to: (startIdx + this._pageSize)});
           this.onMoreDataComplete.notify('complete');
           this._isLoadingData = false;
         })

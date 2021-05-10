@@ -12,21 +12,22 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {DataSnapshotService} from './service/data-snapshot.service';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {PrDataSnapshot, SsType, Status} from '../../domain/data-preparation/pr-snapshot';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {Alert} from '../../common/util/alert.util';
-import {PreparationAlert} from '../util/preparation-alert.util';
-import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
-import {isUndefined,isNullOrUndefined} from 'util';
-import {DataSnapshotDetailComponent} from './data-snapshot-detail.component';
-import {PreparationCommonUtil} from "../util/preparation-common.util";
-import {StorageService} from "../../data-storage/service/storage.service";
-import {ActivatedRoute} from "@angular/router";
 import * as _ from 'lodash'
+import {isUndefined,isNullOrUndefined} from 'util';
+import {ActivatedRoute} from '@angular/router';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {PrDataSnapshot, SsType, Status} from '@domain/data-preparation/pr-snapshot';
+
+import {StorageService} from '../../data-storage/service/storage.service';
+import {PreparationCommonUtil} from '../util/preparation-common.util';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {DataSnapshotService} from './service/data-snapshot.service';
+import {DataSnapshotDetailComponent} from './data-snapshot-detail.component';
 
 @Component({
   selector: 'app-data-snapshot',
@@ -147,13 +148,12 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    * Get elapsed day
    * @param item
    */
-  public getElapsedDay(item) {
+  public getElapsedDay(item?) {
     if (isUndefined(item) || isUndefined(item.elapsedTime) ) {
       return 0;
     }
     return item.elapsedTime.days;
   }
-
 
   /**
    * Returns formatted elapsed time
@@ -196,27 +196,22 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
       const preparing = [Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING,Status.CANCELING];
 
-      let statusNum = 0;
       this.datasnapshots.forEach((obj : PrDataSnapshot) => {
         if ( [Status.SUCCEEDED].indexOf(obj.status) >= 0){
           obj.displayStatus = 'SUCCESS';
-          statusNum+=1;
         } else if (preparing.indexOf(obj.status) >= 0) {
           obj.displayStatus = 'PREPARING';
         } else  {
           obj.displayStatus = 'FAIL';
-          statusNum+=1;
         }
       });
 
       this.loadingHide();
 
     }).catch((error) => {
-
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
   }
 
@@ -240,7 +235,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   /** 데이터스냅샷 삭제
    * @param event  이벤트
    * @param dataset 선택한 데이터셋
-   * */
+   */
   public confirmDelete(event, dataset) {
 
     // stop event bubbling

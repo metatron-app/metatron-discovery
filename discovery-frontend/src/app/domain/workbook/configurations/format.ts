@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import {TimeUnit, ByTimeUnit} from "./field/timestamp-field";
-import { CustomSymbol, UIChartFormatItem } from '../../../common/component/chart/option/ui-option/ui-format';
-import { UIFormatSymbolPosition } from '../../../common/component/chart/option/define/common';
+import {ByTimeUnit, TimeUnit} from './field/timestamp-field';
+import {CustomSymbol, UIChartFormatItem} from '@common/component/chart/option/ui-option/ui-format';
+
 export class Format {
 
   // 포맷 타입
@@ -61,16 +61,4 @@ export class Format {
 
   // 개별필드 포맷 (전체적용 여부가 false일 경우 사용)
   each?: UIChartFormatItem[];
-}
-
-export interface CustomSymbol {
-
-  // 사용자 정의 기호
-  value?: string;
-
-  // 기호 위치
-  pos?: UIFormatSymbolPosition;
-
-  // 숫자기호 표시여부
-  abbreviations?: boolean;
 }

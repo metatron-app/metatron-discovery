@@ -12,18 +12,22 @@
  * limitations under the License.
  */
 
-import { BaseOption } from '../base-option';
-import { UIOption } from '../ui-option';
+import {BaseOption} from '../base-option';
+import {UIOption} from '../ui-option';
 import {
-  AxisDefaultColor,
-  AxisLabelType, AxisOrientType, AxisType, BarMarkType, CHART_STRING_DELIMITER, FontSize, LineMarkType, Orient,
+  AxisLabelType,
+  AxisType,
+  BarMarkType,
+  CHART_STRING_DELIMITER,
+  FontSize,
+  LineMarkType,
+  Orient,
   UIOrient
 } from '../define/common';
-import { Axis, AxisLabel } from '../define/axis';
+import {Axis} from '../define/axis';
 import * as _ from 'lodash';
-import { PivotTableInfo } from '../../base-chart';
-import { OptionGenerator } from '../util/option-generator';
-import histogramBarChartUIOption = OptionGenerator.BarChart.histogramBarChartUIOption;
+import {PivotTableInfo} from '../../base-chart';
+import {OptionGenerator} from '../util/option-generator';
 
 /**
  * 공통 설정 converter
@@ -38,6 +42,7 @@ export class CommonOptionConverter {
    * @param chartOption
    * @param uiOption
    * @param axisType
+   * @param fieldInfo
    * @returns {BaseOption}
    */
   public static convertCommonAxis(chartOption: BaseOption, uiOption: UIOption, axisType: AxisType, fieldInfo: PivotTableInfo): BaseOption {
@@ -51,8 +56,7 @@ export class CommonOptionConverter {
     const yAxis: Axis[] = chartOption.yAxis;
 
     // Y축 명칭 (x축쪽에서 y축 명칭을 가져오기전에 타게되므로 따로 설정해줌)
-    let yAxisName = uiOption.yAxis.customName ? uiOption.yAxis.customName : _.join(fieldInfo.aggs, CHART_STRING_DELIMITER);
-    chartOption.yAxis[0].name = yAxisName;
+    chartOption.yAxis[0].name = uiOption.yAxis.customName ? uiOption.yAxis.customName : _.join(fieldInfo.aggs, CHART_STRING_DELIMITER);
     chartOption.yAxis[0].axisName = _.join(fieldInfo.aggs, CHART_STRING_DELIMITER);
 
     // 세로모드일때
@@ -61,15 +65,15 @@ export class CommonOptionConverter {
       // 세로 모드로 축 변경 xAxis값 변경
       if (_.eq(xAxis[0].type, AxisType.VALUE) && _.eq(AxisType.X, axisType)) this.convertXAxisRotate(chartOption, type, yAxis, xAxis);
       // 세로 모드로 축 변경 yAxis값 변경
-      if (_.eq(xAxis[0].type, AxisType.VALUE) && _.eq(AxisType.Y, axisType)) this.convertYAxisRotate(chartOption, type, yAxis, xAxis);
+      if (_.eq(xAxis[0].type, AxisType.VALUE) && _.eq(AxisType.Y, axisType)) this.convertYAxisRotate(chartOption, type, yAxis);
 
-    // 가로모드일때
+      // 가로모드일때
     } else {
 
       // 가로모드로 축 변경 xAxis값 변경
       if (_.eq(xAxis[0].type, AxisType.CATEGORY) && _.eq(AxisType.X, axisType)) this.convertXAxisRotate(chartOption, type, xAxis, yAxis);
       // 가로모드로 축 변경 yAxis값 변경
-      if (_.eq(xAxis[0].type, AxisType.CATEGORY) && _.eq(AxisType.Y, axisType)) this.convertYAxisRotate(chartOption, type, xAxis, yAxis);
+      if (_.eq(xAxis[0].type, AxisType.CATEGORY) && _.eq(AxisType.Y, axisType)) this.convertYAxisRotate(chartOption, type, xAxis);
     }
 
     // 축 가로/세로형에 따라 축명 위치 변경
@@ -83,7 +87,7 @@ export class CommonOptionConverter {
    * x축 가로/세로에 따라 축명 위치변경
    * @param chartOption
    * @param uiOption
-   * @param axisType
+   * @param fieldInfo
    */
   public static convertXAxisRotateName(chartOption: BaseOption, uiOption: UIOption, fieldInfo: PivotTableInfo): BaseOption {
 
@@ -98,12 +102,12 @@ export class CommonOptionConverter {
     });
 
     // 앞에서 category / value위치를 변경하였으므로 변경된 type에 따라서 위치변경
-    let copiedOption = _.cloneDeep(chartOption);
+    const copiedOption = _.cloneDeep(chartOption);
 
     let yAxisType: AxisType;
 
     // default일때(세로모드, x축 category, y축 value)에는 변경하지않음
-    if (_.eq(type, UIOrient.VERTICAL) && copiedOption.yAxis[0].type == AxisType.VALUE && copiedOption.xAxis[0].type == AxisType.CATEGORY) return chartOption;
+    if (_.eq(type, UIOrient.VERTICAL) && copiedOption.yAxis[0].type === AxisType.VALUE && copiedOption.xAxis[0].type === AxisType.CATEGORY) return chartOption;
 
     // 세로모드일때
     if (_.eq(type, UIOrient.VERTICAL)) {
@@ -111,7 +115,7 @@ export class CommonOptionConverter {
       // y축이 value이면 => y축 값을 x축으로 넣기
       yAxisType = AxisType.VALUE;
 
-    // 가로모드일때
+      // 가로모드일때
     } else {
       // y축이 category이면 => y축 값을 x축으로 넣기
       yAxisType = AxisType.CATEGORY;
@@ -125,7 +129,7 @@ export class CommonOptionConverter {
     copiedOption.yAxis.forEach((axis, axisIndex) => {
       chartOption.xAxis.forEach((item, index) => {
 
-        if (axis.type == yAxisType && copiedOption.yAxis[index].axisName) {
+        if (axis.type === yAxisType && copiedOption.yAxis[index].axisName) {
           item.axisName = yAxisName;
 
           // customName이 없을때
@@ -143,7 +147,7 @@ export class CommonOptionConverter {
    * y축 가로/세로에 따라 축명 위치변경
    * @param chartOption
    * @param uiOption
-   * @param axisType
+   * @param fieldInfo
    */
   public static convertYAxisRotateName(chartOption: BaseOption, uiOption: UIOption, fieldInfo: PivotTableInfo): BaseOption {
 
@@ -158,12 +162,12 @@ export class CommonOptionConverter {
     });
 
     // 앞에서 category / value위치를 변경하였으므로 변경된 type에 따라서 위치변경
-    let copiedOption = _.cloneDeep(chartOption);
+    const copiedOption = _.cloneDeep(chartOption);
 
     let xAxisType: AxisType;
 
     // default일때(세로모드, x축 category, y축 value)에는 변경하지않음
-    if (_.eq(type, UIOrient.VERTICAL) && copiedOption.yAxis[0].type == AxisType.VALUE && copiedOption.xAxis[0].type == AxisType.CATEGORY) return chartOption;
+    if (_.eq(type, UIOrient.VERTICAL) && copiedOption.yAxis[0].type === AxisType.VALUE && copiedOption.xAxis[0].type === AxisType.CATEGORY) return chartOption;
 
     // 세로모드일때
     if (_.eq(type, UIOrient.VERTICAL)) {
@@ -178,14 +182,15 @@ export class CommonOptionConverter {
     }
 
     // X축 명칭
-    const xName = uiOption.xAxis.customName ? uiOption.xAxis.customName : _.join(fieldInfo.cols, CHART_STRING_DELIMITER);;
+    const xName = uiOption.xAxis.customName ? uiOption.xAxis.customName : _.join(fieldInfo.cols, CHART_STRING_DELIMITER);
+
     const xAxisName = _.join(fieldInfo.cols, CHART_STRING_DELIMITER);
 
     // x축이 xAxisType이면 => x축값을 y축으로 넣기
     copiedOption.xAxis.forEach((axis, axisIndex) => {
       chartOption.yAxis.forEach((item, index) => {
 
-        if (axis.type == xAxisType && copiedOption.xAxis[index].axisName) {
+        if (axis.type === xAxisType && copiedOption.xAxis[index].axisName) {
           item.axisName = xAxisName;
 
           // customName이 없을때
@@ -207,22 +212,16 @@ export class CommonOptionConverter {
    * @param valueAxis
    * @returns {BaseOption}
    */
-  public static convertXAxisRotate(chartOption: BaseOption, orient: Orient, categoryAxis, valueAxis): BaseOption {
+  public static convertXAxisRotate(chartOption: BaseOption, orient: UIOrient, categoryAxis, valueAxis): BaseOption {
 
     // orient 값이 없는경우 return
     if (_.isUndefined(orient)) return chartOption;
-
-    // 데이터의 수치를 표현 축의 타입이 value인지 log인지 확인
-    const subAxis: Axis[] = [];
 
     // 수치를 표현하던 축은 카테고리를 표현하는 축으로 변경
     valueAxis.map((axis, idx) => {
       if (_.eq(idx, 0)) {
         axis.type = AxisType.CATEGORY;
         axis.data = _.cloneDeep(categoryAxis[0].data);
-      } else {
-        // 보조축은 수치를 표현하는 축으로 이동
-        subAxis.push(axis);
       }
     });
 
@@ -241,10 +240,9 @@ export class CommonOptionConverter {
    * @param chartOption
    * @param orient
    * @param categoryAxis
-   * @param valueAxis
    * @returns {BaseOption}
    */
-  public static convertYAxisRotate(chartOption: BaseOption, orient: Orient, categoryAxis, valueAxis): BaseOption {
+  public static convertYAxisRotate(chartOption: BaseOption, orient: UIOrient, categoryAxis): BaseOption {
 
     // orient 값이 없는경우 return
     if (_.isUndefined(orient)) return chartOption;
@@ -272,6 +270,7 @@ export class CommonOptionConverter {
    * 공통옵션의 시리즈 데이터 설정
    * @param chartOption
    * @param uiOption
+   * @param fieldInfo
    */
   public static convertCommonSeries(chartOption: BaseOption, uiOption: UIOption, fieldInfo: PivotTableInfo): BaseOption {
 
@@ -319,7 +318,7 @@ export class CommonOptionConverter {
     const uiFontSize = uiOption.fontSize;
     let fontSize: number;
 
-    switch(uiFontSize) {
+    switch (uiFontSize) {
 
       case FontSize.NORMAL:
         fontSize = 13;
@@ -355,7 +354,7 @@ export class CommonOptionConverter {
         if (item.label.normal.rich && item.label.normal.rich['align']) {
           item.label.normal.rich['align']['fontSize'] = fontSize;
 
-        // rich가 없는경우
+          // rich가 없는경우
         } else {
           item.label.normal.fontSize = fontSize;
         }

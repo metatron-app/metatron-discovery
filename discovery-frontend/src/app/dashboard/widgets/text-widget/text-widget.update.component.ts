@@ -13,12 +13,20 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { TextWidget } from '../../../domain/dashboard/widget/text-widget';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { TextWidgetEditorComponent } from './editor/text-widget-editor.component';
-import { StringUtil } from '../../../common/util/string.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {StringUtil} from '@common/util/string.util';
+import {TextWidget} from '@domain/dashboard/widget/text-widget';
+import {TextWidgetEditorComponent} from './editor/text-widget-editor.component';
 
 @Component({
   selector: 'app-update-text',
@@ -31,7 +39,7 @@ export class TextWidgetUpdateComponent extends AbstractPopupComponent implements
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('editor')
+  @ViewChild('editor', {static: true})
   private editor: TextWidgetEditorComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -105,7 +113,7 @@ export class TextWidgetUpdateComponent extends AbstractPopupComponent implements
   public ngOnInit(): void {
     super.ngOnInit();
     if (this.widget) {
-      this.editor.setContent( this.widget.configuration['contents'] );
+      this.editor.setContent(this.widget.configuration['contents']);
     } else {
       this.editor.init();
     }

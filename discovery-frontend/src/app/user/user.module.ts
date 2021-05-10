@@ -12,24 +12,24 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { LoginComponent } from './login/login.component';
-import { RouterModule, Routes } from '@angular/router';
-import { CommonModule } from '../common/common.module';
-import { UserService } from './service/user.service';
-import { CookieService } from 'ng2-cookies';
-import { JoinComponent } from './login/component/join/join.component';
-import { JoinCompleteComponent } from './login/component/join-complete/join-complete.component';
-import { ResetPasswordComponent } from './login/component/reset-password/reset-password.component';
-import { FileModule } from '../common/file.module';
-import { StompService } from '@stomp/ng2-stompjs';
-import { WorkspaceService } from '../workspace/service/workspace.service';
-import { KorPolicyComponent } from './login/kor-policy.component';
-import { EngPolicyComponent } from './login/eng-policy.component';
-import { PermissionService } from './service/permission.service';
-import {LoginLogoComponent} from "./login/component/logo/login-logo.component";
-import {OauthComponent} from "./login/component/oauth/oauth.component";
-import {InitialChangePasswordComponent} from "./login/component/initial-change-password/initial-change-password.component";
+import {NgModule} from '@angular/core';
+import {LoginComponent} from './login/login.component';
+import {RouterModule, Routes} from '@angular/router';
+import {CommonModule} from '@common/common.module';
+import {UserService} from './service/user.service';
+import {CookieService} from 'ng2-cookies';
+import {JoinComponent} from './login/component/join/join.component';
+import {JoinCompleteComponent} from './login/component/join-complete/join-complete.component';
+import {ResetPasswordComponent} from './login/component/reset-password/reset-password.component';
+import {FileModule} from '@common/file.module';
+import {StompService} from '@stomp/ng2-stompjs';
+import {WorkspaceService} from '../workspace/service/workspace.service';
+import {KorPolicyComponent} from './login/kor-policy.component';
+import {EngPolicyComponent} from './login/eng-policy.component';
+import {PermissionService} from './service/permission.service';
+import {LoginLogoComponent} from './login/component/logo/login-logo.component';
+import {OauthComponent} from './login/component/oauth/oauth.component';
+import {InitialChangePasswordComponent} from './login/component/initial-change-password/initial-change-password.component';
 
 const userRoutes: Routes = [
   {

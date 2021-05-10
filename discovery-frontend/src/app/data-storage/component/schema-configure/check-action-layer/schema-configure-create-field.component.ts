@@ -13,30 +13,23 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Component, ElementRef, HostListener, Injector, ViewChild} from "@angular/core";
-import {StringUtil} from "../../../../common/util/string.util";
-import {Type} from "../../../../shared/datasource-metadata/domain/type";
-import {
-  DerivationRule,
-  Field,
-  FieldFormat,
-  FieldRole,
-  IngestionRule,
-  LogicalType
-} from "../../../../domain/datasource/datasource";
-import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
 import * as _ from 'lodash';
-import {DataStorageConstant} from "../../../constant/data-storage-constant";
-import {StorageFilterSelectBoxComponent} from "../../../data-source-list/component/storage-filter-select-box.component";
-import {ColumnSelectBoxComponent} from "../../../data-source-list/component/column-select-box.component";
-import {CommonUtil} from "../../../../common/util/common.util";
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DerivationRule, Field, FieldFormat, FieldRole, IngestionRule, LogicalType} from '@domain/datasource/datasource';
+import {Type} from '../../../../shared/datasource-metadata/domain/type';
+import {DataStorageConstant} from '../../../constant/data-storage-constant';
+import {ColumnSelectBoxComponent} from '../../../data-source-list/component/column-select-box.component';
+import {StorageFilterSelectBoxComponent} from '../../../data-source-list/component/storage-filter-select-box.component';
 
 @Component({
   selector: 'schema-configure-create-field',
   templateUrl: 'schema-configure-create-field.component.html'
 })
-export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
+export class SchemaConfigureCreateFieldComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('typeSelectBox')
   private readonly _typeSelectBox: StorageFilterSelectBoxComponent;
@@ -50,12 +43,24 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
   private _originFieldList: Field[];
 
   public readonly typeList = [
-    {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: Type.Logical.GEO_POINT},
+    {
+      label: this.translateService.instant('msg.storage.ui.list.geo.point'),
+      icon: 'ddp-icon-type-point',
+      value: Type.Logical.GEO_POINT
+    },
     // {label: this.translateService.instant('msg.storage.ui.list.geo.line'), icon: 'ddp-icon-type-line', value: Type.Logical.GEO_LINE},
     // {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), icon: 'ddp-icon-type-polygon', value: Type.Logical.GEO_POLYGON},
-    {label: this.translateService.instant('msg.storage.ui.list.expression'), icon: 'ddp-icon-type-expression', value: Type.Logical.USER_DEFINED}
+    {
+      label: this.translateService.instant('msg.storage.ui.list.expression'),
+      icon: 'ddp-icon-type-expression',
+      value: Type.Logical.USER_DEFINED
+    }
   ];
-  public selectedType = {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: Type.Logical.GEO_POINT};
+  public selectedType = {
+    label: this.translateService.instant('msg.storage.ui.list.geo.point'),
+    icon: 'ddp-icon-type-point',
+    value: Type.Logical.GEO_POINT
+  };
 
   // field list
   public latitudeFieldList: Field[];
@@ -103,18 +108,14 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    // remove subscription
-    for (let subscription$ of this.subscriptions) {
-      subscription$.unsubscribe();
-    }
   }
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     // #1925
     if (this._typeSelectBox && this._typeSelectBox.isListShow) {
       this._typeSelectBox.isListShow = false;
@@ -351,7 +352,7 @@ export class SchemaConfigureCreateFieldComponent extends AbstractComponent {
    * Is duplicated name
    * @private
    */
-  private _isDuplicatedName(): boolean  {
+  private _isDuplicatedName(): boolean {
     return this._originFieldList.some(field => field.name === this.fieldName.trim());
   }
 

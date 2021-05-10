@@ -21,16 +21,16 @@ import {AppComponent} from './app.component';
 import {RouterModule, Routes} from '@angular/router';
 import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {environment} from '../environments/environment';
-import {PopupService} from './common/service/popup.service';
-import {EventBroadcaster} from './common/event/event.broadcaster';
-import {UnloadConfirmService} from './common/service/unload.confirm.service';
-import {CanDeactivateGuard} from './common/gaurd/can.deactivate.guard';
-import {SsoGuard} from './common/gaurd/sso.guard';
+import {environment} from '@environments/environment';
+import {PopupService} from '@common/service/popup.service';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {UnloadConfirmService} from '@common/service/unload.confirm.service';
+import {CanDeactivateGuard} from '@common/gaurd/can.deactivate.guard';
+import {SsoGuard} from '@common/gaurd/sso.guard';
 import {UserService} from './user/service/user.service';
 import {CookieService} from 'ng2-cookies';
 import {ClipboardModule} from 'ngx-clipboard';
-import {LoaderInterceptor} from "./common/interceptor/loader-interceptor";
+import {LoaderInterceptor} from '@common/interceptor/loader-interceptor';
 
 // 다국어 파일 경로 지정
 export function createTranslateLoader(http: HttpClient) {
@@ -38,14 +38,13 @@ export function createTranslateLoader(http: HttpClient) {
 }
 
 // 다국어 모듈 생성
-export const appTranslateModule: ModuleWithProviders = TranslateModule.forRoot({
+export const appTranslateModule: ModuleWithProviders<any> = TranslateModule.forRoot({
   loader: {
     provide: TranslateLoader,
     useFactory: (createTranslateLoader),
     deps: [HttpClient]
   }
 });
-
 
 const appRoutes: Routes = [
   {path: 'sso', loadChildren: 'app/sso/sso.module#SsoModule'},
@@ -88,7 +87,7 @@ export class AppModule {
     if (window.navigator['languages']) {
       lang = window.navigator['languages'][0];
     }
-    console.info(`browser's language ${lang}`);
+    console.log(`browser's language ${lang}`);
     moment.locale(lang);
   }
 }

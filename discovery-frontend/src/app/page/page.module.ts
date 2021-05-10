@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { CommonModule } from '../common/common.module';
-import { PageShareModule } from './page-share.module';
-import { AnalysisPredictionService } from './component/analysis/service/analysis.prediction.service';
-import {TimezoneService} from "../data-storage/service/timezone.service";
-import {PageViewComponent} from "./page-view.component";
-import {DragulaModule} from "../../lib/ng2-dragula";
-import {ChartModule} from "../common/chart.module";
-import {DashboardShareModule} from "../dashboard/dashboard-share.module";
-import {DataPreviewModule} from "../common/data.preview.module";
-import {AnalysisModule} from "./component/analysis/analysis.module";
-import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
-import {StorageService} from "../data-storage/service/storage.service";
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {CommonModule} from '@common/common.module';
+import {PageShareModule} from './page-share.module';
+import {AnalysisPredictionService} from './component/analysis/service/analysis.prediction.service';
+import {TimezoneService} from '../data-storage/service/timezone.service';
+import {PageViewComponent} from './page-view.component';
+import {DragulaModule} from '../../lib/ng2-dragula';
+import {ChartModule} from '@common/chart.module';
+import {DashboardShareModule} from '../dashboard/dashboard-share.module';
+import {DataPreviewModule} from '@common/data.preview.module';
+import {AnalysisModule} from './component/analysis/analysis.module';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {StorageService} from '../data-storage/service/storage.service';
 
 const pageRoutes: Routes = [
   {

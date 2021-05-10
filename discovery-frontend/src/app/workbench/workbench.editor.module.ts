@@ -12,13 +12,14 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { EditorComponent } from './component/detail-workbench/datail-workbench-editor/editor.component';
-import { CommonModule } from '../common/common.module';
+import {NgModule} from '@angular/core';
+import {EditorComponent} from './component/detail-workbench/datail-workbench-editor/editor.component';
+import {CommonModule} from '@common/common.module';
 
 @NgModule({
   imports: [CommonModule],
   declarations: [EditorComponent],
   exports: [EditorComponent]
 })
-export class WorkbenchEditorModule {}
+export class WorkbenchEditorModule {
+}

@@ -14,9 +14,9 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Alert } from '../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { CommonUtil } from '../../../../../common/util/common.util';
+import { Alert } from '@common/util/alert.util';
+import { StringUtil } from '@common/util/string.util';
+import { CommonUtil } from '@common/util/common.util';
 
 @Component({
   selector: 'app-create-user-management-groups',
@@ -50,20 +50,6 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
     super(element, injector);
   }
 
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
   /**
    * init
    */
@@ -95,7 +81,7 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
       this.loadingShow();
       // 사용자에게 확인 이메일 전달
       this.groupsService.createGroup(this._getCreateGroupParams())
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.groups.alert.name.create', {value: this.groupName.trim()}));
           // 로딩 hide

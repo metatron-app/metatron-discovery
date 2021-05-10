@@ -14,10 +14,10 @@
 
 import * as _ from 'lodash';
 import {TimeFilter} from './time-filter';
-import {Field} from '../../../datasource/datasource';
+import {Field} from '@domain/datasource/datasource';
 import {TimeUnit} from '../field/timestamp-field';
 
-declare let moment : any;
+declare let moment: any;
 
 export class TimeRelativeFilter extends TimeFilter {
 
@@ -46,7 +46,7 @@ export class TimeRelativeFilter extends TimeFilter {
  * Relative 시점 형식
  */
 export enum TimeRelativeTense {
-  PREVIOUS = <any>'PREVIOUS',
-  CURRENT = <any>'CURRENT',
-  NEXT = <any>'NEXT'
+  PREVIOUS = 'PREVIOUS',
+  CURRENT = 'CURRENT',
+  NEXT = 'NEXT'
 }

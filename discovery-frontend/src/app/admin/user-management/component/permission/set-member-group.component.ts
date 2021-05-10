@@ -13,15 +13,21 @@
  */
 
 import {
-  ChangeDetectorRef, Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
   Output
 } from '@angular/core';
-import { PermissionService } from '../../../../user/service/permission.service';
-import { User } from '../../../../domain/user/user';
-import { MembersService } from '../../service/members.service';
-import { isUndefined } from "util";
-import { AbstractUserManagementComponent } from '../../abstract.user-management.component';
-import * as $ from "jquery";
+import {User} from '@domain/user/user';
+import {MembersService} from '../../service/members.service';
+import {isUndefined} from 'util';
+import {AbstractUserManagementComponent} from '../../abstract.user-management.component';
+import * as $ from 'jquery';
 import * as _ from 'lodash';
 
 @Component({
@@ -43,10 +49,10 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // 현재 보고있는 탭 member(0) or group (1)
   @Input()
-  public defaultTab:number;
+  public defaultTab: number;
 
   @Input()
-  public searchPlaceholder : string;
+  public searchPlaceholder: string;
 
   // 전체 리스트
   @Input()
@@ -70,7 +76,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
   @Output()
   public checkEvent = new EventEmitter();
 
-  public headers : any;
+  public headers: any;
 
   // 선택된 페이지 넘버
   private _selectedPage: number;
@@ -80,7 +86,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private permissionService: PermissionService, public membersService : MembersService,
+  constructor(public membersService: MembersService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -105,12 +111,12 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public init(data : any) {
+  public init(data: any) {
 
     this._initView();
 
     // 현재 탭
-    this.defaultTab  = data.defaultTab;
+    this.defaultTab = data.defaultTab;
 
     // 디비에 저장된 선택된 데이터
     this.selectedItems = data.selectedItems;
@@ -125,10 +131,10 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
 
     // this.header 개수에 맞춰서 col 추가
     $(`.table-colgroup`).children().remove();
-    for (let i = 0 ; i < this.headers.length ; i++ ) {
-      let col = document.createElement('col');
-      col.width = this.headers[i].width;
-      $('.table-colgroup').append("<col width=" + col.width + ">");
+    for (let idx = 0, nMax = this.headers.length; idx < nMax; idx++) {
+      const col = document.createElement('col');
+      col.width = this.headers[idx].width;
+      $('.table-colgroup').append('<col width=' + col.width + '>');
     }
 
   }
@@ -148,7 +154,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    * @param item
    * return {boolean}
    */
-  public isSelected(item) : boolean {
+  public isSelected(item): boolean {
     return _.findIndex(this.selectedItems, {directoryId: item.directoryId}) !== -1;
   }
 
@@ -164,9 +170,9 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    * 전체 체크 여부
    * return {boolean}
    */
-  public isCheckAll() : boolean {
+  public isCheckAll(): boolean {
     if (this.allList.length !== 0) {
-      for (let index = 0; index < this.allList.length; index++) {
+      for (let index = 0, nMax = this.allList.length; index < nMax; index++) {
         // 조회된 멤버 목록 중 선택목록에 하나라도 없다면 false
         if (_.findIndex(this.selectedItems, {directoryId: this.allList[index].directoryId}) === -1) {
           return false;
@@ -182,7 +188,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
   /**
    * 체크박스 하나씩 선택
    */
-  public checkItem(item : any) {
+  public checkItem(item: any) {
     event.preventDefault();
     // 선택된 멤버에 있는경우 체크 해제
 
@@ -260,9 +266,9 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
 
     if (this.defaultTab === 0) {
       // 멤버 리스트 조회
-      this.getMembersOutput.emit({isInitial: false, params : this._getParam()});
+      this.getMembersOutput.emit({isInitial: false, params: this._getParam()});
     } else {
-      this.getGroupsOutput.emit({isInitial: false, params : this._getParam()});
+      this.getGroupsOutput.emit({isInitial: false, params: this._getParam()});
 
     }
 
@@ -272,7 +278,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    * 사용자 프로필 이미지
    * @returns {string}
    */
-  public getUserImage(user): string {
+  public getUserImage(user: User): string {
     return user.hasOwnProperty('imageUrl')
       ? '/api/images/load/url?url=' + user.imageUrl + '/thumbnail'
       : '/assets/images/img_photo.png';
@@ -286,6 +292,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
   public getSelectedList() {
     return this.selectedItems.slice(0, (this._selectedPage + 1) * this._selectedPageSize);
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -303,10 +310,10 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
     this.allList = [];
     // 재조회
 
-    if (this.defaultTab === 0 ) {
-      this.getMembersOutput.emit({isInitial: true, params : this._getParam()});
+    if (this.defaultTab === 0) {
+      this.getMembersOutput.emit({isInitial: true, params: this._getParam()});
     } else {
-      this.getGroupsOutput.emit({isInitial: true, params : this._getParam()});
+      this.getGroupsOutput.emit({isInitial: true, params: this._getParam()});
     }
 
   }
@@ -335,7 +342,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    */
   private _addSelectedMember(item): void {
     // this.selectedItems.push(item);
-    this.checkEvent.emit({ item : item });
+    this.checkEvent.emit({item: item});
   }
 
   /**
@@ -345,7 +352,7 @@ export class SetMemberGroupComponent extends AbstractUserManagementComponent imp
    */
   private _deleteSelectedMember(index: number): void {
     // this.selectedItems.splice(index, 1);
-    this.checkEvent.emit({index : index});
+    this.checkEvent.emit({index: index});
   }
 
 

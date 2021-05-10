@@ -23,18 +23,18 @@ import {
   Renderer2,
   ViewChild
 } from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {WorkspaceService} from '../../service/workspace.service';
 import {CreateWorkspaceComponent} from './create-workspace.component';
-import {Page} from '../../../domain/common/page';
-import {PermissionChecker, Workspace} from '../../../domain/workspace/workspace';
-import {Alert} from '../../../common/util/alert.util';
-import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../common/domain/modal';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
-import {SYSTEM_PERMISSION} from '../../../common/permission/permission';
-import {CommonUtil} from '../../../common/util/common.util';
+import {Page} from '@domain/common/page';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
+import {Alert} from '@common/util/alert.util';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Modal} from '@common/domain/modal';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-workspace-list',
@@ -45,9 +45,6 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 현재 워크스페이스 아이디
-  private workspaceId: string;
 
   // 변경된 사항 체크 flag
   private updateFl: boolean = false;
@@ -84,12 +81,12 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 공유 워크스페이스 리스트
   public sharedWorkspace: Workspace[] = [];
-  public cntAllWorkspaces:number = 0;
+  public cntAllWorkspaces: number = 0;
 
   // 정렬
   public sort = [
-    { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true },
-    { name: this.translateService.instant('msg.comm.ui.list.name.desc'), value: 'name,desc', selected: false }
+    {name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true},
+    {name: this.translateService.instant('msg.comm.ui.list.name.desc'), value: 'name,desc', selected: false}
   ];
 
   // 정렬 선택 값
@@ -143,7 +140,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // init
-  public init(workspaceId?: string) {
+  public init(_workspaceId?: string) {
 
     // 초기 hidden 처리
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
@@ -152,8 +149,6 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
     this.reset();
     // 팝업 열기
     this.isShow = true;
-    // 접속한 워크스페이스 아이디
-    this.workspaceId = workspaceId;
     // 관리자 여부
     this.sharedWorkspaceManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_SHARED_WORKSPACE);
     // 공유 워크스페이스 조회
@@ -165,7 +160,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
    * @param {string} id
    */
   public onWorkspaceCreateComplete(id: string) {
-    this.router.navigate(['/workspace', id]);
+    this.router.navigate(['/workspace', id]).then();
   }
 
   /**
@@ -223,7 +218,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
 
   // 공유 워크스페이스 생성 이벤트
   public createWorkspace() {
-    //this.createWorkspaceComp.sharedWorkspaceList = this.sharedWorkspace;
+    // this.createWorkspaceComp.sharedWorkspaceList = this.sharedWorkspace;
     this.createWorkspaceComp.init();
   }
 
@@ -325,8 +320,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
       modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
-        afterConfirm: function () {
-        }
+        afterConfirm: () => {}
       };
       this.confirmModalComponent.init(modal);
     } else {
@@ -337,7 +331,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
       this.cookieService.delete(CookieConstant.KEY.CURRENT_WORKSPACE, '/');  // 쿠키 삭제
 
       const workspaceId: string = (workspace) ? workspace.id : '';
-      let navigateInfo: string[] = [];
+      let navigateInfo: string[];
       if (workspaceId) {
         navigateInfo = ['/workspace', workspaceId];
       } else {
@@ -368,7 +362,7 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
       modal.name = this.translateService.instant('msg.space.ui.del.workspace.del.title');
       modal.description = this.translateService.instant('msg.space.ui.del.workspace.del.description');
       modal.subDescription = this.translateService.instant('msg.comm.ui.del.description');
-      modal.data = { eventType: 'DELETE', target: workspaceId };
+      modal.data = {eventType: 'DELETE', target: workspaceId};
       this.confirmModalComponent.init(modal);
     }
 
@@ -466,8 +460,6 @@ export class WorkspaceListComponent extends AbstractComponent implements OnInit,
     this.isSortFl = false;
     // 조회 프로젝션
     this.params = '';
-    // 현재 워크스페이스 아이디
-    this.workspaceId = null;
     // page 설정
     this.page.page = 0;
     this.page.size = 20;

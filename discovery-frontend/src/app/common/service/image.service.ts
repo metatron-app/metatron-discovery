@@ -72,7 +72,7 @@ export class ImageService {
             ia[i] = byteString.charCodeAt(i);
           }
 
-          const blobData = new Blob([ab], {'type': mimeString});
+          const blobData = new Blob([ab], {type: mimeString});
 
           resolve(blobData);
         }).catch(err => reject(err));
@@ -129,7 +129,7 @@ export class ImageService {
     setTimeout(() => {
 
       const agent = navigator.userAgent.toLowerCase();
-      if ( (navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)) {
+      if ((navigator.appName === 'Netscape' && agent.indexOf('trident') !== -1) || (agent.indexOf('msie') !== -1)) {
         // is IE
         this.getBlob(element).then((data) => {
           window.navigator.msSaveBlob(data, fileName);
@@ -172,9 +172,9 @@ export class ImageService {
 
     // 헤더
     const headers = new HttpHeaders({
-      'Accept': 'image/webp,image/apng,image/*,*/*;',
+      Accept: 'image/webp,image/apng,image/*,*/*;',
       'Content-Type': 'application/octet-binary',
-      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
+      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
     return this._http.get(imgUrl, {headers: headers, responseType: 'blob'}).toPromise();
@@ -207,7 +207,7 @@ export class ImageService {
       };
 
       // 이미지 업로드 성공
-      this.uploader.onSuccessItem = (item, response, status, headers) => {
+      this.uploader.onSuccessItem = (_item, response, _status, _headers) => {
         if (typeof response === 'string') {
           resolve(JSON.parse(response));
         } else {
@@ -216,7 +216,7 @@ export class ImageService {
       };
 
       // 이미지 업로드 실패
-      this.uploader.onErrorItem = (item, response, status, headers) => {
+      this.uploader.onErrorItem = (_item, response, _status, _headers) => {
         if (typeof response === 'string') {
           reject(JSON.parse(response));
         } else {

@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {MetadataConstant} from "../../metadata.constant";
-import {StorageService} from "../../../data-storage/service/storage.service";
-import {MetadataEntity} from "../metadata.entity";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnInit, Output} from '@angular/core';
+import {MetadataConstant} from '../../metadata.constant';
+import {StorageService} from '../../../data-storage/service/storage.service';
+import {MetadataEntity} from '../metadata.entity';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'create-metadata-main',
   templateUrl: 'create-metadata-main.component.html'
 })
-export class CreateMetadataMainComponent extends AbstractComponent {
+export class CreateMetadataMainComponent extends AbstractComponent implements OnInit {
 
   step: MetadataConstant.CreateStep;
 
@@ -59,7 +59,7 @@ export class CreateMetadataMainComponent extends AbstractComponent {
    * Change step
    * @param {MetadataConstant.CreateStep} step
    */
-  changeStep(step:  MetadataConstant.CreateStep) {
+  changeStep(step: MetadataConstant.CreateStep) {
     this.step = step;
   }
 

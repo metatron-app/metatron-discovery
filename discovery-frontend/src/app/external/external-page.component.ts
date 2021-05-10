@@ -13,28 +13,30 @@
  */
 
 import {
-  ChangeDetectionStrategy, Component, ElementRef, Injector, OnDestroy,
-  OnInit, ViewChild
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit
 } from '@angular/core';
-import {AbstractComponent} from "../common/component/abstract.component";
-import {ActivatedRoute} from "@angular/router";
-import {CookieConstant} from "../common/constant/cookie.constant";
-import {CommonService} from "../common/service/common.service";
-import {Extension} from "../common/domain/extension";
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonService} from '@common/service/common.service';
+import {Extension} from '@common/domain/extension';
 
 @Component({
   selector: 'app-external-page',
   templateUrl: './external-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExternalPageComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class ExternalPageComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('externalView')
-  private _externalView: ElementRef;
-
   private _url: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -103,16 +105,16 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _loadMenu() {
     this.loadingShow();
-    const arrUrl:string[] = this._url.split('_');
-    if( 0 < CommonService.extensions.length ) {
-      const menuItem = CommonService.extensions.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
+    const arrUrl: string[] = this._url.split('_');
+    if (0 < CommonService.extensions.length) {
+      const menuItem = CommonService.extensions.filter(item => (item.parent === arrUrl[0] && item.name === arrUrl[1]))[0];
       this._openExternalView(this._getRouteUrl(menuItem, arrUrl[2]));
       this.loadingHide();
     } else {
-      this.commonService.getExtensions('lnb').then( items => {
-        if( items && 0 < items.length ) {
-          const exts:Extension[] = items;
-          const menuItem = exts.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
+      this.commonService.getExtensions('lnb').then(items => {
+        if (items && 0 < items.length) {
+          const exts: Extension[] = items;
+          const menuItem = exts.filter(item => (item.parent === arrUrl[0] && item.name === arrUrl[1]))[0];
           this._openExternalView(this._getRouteUrl(menuItem, arrUrl[2]));
           this.loadingHide();
         }
@@ -120,11 +122,11 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
     }
   } // function - _loadMenu
 
-  private _getRouteUrl(menuItem: Extension, name: string):string{
-    if (menuItem.subContents != undefined) {
+  private _getRouteUrl(menuItem: Extension, name: string): string {
+    if (menuItem.subContents !== undefined) {
       return menuItem.subContents[name];
-    } else if (menuItem.subMenus != undefined) {
-      const subMenuItem = menuItem.subMenus.filter( item => item.name == name)[0];
+    } else if (menuItem.subMenus !== undefined) {
+      const subMenuItem = menuItem.subMenus.filter(item => item.name === name)[0];
       return subMenuItem.route;
     }
   }
@@ -141,16 +143,16 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
     const refreshToken = this.cookieService.get(CookieConstant.KEY.REFRESH_LOGIN_TOKEN);
     const type = this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE);
     const userId = this.cookieService.get(CookieConstant.KEY.LOGIN_USER_ID);
-    let existForm = document.getElementsByName(formName)[0];
+    const existForm = document.getElementsByName(formName)[0];
     if (existForm) {
       existForm.remove();
     }
-    const url:string = targetUrl.replace( '${token}', token ).replace( '${refreshToken}', refreshToken ).replace( '${type}', type ).replace( '${userId}', userId );
+    const url: string = targetUrl.replace('${token}', token).replace('${refreshToken}', refreshToken).replace('${type}', type).replace('${userId}', userId);
 
-    let form = document.createElement('form');
+    const form = document.createElement('form');
     form.setAttribute('name', formName);
     form.setAttribute('method', 'post');
-    form.setAttribute('action', url );
+    form.setAttribute('action', url);
     form.setAttribute('target', target);
     document.getElementsByTagName('body')[0].appendChild(form);
     form.submit();

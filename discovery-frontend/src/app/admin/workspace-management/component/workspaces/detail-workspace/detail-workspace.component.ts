@@ -12,14 +12,16 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Location} from "@angular/common";
 import {ActivatedRoute} from '@angular/router';
-import {Modal} from '../../../../../common/domain/modal';
-import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
-import {PublicType, WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
-import {Alert} from '../../../../../common/util/alert.util';
+import {Location} from '@angular/common';
+
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Alert} from '@common/util/alert.util';
+import {PublicType, WorkspaceAdmin} from '@domain/workspace/workspace';
+
 import {WorkspaceService} from '../../../../../workspace/service/workspace.service';
 
 @Component({

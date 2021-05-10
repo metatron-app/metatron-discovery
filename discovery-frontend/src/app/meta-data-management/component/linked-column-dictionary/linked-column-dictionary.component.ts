@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 import {CodeTableService} from '../../code-table/service/code-table.service';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
 
 @Component({
   selector: 'app-linked-column-dictionary',

@@ -12,23 +12,21 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {isUndefined, isNullOrUndefined} from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import {MetadataService} from './service/metadata.service';
-import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
-import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
-import {Modal} from '../../common/domain/modal';
-import {Alert} from '../../common/util/alert.util';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
 import {CatalogService} from '../catalog/service/catalog.service';
 import * as _ from 'lodash';
 import {StorageService} from '../../data-storage/service/storage.service';
-import {ActivatedRoute} from "@angular/router";
-import {CreateMetadataMainComponent} from "./create-metadata/create-metadata-main.component";
-import {Subscription} from "rxjs";
-import {StringUtil} from "../../common/util/string.util";
-
-declare let $;
+import {ActivatedRoute} from '@angular/router';
+import {CreateMetadataMainComponent} from './create-metadata/create-metadata-main.component';
+import {Subscription} from 'rxjs';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-metadata',
@@ -117,51 +115,51 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     // Get query param from url
     this._paginationSubscription$ = this._activatedRoute.queryParams.subscribe((params) => {
 
-        if (!_.isEmpty(params)) {
+      if (!_.isEmpty(params)) {
 
-          if (!isNullOrUndefined(params['size'])) {
-            this.page.size = params['size'];
-          }
-
-          if (!isNullOrUndefined(params['page'])) {
-            this.page.page = params['page'];
-          }
-
-          if (!isNullOrUndefined(params['nameContains'])) {
-            this.listSearchText = params['nameContains'];
-          }
-
-          if (!isNullOrUndefined(params['sourceType'])) {
-            this.sourceType = params['sourceType'];
-            this.typeDefaultIndex = this.sourceTypeList.findIndex((item) => {
-              return item.value.toString() === this.sourceType;
-            });
-          }
-
-          if (!_.isNil(params['sort'])) {
-            this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
-          }
+        if (!isNullOrUndefined(params['size'])) {
+          this.page.size = params['size'];
         }
 
-        // first fetch metadata tag list
-        this.getMetadataTags()
-          .then((result) => {
-            this.tagsList = this.tagsList.concat(result);
-            if (!isNullOrUndefined(params['tag'])) {
-              this.tag = params['tag'];
-              this.tagDefaultIndex = this.tagsList.findIndex((item) => {
-                return item.name === this.tag;
-              });
-            } else {
-              this.tagDefaultIndex = 0;
-            }
-            this.getMetadataList();
-          })
-          .catch(error => {
-            console.error(error);
-            this.getMetadataList();
-          })
-      });
+        if (!isNullOrUndefined(params['page'])) {
+          this.page.page = params['page'];
+        }
+
+        if (!isNullOrUndefined(params['nameContains'])) {
+          this.listSearchText = params['nameContains'];
+        }
+
+        if (!isNullOrUndefined(params['sourceType'])) {
+          this.sourceType = params['sourceType'];
+          this.typeDefaultIndex = this.sourceTypeList.findIndex((item) => {
+            return item.value.toString() === this.sourceType;
+          });
+        }
+
+        if (!_.isNil(params['sort'])) {
+          this.selectedSort = this.sortList.find(sort => sort.value === params['sort']);
+        }
+      }
+
+      // first fetch metadata tag list
+      this.getMetadataTags()
+        .then((result) => {
+          this.tagsList = this.tagsList.concat(result);
+          if (!isNullOrUndefined(params['tag'])) {
+            this.tag = params['tag'];
+            this.tagDefaultIndex = this.tagsList.findIndex((item) => {
+              return item.name === this.tag;
+            });
+          } else {
+            this.tagDefaultIndex = 0;
+          }
+          this.getMetadataList();
+        })
+        .catch(error => {
+          console.error(error);
+          this.getMetadataList();
+        })
+    });
   }
 
   public ngOnDestroy() {
@@ -217,7 +215,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   getMetadataCreator(creator: string) {
-    if (this.isNotEmptySearchKeyword() ) {
+    if (this.isNotEmptySearchKeyword()) {
       return creator.replace(this.listSearchText, `<span class="ddp-txt-search type-search">${this.listSearchText}</span>`);
     } else {
       return creator;
@@ -225,7 +223,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   getMetadataDescription(description: string) {
-    if (this.isNotEmptySearchKeyword() ) {
+    if (this.isNotEmptySearchKeyword()) {
       return '-' + description.replace(this.listSearchText, `<span class="ddp-txt-search type-search">${this.listSearchText}</span>`);
     } else {
       return '-' + description;
@@ -233,7 +231,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   getMetadataName(name: string) {
-    if (this.isNotEmptySearchKeyword() ) {
+    if (this.isNotEmptySearchKeyword()) {
       return name.replace(this.listSearchText, `<span class="ddp-txt-search type-search">${this.listSearchText}</span>`);
     } else {
       return name;
@@ -328,7 +326,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
         this.getMetadataList();
       }
 
-    }).catch((error) => {
+    }).catch((_error) => {
       this.loadingHide();
 
     });
@@ -359,7 +357,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.catalogService.getTreeCatalogs(catalog.id).then((result) => {
       this.loadingHide();
       catalog.children = result;
-    }).catch((error) => {
+    }).catch((_error) => {
       this.loadingHide();
     });
   }
@@ -392,14 +390,14 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * 삭제 확인
    */
   public deleteMetadata() {
-    this.metadataService.deleteMetaData(this.selectedMetadata.id).then((result) => {
+    this.metadataService.deleteMetaData(this.selectedMetadata.id).then((_result) => {
       Alert.success(
         this.translateService.instant('msg.metadata.alert.md-deleted', {value: this.selectedMetadata.name}));
       if (this.page.page > 0 && this.metadatas.length === 1) {
         this.page.page = this.page.page - 1;
       }
       this.reloadPage(false);
-    }).catch((error) => {
+    }).catch((_error) => {
       Alert.fail(this.translateService.instant('msg.metadata.alert.md-delete.fail'));
     });
 
@@ -517,7 +515,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     if (_.isNil(metadataId)) {
       this.reloadPage(true);
     } else {  // if exist metadataId, go to detail page
-      this.router.navigate(['management/metadata/metadata', metadataId]);
+      this.router.navigate(['management/metadata/metadata', metadataId]).then();
     }
   }
 
@@ -613,7 +611,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
       page: this.page.page,
       size: this.page.size,
       sort: this.selectedSort.value,
-      pseudoParam : (new Date()).getTime()
+      pseudoParam: (new Date()).getTime()
     };
 
     // 검색어

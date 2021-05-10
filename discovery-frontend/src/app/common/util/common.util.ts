@@ -17,11 +17,10 @@ import {CommonConstant} from '../constant/common.constant';
 import {CookieConstant} from '../constant/cookie.constant';
 import {SYSTEM_PERMISSION} from 'app/common/permission/permission';
 import {Modal} from '../domain/modal';
-import {environment} from '../../../environments/environment';
+import {environment} from '@environments/environment';
 import {Router} from '@angular/router';
-import {isNullOrUndefined} from 'util';
-import {Theme, UserSetting} from "../value/user.setting.value";
-import {LocalStorageConstant} from "../constant/local-storage.constant";
+import {Theme, UserSetting} from '../value/user.setting.value';
+import {LocalStorageConstant} from '../constant/local-storage.constant';
 
 declare let $;
 
@@ -77,7 +76,7 @@ export class CommonUtil {
    * @return {string[]}
    */
   public static getCurrentPermissionList(): string[] {
-    let cookiePermission: string = this.getCurrentPermissionString();
+    const cookiePermission: string = this.getCurrentPermissionString();
     if (cookiePermission && '' !== cookiePermission) {
       return cookiePermission.split('==');
     } else {
@@ -145,9 +144,9 @@ export class CommonUtil {
   /**
    * Waterfall 형태로 호출되도록 함
    * @param {Function[]} funcList
-   * @returns {Promise<any[]>}
+   * @returns {Promise}
    */
-  public static waterfallPromise(funcList: Function[]): Promise<any[]> {
+  public static waterfallPromise(funcList: (() => Promise<any[]>)[]): Promise<any[]> {
     if (funcList && 0 < funcList.length) {
       return funcList.reduce((acc, currVal) => {
         return acc.then(res => {
@@ -190,7 +189,7 @@ export class CommonUtil {
     }
 
     // 닫기 이벤트 설정
-    $popupContainer.find('.ddp-btn-close').one('click', function () {
+    $popupContainer.find('.ddp-btn-close').one('click', () => {
       $popupContainer.hide();
     });
 
@@ -217,7 +216,7 @@ export class CommonUtil {
     if (confirmData.isShowCancel) {
       $btnCancel.show();
       $btnCancel.text(confirmData.btnCancel ? confirmData.btnCancel : $btnCancel.attr('data-defaultMsg'));
-      $btnCancel.off('click').one('click', function () {
+      $btnCancel.off('click').one('click', () => {
         $popupContainer.hide();
       });
     } else {
@@ -225,7 +224,7 @@ export class CommonUtil {
     }
     $btnDone.text(confirmData.btnName ? confirmData.btnName : $btnDone.attr('data-defaultMsg'));
 
-    $btnDone.off('click').one('click', function () {
+    $btnDone.off('click').one('click', () => {
       (confirmData.afterConfirm) && (confirmData.afterConfirm(confirmData));
       $popupContainer.hide();
     });
@@ -248,12 +247,14 @@ export class CommonUtil {
    * 숫자를 용량 표시로 변경
    * @param {number} size : 크기
    * @param {number} floatPos : 소수점 자릿수
-   * @returns {any}
+   * @returns {string}
    */
-  public static formatBytes(size: number, floatPos: number) {
-    if (0 == size) return '0 Bytes';
-    let c = 1024, d = floatPos || 2, e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-      f = Math.floor(Math.log(size) / Math.log(c));
+  public static formatBytes(size: number, floatPos: number): string {
+    if (0 === size) return '0 Bytes';
+    const c = 1024;
+    const d = floatPos || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(size) / Math.log(c));
     return parseFloat((size / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
   } // function - formatBytes
 
@@ -268,7 +269,7 @@ export class CommonUtil {
 
   /**
    *  URL 파라미터 생성
-   * @param {any} obj
+   * @param obj
    * @returns URL 파라미터값
    */
   public static objectToUrlString(obj: any) {
@@ -294,7 +295,7 @@ export class CommonUtil {
    * @param obj
    */
   public static objectToArray(obj: any) {
-    if (isNullOrUndefined(obj)) {
+    if (obj === undefined || obj === null) {
       return [];
     } else if (obj.forEach) {
       return obj;
@@ -337,37 +338,42 @@ export class CommonUtil {
   } // function - convertMilliseconds
 
   public static getUserSetting(): UserSetting {
-    if(localStorage) {
+    if (localStorage) {
       const value = this.getLocalStorage(LocalStorageConstant.KEY.USER_SETTING);
-      if(value) {
+      if (value) {
         return JSON.parse(value);
       }
     }
     return new UserSetting();
   }
 
-  public static getLocalStorage(key:string): any {
-    if(localStorage) {
+  public static getLocalStorage(key: string): any {
+    if (localStorage) {
       return localStorage.getItem(key);
     } else {
       return null;
     }
   }
 
-  public static setLocalStorage(key:string, value:any): void {
-    if(localStorage) {
-      localStorage.setItem(key,  value);
+  public static setLocalStorage(key: string, value: any): void {
+    if (localStorage) {
+      localStorage.setItem(key, value);
     }
   }
 
-  public static setThemeCss(theme:Theme): void {
+  public static setThemeCss(theme: Theme): void {
+    const $body = $('body');
     if (theme === Theme.DARK) {
-      $('body').addClass(Theme.DARK);
+      $body.addClass(Theme.DARK);
     } else {
-      if ($('body').hasClass(Theme.DARK)) {
-        $('body').removeClass(Theme.DARK);
+      if ($body.hasClass(Theme.DARK)) {
+        $body.removeClass(Theme.DARK);
       }
     }
+  }
+
+  public static isNullOrUndefined(val): boolean {
+    return val === undefined || val === null;
   }
 
 }

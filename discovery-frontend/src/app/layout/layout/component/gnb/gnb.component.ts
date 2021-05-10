@@ -13,16 +13,16 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {CookieConstant} from '../../../../common/constant/cookie.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {UserService} from '../../../../user/service/user.service';
-import {User} from '../../../../domain/user/user';
+import {User} from '@domain/user/user';
 import {ProfileComponent} from '../../../../user/profile/profile.component';
-import {CommonUtil} from '../../../../common/util/common.util';
-import {LocalStorageConstant} from "../../../../common/constant/local-storage.constant";
-import {Language, Theme, UserSetting} from "../../../../common/value/user.setting.value";
-import {EventBroadcaster} from "../../../../common/event/event.broadcaster";
-import {AccessHistoryComponent} from "../../../../user/access-history/access-history.component";
+import {CommonUtil} from '@common/util/common.util';
+import {LocalStorageConstant} from '@common/constant/local-storage.constant';
+import {Language, Theme, UserSetting} from '@common/value/user.setting.value';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {AccessHistoryComponent} from '../../../../user/access-history/access-history.component';
 
 @Component({
   selector: 'app-gnb',
@@ -79,7 +79,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     super.ngOnInit();
 
     // 개인정보 가져오기
-    const userId:string = CommonUtil.getLoginUserId();
+    const userId: string = CommonUtil.getLoginUserId();
     this.userService.getUser(userId).then((user) => {
       this.user = user;
     }).catch((err) => this.commonExceptionHandler(err));
@@ -106,7 +106,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   }
 
   public changeLanguage(lang: string): void {
-    if (this.getCurrentLang() != lang) {
+    if (this.getCurrentLang() !== lang) {
       this.setLanguage(lang);
       this._saveUserSetting(null, UserSetting.getLanguage(lang));
     }
@@ -123,7 +123,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     setTimeout(() => {
       this.user = userData;
       this.safelyDetectChanges();
-    }, 250 );
+    }, 250);
   }
 
   /**
@@ -131,7 +131,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
    * @returns {string}
    */
   public getUserImage(): string {
-    if( this.user && this.user.hasOwnProperty('imageUrl') ) {
+    if (this.user && this.user.hasOwnProperty('imageUrl')) {
       return '/api/images/load/url?url=' + this.user.imageUrl + '/thumbnail';
     } else {
       return this.defaultPhotoSrc;
@@ -153,12 +153,12 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
   }
 
   public logout() {
-    if( CommonUtil.isSamlSSO() ) {
+    if (CommonUtil.isSamlSSO()) {
       location.href = '/saml/logout';
     } else {
-      this.userService.logout().then(result => {
+      this.userService.logout().then(() => {
         this.router.navigate(['/user/login']).then();
-      }).catch((err) => {
+      }).catch(() => {
         this.cookieService.delete(CookieConstant.KEY.LOGIN_TOKEN, '/');
         this.cookieService.delete(CookieConstant.KEY.LOGIN_TOKEN_TYPE, '/');
         this.cookieService.delete(CookieConstant.KEY.LOGIN_USER_ID, '/');
@@ -181,7 +181,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private _saveUserSetting(theme:Theme, language:Language): void {
+  private _saveUserSetting(theme: Theme, language: Language): void {
     let userData: UserSetting = CommonUtil.getUserSetting();
     if (!userData) {
       userData = new UserSetting();

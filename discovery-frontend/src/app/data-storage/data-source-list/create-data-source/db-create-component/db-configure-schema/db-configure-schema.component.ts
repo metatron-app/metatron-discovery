@@ -13,12 +13,19 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
-  Output, ViewChild
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, FieldFormatType} from '../../../../../domain/datasource/datasource';
-import {SchemaConfigureMainComponent} from "../../../../component/schema-configure/schema-configure-main.component";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo, FieldFormatType} from '@domain/datasource/datasource';
+import {SchemaConfigureMainComponent} from '../../../../component/schema-configure/schema-configure-main.component';
 
 @Component({
   selector: 'db-configure-schema',
@@ -26,7 +33,7 @@ import {SchemaConfigureMainComponent} from "../../../../component/schema-configu
 })
 export class DbConfigureSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  @ViewChild(SchemaConfigureMainComponent)
+  @ViewChild(SchemaConfigureMainComponent, {static: true})
   private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;
 
   // 생성될 데이터소스 정보

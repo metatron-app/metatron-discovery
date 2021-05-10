@@ -12,17 +12,16 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { NotebookService } from '../../service/notebook.service';
-import { isUndefined } from 'util';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {NotebookService} from '../../service/notebook.service';
+import {isUndefined} from 'util';
 
 @Component({
   selector: 'app-result-notebook-api',
   templateUrl: './result-notebook-api.component.html',
 })
 export class ResultNotebookApiComponent extends AbstractPopupComponent implements OnInit {
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -58,14 +57,14 @@ export class ResultNotebookApiComponent extends AbstractPopupComponent implement
 
     this.loadingShow();
     if (!isUndefined(this.result)) {
-      console.info('===>', this.result);
+      console.log('===>', this.result);
       this.notebookService.runNotebookApi(this.result)
         .then((result) => {
           this.loadingHide();
           this.showReuslt(result);
 
         })
-        .catch((error) => {
+        .catch((_error) => {
           this.loadingHide();
           this.showReuslt(this.translateService.instant('msg.nbook.ui.api.no.rslt'));
         });

@@ -12,24 +12,23 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { Alert } from '../../../../common/util/alert.util';
-import { PopupService } from '../../../../common/service/popup.service';
-import { BookTree } from '../../../../domain/workspace/book';
-import { WorkspaceService } from '../../../../workspace/service/workspace.service';
-import { DashboardService } from '../../../../dashboard/service/dashboard.service';
-import { Widget } from '../../../../domain/dashboard/widget/widget';
-import { NotebookService } from '../../../service/notebook.service';
-import { Datasource } from '../../../../domain/datasource/datasource';
-import { isUndefined } from 'util';
+import {isUndefined} from 'util';
+import {Component, ElementRef, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {PopupService} from '@common/service/popup.service';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {NoteBook} from '@domain/notebook/notebook';
+import {BookTree} from '@domain/workspace/book';
+import {Datasource} from '@domain/datasource/datasource';
+import {WorkspaceService} from '../../../../workspace/service/workspace.service';
+import {DashboardService} from '../../../../dashboard/service/dashboard.service';
+import {NotebookService} from '../../../service/notebook.service';
 
 @Component({
   selector: 'app-create-notebook-chart',
-  templateUrl : './create-notebook-chart.component.html'
+  templateUrl: './create-notebook-chart.component.html'
 })
-export class CreateNotebookChartComponent extends AbstractPopupComponent implements OnInit, OnChanges {
+export class CreateNotebookChartComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -38,6 +37,7 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -53,7 +53,7 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
   // 북 정보
   public books: BookTree[] = [];
   // ui용
-  public node : any[] = [];
+  public node: any[] = [];
   // ui용
   public nameNode: any[] = [];
 
@@ -138,53 +138,20 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
     });
   }
 
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /** 워크북 조회 api */
-  protected getWorkbooks(workspaceId: string, bookId: string) {
-    // 로딩 show
-    this.loadingShow();
-
-    this.workspaceService.getWorkbooks(workspaceId, bookId,'forTreeView')
-      .then((book) => {
-
-        // 데이터 넣기
-        this.books.push(book);
-        this.node.push(book);
-
-        if (bookId !== 'root') {
-          this.nameNode.push(book.id);
-        }
-        this.notebook.path = book.name;
-        console.info('this.notebook.path', this.notebook.path);
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        Alert.error(this.translateService.instant('msg.nbook.alert.workbook.retrieve.fail'));
-        // 로딩 hide
-        this.loadingHide();
-      });
-  }
-
-
   // 위젯 디테일 구하기
-  protected getNotebookChartDetail(widgetId: string) {
+  public getNotebookChartDetail(widgetId: string) {
     this.selectedChartId = widgetId;
   }
 
   /** 대시보드 위젯 조회 api */
-  protected getDashboardWidget(dashboardId: string) {
+  public getDashboardWidget(dashboardId: string) {
     this.selectedChartId = '';
     // 로딩 show
     this.loadingShow();
     this.dashboardService.getDashboardWidget(dashboardId, 'forTreeView')
       .then((widget) => {
 
-        console.info('widget', widget);
+        console.log('widget', widget);
         // 데이터 넣기
         if (this.widgetAddFlag === true) {
           this.node.pop();
@@ -193,7 +160,7 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
         if (!isUndefined(widget['_embedded'])) {
 
           // type이 page인것만 보여주기
-          this.widget = widget['_embedded'].widgets.filter((item)=> {
+          this.widget = widget['_embedded'].widgets.filter((item) => {
             return item.type === 'page';
           });
         } else {
@@ -207,7 +174,7 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
+      .catch((_error) => {
         Alert.error(this.translateService.instant('msg.nbook.alert.widget.retrieve.fail'));
         // 로딩 hide
         this.loadingHide();
@@ -215,7 +182,7 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
   }
 
   /** 선택 시 이벤트 */
-  protected selectBook(event, index) {
+  public selectBook(event, index) {
     this.selectedChartId = '';
     this.widgetAddFlag = false;
     // 뎁스 자르기
@@ -239,12 +206,39 @@ export class CreateNotebookChartComponent extends AbstractPopupComponent impleme
   }
 
   /** 차트 요약페이지 닫았을때 발생 이벤트 */
-  protected onCloseSummary() {
+  public onCloseSummary() {
     this.selectedChartId = '';
   }
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
+  | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /** 워크북 조회 api */
+  protected getWorkbooks(workspaceId: string, bookId: string) {
+    // 로딩 show
+    this.loadingShow();
+
+    this.workspaceService.getWorkbooks(workspaceId, bookId, 'forTreeView')
+      .then((book) => {
+
+        // 데이터 넣기
+        this.books.push(book);
+        this.node.push(book);
+
+        if (bookId !== 'root') {
+          this.nameNode.push(book.id);
+        }
+        this.notebook.path = book.name;
+        console.log('this.notebook.path', this.notebook.path);
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch((_error) => {
+        Alert.error(this.translateService.instant('msg.nbook.alert.workbook.retrieve.fail'));
+        // 로딩 hide
+        this.loadingHide();
+      });
+  }
+
 }

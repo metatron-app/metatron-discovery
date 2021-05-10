@@ -12,74 +12,75 @@
 * limitations under the License.
 */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-export class PrDataSnapshot extends AbstractHistoryEntity{
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
-public ssId: string;
-public ssName: string;
-public storageType: StorageType;
-public dbName: string;
-public tblName: string;
-public status: Status;
-public launchTime: Date;
-public finishTime : Date;
-public mismatchedLines: number;
-public missingLines: number;
-public totalLines: number;
-public totalBytes: number;
+export class PrDataSnapshot extends AbstractHistoryEntity {
 
-public elapsedTime: ElapsedTime = new ElapsedTime();
-public storedUri : string;
+  public ssId: string;
+  public ssName: string;
+  public storageType: StorageType;
+  public dbName: string;
+  public tblName: string;
+  public status: Status;
+  public launchTime: Date;
+  public finishTime: Date;
+  public mismatchedLines: number;
+  public missingLines: number;
+  public totalLines: number;
+  public totalBytes: number;
 
-public sourceInfo: LineageInfo;
-public connectionInfo: ConnectionInfo;
-public ruleStringInfo: any;
+  public elapsedTime: ElapsedTime = new ElapsedTime();
+  public storedUri: string;
+
+  public sourceInfo: LineageInfo;
+  public connectionInfo: ConnectionInfo;
+  public ruleStringInfo: any;
 
 // 생성시 필요한 필드
-public ssType: SsType;
-public hiveFileFormat: HiveFileFormat;
-public hiveFileCompression: HiveFileCompression;
-public appendMode: AppendMode;
-public engine: Engine;
-public partitionColNames: string[];
+  public ssType: SsType;
+  public hiveFileFormat: HiveFileFormat;
+  public hiveFileCompression: HiveFileCompression;
+  public appendMode: AppendMode;
+  public engine: Engine;
+  public partitionColNames: string[];
 
 // UI 에서 사용
-public gridData: any;
-public ruleCntDone : number;
-public ruleCntTotal : number;
+  public gridData: any;
+  public ruleCntDone: number;
+  public ruleCntTotal: number;
 
-public custom: any;
-public isCancel : boolean = false;
+  public custom: any;
+  public isCancel: boolean = false;
 
-public displayStatus: string;
-public dsName: string;
-public dfName: string;
+  public displayStatus: string;
+  public dsName: string;
+  public dfName: string;
 
-public dsCreatedTime: Date;
-public dsModifiedTime: Date;
+  public dsCreatedTime: Date;
+  public dsModifiedTime: Date;
 }
 
 export class OriginDsInfo {
-public dsName: string;
-public qryStmt: string;
-public storedUri: string;
-public createdTime: string;
+  public dsName: string;
+  public qryStmt: string;
+  public storedUri: string;
+  public createdTime: string;
 }
 
 export class LineageInfo {
-    public dfId: string;
-    public dfName: string;
+  public dfId: string;
+  public dfName: string;
 
-    public dsId: string;
-    public dsName: string;
-    public origDsName: string;
-    public origDsStoredUri: string;
-    public origDsQueryStmt: string;
-    public origDsCreatedTime: string;
+  public dsId: string;
+  public dsName: string;
+  public origDsName: string;
+  public origDsStoredUri: string;
+  public origDsQueryStmt: string;
+  public origDsCreatedTime: string;
 }
 
 export class ConnectionInfo {
-    public dcId: string;
+  public dcId: string;
 }
 
 export class ElapsedTime {
@@ -93,54 +94,54 @@ export class ElapsedTime {
 }
 
 export enum SsType {
-  URI = <any>'URI',
-  DATABASE = <any>'DATABASE',
-  STAGING_DB = <any>'STAGING_DB',
-  DRUID = <any>'DRUID'
+  URI = 'URI',
+  DATABASE = 'DATABASE',
+  STAGING_DB = 'STAGING_DB',
+  DRUID = 'DRUID'
 }
 
 export enum AppendMode {
-  OVERWRITE = <any>'OVERWRITE',
-  APPEND = <any>'APPEND'
+  OVERWRITE = 'OVERWRITE',
+  APPEND = 'APPEND'
 }
 
 export enum HiveFileCompression {
-  NONE = <any>'NONE',
-  SNAPPY = <any>'SNAPPY',
-  ZLIB = <any>'ZLIB'
+  NONE = 'NONE',
+  SNAPPY = 'SNAPPY',
+  ZLIB = 'ZLIB'
 }
 
 export enum StorageType {
-  LOCAL = <any>'LOCAL',
-  HDFS = <any>'HDFS'
+  LOCAL = 'LOCAL',
+  HDFS = 'HDFS'
 }
 
 export enum UriFileFormat {
-  CSV = <any>'CSV',
-  JSON = <any>'JSON',
-  SQL = <any>'SQL'
+  CSV = 'CSV',
+  JSON = 'JSON',
+  SQL = 'SQL'
 }
 
 export enum HiveFileFormat {
-  CSV = <any>'CSV',
-  ORC = <any>'ORC'
+  CSV = 'CSV',
+  ORC = 'ORC'
 }
 
 export enum Engine {
-  EMBEDDED = <any>'EMBEDDED',
-  SPARK = <any>'SPARK'
+  EMBEDDED = 'EMBEDDED',
+  SPARK = 'SPARK'
 }
 
 export enum Status {
-  NOT_AVAILABLE = <any>'NOT_AVAILABLE',
-  INITIALIZING = <any>'INITIALIZING',
-  RUNNING = <any>'RUNNING',
-  WRITING = <any>'WRITING',
-  TABLE_CREATING = <any>'TABLE_CREATING',
-  SUCCEEDED = <any>'SUCCEEDED',
-  FAILED = <any>'FAILED',
-  CANCELING = <any>'CANCELING',
-  CANCELED = <any>'CANCELED'
+  NOT_AVAILABLE = 'NOT_AVAILABLE',
+  INITIALIZING = 'INITIALIZING',
+  RUNNING = 'RUNNING',
+  WRITING = 'WRITING',
+  TABLE_CREATING = 'TABLE_CREATING',
+  SUCCEEDED = 'SUCCEEDED',
+  FAILED = 'FAILED',
+  CANCELING = 'CANCELING',
+  CANCELED = 'CANCELED'
 }
 
 

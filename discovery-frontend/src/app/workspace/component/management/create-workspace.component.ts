@@ -12,24 +12,15 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
-import {PublicType, Workspace} from '../../../domain/workspace/workspace';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {PublicType, Workspace} from '@domain/workspace/workspace';
 import {CommonUtil} from 'app/common/util/common.util';
-import {Alert} from '../../../common/util/alert.util';
+import {Alert} from '@common/util/alert.util';
 import {WorkspaceService} from '../../service/workspace.service';
 import {PermissionService} from '../../../user/service/permission.service';
-import {RoleSet, RoleSetScope} from '../../../domain/user/role/roleSet';
+import {RoleSet, RoleSetScope} from '@domain/user/role/roleSet';
 import {PermissionSchemaComponent} from '../permission/permission-schema.component';
-import {AbstractComponent} from '../../../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
 import {PermissionSchemaSetComponent} from '../permission/permission-schema-set.component';
 
@@ -88,7 +79,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
   public params = {
     size: this.page.size,
     page: this.page.page,
-    sort: { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true }
+    sort: {name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true}
   };
 
   get disableCreateWorkspace() {
@@ -178,7 +169,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
           this.sharedWorkspaceList = [];
         }
 
-      }).catch((error) => {
+      }).catch((_error) => {
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         this.loadingHide();
       });
@@ -225,7 +216,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
    * 공유 워크스페이스 생성
    */
   public createShareWorkspace() {
-    if( this.disableCreateWorkspace ) {
+    if (this.disableCreateWorkspace) {
       this.shareWorkspace.name = this.shareWorkspace.name ? this.shareWorkspace.name.trim() : '';
       // check if name is empty
       if (this.shareWorkspace.name == null || this.shareWorkspace.name.length === 0) {
@@ -288,7 +279,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
       this.selectedRoleSetDetail = new RoleSet();
     } else {
       this.selectedRoleSetDetail = null;
-      this.selectRoleSet( this.roleSetList[0], false );
+      this.selectRoleSet(this.roleSetList[0], false);
     }
   } // function - changeRoleSetType
 
@@ -318,7 +309,7 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
     this._permissionSchemaSetComp.init(cloneRoleSet, true, false);
   } // function - onClickOpenPermissionSchemaSet
 
-  public afterUpdatePermissionRoles(roleset:RoleSet) {
+  public afterUpdatePermissionRoles(roleset: RoleSet) {
     this.selectedRoleSetDetail = roleset;
   } // function - afterUpdatePermissionRoles
 
@@ -347,9 +338,9 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
       this.permissionService.getRolesets(params).then(result => {
         if (result && result['_embedded']) {
           this.roleSetList = result['_embedded']['roleSets'];
-          this.selectRoleSet( this.roleSetList[0], false );
+          this.selectRoleSet(this.roleSetList[0], false);
         }
-        resolve();
+        resolve(null);
         this.loadingHide();
       }).catch(err => {
         this.commonExceptionHandler(err);

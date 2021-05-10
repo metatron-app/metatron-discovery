@@ -12,16 +12,17 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import {UnnestRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {UnnestRule} from '@domain/data-preparation/prep-rules';
+import {EditRuleComponent} from './edit-rule.component';
+
 @Component({
-  selector : 'edit-rule-unnest',
-  templateUrl : './edit-rule-unnest.component.html'
+  selector: 'edit-rule-unnest',
+  templateUrl: './edit-rule-unnest.component.html'
 })
 export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -41,11 +42,11 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
   public selectedFields: Field[] = [];
 
   // 상태 저장용 T/F
-  public isFocus:boolean = false;         // Input Focus 여부
-  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+  public isFocus: boolean = false;         // Input Focus 여부
+  public isTooltipShow: boolean = false;   // Tooltip Show/Hide
 
   // Rule 에 대한 입력 값들
-  public selVal:string = '';
+  public selVal: string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -89,36 +90,36 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       return undefined;
     }
 
-    if (this.selVal==="" && this.firstRow) {
-      var theColumn = this.firstRow[this.selectedFields[0].name];
-      var jsonVal = JSON.parse(theColumn);
-      var keys = Object.keys(jsonVal);
-      if( keys && keys.length ) {
-        if(this.selectedFields[0].type==="MAP") {
-          this.selVal = keys.map( (item) => "'"+ item +"'" ).join(',');
-        } else if(this.selectedFields[0].type==="ARRAY") {
-          this.selVal = keys.map( (item,idx) => "'"+ idx +"'" ).join(',');
+    if (this.selVal === '' && this.firstRow) {
+      const theColumn = this.firstRow[this.selectedFields[0].name];
+      const jsonVal = JSON.parse(theColumn);
+      const keys = Object.keys(jsonVal);
+      if (keys && keys.length) {
+        if (this.selectedFields[0].type === 'MAP') {
+          this.selVal = keys.map((item) => '\'' + item + '\'').join(',');
+        } else if (this.selectedFields[0].type === 'ARRAY') {
+          this.selVal = keys.map((_item, idx) => '\'' + idx + '\'').join(',');
         }
       }
-    } else if( this.selectedFields[0].type==="ARRAY" ) {
-      var isIntegerIndex = this.selVal.split(',').every( item => typeof parseInt(item)=='number' );
-      if ( isIntegerIndex ) {
-        this.selVal = this.selVal.split(',').map( item => "'"+ item +"'" ).join(',');
+    } else if (this.selectedFields[0].type === 'ARRAY') {
+      const isIntegerIndex = this.selVal.split(',').every(item => typeof parseInt(item, 10) === 'number');
+      if (isIntegerIndex) {
+        this.selVal = this.selVal.split(',').map(item => '\'' + item + '\'').join(',');
       }
     }
 
     // surround idx with single quotation
-    let clonedSelVal:string;
-    let check = StringUtil.checkSingleQuote(this.selVal, { isPairQuote: true });
-    if (check[0] === false && check[1] !== "" ) {
+    let clonedSelVal: string;
+    const check = StringUtil.checkSingleQuote(this.selVal, {isPairQuote: true});
+    if (check[0] === false && check[1] !== '') {
       Alert.warning(this.translateService.instant('Check element value'));
       return undefined;
     } else {
       clonedSelVal = check[1];
     }
 
-    return{
-      command : 'unnest',
+    return {
+      command: 'unnest',
       ruleString: `unnest col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} into: ${this.selectedFields[0].type} idx: ${clonedSelVal}`,
       uiRuleString: {
         name: 'unnest',
@@ -134,14 +135,14 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public showToolTip(isShow: boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
   }
 
   /**
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+  public changeFields(data: { target?: Field, isSelect?: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -149,8 +150,8 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
    * 패턴 정보 레이어 표시
    * @param {boolean} isShow
    */
-  public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  public showHidePatternLayer(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {isShow: isShow});
     this.isFocus = isShow;
   } // function - showHidePatternLayer
 
@@ -185,11 +186,11 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {jsonRuleString : UnnestRule}) {
+  protected parsingRuleString(data: { jsonRuleString: UnnestRule }) {
 
     // COLUMN
-    let arrFields:string[] = data.jsonRuleString.col;
-    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    const arrFields: string[] = data.jsonRuleString.col;
+    this.selectedFields = arrFields.map(item => this.fields.find(orgItem => orgItem.name === item)).filter(field => !!field);
 
     this.selVal = data.jsonRuleString.element;
   } // function - _parsingRuleString

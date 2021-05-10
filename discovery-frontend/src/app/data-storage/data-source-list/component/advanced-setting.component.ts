@@ -16,15 +16,15 @@
 /**
  * Advanced setting component
  */
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { StringUtil } from '../../../common/util/string.util';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'advanced-setting',
   templateUrl: './advanced-setting.component.html'
 })
-export class AdvancedSettingComponent extends AbstractComponent {
+export class AdvancedSettingComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   // advanced list show hide flag
   @Input()
@@ -87,7 +87,7 @@ export class AdvancedSettingComponent extends AbstractComponent {
    * @param {string} optionType
    */
   public onClickAddOption(optionType: string): void {
-    this[optionType].push({key:'', value: ''});
+    this[optionType].push({key: '', value: ''});
   }
 
   /**
@@ -128,7 +128,7 @@ export class AdvancedSettingComponent extends AbstractComponent {
   /**
    * Property value validation
    * #1168 remove validation
-   * @param property
+   * @param option
    */
   public configValueValidation(option: any): void {
     // check not empty, check special characters, and korean (enable .dot)

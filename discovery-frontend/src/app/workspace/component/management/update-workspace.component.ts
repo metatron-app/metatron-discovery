@@ -12,23 +12,15 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Alert} from '../../../common/util/alert.util';
-import {CommonUtil} from '../../../common/util/common.util';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
 import {WorkspaceService} from '../../service/workspace.service';
-import {Workspace} from "../../../domain/workspace/workspace";
+import {Workspace} from '@domain/workspace/workspace';
 import * as _ from 'lodash';
-import {CookieConstant} from "../../../common/constant/cookie.constant";
-import {StringUtil} from "../../../common/util/string.util";
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-update-workspace',
@@ -58,9 +50,9 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   public isShow = false;
 
   // 워크스페이스 data
-  public data : any = {
-    name : '',
-    description : ''
+  public data: any = {
+    name: '',
+    description: ''
   };
 
   // sharedWorkSpaceList
@@ -78,7 +70,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   public params = {
     size: this.page.size,
     page: this.page.page,
-    sort: { name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true }
+    sort: {name: this.translateService.instant('msg.comm.ui.list.name.asc'), value: 'name,asc', selected: true}
   };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -127,7 +119,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
       this.loadingShow();
       // 수정
       this.workspaceService.updateWorkspace(this.workspaceId, this.data)
-        .then((result) => {
+        .then((_result) => {
           const workspace = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
           if (StringUtil.isNotEmpty(workspace)) {
             const wsInfo = JSON.parse(workspace);
@@ -144,7 +136,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
           // 팝업 닫기
           this.close(true);
         })
-        .catch((error) => {
+        .catch((_error) => {
           // 로딩 hide
           this.loadingHide();
           // 수정 알림
@@ -167,7 +159,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
   }
 
   // 닫기
-  public close(completeFl?:boolean) {
+  public close(completeFl?: boolean) {
     this.sharedWorkspaceList = undefined;
     this.isInvalidName = undefined;
     this.isShow = false;
@@ -194,7 +186,7 @@ export class UpdateWorkspaceComponent extends AbstractComponent implements OnIni
           this.sharedWorkspaceList = [];
         }
 
-      }).catch((error) => {
+      }).catch((_error) => {
         Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
         this.loadingHide();
       });

@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'analysis-cluster',
   templateUrl: './analysis-cluster.component.html'
 })
-export class AnalysisClusterComponent extends AbstractComponent {
+export class AnalysisClusterComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -100,7 +100,7 @@ export class AnalysisClusterComponent extends AbstractComponent {
    */
   public onChangeSection(section: any) {
 
-    const sectionInt = parseInt(section);
+    const sectionInt = parseInt(section, 10);
 
     // 초기화
     this.clusterList = [];

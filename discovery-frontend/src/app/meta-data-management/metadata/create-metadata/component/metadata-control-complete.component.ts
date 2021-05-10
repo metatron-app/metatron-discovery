@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {MetadataEntity} from "../../metadata.entity";
-import * as _ from "lodash";
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {Metadata, SourceType} from "../../../../domain/meta-data-management/metadata";
-import {StringUtil} from "../../../../common/util/string.util";
-import {MetadataSource, MetadataSourceType} from "../../../../domain/meta-data-management/metadata-source";
-
+import {Component, ElementRef, Injector} from '@angular/core';
+import {MetadataEntity} from '../../metadata.entity';
+import * as _ from 'lodash';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Metadata, SourceType} from '@domain/meta-data-management/metadata';
+import {StringUtil} from '@common/util/string.util';
+import {MetadataSource, MetadataSourceType} from '@domain/meta-data-management/metadata-source';
 
 @Component({
   selector: 'metadata-control-complete-component',

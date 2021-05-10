@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
 
-import { AbstractComponent } from '../common/component/abstract.component';
-import { CommonUtil } from '../common/util/common.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'sso',
@@ -54,7 +54,7 @@ export class SsoComponent extends AbstractComponent implements OnInit, OnDestroy
    */
   public ngOnInit() {
     super.ngOnInit();
-    localStorage.setItem( 'USE_SAML_SSO', 'YES' );
+    localStorage.setItem('USE_SAML_SSO', 'YES');
     this.goToSamlLogin();
   } // function - ngOnInit
 

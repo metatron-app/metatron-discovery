@@ -12,21 +12,21 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { PrDataSnapshot, SsType } from '../../../domain/data-preparation/pr-snapshot';
-import { CommonUtil } from '../../../common/util/common.util';
-import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { Observable } from 'rxjs';
-import {LogicalType} from "../../../domain/datasource/datasource";
-import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {Injectable, Injector} from '@angular/core';
+import {HttpHeaders} from '@angular/common/http';
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {LogicalType} from '@domain/datasource/datasource';
+import {PrDataSnapshot, SsType} from '@domain/data-preparation/pr-snapshot';
 
 @Injectable()
 export class DataSnapshotService extends AbstractService {
 
-  constructor (protected injector: Injector) {
+  constructor(protected injector: Injector) {
     super(injector);
   }
 
@@ -41,10 +41,10 @@ export class DataSnapshotService extends AbstractService {
   private _getSnapshotStatus(status: string) {
 
     const statuses = [
-      {name : 'all', status : 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING'},
-      {name : 'success', status : 'SUCCEEDED'},
-      {name : 'fail', status : 'FAILED'},
-      {name : 'preparing', status : 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING'},
+      {name: 'all', status: 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING'},
+      {name: 'success', status: 'SUCCEEDED'},
+      {name: 'fail', status: 'FAILED'},
+      {name: 'preparing', status: 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING'},
     ];
 
     const idx = statuses.findIndex((item) => {
@@ -64,7 +64,7 @@ export class DataSnapshotService extends AbstractService {
   private _getSnapshotType(ssType: SsType): string {
 
     let type;
-    if (!isNullOrUndefined(ssType)) {
+    if (!CommonUtil.isNullOrUndefined(ssType)) {
       type = ssType.toString();
     } else {
       type = `${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
@@ -80,25 +80,25 @@ export class DataSnapshotService extends AbstractService {
   public getDataSnapshotsByStatus(param): Promise<PrDataSnapshot[]> {
     let statuses = '';
 
-    if( 'all'== param.status) {
+    if ('all' === param.status) {
       statuses = 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING';
-    } else if( 'success'== param.status ) {
+    } else if ('success' === param.status) {
       statuses = 'SUCCEEDED';
-    } else if( 'fail'== param.status ) {
+    } else if ('fail' === param.status) {
       statuses = 'FAILED';
-    } else if( 'preparing'== param.status ) {
+    } else if ('preparing' === param.status) {
       statuses = 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
     }
 
     let url = `${this._baseUrl}search/findBySsNameContainingAndStatusInAndSsTypeIn?ssName=${encodeURIComponent(param.searchText)}&statuses=${statuses}`;
 
     if (!param.ssType) {
-      url +=  `&ssTypes=${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
+      url += `&ssTypes=${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
     } else {
-      url +=  `&ssTypes=${param.ssType}`;
+      url += `&ssTypes=${param.ssType}`;
     }
     if (param.projection) {
-      url = url + '&projection=' +param.projection;
+      url = url + '&projection=' + param.projection;
     }
 
     delete param.page.column;
@@ -118,7 +118,7 @@ export class DataSnapshotService extends AbstractService {
 
     let url = `${this._baseUrl}search/findBySsNameContainingAndStatusInAndSsTypeIn?ssName=${encodeURIComponent(param.ssName)}&statuses=${status}&ssTypes=${type}`;
 
-    let clonedParam = _.cloneDeep(param);
+    const clonedParam = _.cloneDeep(param);
 
     delete clonedParam.type;
     delete clonedParam.status;
@@ -144,7 +144,7 @@ export class DataSnapshotService extends AbstractService {
    * @param ssId
    */
   public deleteDataSnapshot(ssId: string) {
-    return this.delete(this._baseUrl+ ssId);
+    return this.delete(this._baseUrl + ssId);
   }
 
 
@@ -168,27 +168,29 @@ export class DataSnapshotService extends AbstractService {
     let mineType: string;
     if (fileFormat === 'csv') {
       mineType = 'application/csv';
-    } else if (fileFormat === 'json'){
+    } else if (fileFormat === 'json') {
       mineType = 'application/json';
-    } else if (fileFormat === 'sql'){
+    } else if (fileFormat === 'sql') {
       mineType = 'text/plain';
     }
 
-    let headers = new HttpHeaders({
-      'Accept': mineType,
+    const headers = new HttpHeaders({
+      Accept: mineType,
       'Content-Type': 'application/octet-binary',
-      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
 
-    let option: Object = {
+    const option: object = {
       headers: headers,
       responseType: 'blob'
     };
 
-    return this.http.get(`${this._baseUrl}${ssId}/download?fileType=`+fileFormat, option)
-      .map((res) => {
-        return new Blob([res], { type: mineType })
-      });
+    return this.http.get(`${this._baseUrl}${ssId}/download?fileType=` + fileFormat, option)
+      .pipe(
+        map((res) => {
+          return new Blob([String(res)], {type: mineType})
+        })
+      );
   }
 
 
@@ -197,8 +199,8 @@ export class DataSnapshotService extends AbstractService {
    * @param ssId
    */
   public cancelSnapshot(ssId) {
-    let url = `${this._baseUrl}${ssId}/cancel`;
-    return this.post(url,{});
+    const url = `${this._baseUrl}${ssId}/cancel`;
+    return this.post(url, {});
   }
 
 
@@ -207,9 +209,9 @@ export class DataSnapshotService extends AbstractService {
    * @param {{ssId: string, ssName: string}} data
    * @returns {Promise<any>}
    */
-  public editSnapshot(data : {ssId: string, ssName: string}) {
-    let url = `${this._baseUrl}${data.ssId}`;
-    return this.patch(url,{ssName : data.ssName});
+  public editSnapshot(data: { ssId: string, ssName: string }) {
+    const url = `${this._baseUrl}${data.ssId}`;
+    return this.patch(url, {ssName: data.ssName});
   }
 
   /**

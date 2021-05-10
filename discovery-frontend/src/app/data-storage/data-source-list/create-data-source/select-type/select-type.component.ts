@@ -12,21 +12,16 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
-import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
-import {StorageService} from "../../../service/storage.service";
-import {
-  ConnectionType,
-  DatasourceInfo,
-  DataSourceType,
-  SourceType
-} from "../../../../domain/datasource/datasource";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConnectionType, DatasourceInfo, DataSourceType, SourceType} from '@domain/datasource/datasource';
+import {StorageService} from '../../../service/storage.service';
 
 @Component({
   selector: 'select-type',
   templateUrl: './select-type.component.html'
 })
-export class SelectTypeComponent extends AbstractPopupComponent implements OnInit {
+export class SelectTypeComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   @Input()
   public step: string;

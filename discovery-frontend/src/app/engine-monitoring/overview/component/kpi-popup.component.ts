@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   AfterViewInit,
   Component,
@@ -22,13 +23,12 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {EngineService} from "../../service/engine.service";
-import {Engine} from "../../../domain/engine-monitoring/engine";
-import * as _ from "lodash";
-import {CommonUtil} from "../../../common/util/common.util";
-import {EngineMonitoringUtil} from "../../util/engine-monitoring.util";
-import {TimezoneService} from "../../../data-storage/service/timezone.service";
+import {CommonUtil} from '@common/util/common.util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {TimezoneService} from '../../../data-storage/service/timezone.service';
+import {EngineMonitoringUtil} from '../../util/engine-monitoring.util';
+import {EngineService} from '../../service/engine.service';
 
 declare let echarts: any;
 declare let moment: any;
@@ -37,7 +37,7 @@ declare let moment: any;
   selector: 'kpi-popup',
   templateUrl: './kpi-popup.component.html',
   styles: ['.ddp-box-meta {top:80px;}', '.ddp-box-meta .ddp-pop-top {padding-top:40px; padding-bottom:40px}'
-    , '.ddp-box-meta .ddp-pop-top .ddp-ui-title {padding-top:0px;}', '.ddp-box-meta .ddp-pop-top .ddp-label-title {font-size:22px;}'
+    , '.ddp-box-meta .ddp-pop-top .ddp-ui-title {padding-top:0;}', '.ddp-box-meta .ddp-pop-top .ddp-label-title {font-size:22px;}'
     , '.ddp-detail-contents .ddp-view-datadetail .ddp-wrap-graph {padding:20px;}']
 })
 export class KpiPopupComponent extends AbstractPopupComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -78,10 +78,10 @@ export class KpiPopupComponent extends AbstractPopupComponent implements OnInit,
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  public onResize(event) {
+  public onResize(_event) {
     if (!_.isNil(this._chart)) {
       this._chart.resize();
     }
@@ -103,7 +103,7 @@ export class KpiPopupComponent extends AbstractPopupComponent implements OnInit,
     this.isShow = false;
   }
 
-  public setDate(duration:string) {
+  public setDate(duration: string) {
     this.selectedDuration = duration;
     if ('1HOUR' === duration) {
       this._fromDate = moment().subtract(1, 'hours').utc().format();
@@ -117,7 +117,7 @@ export class KpiPopupComponent extends AbstractPopupComponent implements OnInit,
     this._getData();
   }
 
-  public selectTab(tab:string) {
+  public selectTab(tab: string) {
     this.selectedTab = tab;
     this._getData();
   }
@@ -145,7 +145,7 @@ export class KpiPopupComponent extends AbstractPopupComponent implements OnInit,
   private _getData() {
     const queryParam: any =
       {
-        monitoringTarget : {
+        monitoringTarget: {
           metric: this.selectedMonitoringTarget,
           service: this.selectedTab
         },
@@ -235,7 +235,7 @@ export class KpiPopupComponent extends AbstractPopupComponent implements OnInit,
               }
             },
             axisLabel: {
-              formatter: function(value) {
+              formatter: (value) => {
                 return EngineMonitoringUtil.convertLocalTime(value);
               }
             }
@@ -252,7 +252,7 @@ export class KpiPopupComponent extends AbstractPopupComponent implements OnInit,
               }
             },
             axisLabel: {
-              formatter: function(value) {
+              formatter: (value) => {
                 return value;
               }
             }

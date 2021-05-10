@@ -13,22 +13,30 @@
  */
 
 import * as $ from 'jquery';
-import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
+import {isNull, isNullOrUndefined} from 'util';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import { GridComponent } from '../../../../../../common/component/grid/grid.component';
-import { PrDataset, DsType, Field } from '../../../../../../domain/data-preparation/pr-dataset';
-import { PopupService } from '../../../../../../common/service/popup.service';
-import { DataflowService } from '../../../../service/dataflow.service';
-import { DatasetService } from '../../../../../dataset/service/dataset.service';
-import { Alert } from '../../../../../../common/util/alert.util';
-import { PreparationAlert } from '../../../../../util/preparation-alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { header, SlickGridHeader } from '../../../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../../../common/component/grid/grid.option';
-import { isNull, isNullOrUndefined } from 'util';
+import {Alert} from '@common/util/alert.util';
+import {StringUtil} from '@common/util/string.util';
+import {PopupService} from '@common/service/popup.service';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {DsType, Field, PrDataset} from '@domain/data-preparation/pr-dataset';
+import {DatasetService} from '../../../../../dataset/service/dataset.service';
+import {PreparationAlert} from '../../../../../util/preparation-alert.util';
+import {DataflowService} from '../../../../service/dataflow.service';
 
 class JoinInfo {
   public leftJoinKey: string;
@@ -60,7 +68,6 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   // wrangled / imported dataset
   public dsType: string = '';
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -70,7 +77,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public dfId:string;
+  public dfId: string;
 
   @Input()
   public serverSyncIndex: string;
@@ -79,11 +86,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public joinComplete = new EventEmitter();
 
   @Input('existingDataSet')
-  //public leftDataset: Dataset;            // 기존 데이터
+  // public leftDataset: Dataset;            // 기존 데이터
   public leftDataset: PrDataset;            // 기존 데이터
 
   @Input()
-  //public rightDataset: Dataset;   // 조인하게될 선택된 데이터 셋
+  // public rightDataset: Dataset;   // 조인하게될 선택된 데이터 셋
   public rightDataset: PrDataset;   // 조인하게될 선택된 데이터 셋
 
   @Input()
@@ -126,7 +133,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public rightCheckAll: boolean = false;
 
   // 데이터셋 리스트 - selectbox 에서 사용할 리스트
-  //public datasets: Dataset[] = [];
+  // public datasets: Dataset[] = [];
   public datasets: PrDataset[] = [];
 
   // Show/hide datasets only in this flow
@@ -150,8 +157,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     });
 
     // 선택된 RightDataset은 표시 안함
-    if( this.rightDataset ) {
-      list = list.filter( dataset => this.rightDataset.dsId!==dataset.dsId );
+    if (this.rightDataset) {
+      list = list.filter(dataset => this.rightDataset.dsId !== dataset.dsId);
     }
 
     // 검색어가 있는지 체크
@@ -232,7 +239,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       this.joinButtonText = this.rightDataset.joinButtonText;
       this.editVersionRightDataset(this.rightDataset);
     } else { // 처음생성할때
-      //this.rightDataset = new Dataset();
+      // this.rightDataset = new Dataset();
       this.rightDataset = new PrDataset();
     }
     this.getDatasets();
@@ -240,7 +247,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
   public ngAfterViewInit() {
 
-    if(this.rightDataset.dsId === '') {  // 처음생성할때
+    if (this.rightDataset.dsId === '') {  // 처음생성할때
 
       this.updateGrid(this.leftDataset.gridData, this.leftGrid).then(() => {
         this.setLeftCheckAll(true);   // Default가 전체체크
@@ -273,10 +280,10 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    */
   public getSize() {
     let size = 0;
-    if(true==Number.isInteger(this.numberOfBytes)) {
+    if (true === Number.isInteger(this.numberOfBytes)) {
       size = this.numberOfBytes;
     }
-    return this.formatBytes(size,1).split(" ");
+    return this.formatBytes(size, 1).split(' ');
   }
 
   /**
@@ -285,7 +292,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    */
   public getColumns() {
     let cols = '0';
-    if(true==Number.isInteger(this.numberOfColumns)) {
+    if (true === Number.isInteger(this.numberOfColumns)) {
       cols = new Intl.NumberFormat().format(this.numberOfColumns);
     }
     return cols;
@@ -297,7 +304,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    */
   public getRows() {
     let rows = '0';
-    if(true==Number.isInteger(this.numberOfRows)) {
+    if (true === Number.isInteger(this.numberOfRows)) {
       rows = new Intl.NumberFormat().format(this.numberOfRows);
     }
     return rows;
@@ -320,7 +327,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     this.leftCheckAll = this.gridHeaderClickHandler(
       {
         id: columnId,
-        isSelect: !( -1 < this.leftSelCols.indexOf(columnId) )
+        isSelect: !(-1 < this.leftSelCols.indexOf(columnId))
       },
       this.leftSelCols, this.leftDataset, this.leftCheckAll
     );
@@ -342,7 +349,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     this.rightCheckAll = this.gridHeaderClickHandler(
       {
         id: columnId,
-        isSelect: !( -1 < this.rightSelCols.indexOf(columnId) )
+        isSelect: !(-1 < this.rightSelCols.indexOf(columnId))
       },
       this.rightSelCols, this.rightDataset, this.rightCheckAll
     );
@@ -399,14 +406,16 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    * 오른쪽 컬럼 select 자동 체크
    */
   public setRightCheckOnLoad() {
-    this.rightSelCols = this.leftSelCols.filter( col => {
-      var included = false;
-      this.rightDataset.gridData.fields.forEach( field => {
-        if( col == field.name ) { included = true; }
+    this.rightSelCols = this.leftSelCols.filter(col => {
+      let included = false;
+      this.rightDataset.gridData.fields.forEach(field => {
+        if (col === field.name) {
+          included = true;
+        }
       });
       return included;
     });
-    if( 0<this.rightSelCols.length && this.rightSelCols.length==this.rightDataset.gridData.fields.length) {
+    if (0 < this.rightSelCols.length && this.rightSelCols.length === this.rightDataset.gridData.fields.length) {
       this.rightCheckAll = true;
     }
     this.rightSelCols.forEach(colName => this.rightGrid.columnSelection(colName));
@@ -497,26 +506,26 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   /**
    * Check if left has right as upstream
    * @param leftDsId
-   * @param rightDsId
+   * @param _rightDsId
    * @param upstreams
    * @return {boolean}
    */
-  public notUpstream(leftDsId, rightDsId, upstreams) {
-    let ret = true;
+  public notUpstream(leftDsId, _rightDsId, upstreams) {
+    const ret = true;
 
-    let list = [leftDsId];
-    while( 0<list.length ) {
-      let pop = list.shift();
+    const list = [leftDsId];
+    while (0 < list.length) {
+      const pop = list.shift();
       /* self item can be on list
       if( pop === rightDsId ) {
         ret = false;
         break;
       }
       */
-      for(let us of upstreams ) {
-        if( us.dsId === pop ) {
-          if( false==list.includes( us.dsId ) ) {
-            list.push( us.upstreamDsId );
+      for (const us of upstreams) {
+        if (us.dsId === pop) {
+          if (false === list.includes(us.dsId)) {
+            list.push(us.upstreamDsId);
           }
         }
       }
@@ -535,10 +544,10 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     // 페이징처리 없음
     this.page.size = 10000;
 
-    let params = {
-      dsName : '',
-      sort : 'modifiedTime,desc',
-      dsType : this.dsType,
+    const params = {
+      dsName: '',
+      sort: 'modifiedTime,desc',
+      dsType: this.dsType,
       page: this.page.page,
       size: this.page.size,
     };
@@ -558,7 +567,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
         this.dataflowService.getUpstreams(this.dfId)
           .then((upstreams) => {
-            let upstreamList = upstreams.filter((upstream) => {
+            const upstreamList = upstreams.filter((upstream) => {
               if (upstream.dfId === this.dfId) {
                 return true;
               }
@@ -568,9 +577,9 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             this.datasets = this.datasets.map((obj) => {
               obj.isCurrentDataflow = false;
               if (obj.dataflows.length !== 0) {
-                for(let _df of obj.dataflows) {
-                  if(_df.dfId === this.dfId) {
-                    if( true == this.notUpstream( this.leftDataset.dsId, obj.dsId, upstreamList ) ) {
+                for (const _df of obj.dataflows) {
+                  if (_df.dfId === this.dfId) {
+                    if (true === this.notUpstream(this.leftDataset.dsId, obj.dsId, upstreamList)) {
                       obj.isCurrentDataflow = true;
                     }
                   }
@@ -583,14 +592,14 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
           })
           .catch((error) => {
             this.loadingHide();
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            const prepError = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
           });
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
   } // function - getDatasets
 
@@ -606,7 +615,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     // 초기화 check상태 & 선택 된 columns
     this.rightSelCols = [];
     this.joinList = []; // 조인리스트 초기화
-    if(this.selectedJoinType==='') { // 기본 유지. 없을 때만 초기값 LEFT
+    if (this.selectedJoinType === '') { // 기본 유지. 없을 때만 초기값 LEFT
       this.selectedJoinType = 'LEFT';
     }
     this.rightCheckAll = false; // 전체 체크 해제
@@ -626,7 +635,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
         this.updateGrid(this.rightDataset.gridData, this.rightGrid).then(() => {
           // 컬럼 자동 선택
-          //this.setRightCheckOnLoad();
+          // this.setRightCheckOnLoad();
           this.setRightCheckAll(true);
         });
 
@@ -636,8 +645,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
 
     this.initSelectedCommand(this.filteredDatasetsForJoin);
@@ -658,7 +667,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     this.dataflowService.getDatasetWrangledData(dataset.dsId)
       .then((result) => {
         this.loadingHide();
-        console.info('result', result);
+        console.log('result', result);
         const gridData = this.getGridDataFromGridResponse(result.gridResponse);
 
         // 데이터 그리드 미리보기
@@ -693,8 +702,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
 
   } // function - selectDataset
@@ -703,7 +712,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    * 팝업 닫기
    */
   public closeJoin() {
-    this.joinComplete.emit({ event: 'ruleJoinComplete' });
+    this.joinComplete.emit({event: 'ruleJoinComplete'});
   } // function - closeJoin
 
   /**
@@ -722,11 +731,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       const rule = {
         command: 'join',
         op: 'UPDATE',
-        ruleString: ruleStr[1] ,
-        ruleIdx : this.serverSyncIndex,
+        ruleString: ruleStr[1],
+        ruleIdx: this.serverSyncIndex,
         uiRuleString: ruleStr[2]
       };
-      this.joinComplete.emit({ event: 'ruleJoinComplete', ruleInfo: rule });
+      this.joinComplete.emit({event: 'ruleJoinComplete', ruleInfo: rule});
     } else { // 생성
       const rule = {
         command: 'join',
@@ -735,9 +744,10 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
         uiRuleString: ruleStr[2]
       };
       this.joinComplete.emit(
-        { event: 'ruleJoinComplete',
+        {
+          event: 'ruleJoinComplete',
           ruleInfo: rule,
-          ruleIdx : this.serverSyncIndex
+          ruleIdx: this.serverSyncIndex
         });
     }
 
@@ -771,7 +781,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       return;
     }
     this.leftJoinKey = key;
-    for (let field of this.rightDataset.gridData.fields) {
+    for (const field of this.rightDataset.gridData.fields) {
       if (field.name && key === field.name) {
         this.rightJoinKey = key;
         break;
@@ -789,8 +799,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       return;
     }
     this.rightJoinKey = key;
-    if(this.leftJoinKey==='') {
-      for (let field of this.leftDataset.gridData.fields) {
+    if (this.leftJoinKey === '') {
+      for (const field of this.leftDataset.gridData.fields) {
         if (field.name && key === field.name) {
           this.leftJoinKey = key;
           break;
@@ -806,23 +816,22 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     }
   }
 
-
   /**
    * API의 gridResponse 를 통해서 UI 상의 그리드데이터를 얻는다
    * @param gridResponse 매트릭스 정보
    * @returns 그리드 데이터
    */
   private getGridDataFromGridResponse(gridResponse: any) {
-    var colCnt = gridResponse.colCnt;
-    var colNames = gridResponse.colNames;
-    var colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
       fields: []
     };
 
-    for(var idx=0;idx<colCnt;idx++) {
+    for (let idx = 0; idx < colCnt; idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -832,8 +841,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for(var idx=0;idx<colCnt;idx++) {
-        obj[ colNames[idx] ] = row.objCols[idx];
+      for (let idx = 0; idx < colCnt; idx++) {
+        obj[colNames[idx]] = row.objCols[idx];
       }
       gridData.data.push(obj);
     });
@@ -844,7 +853,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   /**
    * 룰 문자열을 생성한다.
    */
-  public generateRuleString(): [boolean, string, Object] {
+  public generateRuleString(): [boolean, string, object] {
     if (0 === this.leftSelCols.length) {
       return [false, this.translateService.instant('msg.dp.alert.sel.left.col'), null];
     }
@@ -857,12 +866,12 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     if (0 === this.joinList.length) {
       return [false, this.translateService.instant('msg.dp.alert.sel.join.key'), null];
     }
-    for(let joinKey of this.joinList) {
-      if( false==this.leftSelCols.includes(joinKey.leftJoinKey) ) {
-        return [false, this.translateService.instant('msg.dp.alert.left.joinkey.error', {leftJoinKey : joinKey.leftJoinKey}), null];
+    for (const joinKey of this.joinList) {
+      if (false === this.leftSelCols.includes(joinKey.leftJoinKey)) {
+        return [false, this.translateService.instant('msg.dp.alert.left.joinkey.error', {leftJoinKey: joinKey.leftJoinKey}), null];
       }
-      if( false==this.rightSelCols.includes(joinKey.rightJoinKey) ) {
-        return [false, this.translateService.instant('msg.dp.alert.right.joinkey.error', {rightJoinKey : joinKey.rightJoinKey}), null];
+      if (false === this.rightSelCols.includes(joinKey.rightJoinKey)) {
+        return [false, this.translateService.instant('msg.dp.alert.right.joinkey.error', {rightJoinKey: joinKey.rightJoinKey}), null];
       }
     }
 
@@ -876,14 +885,14 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     ruleStr += ' condition: ' + conditions + ' joinType: \'' + this.selectedJoinType.toLowerCase() + '\' dataset2: \'' + this.rightDataset.dsId + '\'';
 
     const uiRuleString = {
-      name :'join',
+      name: 'join',
       isBuilder: true,
-      leftJoinKey:this.getColumnNamesInArray(this.joinList,'leftJoinKey'),
-      rightJoinKey:this.getColumnNamesInArray(this.joinList,'rightJoinKey'),
+      leftJoinKey: this.getColumnNamesInArray(this.joinList, 'leftJoinKey'),
+      rightJoinKey: this.getColumnNamesInArray(this.joinList, 'rightJoinKey'),
       joinType: this.selectedJoinType,
-      dataset2 : this.rightDataset.dsId,
+      dataset2: this.rightDataset.dsId,
       rightCol: this.getColumnNamesInArray(this.rightSelCols, ''),
-      leftCol:this.getColumnNamesInArray(this.leftSelCols, '')
+      leftCol: this.getColumnNamesInArray(this.leftSelCols, '')
     };
 
     return [true, ruleStr, uiRuleString];
@@ -909,12 +918,12 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     }
 
     // PREVIEW index = APPEND: next index || UPDATE: current index
-    var syncIndex : number = Number( this.serverSyncIndex );
-    if( syncIndex !== this.leftDataset.ruleCurIdx ) {
+    let syncIndex: number = Number(this.serverSyncIndex);
+    if (syncIndex !== this.leftDataset.ruleCurIdx) {
       // when command is UPDATE, this.leftDataset.ruleCurIdx is syncIndex - 1;
       syncIndex = this.leftDataset.ruleCurIdx;
     }
-    const rule = { command: 'join', op: 'PREVIEW', ruleString: ruleStr[1] , ruleIdx : syncIndex};
+    const rule = {command: 'join', op: 'PREVIEW', ruleString: ruleStr[1], ruleIdx: syncIndex};
     this.dataflowService.applyRules(this.leftDataset.dsId, rule)
       .then((data) => {
         this.loadingHide();
@@ -938,8 +947,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
         this.isShowPreview = false;
 
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
   } // function - previewJoinResult
 
@@ -966,13 +975,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       });
 
       tempMap.forEach((value: number, key: string) => {
-        this.dataTypesList.push({label : key, value : value < 2 ? `${value} column` : `${value} columns`});
+        this.dataTypesList.push({label: key, value: value < 2 ? `${value} column` : `${value} columns`});
       });
     }
 
   } // function - _summaryGridInfo
-
-
 
 
   /**
@@ -983,7 +990,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public updateGrid(data: any, targetGrid: GridComponent) {
     return new Promise((resolve) => {
       // 헤더정보 생성
-      const headers: header[] = data.fields.map(
+      const headers: Header[] = data.fields.map(
         (field: Field) => {
           return new SlickGridHeader()
             .Id(field.name)
@@ -998,14 +1005,14 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             .Resizable(true)
             .Unselectable(false)
             .Sortable(false)
-            .Formatter((function (scope) {
-              return function (row, cell, value, columnDef, dataContext) {
+            .Formatter(( (_scope) => {
+              return (_row, _cell, value, columnDef, _dataContext) => {
                 if (isNull(value) && columnDef.select) {
-                  return '<div style=\'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0px; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
+                  return '<div style=\'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
                 } else if (isNull(value) && !columnDef.select) {
                   return '<div  style=\'color:#b8bac2; font-style: italic ;line-height:30px;\'>' + '(null)' + '</div>';
                 } else if (!isNull(value) && columnDef.select) {
-                  return '<div style=\'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0px; line-height:30px; padding:0 10px;\'>' + value + '</div>';
+                  return '<div style=\'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px;\'>' + value + '</div>';
                 } else if (columnDef.id === '_idProperty_') {
                   return '<div style=\'line-height:30px;\'>' + '&middot;' + '</div>';
                 } else {
@@ -1019,10 +1026,10 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
       let rows: any[] = data.data;
 
-      let list = [];
+      const list = [];
 
       data.fields.filter((item) => { // 타입이 array or map인 경우에 리스트에 이름을 뺸다.
-        if( item.type === 'MAP' || item.type == 'ARRAY' ) {
+        if (item.type === 'MAP' || item.type === 'ARRAY') {
           list.push(item.name);
         }
       });
@@ -1046,7 +1053,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             .EnableColumnReorder(false)
             .build()
           );
-          resolve();
+          resolve(null);
         }, 100);
       } else {
         setTimeout(() => {
@@ -1058,7 +1065,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             .RowHeight(32)
             .build()
           );
-          resolve();
+          resolve(null);
         }, 100);
       }
     });
@@ -1074,30 +1081,30 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public navigateWithKeyboardShortList(event, currentList, method) {
 
     // set scroll height
-    let height = 25;
+    const height = 25;
 
     // open select box when arrow up/ arrow down is pressed
-    if(event.keyCode === 38 || event.keyCode === 40) {
-      switch(method) {
+    if (event.keyCode === 38 || event.keyCode === 40) {
+      switch (method) {
         case 'right' :
           !this.isDatasetListShow ? this.isDatasetListShow = true : null;
           break;
         case 'joinLeft' :
-          !this.isLeftDatasetShow ? this.isLeftDatasetShow = true: null;
+          !this.isLeftDatasetShow ? this.isLeftDatasetShow = true : null;
           break;
         case 'joinRight' :
-          !this.isRightDatasetShow ? this.isRightDatasetShow = true: null;
+          !this.isRightDatasetShow ? this.isRightDatasetShow = true : null;
           break;
       }
     }
 
     // when there is no element in the list
-    if(currentList.length === 0){
+    if (currentList.length === 0) {
       return;
     }
 
     // this.commandList 에 마지막 인덱스
-    let lastIndex = currentList.length-1;
+    const lastIndex = currentList.length - 1;
 
     // command List 에서 selected 된 index 를 찾는다
     const idx = currentList.findIndex((command) => {
@@ -1109,13 +1116,13 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     if (event.keyCode === 38) {
 
       // 선택된게 없다
-      if ( idx === -1) {
+      if (idx === -1) {
 
         // 리스트에 마지막 인덱스를 selected 로 바꾼다
         currentList[lastIndex].selected = true;
 
         // 스크롤을 마지막으로 보낸다
-        $('.ddp-list-selectbox2').scrollTop(lastIndex*height);
+        $('.ddp-list-selectbox2').scrollTop(lastIndex * height);
 
         // 리스트에서 가장 첫번쨰가 선택되어 있는데 arrow up 을 누르면 리스트에 마지막으로 보낸다
       } else if (idx === 0) {
@@ -1125,23 +1132,23 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
 
         // 스크롤을 마지막으로 보낸다
-        $('.ddp-list-selectbox2').scrollTop(lastIndex*height);
+        $('.ddp-list-selectbox2').scrollTop(lastIndex * height);
 
       } else {
         currentList[idx].selected = false;
-        currentList[idx-1].selected = true;
-        $('.ddp-list-selectbox2').scrollTop((idx-1)*height);
+        currentList[idx - 1].selected = true;
+        $('.ddp-list-selectbox2').scrollTop((idx - 1) * height);
       }
 
       // when Arrow down is pressed
     } else if (event.keyCode === 40) {
 
       // 리스트에 첫번째 인텍스를 selected 로 바꾼다
-      if ( idx === -1) {
+      if (idx === -1) {
         currentList[0].selected = true;
 
         // 리스트에서 가장 마지막이 선택되어 있는데 arrow down 을 누르면 다시 리스트 0번째로 이동한다
-      }  else if (idx === lastIndex) {
+      } else if (idx === lastIndex) {
 
         currentList[0].selected = true;
         currentList[lastIndex].selected = false;
@@ -1149,8 +1156,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
       } else {
         currentList[idx].selected = false;
-        currentList[idx+1].selected = true;
-        $('.ddp-list-selectbox2').scrollTop((idx+1)*height);
+        currentList[idx + 1].selected = true;
+        $('.ddp-list-selectbox2').scrollTop((idx + 1) * height);
 
       }
 
@@ -1160,19 +1167,19 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     if (event.keyCode === 13) {
 
       // selected 된 index 를 찾는다
-      const idx = currentList.findIndex((command) => {
+      const selectedIdx = currentList.findIndex((command) => {
         if (command.selected) {
           return command;
         }
       });
 
       // 선택된게 없는데 엔터를 눌렀을때
-      if (idx === -1) {
+      if (selectedIdx === -1) {
         return;
       } else {
-        switch(method) {
+        switch (method) {
           case 'right' :
-            this.selectDataset(event, currentList[idx]);
+            this.selectDataset(event, currentList[selectedIdx]);
             break;
           case 'joinLeft' :
             break;
@@ -1200,7 +1207,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    * @param list
    * @param index
    */
-  public listMouseOverAndOut(event,list, index) {
+  public listMouseOverAndOut(event, list, index) {
 
     if (!this.flag) {
       if (event.type === 'mouseover') {
@@ -1221,28 +1228,31 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
-    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
-    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
+  private formatBytes(a, b) { // a=크기 , b=소숫점자릿
+    if (0 === a) return '0 Bytes';
+    const c = 1024;
+    const d = b || 2;
+    const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const f = Math.floor(Math.log(a) / Math.log(c));
+    return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
   }
 
   /**
    * 왼쪽 그리드 헤더 클릭 이벤트 핸들러
    * @param {object} event
    * @param {string[]} selectCols
-   * @param {Dataset} dataset
+   * @param {PrDataset} dataset
    * @param {boolean} checkAll
    */
-  //private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: Dataset, checkAll: boolean) {
+  // private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: Dataset, checkAll: boolean) {
   private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: PrDataset, checkAll: boolean) {
 
     // 선택 결과에 따라 선택 항목을 재조정한다
     const colIdx = selectCols.indexOf(event.id);
     if (event.isSelect) {
-      ( -1 === colIdx ) && ( selectCols.push(event.id) );
+      (-1 === colIdx) && (selectCols.push(event.id));
     } else {
-      ( -1 < colIdx ) && ( selectCols.splice(colIdx, 1) );
+      (-1 < colIdx) && (selectCols.splice(colIdx, 1));
     }
 
     // Check All 여부
@@ -1258,7 +1268,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   private setJoinKeys() {
     // 오른쪽 데이터셋을 바꿨을 때 left 의 첫번째 field를 넣고, right는 왼쪽과 동일한 field를 넣는데, 같은게 없으면 Empty 로 넣는다
     this.leftJoinKey = this.leftSelCols[0];
-    const tempField = this.rightSelCols.filter(field => ( this.leftJoinKey === field ));
+    const tempField = this.rightSelCols.filter(field => (this.leftJoinKey === field));
 
     if (tempField.length !== 0) {
       this.rightJoinKey = tempField[0];
@@ -1276,7 +1286,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    * @param label
    * @param wrapChar
    */
-  protected getColumnNamesInArray(fields: any, label:string, wrapChar?:string) :string[] {
+  protected getColumnNamesInArray(fields: any, label: string, wrapChar?: string): string[] {
     return fields.map((item) => {
       if (label !== '' && wrapChar) {
         return wrapChar + item[label] + wrapChar

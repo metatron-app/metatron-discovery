@@ -14,20 +14,28 @@
 
 import {
   AfterViewInit,
-  ChangeDetectorRef, Component, ElementRef, HostListener, Injector, OnChanges, OnDestroy, OnInit, Output, Renderer2,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Renderer2,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { AuditService } from '../service/audit.service';
-declare let moment: any;
+import {AbstractComponent} from '@common/component/abstract.component';
+import {AuditService} from '../service/audit.service';
 import * as _ from 'lodash';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
-import { Alert } from '../../../common/util/alert.util';
-import { PageResult } from '../../../domain/common/page';
-import { isUndefined } from 'util';
-import { CommonUtil } from '../../../common/util/common.util';
-import {PeriodData} from "../../../common/value/period.data.value";
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {Alert} from '@common/util/alert.util';
+import {PageResult} from '@domain/common/page';
+import {isUndefined} from 'util';
+import {CommonUtil} from '@common/util/common.util';
+import {PeriodData} from '@common/value/period.data.value';
 
+declare let moment: any;
 declare let echarts: any;
 
 @Component({
@@ -48,10 +56,10 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
 
   private _defaultChartOptions: any = {
     backgroundColor: '#ffffff',
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-    grid: { top: '5%', left: '2%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: [{ nameLocation: 'middle', nameGap: '30' }],
-    yAxis: [{ nameLocation: 'middle', nameGap: '30', type: 'value' }],
+    tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+    grid: {top: '5%', left: '2%', right: '4%', bottom: '3%', containLabel: true},
+    xAxis: [{nameLocation: 'middle', nameGap: '30'}],
+    yAxis: [{nameLocation: 'middle', nameGap: '30', type: 'value'}],
     series: []
   };
 
@@ -70,16 +78,16 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   public mode: string;
 
   // 디테일 팝업 show/hide 여부
-  public isDetailPopupOpen : boolean = false;
+  public isDetailPopupOpen: boolean = false;
 
   // 검색어
-  public searchText : string = '';
+  public searchText: string = '';
 
   // Select box task type array
-  public taskType : any = [];
+  public taskType: any = [];
 
   // selected data from task type
-  public selectedType : string;
+  public selectedType: string;
 
   // 선택된 날짜
   private selectedDate: PeriodData;
@@ -88,20 +96,20 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   public changeDetect: ChangeDetectorRef;
 
   // 디테일 페이지로 넘길 데이터들
-  public statisticsData : any;
-  public type : string;
-  public chart : any;
-  public queryChart : any;
-  public timer : any;
+  public statisticsData: any;
+  public type: string;
+  public chart: any;
+  public queryChart: any;
+  public timer: any;
 
   // table headers for detail page
-  public tableFields : any;
+  public tableFields: any;
 
   // table data for detail page
   public tableData: any;
 
   // temp data
-  public detailData : any;
+  public detailData: any;
 
   // 선택된 sorting order
   public selectedContentSort: Order = new Order();
@@ -110,7 +118,9 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   public pageResult: PageResult = new PageResult();
 
   // selectedContentSort.key + ','selectedContentSort.sort
-  public combinedSort : string = '';
+  public combinedSort: string = '';
+
+  public convertMilliseconds: (ms: number) => string = CommonUtil.convertMilliseconds;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -133,9 +143,9 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
     super.ngOnInit();
 
     this.taskType = [
-      {label : 'All', value : 'ALL'},
-      {label : 'Workbench Query', value : 'QUERY'},
-      {label : 'Workbench Others', value : 'JOB'}
+      {label: 'All', value: 'ALL'},
+      {label: 'Workbench Query', value: 'QUERY'},
+      {label: 'Workbench Others', value: 'JOB'}
     ];
 
     // Default value is ALL
@@ -170,15 +180,13 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
-
   /**
    * audit 상세보기 오픈
    * @param {string} id
    */
   public auditDetailOpen(id: string) {
     this._savePrevRouterUrl();
-    this.router.navigateByUrl('/management/monitoring/audit/' + id);
+    this.router.navigateByUrl('/management/monitoring/audit/' + id).then();
   }
 
   /**
@@ -188,6 +196,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   private _savePrevRouterUrl(): void {
     this.auditService.previousRouter = '/management/monitoring/statistics';
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -209,28 +218,38 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
     promise.push(this._getDailyJobRate());
 
     // 오늘 사용자 별 쿼리 빈도수
-    promise.push(this._getQueryDistributeByUser({name :'count', sort : 'desc'}));
+    promise.push(this._getQueryDistributeByUser({name: 'count', sort: 'desc'}));
 
     // 오래 걸린순 조회
-    promise.push(this.getQueryListByTimeOrRows('countQueryTimeList',{name :'elapsedTime', sort : 'desc'} , false));
+    promise.push(this.getQueryListByTimeOrRows('countQueryTimeList', {name: 'elapsedTime', sort: 'desc'}, false));
 
     // 스캔 데이터량 조회
-    promise.push(this.getQueryListByTimeOrRows('countNumRowsList',{ name : 'numRows', sort : 'desc'} , false));
+    promise.push(this.getQueryListByTimeOrRows('countNumRowsList', {name: 'numRows', sort: 'desc'}, false));
 
     // 총 메모리 사용량
-    promise.push(this.getQueryListByTimeOrRows('totalMemoryUsageList',{ name : 'incrementMemorySeconds', sort : 'desc'}  , false));
+    promise.push(this.getQueryListByTimeOrRows('totalMemoryUsageList', {
+      name: 'incrementMemorySeconds',
+      sort: 'desc'
+    }, false));
 
     // 총 CPU 사용량
-    promise.push(this.getQueryListByTimeOrRows('totalCPUUsageList',{ name : 'incrementVcoreSeconds', sort : 'desc'} , false));
+    promise.push(this.getQueryListByTimeOrRows('totalCPUUsageList', {
+      name: 'incrementVcoreSeconds',
+      sort: 'desc'
+    }, false));
 
     // 쿼리 성공빈도 조회
-    promise.push(this.getQueryListByStatus('countSuccessList',{ name : 'status', status: 'SUCCESS', sort : 'desc'}, false));
+    promise.push(this.getQueryListByStatus('countSuccessList', {
+      name: 'status',
+      status: 'SUCCESS',
+      sort: 'desc'
+    }, false));
 
     // 쿼리 실패빈도 조회
-    promise.push(this.getQueryListByStatus('countFailList',{  name : 'status', status: 'FAIL', sort : 'desc'} , false));
+    promise.push(this.getQueryListByStatus('countFailList', {name: 'status', status: 'FAIL', sort: 'desc'}, false));
 
     // 쿼리 리소스 조회
-    promise.push(this.getQueryListByResource('resourceList', { name : 'incrementMemorySeconds', sort : 'desc'} , false));
+    promise.push(this.getQueryListByResource('resourceList', {name: 'incrementMemorySeconds', sort: 'desc'}, false));
 
     Promise.all(promise).then(() => {
       // 로딩 종료
@@ -247,7 +266,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    * @param name (key)
    * @param sort (desc or asc)
    */
-  public getCombinedSort(name,sort) {
+  public getCombinedSort(name, sort) {
     this.combinedSort = name + ',' + sort;
   }
 
@@ -261,19 +280,19 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
         if (result) {
           this.queryChart = echarts.init(this._dailyJobRateChart.nativeElement);
           const returnFormat = 'YYYY-MM-DD';
-          let xAxisData = result.x.map(item => moment(item).format(returnFormat));
-          let option: any = _.merge({}, this._defaultChartOptions, {
-            xAxis: [{ name: 'Date', axisName: 'Date', data: xAxisData }],
-            yAxis: [{ name: 'Count', axisName: 'Count' }],
+          const xAxisData = result.x.map(item => moment(item).format(returnFormat));
+          const option: any = _.merge({}, this._defaultChartOptions, {
+            xAxis: [{name: 'Date', axisName: 'Date', data: xAxisData}],
+            yAxis: [{name: 'Count', axisName: 'Count'}],
             series: [
               {
                 name: 'Success', type: 'bar', stack: 'count', data: result.series.SUCCESS,
-                itemStyle: { normal: { color: '#4c92e0' } },
+                itemStyle: {normal: {color: '#4c92e0'}},
                 cursor: 'default'
               },
               {
                 name: 'Fail', type: 'bar', stack: 'count', data: result.series.FAIL,
-                itemStyle: { normal: { color: '#eb5f58' } },
+                itemStyle: {normal: {color: '#eb5f58'}},
                 cursor: 'default'
               }
             ]
@@ -281,7 +300,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
           this.queryChart.setOption(option);
           this.queryChart.resize();
         }
-        resolve();
+        resolve(null);
       }).catch((err) => reject(err));
     });
   } // function - _getDailyJobRate
@@ -293,31 +312,36 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   private _getQueryDistributeByUser(params) {
     let keys = [];
     return new Promise<any>((resolve, reject) => {
-      this.getCombinedSort(params.name,params.sort);
+      this.getCombinedSort(params.name, params.sort);
       this.auditService.getQueryDistributionByUser(this.getLogStatisticsParams()).then(data => {
         this.chart = echarts.init(this._queryDistributeChart.nativeElement);
         keys = Object.keys(data);
-        let values = Object.keys(data).map(key => data[key]);
-        let option: any = _.merge({}, this._defaultChartOptions, {
-          xAxis: [{ name: 'Person', axisName: 'Person', data: keys }],
-          yAxis: [{ name: 'Count', axisName: 'Count' }],
+        const values = Object.keys(data).map(key => data[key]);
+        const option: any = _.merge({}, this._defaultChartOptions, {
+          xAxis: [{name: 'Person', axisName: 'Person', data: keys}],
+          yAxis: [{name: 'Count', axisName: 'Count'}],
           series: [{
             type: 'bar',
             data: values,
-            itemStyle: { normal: { color: '#666eb2' } }
+            itemStyle: {normal: {color: '#666eb2'}}
           }]
         });
         // use configuration item and data specified to show chart
         this.chart.setOption(option);
         this.chart.off('click');
-        this.chart.on('click', (params) => {
-          if (params) {
-            let idx = params['dataIndex'];
-            this.openPopupDetail({name : 'Job log list - ' + keys[idx], label : 'user', arrayList : 'userList', value : keys[idx]}, { sort : 'startTime,desc', user : keys[idx], size : 15 })
+        this.chart.on('click', (chartClickOpts) => {
+          if (chartClickOpts) {
+            const idx = chartClickOpts['dataIndex'];
+            this.openPopupDetail({
+              name: 'Job log list - ' + keys[idx],
+              label: 'user',
+              arrayList: 'userList',
+              value: keys[idx]
+            }, {sort: 'startTime,desc', user: keys[idx], size: 15})
           }
         });
         this.chart.resize();
-        resolve();
+        resolve(null);
       }).catch((err) => reject(err));
     });
   } // function - _getQueryDistributeByUser
@@ -333,26 +357,26 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
       this.getCombinedSort(params.name, params.sort);
       this.auditService.getQueryListByStatus(this.getLogStatisticsParams('auditStatus', params))
         .then((result) => {
-            if (result['_embedded']) {
-              this.pageResult = result.page;
-              this.getSortOrder(this.combinedSort);
+          if (result['_embedded']) {
+            this.pageResult = result.page;
+            this.getSortOrder(this.combinedSort);
 
-              if (isDetail) {
-                if (this.pageResult.number === 0) {
-                  this.detailData = [];
-                }
-                // 데이터 있다면
-                this.detailData = this.detailData ? this.detailData.concat(result._embedded.auditStatsDtoes) : [];
-              } else {
-                this.queryLists[arrayName] = result._embedded.auditStatsDtoes;
+            if (isDetail) {
+              if (this.pageResult.number === 0) {
+                this.detailData = [];
               }
-
+              // 데이터 있다면
+              this.detailData = this.detailData ? this.detailData.concat(result._embedded.auditStatsDtoes) : [];
             } else {
-              isDetail ? this.detailData = [] : this.queryLists[arrayName] = [];
-              this.pageResult = new PageResult();
+              this.queryLists[arrayName] = result._embedded.auditStatsDtoes;
             }
-        resolve();
-      }).catch((err) => {
+
+          } else {
+            isDetail ? this.detailData = [] : this.queryLists[arrayName] = [];
+            this.pageResult = new PageResult();
+          }
+          resolve(null);
+        }).catch((err) => {
         reject(err);
       });
     });
@@ -365,10 +389,10 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    * @param {string} params {name}
    * @param {boolean} isDetail Detail페이지를 위한 API 호출 여부
    */
-  public getQueryListByTimeOrRows(arrayName, params : any, isDetail? : boolean) {
+  public getQueryListByTimeOrRows(arrayName, params: any, isDetail?: boolean) {
     return new Promise<any>((resolve, reject) => {
 
-      this.getCombinedSort(params.name,params.sort);
+      this.getCombinedSort(params.name, params.sort);
       this.auditService.getQueryListBySort(this.getLogStatisticsParams()).then((result) => {
 
         if (result['_embedded']) {
@@ -391,7 +415,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
 
         }
 
-        resolve();
+        resolve(null);
       }).catch((err) => reject(err));
     });
   } // function - getQueryListByTimeOrRows
@@ -402,11 +426,12 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    */
   public getSortOrder(combinedSort) {
 
-    let sort = combinedSort.split(',');
+    const sort = combinedSort.split(',');
 
     this.selectedContentSort.key = sort[0];
     this.selectedContentSort.sort = sort[1];
   }
+
   /**
    * Queue 별 리소스 사용량
    * @param {string} arrayName this.queryList[어떤 리스트 사용할지]
@@ -415,7 +440,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    */
   private getQueryListByResource(arrayName, params, isDetail?) {
     return new Promise<any>((resolve, reject) => {
-      this.getCombinedSort(params.name,params.sort);
+      this.getCombinedSort(params.name, params.sort);
       this.auditService.getQueryListByResource(this.getLogStatisticsParams())
         .then((result) => {
 
@@ -438,7 +463,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
             isDetail ? this.detailData = [] : this.queryLists[arrayName] = [];
             this.pageResult = new PageResult();
           }
-          resolve();
+          resolve(null);
         }).catch((err) => {
         reject(err);
       });
@@ -451,7 +476,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    * @param name
    * @param param
    */
-  private getLogStatisticsParams(name?:string, param?) {
+  private getLogStatisticsParams(name?: string, param?) {
 
     const params = {};
 
@@ -473,19 +498,19 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
       params['user'] = this.searchText;
     }
 
-    if(name !== 'successRate') {
+    if (name !== 'successRate') {
 
       // 한 페이지에 보여줄 개수 = 15 개씩 보여준다
-      params['size']= ( this.pageResult.size ) ? this.pageResult.size : 5;
+      params['size'] = (this.pageResult.size) ? this.pageResult.size : 5;
 
       // 몇번째 페이지 인지 처음은 0
-      if (isUndefined(this.pageResult.number)){
+      if (isUndefined(this.pageResult.number)) {
         this.pageResult.number = 0;
       }
-      params['page']=this.pageResult.number;
+      params['page'] = this.pageResult.number;
 
       // sorting
-      params['sort']=this.combinedSort;
+      params['sort'] = this.combinedSort;
 
     }
 
@@ -537,8 +562,8 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   public getMoreContents(event) {
 
     if (event.values.name === 'resource') {
-      let key = event.values.sort.split(',')[0];
-      let sort = event.values.sort.split(',')[1];
+      const key = event.values.sort.split(',')[0];
+      const sort = event.values.sort.split(',')[1];
       event.values.name = key;
       event.values.sort = sort;
     }
@@ -557,7 +582,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
     this.loadingShow();
     this.pageResult.size = params.size;
 
-    if (names.label === 'elapsedTime' || names.label === 'numRows'  || names.label === 'incrementMemorySeconds' || names.label === 'incrementVcoreSeconds' ) {
+    if (names.label === 'elapsedTime' || names.label === 'numRows' || names.label === 'incrementMemorySeconds' || names.label === 'incrementVcoreSeconds') {
       // 로딩 시작
       this.getQueryListByTimeOrRows(names.arrayList, params, true).then(() => {
         // 로딩 종료
@@ -568,10 +593,10 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
         this.tableFields = this.getTableFields(names.label);
         this.tableData = this.detailData;
         this.statisticsData = {
-          fields : this.tableFields,
-          data   : this.tableData,
-          name : names.name,
-          value : names.label
+          fields: this.tableFields,
+          data: this.tableData,
+          name: names.name,
+          value: names.label
         };
 
       }).catch((error) => {
@@ -593,10 +618,10 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
         this.tableData = this.detailData;
 
         this.statisticsData = {
-          fields : this.tableFields,
-          data   : this.tableData,
-          name : names.name,
-          value : names.label
+          fields: this.tableFields,
+          data: this.tableData,
+          name: names.name,
+          value: names.label
         };
 
       }).catch((error) => {
@@ -605,7 +630,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
         // 로딩 종료
       });
 
-    } else if(names.label === 'user') {
+    } else if (names.label === 'user') {
 
       this.auditService.getAuditList(params).then((result) => {
 
@@ -629,17 +654,17 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
             item.isUser = true;
           });
           this.statisticsData = {
-            fields : this.tableFields,
-            data   : this.tableData,
-            name : names.name,
-            value : names.value
+            fields: this.tableFields,
+            data: this.tableData,
+            name: names.name,
+            value: names.value
           };
         } else {
           this.pageResult = new PageResult();
         }
 
 
-      }).catch((error) => {
+      }).catch((_error) => {
         this.loadingHide();
       });
     } else {
@@ -654,11 +679,11 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
         this.tableData = this.detailData;
 
         this.statisticsData = {
-          fields : this.tableFields,
-          data   : this.tableData,
-          name : names.name,
-          value : names.label,
-          params : params
+          fields: this.tableFields,
+          data: this.tableData,
+          name: names.name,
+          value: names.label,
+          params: params
         };
 
       }).catch((error) => {
@@ -676,7 +701,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
    */
   public closeDetail() {
     this.isDetailPopupOpen = false;
-    this.pageResult.size = 5 ;
+    this.pageResult.size = 5;
     this.pageResult.number = 0;
     this.combinedSort = '';
     this.renderer.removeStyle(document.body, 'overflow');
@@ -690,52 +715,60 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   public getTableFields(listType: string) {
 
     const getQueryListByTimeOrRows = [
-         { name : this.translateService.instant('msg.statistics.th.query'),         key : 'jobName'      , width : '*' },
-         { name : this.translateService.instant('msg.statistics.th.query.time'),    key : 'startTime'    , width : '18%' },
-         { name : this.translateService.instant('msg.statistics.th.user'),          key : 'user'         , width : '18%' },
-         { name : this.translateService.instant('msg.statistics.th.result'),        key : 'status'       , width : '10%' },
-      ];
+      {name: this.translateService.instant('msg.statistics.th.query'), key: 'jobName', width: '*'},
+      {name: this.translateService.instant('msg.statistics.th.query.time'), key: 'startTime', width: '18%'},
+      {name: this.translateService.instant('msg.statistics.th.user'), key: 'user', width: '18%'},
+      {name: this.translateService.instant('msg.statistics.th.result'), key: 'status', width: '10%'},
+    ];
 
     const getQueryListByStatus = [
-         { name : this.translateService.instant('msg.statistics.th.query'),         key : 'keyword', width: '*' },
-         { name : this.translateService.instant('msg.statistics.th.count'),         key : 'count' , width : '30%' }
-      ];
+      {name: this.translateService.instant('msg.statistics.th.query'), key: 'keyword', width: '*'},
+      {name: this.translateService.instant('msg.statistics.th.count'), key: 'count', width: '30%'}
+    ];
 
     const getQueryListByMemory = [
-      { name : this.translateService.instant('msg.statistics.th.query'),            key : 'query' , width: '*' },
-      { name : this.translateService.instant('msg.log.th.application.id'),          key : 'applicationId' , width: '15%' },
-      { name : this.translateService.instant('msg.log.th.queue'),                   key : 'queue' , width: '15%'},
-      { name : this.translateService.instant('msg.statistics.th.memory'),           key : 'incrementMemorySeconds' , width: '10%'}
+      {name: this.translateService.instant('msg.statistics.th.query'), key: 'query', width: '*'},
+      {name: this.translateService.instant('msg.log.th.application.id'), key: 'applicationId', width: '15%'},
+      {name: this.translateService.instant('msg.log.th.queue'), key: 'queue', width: '15%'},
+      {name: this.translateService.instant('msg.statistics.th.memory'), key: 'incrementMemorySeconds', width: '10%'}
     ];
 
     const getQueryListByCPU = [
-      { name : this.translateService.instant('msg.statistics.th.query'),           key : 'query' , width: '*' },
-      { name : this.translateService.instant('msg.log.th.application.id'),         key : 'applicationId' , width: '15%' },
-      { name : this.translateService.instant('msg.log.th.queue'),                  key : 'queue' , width: '15%'},
-      { name : this.translateService.instant('msg.statistics.th.cpu'),             key : 'incrementVcoreSeconds' , width: '10%'}
+      {name: this.translateService.instant('msg.statistics.th.query'), key: 'query', width: '*'},
+      {name: this.translateService.instant('msg.log.th.application.id'), key: 'applicationId', width: '15%'},
+      {name: this.translateService.instant('msg.log.th.queue'), key: 'queue', width: '15%'},
+      {name: this.translateService.instant('msg.statistics.th.cpu'), key: 'incrementVcoreSeconds', width: '10%'}
     ];
 
     const getQueryListByResource = [
-      { name : this.translateService.instant('msg.log.th.queue'),                key : 'keyword' , width: '*'},
-      { name : this.translateService.instant('msg.statistics.th.mem.usage'),     key : 'sumMemorySeconds' , width: '18%'},
-      { name : this.translateService.instant('msg.statistics.th.cpu.usage'),     key : 'sumVCoreSeconds' , width: '18%'}
+      {name: this.translateService.instant('msg.log.th.queue'), key: 'keyword', width: '*'},
+      {name: this.translateService.instant('msg.statistics.th.mem.usage'), key: 'sumMemorySeconds', width: '18%'},
+      {name: this.translateService.instant('msg.statistics.th.cpu.usage'), key: 'sumVCoreSeconds', width: '18%'}
     ];
 
     const jobLog = [
-      { name : this.translateService.instant('msg.log.th.job.name'),          key : 'jobName' , width: '*'},
-      { name : this.translateService.instant('msg.log.th.application.id'),    key : 'applicationId' , width: '15%'},
-      { name : this.translateService.instant('msg.log.th.queue'),             key : 'queue' , width: '10%'},
-      { name : this.translateService.instant('msg.log.th.status'),            key : 'status' , width: '10%'},
-      { name : this.translateService.instant('msg.log.th.started.time'),      key : 'startTime' , width: '10%'},
-      { name : this.translateService.instant('msg.log.th.elapsed.time'),      key : 'elapsedTime' , width: '10%'},
+      {name: this.translateService.instant('msg.log.th.job.name'), key: 'jobName', width: '*'},
+      {name: this.translateService.instant('msg.log.th.application.id'), key: 'applicationId', width: '15%'},
+      {name: this.translateService.instant('msg.log.th.queue'), key: 'queue', width: '10%'},
+      {name: this.translateService.instant('msg.log.th.status'), key: 'status', width: '10%'},
+      {name: this.translateService.instant('msg.log.th.started.time'), key: 'startTime', width: '10%'},
+      {name: this.translateService.instant('msg.log.th.elapsed.time'), key: 'elapsedTime', width: '10%'},
     ];
 
-    switch(listType) {
+    switch (listType) {
       case 'elapsedTime':
-        getQueryListByTimeOrRows.push({ name : this.translateService.instant('msg.log.th.elapsed.time'),  key : 'elapsedTime'  , width : '15%' });
+        getQueryListByTimeOrRows.push({
+          name: this.translateService.instant('msg.log.th.elapsed.time'),
+          key: 'elapsedTime',
+          width: '15%'
+        });
         return getQueryListByTimeOrRows;
       case 'numRows':
-        getQueryListByTimeOrRows.push({ name : this.translateService.instant('msg.statistics.th.count'),  key : 'numRows'  , width : '10%' });
+        getQueryListByTimeOrRows.push({
+          name: this.translateService.instant('msg.statistics.th.count'),
+          key: 'numRows',
+          width: '10%'
+        });
         return getQueryListByTimeOrRows;
       case 'incrementMemorySeconds':
         return getQueryListByMemory;
@@ -757,10 +790,10 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   /**
    * 차트 Resize
    *
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     clearTimeout(this.timer);
     // 그리드스터에서 애니매이션이 있어서 딜레이가 필요...
     this.timer = setTimeout(
@@ -788,16 +821,16 @@ class StatisticsList {
   public countFailList: any[] = [];
 
   // query 별 리소스 사용량
-  public resourceList : any[] = [];
+  public resourceList: any[] = [];
 
   // 총 메모리 사용량
-  public totalMemoryUsageList : any[] = [];
+  public totalMemoryUsageList: any[] = [];
 
   // 총 CPU 사용량
-  public totalCPUUsageList : any[] = [];
+  public totalCPUUsageList: any[] = [];
 
   // User List
-  public userList : any[] = [];
+  public userList: any[] = [];
 }
 
 

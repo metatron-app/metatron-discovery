@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { DirectoryProfile } from '../user/directory-profile';
-import { Workspace } from './workspace';
+import {DirectoryProfile} from '../user/directory-profile';
+import {Workspace} from './workspace';
 
 /**
  * Created by LDL on 2017. 7. 14..
@@ -40,6 +40,6 @@ export class WorkspaceMemberProjections {
 }
 
 export enum MemberType {
-  GROUP = <any>'GROUP',
-  USER = <any>'USER',
+  GROUP = 'GROUP',
+  USER = 'USER',
 }

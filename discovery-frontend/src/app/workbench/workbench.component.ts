@@ -12,7 +12,8 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../common/component/abstract.component';
+import Split from 'split.js'
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   AfterViewInit,
   Component,
@@ -23,52 +24,39 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {GridComponent} from '../common/component/grid/grid.component';
-import {header, SlickGridHeader} from '../common/component/grid/grid.header';
-import {GridOption} from '../common/component/grid/grid.option';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
 import {ActivatedRoute} from '@angular/router';
 import {WorkbenchService} from './service/workbench.service';
-import {QueryEditor, Workbench} from '../domain/workbench/workbench';
-import {Alert} from '../common/util/alert.util';
-import {DetailWorkbenchTable} from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
-import {CommonConstant} from '../common/constant/common.constant';
-import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
-import {Modal} from '../common/domain/modal';
-import {UserDetail} from '../domain/common/abstract-history-entity';
-import {StringUtil} from '../common/util/string.util';
-import {CookieConstant} from '../common/constant/cookie.constant';
+import {QueryEditor, Workbench} from '@domain/workbench/workbench';
+import {Alert} from '@common/util/alert.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {UserDetail} from '@domain/common/abstract-history-entity';
+import {StringUtil} from '@common/util/string.util';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {isNullOrUndefined, isUndefined} from 'util';
-import {LoadingComponent} from '../common/component/loading/loading.component';
+import {LoadingComponent} from '@common/component/loading/loading.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
-import {PageWidget} from '../domain/dashboard/widget/page-widget';
-import {BoardConfiguration, BoardDataSource, Dashboard} from '../domain/dashboard/dashboard';
-import {
-  ConnectionType,
-  Datasource,
-  Field,
-  IngestionRuleType
-} from '../domain/datasource/datasource';
-import {Workbook} from '../domain/workbook/workbook';
-import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
-import {CommonUtil} from '../common/util/common.util';
+import {PageWidget} from '@domain/dashboard/widget/page-widget';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '@domain/dashboard/dashboard';
+import {ConnectionType, Datasource, Field, IngestionRuleType} from '@domain/datasource/datasource';
+import {Workbook} from '@domain/workbook/workbook';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
-import {SYSTEM_PERMISSION} from '../common/permission/permission';
-import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {SYSTEM_PERMISSION} from '@common/permission/permission';
+import {PermissionChecker, Workspace} from '@domain/workspace/workspace';
 import {WorkspaceService} from '../workspace/service/workspace.service';
 import {CodemirrorComponent} from './component/editor-workbench/codemirror.component';
-import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
-import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
+import {SaveAsHiveTableComponent} from './component/save-as-hive-table/save-as-hive-table.component';
 import {Message} from '@stomp/stompjs';
-import {
-  AuthenticationType,
-  Dataconnection,
-  InputMandatory,
-  InputSpec
-} from "../domain/dataconnection/dataconnection";
+import {AuthenticationType, Dataconnection, InputMandatory, InputSpec} from '@domain/dataconnection/dataconnection';
 
 declare let moment: any;
-declare let Split;
 
 @Component({
   selector: 'app-workbench',
@@ -84,17 +72,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild('main')
   private gridComponent: GridComponent;
 
-  @ViewChild('gridWrapElement')
-  private gridWrapElement: ElementRef;
-
   @ViewChild(DeleteModalComponent)
   private deleteModalComponent: DeleteModalComponent;
 
   @ViewChild(CodemirrorComponent)
   private editor: CodemirrorComponent;
-
-  @ViewChild(DetailWorkbenchTable)
-  private detailWorkbenchTable: DetailWorkbenchTable;
 
   @ViewChild(LoadingComponent)
   private loadingBar: LoadingComponent;
@@ -125,17 +107,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild('editorResultListMax')
   private _editorResultListMax: ElementRef;
 
-  @ViewChild('questionLayout')
-  private _questionLayout: ElementRef;
-
-  @ViewChild('questionWrap')
-  private _questionWrap: ElementRef;
-
   @ViewChild(SaveAsHiveTableComponent)
   private saveAsHiveTableComponent: SaveAsHiveTableComponent;
-
-  @ViewChild(DetailWorkbenchDatabase)
-  private detailWorkbenchDatabase: DetailWorkbenchDatabase;
 
   private _executeSqlReconnectCnt: number = 0;
   private _checkQueryStatusReconnectCnt: number = 0;
@@ -147,8 +120,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   private _splitVertical: any;
   private _splitHorizontal: any;
-
-  private _workspaceId: string;
 
   private _initialTimer: any;
 
@@ -213,7 +184,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public tabLayerY: string = '';
 
-  public allQuery: String = 'ALL';
+  public allQuery: string = 'ALL';
 
   public mode: string = '';
 
@@ -258,7 +229,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       'Ctrl-Space': 'autocomplete',
       'Ctrl-/': 'toggleComment',
       'Shift-Tab': 'indentLess',
-      'Tab': 'indentMore',
+      Tab: 'indentMore',
       'Shift-Ctrl-Space': 'autocomplete',
       'Cmd-Alt-Space': 'autocomplete'
     },
@@ -266,7 +237,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       tables: {}
     }
   };
-  //H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
+  // H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
   public mimeType: string = 'HIVE';
 
   public isChangeAuthUser: boolean = false;
@@ -332,7 +303,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.workbenchId = params['id'];
     });
 
-    (navigator.userAgent.replace(/ /g, '').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true);
+    (navigator.userAgent.replace(/ /g, '').toUpperCase().indexOf('MAC') === -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true);
   }
 
   public ngAfterViewInit() {
@@ -348,7 +319,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.loadingBar.hide();
       this.loadingShow();
       this._loadInitData(() => {
-        if(this.loginLayerShow) {
+        if (this.loginLayerShow) {
           this.loadingHide();
         } else {
           this.webSocketCheck(() => this.loadingHide());
@@ -370,7 +341,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }, 500);
   }
 
-  public webSocketCheck(callback?: Function) {
+  public webSocketCheck(callback?: () => void) {
     this.checkAndConnectWebSocket(true).then(() => {
       try {
         this.createWebSocket(() => {
@@ -435,8 +406,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
   }
 
-  @HostListener('window:resize', ['$event'])
-  protected onResize() {
+  @HostListener('window:resize')
+  public onResize() {
     clearTimeout(this._resizeTimer);
     this._resizeTimer = setTimeout(() => {
       this.onEndedResizing();
@@ -517,7 +488,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     WorkbenchService.webSocketLoginPw = param.pw;
     this.readQuery(this.workbenchTemp.queryEditors);
 
-    //TODO The connection has not been established error
+    // TODO The connection has not been established error
     try {
       this.webSocketCheck(() => {
       });
@@ -628,7 +599,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   public tabLayerEnter($event) {
-    if ($event.target.value == '') {
+    if ($event.target.value === '') {
       Alert.warning(this.translateService.instant('msg.bench.ui.query.tab.title'));
     } else {
       this.textList[this.selectedTabNum]['editorMode'] = false;
@@ -672,7 +643,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.gridSearchClear();
 
-    let removeIdx: number = currentEditorResultTabs.findIndex(item => item.id === tabId);
+    const removeIdx: number = currentEditorResultTabs.findIndex(item => item.id === tabId);
 
     this._removeResultTab(tabId);
 
@@ -685,7 +656,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (currentEditorResultTabs.length > 0) {
       let targetIdx: number = removeIdx - 1;
       (0 > targetIdx) && (targetIdx = 0);
-      let showTabInfo: ResultTab = currentEditorResultTabs[targetIdx];
+      const showTabInfo: ResultTab = currentEditorResultTabs[targetIdx];
       this.changeResultTabHandler(showTabInfo.id);
     }
   }
@@ -759,7 +730,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
   }
 
-  public showResultTabTooltip(event: MouseEvent, idx: number) {
+  public showResultTabTooltip(event: MouseEvent, _idx: number) {
     event.stopPropagation();
 
     const resultTab = 'LI' === event.target['tagName'] ? $(event.target) : $(event.target).closest('li');
@@ -767,8 +738,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (resultTab.offset().left > $(window).outerWidth() / 2) {
       this._tooltipTimer = setTimeout(() => {
         resultTab.find('.ddp-box-tabs-popup').show().css({
-          'right': '-10px',
-          'left': 'inherit'
+          right: '-10px',
+          left: 'inherit'
         });
       }, 1500);
     } else {
@@ -875,10 +846,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.safelyDetectChanges();
 
     const target = $(event.target);
-    let infoLeft: number = target.offset().left;
-    let infoTop: number = target.offset().top;
+    const infoLeft: number = target.offset().left;
+    const infoTop: number = target.offset().top;
     const element = document.getElementById(`dataConnectionInfo`);
-    $(element).css({'left': infoLeft - 30, 'top': infoTop + 17});
+    $(element).css({left: infoLeft - 30, top: infoTop + 17});
 
   }
 
@@ -1022,7 +993,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.workbenchService.updateQueryEditor(queryEditor)
             .then(() => {
 
-              let queryStrArr: string[]
+              const queryStrArr: string[]
                 = runningQuery.replace(/--.*/gmi, '').replace(/#.*/gmi, '').split(';').filter(item => !/^\s*$/.test(item));
 
               if (0 === queryStrArr.length) {
@@ -1054,7 +1025,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.isExecutingQuery = false;
         this.loadingBar.hide();
 
-        if (error.code && error.code === "WB0002") {
+        if (error.code && error.code === 'WB0002') {
           this.stomp.initAndConnect();
         }
 
@@ -1083,7 +1054,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.runningResultTabId = resultTab.id;
     this.hideResultButtons = false;
 
-    //disable cancel in 5 sec
+    // disable cancel in 5 sec
     this.setCancelButtonTimer(5);
 
     this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor, additionalParams)
@@ -1145,7 +1116,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.isExecutingQuery = false;
         this.loadingBar.hide();
 
-        if (error.code && error.code === "WB0002") {
+        if (error.code && error.code === 'WB0002') {
           this.stomp.initAndConnect();
         }
 
@@ -1165,11 +1136,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.loadingBar.show();
     this.safelyDetectChanges();
 
-    let editorId = targetTab.editorId;
-    let csvFilePath = targetTab.result.csvFilePath;
-    let fieldList = targetTab.result.fields;
+    const editorId = targetTab.editorId;
+    const csvFilePath = targetTab.result.csvFilePath;
+    const fieldList = targetTab.result.fields;
 
-    if (direction == 'PREV') {
+    if (direction === 'PREV') {
       targetTab.pageNum--;
     } else {
       targetTab.pageNum++;
@@ -1380,10 +1351,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.intervalDownload = setInterval(() => that.checkQueryStatus(), 1000);
 
       $('#' + $('#downloadCsvForm').attr('target')).off('load').on('load', function () {
-        Alert.error(JSON.parse($(this).contents().find("body").text()).details);
+        Alert.error(JSON.parse($(this).contents().find('body').text()).details);
       });
     } catch (e) {
-      console.info('다운로드 에러' + e);
+      console.log('다운로드 에러' + e);
     }
   }
 
@@ -1412,7 +1383,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public setNumberFormat(num: number, float: number = 0): string {
     let value: string = String(Math.round(num * (Math.pow(10, float))) / Math.pow(10, float));
-    let arrSplitFloatPoint = value.split('.');
+    const arrSplitFloatPoint = value.split('.');
     let floatValue = '';
     if (1 < arrSplitFloatPoint.length) {
       floatValue = arrSplitFloatPoint[1];
@@ -1460,13 +1431,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
   }
 
-  private _loadInitData(connectWebSocket: Function) {
+  private _loadInitData(connectWebSocket: () => void) {
     this.workbenchService.getWorkbench(this.workbenchId).then((data) => {
       if (data.valid) {
         WorkbenchService.workbench = data;
         WorkbenchService.workbenchId = this.workbenchId;
 
-        this._workspaceId = data.workspace.id;
         this.workspaceService.getWorkSpace(data.workspace.id, 'forDetailView').then((workspace: Workspace) => {
 
           const permissionChecker: PermissionChecker = new PermissionChecker(workspace);
@@ -1572,8 +1542,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           tab.log = [];
 
           if (result === undefined) {
-            const queryResult: QueryResult = new QueryResult();
-            tab.result = queryResult;
+            tab.result = new QueryResult();
           } else {
             const queryResult: QueryResult = new QueryResult();
             queryResult.fields = metadata.queryResult.fields;
@@ -1705,7 +1674,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         return a.order - b.order;
       });
 
-      for (let idx1: number = 0; idx1 < editors.length; idx1 = idx1 + 1) {
+      for (let idx1: number = 0, nMax1 = editors.length; idx1 < nMax1; idx1 = idx1 + 1) {
         this.textList.push({
           name: editors[idx1].name,
           query: editors[idx1].query,
@@ -1742,7 +1711,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     (currentTab.showLog) || (this.drawGridData());
   }
 
-  private createWebSocket(callback?: Function): void {
+  private createWebSocket(callback?: () => void): void {
     const dataConn: Dataconnection = this.workbenchTemp.dataConnection;
     this.workbench = this.workbenchTemp;
     this.workbench.dataConnection.connectionDatabase = dataConn.database;
@@ -1750,7 +1719,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.connTargetImgUrl
       = this.getConnImplementorWhiteImgUrl(dataConn.connectionInformation.implementor, dataConn.connectionInformation.iconResource2);
     try {
-      console.info('this.websocketId', this.websocketId);
+      console.log('this.websocketId', this.websocketId);
       const headers: any = {
         'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
       };
@@ -1792,9 +1761,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
           const $logContainer = $('#workbenchLogText');
           if (this._isEqualRunningVisibleTab() && '' !== $logContainer.text()) {
-            let textAreaHeight = $logContainer.height();
-            let lineBreakLength = $logContainer.find('br').length;
-            let offsetTop = textAreaHeight * (Math.ceil(lineBreakLength / 8));
+            const textAreaHeight = $logContainer.height();
+            const lineBreakLength = $logContainer.find('br').length;
+            const offsetTop = textAreaHeight * (Math.ceil(lineBreakLength / 8));
             $logContainer.scrollTop(offsetTop);
           }
         }
@@ -1809,7 +1778,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           Alert.error(data['message']);
         }
 
-        if ('CONNECT' == data.command) {
+        if ('CONNECT' === data.command) {
           (callback) && (callback.call(this));
         }
 
@@ -1827,7 +1796,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         }
       );
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
 
   }
@@ -1867,7 +1836,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.isExecutingQuery = false;
 
-    if (currentTabs.length == 0) {
+    if (currentTabs.length === 0) {
       return false;
     }
 
@@ -1905,7 +1874,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
     const data: any = currentTab.result;
-    const headers: header[] = [];
+    const headers: Header[] = [];
     if (!data || !data.fields) {
       $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
       currentTab.showLog = false;
@@ -1928,7 +1897,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         .build()
     );
 
-    for (let index: number = 0; index < data.fields.length; index = index + 1) {
+    for (let index: number = 0, nMax = data.fields.length; index < nMax; index = index + 1) {
       const temp = data.fields[index].name;
       const columnCnt = temp.length;
       const columnWidth = (7 > columnCnt) ? 80 : (columnCnt * 13.5);
@@ -1950,9 +1919,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     const rows: any[] = [];
     const startRowIdx = (currentTab.pageNum * currentTab.result.defaultNumRows);
-    for (let idx1: number = 0; idx1 < data.data.length; idx1 = idx1 + 1) {
+    for (let idx1: number = 0, nMax1 = data.data.length; idx1 < nMax1; idx1 = idx1 + 1) {
       const row = {};
-      for (let idx2: number = 0; idx2 < data.fields.length; idx2 = idx2 + 1) {
+      for (let idx2: number = 0, nMax2 = data.fields.length; idx2 < nMax2; idx2 = idx2 + 1) {
         const temp = data.fields[idx2].name;
         if (data.fields[idx2].logicalType === 'INTEGER' && data.data[idx1][temp]) {
           try {
@@ -1985,7 +1954,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       const $gridViewport = $('.slick-viewport');
       const $gridCanvas = $('.grid-canvas');
       this._gridScrollEvtSub
-        = this.gridComponent.grid.onScroll.subscribe((data1, data2) => {
+        = this.gridComponent.grid.onScroll.subscribe((_data1, data2) => {
         if (0 < data2.scrollTop) {
           this.hideResultButtons = (data2.scrollTop > ($gridCanvas.height() - $gridViewport.height() - 10));
           this.safelyDetectChanges();
@@ -2037,7 +2006,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public cancelRunningQuery(useLog: boolean = false) {
     // cannot cancel until cancel timer tick.
-    if(!this.isCancelAvailable){
+    if (!this.isCancelAvailable) {
       return;
     }
 
@@ -2109,7 +2078,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       cookieWorkspace = JSON.parse(cookieWs);
     }
     if (null !== cookieWorkspace) {
-      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]);
+      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
     }
   }
 
@@ -2124,7 +2093,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
 
-    let text: string = this.editor.formatter(textSelected, ' ');
+    const text: string = this.editor.formatter(textSelected, ' ');
     this.editor.replace(text);
 
     this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
@@ -2284,7 +2253,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       description: ''
     };
 
-    let column = currentResultTab.result.fields;
+    const column = currentResultTab.result.fields;
     let seq = 0;
     column.forEach((item) => {
       item['seq'] = seq;
@@ -2356,7 +2325,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       workbook.name = '';
       dashboard.workBook = workbook;
 
-      let fields = tempDsInfo.fields.filter(item => '__ctime' !== item.name);
+      const fields = tempDsInfo.fields.filter(item => '__ctime' !== item.name);
 
       fields.forEach(item => item.dataSource = boardDataSource.engineName);
       dashboard.configuration.fields = fields;
@@ -2432,7 +2401,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public setSchemaBrowser(): void {
 
-    let connInfo: any = this.workbench;
+    const connInfo: any = this.workbench;
 
     const selectedSecurityType = [
       {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
@@ -2455,17 +2424,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   public setTableDataEvent($event) {
-    let tableTemp: any = {};
+    const tableTemp: any = {};
     $event.forEach(item => {
       tableTemp[item.name] = []
     });
 
     this.editor.setOptions(tableTemp);
 
-    //H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
-    if (this.mimeType == 'HIVE' || this.mimeType == 'PRESTO' || this.mimeType == 'GENERAL') {
+    // H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
+    if (this.mimeType === 'HIVE' || this.mimeType === 'PRESTO' || this.mimeType === 'GENERAL') {
       this.editor.setModeOptions('text/x-hive');
-    } else if ( this.mimeType == 'POSTGRESQL' ) {
+    } else if (this.mimeType === 'POSTGRESQL') {
       this.editor.setModeOptions('text/x-pgsql');
     } else {
       this.editor.setModeOptions('text/x-mysql');
@@ -2493,15 +2462,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       direction: 'horizontal',
       sizes: [20, 80],
       minSize: 230,
-      elementStyle: (dimension, size, gutterSize) => {
-        // console.info( dimension, size, gutterSize );
-        return {'width': `${size}%`};
+      elementStyle: (_dimension, size, _gutterSize) => {
+        // console.log( dimension, size, gutterSize );
+        return {width: `${size}%`};
       },
       onDrag: () => {
         resizeTimer = setTimeout(() => {
           $connLabel.width($lnbPanel.width() - 150);
         }, 100);
-        // console.info( $lnbPanel.width() );
+        // console.log( $lnbPanel.width() );
       },
       onDragEnd: () => {
         if (resizeTimer) {
@@ -2512,7 +2481,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.onEndedResizing();
       }
     });
-    $connLabel.width( $lnbPanel.width() - 110 );
+    $connLabel.width($lnbPanel.width() - 110);
   }
 
   private _deactiveHorizontalSlider() {
@@ -2599,7 +2568,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isCancelAvailable = false;
 
     // if timer exist..
-    if(this._cancelTimer != undefined){
+    if (this._cancelTimer !== undefined) {
       // clear existed timer
       clearTimeout(this._cancelTimer);
     }

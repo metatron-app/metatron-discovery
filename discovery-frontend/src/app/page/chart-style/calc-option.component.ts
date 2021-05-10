@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input} from '@angular/core';
-import {BaseOptionComponent} from "./base-option.component";
-import {TotalValueStyle, UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
-import {UIOption} from '../../common/component/chart/option/ui-option';
-import {FontSize, GridViewType, Operator, UIPosition} from '../../common/component/chart/option/define/common';
 import * as _ from 'lodash';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {UIOption} from '@common/component/chart/option/ui-option';
+import {TotalValueStyle, UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
+import {FontSize, GridViewType, Operator, UIPosition} from '@common/component/chart/option/define/common';
+import {BaseOptionComponent} from './base-option.component';
 
 @Component({
   selector: 'calc-option',
   templateUrl: './calc-option.component.html'
 })
-export class CalculatedRowOptionComponent extends BaseOptionComponent {
+export class CalculatedRowOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -48,8 +48,8 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
 
     // 원본데이터인경우 연산행 제거
-    if (GridViewType.MASTER == (<UIGridChart>this.uiOption).dataType && this.uiOption['totalValueStyle']) {
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {totalValueStyle: null});
+    if (GridViewType.MASTER === (this.uiOption as UIGridChart).dataType && this.uiOption['totalValueStyle']) {
+      this.uiOption = (_.extend({}, this.uiOption, {totalValueStyle: null}) as UIOption);
       this.update();
     }
   }
@@ -72,7 +72,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * 로우 설정 On/Off
    */
   public toggleRow(): void {
-    const uiOption = (<UIGridChart>this.uiOption);
+    const uiOption = this.uiOption as UIGridChart;
 
     if (!uiOption.totalValueStyle) {
       // annotation 최초설정시
@@ -90,7 +90,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * @param style
    */
   public onChangedRowConfig(style: TotalValueStyle) {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {totalValueStyle: style});
+    this.uiOption = _.extend({}, this.uiOption, {totalValueStyle: style}) as UIOption;
     this.update();
   } // func - onChangedRowConfig
 
@@ -98,7 +98,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * 부분합 로우 설정 On/Off
    */
   public togglePartialRow(): void {
-    const uiOption = (<UIGridChart>this.uiOption);
+    const uiOption = this.uiOption as UIGridChart;
 
     if (!uiOption.subTotalValueStyle) {
       // annotation 최초설정시
@@ -116,7 +116,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * @param style
    */
   public onChangedPartialRowConfig(style: TotalValueStyle) {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {subTotalValueStyle: style});
+    this.uiOption = _.extend({}, this.uiOption, {subTotalValueStyle: style}) as UIOption;
     this.update();
   } // func - onChangedPartialRowConfig
 
@@ -124,7 +124,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * 컬럼 설정 On/Off
    */
   public toggleColumn(): void {
-    const uiOption = (<UIGridChart>this.uiOption);
+    const uiOption = (this.uiOption as UIGridChart);
 
     // annotation 최초설정시
     if (!uiOption.showCalculatedColumnStyle) {
@@ -141,7 +141,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * @param style
    */
   public onChangedColumnConfig(style: TotalValueStyle) {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {showCalculatedColumnStyle: style});
+    this.uiOption = _.extend({}, this.uiOption, {showCalculatedColumnStyle: style}) as UIOption;
     this.update();
   } // func - onChangedColumnConfig
 
@@ -149,7 +149,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * 부분합 컬럼 설정 On/Off
    */
   public togglePartialColumn(): void {
-    const uiOption = (<UIGridChart>this.uiOption);
+    const uiOption = this.uiOption as UIGridChart;
 
     // annotation 최초설정시
     if (!uiOption.subTotalColumnStyle) {
@@ -166,7 +166,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    * @param style
    */
   public onChangedPartialColumnConfig(style: TotalValueStyle) {
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {subTotalColumnStyle: style});
+    this.uiOption = _.extend({}, this.uiOption, {subTotalColumnStyle: style}) as UIOption;
     this.update();
   } // func - onChangedPartialColumnConfig
 

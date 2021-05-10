@@ -12,34 +12,28 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {EngineService} from '../service/engine.service';
-import {Engine} from '../../domain/engine-monitoring/engine';
 import * as _ from 'lodash';
-import {ActivatedRoute} from '@angular/router';
-import {StateService} from '../service/state.service';
 import {filter} from 'rxjs/operators';
-import {NodeInformationComponent} from "./component/node-information.component";
-import {GraphComponent} from "./component/graph.component";
-import {NodeTooltipComponent} from "./component/node-tooltip.component";
-import {KpiPopupComponent} from "./component/kpi-popup.component";
-import {EngineMonitoringUtil} from "../util/engine-monitoring.util";
+import {AfterViewInit, Component, ElementRef, HostBinding, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Engine} from '@domain/engine-monitoring/engine';
+import {StateService} from '../service/state.service';
+import {EngineService} from '../service/engine.service';
+import {EngineMonitoringUtil} from '../util/engine-monitoring.util';
+import {NodeInformationComponent} from './component/node-information.component';
+import {GraphComponent} from './component/graph.component';
+import {NodeTooltipComponent} from './component/node-tooltip.component';
+import {KpiPopupComponent} from './component/kpi-popup.component';
 
 @Component({
   selector: '[overview]',
-  templateUrl: './overview.component.html',
-  host: { '[class.ddp-wrap-contents-det]': 'true' }
+  templateUrl: './overview.component.html'
 })
 export class OverviewComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @HostBinding('class')
+  public hostClass: string = 'ddp-wrap-contents-det';
 
   private readonly ENGINE_MONITORING_OVERVIEW_ROUTER_URL = `${Engine.Constant.ROUTE_PREFIX}${Engine.ContentType.OVERVIEW}`;
 
@@ -73,7 +67,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild(NodeInformationComponent)
   private readonly _nodeInformationComponent: NodeInformationComponent;
 
-  @ViewChild(GraphComponent)
+  @ViewChild(GraphComponent, {static: true})
   private readonly _graphComponent: GraphComponent;
 
   @ViewChild(NodeTooltipComponent)
@@ -105,8 +99,8 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
     this.subscriptions.push(
       this.stateService.changeTab$
-        .pipe(filter(({ current }) => current.isOverview()))
-        .subscribe(({ next }) => this._changeTab(next))
+        .pipe(filter(({current}) => current.isOverview()))
+        .subscribe(({next}) => this._changeTab(next))
     );
   }
 
@@ -122,7 +116,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     Promise.resolve()
       .then(() => this.loadingShow())
       .then(() => this.engineService.getMonitorings(Engine.Monitoring.ofEmpty(), this.pageResult, 'forDetailView')
-          .then(result => this.monitorings = result._embedded.monitorings)
+        .then(result => this.monitorings = result._embedded.monitorings)
       )
       .then(() => this.engineService.getMonitoringServersHealth().then(result => this.clusterStatus = result))
       .then(() => this.engineService.getSize().then(result => this.clusterSize = result))
@@ -137,8 +131,8 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   public sortTable(column: string) {
 
-    if (this.tableSortProperty == column) {
-      this.tableSortDirection = this.tableSortDirection == this.TABLE_SORT_DIRECTION.DESC
+    if (this.tableSortProperty === column) {
+      this.tableSortDirection = this.tableSortDirection === this.TABLE_SORT_DIRECTION.DESC
         ? this.TABLE_SORT_DIRECTION.ASC
         : this.TABLE_SORT_DIRECTION.DESC;
     } else {
@@ -186,7 +180,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
     this._nodeInformationComponent.show(monitoring);
   }
 
-  public showKpiChart(monitoringTarget:Engine.MonitoringTarget) {
+  public showKpiChart(monitoringTarget: Engine.MonitoringTarget) {
     this._kpiPopupComponent.show(monitoringTarget, this.duration);
   }
 
@@ -232,7 +226,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
       this.selectedNodeType = nodeTypes;
     }
 
-    if (this.selectedNodeType.length == 0) {
+    if (this.selectedNodeType.length === 0) {
       this.selectedNodeType = [Engine.NodeType.ALL];
     }
 
@@ -264,8 +258,8 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
 
   public showNodeInformationTooltip(monitoring: Engine.Monitoring, event: MouseEvent) {
     const target = $(event.target);
-    let targetLeft: number = target.position().left + 18;
-    let targetTop: number = target.position().top + 26;
+    const targetLeft: number = target.position().left + 18;
+    const targetTop: number = target.position().top + 26;
     this._nodeTooltipComponent.setEngineMonitoring(monitoring, targetLeft, targetTop);
   }
 
@@ -276,7 +270,7 @@ export class OverviewComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   private _changeTab(contentType: Engine.ContentType) {
-    this.router.navigate([ `${Engine.Constant.ROUTE_PREFIX}${contentType}` ]);
+    this.router.navigate([`${Engine.Constant.ROUTE_PREFIX}${contentType}`]);
   }
 
   private _changeKeyword(keyword: string) {

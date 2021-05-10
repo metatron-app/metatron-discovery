@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
-import { CommonModule } from '../common/common.module';
-import { CookieService } from 'ng2-cookies';
-import { SsoComponent } from './sso.component';
+import {RouterModule, Routes} from '@angular/router';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@common/common.module';
+import {CookieService} from 'ng2-cookies';
+import {SsoComponent} from './sso.component';
 
 const ssoRoutes: Routes = [
-  { path: '', component: SsoComponent }
+  {path: '', component: SsoComponent}
 ];
 
 @NgModule({

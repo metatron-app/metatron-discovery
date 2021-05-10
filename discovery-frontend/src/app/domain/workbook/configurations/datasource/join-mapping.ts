@@ -33,8 +33,8 @@ export class JoinMapping {
  * 연결(Join) 타입
  */
 export enum JoinType {
-  INNER = <any>'INNER',
-  LEFT_OUTER = <any>'LEFT_OUTER',
-  RIGHT_OUTER = <any>'RIGHT_OUTER', // Not Supported
-  FULL = <any>'FULL' // Not Supported
+  INNER = 'INNER',
+  LEFT_OUTER = 'LEFT_OUTER',
+  RIGHT_OUTER = 'RIGHT_OUTER', // Not Supported
+  FULL = 'FULL' // Not Supported
 }

@@ -13,10 +13,10 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {EngineService} from "../../../service/engine.service";
-import {ActivatedRoute} from "@angular/router";
-import {Location} from "@angular/common";
+import {Location} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../../../service/engine.service';
 
 @Component({
   selector: 'app-detail-worker',
@@ -62,13 +62,13 @@ export class WorkerDetailComponent extends AbstractComponent implements OnInit, 
   }
 
   public getCapacityPercent(): string {
-    return Math.round(this.worker.currCapacityUsed*100/this.worker.worker.capacity) +'%';
+    return Math.round(this.worker.currCapacityUsed * 100 / this.worker.worker.capacity) + '%';
   }
 
   private _getWorkerDetail(): void {
     this.engineService.getWorkerList().then((data) => {
       const workerList = data.filter(item => item.worker.host === this._host);
-      this.worker = workerList.length == 1 ? workerList[0] : {};
+      this.worker = workerList.length === 1 ? workerList[0] : {};
     })
   }
 

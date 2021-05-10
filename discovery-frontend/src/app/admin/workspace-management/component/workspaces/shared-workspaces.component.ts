@@ -12,18 +12,19 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {PublicType, WorkspaceAdmin} from '@domain/workspace/workspace';
+import {PeriodComponent} from '@common/component/period/period.component';
+import {Modal} from '@common/domain/modal';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {PeriodData} from '@common/value/period.data.value';
+import {Page} from '@domain/common/page';
+
 import {WorkspaceService} from '../../../../workspace/service/workspace.service';
-import {Alert} from '../../../../common/util/alert.util';
-import {PublicType, WorkspaceAdmin} from '../../../../domain/workspace/workspace';
-import {PeriodComponent} from '../../../../common/component/period/period.component';
-import {Modal} from '../../../../common/domain/modal';
-import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
-import {PeriodData} from '../../../../common/value/period.data.value';
-import {Page} from "../../../../domain/common/page";
-import {ActivatedRoute} from "@angular/router";
-import {isNullOrUndefined} from "util";
 
 declare let moment: any;
 
@@ -31,7 +32,7 @@ declare let moment: any;
   selector: 'app-shared-workspaces',
   templateUrl: './shared-workspaces.component.html'
 })
-export class SharedWorkspacesComponent extends AbstractComponent {
+export class SharedWorkspacesComponent extends AbstractComponent implements OnInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -116,41 +117,40 @@ export class SharedWorkspacesComponent extends AbstractComponent {
       this.activatedRoute.queryParams.subscribe(params => {
 
         const size = params['size'];
-        (isNullOrUndefined(size)) || (this.page.size = size);
+        (this.isNullOrUndefined(size)) || (this.page.size = size);
 
         const page = params['page'];
-        (isNullOrUndefined(page)) || (this.page.page = page);
+        (this.isNullOrUndefined(page)) || (this.page.page = page);
 
         const publicType = params['publicType'];
-        (isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
+        (this.isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
 
         const searchText = params['nameContains'];
-        (isNullOrUndefined(searchText)) || (this.searchText = searchText);
+        (this.isNullOrUndefined(searchText)) || (this.searchText = searchText);
 
         const sort = params['sort'];
-        if (!isNullOrUndefined(sort)) {
+        if (!this.isNullOrUndefined(sort)) {
           const sortInfo = decodeURIComponent(sort).split(',');
           this.selectedContentSort.key = sortInfo[0];
           this.selectedContentSort.sort = sortInfo[1];
         }
         const published = params['published'];
-        (isNullOrUndefined(published)) || (this.filterAllowance = published);
+        (this.isNullOrUndefined(published)) || (this.filterAllowance = published);
         const active = params['active'];
-        if (!isNullOrUndefined(active)) {
+        if (!this.isNullOrUndefined(active)) {
           this._filterStatus = ('true' === active) ? 'active' : 'inactive';
         }
 
         this._filterDate = new PeriodData();
         this._filterDate.type = 'ALL';
-        const searchDateBy = params['searchDateBy'] ? params['searchDateBy']:'CREATED';
-        this._filterDate.dateType = searchDateBy;
+        this._filterDate.dateType = params['searchDateBy'] ? params['searchDateBy']:'CREATED';
         const from = params['from'];
         const to = params['to'];
-        if (!isNullOrUndefined(from)) {
+        if (!this.isNullOrUndefined(from)) {
           this._filterDate.startDate = from;
           this._filterDate.startDateStr = decodeURIComponent(from);
         }
-        if (!isNullOrUndefined(to)) {
+        if (!this.isNullOrUndefined(to)) {
           this._filterDate.endDate = to;
           this._filterDate.endDateStr = decodeURIComponent(to);
         }
@@ -163,13 +163,6 @@ export class SharedWorkspacesComponent extends AbstractComponent {
         this._getWorkspaceListInServer();
       })
     );
-  }
-
-  /**
-   * 컴포넌트 종료
-   */
-  public ngOnDestroy() {
-    super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -576,8 +569,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
       .then((result) => {
 
         if (this.page.page > 0 &&
-          isNullOrUndefined(result['_embedded']) ||
-          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].workspaces.length === 0))
+          this.isNullOrUndefined(result['_embedded']) ||
+          (!this.isNullOrUndefined(result['_embedded']) && result['_embedded'].workspaces.length === 0))
         {
           this.page.page = result.page.number - 1;
           this._getWorkspaceListInServer();

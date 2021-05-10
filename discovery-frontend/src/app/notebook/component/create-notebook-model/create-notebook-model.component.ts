@@ -12,18 +12,29 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import { NotebookModel } from '../../../domain/model-management/notebookModel';
-import { Alert } from '../../../common/util/alert.util';
-import { NotebookService } from '../../service/notebook.service';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {NotebookModel} from '@domain/model-management/notebookModel';
+import {Alert} from '@common/util/alert.util';
+import {NotebookService} from '../../service/notebook.service';
 
 @Component({
   selector: 'app-create-notebook-model',
-  templateUrl : './create-notebook-model.component.html'
+  templateUrl: './create-notebook-model.component.html'
 })
-export class CreateNotebookModelComponent extends AbstractPopupComponent implements OnInit, OnChanges {
+export class CreateNotebookModelComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -80,7 +91,7 @@ export class CreateNotebookModelComponent extends AbstractPopupComponent impleme
     super.ngOnInit();
   }
 
-  public ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges(_changes: SimpleChanges) {
 
   }
 
@@ -121,7 +132,7 @@ export class CreateNotebookModelComponent extends AbstractPopupComponent impleme
         that.saveComplete.emit(data);
         this.close();
       })
-      .catch((error) => {
+      .catch((_error) => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.nbook.alert.update.fail'));
       });
@@ -141,8 +152,6 @@ export class CreateNotebookModelComponent extends AbstractPopupComponent impleme
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

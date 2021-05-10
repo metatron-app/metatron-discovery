@@ -15,12 +15,12 @@ import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Datasource, Field, FieldNameAlias, FieldValueAlias } from '../datasource/datasource';
 import { Widget } from './widget/widget';
 import { Workbook } from '../workbook/workbook';
-import { ChartSelectInfo } from '../../common/component/chart/base-chart';
+import { ChartSelectInfo } from '@common/component/chart/base-chart';
 import { Filter } from '../workbook/configurations/filter/filter';
 import { BoardGlobalOptions } from './dashboard.globalOptions';
 import { CustomField } from '../workbook/configurations/field/custom-field';
-import { CommonUtil } from '../../common/util/common.util';
-import {Sort} from "../workbook/configurations/sort";
+import { CommonUtil } from '@common/util/common.util';
+import {Sort} from '../workbook/configurations/sort';
 
 /**
  * 대시보드 구조체
@@ -244,10 +244,10 @@ export class LayoutWidgetInfo {
  * 레이아웃 모드
  */
 export enum LayoutMode {
-  VIEW = <any>'VIEW',
-  VIEW_AUTH_MGMT = <any>'VIEW_AUTH_MGMT',
-  EDIT = <any>'EDIT',
-  STANDALONE = <any>'STANDALONE'
+  VIEW = 'VIEW',
+  VIEW_AUTH_MGMT = 'VIEW_AUTH_MGMT',
+  EDIT = 'EDIT',
+  STANDALONE = 'STANDALONE'
 }
 
 /**

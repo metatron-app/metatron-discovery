@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import {EventBroadcaster} from '../common/event/event.broadcaster';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {NgModule} from '@angular/core';
 import {MetaDataManagementComponent} from './meta-data-management.component';
 import {RouterModule} from '@angular/router';
-import {CommonModule} from '../common/common.module';
+import {CommonModule} from '@common/common.module';
 import {ColumnDictionaryComponent} from './column-dictionary/column-dictionary.component';
 import {DetailColumnDictionaryComponent} from './column-dictionary/detail-column-dictionary/detail-column-dictionary.component';
 import {CreateColumnDictionaryComponent} from './column-dictionary/create-column-dictionary/create-column-dictionary.component';
@@ -28,7 +28,7 @@ import {CodeTableService} from './code-table/service/code-table.service';
 import {LineageComponent} from './lineage/lineage.component';
 import {DetailLineageComponent} from './lineage/detail-lineage/detail-lineage.component';
 import {LineageService} from './lineage/service/lineage.service';
-import {EditLineagePopup} from './lineage/component/edit-lineage-popup.component';
+import {EditLineagePopupComponent} from './lineage/component/edit-lineage-popup.component';
 import {CreateLineageComponent} from './lineage/component/create-lineage.component';
 import {CreateLineageUploadFileComponent} from './lineage/component/create-lineage-upload-file.component';
 import {CreateLineageConfirmGridComponent} from './lineage/component/create-lineage-confirm-grid.component';
@@ -44,19 +44,18 @@ import {SelectCatalogComponent} from './metadata/component/select-catalog.compon
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {DatasourceShareModule} from '../datasource/datasource-share.module';
 import {MetadataModelService} from './metadata/service/metadata.model.service';
-import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {CatalogService} from './catalog/service/catalog.service';
 import {ChooseColumnDictionaryComponent} from './component/choose-column-dictionary/choose-column-dictionary.component';
 import {CatalogComponent} from './catalog/catalog.component';
-import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
+import {MetadataManagementGuard} from '@common/gaurd/metadata-management.guard';
 import {DetailModule} from './detail/detail.module';
 import {DatasourceMetadataSharedModule} from '../shared/datasource-metadata/datasource-metadata-shared.module';
-import {CreateMetadataModule} from "./metadata/create-metadata/create-metadata.module";
-import {SortingComponent} from "./component/sorting.component";
-import {MetadataDetailInformationComponent} from "./metadata/component/metadata-detail-information.component";
-import {MetadataDetailTopComponent} from "./metadata/component/metadata-detail-top.component";
-import {LayoutModule} from "../layout/layout/layout.module";
-import {PopupCodeTableComponent} from "./code-table/popup/popup-code-table.component";
+import {CreateMetadataModule} from './metadata/create-metadata/create-metadata.module';
+import {SortingComponent} from './component/sorting.component';
+import {MetadataDetailInformationComponent} from './metadata/component/metadata-detail-information.component';
+import {MetadataDetailTopComponent} from './metadata/component/metadata-detail-top.component';
+import {LayoutModule} from '@layout/layout/layout.module';
 
 @NgModule({
   imports: [
@@ -102,10 +101,10 @@ import {PopupCodeTableComponent} from "./code-table/popup/popup-code-table.compo
     ChooseCodeTableComponent,
     // 컬럼 사전 선택 텀포넌트
     ChooseColumnDictionaryComponent,
-    //리니지
+    // 리니지
     LineageComponent,
     DetailLineageComponent,
-    EditLineagePopup,
+    EditLineagePopupComponent,
     CreateLineageComponent,
     CreateLineageUploadFileComponent,
     CreateLineageConfirmGridComponent,

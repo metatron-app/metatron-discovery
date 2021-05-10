@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   Component,
   ElementRef,
@@ -23,22 +24,22 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '../../../../../domain/datasource/datasource';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {StringUtil} from '@common/util/string.util';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {CommonConstant} from '@common/constant/common.constant';
+import {Modal} from '@common/domain/modal';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {AuthenticationType, JdbcDialect} from '@domain/dataconnection/dataconnection';
+import {DatasourceInfo, Field, FieldFormatType, IngestionRuleType} from '@domain/datasource/datasource';
+
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
-import {Alert} from '../../../../../common/util/alert.util';
-import {CommonUtil} from '../../../../../common/util/common.util';
-import {StringUtil} from '../../../../../common/util/string.util';
-import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
-import {Modal} from '../../../../../common/domain/modal';
-import {CookieConstant} from '../../../../../common/constant/cookie.constant';
-import {CommonConstant} from "../../../../../common/constant/common.constant";
-import {GranularityService} from "../../../../service/granularity.service";
-import {CreateSourceCompleteData} from "../../../../service/data-source-create.service";
-import {StorageService} from "../../../../service/storage.service";
-import {AuthenticationType, JdbcDialect} from "../../../../../domain/dataconnection/dataconnection";
-import * as _ from 'lodash';
-import {DataStorageConstant} from "../../../../constant/data-storage-constant";
+import {StorageService} from '../../../../service/storage.service';
+import {GranularityService} from '../../../../service/granularity.service';
+import {CreateSourceCompleteData} from '../../../../service/data-source-create.service';
+import {DataStorageConstant} from '../../../../constant/data-storage-constant';
 
 /**
  * Creating datasource with Database - complete step
@@ -210,7 +211,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * Is SID required
    * @returns {boolean}
    */
-  public isRequiredSid() : boolean {
+  public isRequiredSid(): boolean {
     return this.storageService.isRequireSid(this._connectionType);
   }
 
@@ -218,7 +219,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * Is Catalog required
    * @returns {boolean}
    */
-  public isRequiredCatalog() : boolean {
+  public isRequiredCatalog(): boolean {
     return this.storageService.isRequireCatalog(this._connectionType);
   }
 
@@ -253,7 +254,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
               this.router.navigate(['/management/storage/datasource', result.id]);
               // close
               this.close();
-            }, 250 );
+            }, 250);
           })
           .catch(() => {
             this.onComplete.emit();
@@ -262,10 +263,10 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
               this.router.navigate(['/management/storage/datasource', result.id]);
               // close
               this.close();
-            }, 250 );
+            }, 250);
           });
       })
-      .catch((error) => {
+      .catch(() => {
         // loading hide
         this.loadingHide();
         // modal
@@ -456,7 +457,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     // timestamp enable
     const isCreateTimestamp = this.getSchemaData.selectedTimestampType === DataStorageConstant.Datasource.TimestampType.CURRENT;
     // fields param
-    let fields = _.cloneDeep(this.getSchemaData.fieldList);
+    const fields = _.cloneDeep(this.getSchemaData.fieldList);
     // seq number
     let seq = 0;
     // field 설정
@@ -567,7 +568,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     }
     // if not used current_time TIMESTAMP, set intervals
     if (this.getSchemaData.selectedTimestampType !== DataStorageConstant.Datasource.TimestampType.CURRENT) {
-      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
+      ingestion['intervals'] = [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

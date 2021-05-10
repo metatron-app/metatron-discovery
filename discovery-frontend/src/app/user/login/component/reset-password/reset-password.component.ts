@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { UserService } from '../../../service/user.service';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { StringUtil } from '../../../../common/util/string.util';
-import { Alert } from '../../../../common/util/alert.util';
-import { isUndefined } from 'util';
-import { ConfirmSmallComponent } from '../../../../common/component/modal/confirm-small/confirm-small.component';
-import { Modal } from '../../../../common/domain/modal';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {UserService} from '../../../service/user.service';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {StringUtil} from '@common/util/string.util';
+import {Alert} from '@common/util/alert.util';
+import {isUndefined} from 'util';
+import {ConfirmSmallComponent} from '@common/component/modal/confirm-small/confirm-small.component';
+import {Modal} from '@common/domain/modal';
 
 @Component({
   selector: 'app-reset-password',

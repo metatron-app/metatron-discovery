@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Filter } from './filter';
+import {Filter} from './filter';
 
 export class BoundFilter extends Filter {
 

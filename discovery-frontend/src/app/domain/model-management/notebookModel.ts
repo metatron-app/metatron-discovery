@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
 
 export class NotebookModel extends AbstractHistoryEntity {
 
   public id: string;
   public name: string;
-  public description: string ;
+  public description: string;
   public notebookPath: string;
   public statusType: string;
   public subscribeType: string;
@@ -33,7 +33,6 @@ export class History extends AbstractHistoryEntity {
   public elapsedTime: number;
   public errorLog: string;
   public success: boolean;
-
 }
 
 export class Notebook extends AbstractHistoryEntity {

@@ -1,3 +1,6 @@
+/* tslint:disable:object-literal-key-quotes */
+// noinspection NonAsciiCharacters
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +25,14 @@ import {
   QueryList,
   ViewChild,
   ViewChildren
-} from "@angular/core";
-import {AbstractComponent} from "../../../../../common/component/abstract.component";
-import {header, SlickGridHeader} from "../../../../../common/component/grid/grid.header";
-import {Field} from "../../../../../domain/data-preparation/pr-dataset";
-import {GridOption} from "../../../../../common/component/grid/grid.option";
-import {ScrollLoadingGridComponent} from "./edit-rule-grid/scroll-loading-grid.component";
-import {ScrollLoadingGridModel} from "./edit-rule-grid/scroll-loading-grid.model";
-import {isNullOrUndefined} from "util";
-import {DatasetService} from "../../../../dataset/service/dataset.service";
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {DatasetService} from '../../../../dataset/service/dataset.service';
+import {ScrollLoadingGridComponent} from './edit-rule-grid/scroll-loading-grid.component';
+import {ScrollLoadingGridModel} from './edit-rule-grid/scroll-loading-grid.model';
 
 declare const moment: any;
 
@@ -436,7 +438,6 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
   }
 
-
   /**
    * Fetch grid data of dataset
    * @param dsId
@@ -444,7 +445,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    */
   private _getGridData(dsId: string) {
 
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<any>((resolve, _reject) => {
 
       this.datasetService.getDatasetDetail(dsId).then((result) => {
         resolve(result);
@@ -460,9 +461,9 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @returns 그리드 데이터
    */
   private _getGridDataFromGridResponse(gridResponse: any) {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
@@ -507,13 +508,13 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   /**
    * When edit button in clicked
    * @param column
-   * @param index
+   * @param _index
    * @param input
    */
-  public editItem(column: Column, index: number, input: HTMLInputElement) {
+  public editItem(column: Column, _index: number, input: HTMLInputElement) {
 
     // 에러가 있을떄는 에러가 해결돼야 다른 컬럼을 수정할 수 있다
-    if (isNullOrUndefined(this.errorEsg)) {
+    if (this.isNullOrUndefined(this.errorEsg)) {
 
       // 에러가 없을때만 !
       column.isEditing = true;
@@ -530,7 +531,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param column
    */
   public focus(column: Column) {
-    if (isNullOrUndefined(this.errorEsg)) {
+    if (this.isNullOrUndefined(this.errorEsg)) {
       column.isEditing = true;
     }
   }
@@ -566,7 +567,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
           originals.push(item.original);
           originalsWithBackTick.push('`' + item.original + '`');
           renamed.push(item.renamedAs);
-          renamedWithQuote.push("'" + item.renamedAs + "'");
+          renamedWithQuote.push('\'' + item.renamedAs + '\'');
         }
       }
 
@@ -575,7 +576,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
           originals.push(item.original);
           originalsWithBackTick.push('`' + item.original + '`');
           renamed.push(item.renamedAs);
-          renamedWithQuote.push("'" + item.renamedAs + "'");
+          renamedWithQuote.push('\'' + item.renamedAs + '\'');
         }
       }
     });
@@ -615,7 +616,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   public onKeydownHandler(event: KeyboardEvent, column: Column) {
 
     if (event.keyCode === 9) {
-      if (isNullOrUndefined(this.errorEsg)) {
+      if (this.isNullOrUndefined(this.errorEsg)) {
 
         // 에러가 있을때 탭을 눌렀다면 현재 input을 벗어나지 못함
         column.isEditing = true;
@@ -650,7 +651,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    */
   public isRenameInputEmpty(column: Column): boolean {
     let result: boolean = false;
-    if (column.renamedAs.trim() === '' || isNullOrUndefined(column.renamedAs)) {
+    if (column.renamedAs.trim() === '' || this.isNullOrUndefined(column.renamedAs)) {
       this.errorEsg = this.translateService.instant('msg.dp.alert.empty.column');
       result = true;
     }
@@ -700,7 +701,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       }
 
       // 포커스 아웃 할 대상은 false 로 바꿔줘야한다
-      if (isNullOrUndefined(this.errorEsg)) {
+      if (this.isNullOrUndefined(this.errorEsg)) {
         column.isEditing = false;
       }
 
@@ -761,7 +762,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     fields.forEach((item) => {
       if (cols) {
         // 편집일 경우 편집한 이름으로 renamedAs 를 넣어준다
-        let idx = cols.indexOf(item.name);
+        const idx = cols.indexOf(item.name);
         this.columns.push({
           editOriginalName: idx === -1 ? item.name : tos[idx],
           original: item.name, renamedAs: idx === -1 ? item.name : tos[idx],
@@ -818,14 +819,14 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     this.columns.forEach((item, index) => {
 
       // if name is 안녕ㅎㅎㅎ -> ㅎㅎㅎ is not changed
-      let koMatched = item.renamedAs.match(koCheckReg);
+      const koMatched = item.renamedAs.match(koCheckReg);
 
       // Check if has any character other than alphabet, number, korean and _
-      let otherMatched = validCheckReg.test(item.renamedAs);
+      const otherMatched = validCheckReg.test(item.renamedAs);
 
-      const renamedAs = this.columns.map((item) => item.renamedAs);
+      const renamedAs = this.columns.map((colItem) => colItem.renamedAs);
 
-      if (!isNullOrUndefined(koMatched) || !otherMatched) {
+      if (!this.isNullOrUndefined(koMatched) || !otherMatched) {
         while (-1 !== renamedAs.indexOf('column' + this.indexForName)) {
           this.indexForName += 1;
         }
@@ -842,7 +843,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   private _updateGrid(fields, rows) {
 
     // 헤더정보 생성
-    const headers: header[] = fields.map((field: Field, index) => {
+    const headers: Header[] = fields.map((field: Field, index) => {
       return new SlickGridHeader()
         .Id('_idProperty_')
         .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type) + '"></em>' + this.columns[index].renamedAs + '</span>')
@@ -856,9 +857,9 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         .Resizable(true)
         .Unselectable(true)
         .Sortable(false)
-        .Formatter((row, cell, value) => {
+        .Formatter((_row, cell, value) => {
           const colDescs = (this.typeDesc) ? this.typeDesc[cell] : {};
-          if (!isNullOrUndefined(colDescs)) {
+          if (!this.isNullOrUndefined(colDescs)) {
             value = this._setFieldFormatter(value, colDescs.type, colDescs);
           }
           return value;
@@ -870,6 +871,9 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       headers,
       new ScrollLoadingGridModel(
         () => {
+          return new Promise((resolve, _reject) => {
+            resolve(null);
+          });
         },
         () => {
         },
@@ -918,17 +922,17 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    */
   private _setFieldFormatter(value: any, type: string,
                              colDescs: { timestampStyle?: string, arrColDesc?: any, mapColDesc?: any }): string {
-    let strFormatVal: string = '';
+    let strFormatVal: string;
     if (colDescs) {
       if ('TIMESTAMP' === type) {
         // 단일 데이터에 대한 타임 스템프 처리
         strFormatVal = this._setTimeStampFormat(value, colDescs.timestampStyle);
       } else {
-        strFormatVal = <string>value;
+        strFormatVal = value as string;
       }
     } else {
       // array and map are regarded as string
-      strFormatVal = <string>value;
+      strFormatVal = value as string;
     }
 
     return strFormatVal;
@@ -967,16 +971,12 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
     // Helper functions
     // Check if it's letter or numbers
-    let isChoseong = (char) => {
-      if (char.charCodeAt(0) >= 0x1100 && char.charCodeAt(0) <= 0x1112) {
-        return true;
-      } else {
-        return false;
-      }
+    const isChoseong = (char) => {
+      return char.charCodeAt(0) >= 0x1100 && char.charCodeAt(0) <= 0x1112;
     };
 
     // Options mapping
-    let args = {text: argText, rule: argRule, hyphen: argHyphen};
+    const args = {text: argText, rule: argRule, hyphen: argHyphen};
     if (args.hyphen == null) {
       args.hyphen = '';
     }
@@ -985,11 +985,12 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     if (args.rule != null && this._korToEngRules.hangul[args.rule] != null) {
       rulemap = this._korToEngRules.hangul[args.rule];
     } else if (args.rule != null) {
-      throw 'Invalid rule ' + args.rule;
+      throw new Error('Invalid rule ' + args.rule);
     }
 
     let rom = '';
-    let curr = null, next;
+    let curr = null;
+    let next;
     let skipJaeum = false; // Indicates jaeum of current iteration to be skipped
     for (let i = 0; i <= args.text.length; i++) {
       // If next is hangul syllable, separate it into jamo
@@ -997,11 +998,11 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       // 0x1100 is the first hangul jaeum in unicode table
       // 0x1161 is the first hangul moeum in unicode table
       // 0x11A8 is the first hangul batchim in unicode table
-      let nextIdx = args.text.charCodeAt(i) - 0xAC00;
+      const nextIdx = args.text.charCodeAt(i) - 0xAC00;
       if (!isNaN(nextIdx) && nextIdx >= 0 && nextIdx <= 11171) {
         next = String.fromCharCode(Math.floor(nextIdx / 588) + 0x1100)
           + String.fromCharCode(Math.floor(nextIdx % 588 / 28) + 0x1161)
-          + (nextIdx % 28 == 0 ? '' : String.fromCharCode(nextIdx % 28 + 0x11A7)); // Index 0 is reserved for nothing
+          + (nextIdx % 28 === 0 ? '' : String.fromCharCode(nextIdx % 28 + 0x11A7)); // Index 0 is reserved for nothing
       } else {
         next = args.text.charAt(i);
       }
@@ -1010,17 +1011,17 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       // Curr and next contains 2 or 3 jamo, or 1 non-hangul letter
       if (curr != null) {
 
-        var res = '';
+        let res = '';
 
         // Choseong Jaeum
         if (!skipJaeum) {
           // If not the first syllable, try cho2 if defined
           if (i > 0 && !/\s/.test(args.text.charAt(i - 2)) &&
-            rulemap['cho2'] != undefined &&
-            rulemap['cho2'][curr.charAt(0)] != undefined
+            rulemap['cho2'] !== undefined &&
+            rulemap['cho2'][curr.charAt(0)] !== undefined
           ) {
             res += rulemap['cho2'][curr.charAt(0)];
-          } else if (rulemap.cho[curr.charAt(0)] != undefined) {
+          } else if (rulemap.cho[curr.charAt(0)] !== undefined) {
             res += rulemap.cho[curr.charAt(0)];
           } else {
             res += curr.charAt(0);
@@ -1030,14 +1031,14 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
         // Jungseong Moeum
         if (curr.length > 1) {
-          if (rulemap.jung[curr.charAt(1)] != undefined) {
+          if (rulemap.jung[curr.charAt(1)] !== undefined) {
             res += rulemap.jung[curr.charAt(1)];
           } else {
             res += curr.charAt(1);
           }
 
           // Add hyphen if no batchim
-          if (curr.length == 2 && isChoseong(next.charAt(0))) {
+          if (curr.length === 2 && isChoseong(next.charAt(0))) {
             res += ' ';
           }
         }
@@ -1045,21 +1046,21 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         // Jongseong Jaeum (Batchim)
         if (curr.length > 2) {
           // Changing sound with next jaeum + moeum
-          if (rulemap.jong[curr.charAt(2) + next.charAt(0) + next.charAt(1)] != undefined) {
+          if (rulemap.jong[curr.charAt(2) + next.charAt(0) + next.charAt(1)] !== undefined) {
             res += rulemap.jong[curr.charAt(2) + next.charAt(0) + next.charAt(1)];
             skipJaeum = true;
 
             // No need to add hyphen here as it's already defined
           }
           // Changing sound with next jaeum
-          else if (rulemap.jong[curr.charAt(2) + next.charAt(0)] != undefined) {
+          else if (rulemap.jong[curr.charAt(2) + next.charAt(0)] !== undefined) {
             res += rulemap.jong[curr.charAt(2) + next.charAt(0)];
             skipJaeum = true;
 
             // No need to add hyphen here as it's already defined
           }
           // Unchanging sound
-          else if (rulemap.jong[curr.charAt(2)] != undefined) {
+          else if (rulemap.jong[curr.charAt(2)] !== undefined) {
             res += rulemap.jong[curr.charAt(2)];
 
             // Add hyphen
@@ -1078,13 +1079,13 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
         // Replace hyphen (if this is hangeul word)
         if (curr.length > 1) {
-          if (args.hyphen == '' && rulemap['hyphen'] != null) {
+          if (args.hyphen === '' && rulemap['hyphen'] != null) {
             res = res.replace(' ', rulemap['hyphen']);
           } else {
             // Soft hyphen
             res = res.replace(' ', args.hyphen);
             // Hard hyphen
-            if (args.hyphen != '') {
+            if (args.hyphen !== '') {
               res = res.replace('-', args.hyphen);
             }
           }

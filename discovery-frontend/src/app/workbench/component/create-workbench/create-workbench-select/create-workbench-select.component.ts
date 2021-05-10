@@ -12,16 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
-import { Workbench } from '../../../../domain/workbench/workbench';
-import { PageResult } from '../../../../domain/common/page';
-import { WorkspaceService } from '../../../../workspace/service/workspace.service';
-import {StorageService} from "../../../../data-storage/service/storage.service";
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {Alert} from '@common/util/alert.util';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
+import {Workbench} from '@domain/workbench/workbench';
+import {PageResult} from '@domain/common/page';
+import {WorkspaceService} from '../../../../workspace/service/workspace.service';
+import {StorageService} from '../../../../data-storage/service/storage.service';
 
 @Component({
   selector: 'app-create-workbench-select',
@@ -31,9 +30,6 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 선택한 데이터 커넥션
-  private dataconnection: Dataconnection = new Dataconnection;
 
   // 선택한 데이터베이스 타입
   private selectedDbType: any;
@@ -51,6 +47,9 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 선택한 데이터 커넥션
+  public dataconnection: Dataconnection = new Dataconnection();
 
   @Input()
   public workbench: Workbench;
@@ -154,7 +153,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
    * @param {KeyboardEvent} event
    */
   public searchEventPressKey(event: KeyboardEvent) {
-    ( 13 === event.keyCode ) && ( this.searchEvent() );
+    (13 === event.keyCode) && (this.searchEvent());
   } // function - searchEventPressKey
 
   /**
@@ -222,10 +221,8 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
    * @returns {boolean}
    */
   public get isMoreContents() {
-    if (this.pageResult.number < this.pageResult.totalPages - 1) {
-      return true;
-    }
-    return false;
+    return this.pageResult.number < this.pageResult.totalPages - 1;
+
   }
 
   /**
@@ -233,10 +230,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
    * @returns {boolean}
    */
   public get isSelectedConnection() {
-    if (this.dataconnection.id) {
-      return true;
-    }
-    return false;
+    return !!this.dataconnection.id;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -298,7 +292,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
   public onSelectDataconnection(dataconnection: Dataconnection) {
     // 지금 보고있는 데이터면 show 해제
     if (dataconnection.id === this.dataconnection.id) {
-      this.dataconnection = new Dataconnection;
+      this.dataconnection = new Dataconnection();
       return;
     }
 
@@ -388,7 +382,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
     this.workspaceService.getConnections(this.workspaceId, params).then((dataconnections) => {
 
       // 데이터커넥션 아이디 초기화
-      this.dataconnection = new Dataconnection;
+      this.dataconnection = new Dataconnection();
 
       // page 객체 저장
       this.pageResult = dataconnections['page'];
@@ -456,7 +450,7 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
   private initViewPage() {
 
     // 선택한 데이터커넥션 초기화
-    this.dataconnection = new Dataconnection;
+    this.dataconnection = new Dataconnection();
     // 데이터커넥션 리스트
     this.dataconnections = [];
     // 검색어
@@ -470,10 +464,10 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
 
     // 계정 타입
     this.accountTypes = [
-      { label: 'All', value: 'all' },
-      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+      {label: 'All', value: 'all'},
+      {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
+      {label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO'},
+      {label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG'}
     ];
     this.selectedAccountType = this.accountTypes[0];
 

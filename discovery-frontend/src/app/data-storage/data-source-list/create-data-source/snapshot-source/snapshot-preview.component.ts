@@ -1,4 +1,4 @@
-import {AbstractComponent} from "../../../../common/component/abstract.component";
+import {isUndefined} from 'util';
 import {
   Component,
   ElementRef,
@@ -9,14 +9,14 @@ import {
   Output,
   SimpleChanges,
   ViewChild
-} from "@angular/core";
-import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
-import {DataSnapshotDetailComponent} from "../../../../data-preparation/data-snapshot/data-snapshot-detail.component";
-import {DatasourceInfo, FieldRole} from "../../../../domain/datasource/datasource";
-import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {CreateSnapShotData,} from "../../../service/data-source-create.service";
-import {isUndefined} from "util";
-import {PreparationCommonUtil} from "../../../../data-preparation/util/preparation-common.util";
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DatasourceInfo, FieldRole} from '@domain/datasource/datasource';
+import {PrDataSnapshot, SsType} from '@domain/data-preparation/pr-snapshot';
+import {CreateSnapShotData,} from '../../../service/data-source-create.service';
+import {PreparationCommonUtil} from '../../../../data-preparation/util/preparation-common.util';
+import {DataSnapshotService} from '../../../../data-preparation/data-snapshot/service/data-snapshot.service';
+import {DataSnapshotDetailComponent} from '../../../../data-preparation/data-snapshot/data-snapshot-detail.component';
 
 @Component({
   selector: 'snapshot-preview',
@@ -138,7 +138,7 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
             // set error flag
             this.isErrorSnapshot = false;
             // set field list #657
-            for ( let idx = 0; idx < content.gridResponse.colCnt; idx++ ) {
+            for (let idx = 0; idx < content.gridResponse.colCnt; idx++) {
               this.sourceData.fieldList.push({
                 name: content.gridResponse.colNames[idx],
                 type: content.gridResponse.colDescs[idx].type,
@@ -149,13 +149,13 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
             // set data list
             content.gridResponse.rows.forEach((row) => {
               const obj = {};
-              for ( let idx = 0; idx < content.gridResponse.colCnt; idx++ ) {
-                obj[ content.gridResponse.colNames[idx] ] = row.objCols[idx];
+              for (let idx = 0; idx < content.gridResponse.colCnt; idx++) {
+                obj[content.gridResponse.colNames[idx]] = row.objCols[idx];
               }
               this.sourceData.fieldData.push(obj);
             });
             // remove error id
-            this._createSnapshotData.errorSnapshotIdList.some(errorId => errorId === snapshotId) && this._createSnapshotData.errorSnapshotIdList.splice(this._createSnapshotData.errorSnapshotIdList.findIndex(errorId => errorId === snapshotId),1);
+            this._createSnapshotData.errorSnapshotIdList.some(errorId => errorId === snapshotId) && this._createSnapshotData.errorSnapshotIdList.splice(this._createSnapshotData.errorSnapshotIdList.findIndex(errorId => errorId === snapshotId), 1);
             // loading hide
             this.loadingHide();
           })

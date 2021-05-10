@@ -12,32 +12,20 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  Output,
-  ViewChild
-} from '@angular/core';
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   AuthenticationType,
   Dataconnection,
   InputMandatory,
   JdbcDialect,
   Scope
-} from "../../../domain/dataconnection/dataconnection";
-import {
-  ConnectionParam,
-  DataConnectionCreateService
-} from "../../service/data-connection-create.service";
-import {StringUtil} from "../../../common/util/string.util";
-import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import {StorageService} from "../../service/storage.service";
-import * as _ from 'lodash';
+} from '@domain/dataconnection/dataconnection';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {ConnectionParam, DataConnectionCreateService} from '../../service/data-connection-create.service';
+import {StorageService} from '../../service/storage.service';
 
 export enum ConnectionValid {
   ENABLE_CONNECTION = 0,
@@ -50,9 +38,6 @@ export enum ConnectionValid {
   templateUrl: './connection.component.html',
 })
 export class ConnectionComponent extends AbstractComponent {
-
-  // TODO
-  private _validConnectionList;
 
   @ViewChild('host_port_element')
   private readonly HOST_PORT_ELEMENT: ElementRef;
@@ -101,7 +86,7 @@ export class ConnectionComponent extends AbstractComponent {
   public catalog: string;
   public username: string;
   public password: string;
-  public properties: {key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string}[];
+  public properties: { key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string }[];
 
   // flag
   public connectionValidation: ConnectionValid;
@@ -118,10 +103,10 @@ export class ConnectionComponent extends AbstractComponent {
   public isUsernameError: boolean;
   public isPasswordError: boolean;
 
-  constructor( private connectionCreateService: DataConnectionCreateService,
-               private connectionService: DataconnectionService,
-               protected element: ElementRef,
-               protected injector: Injector) {
+  constructor(private connectionCreateService: DataConnectionCreateService,
+              private connectionService: DataconnectionService,
+              protected element: ElementRef,
+              protected injector: Injector) {
     super(element, injector);
   }
 
@@ -133,7 +118,7 @@ export class ConnectionComponent extends AbstractComponent {
     this._connectionInputInitialize();
     this.inputErrorInitialize();
     this.connectionValidInitialize();
-    if (isNullOrUndefined(connection)) {
+    if (this.isNullOrUndefined(connection)) {
       this.properties = [];
       this.selectedAuthenticationType = this.authenticationTypeList[0];
       this.selectedConnectionType = this.connectionTypeList[0];
@@ -194,12 +179,12 @@ export class ConnectionComponent extends AbstractComponent {
    * @param {Dataconnection} connection
    */
   public setConnectionInput(connection: Dataconnection | ConnectionParam): void {
-    this.hostname = StringUtil.isNotEmpty(connection.hostname) ?connection.hostname : undefined;
+    this.hostname = StringUtil.isNotEmpty(connection.hostname) ? connection.hostname : undefined;
     this.port = connection.port || undefined;
-    this.catalog = StringUtil.isNotEmpty(connection.catalog) ?connection.catalog : undefined;
-    this.database = StringUtil.isNotEmpty(connection.database) ?connection.database : undefined;
-    this.sid = StringUtil.isNotEmpty(connection.sid) ?connection.sid : undefined;
-    this.url = StringUtil.isNotEmpty(connection.url) ?connection.url : undefined;
+    this.catalog = StringUtil.isNotEmpty(connection.catalog) ? connection.catalog : undefined;
+    this.database = StringUtil.isNotEmpty(connection.database) ? connection.database : undefined;
+    this.sid = StringUtil.isNotEmpty(connection.sid) ? connection.sid : undefined;
+    this.url = StringUtil.isNotEmpty(connection.url) ? connection.url : undefined;
     this.username = StringUtil.isNotEmpty(connection.username) ? connection.username : undefined;
     this.password = StringUtil.isNotEmpty(connection.password) ? connection.password : undefined;
     this.selectedAuthenticationType = this.authenticationTypeList.find(authenticationType => authenticationType.value === connection.authenticationType) || this.authenticationTypeList[0];
@@ -227,7 +212,7 @@ export class ConnectionComponent extends AbstractComponent {
       this.loadingShow();
       // check connection
       this.connectionService.checkConnection({connection: this.getConnectionParams(true)})
-        .then((result: {connected: boolean}) => {
+        .then((result: { connected: boolean }) => {
           // set connection validation result
           this.connectionValidation = result.connected ? ConnectionValid.ENABLE_CONNECTION : ConnectionValid.DISABLE_CONNECTION;
           // scroll into connection invalid input
@@ -257,7 +242,7 @@ export class ConnectionComponent extends AbstractComponent {
    * Property key validation
    * @param {{key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string}} property
    */
-  public propertyKeyValidation(property: {key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string}): void {
+  public propertyKeyValidation(property: { key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string }): void {
     // check empty
     if (StringUtil.isEmpty(property.key)) {
       // set empty message
@@ -455,8 +440,7 @@ export class ConnectionComponent extends AbstractComponent {
         // set error flag
         property.keyError = true;
         // set valid false
-        acc = false;
-        return acc;
+        return false;
       }
       // check key special characters, and korean (enable .dot)
       else if (property.key.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
@@ -465,8 +449,7 @@ export class ConnectionComponent extends AbstractComponent {
         // set error flag
         property.keyError = true;
         // set valid false
-        acc = false;
-        return acc;
+        return false;
       }
       // check key duplicate
       else if (this.properties.filter(item => item.key.trim() === property.key.trim()).length > 1) {
@@ -475,8 +458,7 @@ export class ConnectionComponent extends AbstractComponent {
         // set error flag
         property.keyError = true;
         // set valid false
-        acc = false;
-        return acc;
+        return false;
       } else {
         return acc;
       }
@@ -518,7 +500,7 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {ConnectionParam}
    */
   public getConnectionParams(isIncludeProperties?: boolean) {
-    let connectionParam: ConnectionParam = {
+    const connectionParam: ConnectionParam = {
       implementor: this.selectedConnectionType.implementor
     };
     // not use URL

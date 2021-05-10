@@ -12,13 +12,10 @@
  * limitations under the License.
  */
 
-import {ConfirmModalComponent} from "../../common/component/modal/confirm/confirm.component";
+// noinspection JSUnusedLocalSymbols
 
-declare let moment : any;
 import * as _ from 'lodash';
 import {isUndefined} from 'util';
-import {Alert} from '../../common/util/alert.util';
-import {PreparationAlert} from '../util/preparation-alert.util';
 
 import {
   Component,
@@ -31,21 +28,27 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../common/component/abstract-popup.component';
+import {Alert} from '@common/util/alert.util';
+import {PopupService} from '@common/service/popup.service';
+import {Modal} from '@common/domain/modal';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {ConfirmModalComponent} from '@common/component/modal/confirm/confirm.component';
+import {Field} from '@domain/data-preparation/pr-dataset';
+import {HiveFileCompression, Engine, SsType, UriFileFormat, AppendMode, HiveFileFormat} from '@domain/data-preparation/pr-snapshot';
+
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {StorageService} from '../../data-storage/service/storage.service';
 import {DatasetService} from '../dataset/service/dataset.service';
 import {DataflowService} from '../dataflow/service/dataflow.service';
-import {PopupService} from '../../common/service/popup.service';
-import {HiveFileCompression, Engine, SsType, UriFileFormat, AppendMode, HiveFileFormat} from '../../domain/data-preparation/pr-snapshot';
-import {Field} from '../../domain/data-preparation/pr-dataset';
-import {DataconnectionService} from "../../dataconnection/service/dataconnection.service";
-import {StorageService} from "../../data-storage/service/storage.service";
-import {Modal} from "../../common/domain/modal";
+import {PreparationAlert} from '../util/preparation-alert.util';
+
+declare let moment : any;
 
 @Component({
   selector: 'create-snapshot-popup',
   templateUrl: './create-snapshot-popup.component.html',
 })
-export class CreateSnapshotPopup extends AbstractPopupComponent implements OnInit,OnDestroy {
+export class CreateSnapshotPopupComponent extends AbstractPopupComponent implements OnInit,OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -256,23 +259,23 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   /**
    * When snapshot Name change, modify file type uris
-   * */
+   */
   public changeSSUri(){
     if( this.storedUriChangedDirectly === true) {
       return;
     }
 
-    let fileName = this.snapshot.ssName.replace(/[^\w_가-힣]/gi, "_") +'.'+ this.uriFileFormat.toString().toLowerCase();
+    const fileName = this.snapshot.ssName.replace(/[^\w_가-힣]/gi, '_') +'.'+ this.uriFileFormat.toString().toLowerCase();
     this.changeStoredUri(fileName);
   }
 
   public changeStoredUri(fileName: string = null){
-    var slashIndex = this.snapshot.storedUri.lastIndexOf("/");
+    const slashIndex = this.snapshot.storedUri.lastIndexOf('/');
     if(this.snapshot.storedUri && slashIndex > 0) {
       if(fileName===null) {
         fileName = this.snapshot.storedUri.substring(slashIndex+1);
       }
-      let replacedFileName = fileName.replace(/[^\w_.ㄱ-힣]/gi, "_");
+      const replacedFileName = fileName.replace(/[^\w_.ㄱ-힣]/gi, '_');
 
       this.snapshot.storedUri = this.snapshot.storedUri.substring(0,slashIndex+1) + replacedFileName;
     }
@@ -283,7 +286,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * When item is selected from the list
    * @param event
    * @param type
-   * */
+   */
   public onSelected(event,type) {
     switch (type){
       case 'engine':
@@ -305,7 +308,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         break;
       case 'location':
         for(let idx=0;idx<this.fileLocations.length;idx++) {
-          if( event.value==this.fileLocations[idx].value ) {
+          if( event.value === this.fileLocations[idx].value ) {
             this.snapshot.storedUri = this.fileUris[idx];
             this.changeSSUri();
             break;
@@ -442,7 +445,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   /**
    * Check if it has changed directly
    */
-  public onChangeStoredUri(event, selection) {
+  public onChangeStoredUri(event) {
     if(event) {
       this.storedUriChangedDirectly = true;
       this.changeStoredUri();
@@ -459,6 +462,29 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.fileUrlErrorMsg = '';
     this.isErrorShow = false
   }
+
+  /**
+   * Make snapshot with enter key
+   * @param event Event
+   */
+  @HostListener('document:keydown.enter', ['$event'])
+  public onEnterKeydownHandler(event: KeyboardEvent) {
+    if(this.isShow && event.keyCode === 13) {
+      this.complete();
+    }
+  }
+
+  /**
+   * Close popup with esc button
+   * @param event Event
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  public onKeydownHandler(event: KeyboardEvent) {
+    if (this.isShow && event.keyCode === 27 ) {
+      this.close();
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -466,31 +492,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * Make snapshot with enter key
-   * @param event Event
-   * @private
-   */
-  @HostListener('document:keydown.enter', ['$event'])
-  private _onEnterKeydownHandler(event: KeyboardEvent) {
-    if(this.isShow && event.keyCode === 13) {
-      this.complete();
-    }
-  }
-
-
-  /**
-   * Close popup with esc button
-   * @param event Event
-   * @private
-   */
-  @HostListener('document:keydown.escape', ['$event'])
-  private _onKeydownHandler(event: KeyboardEvent) {
-    if (this.isShow && event.keyCode === 27 ) {
-      this.close();
-    }
-  }
-
 
   /**
    * Initialise values
@@ -547,7 +548,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _getDefaultSnapshotName(ssName?:string) : string {
-    let today = moment();
+    const today = moment();
     return !_.isNil(ssName) ? ssName : `${this.datasetName}_${today.format('YYYYMMDD_HHmmss')}`;
   }
 
@@ -564,7 +565,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     if (!_.isNil(fileUri)) {
       Object.keys(fileUri).forEach((item) => {
-        this.fileLocations.push( { 'value': item, 'label': item } );
+        this.fileLocations.push( { value: item, label: item } );
         this.fileUris.push(fileUri[item] );
       });
     }
@@ -598,7 +599,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         this.dbList = data['databases'];
       }
     }).catch((error) => {
-      console.info('error -> ', error);
+      console.log('error -> ', error);
       this._isDataprepStagingEnabled = false;
     });
   }
@@ -635,7 +636,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
 
         this.loadingHide();
-        resolve();
+        resolve(null);
       }).catch((err) => reject(err));
 
     });
@@ -662,8 +663,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
 
     });
   }
@@ -676,8 +677,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   private _isFieldsValidationPass(): boolean {
 
     const names = this.fields.map((item) => item.name);
-    let enCheckReg = /^[a-z0-9_]+$/;
-    let idx = names.findIndex((item) => {
+    const enCheckReg = /^[a-z0-9_]+$/;
+    const idx = names.findIndex((item) => {
       return (-1 !== item.indexOf(' ')) || !enCheckReg.test(item)
     });
 
@@ -704,9 +705,9 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * @returns 그리드 데이터
    */
   private _getGridDataFromGridResponse(gridResponse: any) {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
+    const colCnt = gridResponse.colCnt;
+    const colNames = gridResponse.colNames;
+    const colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
@@ -746,5 +747,5 @@ export class SnapShotCreateDomain {
   public tblName?: string;
   public hiveFileFormat?: HiveFileFormat;
   public appendMode?: AppendMode;
-  public partitionColNames?: String[];
+  public partitionColNames?: string[];
 }

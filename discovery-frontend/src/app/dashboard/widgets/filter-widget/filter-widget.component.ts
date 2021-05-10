@@ -13,10 +13,11 @@
  */
 
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Injector,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   SimpleChange,
@@ -25,40 +26,39 @@ import {
 } from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
-import {FilterWidget, FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {
   Candidate,
   InclusionFilter,
   InclusionItemSort,
   InclusionSelectorType,
   InclusionSortBy
-} from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import {Alert} from '../../../common/util/alert.util';
-import {BoardConfiguration, Dashboard, DashboardWidgetRelation} from '../../../domain/dashboard/dashboard';
-import {Field} from '../../../domain/datasource/datasource';
+} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {Alert} from '@common/util/alert.util';
+import {BoardConfiguration, Dashboard, DashboardWidgetRelation} from '@domain/dashboard/dashboard';
+import {Field} from '@domain/datasource/datasource';
 
 import * as _ from 'lodash';
-import {SubscribeArg} from '../../../common/domain/subscribe-arg';
-import {PopupService} from '../../../common/service/popup.service';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {PopupService} from '@common/service/popup.service';
 import * as $ from 'jquery';
 import {FilterSelectComponent} from '../../filters/component/filter-select/filter-select.component';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {BoundFilterComponent} from '../../filters/bound-filter/bound-filter.component';
-import {BoundFilter} from '../../../domain/workbook/configurations/filter/bound-filter';
-import {StringUtil} from '../../../common/util/string.util';
+import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
+import {StringUtil} from '@common/util/string.util';
 import {DashboardUtil} from '../../util/dashboard.util';
 import {FilterUtil} from '../../util/filter.util';
-import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
-import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {
   TimeRelativeFilter,
   TimeRelativeTense
-} from "../../../domain/workbook/configurations/filter/time-relative-filter";
-import {TimeUnit} from "../../../domain/workbook/configurations/field/timestamp-field";
-import {DIRECTION} from '../../../domain/workbook/configurations/sort';
-import {isNullOrUndefined} from 'util';
+} from '@domain/workbook/configurations/filter/time-relative-filter';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {DIRECTION} from '@domain/workbook/configurations/sort';
 
 declare let moment;
 
@@ -66,7 +66,7 @@ declare let moment;
   selector: 'filter-widget',
   templateUrl: './filter-widget.component.html'
 })
-export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget> implements OnInit, OnDestroy {
+export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget> implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -154,7 +154,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {
       if ('reset-general-filter' === data.name) {
         if (this.filter.ui.importanceType === 'general') {
-          const inclusionFilter: InclusionFilter = (<InclusionFilter>this.filter);
+          const inclusionFilter: InclusionFilter = (this.filter as InclusionFilter);
           inclusionFilter.valueList = [];
           switch (inclusionFilter.selector) {
             case InclusionSelectorType.SINGLE_COMBO:
@@ -263,10 +263,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * @return {Filter}
    */
   public getFilter(): Filter {
-    const conf: FilterWidgetConfiguration = <FilterWidgetConfiguration>this.widget.configuration;
+    const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
     const filter: Filter = _.cloneDeep(conf.filter);
     if (FilterUtil.isTimeFilter(filter)) {
-      this._setTimeFilterStatus(<TimeFilter>filter);
+      this._setTimeFilterStatus(filter as TimeFilter);
     }
     return filter;
   } // function - getFilter
@@ -278,7 +278,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * @return {InclusionFilter}
    */
   public convertToIncludeFilter(filter: Filter): InclusionFilter {
-    return <InclusionFilter>filter;
+    return filter as InclusionFilter;
   } // function - convertToIncludeFilter
 
   /**
@@ -300,7 +300,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * @returns {FilterWidgetConfiguration}
    */
   public getConfiguration(): FilterWidgetConfiguration {
-    return this.widget ? <FilterWidgetConfiguration>this.widget.configuration : null;
+    return this.widget ? this.widget.configuration as FilterWidgetConfiguration : null;
   } // function - getConfiguration
 
   // public getDashboard(): Dashboard {
@@ -333,7 +333,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       return;
     }
 
-    const filter = <InclusionFilter>this.filter;
+    const filter = this.filter as InclusionFilter;
 
     if (filter.selector === InclusionSelectorType.MULTI_LIST) {
       const checked = $event.target ? $event.target.checked : $event.currentTarget.checked;
@@ -368,7 +368,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    */
   public onSelectInclude(item: any) {
 
-    const filter = <InclusionFilter>this.filter;
+    const filter = this.filter as InclusionFilter;
 
     // 수정 모드일 경우 선택이 동작하지 않도록 한다
     if (this.isEditMode && filter.selector !== InclusionSelectorType.MULTI_COMBO) {
@@ -427,7 +427,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * TimeRangeFilter 설정
    */
   public setTimeRangeFilter() {
-    const conf: FilterWidgetConfiguration = <FilterWidgetConfiguration>this.widget.configuration;
+    const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
     let filter: TimeFilter = _.cloneDeep(conf.filter) as TimeFilter;
     if (FilterUtil.isTimeFilter(filter)) {
       const relativeInterval = this.getIntervalFromRelative(filter);
@@ -440,7 +440,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       (filter as TimeRangeFilter).intervals = relativeInterval;
       this.filter = filter;
       this.widget.configuration.filter = filter;
-      this._setTimeFilterStatus(<TimeFilter>filter);
+      this._setTimeFilterStatus(filter as TimeFilter);
       this._broadcastChangeFilter(filter);
     }
   } // function - setTimeRangeFilter
@@ -449,7 +449,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * TimeRelativeFilter 설정
    */
   public setTimeRelativeFilter() {
-    const conf: FilterWidgetConfiguration = <FilterWidgetConfiguration>this.widget.configuration;
+    const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
     let filter: TimeRelativeFilter = _.cloneDeep(conf.filter) as TimeRelativeFilter;
     if (FilterUtil.isTimeFilter(filter)) {
       filter.clzField = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field);
@@ -461,7 +461,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       filter.value = 1;
       this.filter = filter;
       this.widget.configuration.filter = filter;
-      this._setTimeFilterStatus(<TimeFilter>filter);
+      this._setTimeFilterStatus(filter as TimeFilter);
       this._broadcastChangeFilter(filter);
     }
   } // function - setTimeRelativeFilter
@@ -495,7 +495,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       if (resultCandidates && resultCandidates.length > 0) {
         resultCandidates.forEach((resultCandidate) => {
           if (this.existCandidate(resultCandidate.field) === false) {
-            let candidate = new Candidate();
+            const candidate = new Candidate();
             candidate.count = resultCandidate.count;
             candidate.name = resultCandidate.field;
             candidate.isTemporary = true;
@@ -514,10 +514,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   }
 
   public isNoFiltering(): boolean {
-    const filter = <InclusionFilter>this.filter;
+    const filter = this.filter as InclusionFilter;
 
     return (filter.selector === InclusionSelectorType.SINGLE_COMBO || filter.selector === InclusionSelectorType.MULTI_COMBO)
-      && (filter.valueList && filter.valueList.length == 0);
+      && (filter.valueList && filter.valueList.length === 0);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -544,12 +544,12 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       const filter: Filter = this.filter;
       const isInterval: boolean = ('interval' === filter.type);
       const isIncludeCombo: boolean = ('include' === filter.type
-        && ((<InclusionFilter>filter).selector === InclusionSelectorType.SINGLE_COMBO
-          || (<InclusionFilter>filter).selector === InclusionSelectorType.MULTI_COMBO));
+        && ((filter as InclusionFilter).selector === InclusionSelectorType.SINGLE_COMBO
+          || (filter as InclusionFilter).selector === InclusionSelectorType.MULTI_COMBO));
       if (isInterval || isIncludeCombo) {
         // 필터 z-index 최상으로 처리
         const $filterWidgetEl = $(this.filterWidget.nativeElement);
-        $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': 100, 'position': 'relative'});
+        $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': 100, position: 'relative'});
         $filterWidgetEl.closest('.lm_content').css('overflow', 'inherit');
       }
     }
@@ -564,9 +564,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   private _setContainerZIndex(index: number | string) {
     const $filterWidgetEl = $(this.filterWidget.nativeElement);
     if ('' === index) {
-      $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': '', 'position': ''});
+      $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': '', position: ''});
     } else {
-      $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': index, 'position': 'relative'});
+      $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': index, position: 'relative'});
     }
   } // function - _setContainerZIndex
 
@@ -611,8 +611,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
         if ('include' === filter.type) {
 
           // 기본값 설정
-          const inclusionFilter: InclusionFilter = <InclusionFilter>filter;
-          if( isClearValueList ) {
+          const inclusionFilter: InclusionFilter = filter as InclusionFilter;
+          if (isClearValueList) {
             this.selectedItems = [];
             inclusionFilter.valueList = [];
           } else {
@@ -626,11 +626,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
           // 사용자 정의 값 추가
           this.addDefineValues(inclusionFilter);
 
-          if (result && Array.isArray(result) && result.length > 100) {
-            this.isSearchingCandidateAvailability = true;
-          } else {
-            this.isSearchingCandidateAvailability = false;
-          }
+          this.isSearchingCandidateAvailability = ( result && Array.isArray(result) && result.length > 100 );
 
           if (this.parentWidget) {
             // 계층 구조의 하위 필터 목록 처리
@@ -662,7 +658,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
           }
 
           // Sort List
-          if (isNullOrUndefined(inclusionFilter.sort)) {
+          if (this.isNullOrUndefined(inclusionFilter.sort)) {
             inclusionFilter.sort = new InclusionItemSort(InclusionSortBy.TEXT, DIRECTION.ASC);
           }
           if (InclusionSortBy.COUNT === inclusionFilter.sort.by) {
@@ -687,7 +683,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
 
           this.filter = inclusionFilter;
         } else if ('bound' === filter.type) {
-          const boundFilter: BoundFilter = <BoundFilter>filter;
+          const boundFilter: BoundFilter = filter as BoundFilter;
           if (result && result.hasOwnProperty('maxValue')) {
             if (boundFilter.min === 0 && boundFilter.max === 0) {
               boundFilter.min = result.minValue;
@@ -743,10 +739,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
               });
               return matchedItems.length > 0;
             });
-          } else if (this.filter.type === "bound") {
-            const boundFilter: BoundFilter = <BoundFilter>this.filter;
-            const paramValues: string[] = value.split(",");
-            if (paramValues.length == 2) {
+          } else if (this.filter.type === 'bound') {
+            const boundFilter: BoundFilter = this.filter as BoundFilter;
+            const paramValues: string[] = value.split(',');
+            if (paramValues.length === 2) {
               const min = Number(paramValues[0]);
               const max = Number(paramValues[1]);
               if (!isNaN(min) && !isNaN(max)) {
@@ -756,27 +752,27 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
                 boundFilter.maxValue = max;
               }
             }
-          } else if (this.filter.type === "time_range") {
-            const timeRangeFilter: TimeRangeFilter = <TimeRangeFilter>this.filter;
+          } else if (this.filter.type === 'time_range') {
+            const timeRangeFilter: TimeRangeFilter = this.filter as TimeRangeFilter;
             if (Array.isArray(value)) {
               timeRangeFilter.intervals = value;
             } else {
               timeRangeFilter.intervals = [value];
             }
-          } else if (this.filter.type === "time_relative") {
-            const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>this.filter;
-            const valueAttributes = value.split(",");
+          } else if (this.filter.type === 'time_relative') {
+            const timeRelativeFilter: TimeRelativeFilter = this.filter as TimeRelativeFilter;
+            const valueAttributes = value.split(',');
             valueAttributes.forEach(attr => {
-              const keyValue: string[] = attr.split(":");
-              if (keyValue[0] === "tense") {
+              const keyValue: string[] = attr.split(':');
+              if (keyValue[0] === 'tense') {
                 timeRelativeFilter.tense = TimeRelativeTense[keyValue[1]];
-              } else if (keyValue[0] === "relTimeUnit") {
+              } else if (keyValue[0] === 'relTimeUnit') {
                 timeRelativeFilter.relTimeUnit = TimeUnit[keyValue[1]];
               } else if (keyValue[0] === 'value') {
                 timeRelativeFilter.value = +keyValue[1];
               }
             });
-          } else if (this.filter.type === "time_list") {
+          } else if (this.filter.type === 'time_list') {
             const paramValues = Array.isArray(value) ? value : [value];
             this.selectedItems = this.candidateList.filter((item: Candidate) => {
               const matchedItems = paramValues.filter(param => {
@@ -909,9 +905,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    * Relative 로 부터 Interval 정보 얻음 얻는다.
    */
   public getIntervalFromRelative(filter: TimeFilter) {
-    const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
+    const timeRelativeFilter: TimeRelativeFilter = filter as TimeRelativeFilter;
     // 포맷 설정
-    let strFormat: string = 'YYYY-MM-DD';
+    const strFormat: string = 'YYYY-MM-DD';
     let strManipulateKey: string = '';
     switch (timeRelativeFilter.relTimeUnit) {
       case TimeUnit.YEAR:
@@ -941,7 +937,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     }
 
     // 날짜 설정
-    let objDate = moment();
+    const objDate = moment();
     let strPreview: string = '';
     switch (timeRelativeFilter.tense) {
       case TimeRelativeTense.PREVIOUS :

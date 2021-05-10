@@ -12,26 +12,27 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   AfterViewInit,
   Component,
-  ElementRef, HostListener,
+  ElementRef,
+  HostListener,
   Injector,
   OnDestroy,
   OnInit,
   ViewChild
 } from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
-import {Location} from "@angular/common";
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {EngineService} from "../service/engine.service";
-import {CommonUtil} from "../../common/util/common.util";
-import * as _ from "lodash";
-import {DeleteModalComponent} from "../../common/component/modal/delete/delete.component";
-import {Alert} from "../../common/util/alert.util";
-import {Modal} from "../../common/domain/modal";
-import {DatasourceRuleComponent} from "./datasource-rule.component";
-import {DatasourceColumnComponent} from "./datasource-column.component";
+import {ActivatedRoute} from '@angular/router';
+import {Location} from '@angular/common';
+import {CommonUtil} from '@common/util/common.util';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {EngineService} from '../service/engine.service';
+import {DatasourceRuleComponent} from './datasource-rule.component';
+import {DatasourceColumnComponent} from './datasource-column.component';
 
 declare let echarts: any;
 declare let moment: any;
@@ -40,10 +41,10 @@ declare let moment: any;
   selector: 'app-detail-datasource',
   templateUrl: './datasource-detail.component.html',
   styles: ['.ddp-ui-info-detail .wrap-data-detail .wrap-info-table.type-left {min-width:330px;}'
-          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status {font-size:12px; font-weight:bold;}'
-          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-partially {color:#ffba00;}'
-          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-fully {color:#10bf83;}'
-          , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-actively {color:#3F72C1;}']
+    , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status {font-size:12px; font-weight:bold;}'
+    , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-partially {color:#ffba00;}'
+    , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-fully {color:#10bf83;}'
+    , '.ddp-ui-info-detail table.ddp-table-detail tbody tr td .ddp-txt-status.type-actively {color:#3F72C1;}']
 })
 export class DatasourceDetailComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -102,10 +103,10 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     if (!_.isNil(this._histogramChart)) {
       this._histogramChart.resize();
     }
@@ -158,7 +159,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
 
   public getRetentionDuration(rule) {
     if (rule.type.indexOf('Period') > -1) {
-      return rule.period + ' (' + moment.duration(rule.period).locale("en").humanize() + ')' ;
+      return rule.period + ' (' + moment.duration(rule.period).locale('en').humanize() + ')';
     } else if (rule.type.indexOf('Interval') > -1) {
       return rule.interval + ' (' + this.getDurationLabel(rule.interval.split('/')[0], rule.interval.split('/')[1]) + ')';
     } else {
@@ -175,14 +176,14 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
   }
 
   public getDurationLabel(startDate, endDate) {
-    return moment.duration(moment(startDate).diff(moment(endDate))).locale("en").humanize();
+    return moment.duration(moment(startDate).diff(moment(endDate))).locale('en').humanize();
   }
 
   public disableDatasource(): void {
     // 로딩 show
     this.loadingShow();
     this.engineService.disableDatasource(this._datasourceName)
-      .then((result) => {
+      .then(() => {
         // alert
         Alert.success(this.translateService.instant('msg.engine.monitoring.alert.ds.disable.success'));
         // 로딩 hide
@@ -250,56 +251,56 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     }
 
     const barOption = {
-        backgroundColor: '#ffffff',
-        color: ['#c1cef1'],
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'line'
-          },
-          formatter: (params) => {
-            return params[0].axisValue + '<br/>' + CommonUtil.formatBytes(params[0].data, 2)
-              + ' in ' + this._getShardCount(params[0].dataIndex) + ' shards';
-          },
-          confine: true
+      backgroundColor: '#ffffff',
+      color: ['#c1cef1'],
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'line'
         },
-        grid: {
-          left: 20,
-          top: 5,
-          right: 5,
-          bottom: 0,
-          containLabel: true
+        formatter: (params) => {
+          return params[0].axisValue + '<br/>' + CommonUtil.formatBytes(params[0].data, 2)
+            + ' in ' + this._getShardCount(params[0].dataIndex) + ' shards';
         },
-        xAxis: [
-          {
-            type: 'category',
-            data: [],
-            axisTick: {
-              alignWithLabel: true
-            }
+        confine: true
+      },
+      grid: {
+        left: 20,
+        top: 5,
+        right: 5,
+        bottom: 0,
+        containLabel: true
+      },
+      xAxis: [
+        {
+          type: 'category',
+          data: [],
+          axisTick: {
+            alignWithLabel: true
           }
-        ],
-        yAxis: [
-          {
-            type: 'value',
-            show: false,
-            splitNumber: 3,
-            splitLine: { show: false },
-            axisLabel: { show: false }
-          }
-        ],
-        series: [
-          {
-            type: 'bar',
-            barWidth: '70%',
-            itemStyle: { normal: { color: '#c1cef1' }, emphasis : {color : '#666eb2'}},
-            data: []
-          }
-        ]
-      };
+        }
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          show: false,
+          splitNumber: 3,
+          splitLine: {show: false},
+          axisLabel: {show: false}
+        }
+      ],
+      series: [
+        {
+          type: 'bar',
+          barWidth: '70%',
+          itemStyle: {normal: {color: '#c1cef1'}, emphasis: {color: '#666eb2'}},
+          data: []
+        }
+      ]
+    };
 
     barOption.xAxis[0].data = this.datasourceIntervalKey.map((item) => {
-      return item.substring(0,10);
+      return item.substring(0, 10);
     });
 
     barOption.series[0].data = Object.keys(this.datasourceIntervals).map(key => this.datasourceIntervals[key]).map((item) => {
@@ -311,7 +312,7 @@ export class DatasourceDetailComponent extends AbstractComponent implements OnIn
     this._histogramChart.off('click');
     this._histogramChart.on('click', (params) => {
       if (params != null) {
-        $('.ddp-table-form.ddp-table-type2.type-cursor tr')[params.dataIndex].scrollIntoView({ behavior: 'smooth' });
+        $('.ddp-table-form.ddp-table-type2.type-cursor tr')[params.dataIndex].scrollIntoView({behavior: 'smooth'});
         this.onClickInterval(this.datasourceIntervalKey[params.dataIndex]);
       }
     });

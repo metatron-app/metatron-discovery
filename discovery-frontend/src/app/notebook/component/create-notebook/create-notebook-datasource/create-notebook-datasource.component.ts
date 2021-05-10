@@ -12,20 +12,30 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { NoteBook } from '../../../../domain/notebook/notebook';
-import { Alert } from '../../../../common/util/alert.util';
-import { NotebookService } from '../../../service/notebook.service';
-import { Page } from '../../../../domain/common/page';
-import { ConnectionType, Datasource } from '../../../../domain/datasource/datasource';
+import {
+  Component,
+  ElementRef,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {NoteBook} from '@domain/notebook/notebook';
+import {Alert} from '@common/util/alert.util';
+import {NotebookService} from '../../../service/notebook.service';
+import {Page} from '@domain/common/page';
+import {ConnectionType, Datasource} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-notebook-datasource',
   templateUrl: './create-notebook-datasource.component.html'
 })
-export class CreateNotebookDatasourceComponent extends AbstractPopupComponent implements OnInit, OnChanges {
+export class CreateNotebookDatasourceComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -169,7 +179,7 @@ export class CreateNotebookDatasourceComponent extends AbstractPopupComponent im
       params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
     }
     // 전체공개
-    (this.searchPublished) && ( params['onlyPublic'] = this.searchPublished );
+    (this.searchPublished) && (params['onlyPublic'] = this.searchPublished);
 
     this.notebookService.getNotebookDatasource(this.workspaceId, params).then((dataSources) => {
 
@@ -196,7 +206,7 @@ export class CreateNotebookDatasourceComponent extends AbstractPopupComponent im
           this.datasourceList = this.datasourceList.concat(dataSources['_embedded']['datasources']);
         }
 
-        this.datasourceList.forEach((item: Datasource,idx:number) => {
+        this.datasourceList.forEach((item: Datasource, idx: number) => {
           item.num = this.pageResult.totalElements - idx;
         });
 
@@ -238,7 +248,7 @@ export class CreateNotebookDatasourceComponent extends AbstractPopupComponent im
    * @param {KeyboardEvent} event
    */
   public searchEventPressKey(event: KeyboardEvent) {
-    ( 13 === event.keyCode ) && ( this.searchEvent() );
+    (13 === event.keyCode) && (this.searchEvent());
   } // function - searchEventPressKey
 
   /**
@@ -279,7 +289,7 @@ export class CreateNotebookDatasourceComponent extends AbstractPopupComponent im
    * publish 상태 변환
    * @param {MouseEvent} $event
    */
-  public togglePublished($event:MouseEvent) {
+  public togglePublished($event: MouseEvent) {
     $event.stopPropagation();
     $event.preventDefault();
     // 상태변경

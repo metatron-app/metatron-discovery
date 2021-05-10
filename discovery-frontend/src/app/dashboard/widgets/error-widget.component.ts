@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from "@angular/core";
-import {AbstractComponent} from "../../common/component/abstract.component";
+import {AfterViewInit, Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'error-widget',
   templateUrl: './error-widget.component.html',
-  styles: [ '.ddp-box-data-none { overflow-y: auto; }']
+  styles: ['.ddp-box-data-none { overflow-y: auto; }']
 })
-export class ErrorWidgetComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class ErrorWidgetComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -34,13 +34,13 @@ export class ErrorWidgetComponent extends AbstractComponent implements OnInit, O
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input()
-  public isShow:boolean = false;
+  public isShow: boolean = false;
 
   @Input()
-  public iconClass:string;
+  public iconClass: string;
 
   @Input()
-  public widgetName:string;
+  public widgetName: string;
 
   @Input()
   public errorInfo: { show?: boolean, code?: string, details?: string };
@@ -52,7 +52,7 @@ export class ErrorWidgetComponent extends AbstractComponent implements OnInit, O
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
     super(elementRef, injector);
   }
 

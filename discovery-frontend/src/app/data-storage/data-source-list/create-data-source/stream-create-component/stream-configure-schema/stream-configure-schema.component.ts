@@ -18,21 +18,22 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnDestroy,
+  OnInit,
   Output,
   ViewChild
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
-import {DatasourceInfo, FieldFormatType} from '../../../../../domain/datasource/datasource';
-import {SchemaConfigureMainComponent} from "../../../../component/schema-configure/schema-configure-main.component";
-
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {DatasourceInfo, FieldFormatType} from '@domain/datasource/datasource';
+import {SchemaConfigureMainComponent} from '../../../../component/schema-configure/schema-configure-main.component';
 
 @Component({
   selector: 'stream-configure-schema',
   templateUrl: './stream-configure-schema.component.html'
 })
-export class StreamConfigureSchemaComponent extends AbstractPopupComponent {
+export class StreamConfigureSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  @ViewChild(SchemaConfigureMainComponent)
+  @ViewChild(SchemaConfigureMainComponent, {static: true})
   private readonly _schemaConfigureMainComponent: SchemaConfigureMainComponent;
 
   // 생성될 데이터소스 정보

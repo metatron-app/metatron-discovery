@@ -12,26 +12,43 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter, Output } from '@angular/core';
-import { DatasetService } from '../service/dataset.service';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../common/service/popup.service';
-import { Alert } from '../../../common/util/alert.util';
-import { PreparationAlert } from '../../util/preparation-alert.util';
-import { PrDatasetHive, DsType, RsType, ImportType, Field, TableInfo, QueryInfo } from '../../../domain/data-preparation/pr-dataset';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { StringUtil } from '../../../common/util/string.util';
-import * as $ from "jquery";
-import { isNullOrUndefined } from "util";
-import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {PopupService} from '@common/service/popup.service';
+import {Alert} from '@common/util/alert.util';
+import {PreparationAlert} from '../../util/preparation-alert.util';
+import {
+  DsType,
+  Field,
+  ImportType,
+  PrDatasetHive,
+  QueryInfo,
+  RsType,
+  TableInfo
+} from '@domain/data-preparation/pr-dataset';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridOption} from '@common/component/grid/grid.option';
+import {StringUtil} from '@common/util/string.util';
+import * as $ from 'jquery';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 
 @Component({
   selector: 'app-create-dataset-staging-selectdata',
   templateUrl: './create-dataset-staging-selectdata.component.html'
 })
-export class CreateDatasetStagingSelectdataComponent extends AbstractPopupComponent implements OnInit  {
+export class CreateDatasetStagingSelectdataComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -47,12 +64,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  //public datasetHive: DatasetHive;
   public datasetHive: PrDatasetHive;
 
 
   public databaseList: any[] = [];              // Database list (first selectBox)
-  public isDatabaseListShow : boolean = false;  // Database list show/hide
+  public isDatabaseListShow: boolean = false;  // Database list show/hide
   public isQueryDatabaseListShow: boolean = false;
 
 
@@ -78,7 +94,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
   public flag: boolean = false;
 
-  public clearGrid : boolean = false;
+  public clearGrid: boolean = false;
 
   public isTableEmpty: boolean = false;
 
@@ -141,13 +157,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     return databaseList;
 
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(private popupService: PopupService,
-              private datasetService: DatasetService,
               private _connectionService: DataconnectionService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -164,12 +180,12 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.getDatabases();
 
     // Only initialise sqlInfo when sqlInfo doesn't have value
-    if (isNullOrUndefined(this.datasetHive.sqlInfo)) {
+    if (this.isNullOrUndefined(this.datasetHive.sqlInfo)) {
       this.datasetHive.sqlInfo = new QueryInfo();
     }
 
     // Only initialise tableInfo when tableInfo doesn't have value
-    if (isNullOrUndefined(this.datasetHive.tableInfo)) {
+    if (this.isNullOrUndefined(this.datasetHive.tableInfo)) {
       this.datasetHive.tableInfo = new TableInfo();
     }
 
@@ -177,7 +193,6 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this._setDefaultValues();
 
   }
-
 
   public ngOnDestroy() {
     super.ngOnDestroy();
@@ -198,7 +213,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       if (this.showQueryStatus && this.isQuerySuccess) {
         this.datasetHive.sqlInfo.valid = true;
       } else {
-        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
+        if (this.isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
           this.showQueryStatus = true;
           this.isQuerySuccess = false;
           this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
@@ -233,7 +248,6 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
   /**
    * Change selected database
-   * @param event
    * @param database
    */
   public selectDatabase(database) {
@@ -251,7 +265,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * @param event
    * @param data
    */
-  public onChangeTable(event, data:any) {
+  public onChangeTable(event, data: any) {
     this.isSchemaListShow = false;
     event.stopPropagation();
     this.loadingShow();
@@ -264,33 +278,33 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       type: 'TABLE',
       query: data.name
     }).then((result) => {
-        this.loadingHide();
+      this.loadingHide();
 
-        if (result.fields.length > 0 ) {
+      if (result.fields.length > 0) {
 
-          const headers: header[] = this._getHeaders(result.fields);
-          const rows: any[] = this._getRows(result.data);
+        const headers: Header[] = this._getHeaders(result.fields);
+        const rows: any[] = this._getRows(result.data);
 
-          this.datasetHive.tableInfo.headers = headers;
-          this.datasetHive.tableInfo.rows = rows;
+        this.datasetHive.tableInfo.headers = headers;
+        this.datasetHive.tableInfo.rows = rows;
 
-          this.clearGrid = false;
-          this._drawGrid(headers,rows);
-          this.clickable = true;
+        this.clearGrid = false;
+        this._drawGrid(headers, rows);
+        this.clickable = true;
 
-        } else {
+      } else {
 
-          this.gridComponent.destroy();
-          this._deleteGridInfo(this.datasetHive.rsType);
-        }
+        this.gridComponent.destroy();
+        this._deleteGridInfo(this.datasetHive.rsType);
+      }
 
 
-      })
+    })
       .catch((error) => {
         this.clearGrid = false;
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        const prepError = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
       });
     this.initSelectedCommand(this.filteredSchemaList);
   } // function - onChangeTable
@@ -302,7 +316,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public showDatabaseList(event?) {
     event ? event.stopImmediatePropagation() : null;
 
-    this.dbSearchText = ''; //검색어 초기화
+    this.dbSearchText = ''; // 검색어 초기화
 
     // Open select box and focus on input
     setTimeout(() => {
@@ -317,12 +331,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
   /**
    * Open / close schemalist select box
-   * @param event
    */
   public showSchemaList() {
     this.isSchemaListShow = true;
     this.isDatabaseListShow = false;
-    this.schemaSearchText = ''; //검색어 초기화
+    this.schemaSearchText = ''; // 검색어 초기화
     setTimeout(() => $('.schema-search').trigger('focus')); // focus on input
 
   } // function - showSchemaList
@@ -351,7 +364,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.clickable = true;
     }
 
-    let data = null;
+    let data;
     if (this.datasetHive.rsType === RsType.TABLE) {
       data = this.datasetHive.tableInfo;
 
@@ -369,7 +382,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
-      this._drawGrid(data.headers,data.rows)
+      this._drawGrid(data.headers, data.rows)
     } else {
       this.clickable = false;
       this.clearGrid = true;
@@ -412,7 +425,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.isQuerySuccess = true;
 
 
-      const headers: header[] = this._getHeaders(result.fields);
+      const headers: Header[] = this._getHeaders(result.fields);
       const rows: any[] = this._getRows(result.data);
 
       this.datasetHive.sqlInfo.headers = headers;
@@ -420,11 +433,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.datasetHive.sqlInfo.valid = true;
 
       this.clearGrid = false;
-      this._drawGrid(headers,rows);
+      this._drawGrid(headers, rows);
       this.clickable = true;
 
 
-    }).catch((error) => {
+    }).catch(() => {
 
       this.loadingHide();
       this.showQueryStatus = true;
@@ -439,7 +452,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
   // TODO
   public editorTextChange(param: string) {
-    if(this.clickable) {
+    if (this.clickable) {
       this.clickable = !this.clickable;
     }
 
@@ -464,30 +477,30 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public navigateWithKeyboardShortList(event, currentList, method) {
 
     // set scroll height
-    let height = 25;
+    const height = 25;
 
     // open select box when arrow up/ arrow down is pressed
-    if(event.keyCode === 38 || event.keyCode === 40) {
-      switch(method) {
+    if (event.keyCode === 38 || event.keyCode === 40) {
+      switch (method) {
         case 'db' :
-          !this.isDatabaseListShow ? this.isDatabaseListShow = true: null;
+          !this.isDatabaseListShow ? this.isDatabaseListShow = true : null;
           break;
         case 'schema' :
-          !this.isSchemaListShow ? this.isSchemaListShow = true: null;
+          !this.isSchemaListShow ? this.isSchemaListShow = true : null;
           break;
         case 'query' :
-          !this.isQueryDatabaseListShow ? this.isQueryDatabaseListShow = true: null;
+          !this.isQueryDatabaseListShow ? this.isQueryDatabaseListShow = true : null;
           break;
       }
     }
 
     // when there is no element in the list
-    if(currentList.length === 0){
+    if (currentList.length === 0) {
       return;
     }
 
     // this.commandList 에 마지막 인덱스
-    let lastIndex = currentList.length-1;
+    const lastIndex = currentList.length - 1;
 
     // command List 에서 selected 된 index 를 찾는다
     const idx = currentList.findIndex((command) => {
@@ -499,13 +512,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     if (event.keyCode === 38) {
 
       // 선택된게 없다
-      if ( idx === -1) {
+      if (idx === -1) {
 
         // 리스트에 마지막 인덱스를 selected 로 바꾼다
         currentList[lastIndex].selected = true;
 
         // 스크롤을 마지막으로 보낸다
-        $('.ddp-selectdown').scrollTop(lastIndex*height);
+        $('.ddp-selectdown').scrollTop(lastIndex * height);
 
         // 리스트에서 가장 첫번쨰가 선택되어 있는데 arrow up 을 누르면 리스트에 마지막으로 보낸다
       } else if (idx === 0) {
@@ -515,23 +528,23 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
 
         // 스크롤을 마지막으로 보낸다
-        $('.ddp-selectdown').scrollTop(lastIndex*height);
+        $('.ddp-selectdown').scrollTop(lastIndex * height);
 
       } else {
         currentList[idx].selected = false;
-        currentList[idx-1].selected = true;
-        $('.ddp-selectdown').scrollTop((idx-1)*height);
+        currentList[idx - 1].selected = true;
+        $('.ddp-selectdown').scrollTop((idx - 1) * height);
       }
 
       // when Arrow down is pressed
     } else if (event.keyCode === 40) {
 
       // 리스트에 첫번째 인텍스를 selected 로 바꾼다
-      if ( idx === -1) {
+      if (idx === -1) {
         currentList[0].selected = true;
 
         // 리스트에서 가장 마지막이 선택되어 있는데 arrow down 을 누르면 다시 리스트 0번째로 이동한다
-      }  else if (idx === lastIndex) {
+      } else if (idx === lastIndex) {
 
         currentList[0].selected = true;
         currentList[lastIndex].selected = false;
@@ -539,8 +552,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
       } else {
         currentList[idx].selected = false;
-        currentList[idx+1].selected = true;
-        $('.ddp-selectdown').scrollTop((idx+1)*height);
+        currentList[idx + 1].selected = true;
+        $('.ddp-selectdown').scrollTop((idx + 1) * height);
 
       }
 
@@ -550,25 +563,25 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     if (event.keyCode === 13) {
 
       // selected 된 index 를 찾는다
-      const idx = currentList.findIndex((command) => {
+      const selectedIdx = currentList.findIndex((command) => {
         if (command.selected) {
           return command;
         }
       });
 
       // 선택된게 없는데 엔터를 눌렀을때
-      if (idx === -1) {
+      if (selectedIdx === -1) {
         return;
       } else {
-        switch(method) {
+        switch (method) {
           case 'db' :
-            this.selectDatabase(currentList[idx]);
+            this.selectDatabase(currentList[selectedIdx]);
             break;
           case 'schema' :
-            this.onChangeTable(event, currentList[idx]);
+            this.onChangeTable(event, currentList[selectedIdx]);
             break;
           case 'query' :
-            this.selectQueryDatabase(currentList[idx]);
+            this.selectQueryDatabase(currentList[selectedIdx]);
             break;
         }
       }
@@ -584,10 +597,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * @param list
    * @param index
    */
-  public listHover(event,list,index) {
+  public listHover(event, list, index) {
 
     let tempList = [];
-    switch(list) {
+    switch (list) {
       case 'db':
         tempList = this.filteredDbList;
         $('[tabindex=1]').focus();
@@ -623,8 +636,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   @HostListener('document:keydown.enter', ['$event'])
   public onEnterKeydownHandler(event: KeyboardEvent) {
     // enter key only works when there is not popup or selectbox opened
-    if(event.keyCode === 13) {
-      if (!this.isSchemaListShow && !this.isSchemaListShow ) {
+    if (event.keyCode === 13) {
+      if (!this.isSchemaListShow && !this.isSchemaListShow) {
         this.next();
       }
     }
@@ -693,14 +706,14 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         Alert.error('No databases');
       } else {
         result['databases'].forEach((item, index) => {
-          this.databaseList.push({idx : index, name : item, selected : false})
+          this.databaseList.push({idx: index, name: item, selected: false})
         });
         // TABLE && GRID INFO
         if (this.datasetHive.rsType === RsType.TABLE && this.datasetHive.tableInfo.headers) {
 
           this.clearGrid = false;
           this.getTables(this.datasetHive.tableInfo.databaseName);
-          this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
+          this._drawGrid(this.datasetHive.tableInfo.headers, this.datasetHive.tableInfo.rows);
 
           // QUERY AND GRID INFO
         } else if (this.datasetHive.rsType === RsType.QUERY && this.datasetHive.sqlInfo.queryStmt) {
@@ -712,7 +725,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           // GRID INFO O
           if (this.datasetHive.sqlInfo.headers.length > 0) {
             this.clearGrid = false;
-            this._drawGrid(this.datasetHive.sqlInfo.headers,this.datasetHive.sqlInfo.rows);
+            this._drawGrid(this.datasetHive.sqlInfo.headers, this.datasetHive.sqlInfo.rows);
           } else {
 
             // GRID INFO X
@@ -724,7 +737,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           this.showDatabaseList();
         }
       }
-    }).catch((error) => {
+    }).catch(() => {
       this.loadingHide();
     });
 
@@ -735,7 +748,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * Get table list
    * @param {string} database
    */
-  private getTables(database:string) {
+  private getTables(database: string) {
     this.loadingShow();
 
     this._connectionService.getTableForHive(database).then((result) => {
@@ -744,7 +757,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
       if (result['tables']) {
         result['tables'].forEach((item, index) => {
-          this.schemaList.push({ idx : index, name : item, selected : false });
+          this.schemaList.push({idx: index, name: item, selected: false});
         });
         this.isTableEmpty = false;
       } else {
@@ -752,7 +765,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         this.datasetHive.tableInfo.tableName = undefined;
         this.isTableEmpty = true;
 
-        setTimeout(() => this.isSchemaListShow = true );
+        setTimeout(() => this.isSchemaListShow = true);
 
         if (this.gridComponent) {
           this.gridComponent.destroy();
@@ -773,7 +786,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * @returns {any[]}
    * @private
    */
-  private _getRows(rows) : any[] {
+  private _getRows(rows): any[] {
     let result = rows;
     if (result.length > 0 && !result[0].hasOwnProperty('id')) {
       result = rows.map((row: any, idx: number) => {
@@ -791,7 +804,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * @returns {header[]}
    * @private
    */
-  private _getHeaders(headers) : header[] {
+  private _getHeaders(headers): Header[] {
     return headers.map(
       (field: Field) => {
         return new SlickGridHeader()
@@ -818,7 +831,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * @param {any[]} rows
    * @private
    */
-  private _drawGrid(headers: header[], rows : any[]) {
+  private _drawGrid(headers: Header[], rows: any[]) {
     // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
     setTimeout(() => {
       this.gridComponent.create(headers, rows, new GridOption()
@@ -827,10 +840,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         .RowHeight(32)
         .NullCellStyleActivate(true)
         .build()
-      )},400);
+      )
+    }, 400);
     this.clickable = true;
   }
-
 
 
   /**
@@ -845,7 +858,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
 
     // When type info is null set it to TABLE
-    if (isNullOrUndefined(this.datasetHive.rsType)) {
+    if (this.isNullOrUndefined(this.datasetHive.rsType)) {
       this.datasetHive.rsType = RsType.TABLE;
     }
 
@@ -873,7 +886,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * @param {RsType} type
    * @private
    */
-  private _deleteGridInfo(type : RsType) {
+  private _deleteGridInfo(type: RsType) {
 
     if (type === RsType.QUERY) {
 
@@ -892,7 +905,6 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.clearGrid = true;
     this.clickable = false;
   }
-
 
 
 }

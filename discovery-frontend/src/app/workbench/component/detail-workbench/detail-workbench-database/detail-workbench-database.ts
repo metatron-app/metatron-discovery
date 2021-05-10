@@ -15,27 +15,27 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, HostListener,
   Injector,
-  Input,
-  Output, SimpleChange, SimpleChanges, ViewChild
+  Input, OnChanges,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
-import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {DataconnectionService} from '@common/service/dataconnection.service';
 import {isUndefined} from 'util';
-import {Page} from '../../../../domain/common/page';
+import {Page} from '@domain/common/page';
 import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
 import {WorkbenchService} from '../../../service/workbench.service';
-import {StringUtil} from '../../../../common/util/string.util';
-import {CommonUtil} from "../../../../common/util/common.util";
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'detail-workbench-database',
-  templateUrl: './detail-workbench-database.html',
-  host: {
-    '(document:click)': 'onClickHost($event)',
-  }
+  templateUrl: './detail-workbench-database.html'
 })
-export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent {
+export class DetailWorkbenchDatabaseComponent extends AbstractWorkbenchComponent implements OnChanges {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -108,6 +108,15 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent {
     }
   }
 
+  // 컴포넌트 내부  host 클릭이벤트 처리
+  @HostListener('document:click', ['$event'])
+  public onClickHost(event) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      // 팝업창 닫기
+      this.isDatabaseSearchShow = false;
+    }
+  }
+
   /**
    * 스키마 브라우져 창 열기
    */
@@ -116,14 +125,6 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent {
       return;
     }
     this.schemaBrowserEvent.emit();
-  }
-
-  // 컴포넌트 내부  host 클릭이벤트 처리
-  public onClickHost(event) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      // 팝업창 닫기
-      this.isDatabaseSearchShow = false;
-    }
   }
 
   /**
@@ -251,7 +252,7 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent {
     this.isDatabaseSearchShow = false;
     this._setDatabaseSchema(this.params.dataconnection.id, this.params.dataconnection.database);
     this.saveLocalStorageGeneralSchema(this.params.dataconnection.database);
-    if (init == true) {
+    if (init === true) {
       this.initDatabaseEvent.emit(param);
     } else {
       this.selectedDatabaseEvent.emit(param);
@@ -300,9 +301,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent {
       if (!isUndefined(generalConnection.tabId)) {
         saveObj.tabId = generalConnection.tabId;
       }
-      //if (!isUndefined(generalConnection.schema)) {
+      // if (!isUndefined(generalConnection.schema)) {
       saveObj.schema = schema;
-      //}
+      // }
       localStorage.setItem('workbench-general-' + this.workbenchId, JSON.stringify(saveObj));
     }
   }

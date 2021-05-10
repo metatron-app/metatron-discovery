@@ -13,8 +13,8 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../../common/service/abstract.service';
-import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -96,7 +96,7 @@ export class MetadataService extends AbstractService {
     return this.get(url + `&projection=${projection}`);
   }
 
-  public getMetadataListByDataCreator(username: string,params: object, projection: string = 'forListView'): Promise<any> {
+  public getMetadataListByDataCreator(username: string, params: object, projection: string = 'forListView'): Promise<any> {
     // URL
     let url: string = this.URL_METADATA + `/datacreators/${username}/metadatas`;
 
@@ -106,6 +106,7 @@ export class MetadataService extends AbstractService {
 
     return this.get(url + `&projection=${projection}`);
   }
+
   /**
    * 메타데이터  삭제
    * @param {string} id
@@ -156,7 +157,7 @@ export class MetadataService extends AbstractService {
   }
 
   public linkMetadataWithCatalog(metadataId, catalogId): Promise<any> {
-    let catId = this.API_URL + 'catalogs/' + catalogId;
+    const catId = this.API_URL + 'catalogs/' + catalogId;
     return this.patch(this.URL_METADATA + `/${metadataId}/catalogs`, catId, 'text/uri-list');
   }
 
@@ -176,7 +177,7 @@ export class MetadataService extends AbstractService {
     return this.get(this.URL_METADATA + `/tags`);
   }
 
-  public getPopularityTags(params:{scope?:string, domainType?:string, nameContains?: string, size?:number }): Promise<any> {
+  public getPopularityTags(params: { scope?: string, domainType?: string, nameContains?: string, size?: number }): Promise<any> {
     let url: string = this.API_URL + `/tags/popularity`;
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
@@ -216,9 +217,9 @@ export class MetadataService extends AbstractService {
   public getMetadataByConnection(
     connId: string, schemaName: string, tableName: object, projection: string = 'forItemView'): Promise<any> {
     // param data 생성
-    let param = {
-      'schema': schemaName,
-      'table': tableName,
+    const param = {
+      schema: schemaName,
+      table: tableName,
     };
     return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param);
   }
@@ -323,13 +324,13 @@ export class MetadataService extends AbstractService {
 
   /**
    * Get Recently Queries In Metadata Detail for DataBase
-   * @param {number} page
+   * @param {string} dataConnectionId
+   * @param {number} _page
    * @param {number} size
    * @param {string} sort
-   * @param {string} dataConnectionId
    * @returns {Promise<any>}
    */
-  public getRecentlyQueriesInMetadataDetailForDatabase(dataConnectionId: string, page: number, size: number, sort: string): Promise<any> {
+  public getRecentlyQueriesInMetadataDetailForDatabase(dataConnectionId: string, _page: number, size: number, sort: string): Promise<any> {
     return this.get(this.API_URL + `queryhistories?sort=${sort}&size=${size}&dataConnectionId=${dataConnectionId}`);
   }
 

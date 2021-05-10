@@ -13,15 +13,9 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {BaseOptionComponent} from "./base-option.component";
-import { TotalValueStyle, UIGridChart } from '../../common/component/chart/option/ui-option/ui-grid-chart';
-import { UIOption } from '../../common/component/chart/option/ui-option';
-import {
-  FontSize, GridViewType, Operator, TextAlign, UIFontStyle,
-  UIPosition
-} from '../../common/component/chart/option/define/common';
-import * as _ from 'lodash';
-import {AbstractComponent} from "../../common/component/abstract.component";
+import {TotalValueStyle} from '@common/component/chart/option/ui-option/ui-grid-chart';
+import {FontSize, Operator, TextAlign, UIFontStyle, UIPosition} from '@common/component/chart/option/define/common';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 @Component({
   selector: 'calc-option-slider',
@@ -49,33 +43,33 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
     // Set
     this.totalValueStyle = totalValueStyle;
 
-    if(totalValueStyle) {
-      this.operatorDefaultIdx = this.operatorList.findIndex( item => item['value'] === totalValueStyle.aggregationType );
-      this.hAlignDefaultIdx = this.hAlignList.findIndex( item => item['value'] === totalValueStyle.hAlign );
-      ( -1 === this.hAlignDefaultIdx ) && ( this.hAlignDefaultIdx = 0 );
+    if (totalValueStyle) {
+      this.operatorDefaultIdx = this.operatorList.findIndex(item => item['value'] === totalValueStyle.aggregationType);
+      this.hAlignDefaultIdx = this.hAlignList.findIndex(item => item['value'] === totalValueStyle.hAlign);
+      (-1 === this.hAlignDefaultIdx) && (this.hAlignDefaultIdx = 0);
     }
   }
 
   @Output() public onChanged = new EventEmitter();
 
   // 연산자 리스트
-  public operatorList: Object[] = [
+  public operatorList: object[] = [
     {name: this.translateService.instant('msg.page.calc.label.operator.sum'), value: Operator.SUM},
     {name: this.translateService.instant('msg.page.calc.label.operator.average'), value: Operator.AVERAGE},
     {name: this.translateService.instant('msg.page.calc.label.operator.max'), value: Operator.MAX},
     {name: this.translateService.instant('msg.page.calc.label.operator.min'), value: Operator.MIN},
     {name: this.translateService.instant('msg.page.calc.label.operator.count'), value: Operator.COUNT},
   ];
-  public operatorDefaultIdx:number = 0;
+  public operatorDefaultIdx: number = 0;
 
   // 가로 align리스트
-  public hAlignList: Object[] = [
+  public hAlignList: object[] = [
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.default'), value: TextAlign.DEFAULT},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.left'), value: TextAlign.LEFT},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.center'), value: TextAlign.CENTER},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.right'), value: TextAlign.RIGHT}
   ];
-  public hAlignDefaultIdx:number = 0;
+  public hAlignDefaultIdx: number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -122,7 +116,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
   /**
    * 연산자 변경시
    */
-  public changeOperator(data: Object): void {
+  public changeOperator(data: object): void {
     this.totalValueStyle.aggregationType = data['value'];
     this.onChanged.emit(this.totalValueStyle);
   }
@@ -131,7 +125,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
    * 가로 align 변경시
    * @param data
    */
-  public changeHAlign(data: Object): void {
+  public changeHAlign(data: object): void {
     this.totalValueStyle.hAlign = data['value'];
     this.onChanged.emit(this.totalValueStyle);
   }
@@ -175,7 +169,7 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
    */
   public changeFontStyle(fontStyle: string): void {
 
-    if (-1 == this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle])) {
+    if (-1 === this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle])) {
       this.totalValueStyle.fontStyles.push(UIFontStyle[fontStyle]);
     } else {
       this.totalValueStyle.fontStyles.splice(this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]), 1);
@@ -185,10 +179,6 @@ export class CalculatedOptionSliderComponent extends AbstractComponent implement
   }
 
   public isFontStyle(fontStyle: string): boolean {
-    if(this.totalValueStyle && this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]) != -1) {
-      return true;
-    } else {
-      return false;
-    }
+    return (this.totalValueStyle && this.totalValueStyle.fontStyles.indexOf(UIFontStyle[fontStyle]) !== -1);
   }
 }

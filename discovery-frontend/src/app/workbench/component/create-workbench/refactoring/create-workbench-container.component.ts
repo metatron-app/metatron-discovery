@@ -1,13 +1,13 @@
-import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {Component, ElementRef, EventEmitter, Injector, Output} from "@angular/core";
-import {WorkbenchConstant} from "../../../workbench.constant";
-import {CreateWorkbenchModelService} from "./service/create-workbench-model.service";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {WorkbenchConstant} from '../../../workbench.constant';
+import {CreateWorkbenchModelService} from './service/create-workbench-model.service';
 
 @Component({
   selector: 'component-create-workbench',
   templateUrl: 'create-workbench-container.component.html'
 })
-export class CreateWorkbenchContainerComponent extends AbstractPopupComponent {
+export class CreateWorkbenchContainerComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   // required
   workspaceId: string;

@@ -13,19 +13,18 @@
  */
 
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AbstractComponent} from "../../../../common/component/abstract.component";
-import {ConfirmSmallComponent} from "../../../../common/component/modal/confirm-small/confirm-small.component";
-import {User} from "../../../../domain/user/user";
-import {UserService} from "../../../service/user.service";
-import {PermissionService} from "../../../service/permission.service";
-import {ActivatedRoute} from "@angular/router";
-import {CookieConstant} from "../../../../common/constant/cookie.constant";
-import {Alert} from "../../../../common/util/alert.util";
-import {Modal} from "../../../../common/domain/modal";
-import {isNullOrUndefined} from 'util';
-import * as $ from "jquery";
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConfirmSmallComponent} from '@common/component/modal/confirm-small/confirm-small.component';
+import {User} from '@domain/user/user';
+import {UserService} from '../../../service/user.service';
+import {PermissionService} from '../../../service/permission.service';
+import {ActivatedRoute} from '@angular/router';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {Alert} from '@common/util/alert.util';
+import {Modal} from '@common/domain/modal';
+import * as $ from 'jquery';
 import * as _ from 'lodash';
-import {InitialChangePasswordComponent} from "../initial-change-password/initial-change-password.component";
+import {InitialChangePasswordComponent} from '../initial-change-password/initial-change-password.component';
 
 declare let moment: any;
 
@@ -63,7 +62,8 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
   public loginFailMsg: string = '';
 
-  public queryString; string;
+  public queryString;
+  string;
   public oauthClientInformation: OauthClientInformation;
   public clientId: string;
 
@@ -77,7 +77,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
               private permissionService: PermissionService,
               private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
-              protected  injector: Injector) {
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -96,7 +96,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.userService.getClientDetail(this.clientId).then(result => {
       this.oauthClientInformation = result;
-      $("#favicon").attr("href", this.oauthClientInformation.faviconPath + '?v=3');
+      $('#favicon').attr('href', this.oauthClientInformation.faviconPath + '?v=3');
       if (!_.isNil(this.oauthClientInformation.clientName)) {
         document.title = this.oauthClientInformation.clientName;
       }
@@ -125,7 +125,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loadingShow();
 
-    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+    (this.user.username) && (this.user.username = this.user.username.trim());
 
     this.userService.checkUserIp(this.user, this.oauthClientInformation.basicHeader).then((host) => {
       if (host === true) {
@@ -133,7 +133,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
       } else {
         this.loadingHide();
         const modal = new Modal();
-        modal.name = this.translateService.instant( 'msg.login.access.title' );
+        modal.name = this.translateService.instant('msg.login.access.title');
         modal.description = this.translateService.instant('msg.sso.ui.confirm.userip', {value: host});
         modal.data = this.user;
         // confirm modal
@@ -157,7 +157,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 
     this.loadingShow();
 
-    ( this.user.username ) && ( this.user.username = this.user.username.trim() );
+    (this.user.username) && (this.user.username = this.user.username.trim());
 
     this.loginFailMsg = '';
 
@@ -203,7 +203,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
   }
 
   public confirmComplete(data) {
-    if (!isNullOrUndefined(data)) {
+    if (!this.isNullOrUndefined(data)) {
       if (data === this.user) {
         this.login();
       } else {
@@ -249,7 +249,7 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
     }
     modal.description = this.translateService.instant('msg.login.access.description')
       + moment(lastLoginTime).format('YYYY-MM-DD HH:mm:ss');
-    if (lastLoginIp != undefined) {
+    if (lastLoginIp !== undefined) {
       modal.description = modal.description + ' (' + lastLoginIp + ')';
     }
     modal.data = forwardUrl;
@@ -261,13 +261,13 @@ export class OauthComponent extends AbstractComponent implements OnInit, OnDestr
 }
 
 interface OauthClientInformation {
-  clientName:string
-  basicHeader:string
-  faviconPath:string
-  backgroundFilePath:string
-  logoFilePath:string
-  logoDesc:string
-  smallLogoFilePath:string
-  smallLogoDesc:string
-  copyrightHtml:string
+  clientName: string
+  basicHeader: string
+  faviconPath: string
+  backgroundFilePath: string
+  logoFilePath: string
+  logoDesc: string
+  smallLogoFilePath: string
+  smallLogoDesc: string
+  copyrightHtml: string
 }

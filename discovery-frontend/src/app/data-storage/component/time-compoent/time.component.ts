@@ -12,8 +12,18 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, OnInit, Output, ViewChild, Input } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 
 declare let moment: any;
 declare let rome: any;
@@ -22,7 +32,7 @@ declare let rome: any;
   selector: 'component-time',
   templateUrl: './time.component.html'
 })
-export class TimeComponent extends AbstractComponent implements OnInit {
+export class TimeComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -82,7 +92,7 @@ export class TimeComponent extends AbstractComponent implements OnInit {
   public ngOnDestroy() {
     // Destory
     super.ngOnDestroy();
-    ( this.time ) && ( this.time.destroy() );
+    (this.time) && (this.time.destroy());
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

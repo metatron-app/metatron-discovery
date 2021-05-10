@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from "@angular/core";
-import {AbstractComponent} from "../abstract.component";
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
 
 @Component({
   selector: 'svg-icon-component',
@@ -159,7 +159,7 @@ export class SvgIconComponent extends AbstractComponent implements OnInit, OnDes
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public getCss() : string {
     let className = '';
-    for (let i = 0; i < this.svgArrIcons.length; i = i + 1) {
+    for (let i = 0, nMax = this.svgArrIcons.length; i < nMax; i = i + 1) {
       if (this.name === this.svgArrIcons[i].name) {
         className = this.isBlackAndWhite ? this.svgArrIcons[i].class.a : this.svgArrIcons[i].class.b;
         break;

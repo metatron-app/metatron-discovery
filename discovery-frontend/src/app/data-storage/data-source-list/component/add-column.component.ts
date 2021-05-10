@@ -13,18 +13,28 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output, ViewChild} from '@angular/core';
-import { StringUtil } from '../../../common/util/string.util';
 import * as _ from 'lodash';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { FieldRole, IngestionRuleType, LogicalType } from '../../../domain/datasource/datasource';
-import {ColumnSelectBoxComponent} from "./column-select-box.component";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {FieldRole, IngestionRuleType, LogicalType} from '@domain/datasource/datasource';
+import {ColumnSelectBoxComponent} from './column-select-box.component';
 
 @Component({
   selector: 'add-column-component',
   templateUrl: './add-column.component.html'
 })
-export class AddColumnComponent extends AbstractComponent {
+export class AddColumnComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   @ViewChild('latitude_select')
   private readonly _latitudeSelectComponent: ColumnSelectBoxComponent;
@@ -36,13 +46,25 @@ export class AddColumnComponent extends AbstractComponent {
   private _columnList: any;
   // method list
   public methodTypeList: any = [
-    {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: LogicalType.GEO_POINT},
+    {
+      label: this.translateService.instant('msg.storage.ui.list.geo.point'),
+      icon: 'ddp-icon-type-point',
+      value: LogicalType.GEO_POINT
+    },
     // {label: this.translateService.instant('msg.storage.ui.list.geo.line'), icon: 'ddp-icon-type-line', value: LogicalType.GEO_LINE},
     // {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), icon: 'ddp-icon-type-polygon', value: LogicalType.GEO_POLYGON},
-    {label: this.translateService.instant('msg.storage.ui.list.expression'), icon: 'ddp-icon-type-expression', value: LogicalType.USER_DEFINED}
+    {
+      label: this.translateService.instant('msg.storage.ui.list.expression'),
+      icon: 'ddp-icon-type-expression',
+      value: LogicalType.USER_DEFINED
+    }
   ];
   // selected method type
-  public selectedMethodType: any = {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: LogicalType.GEO_POINT};
+  public selectedMethodType: any = {
+    label: this.translateService.instant('msg.storage.ui.list.geo.point'),
+    icon: 'ddp-icon-type-point',
+    value: LogicalType.GEO_POINT
+  };
   // method type show flag
   public isMethodTypeListShow: boolean = false;
   // latitude column list
@@ -99,10 +121,10 @@ export class AddColumnComponent extends AbstractComponent {
 
   /**
    * Window resize
-   * @param event
+   * @param _event
    */
   @HostListener('window:resize', ['$event'])
-  protected onResize(event) {
+  public onResize(_event) {
     // #1925
     this.closeSelectBoxes();
   }

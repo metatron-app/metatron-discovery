@@ -12,19 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-//import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
-import { PrDataSnapshot, Status } from '../../domain/data-preparation/pr-snapshot';
-import { DataSnapshotService } from '../data-snapshot/service/data-snapshot.service';
-import { Alert } from '../../common/util/alert.util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PrDataSnapshot, Status} from '@domain/data-preparation/pr-snapshot';
+import {DataSnapshotService} from '../data-snapshot/service/data-snapshot.service';
 
 @Component({
   selector: 'snapshot-loading',
   templateUrl: './snapshot-loading.component.html',
 })
 export class SnapshotLoadingComponent extends AbstractComponent implements OnInit, OnDestroy {
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -37,29 +35,28 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  //public snapshot : DataSnapshot;
-  public snapshot : PrDataSnapshot;
+  public snapshot: PrDataSnapshot;
 
   public interval;
 
-  public isShow : boolean = false;            // popup show/hide
-  public snapshotCancel : boolean = false;    // snapshot cancel confirm popup show/hide
-  public inProgress : boolean = true;         // t/f if in progress
-  public isFinishPopupOpen : boolean = false; // t/f is status is failed, succeeded, canceled
+  public isShow: boolean = false;            // popup show/hide
+  public snapshotCancel: boolean = false;    // snapshot cancel confirm popup show/hide
+  public inProgress: boolean = true;         // t/f if in progress
+  public isFinishPopupOpen: boolean = false; // t/f is status is failed, succeeded, canceled
 
-  public snapshotId : string ;
+  public snapshotId: string;
 
-  public progressPercentage : number = 0;
-  public isAPIRequested : boolean = false;
+  public progressPercentage: number = 0;
+  public isAPIRequested: boolean = false;
 
-  public statusClass : string = '';
+  public statusClass: string = '';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
-              private snapshotService : DataSnapshotService) {
+              private snapshotService: DataSnapshotService) {
     super(elementRef, injector);
   }
 
@@ -96,7 +93,7 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
     clearInterval(this.interval);
     this.interval = setInterval(() => {
       this.getSnapshotDetail(this.snapshotId);
-    },1000);
+    }, 1000);
   }
 
   /**
@@ -110,13 +107,13 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
         if (result) {
           this.snapshot = result;
           this.isShow = true;
-          let progress = [Status.NOT_AVAILABLE,Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING];
+          const progress = [Status.NOT_AVAILABLE, Status.INITIALIZING, Status.RUNNING, Status.WRITING, Status.TABLE_CREATING];
           if (this.snapshot.status === Status.FAILED) {
             this._setFinishPopup('fail');
           } else if (this.snapshot.status === Status.SUCCEEDED) {
             this._setFinishPopup('success');
           } else if (-1 !== progress.indexOf(this.snapshot.status)) {
-            this.progressPercentage = this.snapshot.ruleCntDone*100 / (this.snapshot.ruleCntTotal + 1);
+            this.progressPercentage = this.snapshot.ruleCntDone * 100 / (this.snapshot.ruleCntTotal + 1);
             this.inProgress = true;
           }
 
@@ -139,7 +136,7 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
    */
   public cancelSnapshot() {
     this.snapshotService.cancelSnapshot(this.snapshotId).then((result) => {
-      if (result.result === 'OK' ) {
+      if (result.result === 'OK') {
         this._setFinishPopup('cancel');
       } else {
         Alert.warning(this.translateService.instant('msg.dp.alert.snapshot.cancel.fail'));
@@ -148,7 +145,7 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
         this.getSnapshotDetailWithInterval();
       }
     }).catch((error) => {
-      console.info(error);
+      console.log(error);
       clearInterval(this.interval);
       this.close();
     })
@@ -173,7 +170,6 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
 
   } // end of close
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -185,7 +181,7 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
    * Set values for success, fail, canceled popup
    * @param {string} status
    */
-  private _setFinishPopup(status : string) {
+  private _setFinishPopup(status: string) {
     this.inProgress = false;
     this.isFinishPopupOpen = true;
 

@@ -12,9 +12,8 @@
  * limitations under the License.
  */
 
-import { TimeFilter } from './time-filter';
-import { Field } from '../../../datasource/datasource';
-import * as _ from 'lodash';
+import {TimeFilter} from './time-filter';
+import {Field} from '@domain/datasource/datasource';
 
 export class TimeAllFilter extends TimeFilter {
   constructor(field: Field) {

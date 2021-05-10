@@ -13,9 +13,9 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
-import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
-import {EngineService} from "../../service/engine.service";
-import {Engine} from "../../../domain/engine-monitoring/engine";
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {EngineService} from '../../service/engine.service';
+import {Engine} from '@domain/engine-monitoring/engine';
 import * as _ from 'lodash';
 
 @Component({

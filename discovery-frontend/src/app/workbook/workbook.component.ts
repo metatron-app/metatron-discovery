@@ -17,41 +17,41 @@ import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewCh
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import {ClipboardService} from 'ngx-clipboard';
-import {AbstractComponent} from '../common/component/abstract.component';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {ActivatedRoute} from '@angular/router';
-import {Workbook, WorkbookDetailProjections} from '../domain/workbook/workbook';
+import {Workbook, WorkbookDetailProjections} from '@domain/workbook/workbook';
 import {WorkbookService} from './service/workbook.service';
-import {PopupService} from '../common/service/popup.service';
-import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
-import {Modal} from '../common/domain/modal';
-import {Alert} from '../common/util/alert.util';
-import {UserProfile} from '../domain/user/user-profile';
-import {BoardDataSource, Dashboard, PresentationDashboard} from '../domain/dashboard/dashboard';
-import {DragDropConfig, DragDropService, DragDropSortableService, SortableContainer} from 'ng2-dnd';
+import {PopupService} from '@common/service/popup.service';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {Alert} from '@common/util/alert.util';
+import {UserProfile} from '@domain/user/user-profile';
+import {BoardDataSource, Dashboard, PresentationDashboard} from '@domain/dashboard/dashboard';
 import {DashboardService} from '../dashboard/service/dashboard.service';
-import {Comment, Comments} from '../domain/comment/comment';
-import {CookieConstant} from '../common/constant/cookie.constant';
-import {MomentPipe} from '../common/pipe/moment.pipe';
-import {MomentDatePipe} from '../common/pipe/moment.date.pipe';
-import {StringUtil} from '../common/util/string.util';
-import {CommonUtil} from '../common/util/common.util';
+import {Comment, Comments} from '@domain/comment/comment';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {MomentPipe} from '@common/pipe/moment.pipe';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
+import {StringUtil} from '@common/util/string.util';
+import {CommonUtil} from '@common/util/common.util';
 import {WorkspaceService} from '../workspace/service/workspace.service';
-import {PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
+import {PermissionChecker, PublicType, Workspace} from '@domain/workspace/workspace';
 import {DashboardComponent} from '../dashboard/dashboard.component';
 import {Page, PageResult} from 'app/domain/common/page';
 import {UpdateDashboardComponent} from '../dashboard/update-dashboard.component';
 import {PopupInputNameDescComponent} from './component/popup-input-workbook/popup-input-namedesc.component';
-import {EventBroadcaster} from '../common/event/event.broadcaster';
-import {Datasource} from '../domain/datasource/datasource';
-import {WidgetService} from "../dashboard/service/widget.service";
-import {DashboardUtil} from "../dashboard/util/dashboard.util";
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {Datasource} from '@domain/datasource/datasource';
+import {WidgetService} from '../dashboard/service/widget.service';
+import {DashboardUtil} from '../dashboard/util/dashboard.util';
+import {DragulaService} from '../../lib/ng2-dragula';
 
 declare let $;
 
 @Component({
   selector: 'app-workbook',
   templateUrl: './workbook.component.html',
-  providers: [DragDropService, DragDropConfig, SortableContainer, DragDropSortableService, MomentPipe, MomentDatePipe]
+  providers: [MomentPipe, MomentDatePipe]
 })
 export class WorkbookComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -90,9 +90,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 워크스페이스 권한 확인기
   private _permissionChecker: PermissionChecker;
 
-  // Dashboard util for getDashboardImage
-  private dashboardUtil: DashboardUtil = new DashboardUtil();
-
   // URL Hash ( Dashboard Id or Dashboard Order Number )
   private _routeFragment: string;
 
@@ -103,6 +100,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Dashboard util for getDashboardImage
+  public dashboardUtil: DashboardUtil = new DashboardUtil();
 
   // 대시보드 모드 : VIEW, UPDATE
   public mode: string;
@@ -151,7 +151,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public onlyShowingFlag: boolean = false;
 
   // 대시보드 리스트 타입 : LIST, CARD
-  public listType: string;
+  public listType: 'LIST' | 'CARD';
 
   // 대시보드 목록 페이지 번호 및 검색어
   public dashboardPage: PageResult = new PageResult();
@@ -197,10 +197,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
               private widgetService: WidgetService,
               private popupService: PopupService,
               private broadCaster: EventBroadcaster,
+              private dragulaSvc: DragulaService,
               private _clipboardService: ClipboardService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
+    this.listType = 'CARD';
+    this._settingDnd();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -250,7 +253,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         .subscribe((fragment: string) => {
           this._routeFragment = fragment;
           if (this.workbookId) {
-            if( this.isShowCreateDashboard ) {
+            if (this.isShowCreateDashboard) {
               this._getWorkbook().then(() => {
                 // 생성 후 체크가 모두 선택
                 this.selectedDatasources = this.datasources.map(ds => ds.id);
@@ -337,6 +340,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public ngOnDestroy() {
     super.ngOnDestroy();
 
+    this.dragulaSvc.destroy('boardListSort');
+
     // z-index 이슈를 해결하기 위한 코드
     $('.ddp-layout-contents').removeClass('ddp-layout-board');
 
@@ -392,7 +397,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public gotoWorkspace() {
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
-    let cookieWorkspace = (cookieWs) ? JSON.parse(cookieWs) : null;
+    const cookieWorkspace = (cookieWs) ? JSON.parse(cookieWs) : null;
     if (null !== cookieWorkspace && null !== cookieWorkspace['workspaceId']) {
       this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
     } else {
@@ -565,7 +570,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       ($target.hasClass('ddp-icon-more')) || ($target = $target.find('.ddp-icon-more'));
       const lnbmoreLeft: number = $target.offset().left;
       const lnbmoreTop: number = $target.offset().top;
-      this.$element.find('.ddp-popup-lnbmore').css({'left': lnbmoreLeft - 180, 'top': lnbmoreTop + 25});
+      this.$element.find('.ddp-popup-lnbmore').css({left: lnbmoreLeft - 180, top: lnbmoreTop + 25});
     }
   } // function - toggleWorkbookDetailMenu
 
@@ -811,7 +816,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * Change list type
    * @param {string} type
    */
-  public changeListType(type: string) {
+  public changeListType(type: 'LIST' | 'CARD') {
     this.listType = type;
     this.safelyDetectChanges();
     if (this.selectedDashboard) {
@@ -1133,7 +1138,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public gotoPresentationView() {
     // 데이터 설정
     this.popupService.ptDashboards = _.cloneDeep(this.dashboards);
-    let boardInfo: PresentationDashboard = <PresentationDashboard>_.cloneDeep(this.selectedDashboard);
+    const boardInfo: PresentationDashboard = _.cloneDeep(this.selectedDashboard) as PresentationDashboard;
     boardInfo.selectionFilters = this._boardComp ? this._boardComp.getSelectedFilters() : [];
     this.popupService.ptStartDashboard = boardInfo;
     // 페이지 호출
@@ -1229,7 +1234,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @returns {boolean}
    */
   public isInvalidDatasource(dashboard: Dashboard): boolean {
-    return dashboard.dataSources.filter((ds) => ds.valid).length == 0;
+    return dashboard.dataSources.filter((ds) => ds.valid).length === 0;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1367,4 +1372,20 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.selectedDashboard = dashboard;
     this.dashboardService.setCurrentDashboard(dashboard);
   }
+
+  /**
+   * Drag and drop 설정
+   * @private
+   */
+  private _settingDnd() {
+
+    this.dragulaSvc.setOptions('boardListSort', {copy: false});
+
+    const dragulaDropModelSubs = this.dragulaSvc.dropModel.subscribe((_value) => {
+      this.changeOrder();
+    });
+
+    this.subscriptions.push(dragulaDropModelSubs);
+
+  } // func - _settingDnd
 }

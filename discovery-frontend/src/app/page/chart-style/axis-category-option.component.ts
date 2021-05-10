@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { AxisLabelType, ChartAxisLabelType } from '../../common/component/chart/option/define/common';
 import * as _ from 'lodash';
-import { BaseOptionComponent } from './base-option.component';
-import { UIChartAxis } from '../../common/component/chart/option/ui-option/ui-axis';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AxisLabelType, ChartAxisLabelType} from '@common/component/chart/option/define/common';
+import {UIChartAxis} from '@common/component/chart/option/ui-option/ui-axis';
+import {BaseOptionComponent} from './base-option.component';
 
 @Component({
   selector: 'axis-category-option',
   templateUrl: './axis-category-option.component.html'
 })
-export class AxisCategoryOptionComponent extends BaseOptionComponent {
+export class AxisCategoryOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -37,7 +37,7 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 배경색상 투명도 리스트
-  public transparencyList: Object[] = [
+  public transparencyList: object[] = [
     {name: 'None', value: 0},
     {name: '70%', value: 0.7},
     {name: '50%', value: 0.5},
@@ -99,7 +99,7 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
    */
   public showAxisLabel(axisLabelType: any, show: boolean): void {
 
-    if( _.eq(this.axis.mode, axisLabelType) ) {
+    if (_.eq(this.axis.mode, axisLabelType)) {
       this.axis.showLabel = show;
     }
 
@@ -119,7 +119,7 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
 
     this.xAxisRotateFlag = false;
 
-    if( _.eq(this.axis.mode, axisLabelType) ) {
+    if (_.eq(this.axis.mode, axisLabelType)) {
       this.axis.label = this.axis.label ? this.axis.label : {};
       this.axis.label.type = ChartAxisLabelType.CATEGORY;
       this.axis.label['rotation'] = rotate;
@@ -240,7 +240,7 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
       // 제거
       this.axis.background = null;
 
-    // background가 없는경우
+      // background가 없는경우
     } else {
 
       // 생성
@@ -270,7 +270,7 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
    * 배경 투명도 변경시
    * @param {Object} data
    */
-  public changeTransprency(data: Object): void {
+  public changeTransprency(data: object): void {
 
     // 투명도 설정
     this.axis.background.transparency = data['value'];
@@ -285,7 +285,9 @@ export class AxisCategoryOptionComponent extends BaseOptionComponent {
    */
   public getTransparencyIndex(): number {
 
-    return _.findIndex(this.transparencyList,(item) => { return item['value'] == this.axis.background.transparency});
+    return _.findIndex(this.transparencyList, (item) => {
+      return item['value'] === this.axis.background.transparency
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

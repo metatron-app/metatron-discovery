@@ -12,6 +12,9 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
+import {Message} from '@stomp/stompjs';
+
 import {
   ApplicationRef,
   Component,
@@ -24,30 +27,29 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {BoardConfiguration, BoardDataSource, Dashboard} from '../../../domain/dashboard/dashboard';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {FilterUtil} from '../../util/filter.util';
-import * as _ from 'lodash';
+
+import {Alert} from '@common/util/alert.util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
+
+import {Datasource, Field, FieldRole, LogicalType} from '@domain/datasource/datasource';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '@domain/dashboard/dashboard';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {MeasureInequalityFilter} from '@domain/workbook/configurations/filter/measure-inequality-filter';
+import {WildCardFilter} from '@domain/workbook/configurations/filter/wild-card-filter';
+import {MeasurePositionFilter} from '@domain/workbook/configurations/filter/measure-position-filter';
+import {AdvancedFilter} from '@domain/workbook/configurations/filter/advanced-filter';
+
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {InclusionFilter} from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import {BoundFilter} from '../../../domain/workbook/configurations/filter/bound-filter';
-import {Alert} from '../../../common/util/alert.util';
-import {CommonConstant} from '../../../common/constant/common.constant';
-import {CookieConstant} from '../../../common/constant/cookie.constant';
 import {ConfigureFiltersInclusionComponent} from '../inclusion-filter/configure-filters-inclusion.component';
 import {ConfigureFiltersBoundComponent} from '../bound-filter/configure-filters-bound.component';
 import {ConfigureFiltersTimeComponent} from '../time-filter/configure-filters-time.component';
-import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
-import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
-import {FilteringType, TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {MeasureInequalityFilter} from '../../../domain/workbook/configurations/filter/measure-inequality-filter';
-import {WildCardFilter} from '../../../domain/workbook/configurations/filter/wild-card-filter';
-import {MeasurePositionFilter} from '../../../domain/workbook/configurations/filter/measure-position-filter';
-import {AdvancedFilter} from '../../../domain/workbook/configurations/filter/advanced-filter';
-import {DashboardUtil} from '../../util/dashboard.util';
-import {Message} from '@stomp/stompjs';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {FilterUtil} from '../../util/filter.util';
 
 @Component({
   selector: 'app-essential-filter',
@@ -95,6 +97,8 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
   public isShowProgress: boolean = false;    // 프로그래스 팝업 표시 여부
   public ingestionStatus: { progress: number, message: string, step?: number };  // 적재 진행 정보
 
+  public filterUtil = FilterUtil;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -135,7 +139,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       this._dataSource.engineName = mainDs.metaDataSource.engineName;
       this._dataSourceId = mainDs.id;
 
-      if( mainDs.metaDataSource['filters'] ) {
+      if (mainDs.metaDataSource['filters']) {
         this.essentialFilters = mainDs.metaDataSource['filters'];   // 필수 필터 설정
       }
     } else {
@@ -145,7 +149,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       this._dataSource.name = mainDs.name;
       this._dataSource.engineName = mainDs.engineName;
       this._dataSourceId = mainDs.id;
-      if( mainDs.uiFilters && 0 < mainDs.uiFilters.length ) {
+      if (mainDs.uiFilters && 0 < mainDs.uiFilters.length) {
         this.essentialFilters = mainDs.uiFilters;
       } else {
         this.essentialFilters = this._setEssentialFilters(mainDs.uiFields);   // 필수 필터 설정
@@ -160,21 +164,21 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     // UI에서 표현할 수 있는 데이터로 Convert
     if (0 < this.essentialFilters.length) {
 
-      // console.info('>>>>> this.essentialFilters', this.essentialFilters);
+      // console.log('>>>>> this.essentialFilters', this.essentialFilters);
 
       this._convertServerSpecToUISpec(this.essentialFilters);
       // this._originalFilters = _.cloneDeep(this.essentialFilters);
-/*
-      this.loadingShow();
-      this._setEssentialFilter([], 0).then(() => {
-        // console.info(this.essentialFilters);
-        this.loadingHide();
-      }).catch((error) => {
-        console.log(error);
-        this.commonExceptionHandler(error, this.translateService.instant('msg.board.alert.fail.load.essential'));
-        this.loadingHide();
-      });
-*/
+      /*
+            this.loadingShow();
+            this._setEssentialFilter([], 0).then(() => {
+              // console.log(this.essentialFilters);
+              this.loadingHide();
+            }).catch((error) => {
+              console.log(error);
+              this.commonExceptionHandler(error, this.translateService.instant('msg.board.alert.fail.load.essential'));
+              this.loadingHide();
+            });
+      */
     } else {
       this.ingest();
     }
@@ -191,8 +195,6 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public filterUtil = FilterUtil;
-
   /**
    * 필드에 대한 아이콘 클래스 얻음
    * @param {Filter} filter
@@ -215,19 +217,19 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
   public startComponent(elm: ElementRef, filter: Filter) {
     const field: Field = this._getField(filter.field, filter.ref);
     if ('include' === filter.type) {
-      let confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersInclusionComponent);
-      let inclusionComp = this.appRef.bootstrap(confFilterCompFactory, elm.nativeElement).instance;
-      inclusionComp.showComponent(this._pseudoDashboard, <InclusionFilter>filter, field, false);
+      const confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersInclusionComponent);
+      const inclusionComp = this.appRef.bootstrap(confFilterCompFactory, elm.nativeElement).instance;
+      inclusionComp.showComponent(this._pseudoDashboard, filter as InclusionFilter, field, false);
       this._compMap[filter.field] = inclusionComp;
     } else if (FilterUtil.isTimeFilter(filter)) {
-      let confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersTimeComponent);
-      let timeComp = this.appRef.bootstrap(confFilterCompFactory, elm.nativeElement).instance;
-      timeComp.showComponent(this._pseudoDashboard, <TimeFilter>filter, field, false);
+      const confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersTimeComponent);
+      const timeComp = this.appRef.bootstrap(confFilterCompFactory, elm.nativeElement).instance;
+      timeComp.showComponent(this._pseudoDashboard, filter as TimeFilter, field, false);
       this._compMap[filter.field] = timeComp;
     } else if ('bound' === filter.type) {
-      let confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersBoundComponent);
-      let boundComp = this.appRef.bootstrap(confFilterCompFactory, elm.nativeElement).instance;
-      boundComp.showComponent(this._pseudoDashboard, <BoundFilter>filter, field);
+      const confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersBoundComponent);
+      const boundComp = this.appRef.bootstrap(confFilterCompFactory, elm.nativeElement).instance;
+      boundComp.showComponent(this._pseudoDashboard, filter as BoundFilter, field);
       this._compMap[filter.field] = boundComp;
     }
   } // function - startComponent
@@ -288,7 +290,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
 
   public closeProgress() {
     this.isShowProgress = false;
-    if( 0 === this.essentialFilters.length ) {
+    if (0 === this.essentialFilters.length) {
       this.closeEvent.emit();
     }
   }
@@ -300,47 +302,47 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * candidate용 파라미터
-   * @param {Filter[]} filters
-   * @param {Filter} filter
-   * @param {BoardDataSource} dataSource
-   * @return {any}
-   */
-  private _getCandidateParam(filters: Filter[], filter: Filter, dataSource: BoardDataSource): any {
-
-    const param: any = {};
-    param.dataSource = DashboardUtil.getDataSourceForApi(_.cloneDeep(dataSource));
-    param.filters = (filters) ? _.cloneDeep(filters) : [];
-    param.filters = param.filters
-      .map(item => FilterUtil.convertToServerSpec(item))
-      .filter(item => !(item.type === 'bound' && item['min'] == null));
-
-    if (filter.type === 'include') {
-      param.targetField = {
-        alias: filter.field,
-        name: filter.field,
-        type: 'dimension'
-      };
-    } else if (FilterUtil.isTimeFilter(filter)) {
-      const timeFilter: TimeFilter = <TimeFilter>filter;
-      param.targetField = {
-        type: 'timestamp',
-        name: timeFilter.field,
-        alias: timeFilter.field,
-        format: {
-          type: 'time_continuous',
-          discontinuous: FilterUtil.isDiscontinuousTimeFilter(timeFilter),
-          unit: timeFilter.timeUnit,
-          filteringType: FilterUtil.isTimeListFilter(timeFilter) ? FilteringType.LIST : FilteringType.RANGE
-        }
-      };
-      (timeFilter.byTimeUnit) && (param.targetField.format.byUnit = timeFilter.byTimeUnit);
-      param.sortBy = 'VALUE';
-    }
-
-    return param;
-  } // function - _getCandidateParam
+  // /**
+  //  * candidate용 파라미터
+  //  * @param {Filter[]} filters
+  //  * @param {Filter} filter
+  //  * @param {BoardDataSource} dataSource
+  //  * @return {any}
+  //  */
+  // private _getCandidateParam(filters: Filter[], filter: Filter, dataSource: BoardDataSource): any {
+  //
+  //   const param: any = {};
+  //   param.dataSource = DashboardUtil.getDataSourceForApi(_.cloneDeep(dataSource));
+  //   param.filters = (filters) ? _.cloneDeep(filters) : [];
+  //   param.filters = param.filters
+  //     .map(item => FilterUtil.convertToServerSpec(item))
+  //     .filter(item => !(item.type === 'bound' && item['min'] == null));
+  //
+  //   if (filter.type === 'include') {
+  //     param.targetField = {
+  //       alias: filter.field,
+  //       name: filter.field,
+  //       type: 'dimension'
+  //     };
+  //   } else if (FilterUtil.isTimeFilter(filter)) {
+  //     const timeFilter: TimeFilter = filter as TimeFilter;
+  //     param.targetField = {
+  //       type: 'timestamp',
+  //       name: timeFilter.field,
+  //       alias: timeFilter.field,
+  //       format: {
+  //         type: 'time_continuous',
+  //         discontinuous: FilterUtil.isDiscontinuousTimeFilter(timeFilter),
+  //         unit: timeFilter.timeUnit,
+  //         filteringType: FilterUtil.isTimeListFilter(timeFilter) ? FilteringType.LIST : FilteringType.RANGE
+  //       }
+  //     };
+  //     (timeFilter.byTimeUnit) && (param.targetField.format.byUnit = timeFilter.byTimeUnit);
+  //     param.sortBy = 'VALUE';
+  //   }
+  //
+  //   return param;
+  // } // function - _getCandidateParam
 
   /**
    * 필수 필터를 셋팅한다
@@ -349,8 +351,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
    * @private
    */
   private _setEssentialFilters(fields: Field[]) {
-    let filters: Filter[] = [];
-    let timeFilter: Filter;
+    const filters: Filter[] = [];
     // 필수 필터 설정
     fields.forEach((field: Field) => {
       if (field.filtering) {
@@ -370,108 +371,107 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     });
 
     filters.sort((a: Filter, b: Filter) => a.ui.filteringSeq - b.ui.filteringSeq);
-    (timeFilter) && (filters.unshift(timeFilter));
 
     return filters;
   } // function - _setEssentialFilters
 
-  /**
-   * 리커멘드 필터 재설정
-   * @param {Filter[]} filters
-   * @param {number} idx
-   * @returns {Promise}
-   */
-  private _setEssentialFilter(filters: Filter[], idx: number): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-      let index = idx;
-      // 값을 변경할 필터
-      const filter = _.cloneDeep(this.essentialFilters[index]);
-
-      // console.info('>>>>>> filters', filters);
-      // console.info('>>>>>> filter', filter);
-      // console.info('>>>>>> this._dataSource', this._dataSource);
-
-      let params: any = this._getCandidateParam(filters, filter, this._dataSource);
-
-      // candidate 서비스 요청
-      this.dataSourceService.getCandidate(params).then((result) => {
-
-        // 결과데이터로 필터에 값 셋팅
-        if ('include' === filter.type) {
-          if (result && result.length > 0) {
-
-            const apiFieldName: string = filter.field.replace(/(\S+\.)\S+/gi, '$1field');
-            result = result.map(item => {
-              return { 'field': item[apiFieldName], 'count': item['.count'] };
-            });
-
-            if (result[0].field) (<InclusionFilter>filter).valueList = [result[0].field];
-            else (<InclusionFilter>filter).valueList = [result[0][filter.field]];
-          } else {
-            (<InclusionFilter>filter).valueList = [];
-          }
-          this.essentialFilters[index]['candidateValues'] = result;
-        } else if ('bound' === filter.type) {
-          this._setBoundFilter(this.essentialFilters[index], result[0]);
-        } else {
-          this._setTimeFilter(this.essentialFilters[index], result[0]);
-        }
-
-        // api용 파라미터 filters에 현재 필터 추가
-        filters.push(filter);
-        index = index + 1;
-
-        // 다음 필터가 없거나 일반 필터일 경우 종료
-        if (this.essentialFilters.length <= index) {
-          // console.info('>>>>>>>>> end');
-          resolve(result);
-        } else {
-          // console.info('>>>>>>>>> recurrsive');
-          // 아닐경우 재귀
-          this._setEssentialFilter(filters, index).then(result => resolve(result));
-        }
-      }).catch((error) => {
-        reject(error);
-      });
-    });
-  } // function - _setEssentialFilter
-
-  // noinspection JSMethodCanBeStatic
-  /**
-   * BoundFilter Candidate 결과 처리
-   * @param {Filter} filter
-   * @param result
-   * @private
-   */
-  private _setBoundFilter(filter: Filter, result: any) {
-    const boundFilter = <BoundFilter>filter;
-    if (result && result.hasOwnProperty('maxValue')) {
-      if ((boundFilter.min === 0 && boundFilter.max === 0) || boundFilter.min == null) {
-        boundFilter.min = result.minValue;
-        boundFilter.max = result.maxValue;
-      }
-      boundFilter.maxValue = result.maxValue;
-      boundFilter.minValue = result.minValue;
-    } else {
-      boundFilter.min = null;
-      boundFilter.max = null;
-      boundFilter.maxValue = null;
-      boundFilter.minValue = null;
-    }
-  } // function - _setBoundFilter
+  // /**
+  //  * 리커멘드 필터 재설정
+  //  * @param {Filter[]} filters
+  //  * @param {number} idx
+  //  * @returns {Promise}
+  //  */
+  // private _setEssentialFilter(filters: Filter[], idx: number): Promise<any> {
+  //   return new Promise<any>((resolve, reject) => {
+  //     let index = idx;
+  //     // 값을 변경할 필터
+  //     const filter = _.cloneDeep(this.essentialFilters[index]);
+  //
+  //     // console.log('>>>>>> filters', filters);
+  //     // console.log('>>>>>> filter', filter);
+  //     // console.log('>>>>>> this._dataSource', this._dataSource);
+  //
+  //     const params: any = this._getCandidateParam(filters, filter, this._dataSource);
+  //
+  //     // candidate 서비스 요청
+  //     this.dataSourceService.getCandidate(params).then((result) => {
+  //
+  //       // 결과데이터로 필터에 값 셋팅
+  //       if ('include' === filter.type) {
+  //         if (result && result.length > 0) {
+  //
+  //           const apiFieldName: string = filter.field.replace(/(\S+\.)\S+/gi, '$1field');
+  //           result = result.map(item => {
+  //             return {field: item[apiFieldName], count: item['.count']};
+  //           });
+  //
+  //           if (result[0].field) (<InclusionFilter>filter).valueList = [result[0].field];
+  //           else (<InclusionFilter>filter).valueList = [result[0][filter.field]];
+  //         } else {
+  //           (<InclusionFilter>filter).valueList = [];
+  //         }
+  //         this.essentialFilters[index]['candidateValues'] = result;
+  //       } else if ('bound' === filter.type) {
+  //         this._setBoundFilter(this.essentialFilters[index], result[0]);
+  //       } else {
+  //         this._setTimeFilter(this.essentialFilters[index], result[0]);
+  //       }
+  //
+  //       // api용 파라미터 filters에 현재 필터 추가
+  //       filters.push(filter);
+  //       index = index + 1;
+  //
+  //       // 다음 필터가 없거나 일반 필터일 경우 종료
+  //       if (this.essentialFilters.length <= index) {
+  //         // console.log('>>>>>>>>> end');
+  //         resolve(result);
+  //       } else {
+  //         // console.log('>>>>>>>>> recurrsive');
+  //         // 아닐경우 재귀
+  //         this._setEssentialFilter(filters, index).then(result => resolve(result));
+  //       }
+  //     }).catch((error) => {
+  //       reject(error);
+  //     });
+  //   });
+  // } // function - _setEssentialFilter
 
   // noinspection JSMethodCanBeStatic
-  /**
-   * TimeFilter Candidate 결과 처리
-   * @param {Filter} filter
-   * @param result
-   */
-  private _setTimeFilter(filter: Filter, result: any) {
-    const rangeFilter: TimeRangeFilter = <TimeRangeFilter>filter;
-    if (rangeFilter.intervals == null || rangeFilter.intervals.length === 0) {
-      rangeFilter.intervals = [result.minTime + '/' + result.maxTime];
-    }
-  } // function - _setTimeFilter
+  // /**
+  //  * BoundFilter Candidate 결과 처리
+  //  * @param {Filter} filter
+  //  * @param result
+  //  * @private
+  //  */
+  // private _setBoundFilter(filter: Filter, result: any) {
+  //   const boundFilter = <BoundFilter>filter;
+  //   if (result && result.hasOwnProperty('maxValue')) {
+  //     if ((boundFilter.min === 0 && boundFilter.max === 0) || boundFilter.min == null) {
+  //       boundFilter.min = result.minValue;
+  //       boundFilter.max = result.maxValue;
+  //     }
+  //     boundFilter.maxValue = result.maxValue;
+  //     boundFilter.minValue = result.minValue;
+  //   } else {
+  //     boundFilter.min = null;
+  //     boundFilter.max = null;
+  //     boundFilter.maxValue = null;
+  //     boundFilter.minValue = null;
+  //   }
+  // } // function - _setBoundFilter
+
+  // noinspection JSMethodCanBeStatic
+  // /**
+  //  * TimeFilter Candidate 결과 처리
+  //  * @param {Filter} filter
+  //  * @param result
+  //  */
+  // private _setTimeFilter(filter: Filter, result: any) {
+  //   const rangeFilter: TimeRangeFilter = <TimeRangeFilter>filter;
+  //   if (rangeFilter.intervals == null || rangeFilter.intervals.length === 0) {
+  //     rangeFilter.intervals = [result.minTime + '/' + result.maxTime];
+  //   }
+  // } // function - _setTimeFilter
 
   /**
    * Reingestion 진행
@@ -484,10 +484,10 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     try {
       const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
-      const subscription = CommonConstant.stomp.watch( tempDsInfo.progressTopic )
-        .subscribe( (msg: Message) => {
+      const subscription = CommonConstant.stomp.watch(tempDsInfo.progressTopic)
+        .subscribe((msg: Message) => {
 
-          const data: { progress: number, message: string } = JSON.parse( msg.body );
+          const data: { progress: number, message: string } = JSON.parse(msg.body);
 
           if (-1 === data.progress) {
             this.ingestionStatus = data;
@@ -507,7 +507,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
           }
         }, headers);
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
   } // function - _processIngestion
 
@@ -560,7 +560,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     let field: Field;
 
     // 필드 조회
-    let idx = -1;
+    let idx: number;
     if (ref) idx = _.findIndex(fields, {ref, name: fieldName});
     else idx = _.findIndex(fields, {name: fieldName});
 
@@ -588,7 +588,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
    */
   private _convertInclusionSpecToUI(filter: Filter): InclusionFilter {
 
-    const includeFilter: InclusionFilter = <InclusionFilter>filter;
+    const includeFilter: InclusionFilter = filter as InclusionFilter;
 
     let condition: MeasureInequalityFilter = new MeasureInequalityFilter();
     let limitation: MeasurePositionFilter = new MeasurePositionFilter();
@@ -596,9 +596,9 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
 
     // 필터 구분
     includeFilter.preFilters.forEach((preFilter: AdvancedFilter) => {
-      if (preFilter.type === 'measure_inequality') condition = <MeasureInequalityFilter>preFilter;
-      else if (preFilter.type === 'measure_position') limitation = <MeasurePositionFilter>preFilter;
-      else if (preFilter.type === 'wildcard') wildcard = <WildCardFilter>preFilter;
+      if (preFilter.type === 'measure_inequality') condition = preFilter as MeasureInequalityFilter;
+      else if (preFilter.type === 'measure_position') limitation = preFilter as MeasurePositionFilter;
+      else if (preFilter.type === 'wildcard') wildcard = preFilter as WildCardFilter;
     });
 
     this._setUIItem(this.aggregationTypeList, condition, 'aggregationType');

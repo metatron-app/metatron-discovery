@@ -19,46 +19,46 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class TableFilterPipe implements PipeTransform {
 
-  transform(items: any[], filter: { [ key: string ]: any }): any {
+  transform(items: any[], filter: { [key: string]: any }): any {
 
     if (!(filter && Array.isArray(items))) {
       return items;
     }
 
-    if (filter[ 'status' ] === 'ALL' && filter[ 'hostname' ] === '' && filter[ 'type' ].indexOf('ALL') > -1) {
+    if (filter['status'] === 'ALL' && filter['hostname'] === '' && filter['type'].indexOf('ALL') > -1) {
       return items;
     }
 
-    if (filter[ 'status' ] === 'ALL') {
-      if (filter[ 'hostname' ] === '') {
-        return items.filter(monitoring => filter[ 'type' ].indexOf(monitoring.type) > -1);
+    if (filter['status'] === 'ALL') {
+      if (filter['hostname'] === '') {
+        return items.filter(monitoring => filter['type'].indexOf(monitoring.type) > -1);
       } else {
-        return items.filter(monitoring => monitoring.hostname.indexOf(filter[ 'hostname' ]) > -1)
-          .filter(monitoring => filter[ 'type' ].indexOf(monitoring.type) > -1);
+        return items.filter(monitoring => monitoring.hostname.indexOf(filter['hostname']) > -1)
+          .filter(monitoring => filter['type'].indexOf(monitoring.type) > -1);
       }
     }
 
-    if (filter[ 'type' ].indexOf('ALL') > -1) {
-      if (filter[ 'hostname' ] === '') {
-        return items.filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
+    if (filter['type'].indexOf('ALL') > -1) {
+      if (filter['hostname'] === '') {
+        return items.filter(monitoring => monitoring.status === (filter['status'] === 'OK'))
       } else {
-        return items.filter(monitoring => monitoring.hostname.indexOf(filter[ 'hostname' ]) > -1)
-          .filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
+        return items.filter(monitoring => monitoring.hostname.indexOf(filter['hostname']) > -1)
+          .filter(monitoring => monitoring.status === (filter['status'] === 'OK'))
       }
     }
 
-    if (filter[ 'hostname' ] === '') {
-      if (filter[ 'status' ] === 'ALL') {
-        return items.filter(monitoring => filter[ 'type' ].indexOf(monitoring.type) > -1);
+    if (filter['hostname'] === '') {
+      if (filter['status'] === 'ALL') {
+        return items.filter(monitoring => filter['type'].indexOf(monitoring.type) > -1);
       } else {
-        return items.filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
-          .filter(monitoring => filter[ 'type' ].indexOf(monitoring.type) > -1);
+        return items.filter(monitoring => monitoring.status === (filter['status'] === 'OK'))
+          .filter(monitoring => filter['type'].indexOf(monitoring.type) > -1);
       }
     }
 
     return items
-      .filter(monitoring => monitoring.hostname.indexOf(filter[ 'hostname' ]) > -1)
-      .filter(monitoring => monitoring.status === (filter[ 'status' ] === 'OK'))
-      .filter(monitoring => filter[ 'type' ].indexOf(monitoring.type) > -1);
+      .filter(monitoring => monitoring.hostname.indexOf(filter['hostname']) > -1)
+      .filter(monitoring => monitoring.status === (filter['status'] === 'OK'))
+      .filter(monitoring => filter['type'].indexOf(monitoring.type) > -1);
   }
 }

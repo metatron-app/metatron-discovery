@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import {ConnectionType, Datasource, Status} from '../../../domain/datasource/datasource';
-import { WorkspaceService } from '../../service/workspace.service';
-import { Page } from '../../../domain/common/page';
-import { Alert } from '../../../common/util/alert.util';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, Renderer2} from '@angular/core';
+import {ConnectionType, Datasource, Status} from '@domain/datasource/datasource';
+import {WorkspaceService} from '../../service/workspace.service';
+import {Page} from '@domain/common/page';
+import {Alert} from '@common/util/alert.util';
+import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
 
 @Component({
   selector: 'app-datasource-view',
@@ -178,7 +178,7 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
    * @param {KeyboardEvent} event
    */
   public searchDatasourceEvent(event: KeyboardEvent) {
-    ( 13 === event.keyCode ) && (this.searchEvent(true));
+    (13 === event.keyCode) && (this.searchEvent(true));
   }
 
   // public 토글 버튼
@@ -356,9 +356,9 @@ export class DatasourceComponent extends AbstractComponent implements OnInit, On
   }
 }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | UI class
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+| UI class
+|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 class Order {
   key: string = 'seq';

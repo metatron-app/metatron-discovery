@@ -1,6 +1,6 @@
-import {Injectable} from "@angular/core";
-import {ExploreDataConstant} from "../../constant/explore-data-constant";
-import {Catalog} from "../../../domain/catalog/catalog";
+import {Injectable} from '@angular/core';
+import {Catalog} from '@domain/catalog/catalog';
+import {ExploreDataConstant} from '../../constant/explore-data-constant';
 
 @Injectable()
 export class ExploreDataModelService {
@@ -12,7 +12,6 @@ export class ExploreDataModelService {
   selectedLnbTab: ExploreDataConstant.LnbTab = ExploreDataConstant.LnbTab.CATALOG;
   selectedCatalog: Catalog.Tree;
   selectedTag;
-
 
   initialSearchData() {
     this.searchKeyword = '';

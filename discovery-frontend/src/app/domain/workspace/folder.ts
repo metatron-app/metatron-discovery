@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { Book } from './book';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {Book} from './book';
 
 export class Folder extends AbstractHistoryEntity {
   type: string;
-  name : string;
-  id : string;
+  name: string;
+  id: string;
   hierarchies: Hirearchies[];
   books: Book[];
 }

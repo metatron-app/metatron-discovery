@@ -13,12 +13,12 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
-import {CommonUtil} from '../../common/util/common.util';
-import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
+import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
-import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
+import {PageWidgetConfiguration} from '@domain/dashboard/widget/page-widget';
 import {
   ChartType,
   FormatType,
@@ -27,37 +27,35 @@ import {
   LineMode,
   ShelfType,
   ShelveFieldType
-} from '../../common/component/chart/option/define/common';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
-import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
+} from '@common/component/chart/option/define/common';
+import {Filter} from '@domain/workbook/configurations/filter/filter';
+import {UILineChart} from '@common/component/chart/option/ui-option/ui-line-chart';
+import {UIGridChart} from '@common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
-import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
-import {Field, LogicalType} from '../../domain/datasource/datasource';
-import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
-import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
-import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
-import {ContainsType, WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
-import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
-import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
-import {FilteringType} from '../../domain/workbook/configurations/field/timestamp-field';
-import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
-import {isNullOrUndefined} from 'util';
+import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {Field, LogicalType} from '@domain/datasource/datasource';
+import {MeasureInequalityFilter} from '@domain/workbook/configurations/filter/measure-inequality-filter';
+import {AdvancedFilter} from '@domain/workbook/configurations/filter/advanced-filter';
+import {MeasurePositionFilter} from '@domain/workbook/configurations/filter/measure-position-filter';
+import {ContainsType, WildCardFilter} from '@domain/workbook/configurations/filter/wild-card-filter';
+import {CustomField} from '@domain/workbook/configurations/field/custom-field';
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {FilteringType} from '@domain/workbook/configurations/field/timestamp-field';
+import {TimeCompareRequest} from '@domain/datasource/data/time-compare-request';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import {GeoBoundaryFormat, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
-import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
-import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
-import {CommonConstant} from "../../common/constant/common.constant";
-import {UITileLayer} from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
-import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
-import {Pivot} from "../../domain/workbook/configurations/pivot";
-import {TimezoneService} from "../../data-storage/service/timezone.service";
-import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
-import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
-import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
-import {TranslateService} from "@ngx-translate/core";
-import {Criteria} from "../../domain/datasource/criteria";
+import {GeoBoundaryFormat, GeoHashFormat} from '@domain/workbook/configurations/field/geo-field';
+import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
+import {ChartUtil} from '@common/component/chart/option/util/chart-util';
+import {CommonConstant} from '@common/constant/common.constant';
+import {UITileLayer} from '@common/component/chart/option/ui-option/map/ui-tile-layer';
+import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
+import {Pivot} from '@domain/workbook/configurations/pivot';
+import {TimezoneService} from '../../data-storage/service/timezone.service';
+import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
+import {RegExprFilter} from '@domain/workbook/configurations/filter/reg-expr-filter';
+import {SpatialFilter} from '@domain/workbook/configurations/filter/spatial-filter';
+import {Criteria} from '@domain/datasource/criteria';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -66,14 +64,11 @@ export class DatasourceService extends AbstractService {
 
   private _timezoneSvc: TimezoneService;
 
-  private _translateSvc: TranslateService;
-
   private _searchHistory: { query: string, result: any }[] = [];
 
   constructor(protected injector: Injector) {
     super(injector);
     this._timezoneSvc = this.injector.get(TimezoneService);
-    this._translateSvc = this.injector.get(TranslateService);
   }
 
   /**
@@ -129,6 +124,7 @@ export class DatasourceService extends AbstractService {
   /**
    * 쿼리 전송
    * @param {SearchQueryRequest} query
+   * @param disableCache
    * @returns {Promise<any>}
    */
   public searchQuery(query: SearchQueryRequest, disableCache?: boolean): Promise<any> {
@@ -136,18 +132,18 @@ export class DatasourceService extends AbstractService {
     // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
 
     // query.filters.push(params);
-    let stringifyQuery = JSON.stringify(query);
-    let historyItem = this._searchHistory.find(history => history.query === stringifyQuery);
+    const stringifyQuery = JSON.stringify(query);
+    const historyItem = this._searchHistory.find(history => history.query === stringifyQuery);
     if (!disableCache && historyItem) {
-      return new Promise((resolve, reject) => {
-        console.info( '>>>>> history data' );
-        resolve(historyItem.result);
+      return new Promise((resolve, _reject) => {
+        console.log('>>>>> history data');
+        resolve(JSON.parse(JSON.stringify(historyItem.result)));
       });
     } else {
       return this.post(this.API_URL + 'datasources/query/search', query)
         .then(result => {
-          console.info( '>>>>> query data' );
-          this._searchHistory.push({query: stringifyQuery, result: result});
+          console.log('>>>>> query data');
+          this._searchHistory.push({query: stringifyQuery, result: JSON.parse(JSON.stringify(result))});
           return result;
         });
     }
@@ -194,7 +190,7 @@ export class DatasourceService extends AbstractService {
       .filter(item => !(item.type === 'bound' && item['min'] == null));
 
     if (FilterUtil.isTimeFilter(filter)) {
-      const timeFilter: TimeFilter = <TimeFilter>filter;
+      const timeFilter: TimeFilter = filter as TimeFilter;
       if (CommonConstant.COL_NAME_CURRENT_DATETIME === timeFilter.field) {
         param.targetField = {granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp'};
       } else {
@@ -218,7 +214,7 @@ export class DatasourceService extends AbstractService {
     } else {
 
       // 필드 설정
-      if (isNullOrUndefined(field)) {
+      if (CommonUtil.isNullOrUndefined(field)) {
         board.dataSources.some(ds => {
           if (ds.engineName === filter.dataSource) {
             return ds.fields.some(dsField => {
@@ -246,25 +242,25 @@ export class DatasourceService extends AbstractService {
       if ('include' === filter.type) {
         // Dimension Filter
         const tempFilters: Filter[] = [];
-        if (((<InclusionFilter>filter).preFilters)) {
-          (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
+        if (((filter as InclusionFilter).preFilters)) {
+          (filter as InclusionFilter).preFilters.filter((preFilter: AdvancedFilter) => {
             if (preFilter.type === 'measure_inequality') {
-              const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
+              const condition: MeasureInequalityFilter = preFilter as MeasureInequalityFilter;
               if (condition.inequality && condition.aggregation && condition.field && 0 < condition.value) {
                 tempFilters.push(FilterUtil.convertToServerSpec(condition));
               }
             } else if (preFilter.type === 'measure_position') {
-              const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
+              const limitation: MeasurePositionFilter = preFilter as MeasurePositionFilter;
               if (limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value) {
                 tempFilters.push(FilterUtil.convertToServerSpec(limitation));
               }
             } else if (preFilter.type === 'wildcard') {
-              const wildcard: WildCardFilter = <WildCardFilter>preFilter;
+              const wildcard: WildCardFilter = preFilter as WildCardFilter;
               if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
                 tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
               }
             } else if (preFilter.type === 'regexpr') {
-              const regExpr: RegExprFilter = <RegExprFilter>preFilter;
+              const regExpr: RegExprFilter = preFilter as RegExprFilter;
               if (regExpr.expr) {
                 tempFilters.push(FilterUtil.convertToServerSpec(regExpr));
               }
@@ -272,8 +268,8 @@ export class DatasourceService extends AbstractService {
           });
         }
 
-        if(searchWord) {
-          let wildcard: WildCardFilter = new WildCardFilter();
+        if (searchWord) {
+          const wildcard: WildCardFilter = new WildCardFilter();
           wildcard.value = searchWord;
           wildcard.contains = ContainsType.BOTH;
           wildcard.field = param.targetField.name;
@@ -344,14 +340,14 @@ export class DatasourceService extends AbstractService {
     delete query.dataSource['fields']; // 불필요 항목 제거
 
     // EngineName 처리
-    if (!isNullOrUndefined(query.dataSource.engineName)) {
+    if (!CommonUtil.isNullOrUndefined(query.dataSource.engineName)) {
       query.dataSource.name = query.dataSource.engineName;
       delete query.dataSource['engineName'];
     }
 
-    if (!isNullOrUndefined(query.dataSource.dataSources)) {
-      for (let datasource of query.dataSource.dataSources) {
-        if (!isNullOrUndefined(datasource.engineName)) {
+    if (!CommonUtil.isNullOrUndefined(query.dataSource.dataSources)) {
+      for (const datasource of query.dataSource.dataSources) {
+        if (!CommonUtil.isNullOrUndefined(datasource.engineName)) {
           datasource.name = datasource.engineName;
           delete datasource['engineName'];
         }
@@ -363,13 +359,13 @@ export class DatasourceService extends AbstractService {
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
 
       // spatial analysis
-      query.analysis = _.cloneDeep((<UIMapOption>pageConf.chart).analysis);
+      query.analysis = _.cloneDeep((pageConf.chart as UIMapOption).analysis);
 
       // alias 설정
       query.shelf = _.cloneDeep(pageConf.shelf);
 
       let layerNum: number = -1;
-      for (let layer of query.shelf.layers) {
+      for (const layer of query.shelf.layers) {
         layerNum++;
 
         // 3번째 layer는 공간연산 layer 이기 떄문에, 미포함
@@ -378,26 +374,26 @@ export class DatasourceService extends AbstractService {
         }
 
         // layer name
-        query.shelf.layers[layerNum].name = (<UIMapOption>pageConf.chart).layers[layerNum].name;
+        query.shelf.layers[layerNum].name = (pageConf.chart as UIMapOption).layers[layerNum].name;
 
         allPivotFields = _.concat(layer.fields);
-        for (let field of allPivotFields) {
+        for (const field of allPivotFields) {
 
           // Alias 설정
           field['alias'] = this._setFieldAlias(field, dataSourceFields);
 
           // Dimension 이면서 Timestamp 타입인 필드는 타입을 변경해준다.
-          if (field['type'].toUpperCase() == 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() == 'DIMENSION') {
+          if (field['type'].toUpperCase() === 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() === 'DIMENSION') {
             field['type'] = 'dimension';
           }
 
           // 그리드이면서 원본보기일 경우
-          if (_.eq(pageConf.chart.type, 'grid') && (<UIGridChart>pageConf.chart).dataType == GridViewType.MASTER) {
+          if (_.eq(pageConf.chart.type, 'grid') && (pageConf.chart as UIGridChart).dataType === GridViewType.MASTER) {
             field['aggregationType'] = 'NONE';
           }
         }
 
-        if (allPivotFields.length == 0) {
+        if (allPivotFields.length === 0) {
           continue;
         }
         // timezone 처리 - S
@@ -465,17 +461,17 @@ export class DatasourceService extends AbstractService {
       // timezone 처리 - E
       // alias 설정
       allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
-      for (let field of allPivotFields) {
+      for (const field of allPivotFields) {
         // Alias 설정
         field['alias'] = this._setFieldAlias(field, dataSourceFields);
 
         // Dimension 이면서 Timestamp 타입인 필드는 타입을 변경해준다.
-        if (field['type'].toUpperCase() == 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() == 'DIMENSION') {
+        if (field['type'].toUpperCase() === 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() === 'DIMENSION') {
           field['type'] = 'dimension';
         }
 
         // 그리드이면서 원본보기일 경우
-        if (_.eq(pageConf.chart.type, 'grid') && (<UIGridChart>pageConf.chart).dataType == GridViewType.MASTER) {
+        if (_.eq(pageConf.chart.type, 'grid') && (pageConf.chart as UIGridChart).dataType === GridViewType.MASTER) {
           field['aggregationType'] = 'NONE';
         }
       }
@@ -547,13 +543,13 @@ export class DatasourceService extends AbstractService {
       if (ChartType.LINE === pageConf.chart.type || ChartType.CONTROL === pageConf.chart.type) {
 
         // accumulate 설정
-        query.resultFormat.options.isCumulative = _.eq(LineMode.CUMULATIVE, (<UILineChart>pageConf.chart).lineMode);
+        query.resultFormat.options.isCumulative = _.eq(LineMode.CUMULATIVE, (pageConf.chart as UILineChart).lineMode);
       }
 
       // Grid 차트 원본보기일 경우 설정추가
       if (ChartType.GRID === pageConf.chart.type) {
 
-        if (_.eq((<UIGridChart>pageConf.chart).dataType, GridViewType.MASTER)) {
+        if (_.eq((pageConf.chart as UIGridChart).dataType, GridViewType.MASTER)) {
           // 옵션 변경
           query.resultFormat.options.isOriginal = true;
         } else {
@@ -579,12 +575,12 @@ export class DatasourceService extends AbstractService {
     // map 차트일때 shelf
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
 
-      let geoFieldArr: number[] = [];
+      const geoFieldArr: number[] = [];
 
       // check multiple geo type
-      for (let idx = 0; idx < query.shelf.layers.length; idx++) {
+      for (let idx = 0, nMax = query.shelf.layers.length; idx < nMax; idx++) {
         let geoFieldCnt: number = 0;
-        for (let column of query.shelf.layers[idx].fields) {
+        for (const column of query.shelf.layers[idx].fields) {
           if (column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
             geoFieldCnt++;
           }
@@ -595,7 +591,7 @@ export class DatasourceService extends AbstractService {
 
       // set current layer values
       for (let idx = 0; idx < query.shelf.layers.length; idx++) {
-        for (let layer of query.shelf.layers[idx].fields) {
+        for (const layer of query.shelf.layers[idx].fields) {
 
           // when it's measure
           if ('measure' === layer.type) {
@@ -606,7 +602,7 @@ export class DatasourceService extends AbstractService {
             // when it's dimension
           } else if ('dimension' === layer.type) {
 
-            let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[idx]).radius;
+            const radius = ((pageConf.chart as UIMapOption).layers[idx] as UITileLayer).radius;
 
             // to make reverse (bigger radius => set small precision), get precision from 0 - 100
             let precision = Math.round((100 - radius) / 8.33);
@@ -622,8 +618,8 @@ export class DatasourceService extends AbstractService {
                 };
 
                 // clustering
-                let chart = (<UIMapOption>pageConf.chart);
-                if (chart.layers[idx].type == MapLayerType.CLUSTER && chart.layers[idx]['clustering']) {
+                const chart = (pageConf.chart as UIMapOption);
+                if (chart.layers[idx].type === MapLayerType.CLUSTER && chart.layers[idx]['clustering']) {
                   // cluster 값 변경
                   let clusterPrecision: number = 6;
                   if (chart['layers'][idx]['changeCoverage']) {
@@ -631,36 +627,35 @@ export class DatasourceService extends AbstractService {
                     clusterPrecision = Math.round((100 - chart.layers[idx]['coverage']) / 8.33);
                   } else {
                     // zoom size 변경
-                    let zoomSize = chart.zoomSize - 2;
+                    const zoomSize = chart.zoomSize - 2;
                     clusterPrecision = Math.round((18 + (zoomSize - 18)) / 1.5);
                   }
 
                   if (clusterPrecision > 12) clusterPrecision = 12;
                   if (clusterPrecision < 1) clusterPrecision = 1;
 
-                  query.shelf.layers[idx].view = <GeoHashFormat>{
+                  query.shelf.layers[idx].view = ({
                     type: LayerViewType.CLUSTERING.toString(),
-                    method: "h3",
+                    method: 'h3',
                     // 0~99 퍼센트 값을 1~12값으로 변환
                     precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
-                  };
+                  } as GeoHashFormat);
 
-                } else if (chart.layers[idx].type == MapLayerType.SYMBOL) {
+                } else if (chart.layers[idx].type === MapLayerType.SYMBOL) {
 
-                  let precision: number = 12;
-                  query.shelf.layers[idx].view = <GeoHashFormat>{
+                  query.shelf.layers[idx].view = ({
                     type: 'abbr',
-                    method: "h3",
-                    relayType: "FIRST",
+                    method: 'h3',
+                    relayType: 'FIRST',
                     // zoom 값을 12~14 사이 값으로 변환
-                    precision: precision
-                  };
+                    precision: 12
+                  } as GeoHashFormat);
 
                 }
 
                 if (!_.isUndefined(chart['lowerCorner']) && !_.isUndefined(chart['upperCorner'])
-                  && chart['lowerCorner'].indexOf('NaN') == -1 && chart['upperCorner'].indexOf('NaN') == -1) {
-                  let spatialFilter = new SpatialFilter();
+                  && chart['lowerCorner'].indexOf('NaN') === -1 && chart['upperCorner'].indexOf('NaN') === -1) {
+                  const spatialFilter = new SpatialFilter();
                   spatialFilter.dataSource = query.shelf.layers[idx].ref;
                   // spatialFilter.ref = query.shelf.layers[idx].ref;
                   spatialFilter.field = layer.field.name;
@@ -676,7 +671,7 @@ export class DatasourceService extends AbstractService {
               if (layer.field.logicalType === LogicalType.GEO_POINT) {
 
                 // geo_hash is only used in hexagon
-                if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[idx].type) {
+                if (MapLayerType.TILE === (pageConf.chart as UIMapOption).layers[idx].type) {
 
                   // 기존 polygon 스펙
                   // layer.format = <GeoHashFormat>{
@@ -686,14 +681,14 @@ export class DatasourceService extends AbstractService {
                   // };
 
                   // radius precision 값 변경
-                  let chart = (<UIMapOption>pageConf.chart);
+                  const chart = (pageConf.chart as UIMapOption);
                   let radiusPrecision: number = precision;
                   if (chart['layers'][idx]['changeTileRadius']) {
                     // radius 값 변경
                     radiusPrecision = precision;
                   } else {
                     // zoom size 변경
-                    let zoomSize = chart.zoomSize - 2;
+                    const zoomSize = chart.zoomSize - 2;
                     radiusPrecision = Math.round((18 + (zoomSize - 18)) / 1.5);
                     // radius 값 지정
                     chart['layers'][idx]['changeTileRadius'] = true;
@@ -704,20 +699,20 @@ export class DatasourceService extends AbstractService {
                   if (radiusPrecision > 12) radiusPrecision = 12;
                   if (radiusPrecision < 1) radiusPrecision = 1;
 
-                  query.shelf.layers[idx].view = <GeoHashFormat>{
+                  query.shelf.layers[idx].view = ({
                     type: LayerViewType.HASH.toString(),
-                    method: "geohex",
+                    method: 'geohex',
                     precision: radiusPrecision
-                  };
+                  } as GeoHashFormat);
                 }
 
                 // when they have multiple geo values
                 if (geoFieldArr[idx] > 1) {
-                  layer.format = <GeoBoundaryFormat>{
+                  layer.format = ({
                     type: FormatType.GEO_BOUNDARY.toString(),
                     geoColumn: query.pivot.columns[0].field.name,
                     descColumn: query.pivot.columns[0].field.name
-                  }
+                  } as GeoBoundaryFormat)
                 }
 
                 // when polygon, line type
@@ -740,14 +735,14 @@ export class DatasourceService extends AbstractService {
         layers: query.shelf.layers
       };
 
-      //map 은 limit 5000개 제한
+      // map 은 limit 5000개 제한
       query.limits = {
         limit: 5000,
         sort: null
       };
-      let uiOption = <UIMapOption>pageConf.chart;
+      const uiOption = pageConf.chart as UIMapOption;
       uiOption.layers.forEach((layer) => {
-        if (layer.type == MapLayerType.SYMBOL || layer.type == MapLayerType.HEATMAP) {
+        if (layer.type === MapLayerType.SYMBOL || layer.type === MapLayerType.HEATMAP) {
           query.limits.limit = 20000;
         }
       });
@@ -938,7 +933,7 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getQueryHistoriesCount(datasourceId: string): Promise<any> {
-    let url = this.API_URL + `datasources/${datasourceId}/query/histories/stats/count`;
+    const url = this.API_URL + `datasources/${datasourceId}/query/histories/stats/count`;
     return this.get(url);
   }
 
@@ -949,7 +944,7 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getHistoriesSize(datasourceId: string): Promise<any> {
-    let url = this.API_URL + `datasources/${datasourceId}/histories/size/stats/hour`;
+    const url = this.API_URL + `datasources/${datasourceId}/histories/size/stats/hour`;
     return this.get(url);
   }
 
@@ -960,7 +955,7 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getQueryHistoriesStatsUser(datasourceId: string, duration: string = '-P7D'): Promise<any> {
-    let url = this.API_URL + `datasources/${datasourceId}/query/histories/stats/user?duration=${duration}`;
+    const url = this.API_URL + `datasources/${datasourceId}/query/histories/stats/user?duration=${duration}`;
     return this.get(url);
   }
 
@@ -971,7 +966,7 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getQueryHistoriesStatsTime(datasourceId: string, duration: string = '-P7D'): Promise<any> {
-    let url = this.API_URL + `datasources/${datasourceId}/query/histories/stats/elapsed?duration=${duration}`;
+    const url = this.API_URL + `datasources/${datasourceId}/query/histories/stats/elapsed?duration=${duration}`;
     return this.get(url);
   }
 
@@ -1122,7 +1117,7 @@ export class DatasourceService extends AbstractService {
     if (this._useMetaDataQuery) {
       // 메타데이터 처리
       const dsField: Field
-        = dataSourceFields.find(item => item.name === field.name && !isNullOrUndefined(item.uiMetaData));
+        = dataSourceFields.find(item => item.name === field.name && !CommonUtil.isNullOrUndefined(item.uiMetaData));
       (dsField) && (field['logicalName'] = dsField.uiMetaData.name);
     }
 

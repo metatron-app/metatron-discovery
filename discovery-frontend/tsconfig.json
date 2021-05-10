@@ -1,20 +1,65 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./dist/out-tsc",
+    "allowSyntheticDefaultImports": true, // json 파일을 import 허용 여부
+    "allowUnreachableCode": false,        // 도달 불가능한 코드에 대한 허용 여부.
+    "allowUnusedLabels": false,           // 사용하지 않는 라벨에 대한 허용 여부
     "baseUrl": "src",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es5",
-    "typeRoots": [
+    "declaration": false,   // .d.ts 파일의 생성 여부
+    "downlevelIteration": false, // target이 ES3 및 ES5 일때도 for..of, spread, destructuring 문법 지원 - TypeScript 2.3 이전에는 target이 ES6/ES2015 이후 버전일때만 지원함
+    "experimentalDecorators": true, // ES Decorator에 대한 실험적 기능 사용 여부s
+    "importHelpers": true,  // tslib에서 helpers (e.g. __extends, __rest, etc..)를 가져온다
+    "module": "esnext",           // 모듈 설정
+    "moduleResolution": "node",   // 모듈 (검색)해석 방식 설정
+    "noFallthroughCasesInSwitch": true, // 잘못 적혔다고 판단되는 switch문에 대한 에러 발생
+    "noUnusedLocals": true,             // 사용안된 지역변수에 대한 오류 보고 여부
+    "noUnusedParameters": true,         // 사용안된 파라미터에 대한 오류 보고 여부
+    "outDir": "./dist/out-tsc",   // 출력할 디덱토리
+    "paths" : {
+      "@environments/*" : [
+        "environments/*"
+      ],
+      "@common/*": [
+        "app/common/*"
+      ],
+      "@layout/*": [
+        "app/layout/*"
+      ],
+      "@domain/*": [
+        "app/domain/*"
+      ]
+    },
+    "pretty": true,                     // 에러 메시지를 예쁘게 설정
+    "removeComments": true,              // 주석 삭제
+    "sourceMap": true,    // 소스맵(*.map) 파일 생성 여부
+    "target": "es2017",   // 사용할 ECMAScript 버전 설정
+    "typeRoots": [        // 타입(*.d.ts)파일을 가져올 디렉토리 설정
       "node_modules/@types"
     ],
-    "lib": [
-      "es2016",
+    "lib": [              // 컴파일에 포함될 라이브러리 파일 목록
+      "es2018",
       "dom"
     ]
-  }
+  },
+  "angularCompilerOptions": {
+    "enableIvy": false,
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true
+  },
+  "files": [
+    "src/main.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/test.ts",
+    "src/**/*.spec.ts"
+  ]
 }
+
+
+
+
+

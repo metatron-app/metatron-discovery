@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { Group } from './group';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {Group} from './group';
 
 /**
  * Created by LDL on 2017. 6. 16..
@@ -31,12 +31,12 @@ export class User extends AbstractHistoryEntity {
   public imageUrl: string;
 
 
-  //TODO Role -> Group 으로 변경해야되는지 확인 필요
+  // TODO Role -> Group 으로 변경해야되는지 확인 필요
   public groups: Group[];
   // 추가 / 삭제 액션 여부 (추가(add), 삭제(remove))
   public op: Action;
 
-  public roleNames:string[] = [];
+  public roleNames: string[] = [];
 
   /**
    * for UI
@@ -47,19 +47,19 @@ export class User extends AbstractHistoryEntity {
 }
 
 export enum Status {
-  REJECTED = <any>'REJECTED',
-  EXPIRED = <any>'EXPIRED',
-  LOCKED = <any>'LOCKED',
-  DELETED = <any>'DELETED',
-  REQUESTED = <any>'REQUESTED',
-  ACTIVATED = <any>'ACTIVATED',
-  INITIAL = <any>'INITIAL'
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED',
+  LOCKED = 'LOCKED',
+  DELETED = 'DELETED',
+  REQUESTED = 'REQUESTED',
+  ACTIVATED = 'ACTIVATED',
+  INITIAL = 'INITIAL'
 }
 
 /**
  * 추가 / 삭제 액션
  */
 export enum Action {
-  add = <any>'ADD',
-  remove = <any>'REMOVE'
+  add = 'ADD',
+  remove = 'REMOVE'
 }

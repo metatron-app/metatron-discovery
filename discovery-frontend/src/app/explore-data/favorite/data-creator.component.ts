@@ -12,20 +12,14 @@
  * limitations under the License.
  */
 
-import {
-  Component, ComponentFactoryResolver,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from "../../meta-data-management/metadata/service/metadata.service";
-import {ActivatedRoute} from "@angular/router";
-import * as _ from "lodash";
-import {StringUtil} from "../../common/util/string.util";
-import {ExploreDataConstant} from "../constant/explore-data-constant";
-import {DataCreator} from "../../domain/meta-data-management/data-creator";
+import * as _ from 'lodash';
+import {Component, ElementRef, Injector, OnDestroy, OnInit,} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {StringUtil} from '@common/util/string.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
+import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
+import {ExploreDataConstant} from '../constant/explore-data-constant';
 
 @Component({
   selector: 'app-favorite-creator',
@@ -48,7 +42,6 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
   searchParams: { [key: string]: string };
 
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -57,7 +50,6 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
   constructor(
     protected element: ElementRef,
     private metadataService: MetadataService,
-    private resolver: ComponentFactoryResolver,
     private activatedRoute: ActivatedRoute,
     protected injector: Injector) {
     super(element, injector);
@@ -182,7 +174,7 @@ export class DataCreatorComponent extends AbstractComponent implements OnInit, O
   }
 
   public getUserImage(userInfo): string {
-    if( userInfo && userInfo.hasOwnProperty('imageUrl') ) {
+    if (userInfo && userInfo.hasOwnProperty('imageUrl')) {
       return '/api/images/load/url?url=' + userInfo.imageUrl + '/thumbnail';
     } else {
       return this.defaultPhotoSrc;

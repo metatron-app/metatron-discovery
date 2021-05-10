@@ -24,11 +24,11 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
-import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
 import {WorkspaceService} from '../../../../../workspace/service/workspace.service';
-import {PublicType, WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
+import {PublicType, WorkspaceAdmin} from '@domain/workspace/workspace';
 import * as _ from 'lodash';
-import {Page} from '../../../../../domain/common/page';
+import {Page} from '@domain/common/page';
 import {forkJoin} from 'rxjs/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import {of} from 'rxjs/observable/of';

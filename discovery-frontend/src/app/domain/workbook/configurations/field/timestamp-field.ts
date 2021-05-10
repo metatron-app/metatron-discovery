@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Field } from './field';
+import {Field} from './field';
 
 export class TimestampField extends Field {
 
@@ -35,42 +35,42 @@ export class TimestampField extends Field {
 }
 
 export enum GranularityType {
-  ALL = <any>'ALL',
-  SECOND = <any>'SECOND',
-  MINUTE = <any>'MINUTE',
-  HOUR = <any>'HOUR',
-  DAY = <any>'DAY',
-  DAYOFWEEK = <any>'DAYOFWEEK',
-  WEEK = <any>'WEEK',
-  MONTH = <any>'MONTH',
-  QUARTER = <any>'QUARTER',
-  YEAR = <any>'YEAR',
-  NONE = <any>'NONE'
+  ALL = 'ALL',
+  SECOND = 'SECOND',
+  MINUTE = 'MINUTE',
+  HOUR = 'HOUR',
+  DAY = 'DAY',
+  DAYOFWEEK = 'DAYOFWEEK',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+  QUARTER = 'QUARTER',
+  YEAR = 'YEAR',
+  NONE = 'NONE'
 }
 
 export enum TimeUnit {
-  SECOND = <any>'SECOND',
-  MINUTE = <any>'MINUTE',
-  HOUR = <any>'HOUR',
-  DAY = <any>'DAY',
-  WEEK = <any>'WEEK',
-  MONTH = <any>'MONTH',
-  QUARTER = <any>'QUARTER',
-  YEAR = <any>'YEAR',
-  NONE = <any>'NONE'
+  SECOND = 'SECOND',
+  MINUTE = 'MINUTE',
+  HOUR = 'HOUR',
+  DAY = 'DAY',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+  QUARTER = 'QUARTER',
+  YEAR = 'YEAR',
+  NONE = 'NONE'
 }
 
 export enum ByTimeUnit {
-  WEEK = <any>'WEEK',
-  MONTH = <any>'MONTH',
-  QUARTER = <any>'QUARTER',
-  YEAR = <any>'YEAR'
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+  QUARTER = 'QUARTER',
+  YEAR = 'YEAR'
 }
 
 /**
  * Candidate 필터링 타입
  */
 export enum FilteringType {
-  LIST = <any>'LIST',
-  RANGE = <any>'RANGE'
+  LIST = 'LIST',
+  RANGE = 'RANGE'
 }

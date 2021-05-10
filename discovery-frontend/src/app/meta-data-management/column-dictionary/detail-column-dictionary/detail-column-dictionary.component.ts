@@ -12,23 +12,23 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
-import {Modal} from '../../../common/domain/modal';
-import {ActivatedRoute} from '@angular/router';
-import {ColumnDictionaryService} from '../service/column-dictionary.service';
-import {Alert} from '../../../common/util/alert.util';
-import {CommonUtil} from '../../../common/util/common.util';
-import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
-import {ChooseCodeTableComponent} from '../../component/choose-code-table/choose-code-table.component';
-import {CodeTable} from '../../../domain/meta-data-management/code-table';
-import {FieldFormatType, LogicalType} from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {Modal} from '@common/domain/modal';
+import {ColumnDictionaryService} from '../service/column-dictionary.service';
+import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
+import {ColumnDictionary} from '@domain/meta-data-management/column-dictionary';
+import {ChooseCodeTableComponent} from '../../component/choose-code-table/choose-code-table.component';
+import {CodeTable} from '@domain/meta-data-management/code-table';
+import {FieldFormatType, LogicalType} from '@domain/datasource/datasource';
 import {LinkedMetadataComponent} from '../../component/linked-metadata-columns/linked-metadata.component';
-import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {LinkedMetaDataColumn} from '@domain/meta-data-management/metadata-column';
 import {Location} from '@angular/common';
-import {StringUtil} from "../../../common/util/string.util";
+import {StringUtil} from '@common/util/string.util';
 
 @Component({
   selector: 'app-detail-column-dictionary',
@@ -172,7 +172,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 제거
-    this._columnDictionaryService.deleteColumnDictionary(this._columnDictionaryId).then((result) => {
+    this._columnDictionaryService.deleteColumnDictionary(this._columnDictionaryId).then(() => {
       // alert
       Alert.success(this.translateService.instant('msg.metadata.ui.dictionary.delete.success',
         {value: this.columnDictionary.logicalName}));
@@ -299,9 +299,9 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
 
   /**
    * 코드 테이블 변경 이벤트
-   * @param {CodeTable} codeTable
+   * @param {CodeTable} _codeTable
    */
-  public onChangeSelectCodeTable(codeTable: CodeTable): void {
+  public onChangeSelectCodeTable(_codeTable: CodeTable): void {
     // 재조회
     this._getDetailColumnDictionary();
   }
@@ -509,7 +509,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     this.loadingShow();
     // 컬럼 사전 업데이트
     this._columnDictionaryService.updateColumnDictionary(this._columnDictionaryId,
-      params || this._getUpdateColumnDictionaryParams()).then((result) => {
+      params || this._getUpdateColumnDictionaryParams()).then(() => {
       // alert
       Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
       // 재조회
@@ -582,8 +582,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    * @private
    */
   private _getUpdateColumnDictionaryParams(): object {
-    const params = {};
-    return params;
+    return {};
   }
 
 }

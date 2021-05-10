@@ -1,14 +1,14 @@
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {SourceType} from "../../../domain/meta-data-management/metadata";
-import {MetadataService} from "../../../meta-data-management/metadata/service/metadata.service";
-import {DataCreator} from "../../../domain/meta-data-management/data-creator";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {SourceType} from '@domain/meta-data-management/metadata';
+import {DataCreator} from '@domain/meta-data-management/data-creator';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
 
 @Component({
   selector: 'component-explore-data-user-card',
   templateUrl: 'explore-data-user-card.component.html'
 })
-export class ExploreDataUserCardComponent extends AbstractComponent {
+export class ExploreDataUserCardComponent extends AbstractComponent implements OnInit {
   @Input() readonly topUser;
   @Input() readonly sourceType: SourceType;
   @Output() readonly userClicked = new EventEmitter();
@@ -35,7 +35,7 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
       return;
     }
     const popUrl = `workbench/${this.topUser.workbench.id}`;
-    //open in new tab
+    // open in new tab
     window.open(popUrl, '_blank');
   }
 
@@ -46,7 +46,7 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
       return;
     }
     const popUrl = `workbook/${this.topUser.workbook.id}/${this.topUser.dashboard.id}`;
-    //open in new tab
+    // open in new tab
     window.open(popUrl, '_blank');
   }
 
@@ -65,7 +65,7 @@ export class ExploreDataUserCardComponent extends AbstractComponent {
 
 
   public getUserImage(userInfo): string {
-    if( userInfo && userInfo.hasOwnProperty('imageUrl') ) {
+    if (userInfo && userInfo.hasOwnProperty('imageUrl')) {
       return '/api/images/load/url?url=' + userInfo.imageUrl + '/thumbnail';
     } else {
       return this.defaultPhotoSrc;

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {AbstractComponent} from '../abstract.component';
 import * as _ from 'lodash';
 
@@ -20,7 +20,7 @@ import * as _ from 'lodash';
   selector: 'user-information',
   templateUrl: './user-information.component.html',
 })
-export class UserInformationComponent extends AbstractComponent {
+export class UserInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { RangeSliderComponent } from './range-slider.component';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {RangeSliderComponent} from './range-slider.component';
 
 @NgModule({
   declarations: [

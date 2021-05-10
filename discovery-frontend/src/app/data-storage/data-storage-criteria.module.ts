@@ -13,12 +13,12 @@
  */
 
 import {NgModule} from '@angular/core';
-import {CommonModule} from "../common/common.module";
-import {CriterionComponent} from "./component/criterion/criterion.component";
-import {CriterionExtensionBoxComponent} from "./component/criterion/criterion-extension-box.component";
-import {CriterionFilterBoxComponent} from "./component/criterion/criterion-filter-box.component";
-import {CriterionCheckboxListComponent} from "./component/criterion/criterion-checkbox-list.component";
-import {CriterionTimeRadioboxListComponent} from "./component/criterion/criterion-time-radiobox-list.component";
+import {CommonModule} from '@common/common.module';
+import {CriterionComponent} from './component/criterion/criterion.component';
+import {CriterionExtensionBoxComponent} from './component/criterion/criterion-extension-box.component';
+import {CriterionFilterBoxComponent} from './component/criterion/criterion-filter-box.component';
+import {CriterionCheckboxListComponent} from './component/criterion/criterion-checkbox-list.component';
+import {CriterionTimeRadioboxListComponent} from './component/criterion/criterion-time-radiobox-list.component';
 
 @NgModule({
   imports: [
@@ -38,8 +38,7 @@ import {CriterionTimeRadioboxListComponent} from "./component/criterion/criterio
     CriterionCheckboxListComponent,
     CriterionTimeRadioboxListComponent
   ],
-  providers: [
-  ]
+  providers: []
 })
 export class DataStorageCriteriaModule {
 }

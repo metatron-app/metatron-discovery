@@ -12,21 +12,27 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
-} from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {ImportType, PrDataset} from "../../domain/data-preparation/pr-dataset";
-import {DataflowService} from "../dataflow/service/dataflow.service";
-import {DatasetService} from "../dataset/service/dataset.service";
-import {PreparationAlert} from "../util/preparation-alert.util";
-import {RadioSelectDatasetComponent} from "./radio-select-dataset.component";
-import { PopupService } from '../../common/service/popup.service';
-import { SubscribeArg } from '../../common/domain/subscribe-arg';
-import { Subscription } from 'rxjs/Subscription';
-import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
-import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {PopupService} from '@common/service/popup.service';
+import {SubscribeArg} from '@common/domain/subscribe-arg';
+import {ImportType, PrDataset} from '@domain/data-preparation/pr-dataset';
+
+import {DataflowService} from '../dataflow/service/dataflow.service';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {PreparationCommonUtil} from '../util/preparation-common.util';
+import {RadioSelectDatasetComponent} from './radio-select-dataset.component';
 
 @Component({
   selector: 'long-update-popup',
@@ -40,16 +46,13 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   @ViewChild('inputSearch')
   private _inputSearch: ElementRef;
 
-  private popupSubscription: Subscription;
-
   private firstLoadCompleted: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public - ViewChild
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(RadioSelectDatasetComponent)
-  public radioSelectDatasetComponent : RadioSelectDatasetComponent;
-
+  public radioSelectDatasetComponent: RadioSelectDatasetComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public - Output Variables
@@ -63,56 +66,55 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   @Output()
   public addEvent = new EventEmitter();
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public - Input Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input()
-  public dataflowId : string; // 현재 데이터플로우 아이디
+  public dataflowId: string; // 현재 데이터플로우 아이디
 
   @Input()
-  public isRadio : boolean = false;
+  public isRadio: boolean = false;
 
   @Input()
-  public popType : string = '';
+  public popType: string = '';
 
   @Input()
   public originalDatasetList: PrDataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
 
   @Input()
-  public selectedDatasetId : string; // 미리보기를 위해 화면에 선택된 데이터셋
+  public selectedDatasetId: string; // 미리보기를 위해 화면에 선택된 데이터셋
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public originalDatasetId : string; // 이미 데이터플로우에 추가된 데이터셋
+  public originalDatasetId: string; // 이미 데이터플로우에 추가된 데이터셋
   public datasets: PrDataset[] = []; // 화면에 보여지는 리스트
 
-  public swappingDatasetId : string;
-  public title : string;
-  public layoutType: string ='ADD'; // 새로운 데이터셋 추가 ADD, 기존 데이터셋 치환 SWAP
+  public swappingDatasetId: string;
+  public title: string;
+  public layoutType: string = 'ADD'; // 새로운 데이터셋 추가 ADD, 기존 데이터셋 치환 SWAP
 
-  public selectedDatasets : PrDataset[]; // 선택된 데이터셋 리스트
+  public selectedDatasets: PrDataset[]; // 선택된 데이터셋 리스트
 
   // 정렬
   public selectedContentSort: Order = new Order();
   public searchText: string = '';
   public searchType: string = 'IMPORTED';
-  public isShow : boolean = false;
+  public isShow: boolean = false;
 
   // popup status
   public step: string;
 
   public prepCommonUtil = PreparationCommonUtil;
   public ImportType = ImportType;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private dataflowService: DataflowService,
-              private datasetService : DatasetService,
               private popupService: PopupService) {
     super(elementRef, injector);
   }
@@ -125,36 +127,38 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   public ngOnInit() {
     super.ngOnInit();
 
-    this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-      this.step = data.name;
-      if (this.step === 'complete-dataset-create') {
+    this.subscriptions.push(
+      this.popupService.view$.subscribe((data: SubscribeArg) => {
+        this.step = data.name;
+        if (this.step === 'complete-dataset-create') {
 
-        if(data.hasOwnProperty('data') && data.data !== null) {
-          this.selectedDatasetId = data.data;
-          if(this.layoutType == 'SWAP') {
-            this.swappingDatasetId = data.data;
+          if (data.hasOwnProperty('data') && data.data !== null) {
+            this.selectedDatasetId = data.data;
+            if (this.layoutType === 'SWAP') {
+              this.swappingDatasetId = data.data;
+            }
           }
+          $('.ddp-ui-gridbody').scrollTop(0);
+          this._initViewPage()
         }
-        $('.ddp-ui-gridbody').scrollTop(0);
-        this._initViewPage()
-      }
-    });
+      })
+    );
 
-    if(this.isRadio) {
+    if (this.isRadio) {
       // 기존 데이터셋 치환 SWAP
       this.layoutType = 'SWAP';
       this.originalDatasetId = this.selectedDatasetId;
-    }else {
+    } else {
       // 새로운 데이터셋 추가 ADD
       this.layoutType = 'ADD';
     }
     this.selectedDatasetId = '';
 
-    if(this.popType == 'add') {
+    if (this.popType === 'add') {
       this.title = this.translateService.instant('msg.dp.btn.add.ds');
-    } else if(this.popType == 'imported') {
+    } else if (this.popType === 'imported') {
       this.title = this.translateService.instant('msg.dp.ui.swap.dataset');
-    } else if(this.popType == 'wrangled') {
+    } else if (this.popType === 'wrangled') {
       this.title = this.translateService.instant('msg.dp.ui.change.input.dataset');
     }
 
@@ -183,18 +187,18 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
    * 다음 단계로 이동
    */
   public done() {
-    if(this.layoutType == 'ADD') {
+    if (this.layoutType === 'ADD') {
       // 선택된 데이터셋이 없으면 X
-      if (isNullOrUndefined(this.selectedDatasets) || this.selectedDatasets.length === 0 ) {
+      if (this.isNullOrUndefined(this.selectedDatasets) || this.selectedDatasets.length === 0) {
         return
       }
-      let datasetLists: string[] =  [];
+      const datasetLists: string[] = [];
       this.selectedDatasets.forEach((ds) => {
         datasetLists.push(ds.dsId);
       });
       this.addEvent.emit(datasetLists);
-    }else if(this.layoutType == 'SWAP') {
-      let param = {oldDsId:this.originalDatasetId, newDsId : this.swappingDatasetId};
+    } else if (this.layoutType === 'SWAP') {
+      const param = {oldDsId: this.originalDatasetId, newDsId: this.swappingDatasetId};
       param['type'] = this.popType;
       this.doneEvent.emit(param);
     }
@@ -207,7 +211,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
    * @param {KeyboardEvent} event
    */
   public searchEventPressKey(event: KeyboardEvent) {
-    ( 13 === event.keyCode ) && ( this.searchEvent() );
+    (13 === event.keyCode) && (this.searchEvent());
   } // function - searchEventPressKey
 
 
@@ -285,7 +289,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
         this.datasets = this.datasets.concat(data['_embedded'].preparationdatasets);
 
-        if(this.layoutType == 'ADD') {
+        if (this.layoutType === 'ADD') {
 
           // 데이터플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
@@ -296,7 +300,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
         }
 
-        if (this.layoutType == 'SWAP') {
+        if (this.layoutType === 'SWAP') {
           // 데이터 플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
             item.selected = item.dsId === this.selectedDatasetId;
@@ -304,9 +308,9 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
           });
 
           // SWAP (radio button) mode : radio button 이 check 되지 않은 상태에서 부모화면에서 선택한 데이터셋이 load 된 경우, 이 항목의 radio button 을 check 한다
-          if(this.firstLoadCompleted == false && (this.swappingDatasetId == undefined || this.swappingDatasetId == '')) {
-            for(let i: number =0; i < this.datasets.length; i = i +1) {
-              if(this.originalDatasetId == this.datasets[i].dsId) {
+          if (this.firstLoadCompleted === false && (this.swappingDatasetId === undefined || this.swappingDatasetId === '')) {
+            for (let i: number = 0, nMax = this.datasets.length; i < nMax; i = i + 1) {
+              if (this.originalDatasetId === this.datasets[i].dsId) {
                 this.swappingDatasetId = this.datasets[i].dsId;
                 this.firstLoadCompleted = true;
                 break;
@@ -318,10 +322,10 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
         // 총페이지 수
         this.page.page += 1;
 
-      }).catch((error)=> {
+      }).catch((error) => {
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      const prepError = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prepError, this.translateService.instant(prepError.message));
     });
   } // function - getDatasets
 
@@ -339,7 +343,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
       return !item.origin
     });
     if (listWithNoOrigin.length !== 0) {
-      for (let index = 0; index < listWithNoOrigin.length; index++) {
+      for (let index = 0, nMax = listWithNoOrigin.length; index < nMax; index++) {
         if (_.findIndex(this.selectedDatasets, {dsId: listWithNoOrigin[index].dsId}) === -1) {
           return false;
         }
@@ -411,12 +415,11 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   } // function - changeOrder
 
 
-
   /**
    * 데이터 셋 선택
    * @param dataset
    */
-  public selectDataset(dataset : any) {
+  public selectDataset(dataset: any) {
 
     // 지금 보고있는 데이터면 show 해제
     if (dataset.dsId === this.selectedDatasetId) {
@@ -431,11 +434,10 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   /**
    *  라디오 버튼 선택
    */
-  public radioCheck(event,item) {
+  public radioCheck(event, item) {
     event.stopPropagation();
     this.swappingDatasetId = item.dsId;
   } // function - check
-
 
 
   /**
@@ -478,7 +480,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   private _initViewPage() {
 
     // 검색어 초기화
-    this.searchText  = '';
+    this.searchText = '';
 
     // 선택된 checkbox 항목 초기화
     this.selectedDatasets = [];
@@ -495,7 +497,6 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
     this.getDatasets();
   } // function - initViewPage
-
 
 
   /**
@@ -516,7 +517,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   private _deleteSelectedItem(ds: PrDataset) {
     const index = _.findIndex(this.selectedDatasets, {dsId: ds.dsId});
     if (-1 !== index) {
-      this.selectedDatasets.splice(index,1);
+      this.selectedDatasets.splice(index, 1);
     }
   }
 
@@ -525,7 +526,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
    * 모든 아이템 선택 해제
    * @private
    */
-  private _deleteAllItems(){
+  private _deleteAllItems() {
     this.datasets.forEach((item) => {
       if (!item.origin && item.selected) {
         item.selected = false;

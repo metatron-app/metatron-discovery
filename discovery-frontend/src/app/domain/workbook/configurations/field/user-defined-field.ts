@@ -12,12 +12,8 @@
  * limitations under the License.
  */
 
-import { Field } from './field';
+import {Field} from './field';
 
 export abstract class UserDefinedField extends Field {
-
-  get ref(): string {
-    return 'user_defined';
-  }
-
+  readonly ref = 'user_defined';
 }

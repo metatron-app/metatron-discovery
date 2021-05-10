@@ -12,11 +12,10 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { WorkspaceService } from '../../service/workspace.service';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Alert} from '@common/util/alert.util';
+import {WorkspaceService} from '../../service/workspace.service';
 
 @Component({
   selector: 'app-delete-workspace',
@@ -34,7 +33,7 @@ export class DeleteWorkspaceComponent extends AbstractComponent implements OnIni
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
- // TODO private commonUtil: CommonUtil;
+  // TODO private commonUtil: CommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -96,7 +95,7 @@ export class DeleteWorkspaceComponent extends AbstractComponent implements OnIni
     this.loadingShow();
     // 수정
     this.workspaceService.deleteWorkspace(this.workspaceId)
-      .then((result) => {
+      .then((_result) => {
         // 로딩 hide
         this.loadingHide();
         // 삭제 알림
@@ -104,9 +103,9 @@ export class DeleteWorkspaceComponent extends AbstractComponent implements OnIni
         // 팝업 닫기
         this.isShow = false;
         // 개인 워크스페이스로 이동
-        this.router.navigate(['/workspace']);
+        this.router.navigate(['/workspace']).then();
       })
-      .catch((error) => {
+      .catch((_error) => {
         // 로딩 hide
         this.loadingHide();
         // 실패 알림

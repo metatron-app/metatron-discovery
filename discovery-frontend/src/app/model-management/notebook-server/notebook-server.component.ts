@@ -12,24 +12,24 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { AddNotebookServerComponent } from './add-notebook-server/add-notebook-server.component';
-import { NotebookServerService } from './service/notebook-server.service';
-import { Alert } from '../../common/util/alert.util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {AddNotebookServerComponent} from './add-notebook-server/add-notebook-server.component';
+import {NotebookServerService} from './service/notebook-server.service';
+import {Alert} from '@common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from 'util';
-import { Modal } from '../../common/domain/modal';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { NoteBook } from '../../domain/notebook/notebook';
+import {Modal} from '@common/domain/modal';
+import {DeleteModalComponent} from '@common/component/modal/delete/delete.component';
+import {NoteBook} from '@domain/notebook/notebook';
 import * as _ from 'lodash';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-notebook-server',
   templateUrl: './notebook-server.component.html',
-  styles:[':host .ddp-txt-ellipsis {white-space:nowrap !important; text-overflow:ellipsis !important; overflow:hidden !important;}']
+  styles: [':host .ddp-txt-ellipsis {white-space:nowrap !important; text-overflow:ellipsis !important; overflow:hidden !important;}']
 })
-export class NotebookServerComponent extends AbstractComponent implements OnInit {
+export class NotebookServerComponent extends AbstractComponent implements OnInit, OnDestroy {
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -74,11 +74,12 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   public checkBoxCnt: number = 0;
 
   // check box flag
-  public tempCheckData : any[] = [];
+  public tempCheckData: any[] = [];
 
   public selectedContentSort: Order = new Order();
 
   public typeDefaultIndex: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -189,13 +190,13 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     for (let index = 1; index < checkList.length; index += 1) {
       const temp: any = checkList[index];
       temp.checked = flag;
-      const cloneData = _.cloneDeep(this.resultData[index-1]);
+      const cloneData = _.cloneDeep(this.resultData[index - 1]);
       this.removeTempData(cloneData);
-      if( temp.checked ) {
-        this.tempCheckData.push( cloneData );
+      if (temp.checked) {
+        this.tempCheckData.push(cloneData);
       }
     }
-    this.checkBoxCnt = flag === true? 1 : 0;
+    this.checkBoxCnt = flag === true ? 1 : 0;
   }
 
 
@@ -224,7 +225,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
         const $headerCheck: any = checkList[0];
         $headerCheck.checked = true;
       }
-      this.tempCheckData.push( cloneData );
+      this.tempCheckData.push(cloneData);
     }
 
     this.checkBoxCnt = 0;
@@ -249,11 +250,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   }
 
   public deleteAvailable() {
-    if (this.checkBoxCnt === 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.checkBoxCnt === 0;
   }
 
 
@@ -261,7 +258,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
    * Search notebook server
    * @param event
    */
-  public searchNotebookServer(event : any) {
+  public searchNotebookServer(event: any) {
 
     if (13 === event.keyCode || 27 === event.keyCode) {
       if (27 === event.keyCode) {
@@ -290,7 +287,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
         }
         Alert.success(this.translateService.instant('msg.comm.alert.delete.success'));
         this.reloadPage(false);
-      }).catch((error) => {
+      }).catch(() => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.comm.alert.delete.fail'));
       });
@@ -304,7 +301,7 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
         }
         Alert.success(this.translateService.instant('msg.comm.alert.delete.success'));
         this.reloadPage(false);
-      }).catch((error) => {
+      }).catch(() => {
         this.loadingHide();
         Alert.error(this.translateService.instant('msg.comm.alert.delete.fail'));
       });
@@ -406,12 +403,8 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     this.reloadPage();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // 삭제 확인 창
-  protected confirmDelete($event, id) {
+  public confirmDelete(_$event, id) {
 
     event.stopPropagation();
 
@@ -423,8 +416,6 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     this.deleteModalComponent.init(modal);
 
   }
-
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -471,16 +462,16 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
   private checkBoxTypeCheck() {
     this.changeDetect.detectChanges();
     const checkList = $('.ddp-checkbox-form');
-    let cnt : number = 0;
+    let cnt: number = 0;
     for (let index = 1; index < checkList.length; index += 1) {
       const temp: any = checkList[index];
-      for (let tempIndex = 0; tempIndex < this.tempCheckData.length; tempIndex += 1) {
-        const idx = index-1;
-        if( _.eq(this.resultData[idx].type, this.tempCheckData[tempIndex].type)
+      for (let tempIndex = 0, nMax = this.tempCheckData.length; tempIndex < nMax; tempIndex += 1) {
+        const idx = index - 1;
+        if (_.eq(this.resultData[idx].type, this.tempCheckData[tempIndex].type)
           && _.eq(this.resultData[idx].hostname, this.tempCheckData[tempIndex].hostname)
           && _.eq(this.resultData[idx].port, this.tempCheckData[tempIndex].port)
           && _.eq(this.resultData[idx].createdTime, this.tempCheckData[tempIndex].createdTime)
-          && _.eq(this.resultData[idx].name, this.tempCheckData[tempIndex].name) ) {
+          && _.eq(this.resultData[idx].name, this.tempCheckData[tempIndex].name)) {
           temp.checked = true;
           this.checkBoxCnt = 1;
           cnt++;
@@ -489,13 +480,9 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
     }
 
     const $headerCheck: any = checkList[0];
-    if (cnt == this.resultData.length) {
-      $headerCheck.checked = true;
-    } else {
-      $headerCheck.checked = false;
-    }
+    $headerCheck.checked = (cnt === this.resultData.length);
 
-    if (0 == this.resultData.length) {
+    if (0 === this.resultData.length) {
       $headerCheck.checked = false;
     }
 
@@ -507,11 +494,11 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
    */
   private removeTempData(cloneData) {
     _.remove(this.tempCheckData, {
-      type : cloneData.type,
-      hostname : cloneData.hostname,
-      port : cloneData.port,
-      createdTime : cloneData.createdTime,
-      name : cloneData.name,
+      type: cloneData.type,
+      hostname: cloneData.hostname,
+      port: cloneData.port,
+      createdTime: cloneData.createdTime,
+      name: cloneData.name,
     });
   }
 
@@ -520,13 +507,13 @@ export class NotebookServerComponent extends AbstractComponent implements OnInit
    * Returns parameter for notebook list API
    * @private
    */
-  private _getNotebookParams(isAll: boolean): any{
+  private _getNotebookParams(isAll: boolean): any {
 
     const params = {
       page: this.page.page,
       size: this.page.size,
       projection: 'default',
-      pseudoParam : (new Date()).getTime(),
+      pseudoParam: (new Date()).getTime(),
     };
 
     // 검색어

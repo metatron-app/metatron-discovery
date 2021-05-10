@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
-import {MetadataConstant} from "../../metadata.constant";
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {ConnectionComponent, ConnectionValid} from "../../../data-storage/component/connection/connection.component";
-import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
-import {PageResult} from "../../../domain/common/page";
-import {Dataconnection} from "../../../domain/dataconnection/dataconnection";
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {MetadataConstant} from '../../metadata.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ConnectionComponent, ConnectionValid} from '../../../data-storage/component/connection/connection.component';
+import {DataconnectionService} from '@common/service/dataconnection.service';
+import {PageResult} from '@domain/common/page';
+import {Dataconnection} from '@domain/dataconnection/dataconnection';
 import * as _ from 'lodash';
-import {MetadataEntity} from "../metadata.entity";
+import {MetadataEntity} from '../metadata.entity';
+import {StringUtil} from '@common/util/string.util';
 import ConnectionInfo = MetadataEntity.ConnectionInfo;
-import {StringUtil} from "../../../common/util/string.util";
 
 @Component({
   selector: 'create-metadata-db-connection',
   templateUrl: 'create-metadata-db-connection.component.html'
 })
-export class CreateMetadataDbConnectionComponent extends AbstractComponent {
+export class CreateMetadataDbConnectionComponent extends AbstractComponent implements OnInit {
 
   @ViewChild(ConnectionComponent)
   private _connectionComponent: ConnectionComponent;

@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   AfterViewInit,
   Component,
@@ -20,10 +21,9 @@ import {
   OnDestroy,
   OnInit, Output
 } from '@angular/core';
-import {AbstractComponent} from "../../common/component/abstract.component";
-import {EngineService} from "../service/engine.service";
-import * as _ from "lodash";
-import {Alert} from "../../common/util/alert.util";
+import {Alert} from '@common/util/alert.util';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {EngineService} from '../service/engine.service';
 
 declare let moment: any;
 
@@ -43,8 +43,6 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
     super(elementRef, injector);
   }
 
-  private ruleTypeList: any[] = ['loadForever', 'loadByPeriod', 'loadByInterval', 'dropForever', 'dropByPeriod', 'dropByInterval']
-
   @Input('datasourceId')
   public datasourceId: string;
 
@@ -53,6 +51,8 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
   public datasourceCopyRule: any[];
 
   public isShow: boolean;
+
+  public ruleTypeList: any[] = ['loadForever', 'loadByPeriod', 'loadByInterval', 'dropForever', 'dropByPeriod', 'dropByInterval']
 
   @Output('changeRetention') public changeEvent: EventEmitter<any> = new EventEmitter();
 
@@ -133,13 +133,13 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
     if (rule.type.indexOf('Period') > -1) {
       rule['period'] = text;
       if (rule['period'] === moment.duration(rule['period']).toISOString()) {
-        rule.durationString = moment.duration(rule['period']).locale("en").humanize();
+        rule.durationString = moment.duration(rule['period']).locale('en').humanize();
       }
     } else if (rule.type.indexOf('Interval') > -1) {
       rule['interval'] = text;
-      if (text.split('/').length == 2) {
+      if (text.split('/').length === 2) {
         if (moment.duration(moment(text.split('/')[1]).diff(text.split('/')[0])).asMilliseconds() > 0) {
-          rule.durationString = moment.duration(moment(text.split('/')[1]).diff(text.split('/')[0])).locale("en").humanize();
+          rule.durationString = moment.duration(moment(text.split('/')[1]).diff(text.split('/')[0])).locale('en').humanize();
         }
       }
     }
@@ -156,7 +156,7 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
       }
       if (rule.type.indexOf('Period') > -1) {
         if (!_.isNil(rule['period'])) {
-          if (rule['period'] != moment.duration(rule['period']).toISOString()) {
+          if (rule['period'] !== moment.duration(rule['period']).toISOString()) {
             setTimeout(() => {
               $('input.ddp-input-typebasic')[idx].focus();
             }, 400);
@@ -167,7 +167,7 @@ export class DatasourceRuleComponent extends AbstractComponent implements OnInit
         }
       } else if (rule.type.indexOf('Interval') > -1) {
         const interval = rule['interval'];
-        if (interval.split('/').length == 2) {
+        if (interval.split('/').length === 2) {
           if (moment.duration(moment(interval.split('/')[1]).diff(interval.split('/')[0])).asMilliseconds() > 0) {
             continue;
           }

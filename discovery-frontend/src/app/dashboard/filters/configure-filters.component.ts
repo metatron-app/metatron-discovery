@@ -12,19 +12,21 @@
  * limitations under the License.
  */
 
-import { AbstractFilterPopupComponent } from 'app/dashboard/filters/abstract-filter-popup.component';
 import {
   Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { Dashboard } from '../../domain/dashboard/dashboard';
+
+import { Filter } from '@domain/workbook/configurations/filter/filter';
+import { Dashboard } from '@domain/dashboard/dashboard';
+import { Widget } from '@domain/dashboard/widget/widget';
+import { Datasource } from '@domain/datasource/datasource';
+import { PageWidget, PageWidgetConfiguration } from '@domain/dashboard/widget/page-widget';
+
+import { DashboardUtil } from '../util/dashboard.util';
+import { AbstractFilterPopupComponent } from './abstract-filter-popup.component';
 import { ConfigureFiltersSelectComponent } from './configure-filters-select.component';
 import { ConfigureFiltersUpdateComponent } from './configure-filters-update.component';
-import { Widget } from '../../domain/dashboard/widget/widget';
-import { Datasource } from '../../domain/datasource/datasource';
-import { DashboardUtil } from '../util/dashboard.util';
-import { PageWidget, PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
 
 @Component({
   selector: 'app-config-filter',
@@ -92,7 +94,7 @@ export class ConfigureFiltersComponent extends AbstractFilterPopupComponent impl
    */
   public open(board: Dashboard, chartFilters:Filter[], targetFilter?: Filter, widget?:Widget) {
     this._board = board;
-    this._widget = <PageWidget>widget;
+    this._widget = widget as PageWidget;
     if (targetFilter) {
       this._updateFilterComp.openForEditFilter( board, { key : 'EDIT', filter : targetFilter } , true, this._widget);
     } else {

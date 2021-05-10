@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { CommonModule } from '../../../../common/common.module';
-import { ColorPickerLayerComponent } from './color.picker.layer.component';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {CommonModule} from '@common/common.module';
+import {ColorPickerLayerComponent} from './color.picker.layer.component';
 
 @NgModule({
   imports: [

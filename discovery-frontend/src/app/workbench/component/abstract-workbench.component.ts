@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {ElementRef, Injector} from '@angular/core';
-import {CommonConstant} from '../../common/constant/common.constant';
-import {CookieConstant} from '../../common/constant/cookie.constant';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {ElementRef, Injector, OnDestroy} from '@angular/core';
+import {CommonConstant} from '@common/constant/common.constant';
+import {CookieConstant} from '@common/constant/cookie.constant';
 import {WorkbenchService} from '../service/workbench.service';
 import {Message} from '@stomp/stompjs';
 
-export class AbstractWorkbenchComponent extends AbstractComponent {
+export class AbstractWorkbenchComponent extends AbstractComponent implements OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -62,7 +62,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
    * 웹소켓 체크
    * @param {Function} callback
    */
-  public webSocketCheck(callback?: Function) {
+  public webSocketCheck(callback?: () => void) {
     this.checkAndConnectWebSocket(true).then(() => {
       try {
         this._createWebSocket(callback);
@@ -86,11 +86,11 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
    * @param {Function} callback
    * @private
    */
-  private _createWebSocket(callback?: Function): void {
+  private _createWebSocket(callback?: () => void): void {
     // 웹소켓 아이디
     WorkbenchService.websocketId = CommonConstant.websocketId;
     try {
-      console.info('this.websocketId', WorkbenchService.websocketId);
+      console.log('this.websocketId', WorkbenchService.websocketId);
       const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
       (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
@@ -100,7 +100,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
         const data = JSON.parse(msg.body);
 
         if (data['connected'] === true) {
-          console.info('connected');
+          console.log('connected');
         }
         (callback) && (callback.call(this));
       }, headers);
@@ -117,7 +117,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
         }
       );
     } catch (e) {
-      console.info(e);
+      console.log(e);
     }
   } // function - createWebSocket
 }

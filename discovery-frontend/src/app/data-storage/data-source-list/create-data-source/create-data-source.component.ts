@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { DatasourceInfo, Datasource } from '../../../domain/datasource/datasource';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
+import {Datasource, DatasourceInfo} from '@domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-data-source',

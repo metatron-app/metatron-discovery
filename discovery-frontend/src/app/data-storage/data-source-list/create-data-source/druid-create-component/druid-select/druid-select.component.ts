@@ -12,19 +12,26 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import * as pixelWidth from 'string-pixel-width';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
-import {DatasourceInfo, Field} from '../../../../../domain/datasource/datasource';
-import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { GridComponent } from '../../../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../../common/component/grid/grid.option';
-import * as pixelWidth from 'string-pixel-width';
-import { Alert } from '../../../../../common/util/alert.util';
-import { CookieConstant } from '../../../../../common/constant/cookie.constant';
+import {Alert} from '@common/util/alert.util';
+import {CookieConstant} from '@common/constant/cookie.constant';
+import {AbstractPopupComponent} from '@common/component/abstract-popup.component';
+import {Header, SlickGridHeader} from '@common/component/grid/grid.header';
+import {GridComponent} from '@common/component/grid/grid.component';
+import {GridOption} from '@common/component/grid/grid.option';
+import {Field} from '@domain/datasource/datasource';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'druid-select',
@@ -36,10 +43,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성될 데이터소스 정보
-  private sourceData: DatasourceInfo;
-
-  @ViewChild("grid")
+  @ViewChild('grid')
   private _gridComponent: GridComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -49,12 +53,6 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @Input('sourceData')
-  public set setSourceData(sourceData: DatasourceInfo) {
-    this.sourceData = sourceData;
-  }
-
   @Input()
   public step: string;
 
@@ -112,7 +110,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
       // q
       const q = [];
       // workspace q
-      const workspaceQ  = [];
+      const workspaceQ = [];
       // 선택된 아이템 목록
       this.selectedEngineList.forEach((engineName) => {
         q.push(this._importEngineDatasource(engineName).then((result) => {
@@ -122,7 +120,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
       });
       // 데이터소스 import
       Promise.all(q)
-        .then((result) => {
+        .then(() => {
           // alert
           Alert.success(this.translateService.instant('msg.storage.alert.source.create.success'));
           // 생성된 데이터소스들 워크스페이스에 매핑
@@ -217,7 +215,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
    */
   public isAllSelectedEngine(): boolean {
     if (this.engineList.length !== 0) {
-      for (let index = 0; index < this.engineList.length; index++) {
+      for (let index = 0, nMax = this.engineList.length; index < nMax; index++) {
         // 조회된 아이템 목록 중 선택목록에 하나라도 없다면 false
         if (this.selectedEngineList.indexOf(this.engineList[index]) === -1) {
           return false;
@@ -286,7 +284,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
 
   /**
    * 선택된 리스트에 아이템을 추가
-   * @param {any}
+   * @param item
    * @private
    */
   private _addSelectedItem(item: any): void {
@@ -364,7 +362,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
 
   private _updateGrid(dataList: any, fields: any): void {
     // headers
-    const headers: header[] = this._getHeaders(fields);
+    const headers: Header[] = this._getHeaders(fields);
     // rows
     const rows: any[] = this._getRows(dataList);
     // grid 그리기
@@ -414,7 +412,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
       })
       .catch((error) => {
         this.commonExceptionHandler(error);
-    });
+      });
   }
 
   /**
@@ -440,7 +438,7 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
       (field: any) => {
 
         /* 62 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
 
         return new SlickGridHeader()
           .Id(field.name)
@@ -454,14 +452,14 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
           .Resizable(true)
           .Unselectable(true)
           .Sortable(true)
-          .Formatter((row, cell, value) => {
+          .Formatter((_row, _cell, value) => {
             let content = value;
             // trans to string
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
               content = value + '';
             }
             if (content && content.length > 50) {
-              return content.slice(0,50);
+              return content.slice(0, 50);
             } else {
               return content;
             }

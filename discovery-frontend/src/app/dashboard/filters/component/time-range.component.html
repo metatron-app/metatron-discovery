@@ -14,7 +14,7 @@
 
 <div class="ddp-wrap-dateinfo ddp-filter-dateinfo" >
   <!-- 날짜 -->
-  <div [ngStyle]="{'width' : ('WIDGET' === mode) ? '200px' : ''}" class="ddp-ui-dateinfo ddp-from" >
+  <div [ngStyle]="{'width' : isWidgetMode ? '200px' : ''}" class="ddp-ui-dateinfo ddp-from" >
     <div class="ddp-dateinfo-in" >
       <span class="ddp-txt-date">From</span>
 
@@ -42,7 +42,7 @@
   <!-- //날짜 -->
 
   <!-- 날짜 -->
-  <div [ngStyle]="{'width' : ('WIDGET' === mode) ? '200px' : ''}" class="ddp-ui-dateinfo ddp-to">
+  <div [ngStyle]="{'width' : isWidgetMode ? '200px' : ''}" class="ddp-ui-dateinfo ddp-to">
     <div class="ddp-dateinfo-in" >
       <span class="ddp-txt-date">To</span>
 

@@ -142,7 +142,7 @@
       <!-- // 차트 정보 영역 -->
 
       <!-- 데이터 저장 버튼 -->
-      <div *ngIf="isShowChartTools && isNotMapType" (click)="showPreviewDownData($event)" [class.ddp-box-download]="duringDataDown" class="ddp-box-btn2" >
+      <div *ngIf="isShowChartTools && isNotMapType" (click)="showPreviewDownData()" [class.ddp-box-download]="duringDataDown" class="ddp-box-btn2" >
         <em *ngIf="duringDataDown" class="ddp-icon-widget-loading"></em>
         <span *ngIf="duringDataDown" class="ddp-txt">{{ 'msg.comm.ui.downloading' | translate }}</span>
         <em *ngIf="!duringDataDown" class="ddp-icon-widget-gridsave" ></em>
@@ -398,7 +398,7 @@
                  (chartSelectInfo)="chartSelectInfo($event)"
                  (noData)="showNoData()"
                  (drawFinished)="updateComplete()"
-                 (changeDraw)="changeDraw($event)">
+                 (changeDraw)="changeDraw()">
     </map-chart>
 
   </div>

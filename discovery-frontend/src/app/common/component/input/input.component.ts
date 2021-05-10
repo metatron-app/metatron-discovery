@@ -13,24 +13,25 @@
  */
 
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output, SimpleChange,
   SimpleChanges,
   ViewChild
-} from "@angular/core";
-import {isNullOrUndefined} from "util";
+} from '@angular/core';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'component-input',
   templateUrl: './input.component.html'
 })
-export class InputComponent implements OnInit, OnDestroy {
+export class InputComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -75,7 +76,7 @@ export class InputComponent implements OnInit, OnDestroy {
 
   @Input() public optionalStyle: string = '';   // 추가적인 스타일 적용을 위한 스타일
 
-  @Input() public beforeChangeValue: Function;
+  @Input() public beforeChangeValue: (arg) => void;
 
   @Output('changeValue') public changeEvent: EventEmitter<number | string> = new EventEmitter();
 
@@ -112,11 +113,11 @@ export class InputComponent implements OnInit, OnDestroy {
     const valueChanges: SimpleChange = changes.value;
     const disabledChanges: SimpleChange = changes.disabled;
     if (this._inputElm) {
-      if (valueChanges && !isNullOrUndefined(valueChanges.currentValue)) {
+      if (valueChanges && !CommonUtil.isNullOrUndefined(valueChanges.currentValue)) {
         this._inputElm.nativeElement.value = valueChanges.currentValue;
       }
 
-      if (disabledChanges && !isNullOrUndefined(disabledChanges.currentValue)) {
+      if (disabledChanges && !CommonUtil.isNullOrUndefined(disabledChanges.currentValue)) {
         this._inputElm.nativeElement.disabled = disabledChanges.currentValue;
       }
     }
@@ -132,7 +133,7 @@ export class InputComponent implements OnInit, OnDestroy {
     if (0 < this.maxLen) {
       inputNativeElm.maxLength = this.maxLen;
     }
-    if (isNullOrUndefined(this.value)) {
+    if (CommonUtil.isNullOrUndefined(this.value)) {
       inputNativeElm.value = '';
     }
 
@@ -167,15 +168,32 @@ export class InputComponent implements OnInit, OnDestroy {
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 값 제거
+   */
+  public clearValue() {
+    this._inputElm.nativeElement.value = '';
+    this.value = '';
+    this.changeEvent.emit(this.value);
+  } // function - clearValue
+
+  /**
+   * 값 입력 여부
+   * @return {boolean}
+   */
+  public isNotEmptyInput(): boolean {
+    if (this._inputElm) {
+      return '' !== this._inputElm.nativeElement.value;
+    } else {
+      return false;
+    }
+  } // function - isNotEmptyInput
 
   /**
    * 키 입력 핸들러
    * @param event
    */
-  protected keyupHandler(event: KeyboardEvent) {
+  public keyupHandler(event: KeyboardEvent) {
     if (this.immediately || 13 === event.keyCode) {
       // 즉시 적용 및 Enter 적용
       this.setValue();
@@ -191,14 +209,14 @@ export class InputComponent implements OnInit, OnDestroy {
   /**
    * input focus event handler
    */
-  protected focusHandler() {
+  public focusHandler() {
     this.inputFocusEvent.emit();
   } // function - focusHandler
 
   /**
    * input blur event handler
    */
-  protected blurHandler() {
+  public blurHandler() {
     this.inputBlurEvent.emit();
     this.setValue();
   } // function - blurHandler
@@ -206,11 +224,11 @@ export class InputComponent implements OnInit, OnDestroy {
   /**
    * 값 적용
    */
-  protected setValue() {
+  public setValue() {
     let inputValue = this._inputElm.nativeElement.value;
     inputValue = inputValue ? ((this.isTrim) ? inputValue.trim() : inputValue) : '';
     if (inputValue !== this.value) {
-      if ((isNullOrUndefined(this.beforeChangeValue) || this.beforeChangeValue(inputValue))
+      if ((CommonUtil.isNullOrUndefined(this.beforeChangeValue) || this.beforeChangeValue(inputValue))
         && ('string' === this.valueType || ('number' === this.valueType && !isNaN(Number(inputValue))))) {
         this.value = inputValue;
         this.changeEvent.emit(this.value);
@@ -220,33 +238,16 @@ export class InputComponent implements OnInit, OnDestroy {
     }
   } // function - setValue
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 값 적용 취소
    */
   protected resetValue() {
     this._inputElm.nativeElement.value = this.value;
   } // function - resetValue
-
-  /**
-   * 값 제거
-   */
-  protected clearValue() {
-    this._inputElm.nativeElement.value = '';
-    this.value = '';
-    this.changeEvent.emit(this.value);
-  } // function - clearValue
-
-  /**
-   * 값 입력 여부
-   * @return {boolean}
-   */
-  protected isNotEmptyInput(): boolean {
-    if (this._inputElm) {
-      return '' !== this._inputElm.nativeElement.value;
-    } else {
-      return false;
-    }
-  } // function - isNotEmptyInput
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

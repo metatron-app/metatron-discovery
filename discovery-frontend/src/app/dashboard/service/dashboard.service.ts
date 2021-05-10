@@ -13,27 +13,24 @@
  */
 
 import * as _ from 'lodash';
-import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import {
-  BoardConfiguration,
-  BoardDataSource,
-  Dashboard,
-  JoinMapping
-} from '../../domain/dashboard/dashboard';
-import {BookTree} from '../../domain/workspace/book';
-import {BoardGlobalOptions} from '../../domain/dashboard/dashboard.globalOptions';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '@common/service/abstract.service';
+import {CommonUtil} from '@common/util/common.util';
+
+import {BoardConfiguration, BoardDataSource, Dashboard, JoinMapping} from '@domain/dashboard/dashboard';
+import {BookTree} from '@domain/workspace/book';
+import {BoardGlobalOptions} from '@domain/dashboard/dashboard.globalOptions';
+
 import {FilterUtil} from '../util/filter.util';
 import {MetadataService} from '../../meta-data-management/metadata/service/metadata.service';
-import {CommonUtil} from '../../common/util/common.util';
 
 declare let async;
 
 @Injectable()
 export class DashboardService extends AbstractService {
 
-  private _dashboard:Dashboard;
+  private _dashboard: Dashboard;
 
   constructor(protected injector: Injector,
               private metadataService: MetadataService) {
@@ -43,7 +40,7 @@ export class DashboardService extends AbstractService {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public setCurrentDashboard(board:Dashboard) {
+  public setCurrentDashboard(board: Dashboard) {
     this._dashboard = board;
   }
 
@@ -57,7 +54,7 @@ export class DashboardService extends AbstractService {
    * @param {BoardDataSource[]} dataSources
    */
   public connectDashboardAndDataSource(boardId: string, dataSources: BoardDataSource[]) {
-    let linksParam: string[] = dataSources.reduce((acc: string[], currVal: BoardDataSource) => {
+    const linksParam: string[] = dataSources.reduce((acc: string[], currVal: BoardDataSource) => {
       return acc.concat(this._getLinkDataSourceParam(currVal));
     }, []);
 
@@ -72,7 +69,7 @@ export class DashboardService extends AbstractService {
    * @param {Function} callback
    * @return {Promise<any>}
    */
-  public createDashboard(workbookId: string, dashboard: Dashboard, option: BoardGlobalOptions, callback?:Function) {
+  public createDashboard(workbookId: string, dashboard: Dashboard, option: BoardGlobalOptions, callback?: (board: Dashboard) => void) {
     const url = this.API_URL + 'dashboards';
     const boardDs: BoardDataSource = dashboard.dataSource;
     let params = {
@@ -90,7 +87,7 @@ export class DashboardService extends AbstractService {
     params = this.convertSpecToServer(_.cloneDeep(params));
     return this.post(url, params).then((board: Dashboard) => {
       return new Promise((resolve) => {
-        ( callback ) && ( callback( board ) );
+        (callback) && (callback(board));
         this.connectDashboardAndDataSource(board.id, ('multi' === boardDs.type) ? boardDs.dataSources : [boardDs])
           .then(() => resolve(board));
       });
@@ -106,7 +103,7 @@ export class DashboardService extends AbstractService {
     return new Promise<any>((resolve, reject) => {
       this.get(this.API_URL + `dashboards/${dashboardId}?projection=forDetailView`)
         .then((board: Dashboard) => {
-          const procMetas: Function[] = [];
+          const procMetas: ((callback) => void)[] = [];
           board.dataSources.forEach(ds => {
             procMetas.push((callback) => {
               this.metadataService.getMetadataForDataSource(ds.id).then(result => {
@@ -154,11 +151,11 @@ export class DashboardService extends AbstractService {
     return this.get(this.API_URL + `dashboards/${dashboardId}?projection=forDetailView`).then((info: Dashboard) => {
       if (info.configuration.customFields) {
         {
-          info.configuration['userDefinedFields'] = _.cloneDeep( CommonUtil.objectToArray( info.configuration.customFields ) );
+          info.configuration['userDefinedFields'] = _.cloneDeep(CommonUtil.objectToArray(info.configuration.customFields));
           delete info.configuration.customFields;
           info.configuration.widgets.forEach(item => item.isInLayout = true); // Processing to prevent widget information from being deleted
         }
-        return this.updateDashboard(dashboardId, { configuration: info.configuration }).then(() => {
+        return this.updateDashboard(dashboardId, {configuration: info.configuration}).then(() => {
           return this.post(this.API_URL + 'dashboards/' + dashboardId + '/copy', null);
         })
       } else {
@@ -224,20 +221,20 @@ export class DashboardService extends AbstractService {
         }
         if (boardConf.filters) {
           boardConf.filters
-            = boardConf.filters.filter( item => {
-              if( boardConf.dataSource.temporary ) {
-                return 'recommended' !== item.ui.importanceType;
-              } else {
-                return true;
-              }
-            }).map(item => FilterUtil.convertToServerSpecForDashboard(item));
+            = boardConf.filters.filter(item => {
+            if (boardConf.dataSource.temporary) {
+              return 'recommended' !== item.ui.importanceType;
+            } else {
+              return true;
+            }
+          }).map(item => FilterUtil.convertToServerSpecForDashboard(item));
         }
         delete boardConf.layout;
         delete boardConf.fields;
 
         // convert spec UI to server ( customFields -> userDefinedFields )
         if (boardConf.customFields) {
-          boardConf['userDefinedFields'] = _.cloneDeep( CommonUtil.objectToArray( boardConf.customFields ) );
+          boardConf['userDefinedFields'] = _.cloneDeep(CommonUtil.objectToArray(boardConf.customFields));
           delete boardConf.customFields;
         }
 

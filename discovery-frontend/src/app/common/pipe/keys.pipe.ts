@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Injectable, Pipe, PipeTransform } from '@angular/core';
+import {Injectable, Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'keys'
@@ -21,10 +21,12 @@ import { Injectable, Pipe, PipeTransform } from '@angular/core';
 @Injectable()
 export class KeysPipe implements PipeTransform {
 
-  transform(enumClass, args: string[]): any {
+  transform(enumClass, _args: string[]): any {
     const keys = [];
     for (const enumMember in enumClass) {
-      keys.push({ key: enumMember, value: enumClass[enumMember] });
+      if (enumMember && enumClass.hasOwnProperty(enumMember)) {
+        keys.push({key: enumMember, value: enumClass[enumMember]});
+      }
     }
     return keys;
   }
