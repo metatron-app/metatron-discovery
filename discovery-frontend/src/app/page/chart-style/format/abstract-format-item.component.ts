@@ -436,13 +436,9 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     this.change();
   }
 
-  public checkSelectedType(type: string): boolean{
-    return (this.selectedType['value']==type);
+  public checkSelectedType(type: string): boolean {
+    return (this.selectedType['value'] == type);
   }
-
-
-
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method

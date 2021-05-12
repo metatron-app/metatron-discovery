@@ -10,7 +10,7 @@
 <!-- 통화일때 -->
 <component-select
   #signListSelect
-  *ngIf="selectedType['value'] == 'currency'"
+  *ngIf="checkSelectedType('currency')"
   [array]="currencySignList"
   [viewKey]="'name'"
   (onSelected)="onSignChange($event)" >
@@ -19,7 +19,7 @@
 <!-- // 표시 형식 -->
 
 <!-- 소수점 자릿수 설정 -->
-<ng-container *ngIf="checkSelectedType('currency')" [class.ddp-disabled]="selectedType?.value == 'origin'">
+<ng-container *ngIf="!checkSelectedType('currency')" [class.ddp-disabled]="selectedType?.value == 'origin'">
   <div class="ddp-ui-layer-title">{{'msg.page.th.decimal.place' | translate}}</div>
   <div class="ddp-input-number">
     <input (keyup)="$event.keyCode == 13 ? onDigitValid() : null"
