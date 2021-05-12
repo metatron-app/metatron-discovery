@@ -3792,7 +3792,7 @@
   "msg.page.alert.chart.alias.dupp.warn": "이미 사용중인 Alias입니다",
   "msg.page.alert.chart.alias.dupfield.warn": "필드 이름과 같은 Alias는 사용할 수 없습니다",
   "msg.page.chart.show.value.on.chart": "Show value on chart",
-  "msg.page.chart.set.secondary.axis": "Set as secondary axis",
+  "msg.page.chart.set.secondary.axis": "보조축 설정",
   "msg.page.chart.analysis.color.palette": "color palette",
   "msg.page.chart.presentation.checkbox.limit": "Limitation",
   "msg.page.chart.color.series.color.setting": "사용자 색상 설정",

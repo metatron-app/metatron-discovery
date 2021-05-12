@@ -82,8 +82,8 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   public fix2DepthContext: boolean = false;
   public fixMeasureFormatContext: boolean = false;
 
-  public get seriesType(): typeof SeriesType{
-    return  SeriesType;
+  public get seriesType(): typeof SeriesType {
+    return SeriesType;
   }
 
   // 생성자
@@ -92,6 +92,43 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     super(elementRef, injector);
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Getter / Setter
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get isCombineChart(): boolean {
+    return this.chartType === 'combine';
+  } // get - isCombineChart
+
+  public get isMeasureField(): boolean {
+    return this.editingField && this.editingField.type === 'measure';
+  } // get - isMeasureField
+
+  /**
+   * 보조축으로 사용중인 필드여부
+   */
+  public get isSecondaryAxis(): boolean {
+
+    // X, Y축만 있다면 사용중이 아님
+    if (!this.uiOption.secondaryAxis) {
+      return false;
+    }
+
+    if (undefined === this.editingField.isSecondaryAxis) {
+      const aggrIdx = this.pivot.aggregations.findIndex(aggr => {
+        const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
+        const targetName = this.editingField.aggregationType + '(' + this.editingField.name + ')';
+        return (aggrName === targetName);
+      });
+      return (0 !== aggrIdx % 2);
+    } else {
+      // 현재필드의 보조축인지 체크
+      return this.editingField.isSecondaryAxis;
+    }
+  } // get - isSecondaryAxis
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 필터 On / Off 핸들러
    */
@@ -380,11 +417,12 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
     // 보조축
     const secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
-    secondaryAxis.name = this.editingField.alias;
+    // secondaryAxis.name = this.editingField.alias;
+    this.editingField.isSecondaryAxis = !this.editingField.isSecondaryAxis;
     this.uiOption.secondaryAxis = secondaryAxis;
 
     // 이벤트 발생
-    this.changePivotContext.emit({type: 'changePivot'});
+    this.changePivotContext.emit({type: 'changeSecondaryAxis', value: this.editingField});
   }
 
   /**
@@ -459,21 +497,6 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     const displayName: string = (field.fieldAlias) ? field.fieldAlias : field.name;
     return (field['aggregationType']) ? (field['aggregationType'] + '(' + displayName + ')') : displayName;
   } // function - getAliasPlaceholder
-
-
-  /**
-   * 보조축으로 사용중인 필드여부
-   */
-  public isSecondaryAxis(): boolean {
-
-    // X, Y축만 있다면 사용중이 아님
-    if (this.uiOption.secondaryAxis) {
-      return false;
-    }
-
-    // 현재필드의 보조축인지 체크
-    return this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name === this.editingField.alias;
-  }
 
   /**
    * when click outside of context menu

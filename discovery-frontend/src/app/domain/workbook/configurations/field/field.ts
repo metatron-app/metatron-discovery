@@ -84,8 +84,9 @@ export abstract class Field {
   // 수식이 포함된 컬럼여부
   aggregated?: boolean;
 
+  fieldFormat?: Format;
+
   // only used in UI
   isCustomField?: boolean;
-
-  fieldFormat?: Format;
+  isSecondaryAxis?: boolean;
 }

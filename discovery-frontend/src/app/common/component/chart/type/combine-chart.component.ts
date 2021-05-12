@@ -180,18 +180,30 @@ export class CombineChartComponent extends BaseChart<UICombineChart> implements 
    * @returns {BaseOption}
    */
   protected convertYAxisData(): BaseOption {
+    this.fieldInfo.aggs
+      .forEach((axis, idx) => {
+        let axisIdx = idx % 2;
 
-    const yAxis: string[] = this.fieldInfo.aggs;
-    _.each(yAxis, (_axis, idx) => {
-      const axisIdx = idx % 2;
-      if (idx < 2) {
-        this.chartOption.yAxis[axisIdx].name = yAxis[idx];
-        this.chartOption.yAxis[axisIdx].axisName = yAxis[idx];
-      } else {
-        this.chartOption.yAxis[axisIdx].name += CHART_STRING_DELIMITER + yAxis[idx];
-        this.chartOption.yAxis[axisIdx].axisName += CHART_STRING_DELIMITER + yAxis[idx];
-      }
-    });
+        const axisPivot = this.pivot.aggregations.find(aggr => {
+          const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
+          return (aggrName === axis);
+        });
+
+        console.log(axis + ' : ' + idx + ' : ' + axisPivot.isSecondaryAxis);
+
+        if (undefined !== axisPivot.isSecondaryAxis) {
+          axisIdx = axisPivot.isSecondaryAxis ? 1 : 0;
+        }
+        if (this.chartOption.yAxis[axisIdx].name) {
+          this.chartOption.yAxis[axisIdx].name += CHART_STRING_DELIMITER + axis;
+          this.chartOption.yAxis[axisIdx].axisName += CHART_STRING_DELIMITER + axis;
+        } else {
+          this.chartOption.yAxis[axisIdx].name = axis;
+          this.chartOption.yAxis[axisIdx].axisName = axis;
+        }
+      });
+
+    console.log('>>>>>> this.chartOption', this.chartOption.yAxis);
 
     return this.chartOption;
   }
@@ -311,22 +323,40 @@ export class CombineChartComponent extends BaseChart<UICombineChart> implements 
    */
   protected convertSeriesData(): BaseOption {
 
-    let typeValue: SeriesType;
     this.chartOption.series = this.data.columns.map((column, idx) => {
 
-      typeValue = null;
+      let typeValue: SeriesType = null;
+      let yAxisIdx = 0;
 
-      // aggregation값에 type을 지정한값이 있는경우
-      if (this.pivot.aggregations[idx] && this.pivot.aggregations[idx].options) {
-        // bar타입일때
-        if (-1 !== this.pivot.aggregations[idx].options.indexOf(SeriesType.BAR.toString())) {
+      if (this.pivot.aggregations[idx]) {
+        const aggr = this.pivot.aggregations[idx];
+        // aggregation값에 type을 지정한값이 있는경우
+        if (aggr.options) {
+          if (-1 !== aggr.options.indexOf(SeriesType.BAR.toString())) {
+            typeValue = SeriesType.BAR;
+          } else {
+            typeValue = SeriesType.LINE;
+          }
+        }
 
-          typeValue = SeriesType.BAR;
-          // line타입일때
-        } else {
-          typeValue = SeriesType.LINE;
+        // isSecondaryAxis 설정이 있는 경우
+        if (_.isUndefined(this.uiOption.secondaryAxis.disabled) || !this.uiOption.secondaryAxis.disabled) {
+          if (undefined === aggr.isSecondaryAxis) {
+            console.log('>>>>>> comebine aggr sAxis is undefined +++++ ');
+            if (0 === idx % 2) {
+              yAxisIdx = 0;
+              aggr.isSecondaryAxis = false;
+            } else {
+              yAxisIdx = 1;
+              aggr.isSecondaryAxis = true;
+            }
+          } else {
+            console.log('>>>>>> comebine aggr sAxis is defined ----- ');
+            yAxisIdx = aggr.isSecondaryAxis ? 1 : 0;
+          }
         }
       }
+
       // 시리즈 생성
       const series: Series = {
         type: typeValue ? typeValue : _.eq(idx % 2, 0) ? SeriesType.BAR : SeriesType.LINE,
@@ -340,11 +370,14 @@ export class CombineChartComponent extends BaseChart<UICombineChart> implements 
           }
         }),
         originData: _.cloneDeep(column.value),
-        yAxisIndex: _.isUndefined(this.uiOption.secondaryAxis.disabled) || !this.uiOption.secondaryAxis.disabled ? _.eq(idx % 2, 0) ? 0 : 1 : 0,
+        // yAxisIndex: _.isUndefined(this.uiOption.secondaryAxis.disabled) || !this.uiOption.secondaryAxis.disabled ? _.eq(idx % 2, 0) ? 0 : 1 : 0,
+        yAxisIndex: yAxisIdx,
         itemStyle: OptionGenerator.ItemStyle.auto(),
         label: OptionGenerator.LabelStyle.defaultLabelStyle(false, Position.TOP),
         uiData: column
       };
+
+      console.log('>>>>>> combine - ' + series.name + ' : ' + series.yAxisIndex);
 
       if (!_.eq(series.type, SeriesType.BAR)) {
         series.symbol = SymbolType.CIRCLE;

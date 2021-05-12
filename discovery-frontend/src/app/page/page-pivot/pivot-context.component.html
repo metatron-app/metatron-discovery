@@ -93,7 +93,7 @@
         </div>
         <!-- //2depth -->
       </li>
-      <!--<li *ngIf="editingField.type == 'measure' && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">-->
+      <!--<li *ngIf="isMeasureField && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">-->
       <li *ngIf="showAggregate()" (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
         <a href="javascript:">
           {{'msg.page.th.aggregate' | translate}}
@@ -139,7 +139,7 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="chartType == 'combine' && editingField.type == 'measure'"
+      <li *ngIf="isCombineChart && isMeasureField"
           (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
         <a href="javascript:">
           {{'msg.page.th.vslztn' | translate}}
@@ -169,7 +169,7 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="!uiOption?.split && editingField.type == 'measure' && 'grid' === chartType"
+      <li *ngIf="!uiOption?.split && isMeasureField && 'grid' === chartType"
           (mouseover)="fixMeasureFormatContext = true;fix2DepthContext = false;">
         <a href="javascript:">
           {{'msg.page.th.format' | translate}}
@@ -246,13 +246,11 @@
           </label>
         </a>
       </li>
-      <li *ngIf="false && (editingField.type == 'measure' && isPossibleSeries())">
+      <li *ngIf="(isMeasureField && isCombineChart)">
         <a href="javascript:">
           <label class="ddp-label-toggle">
             {{'msg.page.chart.set.secondary.axis' | translate}}
-            <input (change)="onChangeSecondaryAxis($event)"
-                   [checked]="isSecondaryAxis()"
-                   type="checkbox"/>
+            <input (change)="onChangeSecondaryAxis($event)" [checked]="isSecondaryAxis" type="checkbox"/>
             <span class="ddp-txt-toggle">
                 <i class="ddp-icon-checked"></i>
             </span>
