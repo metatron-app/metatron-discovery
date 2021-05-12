@@ -139,8 +139,11 @@ export class FormatOptionConverter {
           let uiData = _.cloneDeep(option.uiData);
           // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
           if (uiData && uiData instanceof Array) uiData = option.uiData[item.dataIndex];
-          return acc + this.getFormatValueTooltip(item, uiOption, fieldInfo, format, pivot, option, uiData);
-        }, '');
+          return [
+            ...acc,
+            ...this.getFormatValueTooltip(item, uiOption, fieldInfo, format, pivot, option, uiData).split('<br/>')
+          ].reduce((unique, item) => unique.includes(item) ? unique : [...unique, item], []);
+        }, []).join('<br/>');
       } else {
         const option = chartOption.series[params.seriesIndex];
 
@@ -795,7 +798,9 @@ export class FormatOptionConverter {
         }
       }
       // 해당 dataIndex 데이터애로 뿌려줌
-      if (uiData['seriesName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
+      if (uiData['seriesName']
+        && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)
+        && -1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         const seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
 
