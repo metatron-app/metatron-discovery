@@ -294,7 +294,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public get fieldPivot(): typeof FieldPivot{
+  public get fieldPivot(): typeof FieldPivot {
     return FieldPivot;
   }
 
@@ -1123,6 +1123,18 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       case 'outside':
         this.editingField = data.value;
         break;
+      case 'changeSecondaryAxis':
+        this.pivot.aggregations.forEach((aggr, idx) => {
+          const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
+          const targetName = data.value.aggregationType + '(' + data.value.name + ')';
+          if (aggrName === targetName) {
+            aggr.isSecondaryAxis = data.value.isSecondaryAxis;
+          } else if (undefined === aggr.isSecondaryAxis) {
+            aggr.isSecondaryAxis = (1 === (idx % 2));
+          }
+        });
+        this.changePivot();
+        break;
     }
   }
 
@@ -1427,7 +1439,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 현재필드의 보조축인지 체크
-    return ( this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name === this.editingField.alias );
+    return (this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name === this.editingField.alias);
   }
 
   protected onClickedOutside(event) {
@@ -2169,7 +2181,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       for (const type of typeList) {
 
         // type이 없는경우 true, 타입이 있는경우 타입값이 아이템의 타입값과 같을때만 true
-        const typeCheck: boolean = !type || '' === type ? true : ( type === item.type );
+        const typeCheck: boolean = !type || '' === type ? true : (type === item.type);
 
         // type일떄
         if (typeCheck) {
