@@ -27,7 +27,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import {DataconnectionService} from '@common/service/dataconnection.service';
-import {isNullOrUndefined, isUndefined} from 'util';
+import {isUndefined} from 'util';
 import {Page} from '@domain/common/page';
 import {StringUtil} from '@common/util/string.util';
 import {AbstractWorkbenchComponent} from '../../abstract-workbench.component';
@@ -139,16 +139,20 @@ export class DetailWorkbenchTableComponent extends AbstractWorkbenchComponent im
     const paramChanges: SimpleChange = changes.inputParams;
 
     if (paramChanges) {
-      const prevVal = paramChanges.previousValue;
-      const currVal = paramChanges.currentValue;
-      if (isNullOrUndefined(prevVal) ||
-        (prevVal.dataconnection.id !== currVal.dataconnection.id
-          || prevVal.dataconnection.database !== currVal.dataconnection.database)
-      ) {
-        if (this.inputParams) {
-          this.page.page = 0;
-          this.getTables();
-        }
+      // const prevVal = paramChanges.previousValue;
+      // const currVal = paramChanges.currentValue;
+      // if (isNullOrUndefined(prevVal) ||
+      //   (prevVal.dataconnection.id !== currVal.dataconnection.id
+      //     || prevVal.dataconnection.database !== currVal.dataconnection.database)
+      // ) {
+      //   if (this.inputParams) {
+      //     this.page.page = 0;
+      //     this.getTables();
+      //   }
+      // }
+      if (this.inputParams) {
+        this.page.page = 0;
+        this.getTables();
       }
     }
   }

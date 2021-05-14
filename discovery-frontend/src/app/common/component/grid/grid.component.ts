@@ -17,7 +17,6 @@ import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, Output} f
 import {GridOption, Option} from './grid.option';
 import {Header, SlickGridHeader} from './grid.header';
 import {saveAs} from 'file-saver';
-import {isNumeric} from 'rxjs/util/isNumeric';
 import * as XLSX from 'xlsx';
 
 declare const jQuery_1_7;
@@ -1088,8 +1087,8 @@ export class GridComponent implements AfterViewInit, OnDestroy {
                     row2[field] = ' ';
                   }
 
-                  const value1 = isNumeric(row1[field]) ? Number(row1[field]) : row1[field];
-                  const value2 = isNumeric(row2[field]) ? Number(row2[field]) : row2[field];
+                  const value1 = isNaN(row1[field]) ? row1[field] : Number(row1[field]);
+                  const value2 = isNaN(row2[field]) ? row2[field] : Number(row2[field]);
 
                   const result = (value1 === value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
                   if (!(0 === result)) {
