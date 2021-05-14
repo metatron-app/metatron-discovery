@@ -59,7 +59,9 @@ export class FormatOptionConverter {
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption; }
+    if (_.isUndefined(format)) {
+      return chartOption;
+    }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = this.getlabelAxisScaleFormat(uiOption);
@@ -76,8 +78,12 @@ export class FormatOptionConverter {
     // 적용
     _.each(series, (option) => {
 
-      if( _.isUndefined(option.label) ) { option.label = { normal: {} }; }
-      if( _.isUndefined(option.label.normal) ) { option.label.normal = {} }
+      if (_.isUndefined(option.label)) {
+        option.label = {normal: {}};
+      }
+      if (_.isUndefined(option.label.normal)) {
+        option.label.normal = {}
+      }
 
       // 적용
       option.label.normal.formatter = ((params): any => {
@@ -109,7 +115,9 @@ export class FormatOptionConverter {
     ///////////////////////////
 
     let format: UIChartFormat = uiOption.valueFormat;
-    if (_.isUndefined(format)){ return chartOption; }
+    if (_.isUndefined(format)) {
+      return chartOption;
+    }
 
     // 축의 포멧이 있는경우 축의 포멧으로 설정
     const axisFormat = this.getlabelAxisScaleFormatTooltip(uiOption);
@@ -121,16 +129,30 @@ export class FormatOptionConverter {
     ///////////////////////////
 
     // 적용
-    if( _.isUndefined(chartOption.tooltip) ) { chartOption.tooltip = {}; }
+    if (_.isUndefined(chartOption.tooltip)) {
+      chartOption.tooltip = {};
+    }
     chartOption.tooltip.formatter = ((params): any => {
+      if (Array.isArray(params)) {
+        return params.reduce((acc, item) => {
+          const option = chartOption.series[item.seriesIndex];
+          let uiData = _.cloneDeep(option.uiData);
+          // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
+          if (uiData && uiData instanceof Array) uiData = option.uiData[item.dataIndex];
+          return [
+            ...acc,
+            ...this.getFormatValueTooltip(item, uiOption, fieldInfo, format, pivot, option, uiData).split('<br/>')
+          ].reduce((unique, item) => unique.includes(item) ? unique : [...unique, item], []);
+        }, []).join('<br/>');
+      } else {
+        const option = chartOption.series[params.seriesIndex];
 
-      const option = chartOption.series[params.seriesIndex];
+        let uiData = _.cloneDeep(option.uiData);
+        // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
+        if (uiData && uiData instanceof Array) uiData = option.uiData[params.dataIndex];
 
-      let uiData = _.cloneDeep(option.uiData);
-      // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
-      if (uiData && uiData instanceof Array) uiData = option.uiData[params.dataIndex];
-
-      return this.getFormatValueTooltip(params, uiOption, fieldInfo, format, pivot, option, uiData);
+        return this.getFormatValueTooltip(params, uiOption, fieldInfo, format, pivot, option, uiData);
+      }
     });
 
     // 반환
@@ -152,7 +174,7 @@ export class FormatOptionConverter {
     if (!format) return;
 
     // 기준선값이 존재할경우
-    if( !_.isUndefined(baseline) && !isNaN(baseline) && baseline !== 0 ) {
+    if (!_.isUndefined(baseline) && !isNaN(baseline) && baseline !== 0) {
 
       // 원래 Value에서 기준선값만큼 더해준다
       // value += value >= 0 ? baseline : baseline * -1;
@@ -163,7 +185,7 @@ export class FormatOptionConverter {
     const originalValue = _.cloneDeep(value);
 
     // 수치표기 약어설정
-    if(format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
+    if (format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
           value = Math.abs(value) > 1000000000
@@ -200,11 +222,11 @@ export class FormatOptionConverter {
     // 천단위 표시여부
     if (format.type !== 'exponent10' && format.useThousandsSep) {
 
-      const arrSplitFloatPoint = String( value ).split( '.' );
+      const arrSplitFloatPoint = String(value).split('.');
 
       // Decimal Separation
       let floatValue = '';
-      if( 1 < arrSplitFloatPoint.length ) {
+      if (1 < arrSplitFloatPoint.length) {
         floatValue = arrSplitFloatPoint[1];
       }
 
@@ -212,7 +234,7 @@ export class FormatOptionConverter {
       value = arrSplitFloatPoint[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
       // Append Decimal
-      if( '' !== floatValue ) {
+      if ('' !== floatValue) {
         value += '.' + floatValue;
       }
     }
@@ -220,21 +242,20 @@ export class FormatOptionConverter {
     // Add decimal zero
     if (value && format.type !== String(UIFormatType.EXPONENT10) && format.decimal > 0) {
       const stringValue: string = String(value);
-      if( stringValue.indexOf('.') === -1 ) {
+      if (stringValue.indexOf('.') === -1) {
         value += '.';
-        for( let num: number = 0 ; num < format.decimal ; num++ ) {
+        for (let num: number = 0; num < format.decimal; num++) {
           value += '0';
         }
-      }
-      else {
-        for( let num: number = stringValue.split('.')[1].length ; num < format.decimal ; num++ ) {
+      } else {
+        for (let num: number = stringValue.split('.')[1].length; num < format.decimal; num++) {
           value += '0';
         }
       }
     }
 
     // 수치표기 약어설정
-    if(format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
+    if (format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
           value += Math.abs(originalValue) > 1000000000
@@ -296,7 +317,7 @@ export class FormatOptionConverter {
     }
 
     // 사용자 기호 , value값이 빈값이 아닐때
-    if( customSymbolVal.length > 0) {
+    if (customSymbolVal.length > 0) {
       // front / back에 따라서 customsymbol 설정
       value = UIFormatSymbolPosition.BEFORE === customSymbol.pos ? customSymbolVal + value : value + customSymbolVal;
     }
@@ -317,21 +338,21 @@ export class FormatOptionConverter {
   public static getFormatValueSeries(params: any, format: UIChartFormat, pivot: Pivot, uiOption?: UIOption, series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.dataLabel || !uiOption.dataLabel.displayTypes) return '';
 
       // UI 데이터 가공
       let isUiData: boolean = false;
       let result: string[] = [];
-      if( uiData['categoryName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (uiData['categoryName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
         // string인 경우
         if (typeof uiData['categoryName'] === 'string') {
 
           const categoryList = _.split(uiData['categoryName'], CHART_STRING_DELIMITER);
           result = this.getTooltipName(categoryList, pivot.columns, result);
-        // 리스트인경우
+          // 리스트인경우
         } else {
           const categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
 
@@ -340,18 +361,18 @@ export class FormatOptionConverter {
         }
         isUiData = true;
       }
-      if( uiData['categoryValue'] && uiData['categoryValue'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE) ){
+      if (uiData['categoryValue'] && uiData['categoryValue'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
         result.push(this.getFormatValue(uiData['categoryValue'][params.dataIndex], format));
         isUiData = true;
       }
-      if( uiData['categoryPercent'] && uiData['categoryPercent'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT) ){
+      if (uiData['categoryPercent'] && uiData['categoryPercent'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT)) {
         let value = uiData['categoryPercent'][params.dataIndex];
         value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
-        result.push(value +'%');
+        result.push(value + '%');
         isUiData = true;
       }
       // 해당 dataIndex 데이터애로 뿌려줌
-      if( uiData['seriesName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (uiData['seriesName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)) {
 
         const seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
 
@@ -386,33 +407,33 @@ export class FormatOptionConverter {
         }
         isUiData = true;
       }
-      if( uiData['seriesValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+      if (uiData['seriesValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         const seriesValue = typeof uiData['seriesValue'][params.dataIndex] === 'undefined' ? uiData['seriesValue'] : uiData['seriesValue'][params.dataIndex];
         result.push(this.getFormatValue(seriesValue, format));
         isUiData = true;
       }
-      if( uiData['seriesPercent'] && uiData['seriesPercent'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
+      if (uiData['seriesPercent'] && uiData['seriesPercent'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
         let value = uiData['seriesPercent'][params.dataIndex];
         value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
-        result.push(value +'%');
+        result.push(value + '%');
         isUiData = true;
       }
-      if ( uiData['xAxisValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.XAXIS_VALUE) ) {
+      if (uiData['xAxisValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.XAXIS_VALUE)) {
         const axisFormat = this.getlabelAxisScaleFormat(uiOption, AxisType.X);
         result.push(this.getFormatValue(uiData['xAxisValue'], axisFormat ? axisFormat : uiOption.valueFormat));
         isUiData = true;
       }
-      if ( uiData['yAxisValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.YAXIS_VALUE) ) {
+      if (uiData['yAxisValue'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.YAXIS_VALUE)) {
         const axisFormat = this.getlabelAxisScaleFormat(uiOption, AxisType.Y);
         result.push(this.getFormatValue(uiData['yAxisValue'], axisFormat ? axisFormat : uiOption.valueFormat));
         isUiData = true;
       }
-      if ( uiData['value'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.VALUE) ) {
+      if (uiData['value'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.VALUE)) {
         result.push(this.getFormatValue(params.value, format));
         isUiData = true;
       }
-      if ( uiData['nodeName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
+      if (uiData['nodeName'] && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME)) {
         result.push(uiData['nodeName'][params.dataIndex]);
         isUiData = true;
       }
@@ -420,21 +441,20 @@ export class FormatOptionConverter {
       let label: string = '';
 
       // UI 데이터기반 레이블 반환
-      if( isUiData ) {
-        for( let num: number = 0 ; num < result.length ; num++ ) {
-          if( num > 0 ) {
+      if (isUiData) {
+        for (let num: number = 0; num < result.length; num++) {
+          if (num > 0) {
             label += '\n';
           }
-          if(series.label && series.label.normal && series.label.normal.rich) {
-            label += '{align|'+ result[num] +'}';
-          }
-          else {
+          if (series.label && series.label.normal && series.label.normal.rich) {
+            label += '{align|' + result[num] + '}';
+          } else {
             label += result[num];
           }
         }
         return label;
 
-      // 선택된 display label이 없는경우 빈값 리턴
+        // 선택된 display label이 없는경우 빈값 리턴
       } else {
         return label;
       }
@@ -467,30 +487,30 @@ export class FormatOptionConverter {
       //////////////////////////////////////////////////
       // 공통포멧
       //////////////////////////////////////////////////
-      if( format && format.isAll ) {
+      if (format && format.isAll) {
 
         // 포맷 적용
         value = this.getFormatValue(value, format);
       }
+        //////////////////////////////////////////////////
+        // 개별포멧
       //////////////////////////////////////////////////
-      // 개별포멧
-      //////////////////////////////////////////////////
-      else if( format && !format.isAll ) {
+      else if (format && !format.isAll) {
 
         // 포멧에 해당하는지 여부
-        for( const eachFormat of format.each ) {
-          if( params.seriesName === eachFormat.name
-            || params.seriesName === (eachFormat.aggregationType +'('+ eachFormat.name +')')
+        for (const eachFormat of format.each) {
+          if (params.seriesName === eachFormat.name
+            || params.seriesName === (eachFormat.aggregationType + '(' + eachFormat.name + ')')
             || params.name === eachFormat.name
-            || params.name === (eachFormat.aggregationType +'('+ eachFormat.name +')') ){
+            || params.name === (eachFormat.aggregationType + '(' + eachFormat.name + ')')) {
 
             // 포맷 적용
             value = this.getFormatValue(value, eachFormat);
           }
         }
       }
-      //////////////////////////////////////////////////
-      // 포멧 정보가 없을경우
+        //////////////////////////////////////////////////
+        // 포멧 정보가 없을경우
       //////////////////////////////////////////////////
       else {
         value = value.toLocaleString();
@@ -520,13 +540,13 @@ export class FormatOptionConverter {
 
     // value값인 축값을 가져온다
     if ((uiOption.xAxis && ChartAxisLabelType.VALUE === uiOption.xAxis.label.type && !axisType) ||
-        (axisType && axisType === AxisType.X)) {
+      (axisType && axisType === AxisType.X)) {
 
       valueAxis = uiOption.xAxis;
     }
 
     if (uiOption.yAxis && ChartAxisLabelType.VALUE === uiOption.yAxis.label.type && !axisType ||
-        (axisType && axisType === AxisType.Y)) {
+      (axisType && axisType === AxisType.Y)) {
 
       valueAxis = uiOption.yAxis;
     }
@@ -619,8 +639,7 @@ export class FormatOptionConverter {
 
         resultData += item;
         result.push(resultData);
-      }
-      else if ('measure' === targetPivot.type) {
+      } else if ('measure' === targetPivot.type) {
 
         // measure인 경우 aggregation length가 2개이상인경우
         if (pivot && pivot.aggregations.length > 1) {
@@ -639,7 +658,7 @@ export class FormatOptionConverter {
           const defaultAlias = targetPivot.aggregationType + '(' + name + ')';
 
           if (defaultAlias === targetPivot.alias) {
-            result.push((aggregationType ? aggregationType+ ' of ' : '') + name);
+            result.push((aggregationType ? aggregationType + ' of ' : '') + name);
           } else {
             result.push(targetPivot['alias']);
           }
@@ -671,9 +690,9 @@ export class FormatOptionConverter {
 
     let seriesValue: string;
 
-    let aggValue = _.find(aggregations, {alias : aliasValue});
+    let aggValue = _.find(aggregations, {alias: aliasValue});
     // 해당 value값으로 찾을 수 없는경우 seriesName으로 찾기
-    if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias : seriesName});
+    if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias: seriesName});
 
     // priority of fiedAlias is higher, set fieldAlias
     const aggValueName = aggValue.fieldAlias ? aggValue.fieldAlias : aggValue.name;
@@ -682,7 +701,7 @@ export class FormatOptionConverter {
     // when alias is not changed
     if (defaultAlias === aggValue.alias) {
       let aggregationType = '';
-      if( aggValue.aggregationType ) {
+      if (aggValue.aggregationType) {
         aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
         aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
         // Avg인 경우 Average로 치환
@@ -700,6 +719,7 @@ export class FormatOptionConverter {
 
     return seriesValue;
   }
+
   /**
    * Tooltip: 포맷을 변경한다.
    * @param params
@@ -714,21 +734,21 @@ export class FormatOptionConverter {
   public static getFormatValueTooltip(params: any, uiOption: UIOption, fieldInfo: PivotTableInfo, format: UIChartFormat, pivot: Pivot, _series?: any, uiData?: any): string {
 
     // UI 데이터 정보가 있을경우
-    if( uiData ) {
+    if (uiData) {
 
       if (!uiOption.toolTip) uiOption.toolTip = {};
       if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = this.setDisplayTypes(uiOption.type, pivot);
 
       // UI 데이터 가공
       let result: string[] = [];
-      if( uiData['categoryName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
+      if (uiData['categoryName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
 
         // string인 경우
         if (typeof uiData['categoryName'] === 'string') {
 
           // category Name List 설정
           result = this.getTooltipName([uiData['categoryName']], pivot.columns, result, true);
-        // 리스트인경우
+          // 리스트인경우
         } else {
           const categoryList = _.split(uiData['categoryName'][params.dataIndex], CHART_STRING_DELIMITER);
 
@@ -736,7 +756,7 @@ export class FormatOptionConverter {
           result = this.getTooltipName(categoryList, pivot.columns, result, true);
         }
       }
-      if( uiData['categoryValue'] && uiData['categoryValue'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE) ){
+      if (uiData['categoryValue'] && uiData['categoryValue'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
 
         const splitValue = _.split(uiData.name, CHART_STRING_DELIMITER);
         const name = splitValue[splitValue.length - 1];
@@ -756,7 +776,7 @@ export class FormatOptionConverter {
         result.push(categoryValue);
 
       }
-      if( uiData['categoryPercent'] && uiData['categoryPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT) ){
+      if (uiData['categoryPercent'] && uiData['categoryPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT)) {
 
         // category value가 선택된지 않은경우
         if (-1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
@@ -778,7 +798,9 @@ export class FormatOptionConverter {
         }
       }
       // 해당 dataIndex 데이터애로 뿌려줌
-      if( uiData['seriesName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
+      if (uiData['seriesName']
+        && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)
+        && -1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         const seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
 
@@ -789,14 +811,14 @@ export class FormatOptionConverter {
           // category Name List 설정
           result = this.getTooltipName(seriesNameList, pivotList, result, true, pivot, ShelveType.ROWS);
 
-        // aggregations의 measure가 2개이상인경우
+          // aggregations의 measure가 2개이상인경우
         } else if (pivot.aggregations.length > 1) {
 
           const pivotList = _.cloneDeep(pivot.aggregations);
           // category Name List 설정
           result = this.getTooltipName(seriesNameList, pivotList, result, true, pivot, ShelveType.AGGREGATIONS);
 
-        // 단일시리즈인 경우 category Name으로 설정
+          // 단일시리즈인 경우 category Name으로 설정
         } else {
 
           // string인 경우
@@ -813,7 +835,7 @@ export class FormatOptionConverter {
           }
         }
       }
-      if( uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
+      if (uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
 
         const splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
         const name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
@@ -832,7 +854,7 @@ export class FormatOptionConverter {
 
         result.push(seriesValue);
       }
-      if( uiData['seriesPercent'] && uiData['seriesPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
+      if (uiData['seriesPercent'] && uiData['seriesPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
 
         // series value가 선택된지 않은경우
         if (-1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
@@ -967,30 +989,30 @@ export class FormatOptionConverter {
       //////////////////////////////////////////////////
       // 공통포멧
       //////////////////////////////////////////////////
-      if( format && format.isAll ) {
+      if (format && format.isAll) {
 
         // 포맷 적용
         value = this.getFormatValue(value, format);
       }
+        //////////////////////////////////////////////////
+        // 개별포멧
       //////////////////////////////////////////////////
-      // 개별포멧
-      //////////////////////////////////////////////////
-      else if( format && !format.isAll ) {
+      else if (format && !format.isAll) {
 
         // 포멧에 해당하는지 여부
-        for( const eachFormat of format.each ) {
-          if( params.seriesName === eachFormat.name
-            || params.seriesName === (eachFormat.aggregationType +'('+ eachFormat.name +')')
+        for (const eachFormat of format.each) {
+          if (params.seriesName === eachFormat.name
+            || params.seriesName === (eachFormat.aggregationType + '(' + eachFormat.name + ')')
             || params.name === eachFormat.name
-            || params.name === (eachFormat.aggregationType +'('+ eachFormat.name +')') ){
+            || params.name === (eachFormat.aggregationType + '(' + eachFormat.name + ')')) {
 
             // 포맷 적용
             value = this.getFormatValue(value, eachFormat);
           }
         }
       }
-      //////////////////////////////////////////////////
-      // 포멧 정보가 없을경우
+        //////////////////////////////////////////////////
+        // 포멧 정보가 없을경우
       //////////////////////////////////////////////////
       else {
         value = value.toLocaleString();
@@ -1053,9 +1075,7 @@ export class FormatOptionConverter {
     if (useThousandsSep) {
 
       return numberValue.toLocaleString(undefined, {maximumFractionDigits: decimal, minimumFractionDigits: decimal});
-    }
-
-    else return numberValue.toFixed(decimal);
+    } else return numberValue.toFixed(decimal);
   }
 
   /**
@@ -1067,6 +1087,7 @@ export class FormatOptionConverter {
 
     return parseFloat(value.toString().replace(/,/g, ''));
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
