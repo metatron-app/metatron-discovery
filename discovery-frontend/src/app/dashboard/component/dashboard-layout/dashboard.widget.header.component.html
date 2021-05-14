@@ -244,7 +244,7 @@
             <div class="sys-widget-header-layer ddp-wrap-popup2" >
               <!-- 위젯 속성 변경 버튼 모음 -->
               <ul class="ddp-list-popup" >
-                <li *ngIf="!isTextWidget" (click)="toggleTitle()">
+                <li *ngIf="!isTextWidget" (click)="toggleTitle($event)">
                   <a href="javascript:">
                     <label class="ddp-label-checked">
                       <em class="ddp-icon-tool-title"></em> {{'msg.board.ui.tooltip.chart-name' | translate}}
@@ -256,7 +256,7 @@
                     </label>
                   </a>
                 </li>
-                <li *ngIf="isValidLegend()" (click)="toggleLegend()" >
+                <li *ngIf="isValidLegend()" (click)="toggleLegend($event)" >
                   <a href="javascript:">
                     <label class="ddp-label-checked">
                       <em class="ddp-icon-tool-legend"></em> {{'msg.page.ui.legend' | translate}}
@@ -268,7 +268,7 @@
                     </label>
                   </a>
                 </li>
-                <li *ngIf="isValidMiniMap()" (click)="toggleMiniMap()">
+                <li *ngIf="isValidMiniMap()" (click)="toggleMiniMap($event)">
                   <a href="javascript:">
                     <label class="ddp-label-checked">
                       <em class="ddp-icon-tool-minimap"></em> {{'msg.page.ui.minimap' | translate}}

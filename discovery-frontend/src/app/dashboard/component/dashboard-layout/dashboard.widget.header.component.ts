@@ -399,8 +399,12 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
 
   /**
    * 제목 표시 변경
+   *
+   * @param event - 마우스이벤트
    */
-  public toggleTitle() {
+  public toggleTitle(event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
     this.isShowTitle = !this.isShowTitle;
     this.broadCaster.broadcast('TOGGLE_TITLE', {
       widgetId: this.widget.id,
@@ -411,15 +415,23 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
 
   /**
    * 범례 표시 변경
+   *
+   * @param event - 마우스이벤트
    */
-  public toggleLegend() {
+  public toggleLegend(event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
     this.broadCaster.broadcast('TOGGLE_LEGEND', {widgetId: this.widget.id});
   } // function - toggleLegend
 
   /**
    * 미니맵 표시 변경
+   *
+   * @param event - 마우스이벤트
    */
-  public toggleMiniMap() {
+  public toggleMiniMap(event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
     this.broadCaster.broadcast('TOGGLE_MINIMAP', {widgetId: this.widget.id});
   } // function - toggleMiniMap
 
