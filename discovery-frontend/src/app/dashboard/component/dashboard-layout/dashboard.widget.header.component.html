@@ -26,14 +26,14 @@
         <div class="ddp-data-top" *ngIf="isEditMode()" >
           <!-- 기능버튼 -->
           <div class="ddp-ui-tool" *ngIf="!isMiniHeader">
-            <a *ngIf="!isTextWidget" (click)="toggleTitle()" [class.ddp-selected]="isShowTitle"
+            <a *ngIf="!isTextWidget" (click)="toggleTitle($event)" [class.ddp-selected]="isShowTitle"
                href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
               <em class="ddp-icon-tool-title"></em>
               <div class="ddp-ui-tooltip-info ddp-down">
                 <em class="ddp-icon-view-top"></em>{{'msg.board.ui.tooltip.chart-name' | translate}}
               </div>
             </a>
-            <a *ngIf="isValidLegend()" (click)="toggleLegend()"
+            <a *ngIf="isValidLegend()" (click)="toggleLegend($event)"
                [class.ddp-selected]="isShowLegend()"
                href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
               <em class="ddp-icon-tool-legend"></em>
@@ -42,7 +42,7 @@
                 {{'msg.page.ui.legend' | translate}}
               </div>
             </a>
-            <a *ngIf="isValidMiniMap()" (click)="toggleMiniMap()"
+            <a *ngIf="isValidMiniMap()" (click)="toggleMiniMap($event)"
                [class.ddp-selected]="isShowMiniMap()"
                href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
               <em class="ddp-icon-tool-minimap"></em>
@@ -244,7 +244,7 @@
             <div class="sys-widget-header-layer ddp-wrap-popup2" >
               <!-- 위젯 속성 변경 버튼 모음 -->
               <ul class="ddp-list-popup" >
-                <li *ngIf="!isTextWidget" (click)="toggleTitle()">
+                <li *ngIf="!isTextWidget" (click)="toggleTitle($event)">
                   <a href="javascript:">
                     <label class="ddp-label-checked">
                       <em class="ddp-icon-tool-title"></em> {{'msg.board.ui.tooltip.chart-name' | translate}}
@@ -256,7 +256,7 @@
                     </label>
                   </a>
                 </li>
-                <li *ngIf="isValidLegend()" (click)="toggleLegend()" >
+                <li *ngIf="isValidLegend()" (click)="toggleLegend($event)" >
                   <a href="javascript:">
                     <label class="ddp-label-checked">
                       <em class="ddp-icon-tool-legend"></em> {{'msg.page.ui.legend' | translate}}
@@ -268,7 +268,7 @@
                     </label>
                   </a>
                 </li>
-                <li *ngIf="isValidMiniMap()" (click)="toggleMiniMap()">
+                <li *ngIf="isValidMiniMap()" (click)="toggleMiniMap($event)">
                   <a href="javascript:">
                     <label class="ddp-label-checked">
                       <em class="ddp-icon-tool-minimap"></em> {{'msg.page.ui.minimap' | translate}}
