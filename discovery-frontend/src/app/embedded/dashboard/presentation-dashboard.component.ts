@@ -39,7 +39,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   private _timer: any;
 
   // 대시보드 컴포넌트
-  @ViewChild(DashboardComponent)
+  @ViewChild(DashboardComponent, {static: true})
   private _boardComp: DashboardComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
