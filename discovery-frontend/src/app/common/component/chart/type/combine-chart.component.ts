@@ -189,11 +189,14 @@ export class CombineChartComponent extends BaseChart<UICombineChart> implements 
           return (aggrName === axis);
         });
 
-        console.log(axis + ' : ' + idx + ' : ' + axisPivot.isSecondaryAxis);
+        if (undefined !== axisPivot) {
+          console.log(axis + ' : ' + idx + ' : ' + axisPivot.isSecondaryAxis);
 
-        if (undefined !== axisPivot.isSecondaryAxis) {
-          axisIdx = axisPivot.isSecondaryAxis ? 1 : 0;
+          if (undefined !== axisPivot.isSecondaryAxis) {
+            axisIdx = axisPivot.isSecondaryAxis ? 1 : 0;
+          }
         }
+
         if (this.chartOption.yAxis[axisIdx].name) {
           this.chartOption.yAxis[axisIdx].name += CHART_STRING_DELIMITER + axis;
           this.chartOption.yAxis[axisIdx].axisName += CHART_STRING_DELIMITER + axis;
