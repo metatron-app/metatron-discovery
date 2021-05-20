@@ -251,24 +251,46 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
   // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
+    console.log( 'pivot', this.pivot );
   }
 
-  // Destory
+  // Destroy
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Getter / Setter
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get isSeriesColorType(): boolean {
+    return this.uiOption.color.type === ChartColorType.SERIES;
+  } // get - isSeriesColorType
+
+  public get isDimensionColorType(): boolean {
+    return this.uiOption.color.type == ChartColorType.DIMENSION;
+  } // get - isDimensionColorType
+
+  public get isMeasureColorType(): boolean {
+    return this.uiOption.color.type == ChartColorType.MEASURE;
+  } // get - isMeasureColorType
+
+  public get existIndividualSettings(): boolean {
+    return this.pivot.aggregations.some( aggr => !!aggr.color );
+  } // get - existIndividualSettings
+
+  public get filteredColorMeasures(): Field[] {
+    return this.pivot.aggregations.filter( aggr => !!aggr.color );
+  } // get - filteredColorMeasures
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
-   * toggle colorList button
+   * colostListFlag 반대값 설정
    */
   public toggleColorList() {
-
-    // colostListFlag 반대값 설정
     this.colorListFlag = !this.colorListFlag;
   }
 
@@ -389,11 +411,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /**
    * 팔레트 색상을 변경한다
    */
-  public changeColor(colorObj: object, gridColorObj?: object) {
+  public changeColor(colorObj: object) {
     let color = _.cloneDeep(colorObj);
-    if ($('input#invertColor').is(':checked')) {
-      color['colorNum'] = 'R' + color['colorNum'];
-    }
 
     // 차트 타입이 MEASURE인경우
     if (ChartColorType.MEASURE === this.uiOption.color.type) {
@@ -404,7 +423,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       // 선택된 컬러를 변수에 설정
       if (_.eq(this.uiOption.type, ChartType.GRID)) {
         this.selectedMeasureColor = color;
-        const gridColor = _.cloneDeep(gridColorObj);
+        const gridColor = _.cloneDeep(colorObj);
         if ($('input#invertColor').is(':checked')) {
           gridColor['colorNum'] = 'R' + gridColor['colorNum'];
         }
@@ -453,7 +472,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     for (const item of colorList) {
       // 코드값이 같은경우
       if (this.uiOption.color['schema'].endsWith(item['colorNum'])) {
-        this.changeColor(item, item);
+        this.changeColor(item);
       }
     }
 
@@ -1355,6 +1374,76 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       $(maxElement).trigger('focus');
     }
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method - Individual Color Settings
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 색상 필드 이름
+   * @param target - 대상 필드
+   */
+  public getFieldName(target: Field): string {
+    return target.aggregationType + '(' + target.name + ')';
+  } // func - getFieldName
+
+  /**
+   * 반전 그라데이션 여부
+   * @param target
+   */
+  public isInvertedSchema(target:Field): boolean {
+    return target.color.schema.key.indexOf('R') === 0;
+  } // func - isInvertedSchema
+
+  /**
+   * 단색 여부
+   * @param target
+   */
+  public isSolid(target:Field): boolean {
+    return !!target.color.rgb;
+  } // func - isSolid
+
+  /**
+   * 그라데이션 여부
+   * @param target
+   */
+  public isSchema(target:Field): boolean {
+    return !!target.color.schema;
+  } // func - isSchema
+
+  /**
+   * 개별 색상 설정 제거
+   * @param target - 삭제 대상 필드
+   */
+  public removeIndividualColor(target: Field): void {
+    this.pivot.aggregations.forEach(aggr => {
+      const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
+      const targetName = target.aggregationType + '(' + target.name + ')';
+      if (aggrName === targetName) {
+        delete aggr.color;
+      }
+    });
+  } // func - removeIndividualColor
+
+  /**
+   * 스키마 순번
+   * @param target
+   */
+  public schemaIdx(target: Field): number {
+    return target.color.schema.idx;
+  } // func - schemaIdx
+
+  /**
+   * 단색 코드
+   * @param target
+   */
+  public solidColorCode(target: Field): string {
+    return target.color.rgb;
+  } // func - solidColorCode
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * hex에서 rgb값으로 변경

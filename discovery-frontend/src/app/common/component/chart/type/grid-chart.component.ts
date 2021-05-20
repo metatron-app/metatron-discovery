@@ -328,6 +328,14 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         if (aggr.fieldFormat) {
           aggrInfo['fieldFormat'] = aggr.fieldFormat;
         }
+        if( aggr.color ) {
+          ( aggrInfo['fieldFormat'] ) || ( aggrInfo['fieldFormat'] = {} );
+          if( aggr.color.rgb ) {
+            ( aggrInfo['fieldFormat']['font'] ) || ( aggrInfo['fieldFormat']['font'] = {} );
+            aggrInfo['fieldFormat']['font']['color'] = aggr.color.rgb;
+            // aggrInfo['fieldFormat']['backgroundColor'] = aggr.color.rgb;
+          }
+        }
         return aggrInfo;
       });
     } else {
@@ -529,7 +537,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
       this.gridModel.header.font.color = this.uiOption.headerStyle.fontColor;
       this.gridModel.header.backgroundColor = this.uiOption.headerStyle.backgroundColor;
 
-      // 연산행 설정  
+      // 연산행 설정
       if (this.uiOption.totalValueStyle) {
         this.gridModel.totalValueStyle = this._getGridTotalStyle(this.uiOption.totalValueStyle);
       }

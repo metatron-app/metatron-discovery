@@ -12,20 +12,16 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
-import {AbstractComponent} from '../abstract.component';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {AbstractComponent} from '@common/component/abstract.component';
 import * as _ from 'lodash';
 
 @Component({
-  selector: 'color-template',
+  selector: 'div[color-template]',
   templateUrl: './color-template.component.html',
   styles: ['.sys-inverted {transform: scaleX(-1);}']
 })
-export class ColorTemplateComponent extends AbstractComponent {
-
-  // popup show / hide
-  @Input('show')
-  public show: boolean;
+export class ColorTemplateComponent extends AbstractComponent implements AfterViewInit {
 
   // color type (dimension, measure, none)
   @Input('colorType')
@@ -41,6 +37,9 @@ export class ColorTemplateComponent extends AbstractComponent {
 
   @Output('notiChangeColor')
   public notiChangeColor = new EventEmitter();
+
+  @Output()
+  public closeEvent = new EventEmitter();
 
   // series color list
   public defaultColorList: { index: number, colorNum: string }[] = [
@@ -97,8 +96,13 @@ export class ColorTemplateComponent extends AbstractComponent {
 
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
+  }
+
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    console.log( '>>>>> schema : ' + this.schema );
+    console.log( '>>>>> colorType : ' + this.colorType );
   }
 
   /**
@@ -110,7 +114,6 @@ export class ColorTemplateComponent extends AbstractComponent {
     if ($('input#invertColor').is(':checked')) {
       color['colorNum'] = 'R' + color['colorNum'];
     }
-
     this.notiChangeColor.emit(color);
   }
 
@@ -141,5 +144,9 @@ export class ColorTemplateComponent extends AbstractComponent {
   public isChartColorSelected(item) {
     return this.schema.endsWith(item['colorNum']);
   }
+
+  public onClose(): void {
+    this.closeEvent.emit();
+  } // func - onClose
 
 }

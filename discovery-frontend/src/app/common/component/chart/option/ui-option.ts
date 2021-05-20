@@ -3,6 +3,9 @@
  */
 
 import {BarMarkType, ChartType, FontSize, LabelStyle, LineMarkType, PointShape, UIOrient} from './define/common';
+import {ValueStyle} from '@common/component/chart/option/ui-option/ui-grid-chart';
+import {UILabelAnnotation, UILabelIcon} from '@common/component/chart/option/ui-option/ui-label-chart';
+import {BarColor} from '@common/component/chart/option/ui-option/ui-waterfall-chart';
 import {Field} from '@domain/workbook/configurations/field/field';
 import {UIChartColor} from './ui-option/ui-color';
 import {UIChartZoom} from './ui-option/ui-zoom';
@@ -11,9 +14,6 @@ import {UIChartAxis} from './ui-option/ui-axis';
 import {UIChartFormat} from './ui-option/ui-format';
 import {UIChartDataLabel} from './ui-option/ui-datalabel';
 import {UIChartTooltip} from './ui-option/ui-tooltip';
-import {ValueStyle} from "@common/component/chart/option/ui-option/ui-grid-chart";
-import {UILabelAnnotation, UILabelIcon} from "@common/component/chart/option/ui-option/ui-label-chart";
-import {BarColor} from "@common/component/chart/option/ui-option/ui-waterfall-chart";
 
 /**
  * Export

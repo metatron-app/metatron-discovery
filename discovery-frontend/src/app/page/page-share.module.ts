@@ -52,6 +52,7 @@ import {PivotContextComponent} from './page-pivot/pivot-context.component';
 import {SecondaryAxisOptionComponent} from './chart-style/secondary-axis-option.component';
 import {CalculatedOptionSliderComponent} from './chart-style/calc-option-slider.component';
 import {PagePivotFormatComponent} from './page-pivot/page-pivot-format.component';
+import {ColorTemplateComponent} from './component/color/color-template.component';
 
 @NgModule({
   imports: [
@@ -90,7 +91,8 @@ import {PagePivotFormatComponent} from './page-pivot/page-pivot-format.component
     MapTooltipOptionComponent,
     MapFormatOptionComponent,
     PivotContextComponent,
-    PagePivotFormatComponent
+    PagePivotFormatComponent,
+    ColorTemplateComponent
   ],
   exports: [
     PageComponent,

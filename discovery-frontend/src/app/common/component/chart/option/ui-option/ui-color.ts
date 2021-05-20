@@ -18,7 +18,8 @@ import {CellColorTarget, ChartColorType, ChartGradientType, ColorCustomMode, Col
  * color
  */
 export interface UIChartColor {
-
+  // 섹상명
+  schema: string;
   // 차트 색상 타입
   type: ChartColorType;
   // 색상 대상 (셀/텍스트)
@@ -29,9 +30,6 @@ export interface UIChartColor {
  * color by Dimension
  */
 export interface UIChartColorByDimension extends UIChartColor {
-
-  // 섹상명
-  schema: string;
 
   // 색상의 기준이 되는 행/열 필드명
   targetField: string;
@@ -58,9 +56,6 @@ export interface UIChartColorByDimension extends UIChartColor {
  */
 export interface UIChartColorBySeries extends UIChartColor {
 
-  // 섹상명
-  schema: string;
-
   // 사용자 지정색상 리스트
   mapping?: object;
 
@@ -81,9 +76,6 @@ export interface UIChartColorBySeries extends UIChartColor {
  */
 export interface UIChartColorByValue extends UIChartColor {
 
-  // 섹상명
-  schema?: string;
-
   // 자동으로 설정되는 사용자 지정범위 색상 리스트
   ranges?: ColorRange[];
 
@@ -102,9 +94,6 @@ export interface UIChartColorByValue extends UIChartColor {
  * color by Value
  */
 export interface UIChartColorGradationByValue extends UIChartColor {
-
-  // 섹상명
-  schema?: string;
 
   // 자동으로 설정되는 사용자 지정범위 색상 리스트
   ranges?: ColorGradationRange[];

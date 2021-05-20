@@ -177,11 +177,14 @@
                               </div>
                               <!-- //colorby button -->
                               <!-- popup -->
-                              <color-template #colorTemplate [layerType]="uiOption.layers[layerIndex].type.toString()"
-                                              [colorType]="uiOption.layers[layerIndex].color.by.toString()"
-                                              [show]="colorListFlag"
-                                              [schema]="uiOption.layers[layerIndex].color.schema"
-                                              (notiChangeColor)="changeColor($event, layerIndex)"></color-template>
+                              <div color-template
+                                   #colorTemplate
+                                   *ngIf="colorListFlag" class="ddp-popup-side"
+                                   [layerType]="uiOption.layers[layerIndex].type.toString()"
+                                   [colorType]="uiOption.layers[layerIndex].color.by.toString()"
+                                   [schema]="uiOption.layers[layerIndex].color.schema"
+                                   (notiChangeColor)="changeColor($event, layerIndex)"
+                                   (closeEvent)="colorListFlag = false;"></div>
                               <!-- //popup -->
                             </div>
                             <!-- //color by dimension / measure -->

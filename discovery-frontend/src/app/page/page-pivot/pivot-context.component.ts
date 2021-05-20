@@ -81,6 +81,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   // 2Depth 컨텍스트 메뉴 고정여부
   public fix2DepthContext: boolean = false;
   public fixMeasureFormatContext: boolean = false;
+  public fixMeasureColorContext: boolean = false;
 
   public get seriesType(): typeof SeriesType {
     return SeriesType;
@@ -126,6 +127,49 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
   } // get - isSecondaryAxis
 
+  /**
+   * 현재 색상 코드
+   */
+  public get colorCode(): string {
+    if( this.editingField.color ) {
+      return this.editingField.color.rgb ? this.editingField.color.rgb : '#ffcaba';
+    } else {
+      return '';
+    }
+  } // get - colorCode
+
+  /**
+   * 현재 색상 스키마
+   */
+  public get colorSchema(): string {
+    if( this.editingField.color ) {
+      return this.editingField.color.schema ? this.editingField.color.schema.key : 'VC1';
+    } else {
+      return '';
+    }
+  } // get - colorSchema
+
+  /**
+   * 현재 스키마 순번
+   */
+  public get colorSchemaIdx(): number {
+    if( this.editingField.color ) {
+      return this.editingField.color.schema ? this.editingField.color.schema.idx : 1;
+    } else {
+      return 0;
+    }
+  } // get - colorSchemaIdx
+
+  /**
+   * 현재 스키마 반전 여부
+   */
+  public isInvertedColorSchema():boolean {
+    if( this.editingField.color ) {
+      return this.editingField.color.schema ? this.editingField.color.schema.key.indexOf('R') === 0 : false;
+    } else {
+      return false;
+    }
+  } // get - isInvertedColorSchema
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -143,6 +187,15 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     // emit
     this.changePivotContext.emit({type: 'toggleFilter', value: this.editingField});
   }
+
+  /**
+   * 2 뎁스 메뉴 숨김
+   */
+  public hideAllSubContext(): void {
+    this.fix2DepthContext = false;
+    this.fixMeasureFormatContext = false;
+    this.fixMeasureColorContext = false;
+  } // func - hideAllSubContext
 
   /**
    * 마우스 오버시 필드 별칭 입력 초기값 설정
@@ -504,8 +557,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    */
   public clickOutside(_event: MouseEvent) {
     this.editingField = null;
-    this.fix2DepthContext = false;
-    this.fixMeasureFormatContext = false;
+    this.hideAllSubContext();
 
     // when it's null, two way binding doesn't work
     this.changePivotContext.emit({type: 'outside', value: this.editingField});
@@ -655,5 +707,51 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     }
     return list;
   }
+
+  /* +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+   * Measure Color 관련 기능
+   * +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=*/
+  /**
+   * 컬러 타입 선택 여부
+   * @param type
+   */
+  public isSelectedColorType(type: 'GRADATION' | 'INDIVIDUAL'): boolean {
+    const fieldColor = this.editingField.color;
+    if( fieldColor ) {
+      if( 'GRADATION' === type ) {
+        return fieldColor.schema && '' !== fieldColor.schema.key;
+      } else {
+        return fieldColor.rgb && '' !== fieldColor.rgb;
+      }
+    } else {
+      return false;
+    }
+  } // func - isSelectedColorType
+
+  /**
+   * 그라데이션 색상 변경
+   * @param schemaInfo
+   */
+  public changeGradationColor(schemaInfo: {index: number, colorNum: string}): void {
+    // {index: 8, colorNum: "VC8"}
+    console.log( '>>>>>> changeGradationColor : ', schemaInfo, this.editingField );
+    this.editingField.color = { schema : {
+        idx : schemaInfo.index,
+        key : schemaInfo.colorNum
+      }
+    };
+    this.changePivotContext.emit({type: 'changeMeasureColor', value: this.editingField});
+  } // func - changeGradationColor
+
+  /**
+   * 단색 변경
+   * @param colorCode
+   */
+  public changeSolidColor(colorCode:string): void {
+    // #30c5fe
+    console.log( '>>>>>> changeSolidColor : ', colorCode, this.editingField );
+    this.editingField.color = { rgb : colorCode };
+    this.changePivotContext.emit({type: 'changeMeasureColor', value: this.editingField});
+  } // func - changeSolidColor
 
 }

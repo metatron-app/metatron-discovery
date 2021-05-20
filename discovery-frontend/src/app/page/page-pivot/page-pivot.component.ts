@@ -1135,6 +1135,17 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         });
         this.changePivot();
         break;
+      case 'changeMeasureColor':
+        this.pivot.aggregations.some(aggr=> {
+          const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
+          const targetName = data.value.aggregationType + '(' + data.value.name + ')';
+          if (aggrName === targetName) {
+            aggr.color = data.value.color;
+            return true;
+          }
+        });
+        this.changePivot();
+        break;
     }
   }
 
