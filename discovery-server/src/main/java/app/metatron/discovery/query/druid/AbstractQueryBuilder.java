@@ -712,7 +712,8 @@ public abstract class AbstractQueryBuilder {
         aggregations.add(new CountAggregation(aliasName));
         break;
       case COUNTD:
-        aggregations.add(new HyperUniqueAggregation(aliasName, fieldName));
+        //aggregations.add(new HyperUniqueAggregation(aliasName, fieldName));
+        aggregations.add(new DistinctSketchAggregation(aliasName, fieldName, 65536L, true));
         break;
       case SUM:
         aggregations.add(new GenericSumAggregation(aliasName, fieldName, dataType));
