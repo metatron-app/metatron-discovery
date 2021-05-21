@@ -14,10 +14,14 @@
 
 package app.metatron.discovery.domain.workbook;
 
+import com.google.common.collect.Sets;
+
 import com.querydsl.core.BooleanBuilder;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +41,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.oauth.CookieManager;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
@@ -47,17 +54,23 @@ import app.metatron.discovery.domain.workbook.configurations.BoardConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.widget.QWidget;
 import app.metatron.discovery.domain.workbook.widget.Widget;
 import app.metatron.discovery.domain.workbook.widget.WidgetRepository;
+import app.metatron.discovery.domain.workbook.widget.WidgetService;
 import app.metatron.discovery.util.AuthUtils;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import static app.metatron.discovery.config.ApiResourceConfig.REDIRECT_PATH_URL;
 
 @RepositoryRestController
 public class DashBoardController {
+
+  private static Logger LOGGER = LoggerFactory.getLogger(DashBoardController.class);
 
   @Autowired
   DashboardRepository dashboardRepository;
@@ -73,6 +86,12 @@ public class DashBoardController {
 
   @Autowired
   DataSourceValidator dataSourceValidator;
+
+  @Autowired
+  DataSourceRepository dataSourceRepository;
+
+  @Autowired
+  WidgetService widgetService;
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
@@ -217,4 +236,109 @@ public class DashBoardController {
 
     return pathBuilder.toString();
   }
+
+  @RequestMapping(path = "/dashboards/{dashboardId}/dataSource/validate", method = RequestMethod.POST)
+  ResponseEntity<?> validateForChangingDatasource(@PathVariable("dashboardId") String dashboardId,
+                                                  @RequestParam("fromDataSourceId") String fromDataSourceId,
+                                                  @RequestParam("toDataSourceId") String toDataSourceId) {
+    DashBoard dashBoard = dashboardRepository.findOne(dashboardId);
+    if (dashBoard == null) {
+      throw new ResourceNotFoundException(dashboardId);
+    }
+
+    app.metatron.discovery.domain.datasource.DataSource fromDataSource
+        = dataSourceRepository.findOne(fromDataSourceId);
+    if (fromDataSource == null) {
+      throw new ResourceNotFoundException(fromDataSourceId);
+    }
+
+    app.metatron.discovery.domain.datasource.DataSource toDataSource
+        = dataSourceRepository.findOne(toDataSourceId);
+    if (toDataSource == null) {
+      throw new ResourceNotFoundException(toDataSourceId);
+    }
+
+    if (!dashBoard.getDataSources().contains(fromDataSource)) {
+      LOGGER.error("Datasource({}) is not registered", fromDataSourceId);
+      throw new BadRequestException("Datasource is not registered");
+    }
+
+    if (dashBoard.getDataSources().contains(toDataSource)) {
+      LOGGER.error("Datasource({}) already registered", toDataSourceId);
+      throw new BadRequestException("Datasource already registered");
+    }
+
+    return ResponseEntity.ok(dashBoardService.validateForChangingDatasource(dashBoard, fromDataSource, toDataSource));
+  }
+
+  @RequestMapping(path = "/dashboards/{dashboardId}/dataSource/change", method = RequestMethod.POST)
+  ResponseEntity<?> changeDatasource(@PathVariable("dashboardId") String dashboardId,
+                                     @RequestParam("fromDataSourceId") String fromDataSourceId,
+                                     @RequestParam("toDataSourceId") String toDataSourceId) {
+    LOGGER.info("DashboardId({}), fromDataSourceId({}), toDataSourceId({})", dashboardId, fromDataSourceId, toDataSourceId);
+
+    DashBoard dashBoard = dashboardRepository.findOne(dashboardId);
+    if (dashBoard == null) {
+      throw new ResourceNotFoundException(dashboardId);
+    }
+    app.metatron.discovery.domain.datasource.DataSource fromDataSource
+        = dataSourceRepository.findOne(fromDataSourceId);
+    if (fromDataSource == null) {
+      throw new ResourceNotFoundException(fromDataSourceId);
+    }
+
+    app.metatron.discovery.domain.datasource.DataSource toDataSource
+        = dataSourceRepository.findOne(toDataSourceId);
+    if (toDataSource == null) {
+      throw new ResourceNotFoundException(toDataSourceId);
+    }
+
+    if (!dashBoard.getDataSources().contains(fromDataSource)) {
+      LOGGER.error("Datasource({}) is not registered", fromDataSourceId);
+      throw new BadRequestException("Datasource is not registered");
+    }
+
+    if (dashBoard.getDataSources().contains(toDataSource)) {
+      LOGGER.error("Datasource({}) already registered", toDataSourceId);
+      throw new BadRequestException("Datasource already registered");
+    }
+
+    LOGGER.info("Dashboard({})' before datasource : {}", dashBoard.getId(), dashBoard.getDataSources().toString());
+    Set<app.metatron.discovery.domain.datasource.DataSource> dashboardDataSources = Sets.newHashSet();
+    dashBoard.getDataSources().forEach(dataSource -> {
+      if (dataSource.getEngineName().equals(fromDataSource.getEngineName())) {
+        dashboardDataSources.add(toDataSource);
+      } else {
+        dashboardDataSources.add(dataSource);
+      }
+    });
+    dashBoard.setDataSources(dashboardDataSources);
+    LOGGER.info("Dashboard({})' after datasource : {}", dashBoard.getId(), dashBoard.getDataSources().toString());
+
+    BoardConfiguration boardConfiguration = dashBoard.getConfigurationObject();
+    DataSource boardDataSource = boardConfiguration.getDataSource();
+
+    LOGGER.info("Dashboard({})' before configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
+    boardConfiguration.setDataSource(
+        dashBoardService.changeDataSource(fromDataSource, toDataSource, boardDataSource));
+    dashBoard.setConfiguration(GlobalObjectMapper.writeValueAsString(boardConfiguration));
+    LOGGER.info("Dashboard({})' after configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
+
+    List<Filter> dashboardFilterList = dashBoard.getConfigurationObject().getFilters();
+    for (Filter filter : dashboardFilterList) {
+      if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+        filter.setDataSource(toDataSource.getEngineName());
+      }
+    }
+    LOGGER.info("Dashboard({})' after filter list : {}", dashBoard.getId(), dashBoard.getConfiguration());
+
+    for (Widget widget: dashBoard.getWidgets()) {
+      widgetRepository.saveAndFlush(widgetService.changeDataSource(widget, fromDataSource, toDataSource));
+    }
+
+    dashboardRepository.saveAndFlush(dashBoard);
+
+    return ResponseEntity.noContent().build();
+  }
+
 }
