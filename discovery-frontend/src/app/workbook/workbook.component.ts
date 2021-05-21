@@ -468,7 +468,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           this.dashboards = this.dashboards.filter( board => board.id !== dashboard.id );
           if( this.dashboards.length ) {
             // 현재 보고 있던 대시보드를 삭제하는 경우
-            if (this.selectedDashboard.id === dashboard.id) {
+            if (!this.selectedDashboard || this.selectedDashboard.id === dashboard.id) {
               // 대시보드 상세 정보 조회
               this.detailDashboard(this.dashboards[0]);
             }

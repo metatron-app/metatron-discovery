@@ -564,7 +564,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return true;
       }
     });
-  } // function - updatePivotAliasFromField
+  } // function - updateShelfAliasFromField
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
@@ -3014,9 +3014,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Field} changeField
    */
   public changeDatasourceFieldAlias(changeField: Field) {
+
     this.widget.dashBoard.configuration.fields.some((field: Field) => {
       if (field.name === changeField.name) {
-        field = changeField;
+        field.nameAlias = changeField.nameAlias;
+        field.valueAlias = changeField.valueAlias;
         // when it's not map, set pivot alias
         if (ChartType.MAP !== this.widgetConfiguration.chart.type) {
           PageComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
@@ -3029,7 +3031,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     });
     this.originalWidget.dashBoard.configuration.fields.some((field: Field) => {
       if (field.name === changeField.name) {
-        field = changeField;
+        field.nameAlias = changeField.nameAlias;
+        field.valueAlias = changeField.valueAlias;
         if (ChartType.MAP !== this.widgetConfiguration.chart.type) {
           PageComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
           // when it's map, set shelf alias
