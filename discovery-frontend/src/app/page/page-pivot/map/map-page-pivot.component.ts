@@ -447,7 +447,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
   public changePivot(eventType?: EventType) {
 
     // set layer alias
-    this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
+    this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkPivotField);
 
     // 크기 반경
     this.setPointOption();
@@ -484,7 +484,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       this.uiOption.layerNum = this.shelf.layers.length - 1;
 
       // set layer alias
-      this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
+      this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkPivotField);
 
       // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
       const addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
@@ -523,7 +523,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
     // set current layer number
     this.uiOption.layerNum = this.shelf.layers.length - 1;
     // set layer alias
-    this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
+    this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkPivotField);
     // uiOption layer 제거
     this.uiOption.layers.splice(index, 1);
     // emit

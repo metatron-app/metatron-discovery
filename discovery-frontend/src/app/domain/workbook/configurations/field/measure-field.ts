@@ -57,5 +57,6 @@ export enum AggregationType {
   // 계산식내 집계함수 포함 경우
   COMPLEX = 'COMPLEX',
 
-  IFCOUNTD = 'IFCOUNTD'
+  IFCOUNTD = 'IFCOUNTD',
+  COUNTD = 'COUNTD'
 }
