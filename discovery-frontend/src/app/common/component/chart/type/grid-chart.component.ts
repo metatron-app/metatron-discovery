@@ -21,7 +21,7 @@ import {BaseChart, ChartSelectInfo} from '../base-chart';
 import {BaseOption} from '../option/base-option';
 import {
   CellColorTarget,
-  CHART_STRING_DELIMITER,
+  CHART_STRING_DELIMITER, ChartColorList,
   ChartColorType,
   ChartSelectMode,
   ColorCustomMode,
@@ -32,6 +32,7 @@ import {
   UIOrient,
   UIPosition
 } from '../option/define/common';
+import {ColorOptionConverter} from '@common/component/chart/option/converter/color-option-converter';
 import {Pivot} from '@domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
 import {UIChartColorByCell} from '../option/ui-option';
@@ -331,9 +332,23 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         if( aggr.color ) {
           ( aggrInfo['fieldFormat'] ) || ( aggrInfo['fieldFormat'] = {} );
           if( aggr.color.rgb ) {
-            ( aggrInfo['fieldFormat']['font'] ) || ( aggrInfo['fieldFormat']['font'] = {} );
-            aggrInfo['fieldFormat']['font']['color'] = aggr.color.rgb;
-            // aggrInfo['fieldFormat']['backgroundColor'] = aggr.color.rgb;
+            // 단색 설정
+            if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
+              ( aggrInfo['fieldFormat']['font'] ) || ( aggrInfo['fieldFormat']['font'] = {} );
+              aggrInfo['fieldFormat']['font']['color'] = aggr.color.rgb;
+            } else {
+              aggrInfo['fieldFormat']['backgroundColor'] = aggr.color.rgb;
+            }
+          } else {
+            // 그라데이션 설정
+            const colorList = ChartColorList[aggr.color.schema.key] as any;
+            const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+            if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
+              ( aggrInfo['fieldFormat']['font'] ) || ( aggrInfo['fieldFormat']['font'] = {} );
+              aggrInfo['fieldFormat']['font']['rangeColor'] = ranges;
+            } else {
+              aggrInfo['fieldFormat']['rangeBackgroundColor'] = ranges;
+            }
           }
         }
         return aggrInfo;

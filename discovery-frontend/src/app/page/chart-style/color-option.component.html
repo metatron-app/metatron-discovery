@@ -308,12 +308,12 @@
         <!-- //color by measure part -->
 
         <!-- color by grid individual setting  -->
-        <div *ngIf="'grid' == uiOption.type.toString() && existIndividualSettings" class="ddp-wrap-divide">
+        <div *ngIf="'grid' == uiOption.type.toString() && existPivotSettings" class="ddp-wrap-divide">
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.chart.color.individual.setting' | translate}}</span>
           </div>
           <div class="ddp-list-sub2">
-            <div *ngFor="let item of filteredColorMeasures; let index = index" class="ddp-ui-color-select">
+            <div *ngFor="let item of filteredPivotColors; let index = index" class="ddp-ui-color-select">
               <div class="ddp-txt-label">
                 <div class="ddp-ui-txt">
                   <div class="ddp-box-color">
@@ -325,7 +325,7 @@
                   </div>
                   <span class="ddp-txt-data" title="{{getFieldName(item)}}">{{getFieldName(item)}}</span>
                 </div>
-                <a href="javascript:" (click)="removeIndividualColor(item)" class="ddp-btn-reset3"></a>
+                <a href="javascript:" (click)="removePivotColor(item)" class="ddp-btn-reset3"></a>
               </div>
             </div>
           </div>

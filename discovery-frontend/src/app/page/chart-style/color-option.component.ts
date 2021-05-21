@@ -14,12 +14,12 @@
 
 import {
   Component,
-  ElementRef,
+  ElementRef, EventEmitter,
   Injector,
   Input,
   NgZone,
   OnDestroy,
-  OnInit,
+  OnInit, Output,
   QueryList,
   ViewChild,
   ViewChildren
@@ -249,6 +249,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   @Input('pivot')
   public pivot: Pivot;
 
+  @Output() // Change를 붙이면 해당 모델 변경시 자동 이벤트 발생
+  public changePivotColor: EventEmitter<Pivot> = new EventEmitter();
+
   // Init
   public ngOnInit() {
     super.ngOnInit();
@@ -275,13 +278,13 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     return this.uiOption.color.type == ChartColorType.MEASURE;
   } // get - isMeasureColorType
 
-  public get existIndividualSettings(): boolean {
+  public get existPivotSettings(): boolean {
     return this.pivot.aggregations.some( aggr => !!aggr.color );
-  } // get - existIndividualSettings
+  } // get - existPivotSettings
 
-  public get filteredColorMeasures(): Field[] {
+  public get filteredPivotColors(): Field[] {
     return this.pivot.aggregations.filter( aggr => !!aggr.color );
-  } // get - filteredColorMeasures
+  } // get - filteredPivotColors
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
@@ -1415,7 +1418,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    * 개별 색상 설정 제거
    * @param target - 삭제 대상 필드
    */
-  public removeIndividualColor(target: Field): void {
+  public removePivotColor(target: Field): void {
     this.pivot.aggregations.forEach(aggr => {
       const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
       const targetName = target.aggregationType + '(' + target.name + ')';
@@ -1423,7 +1426,8 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
         delete aggr.color;
       }
     });
-  } // func - removeIndividualColor
+    this.changePivotColor.emit(this.pivot);
+  } // func - removePivotColor
 
   /**
    * 스키마 순번
