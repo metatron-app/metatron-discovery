@@ -464,8 +464,17 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         this._getWorkbook().then(() => {
           this.selectedDatasources = this.datasources.map(ds => ds.id);
           this.loadingHide();
-          // this.loadDashboardList(0);
-          this.detailDashboard(this.dashboards[0]);
+          // 대시보드 목록에서 삭제된 대시보드 제거
+          this.dashboards = this.dashboards.filter( board => board.id !== dashboard.id );
+          if( this.dashboards.length ) {
+            // 현재 보고 있던 대시보드를 삭제하는 경우
+            if (this.selectedDashboard.id === dashboard.id) {
+              // 대시보드 상세 정보 조회
+              this.detailDashboard(this.dashboards[0]);
+            }
+          } else {
+            this.changeMode('NO_DATA');
+          }
         });
 
       }).catch(() => {
