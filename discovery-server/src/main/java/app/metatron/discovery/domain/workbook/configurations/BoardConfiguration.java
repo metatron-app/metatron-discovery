@@ -120,6 +120,10 @@ public class BoardConfiguration implements Serializable {
     return filters;
   }
 
+  public void setDataSource(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+
   public void setFilters(List<Filter> filters) {
     this.filters = filters;
   }
