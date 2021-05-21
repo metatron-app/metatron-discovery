@@ -1777,6 +1777,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       if (field.type === 'calculated') {
         console.log('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
       }
+
+      let aggType;
+      if(field.field.logicalType === 'HASHED_MAP') {
+        aggType = AggregationType.COUNT;
+        field.aggregationType = aggType;
+      }
       // const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
       // field.alias = `${aggType}(${field.name})`;
     }
