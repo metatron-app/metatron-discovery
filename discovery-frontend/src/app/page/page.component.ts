@@ -2698,11 +2698,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         // 사용자 필드이면서 aggregated가 true인 이미 선반에 올라간 컬럼인경우 제거
         if ('user_expr' === targetField.type && targetField.aggregated && isAlreadyPivot) {
-
           this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
           // 추가
         } else {
-          this.pivot.aggregations.push(pivotFiled);
+
+          // 필드 타입이 HashedMap일 경우 aggregation 을 count 만 허용
+          if(targetField.logicalType != LogicalType.HASHED_MAP || this.pivot.aggregations.length < 1){
+            this.pivot.aggregations.push(pivotFiled);
+          }
+          // this.pivot.aggregations.push(pivotFiled);
           this.pagePivot.convertField(targetField, 'aggregation');
         }
       }

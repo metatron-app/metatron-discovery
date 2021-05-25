@@ -59,7 +59,7 @@ import {UIOption} from '@common/component/chart/option/ui-option';
 import {BoardConfiguration, BoardDataSource, DashboardWidgetRelation, LayoutMode} from '@domain/dashboard/dashboard';
 import {BoardSyncOptions, BoardWidgetOptions, WidgetShowType} from '@domain/dashboard/dashboard.globalOptions';
 import {Pivot} from '@domain/workbook/configurations/pivot';
-import {ConnectionType, Datasource, Field} from '@domain/datasource/datasource';
+import {ConnectionType, Datasource, Field, LogicalType} from '@domain/datasource/datasource';
 import {Shelf, ShelfLayers} from '@domain/workbook/configurations/shelf/shelf';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {SearchQueryRequest} from '@domain/datasource/data/search-query-request';
@@ -73,6 +73,7 @@ import {WidgetService} from '../../service/widget.service';
 import {FilterUtil} from '../../util/filter.util';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
+import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
 
 declare let $;
 declare let moment;
@@ -1199,6 +1200,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     this.widget = _.extend(new PageWidget(), widget) as PageWidget;
     this.widgetConfiguration = this.widget.configuration as PageWidgetConfiguration;
     this.chartType = this.widgetConfiguration.chart.type.toString();
+
+    // Aggregation LogicalType Hashed_Map 체크
+    this.widgetConfiguration.pivot.aggregations.forEach(field => {
+      if( LogicalType.HASHED_MAP === field.field.logicalType ) {
+        field.aggregationType = AggregationType.COUNTD;
+      }
+    });
+
     this.parentWidget = null;
     if (widget.dashBoard.configuration) {
 
