@@ -466,3 +466,8 @@
                        [workspaceId]="workbook['workspaceId']" [dashboard]="dashboard"
                        (done)="changeDataSource($event)"
                        (close)="closeUpdateDataSource()"></app-update-datasource>
+<create-board-pop-ds-select *ngIf = "isChangeBoardDataSource"
+                            [workspaceId]="workbook['workspaceId']"
+                            [selectedDataSource]="selectedDataSource"
+                            (change)="changeBoardDataSource($event)"
+                            (close)="closeChangeBoardDataSource()" [isShow]="true"></create-board-pop-ds-select>

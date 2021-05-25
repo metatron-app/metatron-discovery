@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import {Component, ElementRef, Injector, OnInit, OnDestroy, Output, EventEmitter, Input} from '@angular/core';
 import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { StringUtil } from '@common/util/string.util';
 import { Alert } from '@common/util/alert.util';
@@ -30,8 +30,8 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private _workspaceId: string;  // 워크스페이스 아이디
-
+  @Input('workspaceId')
+  public workspaceId: string;  // 워크스페이스 아이디
   private _prevDataSourceIds: string[] = [];   // 이전에 선택되었던 데이터소스 아이디 목록
   private _selectedDataSources: Datasource[] = [];   // 현재 선택된 데이터소스 목록
 
@@ -50,10 +50,20 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
   public typeFilter = [];
 
-  public isShow: boolean = false;
+  public fromDataSourceId: string;
+  public toDataSourceId: string;
+
+  @Input('selectedDataSource')
+  public selectedDataSource: Datasource;
+
+  @Input('isShow')
+  public isShow: boolean;
 
   @Output('done')
   public doneEvent: EventEmitter<{ add: Datasource[], remove: string[] }> = new EventEmitter();
+
+  @Output('change')
+  public changeEvent: EventEmitter<{ fromDataSourceId: string, toDataSourceId: string }> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -75,6 +85,12 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public ngOnInit() {
     super.ngOnInit();
+
+    this.isShow = (this.isShow) ? this.isShow : false;
+    if(this.isShow){
+      // 데이터 소스 조회
+      this.open(this.workspaceId, []);
+    }
 
     // 필터설정
     this.typeFilter = [
@@ -111,7 +127,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    * @param {string[]} dataSourceIds
    */
   public open(workspaceId: string, dataSourceIds: string[]) {
-    this._workspaceId = workspaceId;
+    this.workspaceId = workspaceId;
 
     // 데이터 초기화
     this.summaryTargetDsId = '';
@@ -145,14 +161,18 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public done() {
 
-    const addDataSources: Datasource[] = this._selectedDataSources.filter(item => {
-      return -1 === this._prevDataSourceIds.indexOf(item.id);
-    });
-    const removeDataSources: string[] = this._prevDataSourceIds.filter(id => {
-      return -1 === this._selectedDataSources.findIndex(item => item.id === id);
-    });
+    if(this.selectedDataSource){
+      this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
+    } else {
+      const addDataSources: Datasource[] = this._selectedDataSources.filter(item => {
+        return -1 === this._prevDataSourceIds.indexOf(item.id);
+      });
+      const removeDataSources: string[] = this._prevDataSourceIds.filter(id => {
+        return -1 === this._selectedDataSources.findIndex(item => item.id === id);
+      });
 
-    this.doneEvent.emit({ add: addDataSources, remove: removeDataSources });
+      this.doneEvent.emit({ add: addDataSources, remove: removeDataSources });
+    }
     this.close();
   } // function - done
 
@@ -235,14 +255,24 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public selectDatasource(datasource: Datasource) {
 
-    // 데이터 아이디 저장
-    this.summaryTargetDsId = datasource.id;
-
-    if (this.isSelectedDatasource(datasource)) {
-      this._selectedDataSources = this._selectedDataSources.filter(item => item.id !== datasource.id);
-    } else {
+    // 기존에 선택된 데이터 소스가 있고, 한개만 선택되어야 하는 경우  => 대시보드 데이터소스 변경
+    if(this.selectedDataSource){
+      if(this._selectedDataSources.length > 0){
+        this._selectedDataSources = [];
+      }
       this._selectedDataSources.push(datasource);
+    } else {
+
+      // 데이터 아이디 저장
+      this.summaryTargetDsId = datasource.id;
+
+      if (this.isSelectedDatasource(datasource) ) {
+        this._selectedDataSources = this._selectedDataSources.filter(item => item.id !== datasource.id);
+      } else {
+        this._selectedDataSources.push(datasource);
+      }
     }
+
   } // function - selectDatasource
 
   /**
@@ -283,7 +313,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    * 데이터 목록 조회
    */
   private _getDataSources() {
-    const workspaceId: string = this._workspaceId;
+    const workspaceId: string = this.workspaceId;
 
     if (StringUtil.isEmpty(workspaceId)) return;
 
@@ -350,7 +380,17 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
       // 로딩 hide
       this.loadingHide();
 
+      // 기존 데이터소스가 있었던 경우 제외하고 표시
+      if(this.selectedDataSource){
+        this.dataSources.splice(this.dataSources.findIndex(ds => {
+          return ds.id === this.selectedDataSource.id
+        }),1);
+      }
+
+
       this.changeDetect.detectChanges();
+
+
     }).catch((error) => {
       console.log(error);
       Alert.error(this.translateService.instant('msg.alert.ds.retrieve.fail'));

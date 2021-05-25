@@ -136,6 +136,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public isShowPage: boolean = false;         // 페이지 상세 show/hide
   public isShowChartPanelTooltip: boolean = false;
   public isChangeDataSource: boolean = false;
+  public isChangeBoardDataSource: boolean = false;
 
   public orgBoardInfo: Dashboard;
 
@@ -146,6 +147,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public generalFilterListInPanel: FilterWidget[] = [];   // 패널 내 일반 필터 목록
 
   public filterUtil = FilterUtil;
+
+  public selectedDataSource: Datasource;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -210,11 +213,21 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public ngOnInit() {
     super.ngOnInit();
 
-    // 대시보드 데이터소스 변경
+    // 대시보드 데이터소스 변경 - 관계 설정 및 조인
     this.subscriptions.push(
       this.broadCaster.on<any>('UPDATE_BOARD_UPDATE_DATASOURCE').subscribe(() => {
         this.isUpdateDataSource = true;
         this.isShowPage = false;
+      })
+    );
+
+    // 대시보드 데이터소스 변경
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource}) => {
+        this.isChangeBoardDataSource = true;
+        this.isShowPage = false;
+        this.selectedDataSource = data.dataSource;
+        //this._dataSourceSelectComp.open(this.workbook['workspaceId'], null);
       })
     );
 
@@ -786,6 +799,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.isUpdateDataSource = false;
   } // function - closeUpdateDataSource
 
+  public closeChangeBoardDataSource(){
+    this.isChangeBoardDataSource = false;
+  }
+
   /**
    * 대시보드의 데이터소스 변경
    * @param {Dashboard} dashboard
@@ -832,6 +849,22 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.isChangeDataSource = true;
     this.isUpdateDataSource = false;
   } // function - changeDataSource
+
+  public changeBoardDataSource(data: {fromDataSourceId: string, toDataSourceId: string}){
+    this.showBoardLoading();
+    const fromDataSourceId = data.fromDataSourceId;
+    const toDataSourceId = data.toDataSourceId;
+    this.dashboardService.checkValidationDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {
+      this.dashboardService.changeBoardDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {
+        this.hideBoardLoading();
+      }).catch(() => {
+        this.hideBoardLoading();
+      });
+    }).catch(() => {
+      console.log('Invalidation change');
+      this.hideBoardLoading();
+    })
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Page Widget Panel
