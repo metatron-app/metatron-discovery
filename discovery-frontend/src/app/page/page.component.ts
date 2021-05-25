@@ -2074,7 +2074,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     // 선반변경시 drawChart
-    this.drawChart({type: eventType});
+    this.drawChart({type: eventType, disableCache: true});
   }
 
   public onChangePivot(data: {pivot: Pivot, eventType: EventType}) {
@@ -2197,7 +2197,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 추천가능차트 설정
     this.recommendChart();
     // 선반변경시 drawChart 발생
-    this.drawChart({type: eventType});
+    this.drawChart({type: eventType, disableCache: true});
   }
 
   /**
@@ -3693,7 +3693,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     successCallback: null,// Draw 성공시 callback
     resultFormatOptions: {}, // Search Result Option
     filters: [], // 추천필터나 타임스탬프 변경시 필터를 적용하기 위해
-    type: '' // 호출된 종류 설정
+    type: '', // 호출된 종류 설정
+    disableCache: false
   }) {
     // valid
     if (StringUtil.isEmpty(this.selectChart)) return;
@@ -3803,7 +3804,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.chart['setQuery'] = this.query;
     }
 
-    this.datasourceService.searchQuery(cloneQuery).then(
+    this.datasourceService.searchQuery(cloneQuery, params.disableCache).then(
       (data) => {
 
         const resultData = {
