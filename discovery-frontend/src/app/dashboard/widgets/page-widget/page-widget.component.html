@@ -22,10 +22,21 @@
      class="ddp-box-widget ddp-box-graph" style="display:block;">
 
   <!-- Top Control -->
-  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && ( !errorInfo || !errorInfo.show ) && !isShowEvtTriggerEditor">
+  <div class="ddp-top-control ddp-clear"
+       *ngIf="isViewMode && ( !errorInfo || !errorInfo.show ) && !isShowEvtTriggerEditor" [style.float]="toolTipLoc ? 'left' : 'right' ">
 
     <!-- 버튼 목록 -->
     <div class="ddp-ui-buttons" >
+
+      <div *ngIf="chartType === 'grid'"class="ddp-box-btn2">
+        <em (click)="toolTipLoc = !toolTipLoc" class="ddp-icon-widget-move"></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info">
+          <em class="ddp-icon-view-down"></em>
+          Move
+        </div>
+        <!-- //툴팁 -->
+      </div>
 
       <!-- Event Trigger -->
       <div *ngIf="isAuthMgmtViewMode" class="ddp-box-btn2">
@@ -564,7 +575,7 @@
   </div>
   <!-- //미리보기 팝업 -->
 
-  <div *ngIf="isShowEvtTriggerEditor" #userFuncInputContainer
+  <div *ngIf="isShowEvtTriggerEditor"  #userFuncInputContainer
        style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;">
     <div class="ddp-top-control ddp-clear">
       <!-- buttons -->

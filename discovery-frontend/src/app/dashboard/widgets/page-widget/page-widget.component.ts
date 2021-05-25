@@ -169,6 +169,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
   // 데이터 조회 쿼리
   public query: SearchQueryRequest;
 
+  // 툴팁 div 위치
+  public toolTipLoc: boolean = false;
+
   get uiOption(): UIOption {
     return this.widgetConfiguration.chart;
   }
@@ -249,7 +252,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-
     // 사용자 정의 컬럼 사용 여부 확인
     const conf: PageWidgetConfiguration = this.widget.configuration as PageWidgetConfiguration;
     let useCustomField: boolean = false;
