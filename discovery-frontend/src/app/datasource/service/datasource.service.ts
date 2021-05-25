@@ -143,6 +143,7 @@ export class DatasourceService extends AbstractService {
       return this.post(this.API_URL + 'datasources/query/search', query)
         .then(result => {
           console.log('>>>>> query data');
+          this._searchHistory = this._searchHistory.filter(history => history.query !== stringifyQuery);
           this._searchHistory.push({query: stringifyQuery, result: JSON.parse(JSON.stringify(result))});
           return result;
         });

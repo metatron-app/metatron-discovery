@@ -75,7 +75,6 @@
                     </div>
                     <!-- //title -->
 
-
                     <!-- source list -->
                     <div class="ddp-wrap-list-source">
                       <ul class="ddp-list-source ddp-list-dimension" [dragula]="'dragbag'"
@@ -87,16 +86,16 @@
                             [class.ddp-selected]="fieldDetailLayer == field && showFieldIconsFl">
                           <!-- not map, network chart -->
                           <em *ngIf="'network' !== selectChart && 'map' !== selectChart"
-                              [class.ddp-icon-columns]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
-                              [class.ddp-icon-rows]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
-                              [class.ddp-icon-cross]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
+                              [class.ddp-icon-columns]="checkPivotType(field, 'ROWS')"
+                              [class.ddp-icon-rows]="checkPivotType(field, 'COLUMNS')"
+                              [class.ddp-icon-cross]="checkPivotType(field, 'AGGREGATIONS')"
                               class="type-apply"></em>
                           <!-- //not map, network chart -->
                           <!-- network chart -->
                           <em *ngIf="'network' === selectChart"
-                              [class.icon-source]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
-                              [class.icon-target]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
-                              [class.icon-link]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
+                              [class.icon-source]="checkPivotType(field, 'ROWS')"
+                              [class.icon-target]="checkPivotType(field, 'COLUMNS')"
+                              [class.icon-link]="checkPivotType(field, 'AGGREGATIONS')"
                               class="ddp-icon-network"></em>
                           <!-- //network chart -->
                           <!-- map chart -->

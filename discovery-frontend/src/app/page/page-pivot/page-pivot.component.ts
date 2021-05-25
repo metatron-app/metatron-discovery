@@ -147,7 +147,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
   // Pivot 정보가 바뀐 경우
   @Output('changePivot')
-  public changePivotEvent: EventEmitter<any> = new EventEmitter();
+  public changePivotEvent: EventEmitter<{pivot: Pivot, eventType: EventType}> = new EventEmitter();
 
   // 데이터를 다시 조회할 필요가 없는 Pivot 변경 이벤트 발생
   @Output('changePivotFilter')
