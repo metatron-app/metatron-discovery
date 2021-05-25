@@ -50,9 +50,19 @@
     </div>
     <!-- // 목록 영역 -->
     <!-- 데이터소스 수정 링크 -->
-    <a *ngIf="isEnableEditAssociationJoin" href="javascript:" class="ddp-link-join" (click)="updateBoardDataSource()">
-      {{ 'msg.board.custom.ui.edit.association.join' | translate }}<em class="ddp-btn-option"></em>
-    </a>
+    <ul>
+      <li>
+        <a *ngIf="isEnableEditAssociationJoin" href="javascript:" class="ddp-link-join" (click)="updateBoardDataSource()"
+        [style]="'position:relative'">
+          {{ 'msg.board.custom.ui.edit.association.join' | translate }}<em class="ddp-btn-option" ></em>
+        </a>
+      </li>
+      <li>
+        <a href="javascript:" class="ddp-link-join" (click)="changeBoardDataSource()">
+          데이터소스 변경 <em class="ddp-btn-option"></em>
+        </a>
+      </li>
+    </ul>
     <!-- // 데이터소스 수정 링크 -->
   </div>
   <!-- //box layout -->

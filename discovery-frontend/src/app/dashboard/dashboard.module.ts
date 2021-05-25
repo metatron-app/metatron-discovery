@@ -110,12 +110,13 @@ const dashboardRoutes: Routes = [
     TimezoneService,
     AnalysisPredictionService
   ],
-  exports: [
-    DashboardComponent,
-    UpdateDashboardComponent,
-    CreateBoardComponent,
-    SelectionFilterComponent
-  ],
+    exports: [
+        DashboardComponent,
+        UpdateDashboardComponent,
+        CreateBoardComponent,
+        SelectionFilterComponent,
+        CreateBoardPopDsSelectComponent
+    ],
   bootstrap: [
     DashboardWidgetComponent,
     DashboardWidgetHeaderComponent,

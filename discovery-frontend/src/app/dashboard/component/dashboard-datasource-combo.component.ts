@@ -156,6 +156,10 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
     this.broadCaster.broadcast('UPDATE_BOARD_UPDATE_DATASOURCE');
   } // function - updateBoardDataSource
 
+  public changeBoardDataSource(){
+   this.broadCaster.broadcast('CHANGE_BOARD_DATASOURCE', {dataSource: this.selectedDataSource});
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
