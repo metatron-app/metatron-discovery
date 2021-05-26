@@ -34,6 +34,8 @@ import {
 } from '../option/define/common';
 import {ColorOptionConverter} from '@common/component/chart/option/converter/color-option-converter';
 import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Field} from '@domain/workbook/configurations/field/field';
+import {Format} from '@domain/workbook/configurations/format';
 import * as _ from 'lodash';
 import {UIChartColorByCell} from '../option/ui-option';
 import {TotalValueStyle, UIGridChart} from '../option/ui-option/ui-grid-chart';
@@ -326,31 +328,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         if (aggr.field && aggr.field.logicalType) {
           aggrInfo['type'] = aggr.field.logicalType;
         }
-        if (aggr.fieldFormat) {
-          aggrInfo['fieldFormat'] = aggr.fieldFormat;
-        }
-        if( aggr.color ) {
-          ( aggrInfo['fieldFormat'] ) || ( aggrInfo['fieldFormat'] = {} );
-          if( aggr.color.rgb ) {
-            // 단색 설정
-            if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
-              ( aggrInfo['fieldFormat']['font'] ) || ( aggrInfo['fieldFormat']['font'] = {} );
-              aggrInfo['fieldFormat']['font']['color'] = aggr.color.rgb;
-            } else {
-              aggrInfo['fieldFormat']['backgroundColor'] = aggr.color.rgb;
-            }
-          } else {
-            // 그라데이션 설정
-            const colorList = ChartColorList[aggr.color.schema.key] as any;
-            const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
-            if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
-              ( aggrInfo['fieldFormat']['font'] ) || ( aggrInfo['fieldFormat']['font'] = {} );
-              aggrInfo['fieldFormat']['font']['rangeColor'] = ranges;
-            } else {
-              aggrInfo['fieldFormat']['rangeBackgroundColor'] = ranges;
-            }
-          }
-        }
+        aggrInfo['fieldFormat'] = this.setFieldFormat(aggr);
         return aggrInfo;
       });
     } else {
@@ -412,15 +390,12 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
           (originAggregations[0].type) || (originAggregations[0].type = {});
           originAggregations[0].type[aggr.name] = aggr.field.logicalType;
 
-          if (aggr.fieldFormat) {
-            (originAggregations[0]['fieldFormat']) || (originAggregations[0]['fieldFormat'] = []);
-            if (-1 === originAggregations[0]['fieldFormat'].findIndex(item => aggr.field.name === item['aggrColumn'])) {
-              const fieldFormat = JSON.parse(JSON.stringify(aggr.fieldFormat));
-              fieldFormat['aggrColumn'] = aggr.field.name;
-              originAggregations[0]['fieldFormat'].push(fieldFormat);
-            }
+          (originAggregations[0]['fieldFormat']) || (originAggregations[0]['fieldFormat'] = []);
+          if (-1 === originAggregations[0]['fieldFormat'].findIndex(item => aggr.field.name === item['aggrColumn'])) {
+            const fieldFormat = this.setFieldFormat( aggr );
+            fieldFormat['aggrColumn'] = aggr.field.name;
+            originAggregations[0]['fieldFormat'].push(fieldFormat);
           }
-
         }
       });
       aggregations = originAggregations;
@@ -754,5 +729,39 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
     if (ChartColorType.SINGLE === uiOption.color.type && !uiOption.color['code']) uiOption.color['code'] = '';
     return this.uiOption
   }
+
+  /**
+   * 필드 형식 설정
+   * @param aggr - 필드 정보 ( Aggregation )
+   * @private
+   */
+  private setFieldFormat(aggr:Field): Format {
+    let fieldFormat:Format = {};
+    if (aggr.fieldFormat) {
+      fieldFormat = JSON.parse(JSON.stringify(aggr.fieldFormat));
+    }
+    if( aggr.color ) {
+      if( aggr.color.rgb ) {
+        // 단색 설정
+        if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
+          ( fieldFormat['font'] ) || ( fieldFormat['font'] = {} );
+          fieldFormat['font']['color'] = aggr.color.rgb;
+        } else {
+          fieldFormat['backgroundColor'] = aggr.color.rgb;
+        }
+      } else {
+        // 그라데이션 설정
+        const colorList = ChartColorList[aggr.color.schema.key] as any;
+        const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+        if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
+          ( fieldFormat['font'] ) || ( fieldFormat['font'] = {} );
+          fieldFormat['font']['rangeColor'] = ranges;
+        } else {
+          fieldFormat['rangeBackgroundColor'] = ranges;
+        }
+      }
+    }
+    return fieldFormat;
+  } // func - setFieldFormat
 
 }
