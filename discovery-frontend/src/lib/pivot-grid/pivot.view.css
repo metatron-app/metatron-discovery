@@ -170,10 +170,11 @@
   position: absolute;
   z-index: 2;
   font-size: 0.1px;
-  width: 20px;
+  width: 40px;
   right: 0px;
   top: 0px;
   height: 100%;
   margin: 0 auto;
   padding: 0 5px;
+  justify-content: flex-end;
 }
