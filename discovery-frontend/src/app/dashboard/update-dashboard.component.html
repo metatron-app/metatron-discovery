@@ -469,5 +469,6 @@
 <create-board-pop-ds-select *ngIf = "isChangeBoardDataSource"
                             [workspaceId]="workbook['workspaceId']"
                             [selectedDataSource]="selectedDataSource"
-                            (change)="changeBoardDataSource($event)"
+                            [currentDataSources]="currentDataSources"
+                            (changDatasource)="changeBoardDataSource($event)"
                             (close)="closeChangeBoardDataSource()" [isShow]="true"></create-board-pop-ds-select>

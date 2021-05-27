@@ -149,6 +149,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public filterUtil = FilterUtil;
 
   public selectedDataSource: Datasource;
+  public currentDataSources: Datasource[];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -223,11 +224,11 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 대시보드 데이터소스 변경
     this.subscriptions.push(
-      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource}) => {
+      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource[], selectedDataSource: Datasource}) => {
         this.isChangeBoardDataSource = true;
         this.isShowPage = false;
-        this.selectedDataSource = data.dataSource;
-        //this._dataSourceSelectComp.open(this.workbook['workspaceId'], null);
+        this.currentDataSources = data.dataSource;
+        this.selectedDataSource = data.selectedDataSource;
       })
     );
 

@@ -23,6 +23,7 @@ import { WorkspaceService } from '../../../workspace/service/workspace.service';
 @Component({
   selector: 'create-board-pop-ds-select',
   templateUrl: './create-board-pop-ds-select.component.html',
+  styles: ['a.disabled {cursor:not-allowed;}']
 })
 export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -56,13 +57,16 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   @Input('selectedDataSource')
   public selectedDataSource: Datasource;
 
+  @Input('currentDataSources')
+  public currentDataSources: Datasource[];
+
   @Input('isShow')
   public isShow: boolean;
 
   @Output('done')
   public doneEvent: EventEmitter<{ add: Datasource[], remove: string[] }> = new EventEmitter();
 
-  @Output('change')
+  @Output('changDatasource')
   public changeEvent: EventEmitter<{ fromDataSourceId: string, toDataSourceId: string }> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -160,7 +164,6 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    * 선택 완료
    */
   public done() {
-
     if(this.selectedDataSource){
       this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
     } else {
@@ -255,22 +258,16 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public selectDatasource(datasource: Datasource) {
 
-    // 기존에 선택된 데이터 소스가 있고, 한개만 선택되어야 하는 경우  => 대시보드 데이터소스 변경
-    if(this.selectedDataSource){
-      if(this._selectedDataSources.length > 0){
+    // 데이터 아이디 저장
+    this.summaryTargetDsId = datasource.id;
+
+    if (this.isSelectedDatasource(datasource) ) {
+      this._selectedDataSources = this._selectedDataSources.filter(item => item.id !== datasource.id);
+    } else {
+      if(this.selectedDataSource){ // 기존에 선택된 데이터 소스가 있고, 한개만 선택되어야 하는 경우  => 대시보드 데이터소스 변경
         this._selectedDataSources = [];
       }
       this._selectedDataSources.push(datasource);
-    } else {
-
-      // 데이터 아이디 저장
-      this.summaryTargetDsId = datasource.id;
-
-      if (this.isSelectedDatasource(datasource) ) {
-        this._selectedDataSources = this._selectedDataSources.filter(item => item.id !== datasource.id);
-      } else {
-        this._selectedDataSources.push(datasource);
-      }
     }
 
   } // function - selectDatasource
@@ -380,14 +377,13 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
       // 로딩 hide
       this.loadingHide();
 
+
+
       // 기존 데이터소스가 있었던 경우 제외하고 표시
-      if(this.selectedDataSource){
-        this.dataSources.splice(this.dataSources.findIndex(ds => {
-          return ds.id === this.selectedDataSource.id
-        }),1);
+      if(this.currentDataSources){
+        const cur = this.dataSources.filter(item => this.currentDataSources.find(cur => cur.id === item.id));
+        this.dataSources = this.dataSources.filter(item => cur.indexOf(item)<0);
       }
-
-
       this.changeDetect.detectChanges();
 
 
