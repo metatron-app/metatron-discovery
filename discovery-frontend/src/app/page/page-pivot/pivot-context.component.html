@@ -532,7 +532,8 @@
         <a href="javascript:">
           {{'msg.page.ui.color' | translate}}
           <div class="ddp-data-result ddp-type">
-            Color
+            <span *ngIf="isSelectedColorType( 'GRADATION' )">{{'msg.page.ui.color.gradation' | translate}}</span>
+            <span *ngIf="isSelectedColorType( 'INDIVIDUAL' )">{{'msg.page.ui.color.individual' | translate}}</span>
             <em class="ddp-icon-view"></em>
           </div>
         </a>

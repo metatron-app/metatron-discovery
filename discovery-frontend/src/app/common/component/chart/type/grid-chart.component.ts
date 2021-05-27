@@ -21,7 +21,8 @@ import {BaseChart, ChartSelectInfo} from '../base-chart';
 import {BaseOption} from '../option/base-option';
 import {
   CellColorTarget,
-  CHART_STRING_DELIMITER, ChartColorList,
+  CHART_STRING_DELIMITER,
+  ChartColorList,
   ChartColorType,
   ChartSelectMode,
   ColorCustomMode,
@@ -465,7 +466,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
       this.gridModel.body.color.showColorStep = true;
 
       // 색상 타입 설정
-      this.gridModel.body.color.colorTarget = cellColor.colorTarget;
+      this.gridModel.body.color.colorTarget = cellColor.colorTarget ? cellColor.colorTarget : CellColorTarget.TEXT;
 
       // ranges 색상값이있을때 설정
       this.setRangeColor(cellColor, this.gridModel);
@@ -741,9 +742,10 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
       fieldFormat = JSON.parse(JSON.stringify(aggr.fieldFormat));
     }
     if( aggr.color ) {
+      const colorTarget = this.uiOption.color.colorTarget ? this.uiOption.color.colorTarget : CellColorTarget.TEXT;
       if( aggr.color.rgb ) {
         // 단색 설정
-        if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
+        if( colorTarget === CellColorTarget.TEXT ) {
           ( fieldFormat['font'] ) || ( fieldFormat['font'] = {} );
           fieldFormat['font']['color'] = aggr.color.rgb;
         } else {
@@ -753,7 +755,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         // 그라데이션 설정
         const colorList = ChartColorList[aggr.color.schema.key] as any;
         const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
-        if( this.uiOption.color.colorTarget === CellColorTarget.TEXT ) {
+        if( colorTarget === CellColorTarget.TEXT ) {
           ( fieldFormat['font'] ) || ( fieldFormat['font'] = {} );
           fieldFormat['font']['rangeColor'] = ranges;
         } else {
