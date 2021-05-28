@@ -19,6 +19,7 @@ import { Alert } from '@common/util/alert.util';
 import { PageResult } from '@domain/common/page';
 import {ConnectionType, Datasource, Status} from '@domain/datasource/datasource';
 import { WorkspaceService } from '../../../workspace/service/workspace.service';
+import {DashboardService} from "../../service/dashboard.service";
 
 @Component({
   selector: 'create-board-pop-ds-select',
@@ -63,6 +64,8 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   @Input('isShow')
   public isShow: boolean;
 
+  @Input('dashboardId')
+  public dashboardId: string;
   @Output('done')
   public doneEvent: EventEmitter<{ add: Datasource[], remove: string[] }> = new EventEmitter();
 
@@ -75,6 +78,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
   // 생성자
   constructor(private workspaceService: WorkspaceService,
+              protected dashboardService: DashboardService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -165,7 +169,14 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public done() {
     if(this.selectedDataSource){
-      this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
+      const fromDataSourceId = this.selectedDataSource.id;
+      const toDataSourceId = this._selectedDataSources[0].id;
+      this.dashboardService.checkValidationDataSource(this.dashboardId, fromDataSourceId,toDataSourceId).then(()=>{
+        this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
+        this.close();
+      }).catch(()=>{
+        Alert.warning('유효하지 않은 데이터소스 변경입니다.')
+      });
     } else {
       const addDataSources: Datasource[] = this._selectedDataSources.filter(item => {
         return -1 === this._prevDataSourceIds.indexOf(item.id);
@@ -175,8 +186,8 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
       });
 
       this.doneEvent.emit({ add: addDataSources, remove: removeDataSources });
+      this.close();
     }
-    this.close();
   } // function - done
 
   /**
