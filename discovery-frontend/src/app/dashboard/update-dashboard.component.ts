@@ -855,16 +855,12 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.showBoardLoading();
     const fromDataSourceId = data.fromDataSourceId;
     const toDataSourceId = data.toDataSourceId;
-    this.dashboardService.checkValidationDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {
-      this.dashboardService.changeBoardDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {
-        this.hideBoardLoading();
-      }).catch(() => {
-        this.hideBoardLoading();
-      });
-    }).catch(() => {
-      console.log('Invalidation change');
+    this.dashboardService.changeBoardDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {
       this.hideBoardLoading();
-    })
+    }).catch(() => {
+      console.log('Failed to change datasource')
+      this.hideBoardLoading();
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
