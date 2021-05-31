@@ -131,6 +131,13 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get isSingleMode(): boolean {
+    return !!this.selectedDataSource;
+  } // func - isSingleMode
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 팝업 열기
    * @param {string} workspaceId
@@ -170,7 +177,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    * 선택 완료
    */
   public done() {
-    if(this.selectedDataSource){
+    if(this.isSingleMode){
       // this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
       const fromDataSourceId = this.selectedDataSource.id;
       const toDataSourceId = this._selectedDataSources[0].id;
