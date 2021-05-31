@@ -20,6 +20,7 @@ import { PageResult } from '@domain/common/page';
 import {ConnectionType, Datasource, Status} from '@domain/datasource/datasource';
 import { WorkspaceService } from '../../../workspace/service/workspace.service';
 import {DashboardService} from "../../service/dashboard.service";
+import {EventBroadcaster} from "@common/event/event.broadcaster";
 
 @Component({
   selector: 'create-board-pop-ds-select',
@@ -78,6 +79,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
   // 생성자
   constructor(private workspaceService: WorkspaceService,
+              protected broadCaster: EventBroadcaster,
               protected dashboardService: DashboardService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -169,8 +171,10 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public done() {
     if(this.selectedDataSource){
+      // this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
       const fromDataSourceId = this.selectedDataSource.id;
       const toDataSourceId = this._selectedDataSources[0].id;
+
       this.dashboardService.checkValidationDataSource(this.dashboardId, fromDataSourceId,toDataSourceId).then(()=>{
         this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
         this.close();

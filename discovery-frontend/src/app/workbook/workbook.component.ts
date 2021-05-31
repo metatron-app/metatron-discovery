@@ -273,8 +273,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.activatedRoute.params
         .subscribe((params) => {
 
-          // console.log('==>>>>>>>> activatedRoute.params - ', params);
-
           // 워크북 아이디 저장
           this.workbookId = params['workbookId'];
 
