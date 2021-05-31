@@ -13,7 +13,17 @@
  */
 
 import {AbstractComponent} from '@common/component/abstract.component';
-import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter, HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {Field, Field as AbstractField} from '../../domain/workbook/configurations/field/field';
 import {Alert} from '@common/util/alert.util';
 import * as _ from 'lodash';
@@ -31,10 +41,12 @@ import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
 import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
 import {Format} from '@domain/workbook/configurations/format';
+import {ColorPickerComponent} from "@common/component/color-picker/color.picker.component";
 
 @Component({
   selector: 'pivot-context',
-  templateUrl: './pivot-context.component.html'
+  templateUrl: './pivot-context.component.html',
+  styles: ['.sys-inverted {transform: scaleX(-1);}']
 })
 export class PivotContextComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -75,6 +87,10 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   @Output('changePivotContext')
   public changePivotContext: EventEmitter<any> = new EventEmitter();
 
+  @ViewChild('colorPicker')
+  public colorPicker: ColorPickerComponent;
+  public isShowPicker: boolean = false;
+
   // editingField Alias 임시저장용
   public editingFieldAlias: string;
 
@@ -92,6 +108,24 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
               protected injector: Injector) {
     super(elementRef, injector);
   }
+
+  /**
+   * 마우스 오버 이벤트
+   * @param {MouseEvent} event
+   */
+  @HostListener('document:mouseover', ['$event'])
+  public onMouseOverHost(event: MouseEvent) {
+    if( this.isShowPicker ) {
+      const $target = $(event.target);
+      if( $target.hasClass('sys-individual-color-menu') || $target.closest('.sys-individual-color-menu').length
+        || $target.hasClass('sp-container') || $target.closest('.sp-container').length ) {
+        this.isShowPicker = true;
+      } else {
+        this.isShowPicker = false;
+        this.colorPicker.closePicker();
+      }
+    }
+  } // func - onMouseOverHost
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Getter / Setter
@@ -753,5 +787,13 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     this.editingField.color = { rgb : colorCode };
     this.changePivotContext.emit({type: 'changeMeasureColor', value: this.editingField});
   } // func - changeSolidColor
+
+  /**
+   * Picker 표시
+   */
+  public showPicker(): void {
+    this.isShowPicker = true;
+    this.colorPicker.openPicker();
+  } // func - showPicker
 
 }

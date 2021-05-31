@@ -1381,6 +1381,43 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - Individual Color Settings
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 그라데이션 색상 변경
+   * @param schemaInfo
+   * @param target - 대상 필드
+   */
+  public changeGradationColor(schemaInfo: {index: number, colorNum: string}, target: Field): void {
+    // {index: 8, colorNum: "VC8"}
+    this.pivot.aggregations.forEach(aggr => {
+      const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
+      const targetName = target.aggregationType + '(' + target.name + ')';
+      if (aggrName === targetName) {
+        aggr.color = {
+          schema: {
+            idx: schemaInfo.index,
+            key: schemaInfo.colorNum
+          }
+        };
+      }
+    });
+    this.changePivotColor.emit(this.pivot);
+  } // func - changeGradationColor
+
+  /**
+   * 단색 변경
+   * @param colorCode
+   * @param target - 대상 필드
+   */
+  public changeSolidColor(colorCode:string, target: Field): void {
+    this.pivot.aggregations.forEach(aggr => {
+      const aggrName = aggr.aggregationType + '(' + aggr.name + ')';
+      const targetName = target.aggregationType + '(' + target.name + ')';
+      if (aggrName === targetName) {
+        aggr.color.rgb = colorCode;
+      }
+    });
+    this.changePivotColor.emit(this.pivot);
+  } // func - changeSolidColor
 
   /**
    * 색상 필드 이름
@@ -1436,6 +1473,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   public schemaIdx(target: Field): number {
     return target.color.schema.idx;
   } // func - schemaIdx
+
+  /**
+   * 스키마 Key
+   * @param target
+   */
+  public schemaKey(target: Field): string {
+    return target.color.schema.key;
+  } // func - schemaKey
 
   /**
    * 단색 코드

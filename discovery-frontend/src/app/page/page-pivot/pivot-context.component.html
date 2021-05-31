@@ -558,10 +558,12 @@
               </div>
               <!-- // 3depth -->
             </li>
-            <li [class.ddp-selected]="isSelectedColorType( 'INDIVIDUAL' )">
+            <li [class.ddp-selected]="isSelectedColorType( 'INDIVIDUAL' )"
+                (mouseover)="showPicker()" class="sys-individual-color-menu">
               <a href="javascript:">
                 {{'msg.page.ui.color.individual' | translate}}
-                <color-picker [color]="colorCode" [showAlpha]="true" [showInitial]="true"
+                <color-picker #colorPicker
+                              [color]="colorCode" [showAlpha]="true" [showInitial]="true"
                               [showInput]="true" [showUserColor]="true"
                               (selected)="changeSolidColor($event)"
                               style="position: absolute;right: 7px;top: 2px;"></color-picker>

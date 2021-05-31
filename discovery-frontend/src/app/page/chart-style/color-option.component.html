@@ -313,25 +313,38 @@
             <span class="ddp-label-slider">{{'msg.page.chart.color.individual.setting' | translate}}</span>
           </div>
           <div class="ddp-list-sub2">
-            <div *ngFor="let item of filteredPivotColors; let index = index" class="ddp-ui-color-select">
-              <div class="ddp-txt-label">
-                <div class="ddp-ui-txt">
-                  <div class="ddp-box-color">
-                    <div *ngIf="isSolid(item)" [style.background-color]="solidColorCode(item)"
-                         style="width:18px;height:18px;"></div>
-                    <button *ngIf="isSchema(item)" class="ddp-btn-color-type{{schemaIdx(item)}} ddp-type"
-                            [ngClass]="{'sys-inverted': isInvertedSchema(item)}"
-                            style="width:18px;height:18px;background-size: 18px 18px;"></button>
+            <div class="ddp-ui-colorby">
+              <div *ngFor="let item of filteredPivotColors; let index = index" class="ddp-ui-color-select">
+                <div class="ddp-txt-label">
+                  <div class="ddp-ui-txt">
+                    <div class="ddp-box-color">
+                      <color-picker *ngIf="isSolid(item)"
+                                    [color]="solidColorCode(item)"
+                                    [showAlpha]="true" [showInitial]="true" [showInput]="true" [showUserColor]="true"
+                                    (selected)="changeSolidColor($event, item)" ></color-picker>
+                      <button *ngIf="isSchema(item)" class="ddp-btn-color-type{{schemaIdx(item)}} ddp-type"
+                              [ngClass]="{'sys-inverted': isInvertedSchema(item)}"
+                              (click)="item['showColorList'] = true"
+                              style="width:18px;height:18px;background-size: 18px 18px;"></button>
+                    </div>
+                    <span class="ddp-txt-data" title="{{getFieldName(item)}}">{{getFieldName(item)}}</span>
                   </div>
-                  <span class="ddp-txt-data" title="{{getFieldName(item)}}">{{getFieldName(item)}}</span>
+                  <a href="javascript:" (click)="removePivotColor(item)" class="ddp-btn-reset3"></a>
                 </div>
-                <a href="javascript:" (click)="removePivotColor(item)" class="ddp-btn-reset3"></a>
+                <!-- popup -->
+                <div color-template
+                     *ngIf="item['showColorList']" class="ddp-popup-side"
+                     [schema]="schemaKey(item)"
+                     [layerType]="'default'"
+                     [colorType]="'MEASURE'"
+                     (notiChangeColor)="changeGradationColor($event, item)"
+                     (closeEvent)="item['showColorList'] = false;"></div>
+                <!-- // popup -->
               </div>
             </div>
           </div>
         </div>
         <!-- //color by grid individual setting -->
-
 
       </div>
       <!-- //box down -->

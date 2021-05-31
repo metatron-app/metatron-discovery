@@ -649,9 +649,11 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
 
         // gt, lte값을 min / max 값으로 치환
         rangeList.forEach((item) => {
-
           rangeColors.push({min: item.gt, max: item.lte, fixMin: item.fixMin, fixMax: item.fixMax, color: item.color});
         });
+
+        rangeColors[0].max = 999999999999999999999;
+        rangeColors[rangeColors.length - 1].min = -999999999999999999999;
 
         // pieces값 설정
         gridModel.body.color.stepRangeColors = rangeColors;
@@ -755,6 +757,8 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         // 그라데이션 설정
         const colorList = ChartColorList[aggr.color.schema.key] as any;
         const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+        ranges[0].lte = 999999999999999999999;
+        ranges[ranges.length - 1].gt = -999999999999999999999;
         if( colorTarget === CellColorTarget.TEXT ) {
           ( fieldFormat['font'] ) || ( fieldFormat['font'] = {} );
           fieldFormat['font']['rangeColor'] = ranges;

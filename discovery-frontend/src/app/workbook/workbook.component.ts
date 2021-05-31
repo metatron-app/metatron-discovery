@@ -1391,7 +1391,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.dragulaSvc.setOptions('boardListSort', {copy: false});
 
     const dragulaDropModelSubs = this.dragulaSvc.dropModel.subscribe((_value) => {
-      this.changeOrder();
+      if( 'UPDATE' !== this.mode ) {
+        this.changeOrder();
+      }
     });
 
     this.subscriptions.push(dragulaDropModelSubs);
