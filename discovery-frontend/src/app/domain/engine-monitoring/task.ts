@@ -19,7 +19,7 @@ export class Task {
   location: string;
   rank: number;
   status: TaskStatus;
-  taskId: string;
+  task_id: string;
   type: TaskType;
   queueInsertionTime: string;
   host: string;

@@ -212,7 +212,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
     return _.cloneDeep(this.taskTotalList).filter(item => {
       const matchStatus = !filterParam['taskStatus'] || filterParam['taskStatus'].length === 0 || filterParam['taskStatus'].some(status => item.status === status);
       const matchType = !filterParam['taskType'] || filterParam['taskType'].length === 0 || filterParam['taskType'].some(type => this.getTypeTranslate(item.type) === type);
-      const matchSearchWord = !filterParam['containsText'] || item.taskId.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
+      const matchSearchWord = !filterParam['containsText'] || item.task_id.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
       const matchCreatedTime = (_.isNil(filterParam['createdTimeFrom'] && _.isNil(filterParam['createdTimeTo'])))
         || (filterParam['createdTimeFrom'] === '' && filterParam['createdTimeTo'] === '')
         || (filterParam['createdTimeFrom'] === '' && moment(item.createdTime).isSameOrBefore(filterParam['createdTimeTo']))

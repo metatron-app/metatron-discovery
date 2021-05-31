@@ -42,7 +42,6 @@ export class IngestionComponent extends AbstractComponent implements OnInit, OnD
 
   public ngOnInit() {
     super.ngOnInit();
-    this.loadingHide();
 
     this.subscriptions.push(
       this.stateService.changeTab$
