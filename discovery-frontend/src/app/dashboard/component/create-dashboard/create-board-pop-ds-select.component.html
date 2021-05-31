@@ -118,8 +118,12 @@
                       (click)="selectDatasource(item);"
                       [ngClass]="{'ddp-selected': summaryTargetDsId == item.id}">
                     <td class="ddp-txt-center">
-                      <div class="ddp-ui-checkbox">
-                        <input type="checkbox"  [checked]="isSelectedDatasource(item)" />
+                      <div *ngIf="isSingleMode" class="ddp-ui-radio">
+                        <input type="radio" [checked]="isSelectedDatasource(item)" />
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                      <div *ngIf="!isSingleMode" class="ddp-ui-checkbox">
+                        <input type="checkbox" [checked]="isSelectedDatasource(item)" />
                         <i class="ddp-icon-checkbox"></i>
                       </div>
                     </td>
