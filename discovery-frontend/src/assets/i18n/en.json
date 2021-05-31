@@ -1665,6 +1665,8 @@
   "msg.board.alert.dashboard.sort.success": "Dashboard order changed",
   "msg.board.alert.dashboard.sort.fail": "Failed to change order of dashboard",
   "msg.board.alert.join.valid": "There is an unset join value.",
+  "msg.board.alert.change.datasource.invalid": "Changing of the datasource is invalid.",
+  "msg.board.alert.change.datasource.error": "An error occurred while changing the datasource",
   "msg.board.ui.data.join.conf": "Data join settings",
   "msg.board.ui.data.discovery": "Analysis data",
   "msg.board.ui.data.search.name": "Search by name of data",

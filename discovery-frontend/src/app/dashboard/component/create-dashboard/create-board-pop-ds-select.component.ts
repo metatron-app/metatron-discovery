@@ -179,7 +179,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
         this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
         this.close();
       }).catch(()=>{
-        Alert.warning('유효하지 않은 데이터소스 변경입니다.')
+        Alert.warning(this.translateService.instant('msg.board.alert.change.datasource.invalid'));
       });
     } else {
       const addDataSources: Datasource[] = this._selectedDataSources.filter(item => {

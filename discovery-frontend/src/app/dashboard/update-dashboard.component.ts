@@ -859,7 +859,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         this.updateComplete.emit(dashboard);
       });
     }).catch(() => {
-      Alert.error('Failed to change datasource');
+      Alert.error(this.translateService.instant('msg.board.alert.change.datasource.error'));
       this.hideBoardLoading();
     });
   }
