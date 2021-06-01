@@ -115,8 +115,6 @@ export class QueryComponent extends AbstractComponent implements OnInit, OnDestr
         }));
       })
       .catch(error => this.commonExceptionHandler(error));
-
-    this.loadingHide();
   }
 
   public ngAfterViewInit() {
