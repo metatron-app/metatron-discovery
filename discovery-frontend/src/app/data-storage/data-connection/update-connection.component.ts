@@ -39,7 +39,7 @@ export class UpdateConnectionComponent extends AbstractComponent {
   private readonly _setWorkspaceComponent: SetWorkspacePublishedComponent;
 
   // connection component
-  @ViewChild(ConnectionComponent, {static: true})
+  @ViewChild(ConnectionComponent)
   private readonly _connectionComponent: ConnectionComponent;
 
   // confirm popup modal
