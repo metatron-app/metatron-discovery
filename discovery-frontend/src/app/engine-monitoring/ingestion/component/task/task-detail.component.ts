@@ -346,10 +346,10 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
 
   }
 
-  private _getSumOfArray(arr: any[]) {
+  private _getSumOfArray(arr: any[]):number {
     return arr.reduce((sum, current) => {
       return sum + current
-    });
+    }, 0);
   }
 
 }
