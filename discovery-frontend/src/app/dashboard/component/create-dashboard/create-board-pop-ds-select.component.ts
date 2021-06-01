@@ -16,11 +16,11 @@ import {Component, ElementRef, Injector, OnInit, OnDestroy, Output, EventEmitter
 import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { StringUtil } from '@common/util/string.util';
 import { Alert } from '@common/util/alert.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 import { PageResult } from '@domain/common/page';
 import {ConnectionType, Datasource, Status} from '@domain/datasource/datasource';
 import { WorkspaceService } from '../../../workspace/service/workspace.service';
-import {DashboardService} from "../../service/dashboard.service";
-import {EventBroadcaster} from "@common/event/event.broadcaster";
+import {DashboardService} from '../../service/dashboard.service';
 
 @Component({
   selector: 'create-board-pop-ds-select',
@@ -32,15 +32,15 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @Input('workspaceId')
-  public workspaceId: string;  // 워크스페이스 아이디
   private _prevDataSourceIds: string[] = [];   // 이전에 선택되었던 데이터소스 아이디 목록
   private _selectedDataSources: Datasource[] = [];   // 현재 선택된 데이터소스 목록
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input('workspaceId')
+  public workspaceId: string;  // 워크스페이스 아이디
+
   // 정렬
   public selectedContentSort: Order = new Order();
 
@@ -129,11 +129,15 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
+   | Getter / Setter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public get isSingleMode(): boolean {
     return !!this.selectedDataSource;
-  } // func - isSingleMode
+  } // get - isSingleMode
+
+  public get selectedDsLength(): number {
+    return this._selectedDataSources.length;
+  } // get - selectedDsLength
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -399,11 +403,9 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
       // 로딩 hide
       this.loadingHide();
 
-
-
       // 기존 데이터소스가 있었던 경우 제외하고 표시
       if(this.currentDataSources){
-        const cur = this.dataSources.filter(item => this.currentDataSources.find(cur => cur.id === item.id) || item.connType.toString() !== 'ENGINE');
+        const cur = this.dataSources.filter(item => this.currentDataSources.find(curDs => curDs.id === item.id) || item.connType.toString() !== 'ENGINE');
         this.dataSources = this.dataSources.filter(item => cur.indexOf(item)<0);
       }
       this.changeDetect.detectChanges();
