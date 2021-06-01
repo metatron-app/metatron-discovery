@@ -214,7 +214,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
           metric: Engine.MonitoringTarget.TASK_ROW,
           taskId: this._taskId
         },
-        fromDate: moment(this.task.createdTime).utc().format('YYYY-MM-DDTHH:mm:ss'),
+        fromDate: moment(this.task.created_time).utc().format('YYYY-MM-DDTHH:mm:ss'),
         toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
       };
 
