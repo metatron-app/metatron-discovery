@@ -326,9 +326,11 @@ public class DashBoardController {
     LOGGER.info("Dashboard({})' after configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
 
     List<Filter> dashboardFilterList = dashBoard.getConfigurationObject().getFilters();
-    for (Filter filter : dashboardFilterList) {
-      if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
-        filter.setDataSource(toDataSource.getEngineName());
+    if (dashboardFilterList != null) {
+      for (Filter filter : dashboardFilterList) {
+        if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+          filter.setDataSource(toDataSource.getEngineName());
+        }
       }
     }
     LOGGER.info("Dashboard({})' after filter list : {}", dashBoard.getId(), dashBoard.getConfiguration());
