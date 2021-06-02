@@ -104,7 +104,7 @@ public class WidgetService {
 
     widget.setConfiguration(GlobalObjectMapper.writeValueAsString(widgetConfiguration));
     LOGGER.info("{}'s after configuration : {}", widget.getId(), widget.getConfiguration());
-    return widget;
+    return widgetRepository.saveAndFlush(widget);
   }
 
   private DataSource changeDataSource(app.metatron.discovery.domain.datasource.DataSource fromDataSource,
