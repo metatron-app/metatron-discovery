@@ -376,4 +376,8 @@ export class CommonUtil {
     return val === undefined || val === null;
   }
 
+  public static arrayEquals(a, b): boolean {
+    return a.length === b.length && a.every((v, i) => JSON.stringify(v) === JSON.stringify(b[i]));
+  }
+
 }
