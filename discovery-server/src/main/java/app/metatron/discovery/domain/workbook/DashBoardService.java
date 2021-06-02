@@ -153,19 +153,21 @@ public class DashBoardService {
 
     // Filter
     List<Filter> dashboardFilterList = dashBoard.getConfigurationObject().getFilters();
-    for (Filter filter : dashboardFilterList) {
-      if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
-        totalValidCnt ++;
-        for (Field datasourceField : toDataSource.getFields()) {
-          if (datasourceField.getName().equals(filter.getField())) {
-            validateCnt++;
-            break;
+    if (dashboardFilterList != null) {
+      for (Filter filter : dashboardFilterList) {
+        if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+          totalValidCnt ++;
+          for (Field datasourceField : toDataSource.getFields()) {
+            if (datasourceField.getName().equals(filter.getField())) {
+              validateCnt++;
+              break;
+            }
           }
         }
       }
-    }
-    if (validateCnt != totalValidCnt) {
-      throw new BadRequestException("The field included in the global filter does not exist in the field in the new datasource.");
+      if (validateCnt != totalValidCnt) {
+        throw new BadRequestException("The field included in the global filter does not exist in the field in the new datasource.");
+      }
     }
 
     // Association
@@ -207,47 +209,55 @@ public class DashBoardService {
       validateCnt = 0;
       WidgetConfiguration widgetConfiguration = GlobalObjectMapper.readValue(widget.getConfiguration(), WidgetConfiguration.class);
       if ((widgetConfiguration instanceof PageWidgetConfiguration)) {
-        List<app.metatron.discovery.domain.workbook.configurations.field.Field> widgetFields = ((PageWidgetConfiguration) widgetConfiguration).getPivot().getAllFields();
-        for (app.metatron.discovery.domain.workbook.configurations.field.Field field : widgetFields) {
-          for (Field datasourceField : toDataSource.getFields()) {
-            if (datasourceField.getName().equals(field.getName())) {
-              validateCnt++;
-              break;
-            }
-          }
-        }
-        if (validateCnt != widgetFields.size()) {
-          throw new BadRequestException("The field contained in the widget does not exist in the new datasource.");
-        }
-
-        // widget filter
-        int validateFilterCnt = 0;
-        int totalValidFilterCnt = 0;
-        List<Filter> widgetFilterList = ((PageWidgetConfiguration) widgetConfiguration).getFilters();
-        for (Filter filter : widgetFilterList) {
-          if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
-            totalValidFilterCnt ++;
+        String engineName = ((PageWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() != null ?
+            ((PageWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() : ((PageWidgetConfiguration) widgetConfiguration).getDataSource().getName();
+        if (engineName.equals(fromDataSource.getEngineName())) {
+          List<app.metatron.discovery.domain.workbook.configurations.field.Field> widgetFields = ((PageWidgetConfiguration) widgetConfiguration).getPivot().getAllFields();
+          for (app.metatron.discovery.domain.workbook.configurations.field.Field field : widgetFields) {
             for (Field datasourceField : toDataSource.getFields()) {
-              if (datasourceField.getName().equals(filter.getField())) {
-                validateFilterCnt++;
+              if (datasourceField.getName().equals(field.getName())) {
+                validateCnt++;
                 break;
               }
             }
           }
-        }
-        if (validateFilterCnt != totalValidFilterCnt) {
-          throw new BadRequestException("The field included in the local filter does not exist in the field in the new datasource.");
+          if (validateCnt != widgetFields.size()) {
+            throw new BadRequestException("The field contained in the widget does not exist in the new datasource.");
+          }
+
+          // widget filter
+          int validateFilterCnt = 0;
+          int totalValidFilterCnt = 0;
+          List<Filter> widgetFilterList = ((PageWidgetConfiguration) widgetConfiguration).getFilters();
+          for (Filter filter : widgetFilterList) {
+            if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+              totalValidFilterCnt ++;
+              for (Field datasourceField : toDataSource.getFields()) {
+                if (datasourceField.getName().equals(filter.getField())) {
+                  validateFilterCnt++;
+                  break;
+                }
+              }
+            }
+          }
+          if (validateFilterCnt != totalValidFilterCnt) {
+            throw new BadRequestException("The field included in the local filter does not exist in the field in the new datasource.");
+          }
         }
 
       } else if ((widgetConfiguration instanceof FilterWidgetConfiguration)) {
-        for (Field datasourceField : toDataSource.getFields()) {
-          if (datasourceField.getName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getField())) {
-            validateCnt++;
-            break;
+        String engineName = ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() != null ?
+            ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() : ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getName();
+        if (engineName.equals(fromDataSource.getEngineName())) {
+          for (Field datasourceField : toDataSource.getFields()) {
+            if (datasourceField.getName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getField())) {
+              validateCnt++;
+              break;
+            }
           }
-        }
-        if (validateCnt < 1) {
-          throw new BadRequestException("The field contained in the widget does not exist in the new datasource.");
+          if (validateCnt < 1) {
+            throw new BadRequestException("The field contained in the widget does not exist in the new datasource.");
+          }
         }
       }
     }
