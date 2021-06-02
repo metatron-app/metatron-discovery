@@ -52,11 +52,11 @@ public class WidgetService {
     return widgetRepository.saveAndFlush(widget.copyOf(parent, addPrefix));
   }
 
-  public Widget changeDataSource(Widget dashboardWidget,
+  public Widget changeDataSource(String widgetId,
                                  app.metatron.discovery.domain.datasource.DataSource fromDataSource,
                                  app.metatron.discovery.domain.datasource.DataSource toDataSource) {
 
-    Widget widget = widgetRepository.findOne(dashboardWidget.getId());
+    Widget widget = widgetRepository.findOne(widgetId);
     LOGGER.info("{}'s before configuration : {}", widget.getId(), widget.getConfiguration());
 
     HashMap widgetConfiguration = (HashMap) GlobalObjectMapper.readValue(widget.getConfiguration());
