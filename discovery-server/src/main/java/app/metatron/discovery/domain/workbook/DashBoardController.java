@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.config.ApiResourceConfig.REDIRECT_PATH_URL;
 
@@ -335,9 +336,10 @@ public class DashBoardController {
     }
     LOGGER.info("Dashboard({})' after filter list : {}", dashBoard.getId(), dashBoard.getConfiguration());
 
-    dashBoard.getWidgets().forEach(widget -> {
-      widgetService.changeDataSource(widget, fromDataSource, toDataSource);
-    });
+    List<String> widgetIds =  dashBoard.getWidgets().stream().map(widget -> widget.getId()).collect(Collectors.toList());
+    for(String widgetId: widgetIds) {
+      widgetService.changeDataSource(widgetId, fromDataSource, toDataSource);
+    }
 
     dashboardRepository.saveAndFlush(dashBoard);
 
