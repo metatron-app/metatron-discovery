@@ -335,11 +335,9 @@ public class DashBoardController {
     }
     LOGGER.info("Dashboard({})' after filter list : {}", dashBoard.getId(), dashBoard.getConfiguration());
 
-    Iterator<Widget> iter = dashBoard.getWidgets().iterator();
-    while (iter.hasNext()) {
-      Widget widget = iter.next();
-      widgetRepository.saveAndFlush(widgetService.changeDataSource(widget, fromDataSource, toDataSource));
-    }
+    dashBoard.getWidgets().forEach(widget -> {
+      widgetService.changeDataSource(widget, fromDataSource, toDataSource);
+    });
 
     dashboardRepository.saveAndFlush(dashBoard);
 
