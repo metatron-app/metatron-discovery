@@ -26,6 +26,7 @@ import {
 } from '@angular/core';
 import {AbstractComponent} from '@common/component/abstract.component';
 import {Alert} from '@common/util/alert.util';
+import {CommonUtil} from '@common/util/common.util';
 
 import {
   Candidate,
@@ -60,8 +61,10 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit, 
 
   @Input('array')
   set setArray(array: Candidate[]) {
-    this.candidateList = array;
-    this.deselectCandidate();
+    if( !this.candidateList || !CommonUtil.arrayEquals(this.candidateList, array) ) {
+      this.candidateList = array;
+      this.deselectCandidate();
+    }
   }
 
   // 서버와 통신 후 인덱스를 지정해야 하는 경우
