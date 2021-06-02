@@ -62,6 +62,7 @@ import app.metatron.discovery.domain.workbook.widget.WidgetService;
 import app.metatron.discovery.util.AuthUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -332,7 +333,9 @@ public class DashBoardController {
     }
     LOGGER.info("Dashboard({})' after filter list : {}", dashBoard.getId(), dashBoard.getConfiguration());
 
-    for (Widget widget: dashBoard.getWidgets()) {
+    Iterator<Widget> iter = dashBoard.getWidgets().iterator();
+    while (iter.hasNext()) {
+      Widget widget = iter.next();
       widgetRepository.saveAndFlush(widgetService.changeDataSource(widget, fromDataSource, toDataSource));
     }
 
