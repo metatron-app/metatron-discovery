@@ -45,7 +45,7 @@ import {Datasource} from '@domain/datasource/datasource';
 import {WidgetService} from '../dashboard/service/widget.service';
 import {DashboardUtil} from '../dashboard/util/dashboard.util';
 import {DragulaService} from '../../lib/ng2-dragula';
-import {ImageService} from "@common/service/image.service";
+import {ImageService} from '@common/service/image.service';
 
 declare let $;
 
@@ -1111,9 +1111,10 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     }
     else if('CAPTURE_UPDATED_DASHBOARD' === event.name){
       // 데이터소스 변경 시 썸네일 이미지 갱신
-      // this.uploadDashboardImage(this.selectedDashboard).then(result => {
-      //   this.callUpdateDashboardService(result['imageUrl']);
-      // });
+      this.loadingShow();
+      this.uploadDashboardImage(this.selectedDashboard).then(result => {
+        this.callUpdateDashboardService(result['imageUrl']);
+      });
     }
   } // function - onDashboardEvent
 
@@ -1406,56 +1407,52 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   } // func - _settingDnd
 
 
-  // /**
-  //  * 데이터소스 변경 후 썸네일 업데이트
-  //  * @param dashboard
-  //  */
-  // private uploadDashboardImage(dashboard: Dashboard){
-  //   return new Promise<any>((resolve, reject) => {
-  //     const chart = this.$element.find('.capture-area');
-  //     if(0<chart.length){
-  //       this.imageService.getBlob(chart).then(blobData => {
-  //         this.imageService.uploadImage(dashboard.name, blobData, dashboard.id, 'page', 250).then((response) => {
-  //           resolve(response);
-  //           this.updateDashboardImage(blobData);
-  //         }).catch((err) => {
-  //           console.log(err);
-  //           reject(err);
-  //         });
-  //       }).catch((err) => this.commonExceptionHandler(err));
-  //     }
-  //   });
-  // }
-  //
-  // /**
-  //  * 데이터소스 변경 후 선택된 대시보드 썸네일 임시 변경
-  //  * @param blobData
-  //  */
-  // private updateDashboardImage(blobData: any){
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(blobData);
-  //   reader.onloadend = function() {
-  //     const base64data = reader.result;
-  //     $('.ddp-list-board-thumbview .ddp-selected img').attr('src', base64data);
-  //   }
-  // }
-  //
-  // private callUpdateDashboardService(imageUrl){
-  //
-  //   // params
-  //   const param: any = {configuration: DashboardUtil.getBoardConfiguration(this.selectedDashboard)};
-  //   param.imageUrl = imageUrl;
-  //
-  //   const boardId: string = this.selectedDashboard.id;
-  //
-  //   // 대시보드 업데이트
-  //   this.dashboardService.updateDashboard(boardId, param).then(() => {
-  //     this.dashboardService.getDashboard(boardId).then((result: Dashboard) => {
-  //       result.workBook = this.workbook;
-  //     }).catch(() => {
-  //       console.log('Failed to call update');
-  //     })
-  //   });
-  // }
+  /**
+   * 데이터소스 변경 후 썸네일 업데이트
+   * @param dashboard
+   */
+  private uploadDashboardImage(dashboard: Dashboard){
+    return new Promise<any>((resolve, reject) => {
+      const chart = this.$element.find('.capture-area');
+      if(0<chart.length){
+        this.imageService.getBlob(chart).then(blobData => {
+          this.imageService.uploadImage(dashboard.name, blobData, dashboard.id, 'page', 250).then((response) => {
+            resolve(response);
+            this.updateDashboardImage(blobData);
+          }).catch((err) => {
+            console.log(err);
+            reject(err);
+          });
+        }).catch((err) => this.commonExceptionHandler(err));
+      }
+    });
+  }
+
+  /**
+   * 데이터소스 변경 후 선택된 대시보드 썸네일 임시 변경
+   * @param blobData
+   */
+  private updateDashboardImage(blobData: any){
+    const reader = new FileReader();
+    reader.readAsDataURL(blobData);
+    reader.onloadend = () => {
+      const base64data = reader.result;
+      $('.ddp-list-board-thumbview .ddp-selected img').attr('src', base64data);
+    }
+  }
+
+  private callUpdateDashboardService(imageUrl){
+
+    // params
+    const param: any = {configuration: DashboardUtil.getBoardConfiguration(this.selectedDashboard)};
+    param.imageUrl = imageUrl;
+
+    const boardId: string = this.selectedDashboard.id;
+
+    // 대시보드 업데이트
+    this.dashboardService.updateDashboard(boardId, param).then(() => {
+      this.loadingHide();
+    });
+  }
 
 }
