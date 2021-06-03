@@ -16,11 +16,11 @@ import {Component, ElementRef, Injector, OnInit, OnDestroy, Output, EventEmitter
 import { AbstractPopupComponent } from '@common/component/abstract-popup.component';
 import { StringUtil } from '@common/util/string.util';
 import { Alert } from '@common/util/alert.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 import { PageResult } from '@domain/common/page';
 import {ConnectionType, Datasource, Status} from '@domain/datasource/datasource';
 import { WorkspaceService } from '../../../workspace/service/workspace.service';
-import {DashboardService} from "../../service/dashboard.service";
-import {EventBroadcaster} from "@common/event/event.broadcaster";
+import {DashboardService} from '../../service/dashboard.service';
 
 @Component({
   selector: 'create-board-pop-ds-select',
@@ -133,7 +133,11 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public get isSingleMode(): boolean {
     return !!this.selectedDataSource;
-  } // func - isSingleMode
+  } // get - isSingleMode
+
+  public get selectedDsLength(): number {
+    return this._selectedDataSources.length;
+  } // get - selectedDsLength
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -403,7 +407,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
       // 기존 데이터소스가 있었던 경우 제외하고 표시
       if(this.currentDataSources){
-        const cur = this.dataSources.filter(item => this.currentDataSources.find(cur => cur.id === item.id) || item.connType.toString() !== 'ENGINE');
+        const cur = this.dataSources.filter(item => this.currentDataSources.find(curDs => curDs.id === item.id) || item.connType.toString() !== 'ENGINE');
         this.dataSources = this.dataSources.filter(item => cur.indexOf(item)<0);
       }
       this.changeDetect.detectChanges();
