@@ -852,6 +852,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   } // function - changeDataSource
 
   public changeBoardDataSource(data: {fromDataSourceId: string, toDataSourceId: string}){
+    console.log('changeBoardDataSource');
     const fromDataSourceId = data.fromDataSourceId;
     const toDataSourceId = data.toDataSourceId;
     this.dashboardService.changeBoardDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {

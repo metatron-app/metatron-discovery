@@ -182,10 +182,8 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public done() {
     if(this.isSingleMode){
-      // this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
       const fromDataSourceId = this.selectedDataSource.id;
       const toDataSourceId = this._selectedDataSources[0].id;
-
       this.dashboardService.checkValidationDataSource(this.dashboardId, fromDataSourceId,toDataSourceId).then(()=>{
         this.changeEvent.emit({fromDataSourceId: this.selectedDataSource.id, toDataSourceId: this._selectedDataSources[0].id})
         this.close();
@@ -345,7 +343,8 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
     const params = {
       size: this.page.size,
       page: this.page.page,
-      status : Status.ENABLED
+      status : Status.ENABLED,
+      conType: ''
     };
 
     // 토글 정렬
@@ -373,6 +372,11 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
       // page 객체 저장
       this.pageResult = new PageResult();
       this.dataSources = [];
+    }
+
+    // 기존 데이터소스가 있었던 경우 수집형만 조회
+    if(this.currentDataSources){
+      params['connType'] = 'ENGINE';
     }
 
     this.workspaceService.getDataSources(workspaceId, params).then((datasources) => {
@@ -405,7 +409,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
       // 기존 데이터소스가 있었던 경우 제외하고 표시
       if(this.currentDataSources){
-        const cur = this.dataSources.filter(item => this.currentDataSources.find(curDs => curDs.id === item.id) || item.connType.toString() !== 'ENGINE');
+        const cur = this.dataSources.filter(item => this.currentDataSources.find(curDs => curDs.id === item.id));
         this.dataSources = this.dataSources.filter(item => cur.indexOf(item)<0);
       }
       this.changeDetect.detectChanges();

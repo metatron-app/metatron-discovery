@@ -253,7 +253,7 @@
   <!-- // 열람 모드일 때 이름 표시 영역 -->
 
   <!-- Chart 영역 -->
-  <div class="ddp-view-widget ddp-view-widget-chart" *ngIf="widget"
+  <div class="ddp-view-widget ddp-view-widget-chart capture-area" *ngIf="widget"
        [class.ddp-view-name]="isShowWidgetName()"
        [style.display]="(!isShowNoData && widget.mode === 'chart') ? 'block' : 'none'" >
     <bar-chart #chart
