@@ -2186,7 +2186,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             break;
           }
         }
-
         this.sorts = sortList;
         console.log(this.sorts);
         console.log('==========');

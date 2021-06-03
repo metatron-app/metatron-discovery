@@ -170,6 +170,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public isShowDashboardDetailMenu: boolean = false;    // 대시보드 상세 메뉴 펼침 여부
   public isShowDataIngestion: boolean = false;        // 필수 필터 설정 팝업 표시 여부
   public isChangeAuthUser: boolean = false;           // 워크북 변경 가능 권한 여부
+  public isChangeDataSource:boolean = false;
 
   // 대시보드 필터링
   public get filteredDashboard(): Dashboard[] {
@@ -190,7 +191,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private activatedRoute: ActivatedRoute,
+  constructor(public imageService: ImageService,
+              private activatedRoute: ActivatedRoute,
               private workbookService: WorkbookService,
               private dashboardService: DashboardService,
               private workspaceService: WorkspaceService,

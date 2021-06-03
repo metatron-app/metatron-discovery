@@ -57,7 +57,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   public toDataSourceId: string;
 
   @Input('selectedDataSource')
-  public selectedDataSource: Datasource;
+  public selectedDataSource: Datasource;  // 변경 전의 기존에 선택된 데이터소스
 
   @Input('currentDataSources')
   public currentDataSources: Datasource[];
@@ -403,7 +403,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
       // 기존 데이터소스가 있었던 경우 제외하고 표시
       if(this.currentDataSources){
-        const cur = this.dataSources.filter(item => this.currentDataSources.find(cur => cur.id === item.id));
+        const cur = this.dataSources.filter(item => this.currentDataSources.find(cur => cur.id === item.id) || item.connType.toString() !== 'ENGINE');
         this.dataSources = this.dataSources.filter(item => cur.indexOf(item)<0);
       }
       this.changeDetect.detectChanges();

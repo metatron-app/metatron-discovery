@@ -857,6 +857,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.dashboardService.changeBoardDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {
       this.dashboardService.getDashboard(this.dashboard.id).then((dashboard: Dashboard) => {
         this.updateComplete.emit(dashboard);
+        this.broadCaster.broadcast('CAPTURE_UPDATED_DASHBOARD');
       });
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.board.alert.change.datasource.error'));

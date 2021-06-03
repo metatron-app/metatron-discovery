@@ -20,6 +20,7 @@
     <div *ngIf="isDashboard" class="ddp-wrap-source-name" >
       <dashboard-datasource-combo
         [dataSources]="datasources"
+        [canChangeDataSourceMode]="false"
         [initialValue]="mainDatasource"
         (selectOption)="selectDataSource($event)" ></dashboard-datasource-combo>
       <div class="ddp-txt-description">
