@@ -34,7 +34,8 @@
   <!-- //위젯 없음 -->
 
   <!-- 대시보드 영역 -->
-  <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
+  <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0"
+  class="capture-area">
 
     <!-- filter -->
     <selection-filter [dashboard]="dashboard" [showBtnWidget]="isManagementUser" ></selection-filter>

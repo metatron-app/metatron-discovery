@@ -43,7 +43,7 @@
           <a href="javascript:">
             <em class="ddp-icon-database-s"></em>
             <span class="ddp-data-name">{{ dsInfo.name }}</span>
-            <em [style]="'position:absolute; top:50%; right:30px; margin-top:-8px'"
+            <em  *ngIf="canChangeDataSourceMode" [style]="'position:absolute; top:50%; right:30px; margin-top:-8px'"
                 (click)="changeBoardDataSource(dsInfo)"class="ddp-btn-option"></em>
             <em class="ddp-icon-check"></em>
           </a>

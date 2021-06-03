@@ -43,6 +43,7 @@
                       [enableInfo]="true"
                       [dataSources]="dataSourceList"
                       [initialValue]="dataSource"
+                      [canChangeDataSourceMode]="false"
                       (selectOption)="selectDataSource($event, true)"
                       (showInfo)="onDataPreviewPopup()"></dashboard-datasource-combo>
                   </div>

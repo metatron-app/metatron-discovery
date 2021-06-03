@@ -54,7 +54,7 @@
           <!-- //공개 -->
 
           <!-- Type -->
-          <div class="ddp-form-label2">
+          <div *ngIf=!selectedDataSource class="ddp-form-label2">
             <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
             <div class="ddp-wrap-dropdown">
               <!-- select box -->
