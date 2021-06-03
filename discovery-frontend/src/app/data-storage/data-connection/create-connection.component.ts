@@ -39,7 +39,7 @@ export class CreateConnectionComponent extends AbstractComponent {
   private readonly _setWorkspaceComponent: SetWorkspacePublishedComponent;
 
   // connection component
-  @ViewChild(ConnectionComponent, {static: true})
+  @ViewChild(ConnectionComponent)
   private readonly _connectionComponent: ConnectionComponent;
 
   // add workspace list
@@ -75,7 +75,8 @@ export class CreateConnectionComponent extends AbstractComponent {
     this.isShowConnectionNameRequired = undefined;
     this.published = undefined;
     // set private workspace in add workspace list
-    this.addWorkspaces = [JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE))];
+    const myWs = this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE);
+    this.addWorkspaces = ( myWs ) ? [JSON.parse(myWs)] : [];
     // set connection type list
     // show popup
     this.isShowPopup = true;

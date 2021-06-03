@@ -212,12 +212,12 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
     return _.cloneDeep(this.taskTotalList).filter(item => {
       const matchStatus = !filterParam['taskStatus'] || filterParam['taskStatus'].length === 0 || filterParam['taskStatus'].some(status => item.status === status);
       const matchType = !filterParam['taskType'] || filterParam['taskType'].length === 0 || filterParam['taskType'].some(type => this.getTypeTranslate(item.type) === type);
-      const matchSearchWord = !filterParam['containsText'] || item.taskId.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
+      const matchSearchWord = !filterParam['containsText'] || item.task_id.indexOf(filterParam['containsText']) > -1 || item.datasource.indexOf(filterParam['containsText']) > -1;
       const matchCreatedTime = (_.isNil(filterParam['createdTimeFrom'] && _.isNil(filterParam['createdTimeTo'])))
         || (filterParam['createdTimeFrom'] === '' && filterParam['createdTimeTo'] === '')
-        || (filterParam['createdTimeFrom'] === '' && moment(item.createdTime).isSameOrBefore(filterParam['createdTimeTo']))
-        || (filterParam['createdTimeTo'] === '' && moment(item.createdTime).isSameOrAfter(filterParam['createdTimeFrom']))
-        || moment(item.createdTime).isBetween(filterParam['createdTimeFrom'], filterParam['createdTimeTo']);
+        || (filterParam['createdTimeFrom'] === '' && moment(item.created_time).isSameOrBefore(filterParam['createdTimeTo']))
+        || (filterParam['createdTimeTo'] === '' && moment(item.created_time).isSameOrAfter(filterParam['createdTimeFrom']))
+        || moment(item.created_time).isBetween(filterParam['createdTimeFrom'], filterParam['createdTimeTo']);
       return matchStatus && matchType && matchSearchWord && matchCreatedTime;
     })
   }
@@ -229,7 +229,7 @@ export class TaskComponent extends AbstractComponent implements OnInit, OnDestro
         if (this.selectedContentSort.key === 'status') {
           return a.status < b.status ? -1 : a.status > b.status ? 1 : 0;
         } else if (this.selectedContentSort.key === 'time') {
-          return a.createdTime < b.createdTime ? -1 : a.createdTime > b.createdTime ? 1 : 0;
+          return a.created_time < b.created_time ? -1 : a.created_time > b.created_time ? 1 : 0;
         } else if (this.selectedContentSort.key === 'duration') {
           return a.duration < b.duration ? -1 : a.duration > b.duration ? 1 : 0;
         }

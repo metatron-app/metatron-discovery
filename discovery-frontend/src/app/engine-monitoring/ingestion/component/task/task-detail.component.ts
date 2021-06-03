@@ -214,7 +214,7 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
           metric: Engine.MonitoringTarget.TASK_ROW,
           taskId: this._taskId
         },
-        fromDate: moment(this.task.createdTime).utc().format('YYYY-MM-DDTHH:mm:ss'),
+        fromDate: moment(this.task.created_time).utc().format('YYYY-MM-DDTHH:mm:ss'),
         toDate: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
       };
 
@@ -346,10 +346,10 @@ export class TaskDetailComponent extends AbstractComponent implements OnInit, On
 
   }
 
-  private _getSumOfArray(arr: any[]) {
+  private _getSumOfArray(arr: any[]):number {
     return arr.reduce((sum, current) => {
       return sum + current
-    });
+    }, 0);
   }
 
 }

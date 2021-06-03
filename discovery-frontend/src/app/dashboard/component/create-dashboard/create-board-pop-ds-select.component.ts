@@ -32,15 +32,15 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @Input('workspaceId')
-  public workspaceId: string;  // 워크스페이스 아이디
   private _prevDataSourceIds: string[] = [];   // 이전에 선택되었던 데이터소스 아이디 목록
   private _selectedDataSources: Datasource[] = [];   // 현재 선택된 데이터소스 목록
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input('workspaceId')
+  public workspaceId: string;  // 워크스페이스 아이디
+
   // 정렬
   public selectedContentSort: Order = new Order();
 
@@ -57,7 +57,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   public toDataSourceId: string;
 
   @Input('selectedDataSource')
-  public selectedDataSource: Datasource;
+  public selectedDataSource: Datasource;  // 변경 전의 기존에 선택된 데이터소스
 
   @Input('currentDataSources')
   public currentDataSources: Datasource[];
@@ -129,7 +129,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
+   | Getter / Setter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public get isSingleMode(): boolean {
     return !!this.selectedDataSource;
@@ -402,8 +402,6 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
       // 로딩 hide
       this.loadingHide();
-
-
 
       // 기존 데이터소스가 있었던 경우 제외하고 표시
       if(this.currentDataSources){

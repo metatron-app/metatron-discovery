@@ -311,7 +311,6 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * @param aggTypeOption PERCENTILE처럼 3depth의 선택값
    */
   public onChangeAggregationType(aggregationTypeId: string, aggTypeOption: number) {
-
     // 이벤트 버블링 stop
     event.stopPropagation();
 

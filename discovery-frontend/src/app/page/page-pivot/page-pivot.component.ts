@@ -147,7 +147,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
   // Pivot 정보가 바뀐 경우
   @Output('changePivot')
-  public changePivotEvent: EventEmitter<any> = new EventEmitter();
+  public changePivotEvent: EventEmitter<{pivot: Pivot, eventType: EventType}> = new EventEmitter();
 
   // 데이터를 다시 조회할 필요가 없는 Pivot 변경 이벤트 발생
   @Output('changePivotFilter')
@@ -303,9 +303,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    */
   public changePivot(eventType?: EventType) {
 
-    this.pivot.columns = this.pivot.columns.map(this.checkAlias);
-    this.pivot.rows = this.pivot.rows.map(this.checkAlias);
-    this.pivot.aggregations = this.pivot.aggregations.map(this.checkAlias);
+    this.pivot.columns = this.pivot.columns.map(this.checkPivotField);
+    this.pivot.rows = this.pivot.rows.map(this.checkPivotField);
+    this.pivot.aggregations = this.pivot.aggregations.map(this.checkPivotField);
 
     this.changePivotEvent.emit({pivot: this.pivot, eventType: eventType});
   }
@@ -411,9 +411,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public changePivotFilter(): void {
 
     // 데이터
-    this.pivot.columns = this.pivot.columns.map(this.checkAlias);
-    this.pivot.rows = this.pivot.rows.map(this.checkAlias);
-    this.pivot.aggregations = this.pivot.aggregations.map(this.checkAlias);
+    this.pivot.columns = this.pivot.columns.map(this.checkPivotField);
+    this.pivot.rows = this.pivot.rows.map(this.checkPivotField);
+    this.pivot.aggregations = this.pivot.aggregations.map(this.checkPivotField);
 
     // 이벤트 발생
     this.changePivotFilterEvent.emit(this.pivot);
@@ -1770,12 +1770,16 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     console.log('onSortSuccess', event);
   }
 
-  protected checkAlias(field: AbstractField) {
+  protected checkPivotField(field: AbstractField) {
 
     if (['measure', 'calculated'].indexOf(field.type) > -1) {
       // TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅
       if (field.type === 'calculated') {
         console.log('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
+      }
+
+      if(field.field.logicalType === LogicalType.HASHED_MAP) {
+        field.aggregationType = AggregationType.COUNTD;
       }
       // const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
       // field.alias = `${aggType}(${field.name})`;

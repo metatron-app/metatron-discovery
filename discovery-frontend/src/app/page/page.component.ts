@@ -51,7 +51,7 @@ import {DatasourceService} from '../datasource/service/datasource.service';
 import {BaseChart, ChartSelectInfo} from '@common/component/chart/base-chart';
 import {UIOption} from '@common/component/chart/option/ui-option';
 import {GridChartComponent} from '@common/component/chart/type/grid-chart.component';
-import {Subject} from 'rxjs';
+import {fromEvent, Subject} from 'rxjs';
 import {DIRECTION, Sort} from '@domain/workbook/configurations/sort';
 import {Filter} from '@domain/workbook/configurations/filter/filter';
 import {OptionGenerator} from '@common/component/chart/option/util/option-generator';
@@ -92,7 +92,6 @@ import {Shelf, ShelfLayers} from '@domain/workbook/configurations/shelf/shelf';
 import {MapPagePivotComponent} from './page-pivot/map/map-page-pivot.component';
 import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
 import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
-import {fromEvent} from 'rxjs';
 import {debounceTime, map} from 'rxjs/operators';
 
 const possibleMouseModeObj: any = {
@@ -407,7 +406,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   // LNB > Data > 측정값
   public measures: Field[];
 
-  // LNB > Data > 차원값U
+  // LNB > Data > 차원값
   public dimensions: Field[];
 
   // PAGE > OPTION PANNEL (fields with custom fields)
@@ -565,7 +564,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return true;
       }
     });
-  } // function - updatePivotAliasFromField
+  } // function - updateShelfAliasFromField
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
@@ -656,6 +655,377 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     this.dragulaService.destroy('dragbag');
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method - Field List
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 피봇 타입 체크
+   * @param field - 필드
+   * @param type - 피봇타입
+   */
+  public checkPivotType(field: Field, type: 'ROWS' | 'COLUMNS' | 'AGGREGATIONS'): boolean {
+    return field.pivot && field.pivot.length > 0 && field.pivot[0] == type;
+  } // func - checkPivotType
+
+  /**
+   * LNB > Data > 검색어 처리
+   * @param {string} sText
+   * @param {string} targetText
+   * @returns {boolean}
+   */
+  public isContainSearchText(sText: string, targetText: string) {
+    // ngIf로 하면 dragular값이 초기화 되기 때문에 display none으로 처리
+    if (StringUtil.isEmpty(sText)) return true;
+    return targetText.toLowerCase().includes(sText.toLowerCase());
+  } // func - isContainSearchText
+
+  /**
+   * 선택된 필드 자동 피봇팅
+   * @param {Field} targetField
+   * @param {boolean} isDimension
+   */
+  public onPivotSelect(targetField: Field, isDimension: boolean): void {
+
+    // 필드 변환
+    // ( 초기에 이곳에서 fieldAlias 를 설정했으나,
+    // pivot에 설정된 후에 convertField 메서드를 이용해서 필드가 재설정되므로 이곳에서의 설정은 의미 없음
+    const pivotFiled: any = {
+      name: targetField.name,
+      alias: targetField.alias,
+      role: targetField.role,
+      type: targetField.type
+    };
+
+    // 이미 선반에 들어가있는지 여부
+    let isAlreadyPivot: boolean = false;
+    let alreadyFieldPivot: FieldPivot;
+    let alreadyPivot: AbstractField[];
+    let alreadyIndex: number;
+
+    // when it's map
+    if (_.eq(this.selectChart, ChartType.MAP)) {
+
+      // 선반에 아이템이 존재한 상태에서 데이터소스가 변경되고, 새로 아이템을 추가할 경우에 맞추기 위해서...
+      this._setDataSourceCurrentLayer(this.dataSource);
+
+      const layerNum = (this.uiOption as UIMapOption).layerNum;
+      const currentMapLayer = this.shelf.layers[layerNum].fields;
+
+      // check is different database on the same shelf (do not need to loop because database checking)
+      if (!this.isNullOrUndefined(currentMapLayer) && !this.isNullOrUndefined(currentMapLayer[0]) && !this.isNullOrUndefined(currentMapLayer[0]['field'])
+        && targetField.dataSource !== currentMapLayer[0].field.dataSource) {
+        Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+        return;
+      }
+
+      let fieldPivot: FieldPivot;
+
+      if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER0.toString()) {
+        fieldPivot = FieldPivot.MAP_LAYER0;
+      } else if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER1.toString()) {
+        fieldPivot = FieldPivot.MAP_LAYER1;
+      } else if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER2.toString()) {
+        fieldPivot = FieldPivot.MAP_LAYER2;
+      }
+
+      // 이미 들어가있는 선반을 찾는다.
+      for (let num: number = 0; num < currentMapLayer.length; num++) {
+        const field: AbstractField = currentMapLayer[num];
+        if (field.name === targetField.name) {
+          isAlreadyPivot = true;
+          alreadyFieldPivot = fieldPivot;
+          alreadyPivot = currentMapLayer;
+          alreadyIndex = num;
+          break;
+        }
+      }
+
+      // dimension
+      if (isDimension) {
+        // add to shelf
+        if (!isAlreadyPivot) {
+          // push pivotField to layers
+          this.shelf.layers[layerNum].fields.push(pivotFiled);
+          this.mapPivot.convertField(targetField, 'layer' + layerNum);
+        } else {
+          // remove
+          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+        // measure
+      } else {
+        // 사용자 필드이면서 aggregated가 true인 이미 선반에 올라간 컬럼인경우 제거
+        if ('user_expr' === targetField.type && targetField.aggregated && isAlreadyPivot) {
+
+          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+
+          // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
+        } else if (isAlreadyPivot && MapLayerType.TILE !== (this.uiOption as UIMapOption).layers[(this.uiOption as UIMapOption).layerNum].type) {
+
+          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+          // push pivotField to layers
+        } else {
+
+          this.shelf.layers[layerNum].fields.push(pivotFiled);
+          this.mapPivot.convertField(targetField, 'layer' + layerNum);
+        }
+      }
+      return;
+
+    }
+
+    // geo column validation 체크
+    if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '')
+      && (targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') !== -1)) {
+      Alert.warning(this.translateService.instant('msg.board.ui.invalid-column'));
+      return;
+    }
+
+    // 이미 들어가있는 선반을 찾는다.
+    for (let num: number = 0; num < this.pivot.columns.length; num++) {
+      const field: AbstractField = this.pivot.columns[num];
+      if (field.name === targetField.name) {
+        isAlreadyPivot = true;
+        alreadyFieldPivot = FieldPivot.COLUMNS;
+        alreadyPivot = this.pivot.columns;
+        alreadyIndex = num;
+        break;
+      }
+    }
+    for (let num: number = 0; num < this.pivot.rows.length; num++) {
+      const field: AbstractField = this.pivot.rows[num];
+      if (field.name === targetField.name) {
+        isAlreadyPivot = true;
+        alreadyFieldPivot = FieldPivot.ROWS;
+        alreadyPivot = this.pivot.rows;
+        alreadyIndex = num;
+        break;
+      }
+    }
+    for (let num: number = 0; num < this.pivot.aggregations.length; num++) {
+      const field: AbstractField = this.pivot.aggregations[num];
+      if (field.name === targetField.name) {
+        isAlreadyPivot = true;
+        alreadyFieldPivot = FieldPivot.AGGREGATIONS;
+        alreadyPivot = this.pivot.aggregations;
+        alreadyIndex = num;
+        break;
+      }
+    }
+
+    // Dimension 이라면
+    if (isDimension) {
+
+      // map chart validation
+      if ((targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') !== -1)
+        && !_.eq(this.selectChart, '')) {
+        Alert.warning(this.translateService.instant('msg.board.ui.invalid-pivot'));
+        return;
+      }
+
+      // 열에 등록
+      if (_.eq(this.selectChart, ChartType.BAR)
+        || _.eq(this.selectChart, ChartType.LINE)
+        || _.eq(this.selectChart, ChartType.HEATMAP)
+        || _.eq(this.selectChart, ChartType.CONTROL)
+        || _.eq(this.selectChart, ChartType.COMBINE)
+        || _.eq(this.selectChart, ChartType.WATERFALL)
+        || _.eq(this.selectChart, ChartType.SANKEY)
+        || _.eq(this.selectChart, ChartType.GRID)
+        || _.eq(this.selectChart, '')) {
+
+        // 추가
+        if (!isAlreadyPivot) {
+          this.pivot.columns.push(pivotFiled);
+          this.pagePivot.convertField(targetField, 'column');
+        }
+        // 제거
+        else {
+          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+      }
+      // 행에 등록
+      else if (_.eq(this.selectChart, ChartType.GAUGE)) {
+
+        // 추가
+        if (!isAlreadyPivot) {
+          this.pivot.rows.push(pivotFiled);
+          this.pagePivot.convertField(targetField, 'row');
+        }
+        // 제거
+        else {
+          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+      }
+      // 교차에 등록
+      else if (_.eq(this.selectChart, ChartType.SCATTER)
+        || _.eq(this.selectChart, ChartType.PIE)
+        || _.eq(this.selectChart, ChartType.WORDCLOUD)
+        || _.eq(this.selectChart, ChartType.RADAR)) {
+
+        // 추가
+        if (!isAlreadyPivot) {
+          this.pivot.aggregations.push(pivotFiled);
+          this.pagePivot.convertField(targetField, 'aggregation');
+        }
+        // 제거
+        else {
+          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+      }
+      // 첫번째 열, 두번째 행에 등록 후 나머지는 열에 등록
+      else if (_.eq(this.selectChart, ChartType.BOXPLOT)
+        || _.eq(this.selectChart, ChartType.NETWORK)) {
+
+        // 추가
+        if (!isAlreadyPivot) {
+
+          // 열에 들어가있는 개수
+          let columnCount: number = 0;
+          for (let num: number = 0, nMax = this.pivot.columns.length; num < nMax; num++) {
+            columnCount++;
+          }
+
+          // 행에 들어가있는 개수
+          let rowCount: number = 0;
+          for (let num: number = 0, nMax = this.pivot.rows.length; num < nMax; num++) {
+            rowCount++;
+          }
+
+          // 열에 한건도 없으면 열에 등록
+          if (columnCount === 0) {
+            this.pivot.columns.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'column');
+          }
+          // 행에 한건도 없으면 행에 등록
+          else if (rowCount === 0) {
+            this.pivot.rows.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'row');
+          }
+          // 나머지는 열에 등록
+          else {
+            this.pivot.columns.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'column');
+          }
+        }
+        // 제거
+        else {
+          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+      }
+      // 첫번째 열, 두번째 행에 등록 후 나머지는 행에 등록
+      else if (_.eq(this.selectChart, ChartType.TREEMAP)) {
+
+        // 추가
+        if (!isAlreadyPivot) {
+
+          // 열에 들어가있는 개수
+          let columnCount: number = 0;
+          for (let num: number = 0, nMax = this.pivot.columns.length; num < nMax; num++) {
+            columnCount++;
+          }
+
+          // 행에 들어가있는 개수
+          let rowCount: number = 0;
+          for (let num: number = 0, nMax = this.pivot.rows.length; num < nMax; num++) {
+            rowCount++;
+          }
+
+          // 열에 한건도 없으면 열에 등록
+          if (columnCount === 0) {
+            this.pivot.columns.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'column');
+          }
+          // 행에 한건도 없으면 행에 등록
+          else if (rowCount === 0) {
+            this.pivot.rows.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'row');
+          }
+          // 나머지는 행에 등록
+          else {
+            this.pivot.rows.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'row');
+          }
+        }
+        // 제거
+        else {
+          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+      }
+    }
+    // Measure라면
+    else {
+
+      // 교차에 등록
+      if (_.eq(this.selectChart, ChartType.BAR)
+        || _.eq(this.selectChart, ChartType.LINE)
+        || _.eq(this.selectChart, ChartType.HEATMAP)
+        || _.eq(this.selectChart, ChartType.PIE)
+        || _.eq(this.selectChart, ChartType.CONTROL)
+        || _.eq(this.selectChart, ChartType.LABEL)
+        || _.eq(this.selectChart, ChartType.BOXPLOT)
+        || _.eq(this.selectChart, ChartType.WATERFALL)
+        || _.eq(this.selectChart, ChartType.WORDCLOUD)
+        || _.eq(this.selectChart, ChartType.COMBINE)
+        || _.eq(this.selectChart, ChartType.TREEMAP)
+        || _.eq(this.selectChart, ChartType.RADAR)
+        || _.eq(this.selectChart, ChartType.NETWORK)
+        || _.eq(this.selectChart, ChartType.SANKEY)
+        || _.eq(this.selectChart, ChartType.GAUGE)
+        || _.eq(this.selectChart, ChartType.GRID)
+        || _.eq(this.selectChart, ChartType.MAP)
+        || _.eq(this.selectChart, '')) {
+
+        // 사용자 필드이면서 aggregated가 true인 이미 선반에 올라간 컬럼인경우 제거
+        if ('user_expr' === targetField.type && targetField.aggregated && isAlreadyPivot) {
+          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+          // 추가
+        } else {
+
+          // 필드 타입이 HashedMap일 경우 aggregation 을 count 만 허용
+          if(targetField.logicalType != LogicalType.HASHED_MAP || this.pivot.aggregations.length < 1){
+            this.pivot.aggregations.push(pivotFiled);
+          }
+          // this.pivot.aggregations.push(pivotFiled);
+          this.pagePivot.convertField(targetField, 'aggregation');
+        }
+      }
+      // 첫번째 열, 두번째 행에 등록 후 나머지는 등록안함
+      else if (_.eq(this.selectChart, ChartType.SCATTER)) {
+
+        // 추가
+        if (!isAlreadyPivot) {
+
+          // 열에 들어가있는 개수
+          let columnCount: number = 0;
+          for (let num: number = 0, nMax = this.pivot.columns.length; num < nMax; num++) {
+            columnCount++;
+          }
+
+          // 행에 들어가있는 개수
+          let rowCount: number = 0;
+          for (let num: number = 0, nMax = this.pivot.rows.length; num < nMax; num++) {
+            rowCount++;
+          }
+
+          // 열에 한건도 없으면 열에 등록
+          if (columnCount === 0) {
+            this.pivot.columns.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'column');
+          }
+          // 행에 한건도 없으면 행에 등록
+          else if (rowCount === 0) {
+            this.pivot.rows.push(pivotFiled);
+            this.pagePivot.convertField(targetField, 'row');
+          }
+        }
+        // 제거
+        else {
+          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+      }
+    }
+  } // func - onPivotSelect
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Multi DataSource
@@ -1647,18 +2017,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   }
 
   /**
-   * LNB > Data > 검색어 처리
-   * @param {string} sText
-   * @param {string} targetText
-   * @returns {boolean}
-   */
-  public isContainSearchText(sText: string, targetText: string) {
-    // ngIf로 하면 dragular값이 초기화 되기 때문에 display none으로 처리
-    if (StringUtil.isEmpty(sText)) return true;
-    return targetText.toLowerCase().includes(sText.toLowerCase());
-  }
-
-  /**
    * 차트 싱크화
    * @param uiOption
    */
@@ -1716,16 +2074,39 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     // 선반변경시 drawChart
-    this.drawChart({type: eventType});
+    this.drawChart({type: eventType, disableCache: true});
   }
 
-  public onChangePivot(data: object) {
+  public onChangePivot(data: {pivot: Pivot, eventType: EventType}) {
 
-    // 피봇 데이터
-    const pivot = data['pivot'];
-    // 이벤트 타입
-    const eventType = data['eventType'];
+    const pivot = data.pivot;           // 피봇 데이터
+    const eventType = data.eventType;   // 이벤트 타입
+
+    // pivot 설정 - S
     this.pivot = pivot;
+    this.pageDimensions.forEach( dim => {
+      if( pivot.rows.some( row => ( dim.name === row.field.name ) ) ) {
+        dim.pivot = [FieldPivot.ROWS];
+      } else if( pivot.columns.some( col => ( dim.name === col.field.name ) ) ) {
+        dim.pivot = [FieldPivot.COLUMNS];
+      } else if( pivot.aggregations.some( aggr => ( dim.name === aggr.field.name ) ) ) {
+        dim.pivot = [FieldPivot.AGGREGATIONS];
+      } else {
+        dim.pivot = [];
+      }
+    });
+    this.pageMeasures.forEach( mea => {
+      if( pivot.rows.some( row => ( mea.name === row.field.name ) ) ) {
+        mea.pivot = [FieldPivot.ROWS];
+      } else if( pivot.columns.some( col => ( mea.name === col.field.name ) ) ) {
+        mea.pivot = [FieldPivot.COLUMNS];
+      } else if( pivot.aggregations.some( aggr => ( mea.name === aggr.field.name ) ) ) {
+        mea.pivot = [FieldPivot.AGGREGATIONS];
+      } else {
+        mea.pivot = [];
+      }
+    });
+    // pivot 설정 - E
 
     // 선반에 따라서 중첩 / 병렬 변경
     this.uiOption = this.setUIOptionByPivot();
@@ -1815,7 +2196,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 추천가능차트 설정
     this.recommendChart();
     // 선반변경시 drawChart 발생
-    this.drawChart({type: eventType});
+    this.drawChart({type: eventType, disableCache: true});
   }
 
   /**
@@ -1910,14 +2291,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
   } // function - deleteFilter
 
-
   /**
    * 사용자 정의 측정값 필드 여부
    * @param {Field} field
    * @returns {boolean}
    */
   public isCustomMeasureField(field: Field) {
-
     return FieldRole.MEASURE === field.role && 'user_expr' === field.type;
   } // function - isCustomMeasureField
 
@@ -2400,608 +2779,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   }
 
   /**
-   * 선택된 필드 자동 피봇팅
-   * @param {Field} targetField
-   * @param {boolean} isDimension
-   */
-  public onPivotSelect(targetField: Field, isDimension: boolean): void {
-
-    // 필드 변환
-    // ( 초기에 이곳에서 fieldAlias 를 설정했으나,
-    // pivot에 설정된 후에 convertField 메서드를 이용해서 필드가 재설정되므로 이곳에서의 설정은 의미 없음
-    const pivotFiled: any = {
-      name: targetField.name,
-      alias: targetField.alias,
-      role: targetField.role,
-      type: targetField.type
-    };
-
-    // 이미 선반에 들어가있는지 여부
-    let isAlreadyPivot: boolean = false;
-    let alreadyFieldPivot: FieldPivot;
-    let alreadyPivot: AbstractField[];
-    let alreadyIndex: number;
-
-    // when it's map
-    if (_.eq(this.selectChart, ChartType.MAP)) {
-
-      // 선반에 아이템이 존재한 상태에서 데이터소스가 변경되고, 새로 아이템을 추가할 경우에 맞추기 위해서...
-      this._setDataSourceCurrentLayer(this.dataSource);
-
-      const layerNum = (this.uiOption as UIMapOption).layerNum;
-      const currentMapLayer = this.shelf.layers[layerNum].fields;
-
-      // check is different database on the same shelf (do not need to loop because database checking)
-      if (!this.isNullOrUndefined(currentMapLayer) && !this.isNullOrUndefined(currentMapLayer[0]) && !this.isNullOrUndefined(currentMapLayer[0]['field'])
-        && targetField.dataSource !== currentMapLayer[0].field.dataSource) {
-        Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
-        return;
-      }
-
-      let fieldPivot: FieldPivot;
-
-      if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER0.toString()) {
-        fieldPivot = FieldPivot.MAP_LAYER0;
-      } else if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER1.toString()) {
-        fieldPivot = FieldPivot.MAP_LAYER1;
-      } else if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER2.toString()) {
-        fieldPivot = FieldPivot.MAP_LAYER2;
-      }
-
-      // 이미 들어가있는 선반을 찾는다.
-      for (let num: number = 0; num < currentMapLayer.length; num++) {
-        const field: AbstractField = currentMapLayer[num];
-        if (field.name === targetField.name) {
-          isAlreadyPivot = true;
-          alreadyFieldPivot = fieldPivot;
-          alreadyPivot = currentMapLayer;
-          alreadyIndex = num;
-          break;
-        }
-      }
-
-      // dimension
-      if (isDimension) {
-        // add to shelf
-        if (!isAlreadyPivot) {
-          // push pivotField to layers
-          this.shelf.layers[layerNum].fields.push(pivotFiled);
-          this.mapPivot.convertField(targetField, 'layer' + layerNum);
-        } else {
-          // remove
-          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-        }
-        // measure
-      } else {
-        // 사용자 필드이면서 aggregated가 true인 이미 선반에 올라간 컬럼인경우 제거
-        if ('user_expr' === targetField.type && targetField.aggregated && isAlreadyPivot) {
-
-          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-
-          // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
-        } else if (isAlreadyPivot && MapLayerType.TILE !== (this.uiOption as UIMapOption).layers[(this.uiOption as UIMapOption).layerNum].type) {
-
-          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-          // push pivotField to layers
-        } else {
-
-          this.shelf.layers[layerNum].fields.push(pivotFiled);
-          this.mapPivot.convertField(targetField, 'layer' + layerNum);
-        }
-      }
-      return;
-
-    }
-
-    // geo column validation 체크
-    if (!_.eq(this.selectChart, ChartType.MAP) && !_.eq(this.selectChart, '')
-      && (targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') !== -1)) {
-      Alert.warning(this.translateService.instant('msg.board.ui.invalid-column'));
-      return;
-    }
-
-    // 이미 들어가있는 선반을 찾는다.
-    for (let num: number = 0; num < this.pivot.columns.length; num++) {
-      const field: AbstractField = this.pivot.columns[num];
-      if (field.name === targetField.name) {
-        isAlreadyPivot = true;
-        alreadyFieldPivot = FieldPivot.COLUMNS;
-        alreadyPivot = this.pivot.columns;
-        alreadyIndex = num;
-        break;
-      }
-    }
-    for (let num: number = 0; num < this.pivot.rows.length; num++) {
-      const field: AbstractField = this.pivot.rows[num];
-      if (field.name === targetField.name) {
-        isAlreadyPivot = true;
-        alreadyFieldPivot = FieldPivot.ROWS;
-        alreadyPivot = this.pivot.rows;
-        alreadyIndex = num;
-        break;
-      }
-    }
-    for (let num: number = 0; num < this.pivot.aggregations.length; num++) {
-      const field: AbstractField = this.pivot.aggregations[num];
-      if (field.name === targetField.name) {
-        isAlreadyPivot = true;
-        alreadyFieldPivot = FieldPivot.AGGREGATIONS;
-        alreadyPivot = this.pivot.aggregations;
-        alreadyIndex = num;
-        break;
-      }
-    }
-
-    // Dimension 이라면
-    if (isDimension) {
-
-      // map chart validation
-      if ((targetField.logicalType && targetField.logicalType.toString().indexOf('GEO') !== -1)
-        && !_.eq(this.selectChart, '')) {
-        Alert.warning(this.translateService.instant('msg.board.ui.invalid-pivot'));
-        return;
-      }
-
-      // 열에 등록
-      if (_.eq(this.selectChart, ChartType.BAR)
-        || _.eq(this.selectChart, ChartType.LINE)
-        || _.eq(this.selectChart, ChartType.HEATMAP)
-        || _.eq(this.selectChart, ChartType.CONTROL)
-        || _.eq(this.selectChart, ChartType.COMBINE)
-        || _.eq(this.selectChart, ChartType.WATERFALL)
-        || _.eq(this.selectChart, ChartType.SANKEY)
-        || _.eq(this.selectChart, ChartType.GRID)
-        || _.eq(this.selectChart, '')) {
-
-        // 추가
-        if (!isAlreadyPivot) {
-          this.pivot.columns.push(pivotFiled);
-          this.pagePivot.convertField(targetField, 'column');
-        }
-        // 제거
-        else {
-          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-        }
-      }
-      // 행에 등록
-      else if (_.eq(this.selectChart, ChartType.GAUGE)) {
-
-        // 추가
-        if (!isAlreadyPivot) {
-          this.pivot.rows.push(pivotFiled);
-          this.pagePivot.convertField(targetField, 'row');
-        }
-        // 제거
-        else {
-          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-        }
-      }
-      // 교차에 등록
-      else if (_.eq(this.selectChart, ChartType.SCATTER)
-        || _.eq(this.selectChart, ChartType.PIE)
-        || _.eq(this.selectChart, ChartType.WORDCLOUD)
-        || _.eq(this.selectChart, ChartType.RADAR)) {
-
-        // 추가
-        if (!isAlreadyPivot) {
-          this.pivot.aggregations.push(pivotFiled);
-          this.pagePivot.convertField(targetField, 'aggregation');
-        }
-        // 제거
-        else {
-          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-        }
-      }
-      // 첫번째 열, 두번째 행에 등록 후 나머지는 열에 등록
-      else if (_.eq(this.selectChart, ChartType.BOXPLOT)
-        || _.eq(this.selectChart, ChartType.NETWORK)) {
-
-        // 추가
-        if (!isAlreadyPivot) {
-
-          // 열에 들어가있는 개수
-          let columnCount: number = 0;
-          for (let num: number = 0, nMax = this.pivot.columns.length; num < nMax; num++) {
-            columnCount++;
-          }
-
-          // 행에 들어가있는 개수
-          let rowCount: number = 0;
-          for (let num: number = 0, nMax = this.pivot.rows.length; num < nMax; num++) {
-            rowCount++;
-          }
-
-          // 열에 한건도 없으면 열에 등록
-          if (columnCount === 0) {
-            this.pivot.columns.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'column');
-          }
-          // 행에 한건도 없으면 행에 등록
-          else if (rowCount === 0) {
-            this.pivot.rows.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'row');
-          }
-          // 나머지는 열에 등록
-          else {
-            this.pivot.columns.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'column');
-          }
-        }
-        // 제거
-        else {
-          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-        }
-      }
-      // 첫번째 열, 두번째 행에 등록 후 나머지는 행에 등록
-      else if (_.eq(this.selectChart, ChartType.TREEMAP)) {
-
-        // 추가
-        if (!isAlreadyPivot) {
-
-          // 열에 들어가있는 개수
-          let columnCount: number = 0;
-          for (let num: number = 0, nMax = this.pivot.columns.length; num < nMax; num++) {
-            columnCount++;
-          }
-
-          // 행에 들어가있는 개수
-          let rowCount: number = 0;
-          for (let num: number = 0, nMax = this.pivot.rows.length; num < nMax; num++) {
-            rowCount++;
-          }
-
-          // 열에 한건도 없으면 열에 등록
-          if (columnCount === 0) {
-            this.pivot.columns.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'column');
-          }
-          // 행에 한건도 없으면 행에 등록
-          else if (rowCount === 0) {
-            this.pivot.rows.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'row');
-          }
-          // 나머지는 행에 등록
-          else {
-            this.pivot.rows.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'row');
-          }
-        }
-        // 제거
-        else {
-          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-        }
-      }
-    }
-    // Measure라면
-    else {
-
-      // 교차에 등록
-      if (_.eq(this.selectChart, ChartType.BAR)
-        || _.eq(this.selectChart, ChartType.LINE)
-        || _.eq(this.selectChart, ChartType.HEATMAP)
-        || _.eq(this.selectChart, ChartType.PIE)
-        || _.eq(this.selectChart, ChartType.CONTROL)
-        || _.eq(this.selectChart, ChartType.LABEL)
-        || _.eq(this.selectChart, ChartType.BOXPLOT)
-        || _.eq(this.selectChart, ChartType.WATERFALL)
-        || _.eq(this.selectChart, ChartType.WORDCLOUD)
-        || _.eq(this.selectChart, ChartType.COMBINE)
-        || _.eq(this.selectChart, ChartType.TREEMAP)
-        || _.eq(this.selectChart, ChartType.RADAR)
-        || _.eq(this.selectChart, ChartType.NETWORK)
-        || _.eq(this.selectChart, ChartType.SANKEY)
-        || _.eq(this.selectChart, ChartType.GAUGE)
-        || _.eq(this.selectChart, ChartType.GRID)
-        || _.eq(this.selectChart, ChartType.MAP)
-        || _.eq(this.selectChart, '')) {
-
-        // 사용자 필드이면서 aggregated가 true인 이미 선반에 올라간 컬럼인경우 제거
-        if ('user_expr' === targetField.type && targetField.aggregated && isAlreadyPivot) {
-
-          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-          // 추가
-        } else {
-          this.pivot.aggregations.push(pivotFiled);
-          this.pagePivot.convertField(targetField, 'aggregation');
-        }
-      }
-      // 첫번째 열, 두번째 행에 등록 후 나머지는 등록안함
-      else if (_.eq(this.selectChart, ChartType.SCATTER)) {
-
-        // 추가
-        if (!isAlreadyPivot) {
-
-          // 열에 들어가있는 개수
-          let columnCount: number = 0;
-          for (let num: number = 0, nMax = this.pivot.columns.length; num < nMax; num++) {
-            columnCount++;
-          }
-
-          // 행에 들어가있는 개수
-          let rowCount: number = 0;
-          for (let num: number = 0, nMax = this.pivot.rows.length; num < nMax; num++) {
-            rowCount++;
-          }
-
-          // 열에 한건도 없으면 열에 등록
-          if (columnCount === 0) {
-            this.pivot.columns.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'column');
-          }
-          // 행에 한건도 없으면 행에 등록
-          else if (rowCount === 0) {
-            this.pivot.rows.push(pivotFiled);
-            this.pagePivot.convertField(targetField, 'row');
-          }
-        }
-        // 제거
-        else {
-          this.getPivotComp().removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-        }
-      }
-    }
-  }
-
-  // /**
-  //  * 선택된 필드 자동 피봇팅
-  //  * @param {Field} targetField
-  //  * @param {boolean} isDimension
-  //  */
-  // public onPivotSelect(targetField: Field, isDimension: boolean): void {
-  //
-  //   // 필드 변환
-  //   // ( 초기에 이곳에서 fieldAlias 를 설정했으나,
-  //   // pivot에 설정된 후에 convertField 메서드를 이용해서 필드가 재설정되므로 이곳에서의 설정은 의미 없음
-  //   let pivotFiled: any = {
-  //     name: targetField.name,
-  //     alias: targetField.alias,
-  //     biType: targetField.biType
-  //   };
-  //
-  //   // console.log( '>>>>>>> targetField', _.cloneDeep( targetField ) );
-  //   // console.log( '>>>>>>> current targetField', targetField );
-  //
-  //   // 이미 선반에 들어가있는지 여부
-  //   let isAlreadyPivot: boolean = false;
-  //   let alreadyFieldPivot: FieldPivot;
-  //   let alreadyPivot: AbstractField[];
-  //   let alreadyIndex: number;
-  //
-  //   // 이미 들어가있는 선반을 찾는다.
-  //   for (let num: number = 0; num < this.pivot.columns.length; num++) {
-  //     let field: AbstractField = this.pivot.columns[num];
-  //     if (field.name === targetField.name) {
-  //       isAlreadyPivot = true;
-  //       alreadyFieldPivot = FieldPivot.COLUMNS;
-  //       alreadyPivot = this.pivot.columns;
-  //       alreadyIndex = num;
-  //       break;
-  //     }
-  //   }
-  //   for (let num: number = 0; num < this.pivot.rows.length; num++) {
-  //     let field: AbstractField = this.pivot.rows[num];
-  //     if (field.name === targetField.name) {
-  //       isAlreadyPivot = true;
-  //       alreadyFieldPivot = FieldPivot.ROWS;
-  //       alreadyPivot = this.pivot.rows;
-  //       alreadyIndex = num;
-  //       break;
-  //     }
-  //   }
-  //   for (let num: number = 0; num < this.pivot.aggregations.length; num++) {
-  //     let field: AbstractField = this.pivot.aggregations[num];
-  //     if (field.name === targetField.name) {
-  //       isAlreadyPivot = true;
-  //       alreadyFieldPivot = FieldPivot.AGGREGATIONS;
-  //       alreadyPivot = this.pivot.aggregations;
-  //       alreadyIndex = num;
-  //       break;
-  //     }
-  //   }
-  //
-  //   // Dimension 이라면
-  //   if (isDimension) {
-  //
-  //     // 열에 등록
-  //     if (_.eq(this.selectChart, ChartType.BAR)
-  //       || _.eq(this.selectChart, ChartType.LINE)
-  //       || _.eq(this.selectChart, ChartType.HEATMAP)
-  //       || _.eq(this.selectChart, ChartType.CONTROL)
-  //       || _.eq(this.selectChart, ChartType.COMBINE)
-  //       || _.eq(this.selectChart, ChartType.WATERFALL)
-  //       || _.eq(this.selectChart, ChartType.SANKEY)
-  //       || _.eq(this.selectChart, ChartType.GRID)
-  //       || _.eq(this.selectChart, '')) {
-  //
-  //       // 추가
-  //       if (!isAlreadyPivot) {
-  //         this.pivot.columns.push(pivotFiled);
-  //         this.pagePivot.convertField(targetField, 'column');
-  //       }
-  //       // 제거
-  //       else {
-  //         this.pagePivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-  //       }
-  //     }
-  //     // 행에 등록
-  //     else if (_.eq(this.selectChart, ChartType.GAUGE)) {
-  //
-  //       // 추가
-  //       if (!isAlreadyPivot) {
-  //         this.pivot.rows.push(pivotFiled);
-  //         this.pagePivot.convertField(targetField, 'row');
-  //       }
-  //       // 제거
-  //       else {
-  //         this.pagePivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-  //       }
-  //     }
-  //     // 교차에 등록
-  //     else if (_.eq(this.selectChart, ChartType.SCATTER)
-  //       || _.eq(this.selectChart, ChartType.PIE)
-  //       || _.eq(this.selectChart, ChartType.WORDCLOUD)
-  //       || _.eq(this.selectChart, ChartType.RADAR)) {
-  //
-  //       // 추가
-  //       if (!isAlreadyPivot) {
-  //         this.pivot.aggregations.push(pivotFiled);
-  //         this.pagePivot.convertField(targetField, 'aggregation');
-  //       }
-  //       // 제거
-  //       else {
-  //         this.pagePivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-  //       }
-  //     }
-  //     // 첫번째 열, 두번째 행에 등록 후 나머지는 열에 등록
-  //     else if (_.eq(this.selectChart, ChartType.BOXPLOT)
-  //       || _.eq(this.selectChart, ChartType.NETWORK)) {
-  //
-  //       // 추가
-  //       if (!isAlreadyPivot) {
-  //
-  //         // 열에 들어가있는 개수
-  //         let columnCount: number = 0;
-  //         for (let num: number = 0; num < this.pivot.columns.length; num++) {
-  //           columnCount++;
-  //         }
-  //
-  //         // 행에 들어가있는 개수
-  //         let rowCount: number = 0;
-  //         for (let num: number = 0; num < this.pivot.rows.length; num++) {
-  //           rowCount++;
-  //         }
-  //
-  //         // 열에 한건도 없으면 열에 등록
-  //         if (columnCount === 0) {
-  //           this.pivot.columns.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'column');
-  //         }
-  //         // 행에 한건도 없으면 행에 등록
-  //         else if (rowCount === 0) {
-  //           this.pivot.rows.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'row');
-  //         }
-  //         // 나머지는 열에 등록
-  //         else {
-  //           this.pivot.columns.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'column');
-  //         }
-  //       }
-  //       // 제거
-  //       else {
-  //         this.pagePivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-  //       }
-  //     }
-  //     // 첫번째 열, 두번째 행에 등록 후 나머지는 행에 등록
-  //     else if (_.eq(this.selectChart, ChartType.TREEMAP)) {
-  //
-  //       // 추가
-  //       if (!isAlreadyPivot) {
-  //
-  //         // 열에 들어가있는 개수
-  //         let columnCount: number = 0;
-  //         for (let num: number = 0; num < this.pivot.columns.length; num++) {
-  //           columnCount++;
-  //         }
-  //
-  //         // 행에 들어가있는 개수
-  //         let rowCount: number = 0;
-  //         for (let num: number = 0; num < this.pivot.rows.length; num++) {
-  //           rowCount++;
-  //         }
-  //
-  //         // 열에 한건도 없으면 열에 등록
-  //         if (columnCount === 0) {
-  //           this.pivot.columns.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'column');
-  //         }
-  //         // 행에 한건도 없으면 행에 등록
-  //         else if (rowCount === 0) {
-  //           this.pivot.rows.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'row');
-  //         }
-  //         // 나머지는 행에 등록
-  //         else {
-  //           this.pivot.rows.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'row');
-  //         }
-  //       }
-  //       // 제거
-  //       else {
-  //         this.pagePivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-  //       }
-  //     }
-  //   }
-  //   // Measure라면
-  //   else {
-  //
-  //     // 교차에 등록
-  //     if (_.eq(this.selectChart, ChartType.BAR)
-  //       || _.eq(this.selectChart, ChartType.LINE)
-  //       || _.eq(this.selectChart, ChartType.HEATMAP)
-  //       || _.eq(this.selectChart, ChartType.PIE)
-  //       || _.eq(this.selectChart, ChartType.CONTROL)
-  //       || _.eq(this.selectChart, ChartType.LABEL)
-  //       || _.eq(this.selectChart, ChartType.BOXPLOT)
-  //       || _.eq(this.selectChart, ChartType.WATERFALL)
-  //       || _.eq(this.selectChart, ChartType.WORDCLOUD)
-  //       || _.eq(this.selectChart, ChartType.COMBINE)
-  //       || _.eq(this.selectChart, ChartType.TREEMAP)
-  //       || _.eq(this.selectChart, ChartType.RADAR)
-  //       || _.eq(this.selectChart, ChartType.NETWORK)
-  //       || _.eq(this.selectChart, ChartType.SANKEY)
-  //       || _.eq(this.selectChart, ChartType.GAUGE)
-  //       || _.eq(this.selectChart, ChartType.GRID)
-  //       || _.eq(this.selectChart, '')) {
-  //
-  //       // 사용자 필드이면서 aggregated가 true인 이미 선반에 올라간 컬럼인경우 제거
-  //       if ('user_expr' === targetField.type && targetField.aggregated && isAlreadyPivot) {
-  //
-  //         this.pagePivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-  //         // 추가
-  //       } else {
-  //         this.pivot.aggregations.push(pivotFiled);
-  //         this.pagePivot.convertField(targetField, 'aggregation');
-  //       }
-  //     }
-  //     // 첫번째 열, 두번째 행에 등록 후 나머지는 등록안함
-  //     else if (_.eq(this.selectChart, ChartType.SCATTER)) {
-  //
-  //       // 추가
-  //       if (!isAlreadyPivot) {
-  //
-  //         // 열에 들어가있는 개수
-  //         let columnCount: number = 0;
-  //         for (let num: number = 0; num < this.pivot.columns.length; num++) {
-  //           columnCount++;
-  //         }
-  //
-  //         // 행에 들어가있는 개수
-  //         let rowCount: number = 0;
-  //         for (let num: number = 0; num < this.pivot.rows.length; num++) {
-  //           rowCount++;
-  //         }
-  //
-  //         // 열에 한건도 없으면 열에 등록
-  //         if (columnCount === 0) {
-  //           this.pivot.columns.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'column');
-  //         }
-  //         // 행에 한건도 없으면 행에 등록
-  //         else if (rowCount === 0) {
-  //           this.pivot.rows.push(pivotFiled);
-  //           this.pagePivot.convertField(targetField, 'row');
-  //         }
-  //       }
-  //       // 제거
-  //       else {
-  //         this.pagePivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
-  //       }
-  //     }
-  //   }
-  // }
-
-  /**
    * 필드 이전버튼 클릭 이벤트
    * @param isDimension
    */
@@ -3236,9 +3013,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Field} changeField
    */
   public changeDatasourceFieldAlias(changeField: Field) {
+
     this.widget.dashBoard.configuration.fields.some((field: Field) => {
       if (field.name === changeField.name) {
-        field = changeField;
+        field.nameAlias = changeField.nameAlias;
+        field.valueAlias = changeField.valueAlias;
         // when it's not map, set pivot alias
         if (ChartType.MAP !== this.widgetConfiguration.chart.type) {
           PageComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
@@ -3251,7 +3030,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     });
     this.originalWidget.dashBoard.configuration.fields.some((field: Field) => {
       if (field.name === changeField.name) {
-        field = changeField;
+        field.nameAlias = changeField.nameAlias;
+        field.valueAlias = changeField.valueAlias;
         if (ChartType.MAP !== this.widgetConfiguration.chart.type) {
           PageComponent.updatePivotAliasFromField(this.widgetConfiguration.pivot, field);
           // when it's map, set shelf alias
@@ -3912,7 +3692,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     successCallback: null,// Draw 성공시 callback
     resultFormatOptions: {}, // Search Result Option
     filters: [], // 추천필터나 타임스탬프 변경시 필터를 적용하기 위해
-    type: '' // 호출된 종류 설정
+    type: '', // 호출된 종류 설정
+    disableCache: false
   }) {
     // valid
     if (StringUtil.isEmpty(this.selectChart)) return;
@@ -4022,7 +3803,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.chart['setQuery'] = this.query;
     }
 
-    this.datasourceService.searchQuery(cloneQuery).then(
+    this.datasourceService.searchQuery(cloneQuery, params.disableCache).then(
       (data) => {
 
         const resultData = {

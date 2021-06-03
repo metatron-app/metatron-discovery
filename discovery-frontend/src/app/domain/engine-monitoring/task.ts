@@ -13,15 +13,15 @@
  */
 
 export class Task {
-  createdTime: string;
+  created_time: string;
   datasource: string;
   duration: number;
   location: string;
   rank: number;
   status: TaskStatus;
-  taskId: string;
+  task_id: string;
   type: TaskType;
-  queueInsertionTime: string;
+  queue_insertion_time: string;
   host: string;
 }
 

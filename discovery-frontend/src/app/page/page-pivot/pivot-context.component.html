@@ -103,7 +103,7 @@
           </div>
         </a>
         <!-- 2depth -->
-        <div class="ddp-ui-layer-sub">
+        <div *ngIf="editingField.field.logicalType !== 'HASHED_MAP'" class="ddp-ui-layer-sub">
           <ul class="ddp-list-popup">
             <li *ngFor="let aggType of aggTypeList"
                 [class.ddp-selected]="aggType['id'] == editingField.aggregationType && 'PERCENTILE' !== editingField.aggregationType"
