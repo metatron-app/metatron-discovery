@@ -52,20 +52,23 @@ public class WidgetService {
     return widgetRepository.saveAndFlush(widget.copyOf(parent, addPrefix));
   }
 
-  public Widget changeDataSource(Widget widget,
+  public Widget changeDataSource(String widgetId,
                                  app.metatron.discovery.domain.datasource.DataSource fromDataSource,
                                  app.metatron.discovery.domain.datasource.DataSource toDataSource) {
 
+    Widget widget = widgetRepository.findOne(widgetId);
     LOGGER.info("{}'s before configuration : {}", widget.getId(), widget.getConfiguration());
 
     HashMap widgetConfiguration = (HashMap) GlobalObjectMapper.readValue(widget.getConfiguration());
     if ("page".equals(widgetConfiguration.get("type"))) {
-      ((PageWidgetConfiguration)widget.convertConfiguration()).getFields().forEach(userDefinedField -> {
-        if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
-          userDefinedField.setDataSource(toDataSource.getEngineName());
-        }
-      });
-      widgetConfiguration.put("fields", ((PageWidgetConfiguration) widget.convertConfiguration()).getFields());
+      if (((PageWidgetConfiguration)widget.convertConfiguration()).getFields() != null) {
+        ((PageWidgetConfiguration)widget.convertConfiguration()).getFields().forEach(userDefinedField -> {
+          if (userDefinedField.getDataSource().equals(fromDataSource.getEngineName())) {
+            userDefinedField.setDataSource(toDataSource.getEngineName());
+          }
+        });
+        widgetConfiguration.put("fields", ((PageWidgetConfiguration) widget.convertConfiguration()).getFields());
+      }
       DataSource widgetDataSource = ((PageWidgetConfiguration)widget.convertConfiguration()).getDataSource();
       if (fromDataSource.getEngineName().equals(widgetDataSource.getEngineName())
           || fromDataSource.getEngineName().equals(widgetDataSource.getName())) {
@@ -102,7 +105,7 @@ public class WidgetService {
 
     widget.setConfiguration(GlobalObjectMapper.writeValueAsString(widgetConfiguration));
     LOGGER.info("{}'s after configuration : {}", widget.getId(), widget.getConfiguration());
-    return widget;
+    return widgetRepository.saveAndFlush(widget);
   }
 
   private DataSource changeDataSource(app.metatron.discovery.domain.datasource.DataSource fromDataSource,

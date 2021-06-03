@@ -23,8 +23,8 @@
 
       <div class="ddp-ui-pop-buttons">
         <a (click)="close()" href="javascript:" class="ddp-btn-pop">{{ 'msg.comm.btn.cancl' | translate }}</a>
-        <a [class.disabled]="_selectedDataSources.length === 0"
-          (click)="_selectedDataSources.length > 0 ? done() : null " href="javascript:" class="ddp-btn-pop ddp-bg-black">{{'msg.comm.btn.done' | translate }}</a>
+        <a [class.disabled]="selectedDsLength === 0"
+          (click)="selectedDsLength > 0 ? done() : null " href="javascript:" class="ddp-btn-pop ddp-bg-black">{{'msg.comm.btn.done' | translate }}</a>
       </div>
     </div>
     <!-- // 상단 제목 영역 -->

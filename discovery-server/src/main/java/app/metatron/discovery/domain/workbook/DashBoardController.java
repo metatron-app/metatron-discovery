@@ -62,8 +62,10 @@ import app.metatron.discovery.domain.workbook.widget.WidgetService;
 import app.metatron.discovery.util.AuthUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.config.ApiResourceConfig.REDIRECT_PATH_URL;
 
@@ -325,15 +327,18 @@ public class DashBoardController {
     LOGGER.info("Dashboard({})' after configuration : {}", dashBoard.getId(), dashBoard.getConfiguration());
 
     List<Filter> dashboardFilterList = dashBoard.getConfigurationObject().getFilters();
-    for (Filter filter : dashboardFilterList) {
-      if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
-        filter.setDataSource(toDataSource.getEngineName());
+    if (dashboardFilterList != null) {
+      for (Filter filter : dashboardFilterList) {
+        if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+          filter.setDataSource(toDataSource.getEngineName());
+        }
       }
     }
     LOGGER.info("Dashboard({})' after filter list : {}", dashBoard.getId(), dashBoard.getConfiguration());
 
-    for (Widget widget: dashBoard.getWidgets()) {
-      widgetRepository.saveAndFlush(widgetService.changeDataSource(widget, fromDataSource, toDataSource));
+    List<String> widgetIds =  dashBoard.getWidgets().stream().map(widget -> widget.getId()).collect(Collectors.toList());
+    for(String widgetId: widgetIds) {
+      widgetService.changeDataSource(widgetId, fromDataSource, toDataSource);
     }
 
     dashboardRepository.saveAndFlush(dashBoard);
