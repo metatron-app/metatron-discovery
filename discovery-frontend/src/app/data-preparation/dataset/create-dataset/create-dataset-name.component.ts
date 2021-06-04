@@ -13,8 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import {concatMap} from 'rxjs/operators';
-import {from} from 'rxjs/observable/from';
 import {isNullOrUndefined, isUndefined} from 'util';
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {StringUtil} from '@common/util/string.util';
@@ -28,6 +26,7 @@ import {DataflowService} from '../../dataflow/service/dataflow.service';
 import {DatasetService} from '../service/dataset.service';
 
 declare let moment;
+declare let async;
 
 @Component({
   selector: 'app-create-dataset-name',
@@ -199,25 +198,25 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       // used concatMap to send multiple sequential HTTP requests
       this.flag = true;
       this.results = [];
-      const streams = from(fileParams).pipe(
-        concatMap(stream => this._createFileDataset(stream)
-          .catch((error) => {
-            console.log(error)
-          })));
+
+      const procFileDs: ((callback) => void)[] = [];
+      fileParams.forEach(param => {
+        procFileDs.push((callback) => {
+          this._createFileDataset(param).then( result => {
+            if (result) {
+              this.results.push({dsId: result.dsId, dsName: result.dsName, link: result['_links'].self.href});
+            }
+            callback();
+          }).catch((err) => {
+            console.error( err );
+            callback();
+          });
+        });
+      });
 
       this.loadingShow();
-      streams.subscribe((result) => {
 
-        // push only successful result into an array
-        // because this information is required in
-        // complete() but no way to access them
-        if (result) {
-          this.results.push({dsId: result.dsId, dsName: result.dsName, link: result['_links'].self.href});
-        }
-
-      }, (error) => {
-        console.error(error);
-      }, () => {
+      async.waterfall(procFileDs, () => {
 
         this.flag = false;
         this.loadingHide();
@@ -239,7 +238,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
             data: this.results.length > 0 ? this.results[0].dsId : null
           });
         }
-      })
+      });
 
     }
 
@@ -685,7 +684,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     }
     return hive
   }
-
 
   /**
    * Returns parameter needed for creating jdbc dataset
