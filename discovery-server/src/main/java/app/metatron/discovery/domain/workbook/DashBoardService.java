@@ -246,9 +246,7 @@ public class DashBoardService {
         }
 
       } else if ((widgetConfiguration instanceof FilterWidgetConfiguration)) {
-        String engineName = ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() != null ?
-            ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() : ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getName();
-        if (engineName.equals(fromDataSource.getEngineName())) {
+        if (fromDataSource.getEngineName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getDataSource())) {
           for (Field datasourceField : toDataSource.getFields()) {
             if (datasourceField.getName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getField())) {
               validateCnt++;
