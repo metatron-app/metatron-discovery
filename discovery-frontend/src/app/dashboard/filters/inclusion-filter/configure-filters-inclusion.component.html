@@ -29,6 +29,15 @@
       </ul>
     </div>
   </div>
+  <div class="ddp-data-form" style="float:right; margin-top:10px;">
+    조회 :
+    <input type="text" class="ddp-data-input"
+           [ngModel]="itemShowCnt"
+           (keyup)="changeShowNum($event)"
+           input-mask="number"
+           style="width: 80px; border:none; border-bottom: 1px solid #d7d8dc; background-color:#f4f6fc; font-size:12px; text-align: center">
+    개
+  </div>
 </div>
 <!-- // 선택 방식 결정 -->
 

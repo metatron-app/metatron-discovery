@@ -176,10 +176,11 @@ export class DatasourceService extends AbstractService {
    * @param {Field | CustomField} field
    * @param {string} sortBy
    * @param {string} searchWord
+   * @param limit
    * @returns {Promise<any>}
    */
   public getCandidateForFilter(filter: Filter, board: Dashboard,
-                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string, searchWord?: string): Promise<any> {
+                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string, searchWord?: string, limit?: number): Promise<any> {
 
     const param: any = {};
     param.dataSource = DashboardUtil.getDataSourceForApi(
@@ -282,7 +283,7 @@ export class DatasourceService extends AbstractService {
 
         param.sortBy = (sortBy) ? sortBy : 'COUNT';
         // param.searchWord = (searchWord) ? searchWord : '';
-        param.limit = FilterUtil.CANDIDATE_LIMIT;
+        param.limit = (limit) ? limit : FilterUtil.CANDIDATE_LIMIT;
 
       } else if ('bound' === filter.type) {
         // Measure Filter
