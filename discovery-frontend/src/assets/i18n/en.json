@@ -1519,6 +1519,7 @@
   "msg.board.li.sel.type" :"Type",
   "msg.board.li.single" :"Single",
   "msg.board.li.multiple" :"Multiple",
+  "msg.board.li.filter.cnt" : "Max Count",
   "msg.board.ui.ui.component" : "UI component",
   "msg.board.li.combobox" :"Combobox",
   "msg.board.li.list" :"List",

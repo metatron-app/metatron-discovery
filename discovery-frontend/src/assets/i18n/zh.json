@@ -1462,6 +1462,7 @@
   "msg.board.li.sel.type" :"Type",
   "msg.board.li.single": "单件",
   "msg.board.li.multiple": "多件",
+  "msg.board.li.filter.cnt" : "Max Count",
   "msg.board.ui.ui.component": "UI要素",
   "msg.board.li.combobox": "组合框",
   "msg.board.li.list": "列表",
