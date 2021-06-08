@@ -74,6 +74,8 @@ public class InclusionFilter extends Filter {
    */
   Map<String, String> valuePair;
 
+  Integer limit;
+
   public InclusionFilter() {
     // Empty Constructor
   }
@@ -90,7 +92,8 @@ public class InclusionFilter extends Filter {
                          @JsonProperty("preFilters") List<AdvancedFilter> preFilters,
                          @JsonProperty("sort") ItemSort sort,
                          @JsonProperty("showSelectedItem") Boolean showSelectedItem,
-                         @JsonProperty("valuePair") Map<String, String> valuePair) {
+                         @JsonProperty("valuePair") Map<String, String> valuePair,
+                         @JsonProperty("limit") Integer limit) {
     super(dataSource, field, ref);
 
     this.valueList = valueList;
@@ -105,6 +108,7 @@ public class InclusionFilter extends Filter {
     this.sort = sort;
     this.showSelectedItem = showSelectedItem;
     this.valuePair = valuePair;
+    this.limit = limit;
   }
 
   public InclusionFilter(String field, List<String> valueList) {
@@ -205,6 +209,10 @@ public class InclusionFilter extends Filter {
     return showSelectedItem;
   }
 
+  public Integer getLimit() { return limit; }
+
+  public void setLimit(Integer limit) { this.limit = limit; }
+
   @Override
   public String toString() {
     return "InclusionFilter{" +
@@ -215,6 +223,7 @@ public class InclusionFilter extends Filter {
         ", preFilters=" + preFilters +
         ", sort=" + sort +
         ", valuePair=" + valuePair +
+        ", limit=" + limit +
         "} " + super.toString();
   }
 
