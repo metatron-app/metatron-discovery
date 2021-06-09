@@ -155,6 +155,19 @@ export class ColorPickerComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * picker 숨김
+   */
+  public closePicker(): void {
+    ( this.pickerElement ) && ( this.pickerElement.spectrum('hide') );
+  } // func - closePicker
+
+  /**
+   * picker 표시
+   */
+  public openPicker(): void {
+    ( this.pickerElement ) && ( this.pickerElement.spectrum('show') );
+  } // func - openPicker
 
   /**
    * init

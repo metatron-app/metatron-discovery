@@ -2201,6 +2201,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   }
 
   /**
+   * 피봇 색상 변경
+   * @param pivot
+   */
+  public onChangePivotColor(pivot:Pivot): void {
+    this.pivot = pivot;
+    this.drawChart()
+  } // func - onChangePivotColor
+
+  /**
    * 새로운 위젯인지 여부
    * @returns {boolean}
    */

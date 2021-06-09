@@ -20,7 +20,6 @@ import {LogComponent} from '@common/component/modal/log/log.component';
 import {QueryHistory} from '@domain/query/queryHistory';
 import {Log} from '@common/domain/modal';
 import {DatePipe, Location} from '@angular/common';
-import {isUndefined} from 'util';
 import {LogEditorComponent} from '../../../component/log-editor/log-editor.component';
 import {MomentDatePipe} from '@common/pipe/moment.date.pipe';
 import {ActivatedRoute} from '@angular/router';
@@ -128,7 +127,7 @@ export class JobDetailComponent extends AbstractPopupComponent implements OnInit
    * @returns {boolean}
    */
   public isPlanNull(): boolean {
-    return isUndefined(this.audit.plan) || this.audit.plan === null;
+    return undefined === this.audit.plan || this.audit.plan === null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -29,7 +29,7 @@ import {UILineLayer} from '@common/component/chart/option/ui-option/map/ui-line-
 import {UIHeatmapLayer} from '@common/component/chart/option/ui-option/map/ui-heatmap-layer';
 import {UITileLayer} from '@common/component/chart/option/ui-option/map/ui-tile-layer';
 import {BaseOptionComponent} from '../base-option.component';
-import {ColorTemplateComponent} from '@common/component/color-picker/color-template.component';
+import {ColorTemplateComponent} from '../../component/color/color-template.component';
 import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {AggregationType} from '@domain/workbook/configurations/field/measure-field';

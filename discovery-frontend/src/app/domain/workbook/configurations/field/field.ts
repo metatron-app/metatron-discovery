@@ -86,7 +86,12 @@ export abstract class Field {
 
   fieldFormat?: Format;
 
+  // for Combine Chart
+  isSecondaryAxis?: boolean;
+
+  // for Grid Chart
+  public color?: { schema? : { idx : number, key : string } , rgb? : string }
+
   // only used in UI
   isCustomField?: boolean;
-  isSecondaryAxis?: boolean;
 }
