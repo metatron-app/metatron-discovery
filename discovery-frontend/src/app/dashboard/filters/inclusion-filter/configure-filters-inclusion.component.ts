@@ -308,6 +308,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public getData(): InclusionFilter {
     const filter: InclusionFilter = this.targetFilter;
+    filter.limit = this.itemShowCnt;
     filter.valueList = this.selectedValues.map(item => item.name);
     filter.candidateValues = this._candidateValues.map(item => item.name);
     filter.definedValues = this._candidateList.filter(item => item.isDefinedValue).map(item => item.name);
@@ -829,7 +830,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     if(13 === event.keyCode) {
       this.itemShowCnt = event.target['value'];
       this.datasourceService.getCandidateForFilter(this.targetFilter, this._board,[], this._targetField, null, null, this.itemShowCnt).then(result => {
-        this._candidateList = this._candidateList.filter(item => item.isDefinedValue);  // initialize list
+        this._candidateList = this._candidateList.filter(item => item.isDefinedValue);
+        this._candidateValues = this._candidateList;
         this._setCandidateResult(result, this.targetFilter, this._targetField);
         this.safelyDetectChanges();
         this.loadingHide();

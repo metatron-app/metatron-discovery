@@ -530,10 +530,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
       }
 
       this.datasourceService.getCandidateForFilter(
-        this.filter, this.dashboard, prevFilter, this.field, 'COUNT', this.searchText).then((result) => {
+        this.filter, this.dashboard, prevFilter, this.field, 'COUNT', this.searchText, this.filter.limit).then((result) => {
 
         this._candidateList = [];
-
         // 사용자 정의 값 추가
         this.addDefineValues();
 
@@ -545,7 +544,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
           // 일반 필터의 목록 처리
           // 선택된 후보값 목록
           const selectedCandidateValues: string[] = this.filter.candidateValues;
-
           if (selectedCandidateValues && 0 < selectedCandidateValues.length) {
             // 후보값 추가
             selectedCandidateValues.forEach((selectedItem) => {
@@ -609,7 +607,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent<
         this.isShowFilter = true;
       });
     }
-
   } // function - _candidate
 
   // noinspection JSMethodCanBeStatic
