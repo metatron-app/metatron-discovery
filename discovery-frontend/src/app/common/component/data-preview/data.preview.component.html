@@ -19,6 +19,7 @@
     <!-- 대시보드용 데이터소스 선택 콤보박스 -->
     <div *ngIf="isDashboard" class="ddp-wrap-source-name" >
       <dashboard-datasource-combo
+        [canChangeDataSourceMode]="true"
         [dataSources]="datasources"
         [canChangeDataSourceMode]="false"
         [initialValue]="mainDatasource"
@@ -760,3 +761,9 @@
 <!-- //미리보기 팝업 -->
 
 <data-download></data-download>
+<create-board-pop-ds-select *ngIf = "isChangeBoardDataSource"
+                            [workspaceId]="workspaceId"
+                            [selectedDataSource]="selectedDataSource"
+                            [currentDataSources]="currentDataSources"
+                            (close)="closeChangeBoardDataSource()" [isShow]="true"></create-board-pop-ds-select>
+

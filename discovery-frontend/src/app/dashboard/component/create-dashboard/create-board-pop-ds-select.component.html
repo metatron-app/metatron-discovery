@@ -154,6 +154,7 @@
       <!-- //그리드 영역 -->
       <!-- 설명 -->
       <app-datasource-summary *ngIf="'' !== summaryTargetDsId"
+                              [isChangeDsMode]="isSingleMode"
                               [datasource]="summaryTargetDsId" (close)="onCloseSummary()"></app-datasource-summary>
       <!-- //설명 -->
 

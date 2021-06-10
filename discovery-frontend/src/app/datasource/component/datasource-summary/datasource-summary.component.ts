@@ -64,6 +64,10 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
   public isShowDataPreview: boolean = false;
   public isEnabled: boolean = false;
 
+  @Input()
+  public isChangeDsMode: boolean = false;
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

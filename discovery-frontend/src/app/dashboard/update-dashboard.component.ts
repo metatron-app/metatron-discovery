@@ -136,7 +136,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public isShowPage: boolean = false;         // 페이지 상세 show/hide
   public isShowChartPanelTooltip: boolean = false;
   public isChangeDataSource: boolean = false;
-  public isChangeBoardDataSource: boolean = false;
 
   public orgBoardInfo: Dashboard;
 
@@ -148,8 +147,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
   public filterUtil = FilterUtil;
 
-  public selectedDataSource: Datasource;
-  public currentDataSources: Datasource[];
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -219,16 +217,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this.broadCaster.on<any>('UPDATE_BOARD_UPDATE_DATASOURCE').subscribe(() => {
         this.isUpdateDataSource = true;
         this.isShowPage = false;
-      })
-    );
-
-    // 대시보드 데이터소스 변경
-    this.subscriptions.push(
-      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource[], selectedDataSource: Datasource}) => {
-        this.isChangeBoardDataSource = true;
-        this.isShowPage = false;
-        this.currentDataSources = data.dataSource;
-        this.selectedDataSource = data.selectedDataSource;
       })
     );
 
@@ -800,9 +788,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.isUpdateDataSource = false;
   } // function - closeUpdateDataSource
 
-  public closeChangeBoardDataSource(){
-    this.isChangeBoardDataSource = false;
-  }
+
 
   /**
    * 대시보드의 데이터소스 변경

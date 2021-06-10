@@ -61,6 +61,7 @@ import {StorageService} from '../../../data-storage/service/storage.service';
 import {TimeAllFilter} from '@domain/workbook/configurations/filter/time-all-filter';
 import {BoundFilter} from '@domain/workbook/configurations/filter/bound-filter';
 import {InclusionFilter} from '@domain/workbook/configurations/filter/inclusion-filter';
+import {EventBroadcaster} from "@common/event/event.broadcaster";
 
 declare let echarts: any;
 
@@ -191,6 +192,14 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   // is exist derived column
   public isExistDerivedField: boolean;
 
+  // 데이터소스 변경 관련
+  public isChangeBoardDataSource: boolean = false;
+  public selectedDataSource: Datasource;
+  public currentDataSources: Datasource[];
+
+  @Input()
+  public workspaceId: string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -200,6 +209,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
               private connectionService: DataconnectionService,
               private timezoneService: TimezoneService,
               private storageService: StorageService,
+              protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -265,6 +275,15 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     });
 
     this.selectDataSource((this.initial) ? this.datasources.find(item => item.id === this.initial.id) : this.datasources[0]);
+
+    // 대시보드 데이터소스 변경
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource[], selectedDataSource: Datasource}) => {
+        this.isChangeBoardDataSource = true;
+        this.currentDataSources = data.dataSource;
+        this.selectedDataSource = data.selectedDataSource;
+      })
+    );
 
   } // function - ngOnInit
 
@@ -1844,5 +1863,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     }
     return '';
   } // function - getDastasourceNames
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+ | Public Method - Change DataSource
+ |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public closeChangeBoardDataSource(){
+    this.isChangeBoardDataSource = false;
+  }
 
 }

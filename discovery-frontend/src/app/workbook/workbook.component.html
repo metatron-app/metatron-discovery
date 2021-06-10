@@ -560,7 +560,8 @@
                   [workbookId]="workbook.id" [workbookName]="workbook.name" [workspaceId]="workbook.workspaceId"
                   (close)="closeCreateDashboard()"></app-create-board>
 <!-- 데이터 미리보기 -->
-<data-preview *ngIf="isShowDataPreview" [source]="selectedDashboard" (close)="isShowDataPreview=false"></data-preview>
+<data-preview *ngIf="isShowDataPreview" [workspaceId]="workspace.id"
+              [source]="selectedDashboard" (close)="isShowDataPreview=false"></data-preview>
 <!-- 추천 필터 설정 -->
 <app-essential-filter *ngIf="isShowDataIngestion" [datasource]="ingestionTargetDatasource"
                       (close)="isShowDataIngestion = false" (done)="finishDataIngestion($event)">

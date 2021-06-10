@@ -67,6 +67,10 @@ import {FilterSelectBoxComponent} from './component/select/filter-select-box.com
 import {ConfirmRefModalComponent} from './component/modal/confirm/confirm-ref.component';
 import {MetadataTypeBoxTagComponent} from '../explore-data/explore-data/component/metadata-type-box-tag.component';
 import {LoaderInterceptor} from './interceptor/loader-interceptor';
+import {CreateBoardPopDsSelectComponent} from "../dashboard/component/create-dashboard/create-board-pop-ds-select.component";
+import {DatasourceSummaryComponent} from "../datasource/component/datasource-summary/datasource-summary.component";
+import {DataPreviewComponent} from "@common/component/data-preview/data.preview.component";
+import {DataDownloadComponent} from "@common/component/data-download/data.download.component";
 
 export function socketProvider() {
   return new SockJS(CommonConstant.API_CONSTANT.URL + '/stomp');
@@ -87,7 +91,7 @@ const stompConfig: StompConfig = {
     FormsModule,
     ClickOutsideModule,
     InfiniteScrollModule,
-    TranslateModule
+    TranslateModule,
   ],
   declarations: [
     BaseFilter,
@@ -130,7 +134,11 @@ const stompConfig: StompConfig = {
     SvgIconComponent,
     InputComponent,
     PaginationComponent,
-    MetadataTypeBoxTagComponent
+    MetadataTypeBoxTagComponent,
+    CreateBoardPopDsSelectComponent,
+    DatasourceSummaryComponent,
+    DataPreviewComponent,
+    DataDownloadComponent
   ],
   exports: [
     AngularCommonModule,
@@ -179,7 +187,11 @@ const stompConfig: StompConfig = {
     SvgIconComponent,
     InputComponent,
     PaginationComponent,
-    MetadataTypeBoxTagComponent
+    MetadataTypeBoxTagComponent,
+    CreateBoardPopDsSelectComponent,
+    DatasourceSummaryComponent,
+    DataPreviewComponent,
+    DataDownloadComponent
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true},
