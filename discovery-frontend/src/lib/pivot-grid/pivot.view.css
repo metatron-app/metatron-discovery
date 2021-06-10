@@ -88,10 +88,11 @@
   border-right: 1px solid #f0f0f0;
   border-bottom: 1px solid #f0f0f0;
 }
+/* Modified Scroll Style - by harry */
 .pivot-view .pivot-view-body {
-
   position: absolute;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 .pivot-view .pivot-view-body.header-none {top:0px !important;}
 .pivot-view .pivot-view-body .pivot-view-wrap.header-none {left:0px !important;}
@@ -178,3 +179,8 @@
   padding: 0 5px;
   justify-content: flex-end;
 }
+
+
+/*TODO*/
+.btnAlert {cursor: pointer; padding: 15px; background: #303030; color: #fff; text-transform: uppercase; transition:all .3s ease; text-align:center; }
+.btnAlert:hover {background:#fff; color:#303030;}
