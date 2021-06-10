@@ -44,6 +44,9 @@ import app.metatron.discovery.domain.workbook.configurations.board.WidgetRelatio
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.SingleDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
@@ -206,6 +209,7 @@ public class DashBoardService {
 
     // WidgetField
     for (Widget widget: dashBoard.getWidgets()) {
+      int userDefinedFieldCnt = 0;
       validateCnt = 0;
       WidgetConfiguration widgetConfiguration = GlobalObjectMapper.readValue(widget.getConfiguration(), WidgetConfiguration.class);
       if ((widgetConfiguration instanceof PageWidgetConfiguration)) {
@@ -214,14 +218,21 @@ public class DashBoardService {
         if (engineName.equals(fromDataSource.getEngineName())) {
           List<app.metatron.discovery.domain.workbook.configurations.field.Field> widgetFields = ((PageWidgetConfiguration) widgetConfiguration).getPivot().getAllFields();
           for (app.metatron.discovery.domain.workbook.configurations.field.Field field : widgetFields) {
-            for (Field datasourceField : toDataSource.getFields()) {
-              if (datasourceField.getName().equals(field.getName())) {
-                validateCnt++;
-                break;
+            if ("user_defined".equals(field.getRef())) {
+              userDefinedFieldCnt++;
+            } else {
+              for (Field datasourceField : toDataSource.getFields()) {
+                if (datasourceField.getName().equals(field.getName())) {
+                  if ((field instanceof MeasureField && datasourceField.getRole().equals(Field.FieldRole.MEASURE))
+                      || (field instanceof DimensionField && datasourceField.getRole().equals(Field.FieldRole.DIMENSION))
+                      || (field instanceof TimestampField && datasourceField.getRole().equals(Field.FieldRole.TIMESTAMP)))
+                    validateCnt++;
+                  break;
+                }
               }
             }
           }
-          if (validateCnt != widgetFields.size()) {
+          if (validateCnt != widgetFields.size() - userDefinedFieldCnt) {
             throw new BadRequestException("The field contained in the widget does not exist in the new datasource.");
           }
 
@@ -246,9 +257,7 @@ public class DashBoardService {
         }
 
       } else if ((widgetConfiguration instanceof FilterWidgetConfiguration)) {
-        String engineName = ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() != null ?
-            ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() : ((FilterWidgetConfiguration) widgetConfiguration).getDataSource().getName();
-        if (engineName.equals(fromDataSource.getEngineName())) {
+        if (fromDataSource.getEngineName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getDataSource())) {
           for (Field datasourceField : toDataSource.getFields()) {
             if (datasourceField.getName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getField())) {
               validateCnt++;
