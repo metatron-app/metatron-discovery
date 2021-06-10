@@ -35,7 +35,7 @@ import {
   LabelLayoutType,
   LabelSecondaryIndicatorMarkType,
   LabelSecondaryIndicatorPeriod,
-  LabelSecondaryIndicatorType,
+  LabelSecondaryIndicatorType, LabelStyle,
   ShelveFieldType,
   ShelveType
 } from '../option/define/common';
@@ -747,6 +747,36 @@ export class LabelChartComponent extends BaseChart<UILabelChart>
     // KPI 차트는 엘리먼트로 구성되지 않기 때문에 chartOption을 쓰지 않지만 override를 위해 반환
     return this.chartOption;
   }
+
+  /**
+   * 색상 클래스 반환
+   * @param idx
+   */
+  public getColorClass(idx: number): string {
+    const field: any = this.pivot.aggregations[idx];
+    if( field && field.color && field.color.rgb ) {
+      return '';
+    } else {
+      return 'ddp-color' + ( ( idx % 8 ) + 1 );
+    }
+  } // func - getColorClass
+
+  /**
+   * 필드 색상 스타일 반환
+   * @param idx
+   */
+  public getFieldColorStyle(idx:number): string {
+    const field: any = this.pivot.aggregations[idx];
+    if( field && field.color && field.color.rgb ) {
+      let strStyle = 'border-top: 3px solid ' + field.color.rgb + ';';
+      if( LabelStyle.SOLID === this.uiOption.chartStyle ) {
+        strStyle = strStyle + 'background-color:' + field.color.rgb + ';';
+      }
+      return strStyle;
+    } else {
+      return '';
+    }
+  } // func - getFieldColorStyle
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

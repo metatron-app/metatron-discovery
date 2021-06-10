@@ -169,7 +169,7 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="!uiOption?.split && isMeasureField && 'grid' === chartType"
+      <li *ngIf="!uiOption?.split && isMeasureField && isGridChart"
           (mouseover)="hideAllSubContext();fixMeasureFormatContext = true;">
         <a href="javascript:">
           {{'msg.page.th.format' | translate}}
@@ -527,7 +527,7 @@
         <!-- //2depth -->
       </li>
       <!-- Grid Measure Color Setting -->
-      <li *ngIf="!uiOption?.split && editingField.type == 'measure' && 'grid' === chartType"
+      <li *ngIf="!uiOption?.split && editingField.type == 'measure' && ( isGridChart || isLabelChart )"
           (mouseover)="hideAllSubContext();fixMeasureColorContext = true;">
         <a href="javascript:">
           {{'msg.page.ui.color' | translate}}
@@ -538,9 +538,13 @@
           </div>
         </a>
         <!-- 2depth -->
-        <div class="ddp-ui-layer-sub" [ngStyle]="{'display' : ( fixMeasureColorContext ? 'block' : 'none' ) }">
+        <div class="ddp-ui-layer-sub"
+             [ngStyle]="{
+             'display' : ( fixMeasureColorContext ? 'block' : 'none' ),
+             'top': ( isLabelChart ? '-3px' : '-20px' )
+             }">
           <ul class="ddp-list-popup">
-            <li [class.ddp-selected]="isSelectedColorType( 'GRADATION' )">
+            <li *ngIf="isGridChart" [class.ddp-selected]="isSelectedColorType( 'GRADATION' )">
               <a href="javascript:">
                 {{'msg.page.ui.color.gradation' | translate}}
                 <button class="ddp-btn-color-type{{colorSchemaIdx}} ddp-type"

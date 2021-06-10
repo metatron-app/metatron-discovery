@@ -98,6 +98,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     // Set
     this.uiOption = uiOption;
 
+    if( ChartType.LABEL === this.uiOption.type && !this.uiOption.color ) {
+      this.uiOption.color = UI.Color.measureUIChartColor('SC1');
+    }
+
     // only if fieldList doesn't exist
     if (!this.uiOption.fieldList || 0 === this.uiOption.fieldList.length) {
 
@@ -266,6 +270,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Getter / Setter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public get isGridChart(): boolean {
+    return this.uiOption && ChartType.GRID === this.uiOption.type;
+  } // get - isGridChart
+
+  public get isLabelChart(): boolean {
+    return this.uiOption && ChartType.LABEL === this.uiOption.type;
+  } // get - isLabelChart
+
   public get isSeriesColorType(): boolean {
     return this.uiOption.color.type === ChartColorType.SERIES;
   } // get - isSeriesColorType
