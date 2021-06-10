@@ -54,7 +54,6 @@ import {RoleSchemaComponent} from '../workspace/component/permission/role-schema
 import {ColorPickerComponent} from './component/color-picker/color.picker.component';
 import {GradationGeneratorComponent} from './component/gradation/gradation-generator.component';
 import {DashboardDatasourceComboComponent} from '../dashboard/component/dashboard-datasource-combo.component';
-import {ColorTemplateComponent} from './component/color-picker/color-template.component';
 import {InputComponent} from './component/input/input.component';
 import {SvgIconComponent} from './component/icon/svg-icon.component';
 import {CommonConstant} from './constant/common.constant';
@@ -126,7 +125,6 @@ const stompConfig: StompConfig = {
     ColorPickerComponent,
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
-    ColorTemplateComponent,
     SvgIconComponent,
     InputComponent,
     PaginationComponent,
@@ -175,7 +173,6 @@ const stompConfig: StompConfig = {
     ColorPickerComponent,
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
-    ColorTemplateComponent,
     SvgIconComponent,
     InputComponent,
     PaginationComponent,

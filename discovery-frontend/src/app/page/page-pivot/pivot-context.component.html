@@ -60,7 +60,7 @@
         </a>
       </li>
       <li *ngIf="['timestamp'].indexOf(editingField?.type) == -1 && 'map' !== uiOption.type?.toString()"
-          (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
+          (mouseover)="hideAllSubContext();">
         <a href="javascript:">
           {{'msg.page.th.align' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -94,7 +94,7 @@
         <!-- //2depth -->
       </li>
       <!--<li *ngIf="isMeasureField && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">-->
-      <li *ngIf="showAggregate()" (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
+      <li *ngIf="showAggregate()" (mouseover)="hideAllSubContext();">
         <a href="javascript:">
           {{'msg.page.th.aggregate' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -140,7 +140,7 @@
         <!-- //2depth -->
       </li>
       <li *ngIf="isCombineChart && isMeasureField"
-          (mouseover)="fix2DepthContext = false;fixMeasureFormatContext = false;">
+          (mouseover)="hideAllSubContext();">
         <a href="javascript:">
           {{'msg.page.th.vslztn' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -170,7 +170,7 @@
         <!-- //2depth -->
       </li>
       <li *ngIf="!uiOption?.split && isMeasureField && ( 'grid' === chartType || 'label' === chartType )"
-          (mouseover)="fixMeasureFormatContext = true;fix2DepthContext = false;">
+          (mouseover)="hideAllSubContext();fixMeasureFormatContext = true;">
         <a href="javascript:">
           {{'msg.page.th.format' | translate}}
           <div class="ddp-data-result ddp-type">
@@ -526,6 +526,55 @@
         </div>
         <!-- //2depth -->
       </li>
+      <!-- Grid Measure Color Setting -->
+      <li *ngIf="!uiOption?.split && editingField.type == 'measure' && 'grid' === chartType"
+          (mouseover)="hideAllSubContext();fixMeasureColorContext = true;">
+        <a href="javascript:">
+          {{'msg.page.ui.color' | translate}}
+          <div class="ddp-data-result ddp-type">
+            <span *ngIf="isSelectedColorType( 'GRADATION' )">{{'msg.page.ui.color.gradation' | translate}}</span>
+            <span *ngIf="isSelectedColorType( 'INDIVIDUAL' )">{{'msg.page.ui.color.individual' | translate}}</span>
+            <em class="ddp-icon-view"></em>
+          </div>
+        </a>
+        <!-- 2depth -->
+        <div class="ddp-ui-layer-sub" [ngStyle]="{'display' : ( fixMeasureColorContext ? 'block' : 'none' ) }">
+          <ul class="ddp-list-popup">
+            <li [class.ddp-selected]="isSelectedColorType( 'GRADATION' )">
+              <a href="javascript:">
+                {{'msg.page.ui.color.gradation' | translate}}
+                <button class="ddp-btn-color-type{{colorSchemaIdx}} ddp-type"
+                        [ngClass]="{'sys-inverted': isInvertedColorSchema}"
+                        style="position: absolute;right: 7px;top: 2px;width:18px;height:18px;background-size: 18px 18px;"></button>
+                <em class="ddp-icon-check" style="pointer-events: none;"></em>
+              </a>
+              <!-- 3depth -->
+              <div color-template class="ddp-ui-layer-sub"
+                   [schema]="colorSchema"
+                   [layerType]="'context'"
+                   [colorType]="'MEASURE'"
+                   (notiChangeColor)="changeGradationColor($event)"
+                   style="width:290px;height:400px;overflow-y:scroll;">
+              </div>
+              <!-- // 3depth -->
+            </li>
+            <li [class.ddp-selected]="isSelectedColorType( 'INDIVIDUAL' )"
+                (mouseover)="showPicker()" class="sys-individual-color-menu">
+              <a href="javascript:">
+                {{'msg.page.ui.color.individual' | translate}}
+                <color-picker #colorPicker
+                              [color]="colorCode" [showAlpha]="true" [showInitial]="true"
+                              [showInput]="true" [showUserColor]="true"
+                              (selected)="changeSolidColor($event)"
+                              style="position: absolute;right: 7px;top: 2px;"></color-picker>
+                <em class="ddp-icon-check" style="pointer-events: none;"></em>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!-- // 2depth -->
+      </li>
+      <!-- // Grid Measure Color Setting -->
     </ul>
   </div>
 </div>

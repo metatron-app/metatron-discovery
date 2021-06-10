@@ -22,6 +22,7 @@ import {BaseOption} from '../option/base-option';
 import {
   CellColorTarget,
   CHART_STRING_DELIMITER,
+  ChartColorList,
   ChartColorType,
   ChartSelectMode,
   ColorCustomMode,
@@ -32,7 +33,10 @@ import {
   UIOrient,
   UIPosition
 } from '../option/define/common';
+import {ColorOptionConverter} from '@common/component/chart/option/converter/color-option-converter';
 import {Pivot} from '@domain/workbook/configurations/pivot';
+import {Field} from '@domain/workbook/configurations/field/field';
+import {Format} from '@domain/workbook/configurations/format';
 import * as _ from 'lodash';
 import {UIChartColorByCell} from '../option/ui-option';
 import {TotalValueStyle, UIGridChart} from '../option/ui-option/ui-grid-chart';
@@ -325,9 +329,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
         if (aggr.field && aggr.field.logicalType) {
           aggrInfo['type'] = aggr.field.logicalType;
         }
-        if (aggr.fieldFormat) {
-          aggrInfo['fieldFormat'] = aggr.fieldFormat;
-        }
+        aggrInfo['fieldFormat'] = this.setFieldFormat(aggr);
         return aggrInfo;
       });
     } else {
@@ -389,15 +391,12 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
           (originAggregations[0].type) || (originAggregations[0].type = {});
           originAggregations[0].type[aggr.name] = aggr.field.logicalType;
 
-          if (aggr.fieldFormat) {
-            (originAggregations[0]['fieldFormat']) || (originAggregations[0]['fieldFormat'] = []);
-            if (-1 === originAggregations[0]['fieldFormat'].findIndex(item => aggr.field.name === item['aggrColumn'])) {
-              const fieldFormat = JSON.parse(JSON.stringify(aggr.fieldFormat));
-              fieldFormat['aggrColumn'] = aggr.field.name;
-              originAggregations[0]['fieldFormat'].push(fieldFormat);
-            }
+          (originAggregations[0]['fieldFormat']) || (originAggregations[0]['fieldFormat'] = []);
+          if (-1 === originAggregations[0]['fieldFormat'].findIndex(item => aggr.field.name === item['aggrColumn'])) {
+            const fieldFormat = this.setFieldFormat( aggr );
+            fieldFormat['aggrColumn'] = aggr.field.name;
+            originAggregations[0]['fieldFormat'].push(fieldFormat);
           }
-
         }
       });
       aggregations = originAggregations;
@@ -467,7 +466,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
       this.gridModel.body.color.showColorStep = true;
 
       // 색상 타입 설정
-      this.gridModel.body.color.colorTarget = cellColor.colorTarget;
+      this.gridModel.body.color.colorTarget = cellColor.colorTarget ? cellColor.colorTarget : CellColorTarget.TEXT;
 
       // ranges 색상값이있을때 설정
       this.setRangeColor(cellColor, this.gridModel);
@@ -529,7 +528,7 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
       this.gridModel.header.font.color = this.uiOption.headerStyle.fontColor;
       this.gridModel.header.backgroundColor = this.uiOption.headerStyle.backgroundColor;
 
-      // 연산행 설정  
+      // 연산행 설정
       if (this.uiOption.totalValueStyle) {
         this.gridModel.totalValueStyle = this._getGridTotalStyle(this.uiOption.totalValueStyle);
       }
@@ -650,9 +649,11 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
 
         // gt, lte값을 min / max 값으로 치환
         rangeList.forEach((item) => {
-
           rangeColors.push({min: item.gt, max: item.lte, fixMin: item.fixMin, fixMax: item.fixMax, color: item.color});
         });
+
+        rangeColors[0].max = 999999999999999999999;
+        rangeColors[rangeColors.length - 1].min = -999999999999999999999;
 
         // pieces값 설정
         gridModel.body.color.stepRangeColors = rangeColors;
@@ -731,5 +732,42 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
     if (ChartColorType.SINGLE === uiOption.color.type && !uiOption.color['code']) uiOption.color['code'] = '';
     return this.uiOption
   }
+
+  /**
+   * 필드 형식 설정
+   * @param aggr - 필드 정보 ( Aggregation )
+   * @private
+   */
+  private setFieldFormat(aggr:Field): Format {
+    let fieldFormat:Format = {};
+    if (aggr.fieldFormat) {
+      fieldFormat = JSON.parse(JSON.stringify(aggr.fieldFormat));
+    }
+    if( aggr.color ) {
+      const colorTarget = this.uiOption.color.colorTarget ? this.uiOption.color.colorTarget : CellColorTarget.TEXT;
+      if( aggr.color.rgb ) {
+        // 단색 설정
+        if( colorTarget === CellColorTarget.TEXT ) {
+          ( fieldFormat['font'] ) || ( fieldFormat['font'] = {} );
+          fieldFormat['font']['color'] = aggr.color.rgb;
+        } else {
+          fieldFormat['backgroundColor'] = aggr.color.rgb;
+        }
+      } else {
+        // 그라데이션 설정
+        const colorList = ChartColorList[aggr.color.schema.key] as any;
+        const ranges = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
+        ranges[0].lte = 999999999999999999999;
+        ranges[ranges.length - 1].gt = -999999999999999999999;
+        if( colorTarget === CellColorTarget.TEXT ) {
+          ( fieldFormat['font'] ) || ( fieldFormat['font'] = {} );
+          fieldFormat['font']['rangeColor'] = ranges;
+        } else {
+          fieldFormat['rangeBackgroundColor'] = ranges;
+        }
+      }
+    }
+    return fieldFormat;
+  } // func - setFieldFormat
 
 }

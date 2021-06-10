@@ -77,59 +77,16 @@
               <!-- //colorby button -->
 
               <!-- popup -->
-              <div class="ddp-popup-side" *ngIf="colorListFlag">
-                <!-- top -->
-                <div class="ddp-pop-side-top">
-                  {{'msg.page.ui.color.palette' | translate}}
-                  <a href="javascript:" class="ddp-btn-close" (click)="colorListFlag=false"></a>
-                </div>
-                <!-- //top -->
-                <!-- contents -->
-                <div *ngIf="'measure' !== uiOption.color.type.toString()" class="ddp-pop-side-contents">
-                  <ul class="ddp-list-series">
-                    <li *ngFor="let item of defaultColorList">
-                      <!-- 선택시 ddp-selected 추가 -->
-                      <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}" (click)="changeColor(item)"></button>
-                    </li>
-                  </ul>
-                </div>
-                <!-- //contents -->
-                <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
-                <!-- contents -->
-                <div *ngIf="'measure' === uiOption.color.type.toString()"  class="ddp-pop-side-contents">
-                  <div class="ddp-box-slider">
-                    <div class="ddp-wrap-option-slider">
-                      <span class="ddp-label-slider">{{'msg.page.ui.color.invert' | translate}}</span>
-                      <!-- Slide THREE -->
-                      <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                        <input type="checkbox" id="invertColor" name="check" [checked]="isChartColorInverted()" (click)="invertColor()">
-                        <label for="invertColor"><span class="ddp-slide"></span></label>
-                      </div>
-                      <!-- //Slide THREE -->
-                    </div>
-                  </div>
-                  <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
-                  <ul class="ddp-list-series">
-                    <li *ngFor="let item of measureColorList; let num = index">
-                      <!-- 선택시 ddp-selected 추가 -->
-                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': isChartColorSelected(item), 'sys-inverted': isTemplateColorInverted === undefined ? isChartColorInverted() : isTemplateColorInverted}"
-                              (click)="changeColor(item, measureColorList[num])"></button>
-                    </li>
-                  </ul>
-
-                  <span class="ddp-pop-sub-title">{{'msg.page.th.contrast.display' | translate}}</span>
-                  <ul class="ddp-list-series">
-                    <li *ngFor="let item of measureReverseColorList; let num = index">
-                      <!-- 선택시 ddp-selected 추가 -->
-                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': isChartColorSelected(item), 'sys-inverted': isTemplateColorInverted === undefined ? isChartColorInverted() : isTemplateColorInverted}"
-                              (click)="changeColor(item, measureReverseColorList[num])"></button>
-                    </li>
-                  </ul>
-                </div>
-                <!-- //contents -->
-
-              </div>
+              <div color-template
+                   #colorTemplate
+                   *ngIf="colorListFlag" class="ddp-popup-side"
+                   [layerType]="'default'"
+                   [schema]="uiOption.color['schema']"
+                   [colorType]="uiOption.color.type.toString().toUpperCase()"
+                   (notiChangeColor)="changeColor($event)"
+                   (closeEvent)="colorListFlag = false;"></div>
               <!-- //popup -->
+
             </div>
 
           </div>
@@ -137,7 +94,7 @@
         </div>
 
         <!-- color by series part -->
-        <div *ngIf="uiOption.color.type.toString() == 'series'" class="ddp-wrap-divide">
+        <div *ngIf="isSeriesColorType" class="ddp-wrap-divide">
 
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
@@ -175,7 +132,7 @@
         <!-- //color by series part -->
 
         <!-- color by dimension part -->
-        <div *ngIf="'gauge' == uiOption.type.toString() && uiOption.color.type.toString() == 'dimension'" class="ddp-wrap-divide">
+        <div *ngIf="'gauge' == uiOption.type.toString() && isDimensionColorType" class="ddp-wrap-divide">
 
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
@@ -214,7 +171,7 @@
 
         <!-- color by measure part -->
         <!-- 사용자 색상 프리셋 box down color by measure일때 -->
-        <div *ngIf="uiOption.color.type.toString() == 'measure'" class="ddp-wrap-divide">
+        <div *ngIf="isMeasureColorType" class="ddp-wrap-divide">
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
             <!-- Slide THREE -->
@@ -349,6 +306,46 @@
           <!--</a>-->
         </div>
         <!-- //color by measure part -->
+
+        <!-- color by grid individual setting  -->
+        <div *ngIf="'grid' == uiOption.type.toString() && existPivotSettings" class="ddp-wrap-divide">
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.chart.color.individual.setting' | translate}}</span>
+          </div>
+          <div class="ddp-list-sub2">
+            <div class="ddp-ui-colorby">
+              <div *ngFor="let item of filteredPivotColors; let index = index" class="ddp-ui-color-select">
+                <div class="ddp-txt-label">
+                  <div class="ddp-ui-txt">
+                    <div class="ddp-box-color">
+                      <color-picker *ngIf="isSolid(item)"
+                                    [color]="solidColorCode(item)"
+                                    [showAlpha]="true" [showInitial]="true" [showInput]="true" [showUserColor]="true"
+                                    (selected)="changeSolidColor($event, item)" ></color-picker>
+                      <button *ngIf="isSchema(item)" class="ddp-btn-color-type{{schemaIdx(item)}} ddp-type"
+                              [ngClass]="{'sys-inverted': isInvertedSchema(item)}"
+                              (click)="item['showColorList'] = true"
+                              style="width:18px;height:18px;background-size: 18px 18px;"></button>
+                    </div>
+                    <span class="ddp-txt-data" title="{{getFieldName(item)}}">{{getFieldName(item)}}</span>
+                  </div>
+                  <a href="javascript:" (click)="removePivotColor(item)" class="ddp-btn-reset3"></a>
+                </div>
+                <!-- popup -->
+                <div color-template
+                     *ngIf="item['showColorList']" class="ddp-popup-side"
+                     [schema]="schemaKey(item)"
+                     [layerType]="'default'"
+                     [colorType]="'MEASURE'"
+                     (notiChangeColor)="changeGradationColor($event, item)"
+                     (closeEvent)="item['showColorList'] = false;"></div>
+                <!-- // popup -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- //color by grid individual setting -->
+
       </div>
       <!-- //box down -->
     </div>
