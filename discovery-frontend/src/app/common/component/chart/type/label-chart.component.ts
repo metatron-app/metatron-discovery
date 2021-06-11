@@ -543,7 +543,10 @@ export class LabelChartComponent extends BaseChart<UILabelChart>
     for (let num: number = 0; num < seriesLength; num++) {
 
       // 포맷정보
-      const format: UIChartFormatItem = !this.uiOption.valueFormat.isAll && this.uiOption.valueFormat.each.length > 0 ? this.uiOption.valueFormat.each[num] : this.uiOption.valueFormat;
+      let format: UIChartFormatItem = !this.uiOption.valueFormat.isAll && this.uiOption.valueFormat.each.length > 0 ? this.uiOption.valueFormat.each[num] : this.uiOption.valueFormat;
+      if( this.pivot.aggregations[num].fieldFormat ) {
+        format = this.pivot.aggregations[num].fieldFormat;
+      }
 
       // KPI Info
       const kpi: KPI = new KPI();
