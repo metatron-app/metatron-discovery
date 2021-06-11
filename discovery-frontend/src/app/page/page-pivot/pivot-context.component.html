@@ -169,7 +169,7 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="!uiOption?.split && isMeasureField && 'grid' === chartType"
+      <li *ngIf="!uiOption?.split && isMeasureField && ( 'grid' === chartType || 'label' === chartType )"
           (mouseover)="hideAllSubContext();fixMeasureFormatContext = true;">
         <a href="javascript:">
           {{'msg.page.th.format' | translate}}
