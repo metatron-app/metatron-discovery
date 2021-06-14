@@ -41,6 +41,8 @@ import {Field} from '@domain/workbook/configurations/field/field';
  */
 export class FormatOptionConverter {
 
+  public static lang:string = 'en';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -142,7 +144,7 @@ export class FormatOptionConverter {
           return [
             ...acc,
             ...this.getFormatValueTooltip(item, uiOption, fieldInfo, format, pivot, option, uiData).split('<br/>')
-          ].reduce((unique, item) => unique.includes(item) ? unique : [...unique, item], []);
+          ].reduce((unique, reduceItem) => unique.includes(reduceItem) ? unique : [...unique, reduceItem], []);
         }, []).join('<br/>');
       } else {
         const option = chartOption.series[params.seriesIndex];
@@ -188,13 +190,23 @@ export class FormatOptionConverter {
     if (format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value = Math.abs(value) > 1000000000
-            ? Number(value) / 1000000000
-            : Math.abs(value) > 1000000
-              ? Number(value) / 1000000
-              : Math.abs(value) > 1000
-                ? Number(value) / 1000
-                : value;
+          if( 'ko' === this.lang ) {
+            value = Math.abs(value) > 100000000
+              ? Number(value) / 100000000
+              : Math.abs(value) > 10000
+                ? Number(value) / 10000
+                : Math.abs(value) > 1000
+                  ? Number(value) / 1000
+                  : value;
+          } else {
+            value = Math.abs(value) > 1000000000
+              ? Number(value) / 1000000000
+              : Math.abs(value) > 1000000
+                ? Number(value) / 1000000
+                : Math.abs(value) > 1000
+                  ? Number(value) / 1000
+                  : value;
+          }
           break;
         case String(UIFormatNumericAliasType.KILO_KOR) :
         case String(UIFormatNumericAliasType.KILO) :
@@ -265,13 +277,23 @@ export class FormatOptionConverter {
     if (format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value += Math.abs(originalValue) > 1000000000
-            ? 'B'
-            : Math.abs(originalValue) > 1000000
-              ? 'M'
-              : Math.abs(originalValue) > 1000
-                ? 'K'
-                : '';
+          if( 'ko' === this.lang ) {
+            value += Math.abs(originalValue) > 100000000
+              ? '억'
+              : Math.abs(originalValue) > 10000
+                ? '만'
+                : Math.abs(originalValue) > 1000
+                  ? '천'
+                  : '';
+          } else {
+            value += Math.abs(originalValue) > 1000000000
+              ? 'B'
+              : Math.abs(originalValue) > 1000000
+                ? 'M'
+                : Math.abs(originalValue) > 1000
+                  ? 'K'
+                  : '';
+          }
           break;
         case String(UIFormatNumericAliasType.KILO) :
           value += 'K';

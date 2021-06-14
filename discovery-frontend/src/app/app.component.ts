@@ -27,6 +27,7 @@ import * as _ from 'lodash';
 import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {UserSetting} from '@common/value/user.setting.value';
 import {CommonUtil} from '@common/util/common.util';
+import {FormatOptionConverter} from '@common/component/chart/option/converter/format-option-converter';
 
 @Component({
   selector: 'app-root',
@@ -68,11 +69,14 @@ export class AppComponent implements AfterContentChecked {
         lang = userLang;
       }
       if (lang === 'zh' || lang === 'zh-CN') {
-        this.translateService.use('zh')
+        this.translateService.use('zh');
+        FormatOptionConverter.lang = 'zh';
       } else if (lang === 'ko') {
-        this.translateService.use('ko')
+        this.translateService.use('ko');
+        FormatOptionConverter.lang = 'ko';
       } else {
         this.translateService.use('en')
+        FormatOptionConverter.lang = 'en';
       }
       this.translateService.setDefaultLang('en');
     }
