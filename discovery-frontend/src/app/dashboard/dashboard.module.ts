@@ -47,6 +47,7 @@ import {ConfigureFiltersBoundComponent} from './filters/bound-filter/configure-f
 import {ConfigureFiltersTimeComponent} from './filters/time-filter/configure-filters-time.component';
 import {MetadataService} from '../meta-data-management/metadata/service/metadata.service';
 import {CreateBoardComponent} from './component/create-dashboard/create-board.component';
+import {CreateBoardPopDsSelectComponent} from './component/create-dashboard/create-board-pop-ds-select.component';
 import {CreateBoardDsNetworkComponent} from './component/create-dashboard/create-board-ds-network.component';
 import {CreateBoardDsInfoComponent} from './component/create-dashboard/create-board-ds-info.component';
 import {CreateBoardDsRelationComponent} from './component/create-dashboard/create-board-ds-relation.component';
@@ -84,6 +85,7 @@ const dashboardRoutes: Routes = [
     CreateBoardDsRelationComponent,
     CreateBoardPopJoinComponent,
     CreateBoardPopRelationComponent,
+    CreateBoardPopDsSelectComponent,
     UpdateDatasourceComponent,
     UpdateDashboardComponent,
     SelectionFilterComponent,
@@ -108,12 +110,13 @@ const dashboardRoutes: Routes = [
     TimezoneService,
     AnalysisPredictionService
   ],
-    exports: [
-        DashboardComponent,
-        UpdateDashboardComponent,
-        CreateBoardComponent,
-        SelectionFilterComponent,
-    ],
+  exports: [
+    DashboardComponent,
+    UpdateDashboardComponent,
+    CreateBoardComponent,
+    SelectionFilterComponent,
+    CreateBoardPopDsSelectComponent
+  ],
   bootstrap: [
     DashboardWidgetComponent,
     DashboardWidgetHeaderComponent,

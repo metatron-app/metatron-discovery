@@ -15,14 +15,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@common/common.module';
 import { DataPreviewModule } from '@common/data.preview.module';
+import { DatasourceSummaryComponent } from './component/datasource-summary/datasource-summary.component';
 
 @NgModule({
   imports: [
     CommonModule,
     DataPreviewModule
   ],
-  declarations: [],
-  exports: []
+  declarations: [DatasourceSummaryComponent],
+  exports: [DatasourceSummaryComponent]
 })
 export class DatasourceShareModule {
 }

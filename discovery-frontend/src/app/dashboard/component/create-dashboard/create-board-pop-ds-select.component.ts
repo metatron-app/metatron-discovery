@@ -38,7 +38,6 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @Input('workspaceId')
   public workspaceId: string;  // 워크스페이스 아이디
 
   // 정렬
@@ -63,7 +62,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   public currentDataSources: Datasource[];
 
   @Input('isShow')
-  public isShow: boolean;
+  public isShow: boolean = false;
 
   @Input('dashboardId')
   public dashboardId: string;
@@ -95,12 +94,6 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    */
   public ngOnInit() {
     super.ngOnInit();
-
-    this.isShow = (this.isShow) ? this.isShow : false;
-    if(this.isShow){
-      // 데이터 소스 조회
-      this.open(this.workspaceId, []);
-    }
 
     // 필터설정
     this.typeFilter = [
@@ -152,7 +145,7 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
 
     // 데이터 초기화
     this.summaryTargetDsId = '';
-    this._prevDataSourceIds = dataSourceIds;    // 기존에 선택되었던 데이터소스 아이디 목록 저장
+    this._prevDataSourceIds = dataSourceIds;        // 기존에 선택되었던 데이터소스 아이디 목록 저장
     this.selectedContentSort.key = 'modifiedTime';  // 정렬 키
     this.selectedContentSort.sort = 'desc';         // 정렬 방식
     this.searchPublished = false;                   // 공개여부 토글
