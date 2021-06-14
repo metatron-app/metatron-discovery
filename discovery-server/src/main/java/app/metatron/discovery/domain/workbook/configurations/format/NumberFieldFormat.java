@@ -120,7 +120,7 @@ public class NumberFieldFormat implements FieldFormat {
   }
 
   public enum Abbreviation {
-    NONE, AUTO, KILO, MEGA, GIGA
+    NONE, AUTO, KILO, MEGA, GIGA, KILO_KOR, MEGA_KOR, GIGA_KOR
   }
 
   public enum SymbolPosition {

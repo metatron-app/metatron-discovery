@@ -196,6 +196,7 @@ export class FormatOptionConverter {
                 ? Number(value) / 1000
                 : value;
           break;
+        case String(UIFormatNumericAliasType.KILO_KOR) :
         case String(UIFormatNumericAliasType.KILO) :
           value = Number(value) / 1000;
           break;
@@ -204,6 +205,12 @@ export class FormatOptionConverter {
           break;
         case String(UIFormatNumericAliasType.GIGA) :
           value = Number(value) / 1000000000;
+          break;
+        case String(UIFormatNumericAliasType.MEGA_KOR) :
+          value = Number(value) / 10000;
+          break;
+        case String(UIFormatNumericAliasType.GIGA_KOR) :
+          value = Number(value) / 100000000;
           break;
       }
     }
@@ -274,6 +281,15 @@ export class FormatOptionConverter {
           break;
         case String(UIFormatNumericAliasType.GIGA) :
           value += 'B';
+          break;
+        case String(UIFormatNumericAliasType.KILO_KOR) :
+          value += '천';
+          break;
+        case String(UIFormatNumericAliasType.MEGA_KOR) :
+          value += '만';
+          break;
+        case String(UIFormatNumericAliasType.GIGA_KOR) :
+          value += '억';
           break;
       }
     }

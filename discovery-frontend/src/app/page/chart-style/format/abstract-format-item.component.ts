@@ -122,6 +122,17 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
     {
       name: this.translateService.instant('msg.page.format.numeric.alias.billion'),
       value: String(UIFormatNumericAliasType.GIGA)
+    },{
+      name: this.translateService.instant('msg.page.format.numeric.alias.kilo.ko'),
+      value: String(UIFormatNumericAliasType.KILO_KOR)
+    },
+    {
+      name: this.translateService.instant('msg.page.format.numeric.alias.million.ko'),
+      value: String(UIFormatNumericAliasType.MEGA_KOR)
+    },
+    {
+      name: this.translateService.instant('msg.page.format.numeric.alias.billion.ko'),
+      value: String(UIFormatNumericAliasType.GIGA_KOR)
     },
   ];
 
@@ -350,7 +361,8 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
    * @param numericAlias
    */
   public onNumericAliasChange(numericAlias: object): void {
-
+    console.log('onNumericAliasChange');
+    console.log(numericAlias);
     // 심볼변경
     this.selectedNumericAlias = numericAlias;
 
@@ -368,6 +380,8 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
       this.format = {};
     }
 
+    this.format = {};
+
     // Value Setting
     this.format.type = this.selectedType['value'];
     this.format.sign = this.selectedSign['value'];
@@ -381,6 +395,8 @@ export abstract class AbstractFormatItemComponent extends AbstractComponent impl
 
     // Dispatch Event
     this.changeEvent.emit(this.format);
+    console.log('change');
+    console.log(this.format);
   }
 
   /**
