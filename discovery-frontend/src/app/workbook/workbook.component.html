@@ -566,5 +566,7 @@
                       (close)="isShowDataIngestion = false" (done)="finishDataIngestion($event)">
 </app-essential-filter>
 <!-- // 추천 필터 설정 -->
-<create-board-pop-ds-select [selectedDataSource]="selectedDataSource"
-                            [currentDataSources]="currentDataSources" ></create-board-pop-ds-select>
+<create-board-pop-ds-select [dashboardId]="selectedDashboard?.id"
+                            [selectedDataSource]="selectedDataSource"
+                            [currentDataSources]="currentDataSources"
+                            (changDatasource)="changeBoardDataSource($event)"></create-board-pop-ds-select>

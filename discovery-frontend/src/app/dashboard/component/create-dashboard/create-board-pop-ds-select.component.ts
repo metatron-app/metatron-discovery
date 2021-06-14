@@ -61,14 +61,12 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   @Input('currentDataSources')
   public currentDataSources: Datasource[];
 
-  @Input('isShow')
   public isShow: boolean = false;
 
   @Input('dashboardId')
   public dashboardId: string;
   @Output('done')
   public doneEvent: EventEmitter<{ add: Datasource[], remove: string[] }> = new EventEmitter();
-
   @Output('changDatasource')
   public changeEvent: EventEmitter<{ fromDataSourceId: string, toDataSourceId: string }> = new EventEmitter();
 

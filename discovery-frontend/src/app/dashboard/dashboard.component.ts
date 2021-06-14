@@ -112,9 +112,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   @Input()
   public workbook: Workbook;
 
-  //데이터 소스 변경 여부
-  public isChangeDatasource: boolean = false;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -153,12 +150,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         this.changeFilterWidgetEventHandler(data.filter);
       })
     );
-
-    this.subscriptions.push(
-      this.broadCaster.on<any>('CAPTURE_UPDATED_DASHBOARD').subscribe(()=>{
-        this.isChangeDatasource = true;
-      })
-    )
   } // function - ngOnInit
 
   /**
@@ -193,13 +184,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         });
       }
     }
-    if(this.isChangeDatasource) {
-      this.dashboardEvent.emit({name: 'CAPTURE_UPDATED_DASHBOARD'});
-      this.isChangeDatasource = false;
-    }
-    else{
-      this.dashboardEvent.emit({name: 'LAYOUT_INITIALISED'});
-    }
+    this.dashboardEvent.emit({name: 'LAYOUT_INITIALISED'});
   } // function - onLayoutInitialised
 
   /**

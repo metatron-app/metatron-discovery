@@ -837,21 +837,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.isUpdateDataSource = false;
   } // function - changeDataSource
 
-  public changeBoardDataSource(data: {fromDataSourceId: string, toDataSourceId: string}){
-    console.log('changeBoardDataSource');
-    const fromDataSourceId = data.fromDataSourceId;
-    const toDataSourceId = data.toDataSourceId;
-    this.dashboardService.changeBoardDataSource(this.dashboard.id, fromDataSourceId, toDataSourceId).then(() => {
-      this.dashboardService.getDashboard(this.dashboard.id).then((dashboard: Dashboard) => {
-        this.updateComplete.emit(dashboard);
-        this.broadCaster.broadcast('CAPTURE_UPDATED_DASHBOARD');
-      });
-    }).catch(() => {
-      Alert.error(this.translateService.instant('msg.board.alert.change.datasource.error'));
-      this.hideBoardLoading();
-    });
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Page Widget Panel
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -46,7 +46,7 @@ import {WidgetService} from '../dashboard/service/widget.service';
 import {DashboardUtil} from '../dashboard/util/dashboard.util';
 import {DragulaService} from '../../lib/ng2-dragula';
 import {ImageService} from '@common/service/image.service';
-import {CreateBoardPopDsSelectComponent} from "../dashboard/component/create-dashboard/create-board-pop-ds-select.component";
+import {CreateBoardPopDsSelectComponent} from '../dashboard/component/create-dashboard/create-board-pop-ds-select.component';
 
 declare let $;
 
@@ -180,6 +180,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 데이터소스 변경 관련
   public selectedDataSource: Datasource;
   public currentDataSources: Datasource[];
+  public duringChangeBoardDs: boolean = false;
 
   // 대시보드 필터링
   public get filteredDashboard(): Dashboard[] {
@@ -1126,11 +1127,16 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     if ('RELOAD_BOARD' === event.name) {
       this.loadAndSelectDashboard(this.tempLoadBoard);
     }
-    else if('CAPTURE_UPDATED_DASHBOARD' === event.name){
+    else if(this.duringChangeBoardDs && 'LAYOUT_INITIALISED' === event.name){
       // 데이터소스 변경 시 썸네일 이미지 갱신
       this.loadingShow();
-      this.uploadDashboardImage(this.selectedDashboard).then(result => {
+      this.uploadDashboardImage(this.selectedDashboard)
+        .then(result => {
         this.callUpdateDashboardService(result['imageUrl']);
+        this.duringChangeBoardDs = false;
+      }).catch(err => {
+        this.commonExceptionHandler(err);
+        this.duringChangeBoardDs = false;
       });
     }
   } // function - onDashboardEvent
@@ -1270,6 +1276,24 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public isInvalidDatasource(dashboard: Dashboard): boolean {
     return dashboard.dataSources.filter((ds) => ds.valid).length === 0;
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method - 데이터소스 교체용
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public changeBoardDataSource(data: {fromDataSourceId: string, toDataSourceId: string}){
+    console.log('changeBoardDataSource');
+    const fromDataSourceId = data.fromDataSourceId;
+    const toDataSourceId = data.toDataSourceId;
+    this.dashboardService.changeBoardDataSource(this.selectedDashboard.id, fromDataSourceId, toDataSourceId).then(() => {
+      this.dashboardService.getDashboard(this.selectedDashboard.id).then((dashboard: Dashboard) => {
+        this.isShowDataPreview = false;
+        this.updateCompleteDashboard(dashboard);
+        this.duringChangeBoardDs = true;
+      });
+    }).catch(() => {
+      Alert.error(this.translateService.instant('msg.board.alert.change.datasource.error'));
+    });
+  } // func - changeBoardDataSource
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -1440,7 +1464,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
             console.log(err);
             reject(err);
           });
-        }).catch((err) => this.commonExceptionHandler(err));
+        }).catch((err) => reject(err));
       }
     });
   }
@@ -1458,7 +1482,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     }
   }
 
-  private callUpdateDashboardService(imageUrl){
+  private callUpdateDashboardService(imageUrl) {
 
     // params
     const param: any = {configuration: DashboardUtil.getBoardConfiguration(this.selectedDashboard)};
