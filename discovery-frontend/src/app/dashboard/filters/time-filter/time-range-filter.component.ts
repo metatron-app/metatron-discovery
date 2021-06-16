@@ -127,7 +127,9 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   public ngAfterViewInit() {
     super.ngAfterViewInit();
     this.setData(this.inputFilter);
-    this._checkVerticalMode();
+    setTimeout(() => {
+      this._checkVerticalMode();
+    }, 150 );
     this.subscriptions.push(
       this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
         if ('WIDGET' === this.mode) {
