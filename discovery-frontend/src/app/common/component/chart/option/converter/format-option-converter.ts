@@ -715,7 +715,7 @@ export class FormatOptionConverter {
       }
 
       if( seriesName ) {
-        seriesValue = aggregationType + seriesName + ' : ' + this.getFormatValue(value, format);
+        seriesValue = seriesName.replace( aliasValue, '' ).replace( new RegExp(CHART_STRING_DELIMITER, 'gi'), ' - ') + aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
       } else {
         seriesValue = aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
       }
@@ -723,7 +723,12 @@ export class FormatOptionConverter {
       // when alias is changed, set tooltip name as alias
     } else {
 
-      seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
+      if( seriesName ) {
+        seriesValue = seriesName.replace( new RegExp(CHART_STRING_DELIMITER, 'gi'), ' - ') + ' : ' + this.getFormatValue(value, format);
+      } else {
+        seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
+      }
+
     }
 
     return seriesValue;
