@@ -25,6 +25,7 @@
         <dashboard-datasource-combo
           [dataSources]="dataSources"
           [initialValue]="selectedDataSource"
+          [canChangeDataSourceMode]="false"
           (selectOption)="selectDataSource($event)" ></dashboard-datasource-combo>
       </div>
       <!-- // 데이터소스 선택 콤보박스 -->

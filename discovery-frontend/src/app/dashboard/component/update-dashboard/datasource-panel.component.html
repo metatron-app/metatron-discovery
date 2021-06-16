@@ -23,6 +23,7 @@
         [dataSources]="dataSourceList"
         [initialValue]="dataSource"
         [enableEditAssociationJoin]="true"
+        [canChangeDataSourceMode]="false"
         (selectOption)="selectDataSource($event)"
         (showInfo)="onDataPreviewPopup()"></dashboard-datasource-combo>
     </div>

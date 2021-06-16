@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.workbook;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -31,11 +32,24 @@ import java.util.Set;
 import javax.transaction.Transactional;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.images.Image;
 import app.metatron.discovery.domain.images.ImageService;
 import app.metatron.discovery.domain.workbook.configurations.BoardConfiguration;
+import app.metatron.discovery.domain.workbook.configurations.WidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.board.WidgetRelation;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.SingleDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidgetConfiguration;
+import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.widget.Widget;
 import app.metatron.discovery.domain.workbook.widget.WidgetService;
 
@@ -50,6 +64,9 @@ public class DashBoardService {
 
   @Autowired
   DashboardRepository dashBoardRepository;
+
+  @Autowired
+  DataSourceRepository dataSourceRepository;
 
   @Transactional
   public DashBoard copy(DashBoard dashBoard, WorkBook parent, boolean addPrefix) {
@@ -131,6 +148,183 @@ public class DashBoardService {
   public Set<DataSource> backingDataSource(WorkBook workbook) {
     List<DataSource> dataSources = dashBoardRepository.findAllDataSourceInDashboard(workbook.getId());
     return backingDataSource(new HashSet<>(dataSources), workbook);
+  }
+
+  public boolean validateForChangingDatasource(DashBoard dashBoard, DataSource fromDataSource, DataSource toDataSource) {
+    int validateCnt = 0;
+    int totalValidCnt = 0;
+
+    // Filter
+    List<Filter> dashboardFilterList = dashBoard.getConfigurationObject().getFilters();
+    if (dashboardFilterList != null) {
+      for (Filter filter : dashboardFilterList) {
+        if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+          totalValidCnt ++;
+          for (Field datasourceField : toDataSource.getFields()) {
+            if (datasourceField.getName().equals(filter.getField())) {
+              validateCnt++;
+              break;
+            }
+          }
+        }
+      }
+      if (validateCnt != totalValidCnt) {
+        throw new BadRequestException("The field included in the global filter does not exist in the field in the new datasource.");
+      }
+    }
+
+    // Association
+    validateCnt = 0;
+    totalValidCnt = 0;
+    if (dashBoard.getConfigurationObject().getDataSource() instanceof MultiDataSource) {
+      for (MultiDataSource.Association association : ((MultiDataSource) dashBoard.getConfigurationObject().getDataSource()).getAssociations()) {
+        if (association.getSource().equals(fromDataSource.getEngineName())) {
+          totalValidCnt++;
+          for (String key : association.getColumnPair().keySet()) {
+            for (Field field : toDataSource.getFields()) {
+              if (field.getName().equals(key)) {
+                validateCnt++;
+                break;
+              }
+            }
+          }
+        }
+        if (association.getTarget().equals(fromDataSource.getEngineName())) {
+          totalValidCnt++;
+          for (String key : association.getColumnPair().keySet()) {
+            for (Field field : toDataSource.getFields()) {
+              if (field.getName().equals(association.getColumnPair().get(key))) {
+                validateCnt++;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (validateCnt != totalValidCnt) {
+      throw new BadRequestException("The field included in the association does not exist in the field of the new data source.");
+    }
+
+    // WidgetField
+    for (Widget widget: dashBoard.getWidgets()) {
+      int userDefinedFieldCnt = 0;
+      validateCnt = 0;
+      WidgetConfiguration widgetConfiguration = GlobalObjectMapper.readValue(widget.getConfiguration(), WidgetConfiguration.class);
+      if ((widgetConfiguration instanceof PageWidgetConfiguration)) {
+        String engineName = ((PageWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() != null ?
+            ((PageWidgetConfiguration) widgetConfiguration).getDataSource().getEngineName() : ((PageWidgetConfiguration) widgetConfiguration).getDataSource().getName();
+        if (engineName.equals(fromDataSource.getEngineName())) {
+          List<app.metatron.discovery.domain.workbook.configurations.field.Field> widgetFields = ((PageWidgetConfiguration) widgetConfiguration).getPivot().getAllFields();
+          for (app.metatron.discovery.domain.workbook.configurations.field.Field field : widgetFields) {
+            if ("user_defined".equals(field.getRef())) {
+              userDefinedFieldCnt++;
+            } else {
+              for (Field datasourceField : toDataSource.getFields()) {
+                if (datasourceField.getName().equals(field.getName())) {
+                  if ((field instanceof MeasureField && datasourceField.getRole().equals(Field.FieldRole.MEASURE))
+                      || (field instanceof DimensionField && datasourceField.getRole().equals(Field.FieldRole.DIMENSION))
+                      || (field instanceof TimestampField && datasourceField.getRole().equals(Field.FieldRole.TIMESTAMP)))
+                    validateCnt++;
+                  break;
+                }
+              }
+            }
+          }
+          if (validateCnt != widgetFields.size() - userDefinedFieldCnt) {
+            throw new BadRequestException("The field contained in the widget does not exist in the new datasource.");
+          }
+
+          // widget filter
+          int validateFilterCnt = 0;
+          int totalValidFilterCnt = 0;
+          List<Filter> widgetFilterList = ((PageWidgetConfiguration) widgetConfiguration).getFilters();
+          for (Filter filter : widgetFilterList) {
+            if (filter.getDataSource().equals(fromDataSource.getEngineName())) {
+              totalValidFilterCnt ++;
+              for (Field datasourceField : toDataSource.getFields()) {
+                if (datasourceField.getName().equals(filter.getField())) {
+                  validateFilterCnt++;
+                  break;
+                }
+              }
+            }
+          }
+          if (validateFilterCnt != totalValidFilterCnt) {
+            throw new BadRequestException("The field included in the local filter does not exist in the field in the new datasource.");
+          }
+        }
+
+      } else if ((widgetConfiguration instanceof FilterWidgetConfiguration)) {
+        if (fromDataSource.getEngineName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getDataSource())) {
+          for (Field datasourceField : toDataSource.getFields()) {
+            if (datasourceField.getName().equals(((FilterWidgetConfiguration) widgetConfiguration).getFilter().getField())) {
+              validateCnt++;
+              break;
+            }
+          }
+          if (validateCnt < 1) {
+            throw new BadRequestException("The field contained in the widget does not exist in the new datasource.");
+          }
+        }
+      }
+    }
+
+    return true;
+  }
+
+  public app.metatron.discovery.domain.workbook.configurations.datasource.
+      DataSource changeDataSource(DataSource fromDataSource,
+                                  DataSource toDataSource,
+                                  app.metatron.discovery.domain.workbook.configurations.datasource.DataSource dataSource) {
+    if (dataSource instanceof MultiDataSource) {
+      List<app.metatron.discovery.domain.workbook.configurations.datasource.DataSource> dataSourceList = Lists.newArrayList();
+      ((MultiDataSource) dataSource).getDataSources().forEach(d -> {
+        if (fromDataSource.getName().equals(d.getName()) || fromDataSource.getEngineName().equals(d.getName())) {
+          d.setConnType(toDataSource.getConnType());
+          d.setId(toDataSource.getId());
+          d.setName(toDataSource.getName());
+          d.setEngineName(toDataSource.getEngineName());
+          if (toDataSource.getTemporary() != null) {
+            d.setTemporary(true);
+            d.setTemporaryId(toDataSource.getTemporary().getDataSourceId());
+            d.setMetaDataSource(dataSourceRepository.findByIdIncludeConnection(toDataSource.getTemporary().getDataSourceId()));
+          } else {
+            d.setTemporary(false);
+            d.setMetaDataSource(dataSourceRepository.findByEngineName(toDataSource.getEngineName()));
+          }
+          d.setUiDescription(toDataSource.getDescription());
+        }
+        dataSourceList.add(d);
+      });
+      ((MultiDataSource) dataSource).setDataSources(dataSourceList);
+
+      ((MultiDataSource) dataSource).getAssociations().forEach(a -> {
+        if (fromDataSource.getEngineName().equals(a.getSource())) {
+          a.setSource(toDataSource.getEngineName());
+        } else if (fromDataSource.getEngineName().equals(a.getTarget())) {
+          a.setTarget(toDataSource.getEngineName());
+        }
+      });
+    } else if (dataSource instanceof DefaultDataSource || dataSource instanceof SingleDataSource) {
+      if (fromDataSource.getName().equals(dataSource.getName()) || fromDataSource.getEngineName().equals(dataSource.getName())) {
+        dataSource.setConnType(toDataSource.getConnType());
+        dataSource.setId(toDataSource.getId());
+        dataSource.setName(toDataSource.getName());
+        dataSource.setEngineName(toDataSource.getEngineName());
+        if (toDataSource.getTemporary() != null) {
+          dataSource.setTemporary(true);
+          dataSource.setTemporaryId(toDataSource.getTemporary().getDataSourceId());
+          dataSource.setMetaDataSource(dataSourceRepository.findByIdIncludeConnection(toDataSource.getTemporary().getDataSourceId()));
+        } else {
+          dataSource.setTemporary(false);
+          dataSource.setMetaDataSource(dataSourceRepository.findByEngineName(toDataSource.getEngineName()));
+        }
+        dataSource.setUiDescription(toDataSource.getDescription());
+      }
+    }
+    return dataSource;
   }
 
 }

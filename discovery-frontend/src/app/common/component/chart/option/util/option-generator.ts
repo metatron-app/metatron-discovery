@@ -1710,6 +1710,7 @@ export namespace OptionGenerator {
       return {
         type: ChartType.LABEL,
         layout: LabelLayoutType.HORIZONTAL,
+        color: UI.Color.measureUIChartColor('SC1'),
         showLabel: true,
         icons: [{}],
         annotations: [{}],

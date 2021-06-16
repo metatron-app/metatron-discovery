@@ -59,6 +59,9 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
 
   public searchText: string = '';
 
+  @Input('canChangeDataSourceMode')
+  public canChangeDataSourceMode: boolean = false;
+
   @Input('enableInfo') public isEnableInfo: boolean = false;
   @Input('enableEditAssociationJoin') public isEnableEditAssociationJoin: boolean = false;
 
@@ -155,6 +158,11 @@ export class DashboardDatasourceComboComponent extends AbstractComponent impleme
   public updateBoardDataSource() {
     this.broadCaster.broadcast('UPDATE_BOARD_UPDATE_DATASOURCE');
   } // function - updateBoardDataSource
+
+  public changeBoardDataSource(selectedDataSource: Datasource){
+   this.broadCaster.broadcast('CHANGE_BOARD_DATASOURCE', {dataSource: this.dataSources, selectedDataSource: selectedDataSource});
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

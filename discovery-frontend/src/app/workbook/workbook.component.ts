@@ -45,6 +45,8 @@ import {Datasource} from '@domain/datasource/datasource';
 import {WidgetService} from '../dashboard/service/widget.service';
 import {DashboardUtil} from '../dashboard/util/dashboard.util';
 import {DragulaService} from '../../lib/ng2-dragula';
+import {ImageService} from '@common/service/image.service';
+import {CreateBoardPopDsSelectComponent} from '../dashboard/component/create-dashboard/create-board-pop-ds-select.component';
 
 declare let $;
 
@@ -83,6 +85,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 대시보드 편집 컴포넌트
   @ViewChild(UpdateDashboardComponent)
   private _updateBoardComp: UpdateDashboardComponent;
+
+  @ViewChild(CreateBoardPopDsSelectComponent)
+  private _createBoardDsSelectComp: CreateBoardPopDsSelectComponent;
 
   @ViewChild('srchDashboard')
   private inputSrchDashboard: ElementRef;
@@ -171,6 +176,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public isShowDataIngestion: boolean = false;        // 필수 필터 설정 팝업 표시 여부
   public isChangeAuthUser: boolean = false;           // 워크북 변경 가능 권한 여부
 
+  // 데이터소스 변경 관련
+  public selectedDataSource: Datasource;
+  public currentDataSources: Datasource[];
+  public duringChangeBoardDs: boolean = false;
+
   // 대시보드 필터링
   public get filteredDashboard(): Dashboard[] {
     // 대시보드 리스트 권한별 show
@@ -190,7 +200,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private activatedRoute: ActivatedRoute,
+  constructor(public imageService: ImageService,
+              private activatedRoute: ActivatedRoute,
               private workbookService: WorkbookService,
               private dashboardService: DashboardService,
               private workspaceService: WorkspaceService,
@@ -273,8 +284,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.activatedRoute.params
         .subscribe((params) => {
 
-          // console.log('==>>>>>>>> activatedRoute.params - ', params);
-
           // 워크북 아이디 저장
           this.workbookId = params['workbookId'];
 
@@ -329,6 +338,17 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           // 댓글 조회
           this._getComments();
         })
+    );
+
+    // 대시보드 데이터소스 변경
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource[], selectedDataSource: Datasource}) => {
+        this.currentDataSources = data.dataSource;
+        this.selectedDataSource = data.selectedDataSource;
+        setTimeout(() => {
+          this._createBoardDsSelectComp.open(this.workbook.workspaceId, []);
+        }, 500);
+      })
     );
 
     // z-index 이슈를 해결하기 위한 코드
@@ -1108,6 +1128,18 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     if ('RELOAD_BOARD' === event.name) {
       this.loadAndSelectDashboard(this.tempLoadBoard);
     }
+    else if(this.duringChangeBoardDs && 'LAYOUT_INITIALISED' === event.name){
+      // 데이터소스 변경 시 썸네일 이미지 갱신
+      this.loadingShow();
+      this.uploadDashboardImage(this.selectedDashboard)
+        .then(result => {
+        this.callUpdateDashboardService(result['imageUrl']);
+        this.duringChangeBoardDs = false;
+      }).catch(err => {
+        this.commonExceptionHandler(err);
+        this.duringChangeBoardDs = false;
+      });
+    }
   } // function - onDashboardEvent
 
   /**
@@ -1245,6 +1277,25 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public isInvalidDatasource(dashboard: Dashboard): boolean {
     return dashboard.dataSources.filter((ds) => ds.valid).length === 0;
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method - 데이터소스 교체용
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public changeBoardDataSource(data: {fromDataSourceId: string, toDataSourceId: string}){
+    console.log('changeBoardDataSource');
+    const fromDataSourceId = data.fromDataSourceId;
+    const toDataSourceId = data.toDataSourceId;
+    this.dashboardService.changeBoardDataSource(this.selectedDashboard.id, fromDataSourceId, toDataSourceId).then(() => {
+      this.dashboardService.getDashboard(this.selectedDashboard.id).then((dashboard: Dashboard) => {
+        this.loadingShow();
+        this.isShowDataPreview = false;
+        this.updateCompleteDashboard(dashboard);
+        this.duringChangeBoardDs = true;
+      });
+    }).catch(() => {
+      Alert.error(this.translateService.instant('msg.board.alert.change.datasource.error'));
+    });
+  } // func - changeBoardDataSource
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -1399,4 +1450,54 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.subscriptions.push(dragulaDropModelSubs);
 
   } // func - _settingDnd
+
+
+  /**
+   * 데이터소스 변경 후 썸네일 업데이트
+   * @param dashboard
+   */
+  private uploadDashboardImage(dashboard: Dashboard){
+    return new Promise<any>((resolve, reject) => {
+      const chart = this.$element.find('.lm_goldenlayout');
+      if(0<chart.length){
+        this.imageService.getBlob(chart).then(blobData => {
+          this.imageService.uploadImage(dashboard.name, blobData, dashboard.id, 'page', 250).then((response) => {
+            resolve(response);
+            this.updateDashboardImage(blobData);
+          }).catch((err) => {
+            console.log(err);
+            reject(err);
+          });
+        }).catch((err) => reject(err));
+      }
+    });
+  }
+
+  /**
+   * 데이터소스 변경 후 선택된 대시보드 썸네일 임시 변경
+   * @param blobData
+   */
+  private updateDashboardImage(blobData: any){
+    const reader = new FileReader();
+    reader.readAsDataURL(blobData);
+    reader.onloadend = () => {
+      const base64data = reader.result;
+      $('.ddp-list-board-thumbview .ddp-selected img').attr('src', base64data);
+    }
+  }
+
+  private callUpdateDashboardService(imageUrl) {
+
+    // params
+    const param: any = {configuration: DashboardUtil.getBoardConfiguration(this.selectedDashboard)};
+    param.imageUrl = imageUrl;
+
+    const boardId: string = this.selectedDashboard.id;
+
+    // 대시보드 업데이트
+    this.dashboardService.updateDashboard(boardId, param).then(() => {
+      this.loadingHide();
+    });
+  }
+
 }

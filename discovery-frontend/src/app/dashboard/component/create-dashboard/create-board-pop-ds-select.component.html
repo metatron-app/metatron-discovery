@@ -23,7 +23,8 @@
 
       <div class="ddp-ui-pop-buttons">
         <a (click)="close()" href="javascript:" class="ddp-btn-pop">{{ 'msg.comm.btn.cancl' | translate }}</a>
-        <a (click)="done()" href="javascript:" class="ddp-btn-pop ddp-bg-black">{{'msg.comm.btn.done' | translate }}</a>
+        <a [class.disabled]="selectedDsLength === 0"
+          (click)="selectedDsLength > 0 ? done() : null " href="javascript:" class="ddp-btn-pop ddp-bg-black">{{'msg.comm.btn.done' | translate }}</a>
       </div>
     </div>
     <!-- // 상단 제목 영역 -->
@@ -53,7 +54,7 @@
           <!-- //공개 -->
 
           <!-- Type -->
-          <div class="ddp-form-label2">
+          <div *ngIf=!selectedDataSource class="ddp-form-label2">
             <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
             <div class="ddp-wrap-dropdown">
               <!-- select box -->
@@ -117,8 +118,12 @@
                       (click)="selectDatasource(item);"
                       [ngClass]="{'ddp-selected': summaryTargetDsId == item.id}">
                     <td class="ddp-txt-center">
-                      <div class="ddp-ui-checkbox">
-                        <input type="checkbox"  [checked]="isSelectedDatasource(item)" />
+                      <div *ngIf="isSingleMode" class="ddp-ui-radio">
+                        <input type="radio" [checked]="isSelectedDatasource(item)" />
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                      <div *ngIf="!isSingleMode" class="ddp-ui-checkbox">
+                        <input type="checkbox" [checked]="isSelectedDatasource(item)" />
                         <i class="ddp-icon-checkbox"></i>
                       </div>
                     </td>
@@ -149,6 +154,7 @@
       <!-- //그리드 영역 -->
       <!-- 설명 -->
       <app-datasource-summary *ngIf="'' !== summaryTargetDsId"
+                              [isChangeDsMode]="isSingleMode"
                               [datasource]="summaryTargetDsId" (close)="onCloseSummary()"></app-datasource-summary>
       <!-- //설명 -->
 

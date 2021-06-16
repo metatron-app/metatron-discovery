@@ -38,4 +38,11 @@ export class Loading {
     this.$loading.hide();
   }
 
+  /**
+   * 로딩 표시 여부
+   */
+  public static isVisible(): boolean {
+    return this.$loading.is(':visible');
+  } // func - isVisible
+
 }

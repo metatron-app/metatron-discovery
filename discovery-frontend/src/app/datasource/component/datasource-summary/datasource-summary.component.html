@@ -19,7 +19,7 @@
   <!-- 제목 영역 -->
   <div class="ddp-data-detailinfo">
     <span class="ddp-data-name">{{datasource.name}}</span>
-    <div *ngIf="isEnabled" (click)="isShowDataPreview = true" class="ddp-ui-detail">
+    <div *ngIf="isEnabled && !isChangeDsMode" (click)="isShowDataPreview = true" class="ddp-ui-detail">
       <em class="ddp-icon-detail"></em>
       <div class="ddp-ui-tooltip-info">
         <em class="ddp-icon-view-top"></em> {{ 'msg.comm.detail.details' | translate }}
@@ -105,4 +105,4 @@
 </div>
 
 <!-- 데이터 미리보기 -->
-<data-preview *ngIf="isShowDataPreview" [source]="datasource" (close)="isShowDataPreview=false"></data-preview>
+<data-preview *ngIf="isShowDataPreview && !isChangeDsMode" [source]="datasource" (close)="isShowDataPreview=false"></data-preview>

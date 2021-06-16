@@ -1100,8 +1100,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     if (LayoutMode.EDIT === this._layoutMode) {
       this.loadingShow();
     } else {
-      const isRealTimeBoard: boolean = this.dashboard && this.dashboard.configuration.options.sync && this.dashboard.configuration.options.sync.enabled;
-      (isRealTimeBoard) || (this.isShowDashboardLoading = true);
+      if( !this.isVisibleLoading() ) {
+        const isRealTimeBoard: boolean = this.dashboard && this.dashboard.configuration.options.sync && this.dashboard.configuration.options.sync.enabled;
+        (isRealTimeBoard) || (this.isShowDashboardLoading = true);
+      }
     }
     this.safelyDetectChanges();
   } // function - showBoardLoading
@@ -1114,6 +1116,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
       this.loadingHide();
     } else {
       this.isShowDashboardLoading = false;
+      if( this.isVisibleLoading() ) {
+        this.loadingHide();
+      }
     }
     this.safelyDetectChanges();
   } // function - hideBoardLoading

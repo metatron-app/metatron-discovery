@@ -477,6 +477,9 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    */
   private _runDashboard(targetDashboard: Dashboard) {
     this.initializeDashboard(targetDashboard, this._getLayoutMode()).then(() => {
+      if( 0 === DashboardUtil.getLayoutWidgetInfos(targetDashboard).length ) {
+        this.loadingHide(); // 위젯이 없는 경우, 데이터소스를 교체하면 로딩이 없어지지 않는 현상을 제거하기 위해 추가
+      }
       this.safelyDetectChanges();
     }).catch((error) => {
       console.error(error);

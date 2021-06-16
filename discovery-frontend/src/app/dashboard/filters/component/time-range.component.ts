@@ -39,7 +39,8 @@ declare let $: any;
 
 @Component({
   selector: 'component-time-range',
-  templateUrl: './time-range.component.html'
+  templateUrl: './time-range.component.html',
+  styles: ['.sys-range-label {top:9px;}']
 })
 export class TimeRangeComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
