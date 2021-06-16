@@ -107,6 +107,9 @@ export class GridChartComponent extends BaseChart<UIGridChart> implements OnInit
       this.isLoaded = true;
     });
 
+    const browserLang = this.translateService.getBrowserLang();
+    pivot.ui.common.lang = (browserLang.match(/ko/)) ? 'ko' : 'en';
+
     // Chart Instance 생성
     pivot.ui.style.summaryLabel = {
       SUM: this.translateService.instant('msg.page.calc.label.operator.sum'),

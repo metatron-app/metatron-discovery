@@ -879,7 +879,10 @@ export enum UIFormatNumericAliasType {
   AUTO = 'AUTO',
   KILO = 'KILO',
   MEGA = 'MEGA',
-  GIGA = 'GIGA'
+  GIGA = 'GIGA',
+  KILO_KOR = 'KILO_KOR',
+  MEGA_KOR = 'MEGA_KOR',
+  GIGA_KOR = 'GIGA_KOR'
 }
 
 /**

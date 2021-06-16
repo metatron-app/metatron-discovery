@@ -41,6 +41,8 @@ import {Field} from '@domain/workbook/configurations/field/field';
  */
 export class FormatOptionConverter {
 
+  public static lang:string = 'en';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -193,14 +195,25 @@ export class FormatOptionConverter {
     if (format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value = Math.abs(value) > 1000000000
-            ? Number(value) / 1000000000
-            : Math.abs(value) > 1000000
-              ? Number(value) / 1000000
-              : Math.abs(value) > 1000
-                ? Number(value) / 1000
-                : value;
+          if( 'ko' === this.lang ) {
+            value = Math.abs(value) > 100000000
+              ? Number(value) / 100000000
+              : Math.abs(value) > 10000
+                ? Number(value) / 10000
+                : Math.abs(value) > 1000
+                  ? Number(value) / 1000
+                  : value;
+          } else {
+            value = Math.abs(value) > 1000000000
+              ? Number(value) / 1000000000
+              : Math.abs(value) > 1000000
+                ? Number(value) / 1000000
+                : Math.abs(value) > 1000
+                  ? Number(value) / 1000
+                  : value;
+          }
           break;
+        case String(UIFormatNumericAliasType.KILO_KOR) :
         case String(UIFormatNumericAliasType.KILO) :
           value = Number(value) / 1000;
           break;
@@ -209,6 +222,12 @@ export class FormatOptionConverter {
           break;
         case String(UIFormatNumericAliasType.GIGA) :
           value = Number(value) / 1000000000;
+          break;
+        case String(UIFormatNumericAliasType.MEGA_KOR) :
+          value = Number(value) / 10000;
+          break;
+        case String(UIFormatNumericAliasType.GIGA_KOR) :
+          value = Number(value) / 100000000;
           break;
       }
     }
@@ -263,13 +282,23 @@ export class FormatOptionConverter {
     if (format.abbr && format.type !== String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value += Math.abs(originalValue) > 1000000000
-            ? 'B'
-            : Math.abs(originalValue) > 1000000
-              ? 'M'
-              : Math.abs(originalValue) > 1000
-                ? 'K'
-                : '';
+          if( 'ko' === this.lang ) {
+            value += Math.abs(originalValue) > 100000000
+              ? '억'
+              : Math.abs(originalValue) > 10000
+                ? '만'
+                : Math.abs(originalValue) > 1000
+                  ? '천'
+                  : '';
+          } else {
+            value += Math.abs(originalValue) > 1000000000
+              ? 'B'
+              : Math.abs(originalValue) > 1000000
+                ? 'M'
+                : Math.abs(originalValue) > 1000
+                  ? 'K'
+                  : '';
+          }
           break;
         case String(UIFormatNumericAliasType.KILO) :
           value += 'K';
@@ -279,6 +308,15 @@ export class FormatOptionConverter {
           break;
         case String(UIFormatNumericAliasType.GIGA) :
           value += 'B';
+          break;
+        case String(UIFormatNumericAliasType.KILO_KOR) :
+          value += '천';
+          break;
+        case String(UIFormatNumericAliasType.MEGA_KOR) :
+          value += '만';
+          break;
+        case String(UIFormatNumericAliasType.GIGA_KOR) :
+          value += '억';
           break;
       }
     }

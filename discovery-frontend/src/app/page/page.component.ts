@@ -1200,7 +1200,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       this.widgetService.createWidget(param, this.widget.dashBoard.id)
         .then((widget) => {
-
           const pageWidget: PageWidget = _.extend(new PageWidget(), widget);
           pageWidget.dashBoard = this.widget.dashBoard;
 
