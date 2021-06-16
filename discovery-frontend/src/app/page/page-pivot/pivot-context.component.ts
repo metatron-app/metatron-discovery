@@ -41,7 +41,7 @@ import {Shelf} from '@domain/workbook/configurations/shelf/shelf';
 import {UIMapOption} from '@common/component/chart/option/ui-option/map/ui-map-chart';
 import {MapLayerType} from '@common/component/chart/option/define/map/map-common';
 import {Format} from '@domain/workbook/configurations/format';
-import {ColorPickerComponent} from "@common/component/color-picker/color.picker.component";
+import {ColorPickerComponent} from '@common/component/color-picker/color.picker.component';
 
 @Component({
   selector: 'pivot-context',
@@ -133,6 +133,14 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   public get isCombineChart(): boolean {
     return this.chartType === 'combine';
   } // get - isCombineChart
+
+  public get isGridChart(): boolean {
+    return this.chartType === 'grid';
+  } // get - isGridChart
+
+  public get isLabelChart(): boolean {
+    return this.chartType === 'label';
+  } // get - isLabelChart
 
   public get isMeasureField(): boolean {
     return this.editingField && this.editingField.type === 'measure';

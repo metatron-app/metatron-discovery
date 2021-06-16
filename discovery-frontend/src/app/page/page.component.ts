@@ -103,7 +103,7 @@ const possibleMouseModeObj: any = {
 const possibleChartObj: any = {
   common: ['bar', 'line', 'grid', 'scatter', 'heatmap', 'pie', 'control', 'label', 'boxplot', 'waterfall', 'combine', 'treemap', 'radar', 'network', 'sankey', 'gauge'],
   // rnb 색상 보여주는 차트
-  color: ['bar', 'grid', 'line', 'scatter', 'control', 'pie', 'wordcloud', 'boxplot', 'radar', 'heatmap', 'combine', 'gauge', 'network', 'sankey', 'treemap'],
+  color: ['bar', 'grid', 'line', 'scatter', 'control', 'pie', 'label', 'wordcloud', 'boxplot', 'radar', 'heatmap', 'combine', 'gauge', 'network', 'sankey', 'treemap'],
   // rnb filter 보여주는 차트
   format: ['bar', 'line', 'scatter', 'heatmap', 'pie', 'control', 'label', 'boxplot', 'waterfall', 'combine', 'treemap', 'radar', 'gauge', 'network', 'sankey', 'grid'],
   // Split 가능 차트 목록

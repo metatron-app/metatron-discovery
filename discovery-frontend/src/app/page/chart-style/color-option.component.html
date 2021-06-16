@@ -17,9 +17,9 @@
     <div class="ddp-ui-side-title">
       {{'msg.page.ui.data.color.title' | translate}}
     </div>
-    <div class="ddp-wrap-downmenu"  *ngIf="possibleChartCheck('color', uiOption.type)">
+    <div class="ddp-wrap-downmenu">
       <!-- box down -->
-      <div class="ddp-box-down">
+      <div *ngIf="possibleChartCheck('color', uiOption.type)" class="ddp-box-down">
         <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
         <div class="ddp-wrap-divide" [ngClass]="{'ddp-disabled' :'measure' == uiOption.color.type.toString() && uiOption.color['customMode']}">
           <!-- part -->
@@ -306,9 +306,12 @@
           <!--</a>-->
         </div>
         <!-- //color by measure part -->
+      </div>
+      <!-- //box down -->
 
+      <div *ngIf="( isGridChart || isLabelChart ) && existPivotSettings" class="ddp-box-down">
         <!-- color by grid individual setting  -->
-        <div *ngIf="'grid' == uiOption.type.toString() && existPivotSettings" class="ddp-wrap-divide">
+        <div class="ddp-wrap-divide">
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.chart.color.individual.setting' | translate}}</span>
           </div>
@@ -345,9 +348,7 @@
           </div>
         </div>
         <!-- //color by grid individual setting -->
-
       </div>
-      <!-- //box down -->
     </div>
   </div>
 </div>

@@ -21,16 +21,9 @@
     <ng-container *ngIf="!(uiOption.series && uiOption['layout'] && uiOption['layout'] == 'VERTICAL')">
       <div *ngFor="let item of list; let index = index"
            [class.ddp-solid]="uiOption.chartStyle == 'SOLID'"
-           [class.ddp-color1]="index % 8 == 0"
-           [class.ddp-color2]="index % 8 == 1"
-           [class.ddp-color3]="index % 8 == 2"
-           [class.ddp-color4]="index % 8 == 3"
-           [class.ddp-color5]="index % 8 == 4"
-           [class.ddp-color6]="index % 8 == 5"
-           [class.ddp-color7]="index % 8 == 6"
-           [class.ddp-color8]="index % 8 == 7"
+           [ngClass]="getColorClass(index)"
            class="ddp-view-data-kpi"
-           style="padding:0px">
+           style="padding:0; {{getFieldColorStyle(index)}}">
         <div class="ddp-wrap-data-kpi"
              *ngIf="item.show"
              [class.ddp-img-none]="!item.showIcon">
@@ -224,16 +217,9 @@
     <ng-container *ngIf="uiOption.series && uiOption['layout'] && uiOption['layout'] == 'VERTICAL'">
       <div *ngFor="let item of list; let index = index"
            [class.ddp-solid]="uiOption.chartStyle == 'SOLID'"
-           [class.ddp-color1]="index % 8 == 0"
-           [class.ddp-color2]="index % 8 == 1"
-           [class.ddp-color3]="index % 8 == 2"
-           [class.ddp-color4]="index % 8 == 3"
-           [class.ddp-color5]="index % 8 == 4"
-           [class.ddp-color6]="index % 8 == 5"
-           [class.ddp-color7]="index % 8 == 6"
-           [class.ddp-color8]="index % 8 == 7"
+           [ngClass]="getColorClass(index)"
            class="ddp-view-data-kpi"
-           style="padding:0px">
+           style="padding:0; {{getFieldColorStyle(index)}}">
         <div class="ddp-wrap-data-kpi"
              *ngIf="item.show"
              [class.ddp-img-none]="!item.showIcon">
