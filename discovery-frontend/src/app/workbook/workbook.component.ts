@@ -175,7 +175,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public isShowDashboardDetailMenu: boolean = false;    // 대시보드 상세 메뉴 펼침 여부
   public isShowDataIngestion: boolean = false;        // 필수 필터 설정 팝업 표시 여부
   public isChangeAuthUser: boolean = false;           // 워크북 변경 가능 권한 여부
-  public isChangeDataSource:boolean = false;
 
   // 데이터소스 변경 관련
   public selectedDataSource: Datasource;
@@ -1288,6 +1287,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     const toDataSourceId = data.toDataSourceId;
     this.dashboardService.changeBoardDataSource(this.selectedDashboard.id, fromDataSourceId, toDataSourceId).then(() => {
       this.dashboardService.getDashboard(this.selectedDashboard.id).then((dashboard: Dashboard) => {
+        this.loadingShow();
         this.isShowDataPreview = false;
         this.updateCompleteDashboard(dashboard);
         this.duringChangeBoardDs = true;

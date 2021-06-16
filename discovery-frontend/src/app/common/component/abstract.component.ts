@@ -238,6 +238,13 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   }
 
   /**
+   * 로딩 표시 여부
+   */
+  public isVisibleLoading(): boolean {
+    return Loading.isVisible();
+  }
+
+  /**
    * attempt to use a destroyed view detectchanges 오류를 발생하지 않기 위해
    * 안전하게 변경사항을 체크하는 메서드
    * (주의) 변경사항이 갱신되지 않을 수도 있다.
