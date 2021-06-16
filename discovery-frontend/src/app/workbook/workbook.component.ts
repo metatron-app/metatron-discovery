@@ -346,7 +346,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource[], selectedDataSource: Datasource}) => {
         this.currentDataSources = data.dataSource;
         this.selectedDataSource = data.selectedDataSource;
-        this._createBoardDsSelectComp.open(this.workbook.workspaceId, []);
+        setTimeout(() => {
+          this._createBoardDsSelectComp.open(this.workbook.workspaceId, []);
+        }, 500);
       })
     );
 
@@ -1454,7 +1456,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   private uploadDashboardImage(dashboard: Dashboard){
     return new Promise<any>((resolve, reject) => {
-      const chart = this.$element.find('.capture-area');
+      const chart = this.$element.find('.lm_goldenlayout');
       if(0<chart.length){
         this.imageService.getBlob(chart).then(blobData => {
           this.imageService.uploadImage(dashboard.name, blobData, dashboard.id, 'page', 250).then((response) => {
