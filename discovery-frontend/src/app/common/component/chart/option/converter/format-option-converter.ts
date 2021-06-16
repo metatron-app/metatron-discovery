@@ -139,10 +139,15 @@ export class FormatOptionConverter {
           let uiData = _.cloneDeep(option.uiData);
           // uiData값이 array인 경우 해당 dataIndex에 해당하는 uiData로 설정해준다
           if (uiData && uiData instanceof Array) uiData = option.uiData[item.dataIndex];
-          return [
-            ...acc,
-            ...this.getFormatValueTooltip(item, uiOption, fieldInfo, format, pivot, option, uiData).split('<br/>')
-          ].reduce((unique, item) => unique.includes(item) ? unique : [...unique, item], []);
+
+          if( item.data.value ) {
+            return [
+              ...acc,
+              ...this.getFormatValueTooltip(item, uiOption, fieldInfo, format, pivot, option, uiData).split('<br/>')
+            ].reduce((unique, reduceItem) => unique.includes(reduceItem) ? unique : [...unique, reduceItem], []);
+          } else {
+            return acc;
+          }
         }, []).join('<br/>');
       } else {
         const option = chartOption.series[params.seriesIndex];
@@ -709,12 +714,21 @@ export class FormatOptionConverter {
         aggregationType += ' of ';
       }
 
-      seriesValue = aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
+      if( seriesName ) {
+        seriesValue = seriesName.replace( aliasValue, '' ).replace( new RegExp(CHART_STRING_DELIMITER, 'gi'), ' - ') + aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
+      } else {
+        seriesValue = aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
+      }
 
       // when alias is changed, set tooltip name as alias
     } else {
 
-      seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
+      if( seriesName ) {
+        seriesValue = seriesName.replace( new RegExp(CHART_STRING_DELIMITER, 'gi'), ' - ') + ' : ' + this.getFormatValue(value, format);
+      } else {
+        seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
+      }
+
     }
 
     return seriesValue;
@@ -741,7 +755,7 @@ export class FormatOptionConverter {
 
       // UI 데이터 가공
       let result: string[] = [];
-      if (uiData['categoryName'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME)) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) && uiData['categoryName']) {
 
         // string인 경우
         if (typeof uiData['categoryName'] === 'string') {
@@ -756,7 +770,7 @@ export class FormatOptionConverter {
           result = this.getTooltipName(categoryList, pivot.columns, result, true);
         }
       }
-      if (uiData['categoryValue'] && uiData['categoryValue'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE) && uiData['categoryValue'] && uiData['categoryValue'].length > 0 ) {
 
         const splitValue = _.split(uiData.name, CHART_STRING_DELIMITER);
         const name = splitValue[splitValue.length - 1];
@@ -776,7 +790,7 @@ export class FormatOptionConverter {
         result.push(categoryValue);
 
       }
-      if (uiData['categoryPercent'] && uiData['categoryPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT)) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT) && uiData['categoryPercent'] && uiData['categoryPercent'].length > 0) {
 
         // category value가 선택된지 않은경우
         if (-1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE)) {
@@ -798,9 +812,9 @@ export class FormatOptionConverter {
         }
       }
       // 해당 dataIndex 데이터애로 뿌려줌
-      if (uiData['seriesName']
-        && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)
-        && -1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME)
+        && -1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)
+        && uiData['seriesName'] ) {
 
         const seriesNameList = _.split(params.seriesName, CHART_STRING_DELIMITER);
 
@@ -835,26 +849,28 @@ export class FormatOptionConverter {
           }
         }
       }
-      if (uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) && uiData['seriesValue']) {
 
         const splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
         const name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
-
         const value = typeof uiData['seriesValue'][params.dataIndex] === 'undefined' ? uiData['seriesValue'] : uiData['seriesValue'][params.dataIndex];
 
-        let seriesValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
+        if( null !== value ) {
+          let seriesValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value, uiData.name);
 
-        // series percent가 있는경우
-        if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
-          let seriesPercentVal = uiData['seriesPercent'][params.dataIndex];
-          seriesPercentVal = (Math.floor(Number(seriesPercentVal) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
+          // series percent가 있는경우
+          if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
+            let seriesPercentVal = uiData['seriesPercent'][params.dataIndex];
+            seriesPercentVal = (Math.floor(Number(seriesPercentVal) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
 
-          seriesValue += ' (' + seriesPercentVal + '%)';
+            seriesValue += ' (' + seriesPercentVal + '%)';
+          }
+
+          result.push(seriesValue);
         }
 
-        result.push(seriesValue);
       }
-      if (uiData['seriesPercent'] && uiData['seriesPercent'].length > 0 && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
+      if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) && uiData['seriesPercent'] && uiData['seriesPercent'].length > 0) {
 
         // series value가 선택된지 않은경우
         if (-1 === uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
