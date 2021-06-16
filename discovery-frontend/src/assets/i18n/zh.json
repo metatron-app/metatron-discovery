@@ -1619,6 +1619,8 @@
   "msg.board.ui.del.comment.del.description": "确定要删除评论吗？",
   "msg.board.alert.comment.del.success": "评论已删除",
   "msg.board.alert.dashboard.copy.success": "看板已复制",
+  "msg.board.alert.change.datasource.invalid": "Changing of the data source is invalid.",
+  "msg.board.alert.change.datasource.error": "An error occurred while changing the datasource",
   "msg.board.ui.set.order.title": "设置看板顺序",
   "msg.board.ui.dashboard.none": "不存在看板",
   "msg.board.ui.dashboard.none.description": "请创建看板",

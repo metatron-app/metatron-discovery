@@ -243,6 +243,22 @@ export class DashboardService extends AbstractService {
     return param;
   } // function - convertSpecToServer
 
+  // 대시보드 데이터 소스 변경 유효성 체크
+  public checkValidationDataSource(dashboardId: string, fromDataSourceId: string, toDataSourceId: string): Promise<any> {
+    let url = this.API_URL + 'dashboards/' + dashboardId + '/dataSource/validate';
+    url += `?fromDataSourceId=${fromDataSourceId}&toDataSourceId=${toDataSourceId}`;
+    return this.post(url, null);
+  }
+
+  // 대시보드 데이터 소스 변경
+  public changeBoardDataSource(dashboardId: string, fromDataSourceId: string, toDataSourceId: string): Promise<any> {
+    let url = this.API_URL + 'dashboards/' + dashboardId + '/dataSource/change';
+    url += `?fromDataSourceId=${fromDataSourceId}&toDataSourceId=${toDataSourceId}`;
+    return this.post(url,null);
+  }
+
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -266,5 +282,7 @@ export class DashboardService extends AbstractService {
 
     return links;
   } // function - _getLinkDataSourceParam
+
+
 
 }

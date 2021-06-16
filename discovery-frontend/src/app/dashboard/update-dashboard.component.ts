@@ -147,6 +147,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
   public filterUtil = FilterUtil;
 
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -210,7 +212,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public ngOnInit() {
     super.ngOnInit();
 
-    // 대시보드 데이터소스 변경
+    // 대시보드 데이터소스 변경 - 관계 설정 및 조인
     this.subscriptions.push(
       this.broadCaster.on<any>('UPDATE_BOARD_UPDATE_DATASOURCE').subscribe(() => {
         this.isUpdateDataSource = true;
@@ -785,6 +787,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public closeUpdateDataSource() {
     this.isUpdateDataSource = false;
   } // function - closeUpdateDataSource
+
+
 
   /**
    * 대시보드의 데이터소스 변경

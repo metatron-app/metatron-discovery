@@ -132,6 +132,10 @@ public class MultiDataSource extends DataSource {
     return dataSources;
   }
 
+  public void setDataSources(List<DataSource> dataSources) {
+    this.dataSources = dataSources;
+  }
+
   public List<Association> getAssociations() {
     return associations;
   }
@@ -184,6 +188,10 @@ public class MultiDataSource extends DataSource {
     public String getTarget() {
       return target;
     }
+
+    public void setSource(String source) { this.source = source; }
+
+    public void setTarget(String target) { this.target = target; }
 
     public Map<String, String> getColumnPair() {
       return columnPair;

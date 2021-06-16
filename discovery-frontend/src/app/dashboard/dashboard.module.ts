@@ -83,9 +83,9 @@ const dashboardRoutes: Routes = [
     CreateBoardDsNetworkComponent,
     CreateBoardDsInfoComponent,
     CreateBoardDsRelationComponent,
-    CreateBoardPopDsSelectComponent,
     CreateBoardPopJoinComponent,
     CreateBoardPopRelationComponent,
+    CreateBoardPopDsSelectComponent,
     UpdateDatasourceComponent,
     UpdateDashboardComponent,
     SelectionFilterComponent,
@@ -114,7 +114,8 @@ const dashboardRoutes: Routes = [
     DashboardComponent,
     UpdateDashboardComponent,
     CreateBoardComponent,
-    SelectionFilterComponent
+    SelectionFilterComponent,
+    CreateBoardPopDsSelectComponent
   ],
   bootstrap: [
     DashboardWidgetComponent,

@@ -16,7 +16,7 @@
   <!-- 날짜 -->
   <div [ngStyle]="{'width' : isWidgetMode ? '200px' : ''}" class="ddp-ui-dateinfo ddp-from" >
     <div class="ddp-dateinfo-in" >
-      <span class="ddp-txt-date">From</span>
+      <span class="ddp-txt-date sys-range-label" >From</span>
 
       <div class="ddp-box-rome" *ngIf="isEarliestDateTime" >
         <div class="ddp-messege"> {{ 'msg.board.filter.ui.time-range.earliest' | translate }} </div>
@@ -44,7 +44,7 @@
   <!-- 날짜 -->
   <div [ngStyle]="{'width' : isWidgetMode ? '200px' : ''}" class="ddp-ui-dateinfo ddp-to">
     <div class="ddp-dateinfo-in" >
-      <span class="ddp-txt-date">To</span>
+      <span class="ddp-txt-date sys-range-label">To</span>
 
       <div class="ddp-box-rome" *ngIf="isLatestDateTime" >
         <div class="ddp-messege"> {{ 'msg.board.filter.ui.time-range.latest' | translate }} </div>
