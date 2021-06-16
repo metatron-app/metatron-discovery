@@ -25,8 +25,9 @@ import {
   OnInit,
   Output,
   SimpleChange,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {Dashboard} from '@domain/dashboard/dashboard';
 import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
@@ -35,7 +36,12 @@ import {TimeRange, TimeRangeData} from '../component/time-range.component';
 
 @Component({
   selector: 'app-time-range-filter',
-  templateUrl: './time-range-filter.component.html'
+  templateUrl: './time-range-filter.component.html',
+  styles: ['.sys-btn-ok { width: 23px; height: 12px;border-radius: 2px;border: solid 1px #4e5368;padding: 8px 10px; margin-left: 10px;position: relative;display: inline-block; }',
+    '.sys-btn-ok.sys-btn-large {width: 40px; height: 25px; border-radius: 2px; border: solid 1px #4e5368; padding: 20px 10px;\n' +
+    ' margin-left: 10px; position: absolute; left: 190px; top: 0; text-align: center; align-items: center; display: flex;\n' +
+    ' vertical-align: middle; justify-content: center;}'
+  ]
 })
 export class TimeRangeFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
@@ -51,6 +57,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public isVertical: boolean = false;
 
   // UI 상 임시값 정의
   public lastIntervals = '';
@@ -82,6 +89,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
+              protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -119,6 +127,14 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   public ngAfterViewInit() {
     super.ngAfterViewInit();
     this.setData(this.inputFilter);
+    this._checkVerticalMode();
+    this.subscriptions.push(
+      this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
+        if ('WIDGET' === this.mode) {
+          this._checkVerticalMode();
+        }
+      })
+    );
   }
 
   /**
@@ -301,6 +317,15 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 가로모드 여부 확인
+   * @private
+   */
+  private _checkVerticalMode(): void {
+    this.isVertical = (390 > this.$element.find('.ddp-dateinfo-view').width());
+    this.safelyDetectChanges();
+  } // func - _checkVerticalMode
+
   /**
    * 변경사항 전파
    * @private
