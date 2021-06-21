@@ -435,7 +435,7 @@ export class FilterUtil {
           'minTime', 'maxTime', 'valueList', 'candidateValues', 'discontinuous', 'granularity'];
         break;
       case 'include' :
-        keyMap = ['selector', 'valueList', 'candidateValues', 'definedValues', 'sort'];
+        keyMap = ['selector', 'valueList', 'candidateValues', 'definedValues', 'sort', 'limit'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];

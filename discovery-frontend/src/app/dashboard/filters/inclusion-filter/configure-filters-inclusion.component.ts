@@ -43,7 +43,7 @@ import {FilterUtil} from '../../util/filter.util';
 import {DashboardUtil} from '../../util/dashboard.util';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
-import {CommonUtil} from "@common/util/common.util";
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-config-filter-inclusion',
@@ -275,6 +275,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     if (targetFilter.definedValues && 0 < targetFilter.definedValues.length) {
       this._candidateList = targetFilter.definedValues.map(item => this._stringToCandidate(item, true));
     }
+
+    this.itemShowCnt = targetFilter.limit ? targetFilter.limit : FilterUtil.CANDIDATE_LIMIT;
 
     this.loadingShow();
     this.datasourceService.getCandidateForFilter(targetFilter, board, [], targetField, 'COUNT', this.searchText, this.itemShowCnt)
@@ -828,10 +830,12 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public changeShowNum(event: KeyboardEvent){
     if(13 === event.keyCode) {
+      this.searchText = '';
       this.itemShowCnt = event.target['value'];
       this.datasourceService.getCandidateForFilter(this.targetFilter, this._board,[], this._targetField, null, null, this.itemShowCnt).then(result => {
         this._candidateList = this._candidateList.filter(item => item.isDefinedValue);
         this._candidateValues = this._candidateList;
+        this.targetFilter.candidateValues = [];
         this._setCandidateResult(result, this.targetFilter, this._targetField);
         this.safelyDetectChanges();
         this.loadingHide();
