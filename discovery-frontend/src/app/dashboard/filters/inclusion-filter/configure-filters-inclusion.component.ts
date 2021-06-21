@@ -147,9 +147,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
 
-  public itemShowCnt: number = 100;
+  public itemShowCnt: number = FilterUtil.CANDIDATE_LIMIT;
   public commonUtil = CommonUtil;
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
