@@ -428,16 +428,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    */
   public setTimeRangeFilter() {
     const conf: FilterWidgetConfiguration = this.widget.configuration as FilterWidgetConfiguration;
-    let filter: TimeFilter = _.cloneDeep(conf.filter) as TimeFilter;
-    if (FilterUtil.isTimeFilter(filter)) {
-      const relativeInterval = this.getIntervalFromRelative(filter);
-      filter.clzField = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field);
-      filter = FilterUtil.getTimeRangeFilter(
-        filter.clzField, filter.timeUnit, 'general',
-        this.dashboard.dataSources.find(ds => ds.engineName === filter.dataSource)
-      );
-      (filter as TimeRangeFilter).timeUnit = TimeUnit.DAY;
-      (filter as TimeRangeFilter).intervals = relativeInterval;
+    if (FilterUtil.isTimeFilter(conf.filter)) {
+      const filter: TimeFilter = FilterUtil.convertRelativeToInterval(conf.filter as TimeFilter, this.dashboard);
       this.filter = filter;
       this.widget.configuration.filter = filter;
       this._setTimeFilterStatus(filter as TimeFilter);
@@ -900,63 +892,5 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       this.safelyDetectChanges();
     }
   } // function - _setTimeFilterStatus
-
-  /**
-   * Relative 로 부터 Interval 정보 얻음 얻는다.
-   */
-  public getIntervalFromRelative(filter: TimeFilter) {
-    const timeRelativeFilter: TimeRelativeFilter = filter as TimeRelativeFilter;
-    // 포맷 설정
-    const strFormat: string = 'YYYY-MM-DD';
-    let strManipulateKey: string = '';
-    switch (timeRelativeFilter.relTimeUnit) {
-      case TimeUnit.YEAR:
-        strManipulateKey = 'y';
-        break;
-      case TimeUnit.QUARTER:
-        strManipulateKey = 'Q';
-        break;
-      case TimeUnit.MONTH:
-        strManipulateKey = 'M';
-        break;
-      case TimeUnit.WEEK:
-        strManipulateKey = 'w';
-        break;
-      case TimeUnit.DAY:
-        strManipulateKey = 'd';
-        break;
-      case TimeUnit.HOUR:
-        strManipulateKey = 'h';
-        break;
-      case TimeUnit.MINUTE:
-        strManipulateKey = 'm';
-        break;
-      case TimeUnit.SECOND:
-        strManipulateKey = 's';
-        break;
-    }
-
-    // 날짜 설정
-    const objDate = moment();
-    let strPreview: string = '';
-    switch (timeRelativeFilter.tense) {
-      case TimeRelativeTense.PREVIOUS :
-        objDate.subtract(timeRelativeFilter.value, strManipulateKey);
-        strPreview = objDate.format(strFormat);
-        strPreview = strPreview + '/' + moment().format(strFormat);
-        break;
-      case TimeRelativeTense.NEXT :
-        objDate.add(timeRelativeFilter.value, strManipulateKey);
-        strPreview = objDate.format(strFormat);
-        strPreview = moment().format(strFormat) + '/' + strPreview;
-        break;
-      default :
-        strPreview = objDate.format(strFormat);
-        strPreview = strPreview + '/' + strPreview;
-        break;
-    }
-
-    return [strPreview];
-  } // function - getIntervalFromRelative
 
 }
