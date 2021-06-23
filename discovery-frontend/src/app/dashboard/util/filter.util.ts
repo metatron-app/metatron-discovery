@@ -46,6 +46,7 @@ import {TimeRelativeFilter, TimeRelativeTense} from '@domain/workbook/configurat
 
 import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {DashboardUtil} from './dashboard.util';
+import * as _ from 'lodash';
 
 declare let moment;
 
@@ -595,6 +596,29 @@ export class FilterUtil {
   } // function - convertIntervalToTimeFilter
 
   /**
+   * Relative Filter 를 Interval Filter 로 변환해서 반환한다.
+   * @param {TimeFilter} relativeFilter
+   * @param {Dashboard} boardInfo
+   * @returns {TimeFilter}
+   */
+  public static convertRelativeToInterval(relativeFilter: TimeFilter, boardInfo: Dashboard):TimeFilter {
+    if (this.isTimeFilter(relativeFilter) && this.isTimeRelativeFilter(relativeFilter)) {
+      let filter: TimeFilter = _.cloneDeep(relativeFilter) as TimeFilter;
+      const relativeInterval = this.getIntervalFromRelative(filter);
+      filter.clzField = DashboardUtil.getFieldByName(boardInfo, filter.dataSource, filter.field);
+      filter = FilterUtil.getTimeRangeFilter(
+        filter.clzField, filter.timeUnit, 'general',
+        boardInfo.dataSources.find(ds => ds.engineName === filter.dataSource)
+      );
+      (filter as TimeRangeFilter).timeUnit = TimeUnit.DAY;
+      (filter as TimeRangeFilter).intervals = relativeInterval;
+      return filter;
+    } else {
+      return relativeFilter;
+    }
+  } // func - convertRelativeToInterval
+
+  /**
    * 타임 필터 여부
    * @param {Filter} filter
    * @returns {boolean}
@@ -659,6 +683,64 @@ export class FilterUtil {
   public static isTimeListFilter(filter: Filter): boolean {
     return filter.type === 'time_list';
   } // function - isTimeListFilter
+
+  /**
+   * Relative 로 부터 Interval 정보 얻음 얻는다.
+   */
+  public static getIntervalFromRelative(filter: TimeFilter):string[] {
+    const timeRelativeFilter: TimeRelativeFilter = filter as TimeRelativeFilter;
+    // 포맷 설정
+    const strFormat: string = 'YYYY-MM-DD';
+    let strManipulateKey: string = '';
+    switch (timeRelativeFilter.relTimeUnit) {
+      case TimeUnit.YEAR:
+        strManipulateKey = 'y';
+        break;
+      case TimeUnit.QUARTER:
+        strManipulateKey = 'Q';
+        break;
+      case TimeUnit.MONTH:
+        strManipulateKey = 'M';
+        break;
+      case TimeUnit.WEEK:
+        strManipulateKey = 'w';
+        break;
+      case TimeUnit.DAY:
+        strManipulateKey = 'd';
+        break;
+      case TimeUnit.HOUR:
+        strManipulateKey = 'h';
+        break;
+      case TimeUnit.MINUTE:
+        strManipulateKey = 'm';
+        break;
+      case TimeUnit.SECOND:
+        strManipulateKey = 's';
+        break;
+    }
+
+    // 날짜 설정
+    const objDate = moment();
+    let strPreview: string = '';
+    switch (timeRelativeFilter.tense) {
+      case TimeRelativeTense.PREVIOUS :
+        objDate.subtract(timeRelativeFilter.value, strManipulateKey);
+        strPreview = objDate.format(strFormat);
+        strPreview = strPreview + '/' + moment().format(strFormat);
+        break;
+      case TimeRelativeTense.NEXT :
+        objDate.add(timeRelativeFilter.value, strManipulateKey);
+        strPreview = objDate.format(strFormat);
+        strPreview = moment().format(strFormat) + '/' + strPreview;
+        break;
+      default :
+        strPreview = objDate.format(strFormat);
+        strPreview = strPreview + '/' + strPreview;
+        break;
+    }
+
+    return [strPreview];
+  } // function - getIntervalFromRelative
 
   /**
    * All Time Filter 생성
