@@ -239,11 +239,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
    */
   public mouseoutWidget() {
     if (this.filterSelectComponent && this.filterSelectComponent.isShowSelectList) {
-
       this.filterSelectComponent.toggleSelectList();
-      // this.filterSelectComponent.isShowSelectList = false;
-      // this.safelyDetectChanges();
-      // this.toggleOptionsSelectComp(false);
     }
   } // function - mouseoutWidget
 
@@ -541,7 +537,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       if (isInterval || isIncludeCombo) {
         // 필터 z-index 최상으로 처리
         const $filterWidgetEl = $(this.filterWidget.nativeElement);
-        $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': 100, position: 'relative'});
+        // $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': 100, position: 'relative'});
+        $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': '', position: ''});
         $filterWidgetEl.closest('.lm_content').css('overflow', 'inherit');
       }
     }
