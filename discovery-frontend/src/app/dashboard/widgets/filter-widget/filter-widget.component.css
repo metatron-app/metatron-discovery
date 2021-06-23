@@ -1,0 +1,15 @@
+.ddp-list-search-candidate {
+  padding-bottom: 15px;
+}
+.ddp-list-search-candidate .ddp-search-text {
+  display: inline-block;
+  border-radius: 2px;
+  border: 1px solid #d0d1d9;
+  width: calc( 100% - 100px );
+}
+.ddp-list-search-candidate .ddp-search-text input.ddp-input-search {
+  display:block; width:100%; padding:7px 26px 6px 13px; box-sizing:border-box; border:none; font-size:13px;
+}
+.ddp-list-search-candidate .ddp-btn-line {
+  margin-left: 5px;
+}

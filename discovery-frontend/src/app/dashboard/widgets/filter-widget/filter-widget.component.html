@@ -68,10 +68,10 @@
                     && (convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_LIST
                       || convertToIncludeFilter(filter).selector === inclusionSelectorType.SINGLE_LIST)"
            class="ddp-list-search-candidate">
-        <a (click)="candidateFromSearchText()" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
         <div class="ddp-search-text">
           <input type="text" class="ddp-input-search" [(ngModel)]="searchText">
         </div>
+        <a (click)="candidateFromSearchText()" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
       </div>
 
       <!-- 복수 선택 목록 -->
