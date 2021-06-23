@@ -20,6 +20,7 @@ import java.sql.Types;
 
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 
 /**
  * Created by kyungtaak on 2017. 6. 11..
@@ -76,6 +77,8 @@ public enum DataType {
         return LogicalType.STRUCT;
       case ARRAY:
         return LogicalType.ARRAY;
+      case HASHED_MAP:
+        return LogicalType.HASHED_MAP;
       default:
         return LogicalType.STRING;
     }
@@ -96,10 +99,20 @@ public enum DataType {
       case LONG:
       case FLOAT:
       case DOUBLE:
+      case HASHED_MAP:
         return Field.FieldRole.MEASURE;
     }
 
     return Field.FieldRole.DIMENSION;
+  }
+
+  public MeasureField.AggregationType toAggrType() {
+    switch (this) {
+      case HASHED_MAP:
+        return MeasureField.AggregationType.IFCOUNTD;
+      default:
+        return MeasureField.AggregationType.NONE;
+    }
   }
 
   /**
@@ -209,6 +222,8 @@ public enum DataType {
       case "LONG":
       case "long":
         return LONG;
+      case "thetaSketch":
+        return HASHED_MAP;
       default:
         return UNKNOWN;
     }
