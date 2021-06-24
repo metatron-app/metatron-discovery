@@ -43,6 +43,7 @@ import {FilterUtil} from '../../util/filter.util';
 import {DashboardUtil} from '../../util/dashboard.util';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
+import {CommonUtil} from '@common/util/common.util';
 
 @Component({
   selector: 'app-config-filter-inclusion',
@@ -145,6 +146,9 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
+
+  public itemShowCnt: number = FilterUtil.CANDIDATE_LIMIT;
+  public commonUtil = CommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -271,8 +275,10 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this._candidateList = targetFilter.definedValues.map(item => this._stringToCandidate(item, true));
     }
 
+    this.itemShowCnt = targetFilter.limit ? targetFilter.limit : FilterUtil.CANDIDATE_LIMIT;
+
     this.loadingShow();
-    this.datasourceService.getCandidateForFilter(targetFilter, board, [], targetField, 'COUNT', this.searchText)
+    this.datasourceService.getCandidateForFilter(targetFilter, board, [], targetField, 'COUNT', this.searchText, this.itemShowCnt)
       .then(result => {
         this.targetFilter = targetFilter;
         this._targetField = targetField;
@@ -288,6 +294,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
           this.selectedValues.push(this._candidateList[0]);
         }
 
+        // this.itemShowCnt = this.candidateListSize > 100 ? 100 : this.candidateListSize;
         this.isShow = true;
         this.safelyDetectChanges();
         this.loadingHide();
@@ -302,6 +309,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public getData(): InclusionFilter {
     const filter: InclusionFilter = this.targetFilter;
+    filter.limit = this.itemShowCnt;
     filter.valueList = this.selectedValues.map(item => item.name);
     filter.candidateValues = this._candidateValues.map(item => item.name);
     filter.definedValues = this._candidateList.filter(item => item.isDefinedValue).map(item => item.name);
@@ -362,7 +370,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public candidateFromSearchText() {
     this.loadingShow();
     const sortBy: string = (this.targetFilter.sort && this.targetFilter.sort.by) ? this.targetFilter.sort.by.toString() : 'COUNT';
-    this.datasourceService.getCandidateForFilter(this.targetFilter, this._board, [], this._targetField, sortBy, this.searchText)
+    this.datasourceService.getCandidateForFilter(this.targetFilter, this._board,[], this._targetField, sortBy, this.searchText,  this.itemShowCnt)
       .then(result => {
         this._setCandidateResult(result, this.targetFilter, this._targetField);
         this.safelyDetectChanges();
@@ -519,7 +527,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     this._condition = _.cloneDeep(this.condition);
     this._limitation = _.cloneDeep(this.limitation);
     this.targetFilter.preFilters = [this._wildcard, this._regExpr, this._condition, this._limitation];
-    this.datasourceService.getCandidateForFilter(this.targetFilter, this._board, [], this._targetField).then(result => {
+    this.datasourceService.getCandidateForFilter(this.targetFilter, this._board,[], this._targetField, null, null, this.itemShowCnt).then(result => {
       this._candidateList = this._candidateList.filter(item => item.isDefinedValue);  // initialize list
       this._setCandidateResult(result, this.targetFilter, this._targetField);
       this.safelyDetectChanges();
@@ -602,7 +610,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * @param {boolean} isInitial
    */
   public setCandidatePage(page: number, isInitial: boolean = false) {
-
     if (isInitial) {
       this.pageCandidateList = [];
       this.currentPage = 1;
@@ -611,7 +618,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this.safelyDetectChanges();
     }
     if (this._candidateList && 0 < this._candidateList.length) {
-
       let pagedList: Candidate[] = _.cloneDeep(this._candidateList);
 
       if (this.targetFilter && this.targetFilter.showSelectedItem) {
@@ -657,7 +663,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         this.pageCandidateList = pagedList;
       }
     }
-
   } // function - setCandidatePage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -819,6 +824,24 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     return this.selectedValues.length === 0;
   }
 
+  /**
+   * 아이템 목록 조회 개수 변경
+   */
+  public changeShowNum(event: KeyboardEvent){
+    if(13 === event.keyCode) {
+      this.searchText = '';
+      this.itemShowCnt = event.target['value'];
+      this.datasourceService.getCandidateForFilter(this.targetFilter, this._board,[], this._targetField, null, null, this.itemShowCnt).then(result => {
+        this._candidateList = this._candidateList.filter(item => item.isDefinedValue);
+        this._candidateValues = this._candidateList;
+        this.targetFilter.candidateValues = [];
+        this._setCandidateResult(result, this.targetFilter, this._targetField);
+        this.safelyDetectChanges();
+        this.loadingHide();
+      });
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -897,7 +920,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
             .map(item => this._stringToCandidate(item, true))
         );
     }
-
     // 목록 설정
     this._candidateList =
       this._candidateList.concat(

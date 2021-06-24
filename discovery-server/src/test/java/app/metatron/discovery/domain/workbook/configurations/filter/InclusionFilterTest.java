@@ -23,7 +23,8 @@ public class InclusionFilterTest {
                                                    null,
                                                    new InclusionFilter.ItemSort("count", "desc"),
                                                    true,
-                                                   null);
+                                                   null,
+                                                    100);
 
     String specStr = GlobalObjectMapper.writeValueAsString(inFilter);
     System.out.println(specStr);

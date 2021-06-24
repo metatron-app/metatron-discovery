@@ -64,7 +64,8 @@ declare let moment;
 
 @Component({
   selector: 'filter-widget',
-  templateUrl: './filter-widget.component.html'
+  templateUrl: './filter-widget.component.html',
+  styleUrls: ['./filter-widget.component.css']
 })
 export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget> implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
@@ -487,7 +488,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
             candidate.count = resultCandidate.count;
             candidate.name = resultCandidate.field;
             candidate.isTemporary = true;
-
             this.candidateList.unshift(candidate);
           }
         });
