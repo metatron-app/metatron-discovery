@@ -366,9 +366,9 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
     }
 
     // 기존 데이터소스가 있었던 경우 수집형만 조회
-    if(this.currentDataSources){
+    /*if(this.currentDataSources){
       params['connType'] = 'ENGINE';
-    }
+    }*/
 
     this.workspaceService.getDataSources(workspaceId, params).then((datasources) => {
 
