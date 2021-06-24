@@ -269,6 +269,7 @@ public class Field implements MetatronDomain<Long> {
       this.logicalType = this.type.toLogicalType();
     }
     this.role = role == null ? this.type.toRole() : role;
+    this.aggrType = this.type.toAggrType();
     this.seq = seq;
   }
 
