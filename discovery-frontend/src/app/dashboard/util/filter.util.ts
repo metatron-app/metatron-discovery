@@ -46,6 +46,7 @@ import {TimeRelativeFilter, TimeRelativeTense} from '@domain/workbook/configurat
 
 import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {DashboardUtil} from './dashboard.util';
+import {TimeDateFilter} from "@domain/workbook/configurations/filter/time-date-filter";
 
 declare let moment;
 
@@ -310,7 +311,7 @@ export class FilterUtil {
   public static convertToServerSpec(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeDateFilter(filter)) {
       const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
@@ -361,6 +362,7 @@ export class FilterUtil {
         keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
+      case 'time_single' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
       case 'time_list' :
@@ -400,7 +402,7 @@ export class FilterUtil {
   public static convertToServerSpecForDashboard(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeDateFilter(filter)) {
       const timeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
@@ -450,6 +452,7 @@ export class FilterUtil {
         keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
+      case 'time_single' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
       case 'time_list' :
@@ -661,6 +664,15 @@ export class FilterUtil {
   } // function - isTimeListFilter
 
   /**
+   * Date(Single) Time Filter 여부
+   * @param filter
+   * @returns {boolean}
+   */
+  public static isTimeDateFilter(filter: Filter): boolean{
+    return filter.type === 'time_single';
+  } // function - isTimeDateFilter
+
+  /**
    * All Time Filter 생성
    * @param {Field} field
    * @param {string} importanceType
@@ -705,6 +717,21 @@ export class FilterUtil {
 
     return timeFilter;
   } // function - getTimeRangeFilter
+
+  /**
+   * TimeDateFilter 설정
+   * @param field
+   * @param timeUnit
+   * @param importanceType
+   */
+  public static getTimeDateFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string): TimeDateFilter {
+    const timeFilter = new TimeDateFilter(field);
+    timeFilter.timeUnit = CommonUtil.isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
+
+    (importanceType) && (timeFilter.ui.importanceType = importanceType);
+
+    return timeFilter;
+  } // function - getTimeDateFilter
 
   /**
    * TimeRelativeFilter 설정

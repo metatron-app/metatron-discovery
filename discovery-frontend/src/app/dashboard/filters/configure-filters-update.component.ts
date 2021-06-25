@@ -186,6 +186,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
    * 필터 변경을 요청한다.
    */
   public emitUpdateFilter() {
+    console.log('emitUpdateFilter');
     let filter: Filter;
     if ('include' === this.targetFilter.type) {
       filter = this._inclusionComp.getData();
@@ -194,7 +195,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
     } else {
       filter = this._timeComp.getData();
     }
-
+    console.log(filter);
     // 스코프 설정
     if (this.widget) {
       if (this.targetFilter.ui.widgetId) {

@@ -33,6 +33,8 @@ import { ConfigureFiltersTimeComponent } from './filters/time-filter/configure-f
 import { TimeFilterPanelComponent } from './filters/time-filter/time-filter-panel.component';
 import { TimeUnitSelectComponent } from './filters/component/timeUnit-select.component';
 import { TimeRangeComponent } from './filters/component/time-range.component';
+import {TimeDateFilterComponent} from "./filters/time-filter/time-date-filter.component";
+import {TimeDateComponent} from "./filters/component/time-date.component";
 
 @NgModule({
   imports: [
@@ -57,7 +59,9 @@ import { TimeRangeComponent } from './filters/component/time-range.component';
     ConfigureFiltersTimeComponent,
     TimeRangeFilterComponent,
     TimeRelativeFilterComponent,
-    TimeListFilterComponent
+    TimeListFilterComponent,
+    TimeDateFilterComponent,
+    TimeDateComponent
   ],
   exports: [
     FilterSelectComponent,
@@ -77,7 +81,9 @@ import { TimeRangeComponent } from './filters/component/time-range.component';
     ConfigureFiltersTimeComponent,
     TimeRangeFilterComponent,
     TimeRelativeFilterComponent,
-    TimeListFilterComponent
+    TimeListFilterComponent,
+    TimeDateFilterComponent,
+    TimeDateComponent
   ]
 })
 export class DashboardShareModule { }

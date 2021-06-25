@@ -181,6 +181,8 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    */
   public getData(): TimeRangeFilter {
     this.targetFilter.intervals = this.timeRangeList.map(item => item.startDate + '/' + item.endDate);
+    console.log('range get Data');
+    console.log(this.targetFilter.intervals);
     return this.targetFilter;
   } // function - getData
 
