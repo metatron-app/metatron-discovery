@@ -1522,6 +1522,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
       // 필터 설정
       const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
+      // console.log('widgetDataSource');
+      // console.log(widgetDataSource);
 
       if (this.isNullOrUndefined(widgetDataSource)) {
         this.isMissingDataSource = true;

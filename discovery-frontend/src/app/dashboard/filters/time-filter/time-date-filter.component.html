@@ -14,9 +14,11 @@
 
 <div *ngIf="inputFilter" class="ddp-dateinfo-view">
   <div class="ddp-filter-calen">
-    <div class="ddp-filter-calen-in">
+    <div class="ddp-filter-calen-in"
+         [ngStyle]="'WIDGET' == mode ? {'float':'left'} : {}">
       <component-time-date
-        [initial]="inputFilter"
+        [mode]="mode"
+        [initial]="targetFilter"
         (onDateChange)="onDateChange($event)">
       </component-time-date>
     </div>
