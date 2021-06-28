@@ -13,13 +13,13 @@
   -->
 
 <div class="ddp-wrap-dateinfo ddp-filter-dateinfo">
-  <div class="ddp-ui-dateinfo ddp-from">
+  <div [ngStyle]="{'width' : isWidgetMode ? '200px' : ''}" class="ddp-ui-dateinfo ddp-from">
     <div class="ddp-dateinfo-in">
       <span class="ddp-txt-date sys-range-label">Date</span>
       <div class="ddp-box-rome">
         <div class="ddp-box-dateinfo ddp-clear">
           <div [class.ddp-full]="0 === comboList.length" class="ddp-box-date">
-            <em class="ddp-icon-calen"></em>
+            <em *ngIf="'PANEL' !== mode" class="ddp-icon-calen"></em>
             <input type="text" class="ddp-txt-calen" #datePickerInput />
           </div>
           <component-select

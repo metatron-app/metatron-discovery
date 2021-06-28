@@ -126,7 +126,6 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
    * @return {TimeFilter}
    */
   public getData(): TimeFilter {
-    console.log('getData');
     let returnData:TimeFilter;
     switch (this.targetFilter.type) {
       case 'time_list' :
@@ -233,7 +232,7 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
     this.isRelativeType = FilterUtil.isTimeRelativeFilter(this.targetFilter);
     this.isRangeType = FilterUtil.isTimeRangeFilter(this.targetFilter);
     this.isListType = FilterUtil.isTimeListFilter(this.targetFilter);
-    this.isDateType = FilterUtil.isTimeDateFilter(this.targetFilter);
+    this.isDateType = FilterUtil.isTimeSingleFilter(this.targetFilter);
   } // function - _setStatus
 
 }

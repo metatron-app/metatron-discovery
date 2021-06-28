@@ -116,6 +116,17 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+ | Getter / Setter
+ |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 위젯 모드 여부
+   */
+  public get isWidgetMode(): boolean {
+    return 'WIDGET' === this.mode;
+  } // get - isWidgetMode
+
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -134,12 +145,23 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
  | Private Method
  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * DatePicker 설정
+   * @private
+   */
   private _setPicker(){
 
     this.safelyDetectChanges();
 
     // this._date = new Date();
-    let dateMoment = moment();
+    const valueDate = this.compData.valueDate;
+    let dateMoment;
+    if (valueDate && 'undefined' !== valueDate){
+      dateMoment = this.customMoment(valueDate);
+    } else{
+      dateMoment = moment();
+    }
+
     if (TimeUnit.WEEK === this.compData.timeUnit){
       this.comboList = _.cloneDeep(this._weekList);
       this._date = new Date();
@@ -174,6 +196,10 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
     }
   }
 
+  /**
+   * 값 검증
+   * @returns {TimeDate}
+   */
   private _getTimeDate(): TimeDate{
     const currTimeUnit: TimeUnit = this.compData.timeUnit;
     if (TimeUnit.YEAR === currTimeUnit){
@@ -207,19 +233,21 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
 
 
 export class TimeDate{
-  public pickDate: Date | string;
+  public valueDate: Date | string;
 
-  constructor(pickDate: Date | string) {
-    this.pickDate = pickDate;
+  constructor(valueDate: Date | string) {
+    this.valueDate = valueDate;
   }
 }
 
 export class TimeDateData {
 
+  public valueDate: Date | string;
   public timeUnit: TimeUnit;
 
 
-  constructor(timeUnit?: TimeUnit) {
+  constructor(valueDate: Date | string, timeUnit?: TimeUnit) {
+    this.valueDate = valueDate;
     this.timeUnit = (CommonUtil.isNullOrUndefined(timeUnit)) ? TimeUnit.NONE : timeUnit;
   }
 }

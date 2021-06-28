@@ -311,7 +311,7 @@ export class FilterUtil {
   public static convertToServerSpec(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeDateFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
       const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
@@ -402,7 +402,7 @@ export class FilterUtil {
   public static convertToServerSpecForDashboard(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeDateFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
       const timeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
@@ -629,7 +629,8 @@ export class FilterUtil {
     return ('time_all' === filter.type
       || 'time_list' === filter.type
       || 'time_range' === filter.type
-      || 'time_relative' === filter.type);
+      || 'time_relative' === filter.type
+      || 'time_single' === filter.type);
   } // function - isTimeFilter
 
   /**
@@ -691,7 +692,7 @@ export class FilterUtil {
    * @param filter
    * @returns {boolean}
    */
-  public static isTimeDateFilter(filter: Filter): boolean{
+  public static isTimeSingleFilter(filter: Filter): boolean{
     return filter.type === 'time_single';
   } // function - isTimeDateFilter
 

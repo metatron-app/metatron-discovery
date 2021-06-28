@@ -1358,8 +1358,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Filter} filter
    */
   public configureFilter(filter: Filter) {
-     console.log('configureFilter');
-     console.log(filter);
+    console.log('configureFilter');
+    // console.log(filter);
     if (DashboardUtil.isNewFilter(this.dashboard, filter)) {
       this.addFilter(filter, () => {
         this.updateFilter(filter, true);
@@ -1375,7 +1375,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Function} callback
    */
   public addFilter(filter: Filter, callback?: () => void) {
-    console.log('addFilter');
     if (!filter.ui.widgetId) {
       this.showBoardLoading();
       const newFilterWidget: FilterWidget = new FilterWidget(filter, this.dashboard);

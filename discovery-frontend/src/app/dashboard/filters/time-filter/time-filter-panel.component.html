@@ -245,6 +245,14 @@
         </app-time-range-filter>
       </div>
       <!-- // 특정 기간 선택 탭 영역 -->
+      <!-- 특정 날짜 선택 탭 영역 -->
+      <div *ngIf="isSingleType" class="ddp-ui-toggle-contents">
+        <app-time-date-filter
+          [mode]="'PANEL'" [filter]="filter" [dashboard]="dashboard"
+          (changeEvent)="changeFilterEvent($event)">
+        </app-time-date-filter>
+      </div>
+      <!-- // 특정 날짜 선택 탭 영역 -->
     </div>
     <!-- // 탭별 내용 영역 -->
   </div>

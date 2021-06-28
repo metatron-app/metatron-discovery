@@ -51,6 +51,9 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   public targetFilter: TimeDateFilter;
   public isVertical: boolean = false;
 
+  // UI 상 임시값 정의
+  public lastIntervals = '';
+
 
   // 필터 변경 이벤트
   @Output()
@@ -86,19 +89,19 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     const filterChanges: SimpleChange = changes.inputFilter;
 
     if (filterChanges){
-      const currFilter: TimeDateFilter = filterChanges.currentValue;
-      const prevFilter: TimeDateFilter = filterChanges.previousValue;
+      //const currFilter: TimeDateFilter = filterChanges.currentValue;
+      //const prevFilter: TimeDateFilter = filterChanges.previousValue;
       this.setData(filterChanges.currentValue);
-      if (this.isLoaded && currFilter && (
-        !prevFilter || prevFilter.field !== currFilter.field)) {
-        // this.setData(filterChanges.currentValue, !filterChanges.firstChange);
-      }
+      // if (this.isLoaded && currFilter && (
+      //   !prevFilter || prevFilter.field !== currFilter.field)) {
+      //   // this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+      // }
     }
   }
 
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    // this.setData(this.inputFilter);
+    this.setData(this.inputFilter);
     setTimeout(() => {
     }, 150 );
     this.subscriptions.push(
@@ -137,6 +140,7 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
       this.loadingHide();
     }
   } // function - setData
+
   /**
    * 현재 설정된 정보를 반환한다.
    * @return {InclusionFilter}
@@ -145,20 +149,32 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     return this.targetFilter;
   } // function - getData
 
-
   public onDateChange(date: TimeDate){
-    this.targetFilter.valueDate = date.pickDate;
+    this.targetFilter.valueDate = date.valueDate;
     const nextDate = this._getNextDate(this.targetFilter);
-    this.targetFilter.intervals = [this.targetFilter.valueDate + '/' + nextDate.pickDate];
+    let dateStr= '', nextDateStr = '';
 
-    if(this.mode && this.mode !== 'WIDGET'){
-      //this._broadcastChange();
+    if (typeof nextDate.valueDate === "string" && typeof this.targetFilter.valueDate === "string") {
+      nextDateStr = this._getDateFormForScript(nextDate.valueDate);
+      dateStr = this._getDateFormForScript(this.targetFilter.valueDate);
+      this.targetFilter.intervals = [dateStr + '/' + nextDateStr];
     }
+    //else {
+    //   this.targetFilter.intervals = [this.targetFilter.valueDate + '/' + nextDate];
+    // }
+    if(this.mode && this.mode !== 'WIDGET'){
+      this._broadcastChange();
+    }
+    console.log(this.targetFilter);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  private _getDateFormForScript(date: string): string{
+    return date.replace('T',' ').replace('.000Z','');
+  }
 
   /**
    * 가로모드 여부 확인
@@ -169,13 +185,35 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     this.safelyDetectChanges();
   } // func - _checkVerticalMode
 
+  /**
+   * 변경사항 전파
+   * @private
+   */
+  private _broadcastChange(){
+    const filterData: TimeDateFilter = this.getData();
+    // 결과 값이 다를 경우만 이벤트 전달하여 차트 갱신
+    if (this.lastIntervals !== filterData.intervals.join('')) {
+      this.lastIntervals = filterData.intervals.join('');
+      this.changeEvent.emit(filterData);
+    }
+  }
+
   private _setDateFilter(targetFilter: TimeDateFilter): TimeDateFilter{
-    if(!targetFilter.valueDate){
+
+    if(!targetFilter.intervals){
       targetFilter.valueDate = new Date();
+    } else {
+      const arrInterval: any[] = targetFilter.intervals[0].split('/');
+      targetFilter.valueDate = arrInterval[0];
     }
     return targetFilter;
   }
 
+  /**
+   * TimeDateFilter interval 설정을 위한 다음 날짜 설정
+   * @param filter
+   * @private
+   */
   private _getNextDate(filter: TimeDateFilter): TimeDate{
     const currTimeUnit: TimeUnit = filter.timeUnit;
     let currDate;
@@ -207,6 +245,7 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
       }
     }
   }
+
 
   /**
    * Moment 로 부터 Date 정보를 얻음
