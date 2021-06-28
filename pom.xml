@@ -20,7 +20,7 @@
     <groupId>app.metatron.discovery</groupId>
     <artifactId>metatron-discovery</artifactId>
     <packaging>pom</packaging>
-    <version>2021.2-SNAPSHOT</version>
+    <version>2021.2</version>
 
     <modules>
         <module>discovery-frontend</module>
