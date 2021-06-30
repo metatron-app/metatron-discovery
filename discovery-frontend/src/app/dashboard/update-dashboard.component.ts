@@ -1358,8 +1358,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {Filter} filter
    */
   public configureFilter(filter: Filter) {
-    console.log('configureFilter');
-    // console.log(filter);
+    
     if (DashboardUtil.isNewFilter(this.dashboard, filter)) {
       this.addFilter(filter, () => {
         this.updateFilter(filter, true);

@@ -202,8 +202,6 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
         delete filter.ui.widgetId;
       }
     }
-    console.log('emitUpdateFilter');
-    console.log(filter);
     this.done.emit(filter);
   } // function - emitUpdateFilter
 

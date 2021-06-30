@@ -18,7 +18,6 @@ import {TimeRangeFilter} from "@domain/workbook/configurations/filter/time-range
 import {TimeDateFilter} from "@domain/workbook/configurations/filter/time-date-filter";
 import {Dashboard} from "@domain/dashboard/dashboard";
 import {TimeDate} from "../component/time-date.component";
-import {TimeUnit} from "@domain/workbook/configurations/field/timestamp-field";
 import moment from "moment";
 
 
@@ -89,13 +88,7 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     const filterChanges: SimpleChange = changes.inputFilter;
 
     if (filterChanges){
-      //const currFilter: TimeDateFilter = filterChanges.currentValue;
-      //const prevFilter: TimeDateFilter = filterChanges.previousValue;
       this.setData(filterChanges.currentValue);
-      // if (this.isLoaded && currFilter && (
-      //   !prevFilter || prevFilter.field !== currFilter.field)) {
-      //   // this.setData(filterChanges.currentValue, !filterChanges.firstChange);
-      // }
     }
   }
 
@@ -151,30 +144,16 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
 
   public onDateChange(date: TimeDate){
     this.targetFilter.valueDate = date.valueDate;
-    const nextDate = this._getNextDate(this.targetFilter);
-    let dateStr= '', nextDateStr = '';
 
-    if (typeof nextDate.valueDate === "string" && typeof this.targetFilter.valueDate === "string") {
-      nextDateStr = this._getDateFormForScript(nextDate.valueDate);
-      dateStr = this._getDateFormForScript(this.targetFilter.valueDate);
-      this.targetFilter.intervals = [dateStr + '/' + nextDateStr];
-    }
-    //else {
-    //   this.targetFilter.intervals = [this.targetFilter.valueDate + '/' + nextDate];
-    // }
+    this.targetFilter.intervals = [this.targetFilter.valueDate + '/' + this.targetFilter.valueDate];
     if(this.mode && this.mode !== 'WIDGET'){
       this._broadcastChange();
     }
-    console.log(this.targetFilter);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  private _getDateFormForScript(date: string): string{
-    return date.replace('T',' ').replace('.000Z','');
-  }
 
   /**
    * 가로모드 여부 확인
@@ -201,7 +180,8 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   private _setDateFilter(targetFilter: TimeDateFilter): TimeDateFilter{
 
     if(!targetFilter.intervals){
-      targetFilter.valueDate = new Date();
+      targetFilter.valueDate = moment().toISOString();
+      targetFilter.intervals = [targetFilter.valueDate + '/' + targetFilter.valueDate];
     } else {
       const arrInterval: any[] = targetFilter.intervals[0].split('/');
       targetFilter.valueDate = arrInterval[0];
@@ -209,53 +189,5 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     return targetFilter;
   }
 
-  /**
-   * TimeDateFilter interval 설정을 위한 다음 날짜 설정
-   * @param filter
-   * @private
-   */
-  private _getNextDate(filter: TimeDateFilter): TimeDate{
-    const currTimeUnit: TimeUnit = filter.timeUnit;
-    let currDate;
-    if (typeof filter.valueDate === "string") {
-      currDate = new Date(filter.valueDate.replace('T',' ').replace('.000Z',''));
-    }
-
-    if (TimeUnit.YEAR === currTimeUnit){
-      return this._getDateFromMoment(moment().year(currDate.getFullYear()).add(1,'year'),'year');
-    } else if (TimeUnit.MONTH === currTimeUnit) {
-      return this._getDateFromMoment(moment().year(currDate.getFullYear()).month(currDate.getMonth()).add(1,'month'),
-        'month');
-    } else if (TimeUnit.WEEK === currTimeUnit) {
-      // return new TimeDate( currDate.getFullYear() + '-' + this.selectedDateComboItem.value);
-    }
-    else {
-      let dateMoment = moment().year(currDate.getFullYear()).month(currDate.getMonth()).date(currDate.getDate());
-      if (TimeUnit.DAY === currTimeUnit) {
-        dateMoment = dateMoment.add(1,'days');
-        return new TimeDate(dateMoment.startOf('date').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z')
-      } else if (TimeUnit.HOUR === currTimeUnit) {
-        dateMoment = dateMoment.hour(currDate.getHours()).add(1,'hour');
-        return new TimeDate(dateMoment.startOf('hour').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
-      } else if (TimeUnit.MINUTE === currTimeUnit) {
-        dateMoment = dateMoment.minute(currDate.getMinutes()).add(1, 'minute');
-        return new TimeDate(dateMoment.startOf('minute').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
-      } else {
-        return new TimeDate(moment(currDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
-      }
-    }
-  }
-
-
-  /**
-   * Moment 로 부터 Date 정보를 얻음
-   * @param dateMoment
-   * @private
-   */
-  private _getDateFromMoment(dateMoment: any, range: string): TimeDate{
-    return new TimeDate(
-      dateMoment.startOf(range).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
-    );
-  }
 }
 
