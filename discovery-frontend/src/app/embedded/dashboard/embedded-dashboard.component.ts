@@ -96,6 +96,16 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       }
     });
 
+    this.subscriptions.push(
+      this.activatedRoute.fragment
+        .subscribe((fragment: string) => {
+          if (this.router.url.indexOf('/embedded/workbook/') > -1) {
+            this._boardId = fragment;
+            this.getDashboardDetail(fragment);
+          }
+        })
+    );
+
     // this.cookieService.set(CookieConstant.KEY.FORCE_LOGIN, 'FORCE', 0, '/');
   }
 

@@ -37,7 +37,8 @@ const embeddedViewRoutes: Routes = [
   {path: 'presentation/:workbookId/:dashboardId', component: PresentationDashboardComponent},
   {path: ':dashboardId', component: EmbeddedDashboardComponent},
   {path: ':dashboardId/:loginToken/:loginType/:refreshToken', component: EmbeddedDashboardComponent},
-  {path: 'metadata/:id', component: EmbeddedMetadataDetailComponent}
+  {path: 'metadata/:id', component: EmbeddedMetadataDetailComponent},
+  {path: 'workbook/:workbookId', component: EmbeddedDashboardComponent}
 ];
 
 @NgModule({
