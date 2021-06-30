@@ -1522,8 +1522,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
 
       // 필터 설정
       const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
-      // console.log('widgetDataSource');
-      // console.log(widgetDataSource);
 
       if (this.isNullOrUndefined(widgetDataSource)) {
         this.isMissingDataSource = true;
@@ -1746,6 +1744,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
         FilterUtil.isTimeAllFilter(item) ||
         FilterUtil.isTimeRelativeFilter(item) ||
         FilterUtil.isTimeRangeFilter(item) ||
+        FilterUtil.isTimeSingleFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
 

@@ -75,11 +75,6 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Getter / Setter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  | Override Method
  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
@@ -96,6 +91,7 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
    */
   public ngOnChanges(changes: SimpleChanges): void {
     const compDataChanges: SimpleChange = changes.compData;
+
     if (compDataChanges){
       const currVal: TimeDateData = compDataChanges.currentValue;
       const preVal: TimeDateData = compDataChanges.previousValue;
@@ -153,8 +149,8 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
 
     this.safelyDetectChanges();
 
-    // this._date = new Date();
     const valueDate = this.compData.valueDate;
+
     let dateMoment;
     if (valueDate && 'undefined' !== valueDate){
       dateMoment = this.customMoment(valueDate);
