@@ -731,6 +731,11 @@ export class FilterUtil {
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
+    if(!timeFilter.intervals){
+      timeFilter.valueDate = this.getDateTimeFormat(moment().toISOString(), timeUnit);
+      timeFilter.intervals = [timeFilter.valueDate + '/' + timeFilter.valueDate];
+    }
+
     return timeFilter;
   } // function - getTimeDateFilter
 
