@@ -392,6 +392,9 @@ public class Field implements MetatronDomain<Long> {
   public Aggregation getAggregation(boolean rollup) {
 
     if (!rollup) {
+      if (logicalType == null) {
+        this.logicalType = this.type.toLogicalType();
+      }
       return new RelayAggregation(name, getOriginalName(), logicalType.toEngineMetricType());
     }
 
