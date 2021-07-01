@@ -70,8 +70,7 @@
       <ul class="ddp-list-tab2">
         <li [ngClass]="{'ddp-selected' : leftTab == 'DASHBOARD'}">
           <a href="javascript:" (click)="changeTab('DASHBOARD')">
-            {{'msg.comm.ui.dashboard' | translate}}({{dashboardPage.totalElements ? dashboardPage.totalElements : '0' }}
-            )
+            {{'msg.comm.ui.dashboard' | translate}}({{dashboardPage.totalElements ? dashboardPage.totalElements : '0' }})
           </a>
         </li>
         <li [ngClass]="{'ddp-selected' : leftTab == 'CHAT'}">
