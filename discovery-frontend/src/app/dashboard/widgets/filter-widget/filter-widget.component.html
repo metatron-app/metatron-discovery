@@ -171,6 +171,14 @@
       </app-time-range-filter>
       <!-- // Range Time Filter -->
 
+      <!-- Range Time Filter -->
+      <app-time-date-filter
+        *ngIf="isSingleTypeTimeFilter"
+        [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
+        (changeEvent)="changeFilterEvent($event)">
+      </app-time-date-filter>
+      <!-- // Range Time Filter -->
+
       <!-- List Time Filter -->
       <app-time-list-filter
         *ngIf="isListTypeTimeFilter || isDiscontinuousFilter"

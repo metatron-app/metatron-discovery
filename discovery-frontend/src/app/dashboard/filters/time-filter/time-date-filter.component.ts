@@ -151,6 +151,10 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     }
   }
 
+  public broadcastChange() {
+    this._broadcastChange();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
