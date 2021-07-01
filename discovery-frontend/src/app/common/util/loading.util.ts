@@ -35,6 +35,7 @@ export class Loading {
   * 로딩 숨김
   * */
   public static hide() {
+    (!this.$loading || 0 === this.$loading.length) && (this.$loading = $('.ddp-loading'));
     this.$loading.hide();
   }
 
@@ -42,6 +43,7 @@ export class Loading {
    * 로딩 표시 여부
    */
   public static isVisible(): boolean {
+    (!this.$loading || 0 === this.$loading.length) && (this.$loading = $('.ddp-loading'));
     return this.$loading.is(':visible');
   } // func - isVisible
 
