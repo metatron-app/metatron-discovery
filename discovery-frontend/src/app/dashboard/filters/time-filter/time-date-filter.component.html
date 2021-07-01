@@ -22,6 +22,18 @@
         (onDateChange)="onDateChange($event)">
       </component-time-date>
     </div>
+    <a *ngIf="'WIDGET' == mode" (click)="broadcastChange()"
+       style ="width: 23px;
+    height: 12px;
+    border-radius: 2px;
+    border: solid 1px #4e5368;
+    padding: 8px 10px;
+    margin-left: 10px;
+    position: relative;
+    display: inline-block;"
+       class="ddp-ui-button sys-btn-ok" href="javascript:" [class.sys-btn-large]="isVertical">
+      {{'msg.comm.ui.ok' | translate}}
+    </a>
   </div>
 </div>
 

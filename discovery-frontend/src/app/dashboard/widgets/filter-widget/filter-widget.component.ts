@@ -119,6 +119,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   public isRelativeTypeTimeFilter: boolean = false; // Relative Time Filter
   public isRangeTypeTimeFilter: boolean = false;    // Range Time Filter
   public isListTypeTimeFilter: boolean = false;     // List Time Filter
+  public isSingleTypeTimeFilter: boolean = false;   // Single Time Filter
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -884,6 +885,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
     this.isRelativeTypeTimeFilter = FilterUtil.isTimeRelativeFilter(timeFilter);
     this.isRangeTypeTimeFilter = FilterUtil.isTimeRangeFilter(timeFilter);
     this.isListTypeTimeFilter = FilterUtil.isTimeListFilter(timeFilter);
+    this.isSingleTypeTimeFilter = FilterUtil.isTimeSingleFilter(timeFilter);
     if (!this.isEditMode && this.isRelativeTypeTimeFilter) {
       this.setTimeRangeFilter();
       this.safelyDetectChanges();
