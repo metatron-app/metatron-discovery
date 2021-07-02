@@ -284,6 +284,11 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       this.widget = (_.extend(new PageWidget(), result) as PageWidget);
       this.widgetConfiguration = (this.widget.configuration as PageWidgetConfiguration);
       this.chartType = this.widgetConfiguration.chart.type.toString();
+      this.widget.dashBoard.configuration.fields
+        = this.widget.dashBoard.dataSources.reduce((acc, ds) => {
+          ds.fields.forEach( dsInfo => dsInfo.dataSource = ds.engineName);
+          return acc.concat(ds.fields);
+      }, []);
       this.changeDetect.detectChanges();
       this._search();
     });
@@ -413,8 +418,12 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     }
 
     // 필터 설정
-    for (let filter of cloneQuery.filters) {
-      filter = FilterUtil.convertToServerSpec(filter);
+    if( cloneQuery.filters ) {
+      for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
+        let filter = cloneQuery.filters[idx];
+        filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
+        cloneQuery.filters[idx] = FilterUtil.convertToServerSpec(filter);
+      }
     }
 
     // 값이 없는 측정값 필터 제거
@@ -424,6 +433,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         FilterUtil.isTimeAllFilter(item) ||
         FilterUtil.isTimeRelativeFilter(item) ||
         FilterUtil.isTimeRangeFilter(item) ||
+        FilterUtil.isTimeSingleFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
 

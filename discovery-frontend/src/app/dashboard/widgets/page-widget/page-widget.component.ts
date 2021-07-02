@@ -1732,8 +1732,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     }
 
     // 필터 설정
-    for (let filter of cloneQuery.filters) {
-      filter = FilterUtil.convertToServerSpec(filter);
+    if( cloneQuery.filters ) {
+      for (let idx = 0, nMax = cloneQuery.filters.length; idx < nMax; idx++) {
+        let filter = cloneQuery.filters[idx];
+        filter = FilterUtil.convertRelativeToInterval(filter, this.widget.dashBoard);
+        cloneQuery.filters[idx] = FilterUtil.convertToServerSpec(filter);
+      }
     }
 
     // 값이 없는 측정값 필터 제거

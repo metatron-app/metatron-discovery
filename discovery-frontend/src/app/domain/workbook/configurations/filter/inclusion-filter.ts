@@ -39,6 +39,8 @@ export class InclusionFilter extends Filter {
   // Only show selected item (Optional, for UI)
   public showSelectedItem: boolean;
 
+  public limit: number;
+
   constructor(field: string, valueList: string[] = []) {
     super();
     this.type = 'include';

@@ -1504,6 +1504,7 @@
   "msg.board.li.sel.type":"타입",
   "msg.board.li.single": "단건",
   "msg.board.li.multiple": "다건",
+  "msg.board.li.filter.cnt" : "최대 조회 개수",
   "msg.board.ui.ui.component": "UI 컴포넌트",
   "msg.board.li.combobox": "콤보박스",
   "msg.board.li.list": "리스트",

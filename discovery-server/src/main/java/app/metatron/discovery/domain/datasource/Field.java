@@ -269,6 +269,7 @@ public class Field implements MetatronDomain<Long> {
       this.logicalType = this.type.toLogicalType();
     }
     this.role = role == null ? this.type.toRole() : role;
+    this.aggrType = this.type.toAggrType();
     this.seq = seq;
   }
 
@@ -391,6 +392,9 @@ public class Field implements MetatronDomain<Long> {
   public Aggregation getAggregation(boolean rollup) {
 
     if (!rollup) {
+      if (logicalType == null) {
+        this.logicalType = this.type.toLogicalType();
+      }
       return new RelayAggregation(name, getOriginalName(), logicalType.toEngineMetricType());
     }
 

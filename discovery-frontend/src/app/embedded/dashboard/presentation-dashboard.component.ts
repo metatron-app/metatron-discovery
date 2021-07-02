@@ -164,7 +164,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   public onDashboardEvent(event: { name: string, data?: any }) {
     if ('LAYOUT_INITIALISED' === event.name) {
       this._setTimer();
-      this._boardComp.hideBoardLoading();
+      (this._boardComp) && (this._boardComp.hideBoardLoading());
     } else if ('RELOAD_BOARD' === event.name) {
       (this._timer) && (clearTimeout(this._timer));
       this._timer = null;
@@ -317,7 +317,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
     this.selectedIdx = idx;
     this.selectedDashboard = null;
     const item: PresentationDashboard = this.dashboards[idx];
-    this._boardComp.hideError();
+    (this._boardComp) && (this._boardComp.hideError());
     if (item.configuration) {
       setTimeout(() => {
         this.selectedDashboard = item;

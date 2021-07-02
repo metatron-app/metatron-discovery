@@ -35,6 +35,8 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.DataSourceService;
+import app.metatron.discovery.domain.datasource.DataSourceTemporary;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.images.Image;
 import app.metatron.discovery.domain.images.ImageService;
@@ -67,6 +69,9 @@ public class DashBoardService {
 
   @Autowired
   DataSourceRepository dataSourceRepository;
+
+  @Autowired
+  DataSourceService dataSourceService;
 
   @Transactional
   public DashBoard copy(DashBoard dashBoard, WorkBook parent, boolean addPrefix) {
@@ -281,18 +286,24 @@ public class DashBoardService {
     if (dataSource instanceof MultiDataSource) {
       List<app.metatron.discovery.domain.workbook.configurations.datasource.DataSource> dataSourceList = Lists.newArrayList();
       ((MultiDataSource) dataSource).getDataSources().forEach(d -> {
-        if (fromDataSource.getName().equals(d.getName()) || fromDataSource.getEngineName().equals(d.getName())) {
+        if (fromDataSource.getName().equals(d.getName()) || fromDataSource.getEngineName().equals(d.getName())
+          || (d.getTemporary() && d.getId().equals(fromDataSource.getId()))) {
           d.setConnType(toDataSource.getConnType());
           d.setId(toDataSource.getId());
-          d.setName(toDataSource.getName());
-          d.setEngineName(toDataSource.getEngineName());
-          if (toDataSource.getTemporary() != null) {
-            d.setTemporary(true);
-            d.setTemporaryId(toDataSource.getTemporary().getDataSourceId());
-            d.setMetaDataSource(dataSourceRepository.findByIdIncludeConnection(toDataSource.getTemporary().getDataSourceId()));
+          if (DataSource.ConnectionType.LINK.equals(toDataSource.getConnType())) {
+            List<DataSourceTemporary> dataSourceTemporaryList = dataSourceService.getMatchedTemporaries(toDataSource.getId(), null);
+            if (CollectionUtils.isNotEmpty(dataSourceTemporaryList)) {
+              DataSourceTemporary dataSourceTemporary = dataSourceTemporaryList.get(0);
+              d.setTemporary(true);
+              d.setTemporaryId(dataSourceTemporary.getId());
+              d.setName(dataSourceTemporary.getName());
+              d.setMetaDataSource(dataSourceRepository.findByIdIncludeConnection(dataSourceTemporary.getDataSourceId()));
+            }
           } else {
+            d.setName(toDataSource.getEngineName());
             d.setTemporary(false);
             d.setMetaDataSource(dataSourceRepository.findByEngineName(toDataSource.getEngineName()));
+            d.setTemporaryId(null);
           }
           d.setUiDescription(toDataSource.getDescription());
         }
@@ -308,18 +319,24 @@ public class DashBoardService {
         }
       });
     } else if (dataSource instanceof DefaultDataSource || dataSource instanceof SingleDataSource) {
-      if (fromDataSource.getName().equals(dataSource.getName()) || fromDataSource.getEngineName().equals(dataSource.getName())) {
+      if (fromDataSource.getName().equals(dataSource.getName()) || fromDataSource.getEngineName().equals(dataSource.getName())
+          || (dataSource.getTemporary() && dataSource.getId().equals(fromDataSource.getId()))) {
         dataSource.setConnType(toDataSource.getConnType());
         dataSource.setId(toDataSource.getId());
-        dataSource.setName(toDataSource.getName());
-        dataSource.setEngineName(toDataSource.getEngineName());
-        if (toDataSource.getTemporary() != null) {
-          dataSource.setTemporary(true);
-          dataSource.setTemporaryId(toDataSource.getTemporary().getDataSourceId());
-          dataSource.setMetaDataSource(dataSourceRepository.findByIdIncludeConnection(toDataSource.getTemporary().getDataSourceId()));
+        if (DataSource.ConnectionType.LINK.equals(toDataSource.getConnType())) {
+          List<DataSourceTemporary> dataSourceTemporaryList = dataSourceService.getMatchedTemporaries(toDataSource.getId(), null);
+          if (CollectionUtils.isNotEmpty(dataSourceTemporaryList)) {
+            DataSourceTemporary dataSourceTemporary = dataSourceTemporaryList.get(0);
+            dataSource.setTemporary(true);
+            dataSource.setTemporaryId(dataSourceTemporary.getId());
+            dataSource.setName(dataSourceTemporary.getName());
+            dataSource.setMetaDataSource(dataSourceRepository.findByIdIncludeConnection(dataSourceTemporary.getDataSourceId()));
+          }
         } else {
+          dataSource.setName(toDataSource.getEngineName());
           dataSource.setTemporary(false);
           dataSource.setMetaDataSource(dataSourceRepository.findByEngineName(toDataSource.getEngineName()));
+          dataSource.setTemporaryId(null);
         }
         dataSource.setUiDescription(toDataSource.getDescription());
       }
