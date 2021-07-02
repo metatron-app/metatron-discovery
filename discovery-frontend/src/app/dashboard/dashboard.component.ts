@@ -113,10 +113,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   public workbook: Workbook;
 
   @Input()
-  public isShowSelectionFilter: boolean = true;
+  public isShowSelectionFilter: boolean;
 
   @Input()
-  public isShowAutoOn: boolean = true;
+  public isShowAutoOn: boolean;
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -157,6 +157,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         this.changeFilterWidgetEventHandler(data.filter);
       })
     );
+
+    console.log('dashboard-selectionFitler: ' + this.isShowSelectionFilter);
   } // function - ngOnInit
 
   /**
@@ -290,7 +292,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    * 만료된 Linked Datasource를 다시 적재한다.
    */
   public reIngestion() {
-
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.board.ui.ingestion.time');
     // modal.btnName = this.translateService.instant('msg.comm.btn.del');

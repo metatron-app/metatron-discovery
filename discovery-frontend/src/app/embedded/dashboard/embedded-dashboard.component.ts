@@ -106,14 +106,23 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       if (params['dashboardId']) {
         // console.log( '>>>>>>>> dashboardId', params['dashboardId'] );
         this._boardId = params['dashboardId'];
-        this.isShowSelectionFilter = params['selectionFilter'];
-        this.isShowAutoOn = params['autoOn'];
         this.getDashboardDetail(params['dashboardId']);
       } else if (fragment) {
         // console.log( '>>>>>>>> fragment', params['fragment'] );
         this._boardId = fragment;
         this.getDashboardDetail(fragment);
       }
+    });
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if(!this.isNullOrUndefined(params['selectionFilter'])){
+        this.isShowSelectionFilter = (params['selectionFilter'] == 'true');
+      }
+      if(!this.isNullOrUndefined(params['autoOn'])){
+        this.isShowAutoOn = (params['autoOn'] == 'true');
+      }
+      console.log('selectionFilter: ' + this.isShowSelectionFilter);
+      this.safelyDetectChanges();
     });
 
     // this.cookieService.set(CookieConstant.KEY.FORCE_LOGIN, 'FORCE', 0, '/');
