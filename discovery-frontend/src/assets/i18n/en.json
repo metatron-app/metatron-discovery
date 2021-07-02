@@ -1757,7 +1757,8 @@
   "msg.board.ui.custom-action" : "Event Trigger",
   "msg.board.ui.copy-url": "Copy dashboard url",
   "msg.board.alert.copy.dashboard-url": "Dashboard url copied",
-
+  "msg.board.ui.copy-embedded-url": "Copy embedded dashboard url",
+  "msg.board.alert.copy.embedded-dashboard-url": "Embedded dashboard url copied",
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",
   "msg.storage.th.allowance":"Allowance",

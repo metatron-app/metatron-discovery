@@ -60,6 +60,11 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   // 선택된 대시보드
   public dashboard: Dashboard;
 
+  // 임베디드 대시보드 상단바 유무
+  public isShowSelectionFilter: boolean = true;
+  // 임베디드 자동 업데이트 유무
+  public isShowAutoOn: boolean = true;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -101,6 +106,8 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       if (params['dashboardId']) {
         // console.log( '>>>>>>>> dashboardId', params['dashboardId'] );
         this._boardId = params['dashboardId'];
+        this.isShowSelectionFilter = params['selectionFilter'];
+        this.isShowAutoOn = params['autoOn'];
         this.getDashboardDetail(params['dashboardId']);
       } else if (fragment) {
         // console.log( '>>>>>>>> fragment', params['fragment'] );

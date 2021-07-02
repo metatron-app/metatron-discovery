@@ -112,6 +112,13 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   @Input()
   public workbook: Workbook;
 
+  @Input()
+  public isShowSelectionFilter: boolean = true;
+
+  @Input()
+  public isShowAutoOn: boolean = true;
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
