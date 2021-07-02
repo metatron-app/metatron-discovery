@@ -964,10 +964,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public copyEmbeddedUrlToClipboard() {
     if(this.selectedDashboard) {
-     // 클립보드 복사 기능 추가
+      let content = location.protocol + '//' + location.host + location.pathname + '#' + this.selectedDashboard.id;
+      content = content.slice(0, content.indexOf('workbook'));
+      content = content + 'embedded/dashboard/' + this.selectedDashboard.id;
+      this._clipboardService.copyFromContent(content);
       Alert.success(this.translateService.instant('msg.board.alert.copy.embedded-dashboard-url'));
     }
-  }
+  } // function - copyEmbeddedUrlToClipboard
 
   /**
    * 대시보드 생성
@@ -991,8 +994,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * 대쉬보드 복제
    * @param {Dashboard} dashboard
    */
-  public
-  copyDashboard(dashboard: Dashboard) {
+  public copyDashboard(dashboard: Dashboard) {
     // 로딩 show
     this.loadingShow();
     this.dashboardService.copyDashboard(dashboard.id).then((copyBoard: Dashboard) => {

@@ -65,7 +65,9 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   public ingestionHistory: IngestionHistory;
 
   @Input()
-  public isShowAutoOn: boolean = true;
+  public isShowSelectionFilter: boolean;
+  @Input()
+  public isShowAutoOn: boolean;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Variables - Refresh Trigger 관련

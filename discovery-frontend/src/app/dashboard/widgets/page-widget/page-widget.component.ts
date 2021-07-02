@@ -1188,6 +1188,16 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     this._setSync();
   }
 
+  /**
+   * 위젯 아이디 클립보드에 복사
+   */
+  public copyWidgetUrlToClipboard() {
+    if (this.widget) {
+      // this._clipboardService
+      //   .copyFromContent(location.protocol + '//' + location.host + location.pathname + '#');
+      Alert.success(this.translateService.instant('msg.board.alert.copy.dashboard-url'));
+    }
+  } // function - copyBoardUrlToClipboard
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

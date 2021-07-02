@@ -141,7 +141,11 @@
                 </tr>
                 <tr *ngIf="existChartFilter()">
                   <th>{{'msg.page.ui.filter' | translate }}</th>
-                  <td>{{getChartFilterStr()}}</td>
+                  <td>{{getChartFilterStr()}} </td>
+                </tr>
+                <tr>
+                  <th>차트 ID</th>
+                  <td>{{widget.id}}</td>
                 </tr>
               </tbody>
             </table>

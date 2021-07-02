@@ -97,10 +97,19 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
       if (params['dashboardId']) {
         this._boardId = params['dashboardId'];
-        this.isShowSelectionFilter = params['selectionFilter'];
-        this.isShowAutoOn = params['autoOn'];
         this.getDashboardDetail(params['dashboardId']);
       }
+    });
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if(!this.isNullOrUndefined(params['selectionFilter'])){
+        this.isShowSelectionFilter = (params['selectionFilter'] == 'true');
+      }
+      if(!this.isNullOrUndefined(params['autoOn'])){
+        this.isShowAutoOn = (params['autoOn'] == 'true');
+      }
+      console.log('selectionFilter: ' + this.isShowSelectionFilter);
+      this.safelyDetectChanges();
     });
 
     // this.cookieService.set(CookieConstant.KEY.FORCE_LOGIN, 'FORCE', 0, '/');

@@ -368,6 +368,18 @@
                   <em class="ddp-icon-drop-editdel3"></em> {{'msg.board.btn.del.dashboard' | translate}}
                 </a>
               </li>
+              <li>
+                <a href="javascript:" (click)="copyBoardUrlToClipboard()">
+                  <em class="ddp-icon-drop-dashboard"></em>
+                  {{'msg.board.ui.copy-url' | translate}}
+                </a>
+              </li>
+              <li>
+                <a href="javascript:" (click)="copyEmbeddedUrlToClipboard()">
+                  <em class="ddp-icon-drop-dashboard"></em>
+                  {{'msg.board.ui.copy-embedded-url' | translate}}
+                </a>
+              </li>
             </ul>
             <!-- date -->
             <div class="ddp-ui-date" *ngIf="selectedDashboard && selectedDashboard.createdBy">
@@ -522,18 +534,6 @@
       <a href="javascript:" (click)="confirmDeleteWorkbook()">
         <em class="ddp-icon-drop-editdel3"></em>
         {{'msg.book.ui.del' | translate}}
-      </a>
-    </li>
-    <li *ngIf="isChangeAuthUser">
-      <a href="javascript:" (click)="copyBoardUrlToClipboard()">
-        <em class="ddp-icon-drop-editmodify"></em>
-        {{'msg.book.ui.copy-url' | translate}}
-      </a>
-    </li>
-    <li *ngIf="isChangeAuthUser">
-      <a href="javascript:">
-        <em class="ddp-icon-drop-editmodify"></em>
-        {{'msg.book.ui.copy-embedded-url' | translate}}
       </a>
     </li>
   </ul>
