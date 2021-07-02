@@ -1691,7 +1691,8 @@
   "msg.board.ui.custom-action" : "Event Trigger",
   "msg.board.ui.copy-url": "Copy dashboard url",
   "msg.board.alert.copy.dashboard-url": "仪表板URL已复制。",
-
+  "msg.board.ui.copy-embedded-url": "Copy embedded dashboard url",
+  "msg.board.alert.copy.embedded-dashboard-url": "仪表板Embedded-URL已复制。",
   "msg.storage.btn.create.dsource": "创建新数据源",
   "msg.storage.ui.dsource.search.description": "以数据源名称搜索",
   "msg.storage.th.allowance": "是否允许",

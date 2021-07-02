@@ -37,7 +37,8 @@
   <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
 
     <!-- filter -->
-    <selection-filter [dashboard]="dashboard" [showBtnWidget]="isManagementUser" ></selection-filter>
+    <selection-filter *ngIf="isShowSelectionFilter" [isShowAutoOn]="isShowAutoOn"
+                      [dashboard]="dashboard" [showBtnWidget]="isManagementUser" ></selection-filter>
     <!-- //filter -->
 
     <!-- dashboard -->

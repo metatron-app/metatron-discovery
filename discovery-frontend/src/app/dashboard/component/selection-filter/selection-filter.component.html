@@ -95,7 +95,7 @@
   </div>
 
   <!-- 새로고침 영역 -->
-  <div class="ddp-wrap-right ddp-ui-board-update" [style.padding-right]="showBtnWidget ? '145px' : '20px'">
+  <div *ngIf="isShowAutoOn" class="ddp-wrap-right ddp-ui-board-update" [style.padding-right]="showBtnWidget ? '145px' : '20px'">
 <!--    <span class="rs-data-update">최근 데이터 업데이트 {{ingestionHistory?.modifiedTime | date: 'yyyy-MM-dd HH:mm:ss'}}</span>-->
 
     <a href="javascript:" class="rs-component-box-btn " tooltip="수동 업데이트" direction="down" (click)="updateDashboard()">
