@@ -121,7 +121,6 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       if(!this.isNullOrUndefined(params['autoOn'])){
         this.isShowAutoOn = (params['autoOn'] == 'true');
       }
-      console.log('selectionFilter: ' + this.isShowSelectionFilter);
       this.safelyDetectChanges();
     });
 

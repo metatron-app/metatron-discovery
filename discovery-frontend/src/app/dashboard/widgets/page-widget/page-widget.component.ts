@@ -1193,11 +1193,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
    */
   public copyWidgetUrlToClipboard() {
     if (this.widget) {
-      // this._clipboardService
-      //   .copyFromContent(location.protocol + '//' + location.host + location.pathname + '#');
-      Alert.success(this.translateService.instant('msg.board.alert.copy.dashboard-url'));
+      let content = location.protocol + '//' + location.host + location.pathname;
+      content = content.slice(0, content.indexOf('workbook'));
+      content = content + 'embedded/page/' + this.widget.id;
+      this._clipboardService.copyFromContent(content);
+      Alert.success(this.translateService.instant('msg.page.alert.copy.chart-url'));
     }
   } // function - copyBoardUrlToClipboard
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
