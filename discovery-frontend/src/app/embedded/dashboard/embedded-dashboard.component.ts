@@ -32,6 +32,8 @@ import {FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget'
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {DashboardService} from '../../dashboard/service/dashboard.service';
 import {DashboardComponent} from '../../dashboard/dashboard.component';
+import {map} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
 
 @Component({
   selector: 'app-embedded-dashboard',
@@ -84,27 +86,28 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
 
     window.history.pushState(null, null, window.location.href);
 
-    this.activatedRoute.params.subscribe((params) => {
+    combineLatest([this.activatedRoute.params, this.activatedRoute.fragment])
+      .pipe(
+        map( result => ({queryParam: result[0], fragment: result[1]}))
+      ).subscribe(result => {
+      const params = result.queryParam;
+      const fragment = result.fragment;
       // dashboard 아이디를 넘긴경우에만 실행
       // 로그인 정보 생성
       (params['loginToken']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, params['loginToken'], 0, '/'));
       (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
       (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
+
       if (params['dashboardId']) {
+        // console.log( '>>>>>>>> dashboardId', params['dashboardId'] );
         this._boardId = params['dashboardId'];
         this.getDashboardDetail(params['dashboardId']);
+      } else if (fragment) {
+        // console.log( '>>>>>>>> fragment', params['fragment'] );
+        this._boardId = fragment;
+        this.getDashboardDetail(fragment);
       }
     });
-
-    this.subscriptions.push(
-      this.activatedRoute.fragment
-        .subscribe((fragment: string) => {
-          if (this.router.url.indexOf('/embedded/workbook/') > -1) {
-            this._boardId = fragment;
-            this.getDashboardDetail(fragment);
-          }
-        })
-    );
 
     // this.cookieService.set(CookieConstant.KEY.FORCE_LOGIN, 'FORCE', 0, '/');
   }

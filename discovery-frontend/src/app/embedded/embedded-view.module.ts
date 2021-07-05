@@ -29,6 +29,8 @@ import {TimezoneService} from '../data-storage/service/timezone.service';
 const embeddedViewRoutes: Routes = [
   {path: 'dashboard/presentation/:workbookId', component: PresentationDashboardComponent},
   {path: 'dashboard/presentation/:workbookId/:dashboardId', component: PresentationDashboardComponent},
+  {path: 'dashboard/frag', component: EmbeddedDashboardComponent},
+  {path: 'dashboard/frag/:loginToken/:loginType/:refreshToken', component: EmbeddedDashboardComponent},
   {path: 'dashboard/:dashboardId', component: EmbeddedDashboardComponent},
   {path: 'dashboard/:dashboardId/:loginToken/:loginType/:refreshToken', component: EmbeddedDashboardComponent},
   {path: 'page/:pageId', component: EmbeddedPageComponent},
