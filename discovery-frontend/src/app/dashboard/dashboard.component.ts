@@ -158,7 +158,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       })
     );
 
-    console.log('dashboard-selectionFitler: ' + this.isShowSelectionFilter);
   } // function - ngOnInit
 
   /**

@@ -964,7 +964,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public copyEmbeddedUrlToClipboard() {
     if(this.selectedDashboard) {
-      let content = location.protocol + '//' + location.host + location.pathname + '#' + this.selectedDashboard.id;
+      let content = location.protocol + '//' + location.host + location.pathname + '#';
       content = content.slice(0, content.indexOf('workbook'));
       content = content + 'embedded/dashboard/' + this.selectedDashboard.id;
       this._clipboardService.copyFromContent(content);
