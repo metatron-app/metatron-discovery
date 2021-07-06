@@ -1,0 +1,100 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>metatron Discovery</title>
+  <base href="/">
+
+  <!-- disable IE compatible view -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="src/favicon.ico?v=2" id="favicon">
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+  <script type="text/javascript">
+    function getCookie(cookieName){
+      let cookieValue=null;
+      if(document.cookie){
+        let array=document.cookie.split((escape(cookieName)+'='));
+        if(array.length >= 2){
+          let arraySub=array[1].split(';');
+          cookieValue=unescape(arraySub[0]);
+        }
+      }
+      return cookieValue;
+    }
+
+    jQuery(() => {
+      const baseHref = location.protocol + '//' + location.hostname + ':' + location.port;
+      const $wbSelect = $( '#wbSelect' );
+      const $wbDashboard1 = $( '#wbDashboard1' );
+      const $wbDashboard2 = $( '#wbDashboard2' );
+
+        $.ajax({
+          url:baseHref + '/api/workspaces/my?projection=forDetailView',
+          type:'GET',
+          dataType: 'json',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: getCookie('LOGIN_TOKEN_TYPE') + ' ' + getCookie('LOGIN_TOKEN'),
+          },
+          success: (data) => {
+            data.books
+              .filter( book => 'workbook' === book.type )
+              .forEach( item => {
+                $wbSelect.append('<option value="'+ item.id + '">' + item.name + '</option>');
+              });
+          }
+        });
+
+      $wbSelect.on( 'change', () => {
+        $.ajax({
+          url:baseHref + '/api/workbooks/' + $wbSelect.val() + '?projection=forDetailView',
+          type:'GET',
+          dataType: 'json',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: getCookie('LOGIN_TOKEN_TYPE') + ' ' + getCookie('LOGIN_TOKEN'),
+          },
+          success: (data) => {
+            data.dashBoards
+              .forEach( item => {
+                $wbDashboard1.append('<option value="'+ item.id + '">' + item.name + '</option>');
+                $wbDashboard2.append('<option value="'+ item.id + '">' + item.name + '</option>');
+              });
+          }
+        });
+      });
+
+      $( '#btnLoadDashboard' ).on( 'click', () => {
+        $( '#iframe1' ).attr( 'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard1.val() );
+        $( '#iframe2' ).attr( 'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard2.val() );
+      });
+    });
+  </script>
+</head>
+<body>
+  <select id="wbSelect"></select>
+  <select id="wbDashboard1"></select>
+  <select id="wbDashboard2"></select>
+  <input id="btnLoadDashboard" type="button" value="불러오기">
+  <iframe id="iframe1" style="width: 100%;height: 800px;"></iframe>
+  <iframe id="iframe2" style="width: 100%;height: 800px;"></iframe>
+</body>
+</html>
