@@ -47,72 +47,38 @@
           {{'msg.board.filter.sel.data' | translate}}
         </div>
       </div>
-      <ng-container *ngIf="isShowSelectionFilter">
-        <div class="ddp-box-board-filter"
-             *ngFor="let selectFilter of selectionFilterList"
-             [class.ddp-time]="'interval' === selectFilter.type">
-          <div (click)="toggleLayer(selectFilter, $event)"
-               [class.ddp-selected]="selectFilter.selected" class="ddp-type-selectbox ddp-type-filter">
-            <em (click)="remove(selectFilter, true)" class="ddp-icon-sclose2"></em>
-            <!-- 차원값 표시 -->
-            <span *ngIf="!isTimeRangeFilter( selectFilter )" class="ddp-data-filter" >
+      <div class="ddp-box-board-filter"
+           *ngFor="let selectFilter of selectionFilterList"
+           [class.ddp-time]="'interval' === selectFilter.type">
+        <div (click)="toggleLayer(selectFilter, $event)"
+             [class.ddp-selected]="selectFilter.selected" class="ddp-type-selectbox ddp-type-filter">
+          <em (click)="remove(selectFilter, true)" class="ddp-icon-sclose2"></em>
+          <!-- 차원값 표시 -->
+          <span *ngIf="!isTimeRangeFilter( selectFilter )" class="ddp-data-filter" >
             <span class="ddp-txt-data">{{selectFilter.getLabel()}}</span>
             <em *ngIf="1 < selectFilter.getValueCnt()" class="ddp-out" >
                 {{'msg.board.filter.ui.more.cnt' | translate : { cnt : selectFilter.getValueCnt() - 1 } }}
             </em>
           </span>
-            <!-- 차원값 표시 -->
-            <!-- timestamp 표시 -->
-            <span class="ddp-data-filter ddp-data-date" *ngIf="isTimeRangeFilter( selectFilter )" >
+          <!-- 차원값 표시 -->
+          <!-- timestamp 표시 -->
+          <span class="ddp-data-filter ddp-data-date" *ngIf="isTimeRangeFilter( selectFilter )" >
             <span class="ddp-txt-data">
                 {{selectFilter.minTime}}<br>-{{selectFilter.maxTime}}
             </span>
-              <!--<em class="ddp-out">외 1</em>-->
+            <!--<em class="ddp-out">외 1</em>-->
           </span>
-            <!-- timestamp 표시 -->
-            <span class="ddp-txt-selectbox">{{selectFilter.getDisplayName()}}</span>
-            <!-- 필터 선택 옵션 목록 -->
-            <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="selectFilter.selected" (clickOutside)="closeFilter()">
-              <li *ngFor="let item of selectFilter.valueList">
-                <a href="javascript:"> {{item}} </a>
-              </li>
-            </ul>
-            <!-- // 필터 선택 옵션 목록 -->
-          </div>
+          <!-- timestamp 표시 -->
+          <span class="ddp-txt-selectbox">{{selectFilter.getDisplayName()}}</span>
+          <!-- 필터 선택 옵션 목록 -->
+          <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="selectFilter.selected" (clickOutside)="closeFilter()">
+            <li *ngFor="let item of selectFilter.valueList">
+              <a href="javascript:"> {{item}} </a>
+            </li>
+          </ul>
+          <!-- // 필터 선택 옵션 목록 -->
         </div>
-      </ng-container>
-<!--      <div class="ddp-box-board-filter"-->
-<!--           *ngFor="let selectFilter of selectionFilterList"-->
-<!--           [class.ddp-time]="'interval' === selectFilter.type">-->
-<!--        <div (click)="toggleLayer(selectFilter, $event)"-->
-<!--             [class.ddp-selected]="selectFilter.selected" class="ddp-type-selectbox ddp-type-filter">-->
-<!--          <em (click)="remove(selectFilter, true)" class="ddp-icon-sclose2"></em>-->
-<!--          &lt;!&ndash; 차원값 표시 &ndash;&gt;-->
-<!--          <span *ngIf="!isTimeRangeFilter( selectFilter )" class="ddp-data-filter" >-->
-<!--            <span class="ddp-txt-data">{{selectFilter.getLabel()}}</span>-->
-<!--            <em *ngIf="1 < selectFilter.getValueCnt()" class="ddp-out" >-->
-<!--                {{'msg.board.filter.ui.more.cnt' | translate : { cnt : selectFilter.getValueCnt() - 1 } }}-->
-<!--            </em>-->
-<!--          </span>-->
-<!--          &lt;!&ndash; 차원값 표시 &ndash;&gt;-->
-<!--          &lt;!&ndash; timestamp 표시 &ndash;&gt;-->
-<!--          <span class="ddp-data-filter ddp-data-date" *ngIf="isTimeRangeFilter( selectFilter )" >-->
-<!--            <span class="ddp-txt-data">-->
-<!--                {{selectFilter.minTime}}<br>-{{selectFilter.maxTime}}-->
-<!--            </span>-->
-<!--            &lt;!&ndash;<em class="ddp-out">외 1</em>&ndash;&gt;-->
-<!--          </span>-->
-<!--          &lt;!&ndash; timestamp 표시 &ndash;&gt;-->
-<!--          <span class="ddp-txt-selectbox">{{selectFilter.getDisplayName()}}</span>-->
-<!--          &lt;!&ndash; 필터 선택 옵션 목록 &ndash;&gt;-->
-<!--          <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="selectFilter.selected" (clickOutside)="closeFilter()">-->
-<!--            <li *ngFor="let item of selectFilter.valueList">-->
-<!--              <a href="javascript:"> {{item}} </a>-->
-<!--            </li>-->
-<!--          </ul>-->
-<!--          &lt;!&ndash; // 필터 선택 옵션 목록 &ndash;&gt;-->
-<!--        </div>-->
-<!--      </div>-->
+      </div>
     </div>
     <!-- //filter list -->
 
