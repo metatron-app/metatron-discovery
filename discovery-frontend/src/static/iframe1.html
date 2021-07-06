@@ -45,6 +45,7 @@
       const $wbSelect = $( '#wbSelect' );
       const $wbDashboard1 = $( '#wbDashboard1' );
       const $wbDashboard2 = $( '#wbDashboard2' );
+      let timer;
 
         $.ajax({
           url:baseHref + '/api/workspaces/my?projection=forDetailView',
@@ -85,14 +86,24 @@
       $( '#btnLoadDashboard' ).on( 'click', () => {
         $( '#iframe1' ).attr( 'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard1.val() );
         $( '#iframe2' ).attr( 'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard2.val() );
+
+        if( timer ) {
+          clearInterval(timer);
+          timer = null;
+        }
+        timer = setInterval( () => {
+          $( '#iframe2' ).css( 'height', ( Math.round( Math.random() * 1000 ) ) + 'px' );
+        }, 5000 );
       });
     });
   </script>
 </head>
 <body>
-  <select id="wbSelect"></select>
-  <select id="wbDashboard1"></select>
-  <select id="wbDashboard2"></select>
+  <label for="wbSelect">워크북</label>&nbsp;<select id="wbSelect"></select>
+  <br>
+  <label for="wbDashboard1">첫번째 대시보드</label>&nbsp;<select id="wbDashboard1"></select>
+  <br>
+  <label for="wbDashboard2">두번째 대시보드</label>&nbsp;<select id="wbDashboard2"></select>
   <input id="btnLoadDashboard" type="button" value="불러오기">
   <iframe id="iframe1" style="width: 100%;height: 800px;"></iframe>
   <iframe id="iframe2" style="width: 100%;height: 800px;"></iframe>
