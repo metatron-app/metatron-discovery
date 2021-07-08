@@ -181,6 +181,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public currentDataSources: Datasource[];
   public duringChangeBoardDs: boolean = false;
 
+  public isFirstLoad = false; // 초기 워크북 호출 여부
+  public scrollLoc; // 대시보드 디테일 클릭 위치
+
   // 대시보드 필터링
   public get filteredDashboard(): Dashboard[] {
     // 대시보드 리스트 권한별 show
@@ -859,10 +862,16 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public scrollToDashboard(dashboardId: string) {
     const selectedIdx: number = this.dashboards.findIndex(item => item.id === dashboardId);
+    const speed = this.isFirstLoad ? 800 : 0;
+    const locOfY = this.isFirstLoad ? selectedIdx * ('LIST' === this.listType ? 52 : 185)
+      : this.scrollLoc;
+
+
     if ('LIST' === this.listType) {
-      $('.ddp-ui-board-listview').animate({scrollTop: selectedIdx * 52}, 800, 'swing');
+      $('.ddp-ui-board-listview').animate({scrollTop: locOfY}, speed, 'swing');
     } else {
-      $('.ddp-ui-board-thumbview').animate({scrollTop: selectedIdx * 185}, 800, 'swing');
+      $('.ddp-ui-board-thumbview').animate({scrollTop: locOfY}, speed, 'swing');
+      //$('.ddp-ui-board-thumbview').animate({scrollTop: selectedIdx * 185}, 800, 'swing');
     }
   } // function - scrollToDashboard
 
@@ -1073,6 +1082,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public detailDashboard(dashboard: Dashboard) {
     if (!this.isInvalidDatasource(dashboard)) {
       // this.loadAndSelectDashboard(dashboard);
+      this.isFirstLoad = false;
+      this.scrollLoc = document.querySelector('.ddp-ui-board-thumbview').scrollTop;
       this.router.navigate(['/workbook/' + this.workbookId], {fragment: dashboard.id}).then();
     }
   }
@@ -1426,6 +1437,10 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.toggleFoldDashboardList('true' === cookieIsCloseDashboardList);
 
     this.changeMode('NO_DATA');
+
+    this.isFirstLoad = true;
+
+
   } // function - _initViewPage
 
   private _setSelectedDashboard(dashboard) {
