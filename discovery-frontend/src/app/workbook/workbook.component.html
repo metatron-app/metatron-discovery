@@ -550,7 +550,7 @@
                       [startupCmd]="updateDashboardStartupCmd"
                       [workbook]="workbook"
                       [dashboards]="dashboards"
-                      (changeMode)="changeMode($event)"
+                      (changeMode)="changeMode($event, true)"
                       (updateComplete)="updateCompleteDashboard($event)"
                       (createDashboard)="createDashboard()"
                       (selectedDashboard)="loadAndSelectDashboard($event)">

@@ -229,6 +229,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     // Init
     super.ngOnInit();
 
+
     // 로딩 표시
     this.loadingShow();
 
@@ -286,7 +287,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.subscriptions.push(
       this.activatedRoute.params
         .subscribe((params) => {
-
           // 워크북 아이디 저장
           this.workbookId = params['workbookId'];
 
@@ -660,10 +660,15 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {string} mode
    * @param {any} startupCmd
    */
-  public changeMode(mode: string, startupCmd?: { cmd: string, id?: string, type?: string }) {
+  public changeMode(mode: string, isUpdateCancle  = false, startupCmd?: { cmd: string, id?: string, type?: string }) {
     this.updateDashboardStartupCmd = startupCmd ? startupCmd : {cmd: 'NONE'};
     this.mode = mode;
     this.safelyDetectChanges();
+    if(isUpdateCancle){
+      const selectedIdx: number = this.dashboards.findIndex(item => item.id === this.selectedDashboard.id);
+      this.scrollLoc = selectedIdx * ('LIST' === this.listType ? 52: 185);
+      this.scrollToDashboard(this.selectedDashboard.id);
+    }
   } // function - changeMode
 
   /**
@@ -865,7 +870,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     const speed = this.isFirstLoad ? 800 : 0;
     const locOfY = this.isFirstLoad ? selectedIdx * ('LIST' === this.listType ? 52 : 185)
       : this.scrollLoc;
-
 
     if ('LIST' === this.listType) {
       $('.ddp-ui-board-listview').animate({scrollTop: locOfY}, speed, 'swing');
@@ -1093,7 +1097,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {Dashboard} dashboard
    */
   public loadAndSelectDashboard(dashboard: Dashboard) {
-
     this.tempLoadBoard = dashboard;
     if (this.isInvalidDatasource(dashboard)) {
       if (this._boardComp) {
@@ -1203,13 +1206,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public addWidget(type: string) {
     switch (type) {
       case 'NEW_CHART' :
-        this.changeMode('UPDATE', {cmd: 'NEW', type: 'CHART'});
+        this.changeMode('UPDATE', false,{cmd: 'NEW', type: 'CHART'});
         break;
       case 'NEW_TEXT' :
-        this.changeMode('UPDATE', {cmd: 'NEW', type: 'TEXT'});
+        this.changeMode('UPDATE', false,{cmd: 'NEW', type: 'TEXT'});
         break;
       case 'NEW_FILTER' :
-        this.changeMode('UPDATE', {cmd: 'NEW', type: 'FILTER'});
+        this.changeMode('UPDATE', false,{cmd: 'NEW', type: 'FILTER'});
         break;
     }
   } // function - addWidget
@@ -1293,7 +1296,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    | Public Method - 데이터소스 교체용
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public changeBoardDataSource(data: {fromDataSourceId: string, toDataSourceId: string}){
-    console.log('changeBoardDataSource');
     const fromDataSourceId = data.fromDataSourceId;
     const toDataSourceId = data.toDataSourceId;
     this.dashboardService.changeBoardDataSource(this.selectedDashboard.id, fromDataSourceId, toDataSourceId).then(() => {
