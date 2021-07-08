@@ -40,7 +40,7 @@
       return cookieValue;
     }
 
-    jQuery(() => {
+    jQuery(function() {
       const baseHref = location.protocol + '//' + location.hostname + ':' + location.port;
       const $wbSelect = $( '#wbSelect' );
       const $wbDashboard1 = $( '#wbDashboard1' );
@@ -54,16 +54,16 @@
             'Content-Type': 'application/json',
             Authorization: getCookie('LOGIN_TOKEN_TYPE') + ' ' + getCookie('LOGIN_TOKEN'),
           },
-          success: (data) => {
+          success: function(data) {
             data.books
-              .filter( book => 'workbook' === book.type )
-              .forEach( item => {
+              .filter( function(book) { return 'workbook' === book.type } )
+              .forEach( function(item) {
                 $wbSelect.append('<option value="'+ item.id + '">' + item.name + '</option>');
               });
           }
         });
 
-      $wbSelect.on( 'change', () => {
+      $wbSelect.on( 'change', function() {
         $.ajax({
           url:baseHref + '/api/workbooks/' + $wbSelect.val() + '?projection=forDetailView',
           type:'GET',
@@ -72,20 +72,20 @@
             'Content-Type': 'application/json',
             Authorization: getCookie('LOGIN_TOKEN_TYPE') + ' ' + getCookie('LOGIN_TOKEN'),
           },
-          success: (data) => {
+          success: function(data) {
             data.dashBoards
-              .forEach( item => {
+              .forEach( function(item) {
                 $wbDashboard1.append('<option value="'+ item.id + '">' + item.name + '</option>');
               });
           }
         });
       });
 
-      $wbDashboard1.on( 'change', () => {
+      $wbDashboard1.on( 'change', function() {
         $( '#iframe1' ).attr( 'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard1.val() );
       });
 
-      $filterSelect.on( 'change', () => {
+      $filterSelect.on( 'change', function() {
         $( '#iframe1' ).attr(
           'src', baseHref + '/app/v2/embedded/dashboard/' + $wbDashboard1.val() + '?Category=' + $filterSelect.val()
         );
