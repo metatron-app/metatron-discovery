@@ -758,11 +758,18 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     const pageInfo: Page = new Page();
     pageInfo.page = page;
 
-    if (0 === page) {
-      this.dashboardPage = new PageResult();
-      this.dashboards = [];
-      this.isShowMoreDashboardList = false;
+    if(this.isFirstLoad){
+      if (0 === page) {
+        this.dashboardPage = new PageResult();
+        this.dashboards = [];
+        this.isShowMoreDashboardList = false;
+      }
     }
+    // if (0 === page) {
+    //   this.dashboardPage = new PageResult();
+    //   this.dashboards = [];
+    //   this.isShowMoreDashboardList = false;
+    // }
 
     this.workbookService.getDashboards(
       this.workbook.id, {key: 'seq', type: 'asc'}, pageInfo, 'forListView', params
@@ -780,16 +787,28 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         }
       }
 
-      if (result.page) {
-        const objPage: PageResult = result.page;
-        this.dashboardPage = objPage;
-        if (0 === objPage.number) {
-          this.dashboards = tempList;
-        } else {
-          this.dashboards = this.dashboards.concat(tempList);
+      if(this.isFirstLoad){
+        if (result.page) {
+          const objPage: PageResult = result.page;
+          this.dashboardPage = objPage;
+          if (0 === objPage.number) {
+            this.dashboards = tempList;
+          } else {
+            this.dashboards = this.dashboards.concat(tempList);
+          }
+          this.isShowMoreDashboardList = (0 < objPage.totalPages && objPage.number !== objPage.totalPages - 1);
         }
-        this.isShowMoreDashboardList = (0 < objPage.totalPages && objPage.number !== objPage.totalPages - 1);
       }
+      // if (result.page) {
+      //   const objPage: PageResult = result.page;
+      //   this.dashboardPage = objPage;
+      //   if (0 === objPage.number) {
+      //     this.dashboards = tempList;
+      //   } else {
+      //     this.dashboards = this.dashboards.concat(tempList);
+      //   }
+      //   this.isShowMoreDashboardList = (0 < objPage.totalPages && objPage.number !== objPage.totalPages - 1);
+      // }
 
       // 업데이트에서 대시보드 생성한 후 조회 일 경우 모드 갱신 안함
       if (this.mode !== 'UPDATE') {
@@ -1111,6 +1130,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           this._boardComp.hideError();
         }
         this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
+
           // save data for selected dashboard
           board.workBook = this.workbook;
           this._setSelectedDashboard(board);
