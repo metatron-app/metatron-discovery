@@ -14,9 +14,11 @@
 
 package app.metatron.discovery.domain.activities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -25,11 +27,13 @@ import java.security.Principal;
 
 import javax.persistence.*;
 
+import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
 import app.metatron.discovery.domain.activities.spec.ActivityType;
 import app.metatron.discovery.domain.activities.spec.Actor;
+import app.metatron.discovery.domain.user.org.Organization;
 import app.metatron.discovery.util.EnumUtils;
 
 @Entity
@@ -90,6 +94,9 @@ public class ActivityStream implements MetatronDomain<Long> {
   @Column(name = "activity_remote_host")
   String remoteHost;
 
+  @Column(name = "org_code")
+  protected String orgCode;
+
   public ActivityStream() {
   }
 
@@ -122,6 +129,24 @@ public class ActivityStream implements MetatronDomain<Long> {
     }
 
     this.publishedTime = DateTime.now();
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (StringUtils.isEmpty(this.orgCode)) {
+      CommonLocalVariable.TenantAuthority tenantAuthority = CommonLocalVariable.getLocalVariable().getTenantAuthority();
+      String orgCode = StringUtils.defaultIfEmpty(tenantAuthority.getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+      this.setOrgCode(orgCode);
+    }
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    if (StringUtils.isEmpty(this.orgCode)) {
+      CommonLocalVariable.TenantAuthority tenantAuthority = CommonLocalVariable.getLocalVariable().getTenantAuthority();
+      String orgCode = StringUtils.defaultIfEmpty(tenantAuthority.getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+      this.setOrgCode(orgCode);
+    }
   }
 
   @Override
@@ -235,6 +260,15 @@ public class ActivityStream implements MetatronDomain<Long> {
 
   public void setRemoteHost(String remoteHost) {
     this.remoteHost = remoteHost;
+  }
+
+  @JsonIgnore
+  public String getOrgCode() {
+    return orgCode;
+  }
+
+  public void setOrgCode(String orgCode) {
+    this.orgCode = orgCode;
   }
 
   public enum GeneratorType {

@@ -14,16 +14,22 @@
 
 package app.metatron.discovery.common.oauth;
 
-import app.metatron.discovery.domain.user.UserProperties;
-import app.metatron.discovery.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserProperties;
+import app.metatron.discovery.domain.user.UserService;
+import app.metatron.discovery.domain.user.org.OrganizationService;
 
 /**
  *
@@ -39,8 +45,23 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
   @Autowired
   UserProperties userProperties;
 
+  @Autowired
+  OrganizationService organizationService;
+
+  @Override
+  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    Authentication auth = super.authenticate(authentication);
+
+    // get org code and put into auth principal
+    User user = (User) auth.getPrincipal();
+    List<String> orgCodes = organizationService.findCodesOfMembersOrg(user.getUsername());
+    user.setOrgCodes(orgCodes);
+
+    return auth;
+  }
+
   protected void additionalAuthenticationChecks(UserDetails userDetails,
-          UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+                                                UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 
     try {
       super.additionalAuthenticationChecks(userDetails, authentication);

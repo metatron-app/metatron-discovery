@@ -145,4 +145,5 @@
 
     <!-- discovery release based changelog -->
     <include file="discovery.changelog-3.4.0.xml" relativeToChangelogFile="true"/>
+    <include file="discovery.changelog-2021.3.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

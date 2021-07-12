@@ -28,7 +28,6 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.domain.CollectionPatch;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -78,7 +77,8 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.common.entity.Spec;
 import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.AbstractTenantEntity;
+import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
@@ -118,7 +118,7 @@ import static org.hibernate.search.annotations.Index.NO;
         @Index(name = "idx_datasource_engine_name", columnList = "ds_engine_name", unique = true)
     })
 @Indexed
-public class DataSource extends AbstractHistoryEntity implements MetatronDomain<String>, ContextEntity {
+public class DataSource extends AbstractTenantEntity implements MetatronDomain<String>, ContextEntity {
 
   /**
    * ID

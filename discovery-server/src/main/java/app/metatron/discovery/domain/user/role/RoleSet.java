@@ -36,13 +36,13 @@ import java.util.stream.Collectors;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
-import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.AbstractTenantEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.workspace.Workspace;
 
 @Entity
 @Table(name = "role_set")
- public class  RoleSet extends AbstractHistoryEntity implements MetatronDomain<String> {
+ public class  RoleSet extends AbstractTenantEntity implements MetatronDomain<String> {
 
   public static String ROLESET_ID_DEFAULT = "DEFAULT_ROLE_SET";
 

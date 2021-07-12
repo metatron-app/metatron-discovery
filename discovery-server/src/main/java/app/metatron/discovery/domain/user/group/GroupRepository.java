@@ -19,9 +19,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import app.metatron.discovery.domain.context.ContextDomainRepository;
-
 import java.util.List;
+
+import app.metatron.discovery.domain.context.ContextDomainRepository;
 
 /**
  * Created by kyungtaak on 2016. 1. 7..
@@ -34,6 +34,8 @@ public interface GroupRepository extends JpaRepository<Group, String>,
   Group findByName(String name);
 
   Group findByPredefinedAndDefaultGroup(Boolean predefined, Boolean defaultGroup);
+
+  Group findByPredefinedAndDefaultGroupAndIdIn(Boolean predefined, Boolean defaultGroup, List<String> ids);
 
   @Query("select g from Group g join g.members m where m.memberId = ?1")
   List<Group> findJoinedGroups(String memberId);

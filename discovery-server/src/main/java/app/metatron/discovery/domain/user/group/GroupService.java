@@ -14,20 +14,9 @@
 
 package app.metatron.discovery.domain.user.group;
 
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.context.ContextService;
-import app.metatron.discovery.domain.images.ImageRepository;
-import app.metatron.discovery.domain.user.DirectoryProfile;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserProperties;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.org.OrganizationService;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +26,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.context.ContextService;
+import app.metatron.discovery.domain.images.ImageRepository;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserProperties;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.org.Organization;
+import app.metatron.discovery.domain.user.org.OrganizationMember;
+import app.metatron.discovery.domain.user.org.OrganizationMemberRepository;
+import app.metatron.discovery.domain.user.org.OrganizationPredicate;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
 
 @Component
 @Transactional
@@ -71,6 +79,9 @@ public class GroupService {
   @Autowired
   UserProperties userProperties;
 
+  @Autowired
+  OrganizationMemberRepository orgMemberRepository;
+
   /**
    * Create a group
    *
@@ -89,9 +100,8 @@ public class GroupService {
     contextService.saveContextFromDomain(group);
 
     // Add Organization
-    if (userProperties.getUseOrganization()) {
-      orgService.addMembers(group.getOrgCodes(), result.getId(), result.getName(), DirectoryProfile.Type.GROUP);
-    }
+    String orgCode = CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode();
+    orgService.addMembers(Lists.newArrayList(orgCode), result.getId(), result.getName(), DirectoryProfile.Type.GROUP);
 
     return result;
   }
@@ -189,7 +199,13 @@ public class GroupService {
 
   @Transactional(readOnly = true)
   public Group getDefaultGroup() {
-    return groupRepository.findByPredefinedAndDefaultGroup(true, true);
+    // getting default group in tenant
+    String orgCode = StringUtils.defaultString(CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+    List<OrganizationMember> organizationMembers
+        = (List) orgMemberRepository.findAll(OrganizationPredicate.searchOrgMemberList(orgCode, null, DirectoryProfile.Type.GROUP));
+
+    List<String> groupIds = organizationMembers.stream().map(OrganizationMember::getMemberId).collect(Collectors.toList());
+    return groupRepository.findByPredefinedAndDefaultGroupAndIdIn(true, true, groupIds);
   }
 
   /**

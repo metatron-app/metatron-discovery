@@ -14,19 +14,31 @@
 
 package app.metatron.discovery.domain.user.org;
 
-import app.metatron.discovery.domain.AbstractHistoryEntity;
-import app.metatron.discovery.domain.MetatronDomain;
-import app.metatron.discovery.domain.user.DirectoryProfile;
+import com.google.common.collect.Lists;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
+
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
+
+import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.MetatronDomain;
+import app.metatron.discovery.domain.user.DirectoryProfile;
 
 /**
  * Organization entity
@@ -67,6 +79,7 @@ public class Organization extends AbstractHistoryEntity implements MetatronDomai
 
   @OneToMany(mappedBy = "organization",
           cascade = {CascadeType.ALL},
+          fetch = FetchType.EAGER,
           orphanRemoval = true)
   @BatchSize(size = 50)
   List<OrganizationMember> members = Lists.newArrayList();
