@@ -47,7 +47,7 @@ import {DashboardUtil} from '../dashboard/util/dashboard.util';
 import {DragulaService} from '../../lib/ng2-dragula';
 import {ImageService} from '@common/service/image.service';
 import {CreateBoardPopDsSelectComponent} from '../dashboard/component/create-dashboard/create-board-pop-ds-select.component';
-import {environment} from "@environments/environment.prod";
+import {environment} from '@environments/environment';
 
 declare let $;
 
