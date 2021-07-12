@@ -91,14 +91,37 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
 
     window.history.pushState(null, null, window.location.href);
 
-    combineLatest([this.activatedRoute.params, this.activatedRoute.fragment])
+    combineLatest([this.activatedRoute.params, this.activatedRoute.queryParams, this.activatedRoute.fragment,])
       .pipe(
-        map( result => ({queryParam: result[0], fragment: result[1]}))
+        map( result => ({queryParam: result[0], queryParams:result[1], fragment:result[2]}))
       ).subscribe(result => {
       const params = result.queryParam;
-      const fragment = result.fragment;
+      let fragment = result.fragment;
+      let queryParams;
+      if(fragment){
+        // fragment에서 dashboardId 와 queryParams 추출
+        queryParams = new Object();
+        const paramArr = fragment.slice(fragment.indexOf('?')+1).split('&');
+        if(!this.isNullOrUndefined(paramArr[0])){
+          queryParams['selectionFilter'] = paramArr[0].split('=')[1];
+        }
+        if(!this.isNullOrUndefined(paramArr[1])){
+          queryParams['autoOn'] = paramArr[1].split('=')[1];
+        }
+        fragment = fragment.slice(0,fragment.indexOf('?')); // dashboardId
+      }else{
+        queryParams = result.queryParams;
+      }
+
+      if(!this.isNullOrUndefined(queryParams['selectionFilter'])){
+        this.isShowSelectionFilter = (queryParams['selectionFilter'] == 'true');
+      }
+      if(!this.isNullOrUndefined(queryParams['autoOn'])){
+        this.isShowAutoOn = (queryParams['autoOn'] == 'true');
+      }
+
       // dashboard 아이디를 넘긴경우에만 실행
-      // 로그인 정보 생성
+      // 로그인 정보 생성s
       (params['loginToken']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, params['loginToken'], 0, '/'));
       (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
       (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
@@ -112,26 +135,6 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
         this._boardId = fragment;
         this.getDashboardDetail(fragment);
       }
-    });
-
-    this.activatedRoute.queryParams.subscribe(params => {
-      if(!this.isNullOrUndefined(params['selectionFilter'])){
-        this.isShowSelectionFilter = (params['selectionFilter'] == 'true');
-      }
-      if(!this.isNullOrUndefined(params['autoOn'])){
-        this.isShowAutoOn = (params['autoOn'] == 'true');
-      }
-      this.safelyDetectChanges();
-    });
-
-    this.activatedRoute.queryParams.subscribe(params => {
-      if(!this.isNullOrUndefined(params['selectionFilter'])){
-        this.isShowSelectionFilter = (params['selectionFilter'] == 'true');
-      }
-      if(!this.isNullOrUndefined(params['autoOn'])){
-        this.isShowAutoOn = (params['autoOn'] == 'true');
-      }
-      this.safelyDetectChanges();
     });
 
     // this.cookieService.set(CookieConstant.KEY.FORCE_LOGIN, 'FORCE', 0, '/');
