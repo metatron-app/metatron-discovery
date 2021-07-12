@@ -37,14 +37,14 @@
   <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
 
     <!-- filter -->
-    <selection-filter *ngIf=isShowSelectionFilter
+    <selection-filter *ngIf="(isShowSelectionFilter || isShowAutoOn)"
                       [isShowSelectionFilter]="isShowSelectionFilter" [isShowAutoOn]="isShowAutoOn"
                       [dashboard]="dashboard" [showBtnWidget]="isManagementUser" ></selection-filter>
     <!-- //filter -->
 
     <!-- dashboard -->
     <div class="ddp-ui-widget" [ngStyle]="isStandAlone ? {'top': '50px'} : {}"
-         [style]="!isShowSelectionFilter ? 'top:0' : null">
+         [style]="!isShowSelectionFilter && !isShowAutoOn ? 'top:0' : null">
       <!-- 로딩 영역 -->
       <div *ngIf="isShowDashboardLoading" class="ddp-loading-part" style="top:150px;" >
         <div style="" class="lds-wedges">

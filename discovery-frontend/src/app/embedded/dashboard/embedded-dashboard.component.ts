@@ -100,7 +100,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       let queryParams;
       if(fragment){
         // fragment에서 dashboardId 와 queryParams 추출
-        queryParams = new Object();
+        queryParams = {};
         const paramArr = fragment.slice(fragment.indexOf('?')+1).split('&');
         if(!this.isNullOrUndefined(paramArr[0])){
           queryParams['selectionFilter'] = paramArr[0].split('=')[1];
