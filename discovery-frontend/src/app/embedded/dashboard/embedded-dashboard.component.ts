@@ -97,18 +97,17 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       ).subscribe(result => {
       const params = result.queryParam;
       let fragment = result.fragment;
-      let queryParams;
+      let queryParams = {};
       if(fragment){
-        // fragment에서 dashboardId 와 queryParams 추출
-        queryParams = {};
-        const paramArr = fragment.slice(fragment.indexOf('?')+1).split('&');
-        if(!this.isNullOrUndefined(paramArr[0])){
-          queryParams['selectionFilter'] = paramArr[0].split('=')[1];
+        if(fragment.includes('?')){
+          // fragment에서 dashboardId 와 queryParams 추출
+          const paramsArr = fragment.slice(fragment.indexOf('?')+1).split('&');
+          paramsArr.forEach(param => {
+            const paramArr = param.split('=');
+            queryParams[paramArr[0]] = paramArr[1];
+          })
+          fragment = fragment.slice(0,fragment.indexOf('?')); // dashboardId
         }
-        if(!this.isNullOrUndefined(paramArr[1])){
-          queryParams['autoOn'] = paramArr[1].split('=')[1];
-        }
-        fragment = fragment.slice(0,fragment.indexOf('?')); // dashboardId
       }else{
         queryParams = result.queryParams;
       }
@@ -119,6 +118,8 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       if(!this.isNullOrUndefined(queryParams['autoOn'])){
         this.isShowAutoOn = (queryParams['autoOn'] == 'true');
       }
+      // console.log('SelectionFilter: ' + this.isShowSelectionFilter);
+      // console.log('ShowAutonOn: ' + this.isShowAutoOn);
 
       // dashboard 아이디를 넘긴경우에만 실행
       // 로그인 정보 생성s
