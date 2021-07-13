@@ -368,6 +368,18 @@
                   <em class="ddp-icon-drop-editdel3"></em> {{'msg.board.btn.del.dashboard' | translate}}
                 </a>
               </li>
+              <li>
+                <a href="javascript:" (click)="copyBoardUrlToClipboard()" style="padding-left: 10px;">
+                  <em class="rs-component-btn-icon1 type-clipboard" style="margin-right: 6px;margin-bottom: -3px;"></em>
+                  {{'msg.board.ui.copy-url' | translate}}
+                </a>
+              </li>
+              <li>
+                <a href="javascript:" (click)="copyEmbeddedUrlToClipboard()" style="padding-left: 10px;">
+                  <em class="rs-component-btn-icon1 type-clipboard" style="margin-right: 6px;margin-bottom: -3px;"></em>
+                  {{'msg.board.ui.copy-embedded-url' | translate}}
+                </a>
+              </li>
             </ul>
             <!-- date -->
             <div class="ddp-ui-date" *ngIf="selectedDashboard && selectedDashboard.createdBy">
@@ -504,6 +516,7 @@
     </div>
     <!-- //board buttons -->
     <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard"
+                   [isShowSelectionFilter]="true" [isShowAutoOn]="true"
                    (dashboardEvent)="onDashboardEvent($event)"></app-dashboard>
   </div>
 
