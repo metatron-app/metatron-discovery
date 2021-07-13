@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div *ngIf="inputFilter" class="ddp-dateinfo-view">
+<div *ngIf="inputFilter" class="ddp-dateinfo-view" [style]="'WIDGET' == mode ? 'height:100%' : null">
   <div class="ddp-filter-calen">
     <div class="ddp-filter-calen-in"
          [ngStyle]="'WIDGET' == mode ? {'float':'left'} : {}">
