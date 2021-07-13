@@ -1762,7 +1762,7 @@
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",
   "msg.storage.th.allowance":"Allowance",
-  "msg.storage.th.status":"Status",\
+  "msg.storage.th.status":"Status",
   "msg.storage.th.ingestion_type":"Ingestion type",
   "msg.storage.th.data_type":"Source type",
   "msg.storage.create.dsource.title": "Select source type",
