@@ -139,12 +139,13 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
    * @return {InclusionFilter}
    */
   public getData(): TimeDateFilter {
+    console.log('tiem-date-filter: getData');
+    console.log(this.targetFilter);
     return this.targetFilter;
   } // function - getData
 
   public onDateChange(date: TimeDate){
     this.targetFilter.valueDate = date.valueDate;
-
     this.targetFilter.intervals = [this.targetFilter.valueDate + '/' + this.targetFilter.valueDate];
     if(this.mode && this.mode !== 'WIDGET'){
       this._broadcastChange();
@@ -182,7 +183,6 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   }
 
   private _setDateFilter(targetFilter: TimeDateFilter): TimeDateFilter{
-
     if(!targetFilter.intervals){
       targetFilter.valueDate = moment().toISOString();
       targetFilter.intervals = [targetFilter.valueDate + '/' + targetFilter.valueDate];

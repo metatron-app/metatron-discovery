@@ -403,6 +403,7 @@ export class FilterUtil {
 
     // Time Range 필터의 타임 형식 설정
     if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
+      // Time Single 필터
       const timeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {

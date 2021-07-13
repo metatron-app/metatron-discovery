@@ -70,7 +70,7 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
   public isRelativeType:boolean = false;    // Relative Time Filter
   public isRangeType:boolean = false;       // Range Time Filter
   public isListType:boolean = false;        // List Time Filter
-  public isDateType:boolean = false;
+  public isSingleType:boolean = false;        // Single Time Filter
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -232,7 +232,7 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
     this.isRelativeType = FilterUtil.isTimeRelativeFilter(this.targetFilter);
     this.isRangeType = FilterUtil.isTimeRangeFilter(this.targetFilter);
     this.isListType = FilterUtil.isTimeListFilter(this.targetFilter);
-    this.isDateType = FilterUtil.isTimeSingleFilter(this.targetFilter);
+    this.isSingleType = FilterUtil.isTimeSingleFilter(this.targetFilter);
   } // function - _setStatus
 
 }

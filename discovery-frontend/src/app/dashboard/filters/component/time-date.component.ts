@@ -150,18 +150,19 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
     this.safelyDetectChanges();
 
     const valueDate = this.compData.valueDate;
-
     let dateMoment;
     if (valueDate && 'undefined' !== valueDate){
-      dateMoment = this.customMoment(valueDate);
+      dateMoment = (TimeUnit.WEEK === this.compData.timeUnit) ? valueDate :  this.customMoment(valueDate);
     } else{
       dateMoment = moment();
     }
 
     if (TimeUnit.WEEK === this.compData.timeUnit){
       this.comboList = _.cloneDeep(this._weekList);
-      this._date = new Date();
-      const dateWeek = dateMoment.clone().week();
+      let dateWeek;
+      const arrDateInfo = (valueDate as string).split('-');
+      dateMoment = moment(arrDateInfo[0] + '-01-01');
+      dateWeek = Number(arrDateInfo[1]);
       this.dateComboIdx = this.comboList.findIndex(item => item.value === dateWeek);
       this.selectedDateComboItem = this.comboList[this.dateComboIdx];
     } else if (TimeUnit.QUARTER === this.compData.timeUnit){
@@ -170,7 +171,6 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
       this.dateComboIdx = this.comboList.findIndex(item => item.value === dateQuarter);
       this.selectedDateComboItem = this.comboList[this.dateComboIdx];
     }
-
     this._date = dateMoment.toDate();
 
     if(this.isNullOrUndefined(this._datePicker)){
