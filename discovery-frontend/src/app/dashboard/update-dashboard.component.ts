@@ -359,6 +359,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 일괄삭제를 위한 서비스 등록
     this.subscriptions.push(popupSubscribe);
     $('body').css('overflow', 'hidden');
+
+
   } // function - ngOnInit
 
   public ngAfterViewInit() {

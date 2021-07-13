@@ -47,6 +47,9 @@ import {DashboardUtil} from '../dashboard/util/dashboard.util';
 import {DragulaService} from '../../lib/ng2-dragula';
 import {ImageService} from '@common/service/image.service';
 import {CreateBoardPopDsSelectComponent} from '../dashboard/component/create-dashboard/create-board-pop-ds-select.component';
+import {Event} from "@angular/router";
+import {NavigationStart} from "@angular/router";
+import {filter} from "rxjs/operators";
 
 declare let $;
 
@@ -183,6 +186,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   public isFirstLoad = false; // 초기 워크북 호출 여부
   public scrollLoc; // 대시보드 디테일 클릭 위치
+  public previousUrl: string;
+  public currentUrl: string;
 
   // 대시보드 필터링
   public get filteredDashboard(): Dashboard[] {
@@ -218,6 +223,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     super(elementRef, injector);
     this.listType = 'CARD';
     this._settingDnd();
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -345,7 +351,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     // 대시보드 데이터소스 변경
     this.subscriptions.push(
-      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: {dataSource: Datasource[], selectedDataSource: Datasource}) => {
+      this.broadCaster.on<any>('CHANGE_BOARD_DATASOURCE').subscribe((data: { dataSource: Datasource[], selectedDataSource: Datasource }) => {
         this.currentDataSources = data.dataSource;
         this.selectedDataSource = data.selectedDataSource;
         setTimeout(() => {
@@ -357,7 +363,32 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     // z-index 이슈를 해결하기 위한 코드
     $('.ddp-layout-contents').addClass('ddp-layout-board');
 
-  } // function - ngOnInit
+    // 대시보드 편집에서 뒤로 갈 경우, 현재 대시보드 열람 페이지로 돌아가기
+    this.location.subscribe((_value: PopStateEvent) => {
+    });
+
+    this.router.events.pipe(filter(
+      (event: Event) => {
+        return (event instanceof NavigationStart);
+      }
+    )).subscribe((event: NavigationStart)=> {
+      if(event.navigationTrigger === 'popstate' && this.mode === 'UPDATE'){
+        this.router.navigateByUrl(this.currentUrl).then(() => {
+          this.isFirstLoad = true;
+          this.mode = 'VIEW';
+          this.safelyDetectChanges();
+          this.scrollToDashboard(this.selectedDashboard.id);
+        });
+      }
+      this.previousUrl = this.currentUrl;
+      this.currentUrl = event.url;
+      // console.log('')
+      // console.log('route: ' + event.url);
+      // console.log('trigger: ' + event.navigationTrigger);
+    });
+
+  }
+   // function - ngOnInit
 
   // Destroy
   public ngOnDestroy() {
@@ -885,11 +916,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {string} dashboardId
    */
   public scrollToDashboard(dashboardId: string) {
+    console.log('scrollToDashboard')
     const selectedIdx: number = this.dashboards.findIndex(item => item.id === dashboardId);
     const speed = this.isFirstLoad ? 800 : 0;
     const locOfY = this.isFirstLoad ? selectedIdx * ('LIST' === this.listType ? 52 : 185)
       : this.scrollLoc;
 
+    console.log(locOfY);
     if ('LIST' === this.listType) {
       $('.ddp-ui-board-listview').animate({scrollTop: locOfY}, speed, 'swing');
     } else {
@@ -1461,7 +1494,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.changeMode('NO_DATA');
 
     this.isFirstLoad = true;
-
+    this.currentUrl = this.router.url;
 
   } // function - _initViewPage
 
