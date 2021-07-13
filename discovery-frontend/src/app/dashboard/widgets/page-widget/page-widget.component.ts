@@ -74,6 +74,7 @@ import {FilterUtil} from '../../util/filter.util';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {AbstractWidgetComponent} from '../abstract-widget.component';
 import {AggregationType} from '@domain/workbook/configurations/field/measure-field';
+import {environment} from '@environments/environment';
 
 declare let $;
 declare let moment;
@@ -1187,6 +1188,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent<PageWidget>
     this.widget.configuration.sync = this.isRealTimeWidget;
     this._setSync();
   }
+
+  /**
+   * 위젯 아이디 클립보드에 복사
+   */
+  public copyWidgetUrlToClipboard() {
+    if (this.widget) {
+      let content = location.protocol + '//' + location.host + ':' + location.port + environment.baseHref;
+      content = content + 'embedded/page/' + this.widget.id;
+      this._clipboardService.copyFromContent(content);
+      Alert.success(this.translateService.instant('msg.page.alert.copy.chart-url'));
+    }
+  } // function - copyBoardUrlToClipboard
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

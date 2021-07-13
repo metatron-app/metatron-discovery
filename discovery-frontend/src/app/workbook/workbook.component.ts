@@ -47,6 +47,7 @@ import {DashboardUtil} from '../dashboard/util/dashboard.util';
 import {DragulaService} from '../../lib/ng2-dragula';
 import {ImageService} from '@common/service/image.service';
 import {CreateBoardPopDsSelectComponent} from '../dashboard/component/create-dashboard/create-board-pop-ds-select.component';
+import {environment} from '@environments/environment';
 
 declare let $;
 
@@ -958,6 +959,18 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       Alert.success(this.translateService.instant('msg.board.alert.copy.dashboard-url'));
     }
   } // function - copyBoardUrlToClipboard
+
+  /**
+   * 임베디드 대시보드 주소 클립보드에 복사
+   */
+  public copyEmbeddedUrlToClipboard() {
+    if(this.selectedDashboard) {
+      let content = location.protocol + '//' + location.host + environment.baseHref;
+      content = content + 'embedded/dashboard/' + this.selectedDashboard.id;
+      this._clipboardService.copyFromContent(content);
+      Alert.success(this.translateService.instant('msg.board.alert.copy.embedded-dashboard-url'));
+    }
+  } // function - copyEmbeddedUrlToClipboard
 
   /**
    * 대시보드 생성

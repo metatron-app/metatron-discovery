@@ -28,3 +28,9 @@
 input:-webkit-autofill {
   background-color: red !important;
 }
+
+.rs-component-btn-icon1.type-clipboard {
+  width: 17px;
+  height: 17px;
+  background-position: left -450px;
+}

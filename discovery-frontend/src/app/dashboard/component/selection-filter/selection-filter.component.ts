@@ -64,6 +64,11 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
 
   public ingestionHistory: IngestionHistory;
 
+  @Input()
+  public isShowSelectionFilter: boolean;
+  @Input()
+  public isShowAutoOn: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Variables - Refresh Trigger 관련
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -126,7 +131,12 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     );
 
     this.init();
-    this._initializeAutoUpdate();
+    if(this.isShowAutoOn){
+      this._initializeAutoUpdate();
+    } else {
+      // 임베디드 대시보드 페이지에서 auto on 을 비가시화 했을 때
+      this.isAutoUpdate = false;
+    }
   }
 
   /**

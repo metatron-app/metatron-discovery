@@ -1757,11 +1757,12 @@
   "msg.board.ui.custom-action" : "Event Trigger",
   "msg.board.ui.copy-url": "Copy dashboard url",
   "msg.board.alert.copy.dashboard-url": "Dashboard url copied",
-
+  "msg.board.ui.copy-embedded-url": "Copy embedded dashboard url",
+  "msg.board.alert.copy.embedded-dashboard-url": "Embedded dashboard url copied",
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",
   "msg.storage.th.allowance":"Allowance",
-  "msg.storage.th.status":"Status",
+  "msg.storage.th.status":"Status",\
   "msg.storage.th.ingestion_type":"Ingestion type",
   "msg.storage.th.data_type":"Source type",
   "msg.storage.create.dsource.title": "Select source type",
@@ -3920,6 +3921,8 @@
   "msg.page.chart.map.spatial.select.step": "If Within, choropleth setting must be on",
   "msg.page.chart.map.spatial.mainlayer.setting" : "기준 레이어는 point로 설정 해주세요.",
   "msg.page.chart.map.spatial.comparelayer.setting" : "비교 레이어는 line으로 설정 해주세요.",
+  "msg.page.chart.info.id": "Chart ID",
+  "msg.page.alert.copy.chart-url": "Chart url copied.",
 
   "msg.spaces.ui.permission.schemas": "Permission Schemas",
   "msg.spaces.spaces.ui.status": "Status",

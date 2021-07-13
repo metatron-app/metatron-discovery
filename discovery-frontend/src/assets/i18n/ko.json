@@ -1742,7 +1742,8 @@
   "msg.board.ui.custom-action" : "Event Trigger",
   "msg.board.ui.copy-url": "대시보드 주소 복사",
   "msg.board.alert.copy.dashboard-url": "대시보드 URL이 복사되었습니다.",
-
+  "msg.board.ui.copy-embedded-url": "임베디드 대시보드 주소 복사",
+  "msg.board.alert.copy.embedded-dashboard-url": "임베디드 대시보드 URL이 복사되었습니다.",
   "msg.storage.btn.create.dsource": "새로운 데이터소스 생성",
   "msg.storage.ui.dsource.search.description": "데이터소스 이름으로 검색해 주세요",
   "msg.storage.th.allowance": "허용여부",
@@ -3897,6 +3898,8 @@
   "msg.page.chart.map.spatial.select.step": "With in 경우 단계구분도 설정이 on으로 되어 있어야합니다.",
   "msg.page.chart.map.spatial.mainlayer.setting": "기준 레이어는 point로 설정 해주세요.",
   "msg.page.chart.map.spatial.comparelayer.setting": "비교 레이어는 line으로 설정 해주세요.",
+  "msg.page.chart.info.id": "차트 ID",
+  "msg.page.alert.copy.chart-url": "차트 주소가 복사되었습니다.",
   "msg.spaces.ui.permission.schemas": "퍼미션 스키마",
   "msg.spaces.spaces.ui.status": "상태",
   "msg.spaces.spaces.ui.allowance": "허용여부",
