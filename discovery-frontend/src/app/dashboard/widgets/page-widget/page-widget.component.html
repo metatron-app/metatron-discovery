@@ -141,12 +141,18 @@
                 </tr>
                 <tr *ngIf="existChartFilter()">
                   <th>{{'msg.page.ui.filter' | translate }}</th>
-                  <td>{{getChartFilterStr()}}</td>
+                  <td>{{getChartFilterStr()}} </td>
+                </tr>
+                <tr>
+                  <th>{{'msg.page.chart.info.id' | translate}}</th>
+                  <td>{{widget.id}}
+                    <em (click)="copyWidgetUrlToClipboard()" class="rs-component-btn-icon1 type-clipboard"
+                        style="display: inline-block; margin: 1px 0 0 3px;" ></em>
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
-
         </div>
         <!-- //popup -->
       </div>

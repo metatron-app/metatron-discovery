@@ -50,6 +50,7 @@ import {CreateBoardPopDsSelectComponent} from '../dashboard/component/create-das
 import {Event} from "@angular/router";
 import {NavigationStart} from "@angular/router";
 import {filter} from "rxjs/operators";
+import {environment} from '@environments/environment';
 
 declare let $;
 
@@ -1023,6 +1024,18 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       Alert.success(this.translateService.instant('msg.board.alert.copy.dashboard-url'));
     }
   } // function - copyBoardUrlToClipboard
+
+  /**
+   * 임베디드 대시보드 주소 클립보드에 복사
+   */
+  public copyEmbeddedUrlToClipboard() {
+    if(this.selectedDashboard) {
+      let content = location.protocol + '//' + location.host + environment.baseHref;
+      content = content + 'embedded/dashboard/' + this.selectedDashboard.id;
+      this._clipboardService.copyFromContent(content);
+      Alert.success(this.translateService.instant('msg.board.alert.copy.embedded-dashboard-url'));
+    }
+  } // function - copyEmbeddedUrlToClipboard
 
   /**
    * 대시보드 생성

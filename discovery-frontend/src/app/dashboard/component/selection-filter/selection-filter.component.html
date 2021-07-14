@@ -26,7 +26,8 @@
     <div class="ddp-list-board-filter ddp-clear">
 
       <!-- Global Filters -->
-      <div *ngIf="isValidDashboard && 0 < boardFilters.length" class="ddp-box-board-time">
+      <div *ngIf="(isValidDashboard && 0 < boardFilters.length) && isShowSelectionFilter"
+           class="ddp-box-board-time">
         <a href="javascript:" class="ddp-btn-time"><em class="ddp-icon-time4"></em></a>
         <!-- tooltip -->
         <div class="ddp-ui-tooltip-info" >
@@ -41,12 +42,13 @@
       </div>
       <!-- // Global Filters -->
 
-      <div class="ddp-box-board-filter" *ngIf="selectionFilterList.length == 0">
+      <div class="ddp-box-board-filter" *ngIf="selectionFilterList.length == 0 && isShowSelectionFilter">
         <div class="ddp-box-dataselect">
           {{'msg.board.filter.sel.data' | translate}}
         </div>
       </div>
-      <div class="ddp-box-board-filter" *ngFor="let selectFilter of selectionFilterList"
+      <div class="ddp-box-board-filter"
+           *ngFor="let selectFilter of selectionFilterList"
            [class.ddp-time]="'interval' === selectFilter.type">
         <div (click)="toggleLayer(selectFilter, $event)"
              [class.ddp-selected]="selectFilter.selected" class="ddp-type-selectbox ddp-type-filter">
@@ -95,7 +97,7 @@
   </div>
 
   <!-- 새로고침 영역 -->
-  <div class="ddp-wrap-right ddp-ui-board-update" [style.padding-right]="showBtnWidget ? '145px' : '20px'">
+  <div *ngIf="isShowAutoOn" class="ddp-wrap-right ddp-ui-board-update" [style.padding-right]="showBtnWidget ? '145px' : '20px'">
 <!--    <span class="rs-data-update">최근 데이터 업데이트 {{ingestionHistory?.modifiedTime | date: 'yyyy-MM-dd HH:mm:ss'}}</span>-->
 
     <a href="javascript:" class="rs-component-box-btn " tooltip="수동 업데이트" direction="down" (click)="updateDashboard()">

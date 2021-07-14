@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.user.role;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonBackReference;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -24,8 +27,10 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 
+import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.domain.user.DirectoryProfile;
 import app.metatron.discovery.domain.user.UserProfile;
+import app.metatron.discovery.domain.user.org.Organization;
 
 @Entity
 @Table(name = "role_directory")
@@ -61,6 +66,9 @@ public class RoleDirectory {
   @Transient
   DirectoryProfile profile;
 
+  @Column(name = "org_code")
+  protected String orgCode;
+
   public RoleDirectory() {
   }
 
@@ -78,7 +86,21 @@ public class RoleDirectory {
 
   @PrePersist
   public void prePersist() {
+    if (StringUtils.isEmpty(this.orgCode)) {
+      CommonLocalVariable.TenantAuthority tenantAuthority = CommonLocalVariable.getLocalVariable().getTenantAuthority();
+      String orgCode = StringUtils.defaultIfEmpty(tenantAuthority.getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+      this.setOrgCode(orgCode);
+    }
     createdTime = DateTime.now();
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    if (StringUtils.isEmpty(this.orgCode)) {
+      CommonLocalVariable.TenantAuthority tenantAuthority = CommonLocalVariable.getLocalVariable().getTenantAuthority();
+      String orgCode = StringUtils.defaultIfEmpty(tenantAuthority.getOrgCode(), Organization.DEFAULT_ORGANIZATION_CODE);
+      this.setOrgCode(orgCode);
+    }
   }
 
   public Long getId() {
@@ -135,5 +157,14 @@ public class RoleDirectory {
 
   public void setProfile(DirectoryProfile profile) {
     this.profile = profile;
+  }
+
+  @JsonIgnore
+  public String getOrgCode() {
+    return orgCode;
+  }
+
+  public void setOrgCode(String orgCode) {
+    this.orgCode = orgCode;
   }
 }

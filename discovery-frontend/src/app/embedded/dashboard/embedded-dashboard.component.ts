@@ -32,6 +32,8 @@ import {FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget'
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {DashboardService} from '../../dashboard/service/dashboard.service';
 import {DashboardComponent} from '../../dashboard/dashboard.component';
+import {map} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
 
 @Component({
   selector: 'app-embedded-dashboard',
@@ -57,6 +59,11 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // 선택된 대시보드
   public dashboard: Dashboard;
+
+  // 임베디드 대시보드 상단바 유무
+  public isShowSelectionFilter: boolean = true;
+  // 임베디드 자동 업데이트 유무
+  public isShowAutoOn: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -84,15 +91,50 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
 
     window.history.pushState(null, null, window.location.href);
 
-    this.activatedRoute.params.subscribe((params) => {
+    combineLatest([this.activatedRoute.params, this.activatedRoute.queryParams, this.activatedRoute.fragment,])
+      .pipe(
+        map( result => ({queryParam: result[0], queryParams:result[1], fragment:result[2]}))
+      ).subscribe(result => {
+      const params = result.queryParam;
+      let fragment = result.fragment;
+      let queryParams = {};
+      if(fragment){
+        if(fragment.includes('?')){
+          // fragment에서 dashboardId 와 queryParams 추출
+          const paramsArr = fragment.slice(fragment.indexOf('?')+1).split('&');
+          paramsArr.forEach(param => {
+            const paramArr = param.split('=');
+            queryParams[paramArr[0]] = paramArr[1];
+          })
+          fragment = fragment.slice(0,fragment.indexOf('?')); // dashboardId
+        }
+      }else{
+        queryParams = result.queryParams;
+      }
+
+      if(!this.isNullOrUndefined(queryParams['selectionFilter'])){
+        this.isShowSelectionFilter = (queryParams['selectionFilter'] == 'true');
+      }
+      if(!this.isNullOrUndefined(queryParams['autoOn'])){
+        this.isShowAutoOn = (queryParams['autoOn'] == 'true');
+      }
+      // console.log('SelectionFilter: ' + this.isShowSelectionFilter);
+      // console.log('ShowAutonOn: ' + this.isShowAutoOn);
+
       // dashboard 아이디를 넘긴경우에만 실행
-      // 로그인 정보 생성
+      // 로그인 정보 생성s
       (params['loginToken']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, params['loginToken'], 0, '/'));
       (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
       (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
+
       if (params['dashboardId']) {
+        // console.log( '>>>>>>>> dashboardId', params['dashboardId'] );
         this._boardId = params['dashboardId'];
         this.getDashboardDetail(params['dashboardId']);
+      } else if (fragment) {
+        // console.log( '>>>>>>>> fragment', params['fragment'] );
+        this._boardId = fragment;
+        this.getDashboardDetail(fragment);
       }
     });
 

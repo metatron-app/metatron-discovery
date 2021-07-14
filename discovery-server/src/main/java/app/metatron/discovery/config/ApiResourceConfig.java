@@ -14,48 +14,6 @@
 
 package app.metatron.discovery.config;
 
-import app.metatron.discovery.MetatronDiscoveryApplication;
-import app.metatron.discovery.common.MetatronProperties;
-import app.metatron.discovery.common.PageImplJacksonSerializer;
-import app.metatron.discovery.common.revision.CustomEnversPostInsertEventListener;
-import app.metatron.discovery.domain.comment.Comment;
-import app.metatron.discovery.domain.dataconnection.DataConnection;
-import app.metatron.discovery.domain.dataconnection.DataConnectionEventHandler;
-import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
-import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceAlias;
-import app.metatron.discovery.domain.datasource.DataSourceEventHandler;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.mdm.*;
-import app.metatron.discovery.domain.mdm.catalog.Catalog;
-import app.metatron.discovery.domain.mdm.catalog.CatalogEventHandler;
-import app.metatron.discovery.domain.notebook.*;
-import app.metatron.discovery.domain.notebook.connector.JupyterConnector;
-import app.metatron.discovery.domain.notebook.connector.ZeppelinConnector;
-import app.metatron.discovery.domain.tag.Tag;
-import app.metatron.discovery.domain.tag.TagDomain;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserEventHandler;
-import app.metatron.discovery.domain.user.role.Role;
-import app.metatron.discovery.domain.user.role.RoleEventHandler;
-import app.metatron.discovery.domain.user.role.RoleSet;
-import app.metatron.discovery.domain.user.role.RoleSetEventHandler;
-import app.metatron.discovery.domain.workbench.QueryEditor;
-import app.metatron.discovery.domain.workbench.QueryHistory;
-import app.metatron.discovery.domain.workbench.Workbench;
-import app.metatron.discovery.domain.workbench.WorkbenchEventHandler;
-import app.metatron.discovery.domain.workbook.DashBoard;
-import app.metatron.discovery.domain.workbook.DashBoardEventHandler;
-import app.metatron.discovery.domain.workbook.WorkBook;
-import app.metatron.discovery.domain.workbook.WorkBookEventHandler;
-import app.metatron.discovery.domain.workbook.widget.*;
-import app.metatron.discovery.domain.workspace.Workspace;
-import app.metatron.discovery.domain.workspace.WorkspaceEventHandler;
-import app.metatron.discovery.domain.workspace.folder.Folder;
-import app.metatron.discovery.domain.workspace.folder.FolderEventHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.Version;
@@ -64,8 +22,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+
 import de.codecentric.boot.admin.jackson.ApplicationDeserializer;
 import de.codecentric.boot.admin.model.Application;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.boot.internal.EnversService;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -105,7 +65,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -116,13 +82,73 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
-import javax.persistence.EntityManagerFactory;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.persistence.EntityManagerFactory;
+
+import app.metatron.discovery.MetatronDiscoveryApplication;
+import app.metatron.discovery.common.MetatronProperties;
+import app.metatron.discovery.common.PageImplJacksonSerializer;
+import app.metatron.discovery.common.revision.CustomEnversPostInsertEventListener;
+import app.metatron.discovery.domain.comment.Comment;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionEventHandler;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceAlias;
+import app.metatron.discovery.domain.datasource.DataSourceEventHandler;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.mdm.CodeTable;
+import app.metatron.discovery.domain.mdm.CodeValuePair;
+import app.metatron.discovery.domain.mdm.ColumnDictionary;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataEventHandler;
+import app.metatron.discovery.domain.mdm.catalog.Catalog;
+import app.metatron.discovery.domain.mdm.catalog.CatalogEventHandler;
+import app.metatron.discovery.domain.notebook.Notebook;
+import app.metatron.discovery.domain.notebook.NotebookAPI;
+import app.metatron.discovery.domain.notebook.NotebookConnector;
+import app.metatron.discovery.domain.notebook.NotebookConnectorEventHandler;
+import app.metatron.discovery.domain.notebook.NotebookEventHandler;
+import app.metatron.discovery.domain.notebook.NotebookModel;
+import app.metatron.discovery.domain.notebook.NotebookModelEventHandler;
+import app.metatron.discovery.domain.notebook.NotebookModelHistory;
+import app.metatron.discovery.domain.notebook.connector.JupyterConnector;
+import app.metatron.discovery.domain.notebook.connector.ZeppelinConnector;
+import app.metatron.discovery.domain.tag.Tag;
+import app.metatron.discovery.domain.tag.TagDomain;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserEventHandler;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.Role;
+import app.metatron.discovery.domain.user.role.RoleEventHandler;
+import app.metatron.discovery.domain.user.role.RoleSet;
+import app.metatron.discovery.domain.user.role.RoleSetEventHandler;
+import app.metatron.discovery.domain.workbench.QueryEditor;
+import app.metatron.discovery.domain.workbench.QueryHistory;
+import app.metatron.discovery.domain.workbench.Workbench;
+import app.metatron.discovery.domain.workbench.WorkbenchEventHandler;
+import app.metatron.discovery.domain.workbook.DashBoard;
+import app.metatron.discovery.domain.workbook.DashBoardEventHandler;
+import app.metatron.discovery.domain.workbook.WorkBook;
+import app.metatron.discovery.domain.workbook.WorkBookEventHandler;
+import app.metatron.discovery.domain.workbook.widget.FilterWidget;
+import app.metatron.discovery.domain.workbook.widget.PageWidget;
+import app.metatron.discovery.domain.workbook.widget.TextWidget;
+import app.metatron.discovery.domain.workbook.widget.Widget;
+import app.metatron.discovery.domain.workbook.widget.WidgetEventHandler;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceEventHandler;
+import app.metatron.discovery.domain.workspace.folder.Folder;
+import app.metatron.discovery.domain.workspace.folder.FolderEventHandler;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS;
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
@@ -595,4 +621,14 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     return new RequestContextListener();
   }
 
+  @Autowired
+  OrganizationService organizationService;
+
+  @Bean
+  public AuthorityInterceptor authorityInterceptorBean() { return new AuthorityInterceptor(organizationService);}
+
+  @Bean
+  public MappedInterceptor authorityInterceptor() {
+    return new MappedInterceptor(new String[]{"/api/**"}, authorityInterceptorBean());
+  }
 }
