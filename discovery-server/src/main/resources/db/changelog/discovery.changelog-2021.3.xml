@@ -184,7 +184,7 @@
             <columnExists tableName="role_directory" columnName="org_code" />
             <not>
                 <sqlCheck expectedResult="0">
-                    SELECT COUNT(1) FROM role_set WHERE org_code IS NULL
+                    SELECT COUNT(1) FROM role_directory WHERE org_code IS NULL
                 </sqlCheck>
             </not>
         </preConditions>
@@ -201,7 +201,7 @@
             <columnExists tableName="activity_stream" columnName="org_code" />
             <not>
                 <sqlCheck expectedResult="0">
-                    SELECT COUNT(1) FROM role_set WHERE org_code IS NULL
+                    SELECT COUNT(1) FROM activity_stream WHERE org_code IS NULL
                 </sqlCheck>
             </not>
         </preConditions>
