@@ -361,6 +361,22 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
   } // function - toggleOptionsSelectComp
 
   /**
+   * time filter select box z-index 효과를 위한 overflow 조정
+   * @param {boolean} isShowOptions
+   */
+  public changeWidgetOverflow(isShowOptions: boolean) {
+    const $filterWidgetEl = $(this.filterWidget.nativeElement);
+    if(isShowOptions && 'WEEK' === this.filter['timeUnit']){
+      $filterWidgetEl.find('.wrap-time-filter').css({overflow:'visible'});
+      $filterWidgetEl.closest('.ddp-wrap-widget').css({overflow: 'visible'});
+      $filterWidgetEl.find('.ddp-dateinfo-view').css({overflow: 'visible'});
+    } else {
+      $filterWidgetEl.find('.wrap-time-filter').css({overflow:''});
+      $filterWidgetEl.closest('.ddp-wrap-widget').css({overflow: ''});
+      $filterWidgetEl.find('.ddp-dateinfo-view').css({overflow: ''});
+    }
+  } // function - changeWidgetOverflow
+  /**
    * Include Filter 값 선택
    * @param item
    */

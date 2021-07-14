@@ -53,7 +53,6 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   // UI 상 임시값 정의
   public lastIntervals = '';
 
-
   // 필터 변경 이벤트
   @Output()
   public changeEvent: EventEmitter<TimeRangeFilter> = new EventEmitter();
@@ -139,8 +138,6 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
    * @return {InclusionFilter}
    */
   public getData(): TimeDateFilter {
-    console.log('tiem-date-filter: getData');
-    console.log(this.targetFilter);
     return this.targetFilter;
   } // function - getData
 
