@@ -55,12 +55,48 @@ public class CommonLocalVariable {
      */
     String queryId;
 
+    String userId;
+
+    TenantAuthority TenantAuthority = new TenantAuthority();
+
     public String getQueryId() {
       return queryId == null ? "UNKNOWN" : queryId;
     }
 
     public void setQueryId(String queryId) {
       this.queryId = queryId;
+    }
+
+    public String getUserId() {
+      return userId;
+    }
+
+    public void setUserId(String userId) {
+      this.userId = userId;
+    }
+
+    public CommonLocalVariable.TenantAuthority getTenantAuthority() {
+      return TenantAuthority;
+    }
+
+    public void setTenantAuthority(CommonLocalVariable.TenantAuthority tenantAuthority) {
+      TenantAuthority = tenantAuthority;
+    }
+  }
+
+  public static class TenantAuthority{
+
+    /**
+     * Users OrgCode
+     */
+    String orgCode;
+
+    public String getOrgCode() {
+      return orgCode;
+    }
+
+    public void setOrgCode(String orgCode) {
+      this.orgCode = orgCode;
     }
   }
 }
