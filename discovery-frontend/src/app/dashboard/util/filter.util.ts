@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import * as _ from 'lodash';
 import {CommonUtil} from '@common/util/common.util';
 import {
   IntervalFilter,
@@ -46,7 +46,7 @@ import {TimeRelativeFilter, TimeRelativeTense} from '@domain/workbook/configurat
 
 import {TimezoneService} from '../../data-storage/service/timezone.service';
 import {DashboardUtil} from './dashboard.util';
-import * as _ from 'lodash';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
 declare let moment;
 
@@ -311,7 +311,7 @@ export class FilterUtil {
   public static convertToServerSpec(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
       const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
@@ -362,6 +362,7 @@ export class FilterUtil {
         keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
+      case 'time_single' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
       case 'time_list' :
@@ -401,7 +402,8 @@ export class FilterUtil {
   public static convertToServerSpecForDashboard(filter: Filter): Filter {
 
     // Time Range 필터의 타임 형식 설정
-    if (FilterUtil.isTimeRangeFilter(filter)) {
+    if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
+      // Time Single 필터
       const timeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
@@ -451,6 +453,7 @@ export class FilterUtil {
         keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timeZone'];
         break;
       case 'time_range' :
+      case 'time_single' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
       case 'time_list' :
@@ -627,7 +630,8 @@ export class FilterUtil {
     return ('time_all' === filter.type
       || 'time_list' === filter.type
       || 'time_range' === filter.type
-      || 'time_relative' === filter.type);
+      || 'time_relative' === filter.type
+      || 'time_single' === filter.type);
   } // function - isTimeFilter
 
   /**
@@ -683,6 +687,15 @@ export class FilterUtil {
   public static isTimeListFilter(filter: Filter): boolean {
     return filter.type === 'time_list';
   } // function - isTimeListFilter
+
+  /**
+   * Date(Single) Time Filter 여부
+   * @param filter
+   * @returns {boolean}
+   */
+  public static isTimeSingleFilter(filter: Filter): boolean{
+    return filter.type === 'time_single';
+  } // function - isTimeDateFilter
 
   /**
    * Relative 로 부터 Interval 정보 얻음 얻는다.
@@ -787,6 +800,26 @@ export class FilterUtil {
 
     return timeFilter;
   } // function - getTimeRangeFilter
+
+  /**
+   * TimeDateFilter 설정
+   * @param field
+   * @param timeUnit
+   * @param importanceType
+   */
+  public static getTimeDateFilter(field: Field, timeUnit?: TimeUnit, importanceType?: string): TimeDateFilter {
+    const timeFilter = new TimeDateFilter(field);
+    timeFilter.timeUnit = CommonUtil.isNullOrUndefined(timeUnit) ? TimeUnit.NONE : timeUnit;
+
+    (importanceType) && (timeFilter.ui.importanceType = importanceType);
+
+    if(!timeFilter.intervals){
+      timeFilter.valueDate = this.getDateTimeFormat(moment().toISOString(), timeUnit);
+      timeFilter.intervals = [timeFilter.valueDate + '/' + timeFilter.valueDate];
+    }
+
+    return timeFilter;
+  } // function - getTimeDateFilter
 
   /**
    * TimeRelativeFilter 설정

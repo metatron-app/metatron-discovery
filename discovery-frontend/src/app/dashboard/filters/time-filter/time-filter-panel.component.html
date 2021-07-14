@@ -143,7 +143,7 @@
               <li *ngIf="!isRelativeType">
                 <a href="javascript:">
                   <div class="ddp-data-result ddp-type">
-                    {{ isListType ? 'List' : 'Range' }} <em class="ddp-icon-view "></em>
+                    {{ isListType ? 'List' : ( isRangeType ? 'Range' : 'Single') }} <em class="ddp-icon-view "></em>
                   </div>
                   <span class="ddp-txt-data" title="Selection"><em class="ddp-icon-drop-select"></em>Selection</span>
                 </a>
@@ -154,6 +154,9 @@
                     </li>
                     <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">
                       <a href="javascript:"> Range <em class="ddp-icon-check"></em> </a>
+                    </li>
+                    <li (click)="setTimeSingleFilter()" [class.ddp-selected] = "isSingleType">
+                      <a href="javascript:"> Single <em class="ddp-icon-check"></em></a>
                     </li>
                   </ul>
                 </div>
@@ -245,6 +248,14 @@
         </app-time-range-filter>
       </div>
       <!-- // 특정 기간 선택 탭 영역 -->
+      <!-- 특정 날짜 선택 탭 영역 -->
+      <div *ngIf="isSingleType" class="ddp-ui-toggle-contents">
+        <app-time-date-filter
+          [mode]="'PANEL'" [filter]="filter" [dashboard]="dashboard"
+          (changeEvent)="changeFilterEvent($event)">
+        </app-time-date-filter>
+      </div>
+      <!-- // 특정 날짜 선택 탭 영역 -->
     </div>
     <!-- // 탭별 내용 영역 -->
   </div>

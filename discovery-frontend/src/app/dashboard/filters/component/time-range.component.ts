@@ -190,6 +190,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnC
     const maxTime: Date = this.compData.maxTime;
     const interval: TimeRange = this.compData.interval;
 
+
     // 경계값 설정 여부 확인
     if (interval.startDate === TimeRangeFilter.EARLIEST_DATETIME) {
       if( this.isWidgetMode ) {

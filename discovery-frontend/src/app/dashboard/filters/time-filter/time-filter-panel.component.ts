@@ -34,6 +34,8 @@ import {TimeUnitSelectResult} from '../component/timeUnit-select.component';
 import {TimeListFilterComponent} from './time-list-filter.component';
 import {TimeRelativeFilterComponent} from './time-relative-filter.component';
 import {TimeRangeFilterComponent} from './time-range-filter.component';
+import {TimeDateFilterComponent} from "./time-date-filter.component";
+import {TimeDateFilter} from "@domain/workbook/configurations/filter/time-date-filter";
 
 @Component({
   selector: 'time-filter-panel',
@@ -56,10 +58,14 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
   @ViewChild(TimeListFilterComponent)
   private _listComp: TimeListFilterComponent;
 
+  @ViewChild(TimeDateFilterComponent)
+  private _dateComp: TimeDateFilterComponent;
+
   // 임시 값을 저장하기 위한 변수
   private _tempRelativeFilter:TimeRelativeFilter;
   private _tempRangeFilter:TimeRangeFilter;
   private _tempListFilter:TimeListFilter;
+  private _tempSingleFilter:TimeDateFilter;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -76,6 +82,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
   public isRelativeType: boolean = false;         // Relative Time Filter
   public isRangeType: boolean = false;            // Range Time Filter
   public isListType: boolean = false;             // List Time Filter
+  public isSingleType: boolean = false;
 
   public dpContinuousList: string[] = ['Second', 'Minute', 'Hour', 'Day', 'Week', 'Month', 'Year', 'None'];
   public dpDiscontinuousList: any[] = [
@@ -172,6 +179,8 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
       case 'time_range' :
         this._rangeComp.setData(filter as TimeRangeFilter);
         break;
+      case 'time_single':
+        this._dateComp.setData(filter as TimeDateFilter);
     }
     this.filter = filter;
     this.safelyDetectChanges();
@@ -200,9 +209,12 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
    * TimeRangeFilter 설정
    */
   public setTimeRangeFilter() {
+    console.log('setTimeRangeFilter');
     if( this.isDashboardMode ) {
+      console.log('isDashboardMode');
       let cloneFilter = JSON.parse(JSON.stringify(this.filter));
       if( this._tempRangeFilter) {
+        console.log('_tempRangeFilter');
         cloneFilter = this._tempRangeFilter;
       } else {
         cloneFilter = FilterUtil.getTimeRangeFilter( cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType, this.dataSource );
@@ -211,10 +223,12 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     }
     else {
       if( this._tempRangeFilter) {
+        console.log('_tempRangeFilter2');
         this.filter = this._tempRangeFilter;
       } else {
         this.filter = FilterUtil.getTimeRangeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
       }
+      console.log('end of else ');
       ( this.originalFilter.ui.widgetId ) && ( this.filter.ui.widgetId = this.originalFilter.ui.widgetId );
       this.originalFilter = _.cloneDeep( this.filter );
       this._setStatus();
@@ -265,6 +279,30 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     this.originalFilter = _.cloneDeep( this.filter );
     this._setStatus();
   } // function - setTimeListFilter
+
+  /**
+   * TimeSingleFilter 설정
+   */
+  public setTimeSingleFilter() {
+    if (this.isDashboardMode) {
+      let cloneFilter = JSON.parse(JSON.stringify(this.filter));
+      if (this._tempSingleFilter) {
+        cloneFilter = this._tempSingleFilter;
+      } else {
+        cloneFilter = FilterUtil.getTimeDateFilter(cloneFilter.clzField, cloneFilter.timeUnit, cloneFilter.ui.importanceType);
+      }
+      this._updateFilter(cloneFilter);
+    } else {
+      if (this._tempSingleFilter){
+        this.filter = this._tempSingleFilter;
+      } else {
+        this.filter = FilterUtil.getTimeDateFilter(this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType);
+      }
+      (this.originalFilter.ui.widgetId) && (this.filter.ui.widgetId = this.originalFilter.ui.widgetId);
+      this.originalFilter = _.cloneDeep(this.filter);
+      this._setStatus();
+    }
+  }
 
   /**
    * 필터 삭제
@@ -404,6 +442,9 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
         case 'time_list' :
           this._tempListFilter = _.cloneDeep(filter as TimeListFilter);
           break;
+        case 'time_single' :
+          this._tempSingleFilter = _.cloneDeep(filter as TimeDateFilter);
+          break;
       }
     }
 
@@ -425,6 +466,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     this._tempRelativeFilter = null;
     this._tempRangeFilter = null;
     this._tempListFilter = null;
+    this._tempSingleFilter = null;
 
     this.filter = filter;
     this.originalFilter = _.cloneDeep(filter);
@@ -432,7 +474,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     this.setPanelData(filter);    // 패널에서 사용하는 데이터 설정
 
     if( this.dataSource )  {
-
       // 타임스탬프인지 판단
       if (this.field && this.field.type === 'TIMESTAMP' && this.field.role === FieldRole.TIMESTAMP) {
         this.isTimeStamp = true;
@@ -464,6 +505,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent<TimeF
     this.isRelativeType = FilterUtil.isTimeRelativeFilter(this.filter);
     this.isRangeType = FilterUtil.isTimeRangeFilter(this.filter);
     this.isListType = FilterUtil.isTimeListFilter(this.filter);
+    this.isSingleType = FilterUtil.isTimeSingleFilter(this.filter);
     this.safelyDetectChanges();
   } // function - _setStatus
 }

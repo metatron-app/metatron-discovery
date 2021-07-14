@@ -118,7 +118,8 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
       if (this.isLoaded && currFilter && (
         !prevFilter || prevFilter.field !== currFilter.field ||
         0 < _.difference(prevFilter.intervals, currFilter.intervals).length)) {
-        // this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+        // this.setData(filterChanges.currentValue, !filterChanges.firstChange)
+        // ;
         this.setData(filterChanges.currentValue);
       }
     }

@@ -346,7 +346,7 @@
               </div>
               <div class="ddp-box-down" [class.ddp-border-none]="0 === generalFilterListInPanel.length">
                 <div *ngFor="let item of generalFilterListInPanel;trackBy:filterListTrackByFn;let idx = index"
-                     (click)="openPanelGeneralFilter = idx;openPanelDefaultFilter = -1;"
+                     (click)="openPanelGeneralFilter = idx; openPanelDefaultFilter = -1;"
                      [class.ddp-selected]="idx === openPanelGeneralFilter"
                      class="ddp-wrap-divide ddp-dropdown" >
                   <time-filter-panel
