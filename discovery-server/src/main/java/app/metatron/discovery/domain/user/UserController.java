@@ -14,28 +14,11 @@
 
 package app.metatron.discovery.domain.user;
 
-import app.metatron.discovery.common.Mailer;
-import app.metatron.discovery.common.StatLogger;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.images.Image;
-import app.metatron.discovery.domain.images.ImageService;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupService;
-import app.metatron.discovery.domain.user.org.OrganizationService;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.domain.user.role.RoleService;
-import app.metatron.discovery.domain.user.role.RoleSetRepository;
-import app.metatron.discovery.domain.user.role.RoleSetService;
-import app.metatron.discovery.domain.workspace.Workspace;
-import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
-import app.metatron.discovery.domain.workspace.WorkspaceService;
-import app.metatron.discovery.util.AuthUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import com.querydsl.core.types.Predicate;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -58,11 +41,36 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
+import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.Mailer;
+import app.metatron.discovery.common.StatLogger;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.images.Image;
+import app.metatron.discovery.domain.images.ImageService;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.org.OrganizationService;
+import app.metatron.discovery.domain.user.role.RoleRepository;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.user.role.RoleSetRepository;
+import app.metatron.discovery.domain.user.role.RoleSetService;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceMemberRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.EMAIL;
 import static app.metatron.discovery.domain.user.UserService.DuplicatedTarget.USERNAME;
@@ -340,9 +348,8 @@ public class UserController {
     userRepository.save(user);
 
     // Add Organization
-    if (userProperties.getUseOrganization()) {
-      orgService.addMembers(user.getOrgCodes(), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
-    }
+    String orgCode = CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode();
+    orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
 
     mailer.sendSignUpRequestMail(user, false);
 
@@ -443,9 +450,8 @@ public class UserController {
     userRepository.save(user);
 
     // Add Organization
-    if (userProperties.getUseOrganization()) {
-      orgService.addMembers(user.getOrgCodes(), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
-    }
+    String orgCode = CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode();
+    orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
 
     if (!user.getPassMailer()) {
       mailer.sendSignUpApprovedMail(user, true, decryptedPassword);

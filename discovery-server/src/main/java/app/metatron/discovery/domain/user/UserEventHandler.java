@@ -14,6 +14,21 @@
 
 package app.metatron.discovery.domain.user;
 
+import com.google.common.collect.Lists;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.core.annotation.HandleAfterSave;
+import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
+import org.springframework.data.rest.core.annotation.HandleBeforeSave;
+import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.util.List;
+
+import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.Mailer;
 import app.metatron.discovery.domain.images.Image;
 import app.metatron.discovery.domain.images.ImageRepository;
@@ -21,13 +36,6 @@ import app.metatron.discovery.domain.user.group.GroupService;
 import app.metatron.discovery.domain.user.org.OrganizationService;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-
-import java.util.List;
 
 /**
  * Created by kyungtaak on 2016. 5. 14..
@@ -72,10 +80,8 @@ public class UserEventHandler {
     }
 
     // Add Organization
-    if (userProperties.getUseOrganization()) {
-      orgService.addMembers(user.getOrgCodes(), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
-    }
-
+    String orgCode = CommonLocalVariable.getLocalVariable().getTenantAuthority().getOrgCode();
+    orgService.addMembers(Lists.newArrayList(orgCode), user.getUsername(), user.getFullName(), DirectoryProfile.Type.USER);
   }
 
   @HandleBeforeSave

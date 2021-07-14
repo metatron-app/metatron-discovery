@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog dbchangelog-3.8.xsd">
+    <!-- add Member to Default and Metatron Org -->
+    <changeSet author="sohncw" id="1625108220403-1">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="user_org_member"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(1) FROM user_org_member
+            </sqlCheck>
+        </preConditions>
+        <insert tableName="user_org_member">
+            <column name="member_id" value="admin"/>
+            <column name="member_name" value="Administrator"/>
+            <column name="member_type" value="USER"/>
+            <column name="org_id" value="ID_ORG_DEFAULT"/>
+        </insert>
+        <insert tableName="user_org_member">
+            <column name="member_id" value="metatron"/>
+            <column name="member_name" value="Metatron"/>
+            <column name="member_type" value="USER"/>
+            <column name="org_id" value="ID_ORG_DEFAULT"/>
+        </insert>
+        <insert tableName="user_org_member">
+            <column name="member_id" value="polaris"/>
+            <column name="member_name" value="Polaris"/>
+            <column name="member_type" value="USER"/>
+            <column name="org_id" value="ID_ORG_DEFAULT"/>
+        </insert>
+        <insert tableName="user_org_member">
+            <column name="member_id" value="guest"/>
+            <column name="member_name" value="Guest"/>
+            <column name="member_type" value="USER"/>
+            <column name="org_id" value="ID_ORG_DEFAULT"/>
+        </insert>
+        <insert tableName="user_org_member">
+            <column name="member_id" value="ID_GROUP_ADMIN"/>
+            <column name="member_name" value="System-Admin"/>
+            <column name="member_type" value="GROUP"/>
+            <column name="org_id" value="ID_ORG_DEFAULT"/>
+        </insert>
+        <insert tableName="user_org_member">
+            <column name="member_id" value="ID_GROUP_DATA_MANAGER"/>
+            <column name="member_name" value="Data-Manager"/>
+            <column name="member_type" value="GROUP"/>
+            <column name="org_id" value="ID_ORG_DEFAULT"/>
+        </insert>
+        <insert tableName="user_org_member">
+            <column name="member_id" value="ID_GROUP_GENERAL_USER"/>
+            <column name="member_name" value="General-User"/>
+            <column name="member_type" value="GROUP"/>
+            <column name="org_id" value="ID_ORG_DEFAULT"/>
+        </insert>
+    </changeSet>
+
+    <!-- add org_code column to datasource -->
+    <changeSet author="sohncw" id="1625108220403-2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="datasource" columnName="org_code" />
+            </not>
+        </preConditions>
+        <addColumn tableName="datasource">
+            <column name="org_code" type="${varchar.type}(20)" />
+        </addColumn>
+    </changeSet>
+
+    <!-- add org_code column to dataconnection -->
+    <changeSet author="sohncw" id="1625108220403-3">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="dataconnection" columnName="org_code" />
+            </not>
+        </preConditions>
+        <addColumn tableName="dataconnection">
+            <column name="org_code" type="${varchar.type}(20)" />
+        </addColumn>
+    </changeSet>
+
+    <!-- add org_code column to role_set -->
+    <changeSet author="sohncw" id="1625108220403-4">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="role_set" columnName="org_code" />
+            </not>
+        </preConditions>
+        <addColumn tableName="role_set">
+            <column name="org_code" type="${varchar.type}(20)" />
+        </addColumn>
+    </changeSet>
+
+    <!-- add org_code column to role_directory -->
+    <changeSet author="sohncw" id="1625108220403-5">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="role_directory" columnName="org_code" />
+            </not>
+        </preConditions>
+        <addColumn tableName="role_directory">
+            <column name="org_code" type="${varchar.type}(20)" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="sohncw" id="1625108220403-6">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="role_directory_AUD" columnName="org_code" />
+            </not>
+        </preConditions>
+        <addColumn tableName="role_directory_AUD">
+            <column name="org_code" type="${varchar.type}(20)" />
+            <column name="orgCode_MOD" type="${boolean.type}" />
+        </addColumn>
+    </changeSet>
+
+    <!-- add org_code column to activity_stream -->
+    <changeSet author="sohncw" id="1625108220403-7">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="activity_stream" columnName="org_code" />
+            </not>
+        </preConditions>
+        <addColumn tableName="activity_stream">
+            <column name="org_code" type="${varchar.type}(20)" />
+        </addColumn>
+    </changeSet>
+
+    <!-- add org_code value to datasource -->
+    <changeSet author="sohncw" id="1626152181130-1">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="datasource"/>
+            <columnExists tableName="datasource" columnName="org_code" />
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(1) FROM datasource WHERE org_code IS NULL
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <update tableName="datasource">
+            <column name="org_code" value="DEFAULT_ORG"/>
+            <where>org_code IS NULL</where>
+        </update>
+    </changeSet>
+
+    <!-- add org_code value to dataconnection -->
+    <changeSet author="sohncw" id="1626152181130-2">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="dataconnection"/>
+            <columnExists tableName="dataconnection" columnName="org_code" />
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(1) FROM dataconnection WHERE org_code IS NULL
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <update tableName="dataconnection">
+            <column name="org_code" value="DEFAULT_ORG"/>
+            <where>org_code IS NULL</where>
+        </update>
+    </changeSet>
+
+    <!-- add org_code value to role_set -->
+    <changeSet author="sohncw" id="1626152181130-3">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="role_set"/>
+            <columnExists tableName="role_set" columnName="org_code" />
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(1) FROM role_set WHERE org_code IS NULL
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <update tableName="role_set">
+            <column name="org_code" value="DEFAULT_ORG"/>
+            <where>org_code IS NULL</where>
+        </update>
+    </changeSet>
+
+    <!-- add org_code value to role_directory -->
+    <changeSet author="sohncw" id="1626152181130-4">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="role_directory"/>
+            <columnExists tableName="role_directory" columnName="org_code" />
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(1) FROM role_directory WHERE org_code IS NULL
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <update tableName="role_directory">
+            <column name="org_code" value="DEFAULT_ORG"/>
+            <where>org_code IS NULL</where>
+        </update>
+    </changeSet>
+
+    <!-- add org_code value to activity_stream -->
+    <changeSet author="sohncw" id="1626152181130-5">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="activity_stream"/>
+            <columnExists tableName="activity_stream" columnName="org_code" />
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(1) FROM activity_stream WHERE org_code IS NULL
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <update tableName="activity_stream">
+            <column name="org_code" value="DEFAULT_ORG"/>
+            <where>org_code IS NULL</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>

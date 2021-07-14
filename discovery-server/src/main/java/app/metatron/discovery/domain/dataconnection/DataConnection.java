@@ -33,7 +33,7 @@ import javax.validation.constraints.Size;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
-import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.AbstractTenantEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.workbench.Workbench;
@@ -42,7 +42,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformati
 
 @Entity
 @Table(name = "dataconnection")
-public class DataConnection extends AbstractHistoryEntity implements MetatronDomain<String>, JdbcConnectInformation {
+public class DataConnection extends AbstractTenantEntity implements MetatronDomain<String>, JdbcConnectInformation {
 
   @Id
   @GeneratedValue(generator = "uuid")
