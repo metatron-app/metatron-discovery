@@ -33,6 +33,7 @@ import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {TimeRange, TimeRangeData} from '../component/time-range.component';
+import {FilterUtil} from "../../util/filter.util";
 
 @Component({
   selector: 'app-time-range-filter',
@@ -275,10 +276,13 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
     if (this.isLatestTime) return;
 
     // 날짜 추가
-    const item: TimeRange = new TimeRange(this.rangeBoundary.minTime, this.rangeBoundary.maxTime);
+    const item: TimeRange = new TimeRange(
+      FilterUtil.getDateTimeFormat(this.rangeBoundary.minTime, filter.timeUnit),
+      FilterUtil.getDateTimeFormat(this.rangeBoundary.maxTime, filter.timeUnit)
+    );
+
     this.timeRangeList.push(item);
     filter.intervals.push(item.toInterval());
-
     // 변경사항 전파
     this._broadcastChange();
   } // function - addIntervalRange

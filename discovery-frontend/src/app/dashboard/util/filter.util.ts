@@ -409,12 +409,12 @@ export class FilterUtil {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
           const arrInterval: any[] = item.split('/');
 
-          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-            arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
-          }
-          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-            arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
-          }
+          // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
+          //   arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
+          // }
+          // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
+          //   arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
+          // }
 
           timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
         });
@@ -503,8 +503,8 @@ export class FilterUtil {
       case TimeUnit.DAY:
         return moment(date).format('YYYY-MM-DD');
       case TimeUnit.WEEK:
-        // return moment(date).format('YYYY-WW');
-        return (date as string);
+        return moment(date).format('gggg-W');
+        // return (date as string);
       case TimeUnit.MONTH:
         return moment(date).format('YYYY-MM');
       case TimeUnit.QUARTER:
@@ -792,9 +792,9 @@ export class FilterUtil {
       && ds && ds.summary
       && ds.summary.ingestionMinTime && ds.summary.ingestionMaxTime) {
       (timeFilter as TimeRangeFilter).intervals = [
-        FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, TimeUnit.SECOND)
+        FilterUtil.getDateTimeFormat(ds.summary.ingestionMinTime, timeUnit)
         + '/'
-        + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, TimeUnit.SECOND)
+        + FilterUtil.getDateTimeFormat(ds.summary.ingestionMaxTime, timeUnit)
       ];
     }
 

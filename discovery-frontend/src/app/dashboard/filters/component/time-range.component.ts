@@ -33,6 +33,7 @@ import {AbstractComponent} from '@common/component/abstract.component';
 import {PickerSettings} from '@domain/common/datepicker.settings';
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
+import {FilterUtil} from "../../util/filter.util";
 
 declare let moment: any;
 declare let $: any;
@@ -408,6 +409,10 @@ export class TimeRange {
 
   public toInterval() {
     return this.startDate + '/' + this.endDate;
+  }
+
+  public toIntervalByTimeUnit(timeUnit: TimeUnit){
+    return FilterUtil.getDateTimeFormat(this.startDate, timeUnit) + '/' + FilterUtil.getDateTimeFormat(this.endDate, timeUnit);
   }
 }
 
