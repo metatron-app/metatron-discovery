@@ -167,9 +167,7 @@
       <app-time-range-filter
         *ngIf="isRangeTypeTimeFilter"
         [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
-        (changeEvent)="changeFilterEvent($event)"
-        (mouseover)="changeWidgetOverflow(true)"
-        (mouseout)="changeWidgetOverflow(false)">
+        (changeEvent)="changeFilterEvent($event)">
       </app-time-range-filter>
       <!-- // Range Time Filter -->
 
@@ -177,9 +175,7 @@
       <app-time-date-filter
         *ngIf="isSingleTypeTimeFilter"
         [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
-        (changeEvent)="changeFilterEvent($event)"
-        (mouseover)="changeWidgetOverflow(true)"
-        (mouseout)="changeWidgetOverflow(false)">
+        (changeEvent)="changeFilterEvent($event)">
       </app-time-date-filter>
       <!-- // Range Time Filter -->
 

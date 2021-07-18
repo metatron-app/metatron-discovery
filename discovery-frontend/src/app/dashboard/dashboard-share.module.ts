@@ -31,10 +31,10 @@ import { TimeRelativeFilterComponent } from './filters/time-filter/time-relative
 import { TimeListFilterComponent } from './filters/time-filter/time-list-filter.component';
 import { ConfigureFiltersTimeComponent } from './filters/time-filter/configure-filters-time.component';
 import { TimeFilterPanelComponent } from './filters/time-filter/time-filter-panel.component';
+import { TimeDateFilterComponent } from './filters/time-filter/time-date-filter.component';
 import { TimeUnitSelectComponent } from './filters/component/timeUnit-select.component';
 import { TimeRangeComponent } from './filters/component/time-range.component';
-import {TimeDateFilterComponent} from "./filters/time-filter/time-date-filter.component";
-import {TimeDateComponent} from "./filters/component/time-date.component";
+import {TimeDateComponent} from './filters/component/time-date.component';
 
 @NgModule({
   imports: [

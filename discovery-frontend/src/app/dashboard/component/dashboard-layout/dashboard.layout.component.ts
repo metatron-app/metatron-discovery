@@ -66,6 +66,7 @@ import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
 import {IntervalFilter} from '@domain/workbook/configurations/filter/interval-filter';
 import {CustomField} from '@domain/workbook/configurations/field/custom-field';
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {FilterWidget, FilterWidgetConfiguration} from '@domain/dashboard/widget/filter-widget';
 import {FilterUtil} from '../../util/filter.util';
 import {DashboardUtil} from '../../util/dashboard.util';
@@ -75,6 +76,7 @@ import {AbstractDashboardComponent} from '../../abstract.dashboard.component';
 import {DashboardWidgetComponent} from './dashboard.widget.component';
 import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
 
+declare let moment;
 declare let GoldenLayout: any;
 
 export abstract class DashboardLayoutComponent extends AbstractDashboardComponent implements OnInit, OnDestroy {
@@ -109,6 +111,7 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
   public dashboard: Dashboard;
 
   public boardUtil = DashboardUtil;
+  public filterUtil = FilterUtil;
 
   // 대시보드 로딩 표시 여부
   public isShowDashboardLoading: boolean = false;
@@ -1266,6 +1269,23 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
                 widgetConf.filter[key] = widgetConf[key];
               });
             }
+            if (this.filterUtil.isTimeRangeFilter(widgetConf.filter)) {
+              const rangeFilter = widgetConf.filter as TimeRangeFilter;
+              if( TimeUnit.WEEK === rangeFilter.timeUnit ) {
+                widgetConf.filter['intervals'] = rangeFilter.intervals.map(item => {
+                  const arrInterval: any[] = item.split('/');
+                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]
+                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[0])) {
+                    arrInterval[0] = moment(arrInterval[0]).format('gggg-W');
+                  }
+                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]
+                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[1])) {
+                    arrInterval[1] = moment(arrInterval[1]).format('gggg-W');
+                  }
+                  return arrInterval[0] + '/' + arrInterval[1];
+                });
+              }
+            }
           }
         });
 
@@ -1279,6 +1299,25 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             }
             return acc;
           }, []);
+          boardInfo.configuration.filters.forEach( filter => {
+            if (this.filterUtil.isTimeRangeFilter(filter)) {
+              const rangeFilter = filter as TimeRangeFilter;
+              if( TimeUnit.WEEK === rangeFilter.timeUnit ) {
+                filter['intervals'] = rangeFilter.intervals.map(item => {
+                  const arrInterval: any[] = item.split('/');
+                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]
+                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[0])) {
+                    arrInterval[0] = moment(arrInterval[0]).format('gggg-W');
+                  }
+                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]
+                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[1])) {
+                    arrInterval[1] = moment(arrInterval[1]).format('gggg-W');
+                  }
+                  return arrInterval[0] + '/' + arrInterval[1];
+                });
+              }
+            }
+          });
         }
 
         // Updating information about deleted dataSources

@@ -26,7 +26,7 @@ import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component
 import { TimeListFilterComponent } from './time-list-filter.component';
 import { TimeRelativeFilterComponent } from './time-relative-filter.component';
 import { TimeRangeFilterComponent } from './time-range-filter.component';
-import {TimeDateFilterComponent} from "./time-date-filter.component";
+import {TimeDateFilterComponent} from './time-date-filter.component';
 
 @Component({
   selector: 'app-config-filter-time',

@@ -60,8 +60,6 @@ import {
 import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
 import {DIRECTION} from '@domain/workbook/configurations/sort';
 
-declare let moment;
-
 @Component({
   selector: 'filter-widget',
   templateUrl: './filter-widget.component.html',
@@ -211,6 +209,14 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
             this._candidate(this.filter);
           }
         }
+      })
+    );
+
+    // 필터 콤보박스 옵션 표시 여부
+    this.subscriptions.push(
+      this.broadCaster.on<any>('TIME_DATE_SHOW_SELECT_OPTS').subscribe((data) => {
+        this.toggleOptionsSelectComp(data.isShow);
+        this.changeWidgetOverflow(data.isShow);
       })
     );
 
@@ -376,6 +382,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent<FilterWidget>
       $filterWidgetEl.find('.ddp-dateinfo-view').css({overflow: ''});
     }
   } // function - changeWidgetOverflow
+
   /**
    * Include Filter 값 선택
    * @param item

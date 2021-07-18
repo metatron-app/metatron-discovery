@@ -107,14 +107,26 @@ export class FilterUtil {
           filter['panelContents'] = intervals.map(item => {
             const arrInterval: any[] = item.split('/');
 
-            if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-              arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
-            }
-            if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-              arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
-            }
+            // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
+            //   arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
+            // }
+            // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
+            //   arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
+            // }
 
             return arrInterval[0] + '/' + arrInterval[1];
+          });
+          filter['panelContents'] = filter['panelContents'].join('<br>');
+        } else {
+          filter['panelContents'] = '(No time filtering)';
+        }
+      } else if (FilterUtil.isTimeSingleFilter(filter)) {
+        const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
+        const intervals: string[] = timeRangeFilter.intervals;
+        if (intervals && 0 < intervals.length) {
+          filter['panelContents'] = intervals.map(item => {
+            const arrInterval: any[] = item.split('/');
+            return arrInterval[0];
           });
           filter['panelContents'] = filter['panelContents'].join('<br>');
         } else {
@@ -314,20 +326,30 @@ export class FilterUtil {
     if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
       const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
-        timeRangeFilter.intervals.forEach((item: string, idx: number) => {
-          const arrInterval: any[] = item.split('/');
-
-          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-            arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
-          }
-          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-            arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
-          }
-
-          timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
-        });
+        // timeRangeFilter.intervals.forEach((item: string, idx: number) => {
+        //   const arrInterval: any[] = item.split('/');
+        //
+        //   if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
+        //     arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
+        //   }
+        //   if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
+        //     arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
+        //   }
+        //
+        //   timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
+        // });
         // 서버에서 quarter 에 대한 필터링을 제공하지 않기 때문에 강제적으로 Month로 변경함 ( Selection 필터를 위함 )
         (TimeUnit.QUARTER === timeRangeFilter.timeUnit) && (timeRangeFilter.timeUnit = TimeUnit.MONTH);
+
+        if(FilterUtil.isTimeSingleFilter(timeRangeFilter) && TimeUnit.WEEK === timeRangeFilter.timeUnit) {
+          filter.type = 'time_range'; // 차트 정보 조회 시 필터를 range로 변경하기 임시로 타입을 변경함
+          (filter as TimeRangeFilter).intervals.forEach((item: string, idx: number) => {
+            const arrInterval: any[] = item.split('/');
+            const arrEndTime = moment( arrInterval[1], 'gggg-w' ).add( 1, 'w' ).format( 'gggg-w' );
+            timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
+          });
+        }
+
       }
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {

@@ -1,4 +1,5 @@
-import {AbstractComponent} from "@common/component/abstract.component";
+import * as _ from 'lodash';
+import {AbstractComponent} from '@common/component/abstract.component';
 import {
   Component,
   ElementRef, EventEmitter, Injector,
@@ -9,12 +10,11 @@ import {
   SimpleChange,
   SimpleChanges,
   ViewChild
-} from "@angular/core";
-import {TimeUnit} from "@domain/workbook/configurations/field/timestamp-field";
-import {CommonUtil} from "@common/util/common.util";
-import {PickerSettings} from "@domain/common/datepicker.settings";
-import * as _ from "lodash";
-import {EventBroadcaster} from "@common/event/event.broadcaster";
+} from '@angular/core';
+import {TimeUnit} from '@domain/workbook/configurations/field/timestamp-field';
+import {CommonUtil} from '@common/util/common.util';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {PickerSettings} from '@domain/common/datepicker.settings';
 
 declare let moment: any;
 declare let $: any;
@@ -48,14 +48,12 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   @Input('initial')
   public compData: TimeDateData;
 
-
   @Output()
   public onDateChange: EventEmitter<any> = new EventEmitter();
 
   public comboList: ComboItem[] = [];
   public dateComboIdx: number = 0;
   public selectedDateComboItem: ComboItem;
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -136,10 +134,17 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
     this.onDateChange.emit(this._getTimeDate());
   } // function - onSelectComboItem
 
+  /**
+   * 콤보박스 표시 여부
+   * @param {boolean} isShow
+   */
+  public onToggleSelectOptions(isShow: boolean) {
+    this.broadCaster.broadcast('TIME_DATE_SHOW_SELECT_OPTS', { isShow : isShow });
+  } // func - onToggleSelectOptions
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- | Private Method
- |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * DatePicker 설정

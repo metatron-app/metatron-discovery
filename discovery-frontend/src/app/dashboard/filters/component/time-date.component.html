@@ -27,6 +27,7 @@
             [array]="comboList"
             [defaultIndex]="dateComboIdx"
             [viewKey]="'label'"
+            (beforeShowSelectedList)="onToggleSelectOptions($event)"
             (onSelected)="onSelectComboItem($event)">
           </component-select>
         </div>

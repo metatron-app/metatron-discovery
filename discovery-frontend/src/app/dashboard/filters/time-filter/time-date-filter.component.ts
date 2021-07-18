@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
-import {AbstractFilterPopupComponent} from "../abstract-filter-popup.component";
+import moment from 'moment';
+
 import {
   AfterViewInit,
   Component,
@@ -12,14 +13,13 @@ import {
   OnInit,
   Output, SimpleChange,
   SimpleChanges,
-} from "@angular/core";
-import {EventBroadcaster} from "@common/event/event.broadcaster";
-import {TimeRangeFilter} from "@domain/workbook/configurations/filter/time-range-filter";
-import {TimeDateFilter} from "@domain/workbook/configurations/filter/time-date-filter";
-import {Dashboard} from "@domain/dashboard/dashboard";
-import {TimeDate} from "../component/time-date.component";
-import moment from "moment";
-
+} from '@angular/core';
+import {EventBroadcaster} from '@common/event/event.broadcaster';
+import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
+import {Dashboard} from '@domain/dashboard/dashboard';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
+import {TimeDate} from '../component/time-date.component';
 
 @Component({
   selector: 'app-time-date-filter',
@@ -120,7 +120,6 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   /**
    * 강제 데이터 설정
    * @param {TimeRangeFilter} filter
-   * @param {boolean} isBroadcast
    */
   public setData(filter: TimeDateFilter) {
     if (!this._isRunningCandidate) {

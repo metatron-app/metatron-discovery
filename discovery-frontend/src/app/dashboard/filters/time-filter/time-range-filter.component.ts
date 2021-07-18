@@ -31,9 +31,9 @@ import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {Dashboard} from '@domain/dashboard/dashboard';
 import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
+import {FilterUtil} from '../../util/filter.util';
 import {TimeRange, TimeRangeData} from '../component/time-range.component';
-import {FilterUtil} from "../../util/filter.util";
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 
 @Component({
   selector: 'app-time-range-filter',

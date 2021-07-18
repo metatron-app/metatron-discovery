@@ -1,6 +1,6 @@
-import {TimeFilter} from "@domain/workbook/configurations/filter/time-filter";
-import {Field} from "@domain/datasource/datasource";
-import _ from "lodash";
+import {TimeFilter} from '@domain/workbook/configurations/filter/time-filter';
+import {Field} from '@domain/datasource/datasource';
+import _ from 'lodash';
 
 export class TimeDateFilter extends TimeFilter {
 
