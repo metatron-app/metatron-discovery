@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import moment from 'moment';
 
 import {
   AfterViewInit,
@@ -18,6 +17,8 @@ import {EventBroadcaster} from '@common/event/event.broadcaster';
 import {TimeRangeFilter} from '@domain/workbook/configurations/filter/time-range-filter';
 import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 import {Dashboard} from '@domain/dashboard/dashboard';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {FilterUtil} from '../../util/filter.util';
 import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {TimeDate} from '../component/time-date.component';
 
@@ -62,7 +63,8 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected broadCaster: EventBroadcaster,
+  constructor(private datasourceService: DatasourceService,
+              protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -126,9 +128,17 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
       this._isRunningCandidate = true;
       this.loadingShow();
       const cloneFilter: TimeDateFilter = _.cloneDeep(filter);
-      this.targetFilter = this._setDateFilter(cloneFilter);
-      this._isRunningCandidate = false;
-      this.loadingHide();
+
+      this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
+        this.targetFilter = this._setDateFilter(result, cloneFilter);
+        this.safelyDetectChanges();
+
+        this._isRunningCandidate = false;
+        this.loadingHide();
+      }).catch(err => {
+        this._isRunningCandidate = false;
+        this.commonExceptionHandler(err);
+      });
     }
   } // function - setData
 
@@ -178,9 +188,9 @@ export class TimeDateFilterComponent extends AbstractFilterPopupComponent implem
     }
   }
 
-  private _setDateFilter(targetFilter: TimeDateFilter): TimeDateFilter{
-    if(!targetFilter.intervals){
-      targetFilter.valueDate = moment().toISOString();
+  private _setDateFilter(result: { minTime: Date, maxTime: Date }, targetFilter: TimeDateFilter): TimeDateFilter{
+    if(!targetFilter.intervals) {
+      targetFilter.valueDate = FilterUtil.getDateTimeFormat(result.minTime, targetFilter.timeUnit );
       targetFilter.intervals = [targetFilter.valueDate + '/' + targetFilter.valueDate];
     } else {
       const arrInterval: any[] = targetFilter.intervals[0].split('/');

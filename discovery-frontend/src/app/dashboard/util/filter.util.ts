@@ -106,14 +106,12 @@ export class FilterUtil {
         if (intervals && 0 < intervals.length) {
           filter['panelContents'] = intervals.map(item => {
             const arrInterval: any[] = item.split('/');
-
-            // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-            //   arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
-            // }
-            // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-            //   arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
-            // }
-
+            if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
+              arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
+            }
+            if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
+              arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
+            }
             return arrInterval[0] + '/' + arrInterval[1];
           });
           filter['panelContents'] = filter['panelContents'].join('<br>');
@@ -326,30 +324,50 @@ export class FilterUtil {
     if (FilterUtil.isTimeRangeFilter(filter) || FilterUtil.isTimeSingleFilter(filter)) {
       const timeRangeFilter: TimeRangeFilter = filter as TimeRangeFilter;
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
-        // timeRangeFilter.intervals.forEach((item: string, idx: number) => {
-        //   const arrInterval: any[] = item.split('/');
-        //
-        //   if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-        //     arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
-        //   }
-        //   if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-        //     arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
-        //   }
-        //
-        //   timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
-        // });
+        timeRangeFilter.intervals.forEach((item: string, idx: number) => {
+          const arrInterval: any[] = item.split('/');
+
+          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
+            arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
+          }
+          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
+            arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
+          }
+
+          timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
+        });
         // 서버에서 quarter 에 대한 필터링을 제공하지 않기 때문에 강제적으로 Month로 변경함 ( Selection 필터를 위함 )
         (TimeUnit.QUARTER === timeRangeFilter.timeUnit) && (timeRangeFilter.timeUnit = TimeUnit.MONTH);
 
-        if(FilterUtil.isTimeSingleFilter(timeRangeFilter) && TimeUnit.WEEK === timeRangeFilter.timeUnit) {
+        if(FilterUtil.isTimeSingleFilter(timeRangeFilter)) {
           filter.type = 'time_range'; // 차트 정보 조회 시 필터를 range로 변경하기 임시로 타입을 변경함
-          (filter as TimeRangeFilter).intervals.forEach((item: string, idx: number) => {
-            const arrInterval: any[] = item.split('/');
-            const arrEndTime = moment( arrInterval[1], 'gggg-w' ).add( 1, 'w' ).format( 'gggg-w' );
-            timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
-          });
+          // (filter as TimeRangeFilter).intervals.forEach((item: string, idx: number) => {
+          //   const arrInterval: any[] = item.split('/');
+          //   let arrEndTime;
+          //   switch (timeRangeFilter.timeUnit) {
+          //     case TimeUnit.SECOND:
+          //       break;
+          //     case TimeUnit.MINUTE:
+          //       break;
+          //     case TimeUnit.HOUR:
+          //       break;
+          //     case TimeUnit.DAY:
+          //       break;
+          //     case TimeUnit.WEEK:
+          //       arrEndTime = moment( arrInterval[1], 'gggg-w' ).add( 1, 'w' ).format( 'gggg-w' );
+          //       timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
+          //       break;
+          //     case TimeUnit.MONTH:
+          //       arrEndTime = moment( arrInterval[1], 'YYYY-MM' ).add( 1, 'M' ).format( 'YYYY-MM' );
+          //       timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrEndTime;
+          //       break;
+          //     case TimeUnit.QUARTER:
+          //       break;
+          //     case TimeUnit.YEAR:
+          //       break;
+          //   }
+          // });
         }
-
       }
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
@@ -430,14 +448,12 @@ export class FilterUtil {
       if (timeRangeFilter.intervals && 0 < timeRangeFilter.intervals.length) {
         timeRangeFilter.intervals.forEach((item: string, idx: number) => {
           const arrInterval: any[] = item.split('/');
-
-          // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-          //   arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
-          // }
-          // if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-          //   arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
-          // }
-
+          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
+            arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
+          }
+          if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
+            arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
+          }
           timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
         });
       }
@@ -517,18 +533,42 @@ export class FilterUtil {
     }
     switch (timeUnit) {
       case TimeUnit.SECOND:
-        return moment(date).format('YYYY-MM-DD HH:mm:ss');
+        if( date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD HH:mm:ss');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.MINUTE:
-        return moment(date).format('YYYY-MM-DD HH:mm');
+        if( date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD HH:mm');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.HOUR:
-        return moment(date).format('YYYY-MM-DD HH');
+        if( date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD HH');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.DAY:
-        return moment(date).format('YYYY-MM-DD');
+        if (date.constructor !== String || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM-DD');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.WEEK:
-        return moment(date).format('gggg-W');
+        if (date.constructor !== String || !/^[0-9]{4}-[0-9]{1,2}$/.test(date) ) {
+          return moment(date).format('gggg-W');
+        } else {
+          return ( date as string );
+        }
         // return (date as string);
       case TimeUnit.MONTH:
-        return moment(date).format('YYYY-MM');
+        if (date.constructor !== String || !/^[0-9]{4}-[0-9]{2}$/.test(date) ) {
+          return moment(date).format('YYYY-MM');
+        } else {
+          return ( date as string );
+        }
       case TimeUnit.QUARTER:
         if (date instanceof Date) {
           return moment(date).format('YYYY-MM');
@@ -546,7 +586,11 @@ export class FilterUtil {
           return strYear + '-' + strQuarter;
         }
       case TimeUnit.YEAR:
-        return moment(date).format('YYYY');
+        if (date.constructor !== String || !/^[0-9]{4}$/.test(date) ) {
+          return moment(date).format('YYYY');
+        } else {
+          return ( date as string );
+        }
       default:
         return moment(date).format('YYYY-MM-DD HH:mm:ss');
     }
@@ -835,10 +879,10 @@ export class FilterUtil {
 
     (importanceType) && (timeFilter.ui.importanceType = importanceType);
 
-    if(!timeFilter.intervals){
-      timeFilter.valueDate = this.getDateTimeFormat(moment().toISOString(), timeUnit);
-      timeFilter.intervals = [timeFilter.valueDate + '/' + timeFilter.valueDate];
-    }
+    // if(!timeFilter.intervals){
+    //   timeFilter.valueDate = this.getDateTimeFormat(moment().toISOString(), timeUnit);
+    //   timeFilter.intervals = [timeFilter.valueDate + '/' + timeFilter.valueDate];
+    // }
 
     return timeFilter;
   } // function - getTimeDateFilter

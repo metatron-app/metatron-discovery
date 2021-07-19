@@ -75,6 +75,7 @@ import {DatasourceService} from '../../../datasource/service/datasource.service'
 import {AbstractDashboardComponent} from '../../abstract.dashboard.component';
 import {DashboardWidgetComponent} from './dashboard.widget.component';
 import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
+import {TimeDateFilter} from '@domain/workbook/configurations/filter/time-date-filter';
 
 declare let moment;
 declare let GoldenLayout: any;
@@ -677,6 +678,44 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
     }
   } // function - _bootstrapWidgetHeaderComponent
 
+  /**
+   * 날짜 변환
+   * @param filter
+   * @private
+   */
+  private _convertDateTimeFormat(filter: TimeRangeFilter|TimeDateFilter): string[] {
+    return filter.intervals.map(item => {
+      const arrInterval: any[] = item.split('/');
+      const startDate = arrInterval[0].replace('.000Z', '').replace('T', ' ');
+      if (TimeRangeFilter.EARLIEST_DATETIME !== startDate && TimeRangeFilter.LATEST_DATETIME !== startDate) {
+        // if( ( TimeUnit.YEAR === filter.timeUnit && !/^[0-9]{4}$/.test(startDate) )
+        //   || ( TimeUnit.MONTH === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.WEEK === filter.timeUnit && !/^[0-9]{4}-[0-9]{1,2}$/.test(startDate) )
+        //   || ( TimeUnit.DAY === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.HOUR === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.MINUTE === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}$/.test(startDate) )
+        //   || ( TimeUnit.SECOND === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(startDate) )) {
+        //   arrInterval[0] = FilterUtil.getDateTimeFormat(startDate, filter.timeUnit, true);
+        // }
+        arrInterval[0] = FilterUtil.getDateTimeFormat(startDate, filter.timeUnit, true);
+      }
+      const endDate = arrInterval[1].replace('.000Z', '').replace('T', ' ');
+      if (TimeRangeFilter.EARLIEST_DATETIME !== endDate && TimeRangeFilter.LATEST_DATETIME !== endDate) {
+        // if( ( TimeUnit.YEAR === filter.timeUnit && !/^[0-9]{4}$/.test(endDate) )
+        //   || ( TimeUnit.MONTH === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.WEEK === filter.timeUnit && !/^[0-9]{4}-[0-9]{1,2}$/.test(endDate) )
+        //   || ( TimeUnit.DAY === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.HOUR === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.MINUTE === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}$/.test(endDate) )
+        //   || ( TimeUnit.SECOND === filter.timeUnit && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(endDate) )) {
+        //   arrInterval[1] = FilterUtil.getDateTimeFormat(endDate, filter.timeUnit, true);
+        // }
+        arrInterval[1] = FilterUtil.getDateTimeFormat(endDate, filter.timeUnit, true);
+      }
+      return arrInterval[0] + '/' + arrInterval[1];
+    });
+  } // function - _convertDateTimeFormat
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1269,22 +1308,9 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
                 widgetConf.filter[key] = widgetConf[key];
               });
             }
-            if (this.filterUtil.isTimeRangeFilter(widgetConf.filter)) {
+            if (this.filterUtil.isTimeRangeFilter(widgetConf.filter) || this.filterUtil.isTimeSingleFilter(widgetConf.filter)) {
               const rangeFilter = widgetConf.filter as TimeRangeFilter;
-              if( TimeUnit.WEEK === rangeFilter.timeUnit ) {
-                widgetConf.filter['intervals'] = rangeFilter.intervals.map(item => {
-                  const arrInterval: any[] = item.split('/');
-                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]
-                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[0])) {
-                    arrInterval[0] = moment(arrInterval[0]).format('gggg-W');
-                  }
-                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]
-                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[1])) {
-                    arrInterval[1] = moment(arrInterval[1]).format('gggg-W');
-                  }
-                  return arrInterval[0] + '/' + arrInterval[1];
-                });
-              }
+              widgetConf.filter['intervals'] = this._convertDateTimeFormat(rangeFilter);
             }
           }
         });
@@ -1299,23 +1325,10 @@ export abstract class DashboardLayoutComponent extends AbstractDashboardComponen
             }
             return acc;
           }, []);
-          boardInfo.configuration.filters.forEach( filter => {
-            if (this.filterUtil.isTimeRangeFilter(filter)) {
+          boardInfo.configuration.filters.forEach(filter => {
+            if (this.filterUtil.isTimeRangeFilter(filter) || this.filterUtil.isTimeSingleFilter(filter)) {
               const rangeFilter = filter as TimeRangeFilter;
-              if( TimeUnit.WEEK === rangeFilter.timeUnit ) {
-                filter['intervals'] = rangeFilter.intervals.map(item => {
-                  const arrInterval: any[] = item.split('/');
-                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]
-                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[0])) {
-                    arrInterval[0] = moment(arrInterval[0]).format('gggg-W');
-                  }
-                  if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]
-                    && !/^[0-9]+-[0-9]{1,2}$/.test(arrInterval[1])) {
-                    arrInterval[1] = moment(arrInterval[1]).format('gggg-W');
-                  }
-                  return arrInterval[0] + '/' + arrInterval[1];
-                });
-              }
+              filter['intervals'] = this._convertDateTimeFormat(rangeFilter);
             }
           });
         }

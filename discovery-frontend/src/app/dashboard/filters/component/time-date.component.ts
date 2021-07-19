@@ -93,7 +93,7 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
     if (compDataChanges){
       const currVal: TimeDateData = compDataChanges.currentValue;
       const preVal: TimeDateData = compDataChanges.previousValue;
-      if(!preVal || currVal.timeUnit !== preVal.timeUnit){
+      if(!preVal || currVal.timeUnit !== preVal.timeUnit || currVal.valueDate !== preVal.valueDate ) {
         this._setPicker();
       }
     }
@@ -153,6 +153,10 @@ export class TimeDateComponent extends AbstractComponent implements OnInit, OnCh
   private _setPicker(){
 
     this.safelyDetectChanges();
+
+    if( !this.compData ) {
+      return;
+    }
 
     const valueDate = this.compData.valueDate;
     let dateMoment;
